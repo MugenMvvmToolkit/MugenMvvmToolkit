@@ -29,10 +29,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         #region Methods
 
-        protected IEventListener GetLastMemberListener()
-        {
-            return _lastMemberListener ??= new LastMemberListener(this.ToWeakReference());
-        }
+        protected IEventListener GetLastMemberListener() => _lastMemberListener ??= new LastMemberListener(this.ToWeakReference());
 
         protected override void OnListenersAdded()
         {
@@ -45,10 +42,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             }
         }
 
-        protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
-        {
-            _listeners[index] = member.TryObserve(target, this, metadata);
-        }
+        protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata) => _listeners[index] = member.TryObserve(target, this, metadata);
 
         protected override void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
@@ -61,10 +55,7 @@ namespace MugenMvvm.Binding.Observation.Observers
                 _listeners[_listeners.Length - 1] = unsubscriber;
         }
 
-        protected override void UnsubscribeLastMember()
-        {
-            _listeners[_listeners.Length - 1].Dispose();
-        }
+        protected override void UnsubscribeLastMember() => _listeners[_listeners.Length - 1].Dispose();
 
         protected override void ClearListeners()
         {
@@ -107,7 +98,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
             public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
-                var observer = (MultiPathObserver?)_observer.Target;
+                var observer = (MultiPathObserver?) _observer.Target;
                 if (observer == null)
                     return false;
                 observer.OnLastMemberChanged();

@@ -36,7 +36,7 @@ namespace MugenMvvm.Internal.Components
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
-            var type = (Type)item;
+            var type = (Type) item;
             lock (_attachedValues)
             {
                 if (_attachedValues.TryGetValue(type, out var result) || optional)
@@ -52,7 +52,7 @@ namespace MugenMvvm.Internal.Components
         {
             lock (_attachedValues)
             {
-                return _attachedValues.Remove((Type)item);
+                return _attachedValues.Remove((Type) item);
             }
         }
 

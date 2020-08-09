@@ -143,7 +143,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
                     ++invokeCount;
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return new[] { testBuilder, testBuilder };
+                    return new[] {testBuilder, testBuilder};
                 }
             });
 
@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
                     ++invokeCount;
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return new[] { testBuilder, testBuilder };
+                    return new[] {testBuilder, testBuilder};
                 }
             });
 
@@ -198,7 +198,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var source = "S";
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.TwoWay();
+            var request = (BindingExpressionRequest) builder.TwoWay();
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(null, MemberExpressionNode.TwoWayMode));
@@ -237,7 +237,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var source = "S";
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.Observable(value);
+            var request = (BindingExpressionRequest) builder.Observable(value);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ObservableParameter);
@@ -286,7 +286,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var source = "S";
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.Delay(100);
+            var request = (BindingExpressionRequest) builder.Delay(100);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(BindingParameterNameConstant.Delay, 100));
@@ -305,7 +305,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var source = "S";
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.CommandParameterSource();
+            var request = (BindingExpressionRequest) builder.CommandParameterSource();
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(BindingParameterNameConstant.CommandParameter, MemberExpressionNode.Empty));
@@ -315,7 +315,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.Key.ShouldEqual(BindingParameterNameConstant.CommandParameter);
-            ((IExpressionNode)request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(this));
+            ((IExpressionNode) request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(this));
 
             Expression<Func<IBindingBuilderContext<object, string>, object>> expression = context => context.Source;
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
@@ -333,11 +333,11 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var converter = new TestBindingValueConverter();
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.Converter(converter);
+            var request = (BindingExpressionRequest) builder.Converter(converter);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.Key.ShouldEqual(BindingParameterNameConstant.Converter);
-            ((IExpressionNode)request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(converter));
+            ((IExpressionNode) request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(converter));
 
             Expression<Func<IBindingBuilderContext<object, string>, object>> expression = context => context.Source;
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
@@ -354,7 +354,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var source = "S";
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.ConverterParameterSource();
+            var request = (BindingExpressionRequest) builder.ConverterParameterSource();
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(BindingParameterNameConstant.ConverterParameter, MemberExpressionNode.Empty));
@@ -364,7 +364,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.Key.ShouldEqual(BindingParameterNameConstant.ConverterParameter);
-            ((IExpressionNode)request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(this));
+            ((IExpressionNode) request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(this));
 
             Expression<Func<IBindingBuilderContext<object, string>, object>> expression = context => context.Source;
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
@@ -382,11 +382,11 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var value = this;
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.Fallback(value);
+            var request = (BindingExpressionRequest) builder.Fallback(value);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.Key.ShouldEqual(BindingParameterNameConstant.Fallback);
-            ((IExpressionNode)request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(value));
+            ((IExpressionNode) request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(value));
 
             Expression<Func<IBindingBuilderContext<object, string>, object>> expression = context => context.Source;
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
@@ -404,11 +404,11 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var value = this;
 
             var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest)builder.TargetNullValue(value);
+            var request = (BindingExpressionRequest) builder.TargetNullValue(value);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
             request.Parameters.Item.Key.ShouldEqual(BindingParameterNameConstant.TargetNullValue);
-            ((IExpressionNode)request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(value));
+            ((IExpressionNode) request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(value));
         }
 
         private static void ValidateBoolExpression(KeyValuePair<string?, object> parameter, bool value, IExpressionNode expression)
@@ -417,7 +417,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             if (value)
                 parameter.Value.ShouldEqual(expression);
             else
-                new UnaryExpressionNode(UnaryTokenType.LogicalNegation, expression).ShouldEqual((IExpressionNode)parameter.Value);
+                new UnaryExpressionNode(UnaryTokenType.LogicalNegation, expression).ShouldEqual((IExpressionNode) parameter.Value);
         }
 
         #endregion

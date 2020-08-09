@@ -10,10 +10,8 @@ namespace MugenMvvm.UnitTest.Views
     {
         #region Methods
 
-        protected override IView GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel(), null, collectionProvider);
-        }
+        protected override IView GetComponentOwner(IComponentCollectionManager? collectionProvider = null) =>
+            new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel(), null, collectionProvider);
 
         #endregion
     }

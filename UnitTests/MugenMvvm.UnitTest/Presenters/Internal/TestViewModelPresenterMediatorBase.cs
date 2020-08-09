@@ -77,25 +77,14 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Methods
 
-        protected override bool ActivateView(T view, INavigationContext context)
-        {
-            return ActivateViewHandler?.Invoke(context) ?? base.ActivateView(view, context);
-        }
+        protected override bool ActivateView(T view, INavigationContext context) => ActivateViewHandler?.Invoke(context) ?? base.ActivateView(view, context);
 
-        protected override INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata)
-        {
-            return GetNavigationContextHandler?.Invoke(mode, metadata) ?? base.GetNavigationContext(mode, metadata);
-        }
+        protected override INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata) =>
+            GetNavigationContextHandler?.Invoke(mode, metadata) ?? base.GetNavigationContext(mode, metadata);
 
-        protected override IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata)
-        {
-            return GetPresenterResultHandler?.Invoke(show, metadata) ?? base.GetPresenterResult(show, metadata);
-        }
+        protected override IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) => GetPresenterResultHandler?.Invoke(show, metadata) ?? base.GetPresenterResult(show, metadata);
 
-        protected override NavigationMode GetShowNavigationMode(object? view, IReadOnlyMetadataContext? metadata)
-        {
-            return GetShowNavigationModeHandler?.Invoke(view, metadata) ?? base.GetShowNavigationMode(view, metadata);
-        }
+        protected override NavigationMode GetShowNavigationMode(object? view, IReadOnlyMetadataContext? metadata) => GetShowNavigationModeHandler?.Invoke(view, metadata) ?? base.GetShowNavigationMode(view, metadata);
 
         protected override void OnInitialized(IReadOnlyMetadataContext? metadata)
         {
@@ -121,35 +110,19 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
                 base.OnNavigationFailed(navigationContext, exception);
         }
 
-        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return WaitNavigationBeforeCloseAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeCloseAsync(cancellationToken, metadata);
-        }
+        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            WaitNavigationBeforeCloseAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeCloseAsync(cancellationToken, metadata);
 
-        protected override Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return WaitNavigationBeforeShowAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeShowAsync(view, cancellationToken, metadata);
-        }
+        protected override Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            WaitNavigationBeforeShowAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeShowAsync(view, cancellationToken, metadata);
 
-        protected override void ShowView(T view, INavigationContext context)
-        {
-            ShowViewHandler?.Invoke(context);
-        }
+        protected override void ShowView(T view, INavigationContext context) => ShowViewHandler?.Invoke(context);
 
-        protected override void InitializeView(T view, INavigationContext context)
-        {
-            InitializeViewHandler?.Invoke(context);
-        }
+        protected override void InitializeView(T view, INavigationContext context) => InitializeViewHandler?.Invoke(context);
 
-        protected override void CloseView(T view, INavigationContext context)
-        {
-            CloseViewHandler?.Invoke(context);
-        }
+        protected override void CloseView(T view, INavigationContext context) => CloseViewHandler?.Invoke(context);
 
-        protected override void CleanupView(T view, INavigationContext context)
-        {
-            CleanupViewHandler?.Invoke(context);
-        }
+        protected override void CleanupView(T view, INavigationContext context) => CleanupViewHandler?.Invoke(context);
 
         #endregion
     }

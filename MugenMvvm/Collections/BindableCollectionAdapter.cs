@@ -23,17 +23,17 @@ namespace MugenMvvm.Collections
     {
         #region Fields
 
-        protected readonly List<object?> Items;
-        protected WeakListener? Listener;
-
         private readonly List<CollectionChangedEvent> _pendingEvents;
         private readonly IThreadDispatcher? _threadDispatcher;
 
+        protected readonly List<object?> Items;
+        private IEnumerable? _collection;
+
         private List<CollectionChangedEvent>? _eventsCache;
+        private ThreadExecutionMode _executionMode;
         private List<object?>? _resetCache;
         private int _suspendCount;
-        private ThreadExecutionMode _executionMode;
-        private IEnumerable? _collection;
+        protected WeakListener? Listener;
 
         #endregion
 
@@ -124,10 +124,7 @@ namespace MugenMvvm.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        void IThreadDispatcherHandler.Execute(object? state)
-        {
-            ExecutePendingEvents((int)state!);
-        }
+        void IThreadDispatcherHandler.Execute(object? state) => ExecutePendingEvents((int) state!);
 
         #endregion
 
@@ -241,7 +238,7 @@ namespace MugenMvvm.Collections
                 pendingEvents.Clear();
                 if (e.Action == CollectionChangedAction.Reset)
                 {
-                    pendingEvents.Add(CollectionChangedEvent.Reset(((IEnumerable<object?>)e.NewItem!).ToList()));
+                    pendingEvents.Add(CollectionChangedEvent.Reset(((IEnumerable<object?>) e.NewItem!).ToList()));
                     return true;
                 }
             }
@@ -294,6 +291,7 @@ namespace MugenMvvm.Collections
                 else
                     EndBatchUpdate(version);
             }
+
             return true;
         }
 
@@ -308,10 +306,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected void EndBatchUpdate(int version)
-        {
-            ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
-        }
+        protected void EndBatchUpdate(int version) => ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
 
         protected void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e, int version)
         {
@@ -346,10 +341,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected void RaiseCollectionChanged(NotifyCollectionChangedEventArgs args)
-        {
-            CollectionChanged?.Invoke(this, args);
-        }
+        protected void RaiseCollectionChanged(NotifyCollectionChangedEventArgs args) => CollectionChanged?.Invoke(this, args);
 
         private bool IsResetEvent(object sender, NotifyCollectionChangedEventArgs e, [NotNullWhen(true)] out IEnumerable<object?>? items)
         {
@@ -363,10 +355,10 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Replace:
                     if (e.OldItems.Count == 1)
                         return false;
-                    items = GetCollectionItems((IEnumerable)sender);
+                    items = GetCollectionItems((IEnumerable) sender);
                     return true;
                 case NotifyCollectionChangedAction.Reset:
-                    items = GetCollectionItems((IEnumerable)sender);
+                    items = GetCollectionItems((IEnumerable) sender);
                     return items.Count() != 0;
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
@@ -425,82 +417,50 @@ namespace MugenMvvm.Collections
 
             #region Implementation of interfaces
 
-            public void OnBeginBatchUpdate(IObservableCollection collection)
-            {
-                GetAdapter()?.BeginBatchUpdate(_version);
-            }
+            public void OnBeginBatchUpdate(IObservableCollection collection) => GetAdapter()?.BeginBatchUpdate(_version);
 
-            public void OnEndBatchUpdate(IObservableCollection collection)
-            {
-                GetAdapter()?.EndBatchUpdate(_version);
-            }
+            public void OnEndBatchUpdate(IObservableCollection collection) => GetAdapter()?.EndBatchUpdate(_version);
 
-            public void OnItemChanged(IObservableCollection collection, object? item, int index, object? args)
-            {
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
-            }
+            public void OnItemChanged(IObservableCollection collection, object? item, int index, object? args) => GetAdapter()?.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
 
-            public void OnAdded(IObservableCollection collection, object? item, int index)
-            {
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
-            }
+            public void OnAdded(IObservableCollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
 
-            public void OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index)
-            {
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
-            }
+            public void OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
 
-            public void OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex)
-            {
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
-            }
+            public void OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex) => GetAdapter()?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
 
-            public void OnRemoved(IObservableCollection collection, object? item, int index)
-            {
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
-            }
+            public void OnRemoved(IObservableCollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
 
-            public void OnReset(IObservableCollection collection, IEnumerable<object?> items)
-            {
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Reset(items), _version);
-            }
+            public void OnReset(IObservableCollection collection, IEnumerable<object?> items) => GetAdapter()?.AddEvent(CollectionChangedEvent.Reset(items), _version);
 
-            public void OnCleared(IObservableCollection collection)
-            {
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Clear(), _version);
-            }
+            public void OnCleared(IObservableCollection collection) => GetAdapter()?.AddEvent(CollectionChangedEvent.Clear(), _version);
 
             #endregion
 
             #region Methods
 
-            public void SetVersion(int version)
-            {
-                _version = version;
-            }
+            public void SetVersion(int version) => _version = version;
 
             public void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
             {
                 var adapter = GetAdapter();
                 if (adapter == null || !adapter.IsAlive)
-                    ((INotifyCollectionChanged)sender).CollectionChanged -= OnCollectionChanged;
+                    ((INotifyCollectionChanged) sender).CollectionChanged -= OnCollectionChanged;
                 else
                     adapter.OnCollectionChanged(sender, args, _version);
             }
 
-            protected override void OnAttached(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
-            {
-                owner.GetOrAddCollectionDecoratorManager();
-            }
+            protected override void OnAttached(IObservableCollection owner, IReadOnlyMetadataContext? metadata) => owner.GetOrAddCollectionDecoratorManager();
 
             protected BindableCollectionAdapter? GetAdapter()
             {
-                var adapter = (BindableCollectionAdapter?)_reference.Target;
+                var adapter = (BindableCollectionAdapter?) _reference.Target;
                 if (adapter == null || !adapter.IsAlive)
                 {
                     OwnerOptional?.Components.Remove(this);
                     return null;
                 }
+
                 return adapter;
             }
 
@@ -537,7 +497,7 @@ namespace MugenMvvm.Collections
 
             public bool IsEmpty => Action == 0;
 
-            public IEnumerable<object?>? ResetItems => (IEnumerable<object?>?)NewItem;
+            public IEnumerable<object?>? ResetItems => (IEnumerable<object?>?) NewItem;
 
             public object? ChangedArgs => NewItem;
 
@@ -565,7 +525,7 @@ namespace MugenMvvm.Collections
                         adapter.OnCleared(batchUpdate, version);
                         break;
                     case CollectionChangedAction.Reset:
-                        adapter.OnReset((IEnumerable<object?>)NewItem!, batchUpdate, version);
+                        adapter.OnReset((IEnumerable<object?>) NewItem!, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Changed:
                         adapter.OnItemChanged(OldItem, OldIndex, NewItem, batchUpdate, version);
@@ -601,7 +561,7 @@ namespace MugenMvvm.Collections
                         break;
                     case CollectionChangedAction.Reset:
                         source.Clear();
-                        source.AddRange((IEnumerable<object?>)NewItem!);
+                        source.AddRange((IEnumerable<object?>) NewItem!);
                         break;
                     default:
                         return false;

@@ -31,11 +31,11 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void AddShouldAddOrderedComponent(int count)
         {
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent { Priority = i };
+                var component = new TestComponentCollectionProviderComponent {Priority = i};
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata).ShouldBeTrue();
             }
@@ -51,11 +51,11 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void RemoveShouldRemoveComponent(int count)
         {
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent { Priority = i };
+                var component = new TestComponentCollectionProviderComponent {Priority = i};
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata);
             }
@@ -77,11 +77,11 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void ClearShouldClearComponents(int count)
         {
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent { Priority = i };
+                var component = new TestComponentCollectionProviderComponent {Priority = i};
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata);
             }
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var canAdd = true;
             object? expectedItem = null;
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var changingListener = new TestComponentCollectionChangingListener
             {
                 OnAdding = (collection, o, arg3) =>
@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var canRemove = false;
             object? expectedItem = null;
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var changingListener = new TestComponentCollectionChangingListener
             {
                 Priority = -1,
@@ -230,7 +230,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var items = new HashSet<object>();
             var removedCount = 0;
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var changedListener = new TestComponentCollectionChangedListener
             {
                 Priority = int.MinValue,
@@ -262,7 +262,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var attachedCount = 0;
             var canAttach = false;
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var component = new TestAttachableComponent<IBinding>
             {
                 OnAttachingHandler = (test, context) =>
@@ -298,7 +298,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var detachedCount = 0;
             var canDetach = false;
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var component = new TestAttachableComponent<IBinding>
             {
                 OnDetachingHandler = (test, context) =>
@@ -334,7 +334,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         {
             var detachedCount = 0;
             var binding = GetBinding();
-            var componentCollection = (IComponentCollection)binding;
+            var componentCollection = (IComponentCollection) binding;
             var component = new TestAttachableComponent<IBinding>
             {
                 OnDetachedHandler = (test, context) =>
@@ -362,12 +362,12 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void MetadataShouldReturnBinding()
         {
             var binding = GetBinding();
-            var context = (IReadOnlyMetadataContext)binding;
+            var context = (IReadOnlyMetadataContext) binding;
             context.Count.ShouldEqual(1);
             context.Contains(BindingMetadata.Binding).ShouldBeTrue();
             context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
             b.ShouldEqual(binding);
-            context.ToArray().ShouldEqual(new[] { BindingMetadata.Binding.ToValue(binding), });
+            context.ToArray().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding)});
         }
 
         [Fact]
@@ -378,8 +378,8 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var sourceObj = new object();
             object targetValue = "1";
             object sourceValue = "2";
-            bool targetHasMember = true;
-            bool sourceHasMember = true;
+            var targetHasMember = true;
+            var sourceHasMember = true;
             int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0;
             var targetMember = new TestAccessorMemberInfo
             {
@@ -501,9 +501,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             {
                 Type = typeof(object),
                 GetValue = (o, context) => targetValue,
-                SetValue = (o, v, context) =>
-                {
-                }
+                SetValue = (o, v, context) => { }
             };
             var sourceMember = new TestAccessorMemberInfo
             {
@@ -526,11 +524,11 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 }
             };
 
-            int updateFailed = 0;
-            int updateCanceled = 0;
-            int updated = 0;
+            var updateFailed = 0;
+            var updateCanceled = 0;
+            var updated = 0;
             var binding = new MugenMvvm.Binding.Core.Binding(target, source);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 binding.AddComponent(new TestBindingTargetListener
                 {
@@ -597,15 +595,13 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
-                GetValue = (o, context) => targetValue,
+                GetValue = (o, context) => targetValue
             };
             var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) => sourceValue,
-                SetValue = (o, v, context) =>
-                {
-                }
+                SetValue = (o, v, context) => { }
             };
             var source = new TestMemberPathObserver
             {
@@ -623,11 +619,11 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 }
             };
 
-            int updateFailed = 0;
-            int updateCanceled = 0;
-            int updated = 0;
+            var updateFailed = 0;
+            var updateCanceled = 0;
+            var updated = 0;
             var binding = new MugenMvvm.Binding.Core.Binding(target, source);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 binding.AddComponent(new TestBindingSourceListener
                 {
@@ -739,10 +735,10 @@ namespace MugenMvvm.UnitTest.Binding.Core
             };
 
             binding = GetBinding(target, source);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var expected = i;
-                int v = expected + 1;
+                var v = expected + 1;
                 binding.AddComponent(new TestTargetValueInterceptorBindingComponent
                 {
                     Priority = -i,
@@ -822,10 +818,10 @@ namespace MugenMvvm.UnitTest.Binding.Core
             };
 
             binding = GetBinding(target, source);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var expected = i;
-                int v = expected + 1;
+                var v = expected + 1;
                 binding.AddComponent(new TestSourceValueInterceptorBindingComponent
                 {
                     Priority = -i,
@@ -905,7 +901,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             };
 
             binding = GetBinding(target, source);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
                 binding.AddComponent(new TestTargetValueSetterBindingComponent
@@ -987,7 +983,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             };
 
             binding = GetBinding(target, source);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
                 binding.AddComponent(new TestSourceValueSetterBindingComponent
@@ -1037,11 +1033,11 @@ namespace MugenMvvm.UnitTest.Binding.Core
             };
             var exception = new Exception();
 
-            int pathMembersCount = 0;
-            int lastMemberCount = 0;
-            int errorCount = 0;
+            var pathMembersCount = 0;
+            var lastMemberCount = 0;
+            var errorCount = 0;
             var binding = GetBinding(target, source);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 binding.AddComponent(new TestBindingTargetObserverListener
                 {
@@ -1069,6 +1065,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     }
                 });
             }
+
             listener.ShouldEqual(binding);
             lastMemberCount.ShouldEqual(0);
             errorCount.ShouldEqual(0);
@@ -1090,7 +1087,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             pathMembersCount.ShouldEqual(count);
 
             foreach (var o in binding.GetComponents().AsList())
-                binding.RemoveComponent((IComponent<IBinding>)o);
+                binding.RemoveComponent((IComponent<IBinding>) o);
 
             listener.ShouldBeNull();
             lastMemberCount.ShouldEqual(count);
@@ -1111,7 +1108,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 AddListener = listener => throw new NotSupportedException()
             };
             TestMemberPathObserver[] sources = new TestMemberPathObserver[observerCount];
-            for (int i = 0; i < observerCount; i++)
+            for (var i = 0; i < observerCount; i++)
             {
                 var observer = new TestMemberPathObserver();
                 listeners[observer] = null;
@@ -1129,12 +1126,12 @@ namespace MugenMvvm.UnitTest.Binding.Core
             }
 
             var exception = new Exception();
-            int pathMembersCount = 0;
-            int lastMemberCount = 0;
-            int errorCount = 0;
-            var binding = GetBinding(target, sources.Length == 1 ? sources[0] : (object)sources);
+            var pathMembersCount = 0;
+            var lastMemberCount = 0;
+            var errorCount = 0;
+            var binding = GetBinding(target, sources.Length == 1 ? sources[0] : (object) sources);
             IMemberPathObserver? source = null;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 binding.AddComponent(new TestBindingSourceObserverListener
                 {
@@ -1191,7 +1188,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             }
 
             foreach (var o in binding.GetComponents().AsList())
-                binding.RemoveComponent((IComponent<IBinding>)o);
+                binding.RemoveComponent((IComponent<IBinding>) o);
 
             foreach (var listener in listeners)
                 listener.Value.ShouldBeNull();
@@ -1211,10 +1208,10 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void InitializeShouldInitializeComponents(int count, bool canAddAll)
         {
             var binding = GetBinding();
-            int attachedCount = 0;
+            var attachedCount = 0;
             var components = new IComponent<IBinding>[count];
             var addedComponents = new List<IComponent<IBinding>>();
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var canAdd = i % 2 == 0;
                 var component = new TestAttachableComponent<IBinding>
@@ -1249,8 +1246,8 @@ namespace MugenMvvm.UnitTest.Binding.Core
         [InlineData(10)]
         public virtual void DisposeShouldClearBinding(int count)
         {
-            bool targetDisposed = false;
-            bool sourceDisposed = false;
+            var targetDisposed = false;
+            var sourceDisposed = false;
             IMemberPathObserverListener? targetListener = null;
             IMemberPathObserverListener? sourceListener = null;
             var target = new TestMemberPathObserver
@@ -1282,12 +1279,12 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 }
             };
 
-            int disposeComponentCount = 0;
+            var disposeComponentCount = 0;
             var components = Enumerable
                 .Range(0, count)
-                .Select(i => new TestComponent<IBinding>() { Dispose = () => ++disposeComponentCount })
+                .Select(i => new TestComponent<IBinding> {Dispose = () => ++disposeComponentCount})
                 .OfType<IComponent<IBinding>>()
-                .Concat(new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() })
+                .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
                 .ToArray();
 
             var binding = GetBinding(target, source);
@@ -1296,7 +1293,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             targetListener.ShouldEqual(binding);
             sourceListener.ShouldEqual(binding);
 
-            int disposeCount = 0;
+            var disposeCount = 0;
             var testLifecycleListener = new TestBindingStateDispatcherComponent
             {
                 OnLifecycleChanged = (b, state, _, m) =>
@@ -1328,15 +1325,9 @@ namespace MugenMvvm.UnitTest.Binding.Core
         {
         }
 
-        protected virtual MugenMvvm.Binding.Core.Binding GetBinding(IMemberPathObserver? target = null, object? source = null)
-        {
-            return new MugenMvvm.Binding.Core.Binding(target ?? EmptyPathObserver.Empty, source);
-        }
+        protected virtual MugenMvvm.Binding.Core.Binding GetBinding(IMemberPathObserver? target = null, object? source = null) => new MugenMvvm.Binding.Core.Binding(target ?? EmptyPathObserver.Empty, source);
 
-        protected override MugenMvvm.Binding.Core.Binding GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return GetBinding();
-        }
+        protected override MugenMvvm.Binding.Core.Binding GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => GetBinding();
 
         #endregion
     }

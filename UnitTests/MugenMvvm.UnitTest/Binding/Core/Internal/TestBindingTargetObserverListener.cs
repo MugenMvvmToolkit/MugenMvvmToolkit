@@ -23,20 +23,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-        {
+        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) =>
             OnTargetPathMembersChanged?.Invoke(binding, observer, metadata);
-        }
 
-        void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-        {
-            OnTargetLastMemberChanged?.Invoke(binding, observer, metadata);
-        }
+        void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => OnTargetLastMemberChanged?.Invoke(binding, observer, metadata);
 
-        void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
-        {
+        void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata) =>
             OnTargetError?.Invoke(binding, observer, exception, metadata);
-        }
 
         #endregion
     }

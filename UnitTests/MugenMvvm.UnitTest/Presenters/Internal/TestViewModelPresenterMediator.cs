@@ -24,20 +24,11 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Implementation of interfaces
 
-        void IViewModelPresenterMediator.Initialize(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
-        {
-            Initialize?.Invoke(viewModel, mapping, metadata);
-        }
+        void IViewModelPresenterMediator.Initialize(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) => Initialize?.Invoke(viewModel, mapping, metadata);
 
-        IPresenterResult? IViewModelPresenterMediator.TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return TryShow?.Invoke(view, cancellationToken, metadata);
-        }
+        IPresenterResult? IViewModelPresenterMediator.TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryShow?.Invoke(view, cancellationToken, metadata);
 
-        IPresenterResult? IViewModelPresenterMediator.TryClose(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return TryClose?.Invoke(cancellationToken, metadata);
-        }
+        IPresenterResult? IViewModelPresenterMediator.TryClose(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryClose?.Invoke(cancellationToken, metadata);
 
         #endregion
     }

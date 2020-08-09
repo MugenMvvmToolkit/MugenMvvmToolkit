@@ -21,8 +21,8 @@ namespace MugenMvvm.Binding.Extensions
     {
         #region Fields
 
-        private static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> { ',', ';', ' ' };
-        private static readonly HashSet<char> BindingDelimiters = new HashSet<char> { ',', ';' };
+        private static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> {',', ';', ' '};
+        private static readonly HashSet<char> BindingDelimiters = new HashSet<char> {',', ';'};
 
         #endregion
 
@@ -47,16 +47,13 @@ namespace MugenMvvm.Binding.Extensions
         }
 
         [return: NotNullIfNotNull("expression")]
-        public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression)
-        {
-            return expression == null ? null : context.Convert(expression);
-        }
+        public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression) => expression == null ? null : context.Convert(expression);
 
         [return: NotNullIfNotNull("expression")]
         public static List<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, IReadOnlyList<Expression> expressions)
         {
             var nodes = new List<IExpressionNode>(expressions.Count);
-            for (int i = 0; i < expressions.Count; i++)
+            for (var i = 0; i < expressions.Count; i++)
                 nodes.Add(context.Convert(expressions[i]));
             return nodes;
         }
@@ -126,15 +123,9 @@ namespace MugenMvvm.Binding.Extensions
             return position.GetValueOrDefault(context.Position);
         }
 
-        public static char TokenAt(this ITokenParserContext context, int? position = null)
-        {
-            return context.TokenAt(context.GetPosition(position));
-        }
+        public static char TokenAt(this ITokenParserContext context, int? position = null) => context.TokenAt(context.GetPosition(position));
 
-        public static bool IsEof(this ITokenParserContext context, int? position = null)
-        {
-            return context.GetPosition(position) >= context.Length;
-        }
+        public static bool IsEof(this ITokenParserContext context, int? position = null) => context.GetPosition(position) >= context.Length;
 
         public static bool IsToken(this ITokenParserContext context, char token, int? position = null)
         {
@@ -181,15 +172,9 @@ namespace MugenMvvm.Binding.Extensions
             return false;
         }
 
-        public static bool IsEofOrAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null)
-        {
-            return context.IsEof(position) || tokens != null && context.IsAnyOf(tokens, position);
-        }
+        public static bool IsEofOrAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null) => context.IsEof(position) || tokens != null && context.IsAnyOf(tokens, position);
 
-        public static bool IsEofOrAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null)
-        {
-            return context.IsEof(position) || context.IsAnyOf(tokens, position);
-        }
+        public static bool IsEofOrAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null) => context.IsEof(position) || context.IsAnyOf(tokens, position);
 
         public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int? position = null)
         {
@@ -205,10 +190,7 @@ namespace MugenMvvm.Binding.Extensions
             return true;
         }
 
-        public static bool IsDigit(this ITokenParserContext context, int? position = null)
-        {
-            return !context.IsEof(position) && char.IsDigit(context.TokenAt(position));
-        }
+        public static bool IsDigit(this ITokenParserContext context, int? position = null) => !context.IsEof(position) && char.IsDigit(context.TokenAt(position));
 
         public static int FindAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null)
         {
@@ -354,7 +336,7 @@ namespace MugenMvvm.Binding.Extensions
             if (list == null)
                 return null;
             var result = new string[list.Count];
-            for (int i = 0; i < result.Length; i++)
+            for (var i = 0; i < result.Length; i++)
             {
                 var t = list[i];
                 result[i] = context.GetValue(t.start, t.end);
@@ -365,7 +347,7 @@ namespace MugenMvvm.Binding.Extensions
 
         public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseExpression(this ITokenParserContext context)
         {
-            ItemOrListEditor<ExpressionParserResult, List<ExpressionParserResult>> result = ItemOrListEditor.Get<ExpressionParserResult>(r => r.IsEmpty);
+            var result = ItemOrListEditor.Get<ExpressionParserResult>(r => r.IsEmpty);
             while (!context.IsEof())
             {
                 result.Add(TryParseNext(context));
@@ -386,6 +368,7 @@ namespace MugenMvvm.Binding.Extensions
             }
             else
                 delimiterPos = context.FindAnyOf(BindingTargetDelimiters);
+
             var oldLimit = context.Limit;
             if (delimiterPos > 0)
                 context.Limit = delimiterPos;
@@ -402,7 +385,7 @@ namespace MugenMvvm.Binding.Extensions
                 errors?.Clear();
             }
 
-            ItemOrListEditor<IExpressionNode, List<IExpressionNode>> parameters = ItemOrListEditor.Get<IExpressionNode>();
+            var parameters = ItemOrListEditor.Get<IExpressionNode>();
             while (context.IsToken(','))
             {
                 parameters.Add(context.MoveNext().ParseWhileAnyOf(BindingDelimiters));
@@ -429,10 +412,8 @@ namespace MugenMvvm.Binding.Extensions
             return char.IsLetterOrDigit(symbol) || symbol == '_';
         }
 
-        private static string? Format(this ITokenParserContext context, LazyList<(int start, int end)> args)
-        {
-            return args.List == null ? null : string.Join(",", args.List.Select(tuple => context.GetValue(tuple.start, tuple.end)));
-        }
+        private static string? Format(this ITokenParserContext context, LazyList<(int start, int end)> args) =>
+            args.List == null ? null : string.Join(",", args.List.Select(tuple => context.GetValue(tuple.start, tuple.end)));
 
         #endregion
     }

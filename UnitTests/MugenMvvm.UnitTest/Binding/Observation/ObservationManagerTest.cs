@@ -139,10 +139,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override IObservationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ObservationManager(collectionProvider);
-        }
+        protected override IObservationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ObservationManager(collectionProvider);
 
         #endregion
     }

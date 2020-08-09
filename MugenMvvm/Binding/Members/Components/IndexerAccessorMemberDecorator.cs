@@ -70,10 +70,7 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        int IEqualityComparer<MemberKey>.GetHashCode(MemberKey key)
-        {
-            return HashCode.Combine(key.Type, key.ReturnType, key.ParametersCount);
-        }
+        int IEqualityComparer<MemberKey>.GetHashCode(MemberKey key) => HashCode.Combine(key.Type, key.ReturnType, key.ParametersCount);
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {

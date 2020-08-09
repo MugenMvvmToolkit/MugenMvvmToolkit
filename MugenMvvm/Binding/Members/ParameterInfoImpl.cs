@@ -38,10 +38,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public bool IsDefined(Type type)
-        {
-            return _parameterInfo.IsDefined(type, false);
-        }
+        public bool IsDefined(Type type) => _parameterInfo.IsDefined(type, false);
 
         #endregion
     }

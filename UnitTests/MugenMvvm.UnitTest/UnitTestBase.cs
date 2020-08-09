@@ -93,15 +93,9 @@ namespace MugenMvvm.UnitTest
             MugenService.Configuration.InitializeInstance<IThreadDispatcher>(threadDispatcher);
         }
 
-        protected static void ShouldThrow<T>(Action action) where T : Exception
-        {
-            Assert.Throws<T>(action);
-        }
+        protected static void ShouldThrow<T>(Action action) where T : Exception => Assert.Throws<T>(action);
 
-        protected void ShouldThrow(Action action)
-        {
-            Assert.ThrowsAny<Exception>(action);
-        }
+        protected void ShouldThrow(Action action) => Assert.ThrowsAny<Exception>(action);
 
         protected static Exception GetOriginalException(AggregateException aggregateException)
         {

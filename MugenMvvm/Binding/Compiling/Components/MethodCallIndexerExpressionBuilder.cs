@@ -27,9 +27,10 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Fields
 
+        private readonly IGlobalValueConverter? _globalValueConverter;
+
         private readonly IMemberManager? _memberManager;
         private readonly IResourceResolver? _resourceResolver;
-        private readonly IGlobalValueConverter? _globalValueConverter;
 
         private const float NotExactlyEqualWeight = 1f;
         private const float NotExactlyEqualBoxWeight = 1.1f;
@@ -62,15 +63,13 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
-        {
-            return expression switch
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression) =>
+            expression switch
             {
                 IIndexExpressionNode indexExpression => TryBuildIndex(context, indexExpression),
                 IMethodCallExpressionNode methodCallExpression => TryBuildMethod(context, methodCallExpression),
                 _ => null
             };
-        }
 
         #endregion
 
@@ -84,7 +83,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
             }
 
-            Expression? target = context.Build(methodCallExpression.Target);
+            var target = context.Build(methodCallExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
             return TryBuildExpression(context, methodCallExpression.Method, new TargetData(type, target), GetArguments(methodCallExpression, context),
                 _resourceResolver.GetTypes(methodCallExpression.TypeArgs, context.Metadata));
@@ -98,7 +97,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
             }
 
-            Expression? target = context.Build(indexExpression.Target);
+            var target = context.Build(indexExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
 
             if (type.IsArray)
@@ -128,6 +127,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     context.TryGetErrors()?.Add(BindingMessageConstant.InvalidBindingMemberFormat2.Format(methodName, targetData.Type));
                     return null;
                 }
+
                 arrayArgs[i] = data.Expression.ConvertIfNeed(typeof(object), false);
             }
 
@@ -262,6 +262,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
                 else
                     targetExp = target.Expression;
+
                 return Expression.Call(targetExp, m, resultArgs);
             }
 
@@ -298,7 +299,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         hasParams = parameters[lastIndex].IsParamArray();
                     }
 
-                    float notExactlyEqual = methodInfo.Method.AccessModifiers.HasFlagEx(MemberFlags.Extension) ? NotExactlyEqualBoxWeight : 0;
+                    var notExactlyEqual = methodInfo.Method.AccessModifiers.HasFlagEx(MemberFlags.Extension) ? NotExactlyEqualBoxWeight : 0;
                     var valid = true;
                     for (var j = 0; j < methodInfo.ExpectedParameterCount; j++)
                     {
@@ -414,7 +415,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static Expression[] ConvertParameters(IExpressionBuilderContext context, in MethodData method, bool hasParams)
         {
             var parameters = method.Parameters;
-            var args = (Expression[])method.Args!;
+            var args = (Expression[]) method.Args!;
             var result = new Expression[parameters.Count];
             for (var i = 0; i < parameters.Count; i++)
             {
@@ -464,6 +465,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var node = arguments[i];
                 args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(node), null);
             }
+
             return args;
         }
 
@@ -535,6 +537,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     expression = expression.ConvertIfNeed(parameters[i].ParameterType, true);
                 expressions[i] = expression;
             }
+
             return expressions;
         }
 
@@ -547,7 +550,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             var methods = new MethodData[members.Count];
             var count = 0;
-            for (int i = 0; i < methods.Length; i++)
+            for (var i = 0; i < methods.Length; i++)
             {
                 if (members[i] is IMethodMemberInfo method)
                 {
@@ -683,10 +686,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Methods
 
-            public ArgumentData UpdateExpression(Expression expression)
-            {
-                return new ArgumentData(Node, expression, Type);
-            }
+            public ArgumentData UpdateExpression(Expression expression) => new ArgumentData(Node, expression, Type);
 
             #endregion
         }
@@ -733,7 +733,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         return 0;
                     if (Args is Expression[] expressions)
                         return expressions.Length;
-                    return ((Type[])Args!).Length;
+                    return ((Type[]) Args!).Length;
                 }
             }
 
@@ -745,7 +745,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (Args is Expression[] expressions)
                     return expressions[index].Type;
-                return ((Type[])Args!)[index];
+                return ((Type[]) Args!)[index];
             }
 
             public MethodData WithArgs(object?[] args, ref Type[]? instanceArgs)

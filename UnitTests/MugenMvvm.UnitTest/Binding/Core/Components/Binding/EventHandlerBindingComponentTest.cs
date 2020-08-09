@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 }
             };
             if (addOneTimeMode)
-                binding.Source = new TestMemberPathObserver { GetLastMember = metadata => default };
+                binding.Source = new TestMemberPathObserver {GetLastMember = metadata => default};
             IAttachableComponent component = EventHandlerBindingComponent.Get(default, false, true);
             component.OnAttached(binding, DefaultMetadata);
             updateCount.ShouldEqual(1);
@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             }
 
             var component = EventHandlerBindingComponent.Get(default, false, true);
-            ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
+            ((IAttachableComponent) component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
 
             component.TrySetTargetValue(binding, default, new TestValueExpression(), DefaultMetadata);
             eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
@@ -215,7 +215,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 }
             };
 
-            ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
+            ((IAttachableComponent) component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
             component.TrySetTargetValue(binding, default, value, DefaultMetadata);
             eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);
@@ -256,7 +256,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 }
             };
 
-            ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
+            ((IAttachableComponent) component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
             component.TrySetTargetValue(binding, default, value, DefaultMetadata);
             eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);
@@ -277,7 +277,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 {
                     o.ShouldEqual(target);
                     arg3.ShouldEqual(DefaultMetadata);
-                    enabledValue = (bool)o1!;
+                    enabledValue = (bool) o1!;
                 }
             };
             using var _ = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
@@ -339,7 +339,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 UpdateSource = () => throw new NotSupportedException(),
                 UpdateTarget = () => ++invokeCount
             };
-            var eventHandlerBindingComponent = (EventHandlerBindingComponent.OneWay)EventHandlerBindingComponent.Get(default, true, false);
+            var eventHandlerBindingComponent = (EventHandlerBindingComponent.OneWay) EventHandlerBindingComponent.Get(default, true, false);
             eventHandlerBindingComponent.OnSourceLastMemberChanged(binding, null!, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
@@ -389,13 +389,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 RemoveCanExecuteChanged = handler => { canExecuteHandler = null; }
             };
 
-            ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
+            ((IAttachableComponent) component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
             component.TrySetTargetValue(binding, new MemberPathLastMember(this, new TestAccessorMemberInfo()), value, DefaultMetadata).ShouldBeTrue();
             listener.ShouldNotBeNull();
             canExecuteHandler.ShouldNotBeNull();
             component.CommandParameter.IsEmpty.ShouldBeFalse();
 
-            ((IDetachableComponent)component).OnDetached(binding, DefaultMetadata);
+            ((IDetachableComponent) component).OnDetached(binding, DefaultMetadata);
             listener.ShouldBeNull();
             canExecuteHandler.ShouldBeNull();
             component.CommandParameter.IsEmpty.ShouldBeTrue();

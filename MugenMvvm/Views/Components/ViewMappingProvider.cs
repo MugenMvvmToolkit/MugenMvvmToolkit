@@ -44,7 +44,7 @@ namespace MugenMvvm.Views.Components
             var type = view as Type;
             var id = view as string;
 
-            ItemOrListEditor<IViewMapping, List<IViewMapping>> mappings = ItemOrListEditor.Get<IViewMapping>();
+            var mappings = ItemOrListEditor.Get<IViewMapping>();
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
@@ -171,10 +171,8 @@ namespace MugenMvvm.Views.Components
                 return false;
             }
 
-            private static string? GetViewNameFromContext(object? target, IReadOnlyMetadataContext? metadata)
-            {
-                return metadata?.Get(NavigationMetadata.ViewName) ?? (target as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata.Get(NavigationMetadata.ViewName);
-            }
+            private static string? GetViewNameFromContext(object? target, IReadOnlyMetadataContext? metadata) =>
+                metadata?.Get(NavigationMetadata.ViewName) ?? (target as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata.Get(NavigationMetadata.ViewName);
 
             #endregion
         }

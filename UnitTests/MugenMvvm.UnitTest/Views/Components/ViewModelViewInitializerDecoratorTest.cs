@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                 {
                     ++initializeCount;
                     viewManager.ShouldEqual(viewManager);
-                    var request = (ViewModelViewRequest)r;
+                    var request = (ViewModelViewRequest) r;
                     if (viewMapping == ViewMapping.Undefined)
                     {
                         request.ViewModel.ShouldBeNull();
@@ -48,6 +48,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                         request.View.ShouldEqual(view);
                         request.ViewModel.ShouldEqual(viewModel);
                     }
+
                     m.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     return result;

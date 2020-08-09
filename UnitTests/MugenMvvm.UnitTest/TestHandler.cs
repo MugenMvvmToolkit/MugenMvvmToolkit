@@ -13,10 +13,7 @@ namespace MugenMvvm.UnitTest
 
         #region Implementation of interfaces
 
-        void ActionToken.IHandler.Invoke(object? state1, object? state2)
-        {
-            Invoke?.Invoke(state1, state2);
-        }
+        void ActionToken.IHandler.Invoke(object? state1, object? state2) => Invoke?.Invoke(state1, state2);
 
         #endregion
     }

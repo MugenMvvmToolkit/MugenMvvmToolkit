@@ -15,16 +15,10 @@ namespace MugenMvvm.Extensions
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IServiceProvider DefaultIfNull(this IServiceProvider? serviceProvider)
-        {
-            return serviceProvider ?? MugenService.Instance<IServiceProvider>();
-        }
+        public static IServiceProvider DefaultIfNull(this IServiceProvider? serviceProvider) => serviceProvider ?? MugenService.Instance<IServiceProvider>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DefaultIfNull<T>(this T? component) where T : class, IComponentOwner
-        {
-            return component ?? MugenService.Instance<T>();
-        }
+        public static T DefaultIfNull<T>(this T? component) where T : class, IComponentOwner => component ?? MugenService.Instance<T>();
 
         public static void TryInvalidateCache(this IComponentOwner? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -68,7 +62,7 @@ namespace MugenMvvm.Extensions
             if (componentOwner.HasComponents)
             {
                 var components = componentOwner.Components.Get<T>();
-                for (int i = 0; i < components.Length; i++)
+                for (var i = 0; i < components.Length; i++)
                     componentOwner.Components.Remove(components[i]);
             }
         }
@@ -82,12 +76,11 @@ namespace MugenMvvm.Extensions
         }
 
         public static TComponent GetOrAddComponent<TComponent>(this IComponentOwner owner, Func<IReadOnlyMetadataContext?, TComponent> getComponent,
-            IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
-        {
-            return owner.GetOrAddComponent(getComponent, (func, context) => func(context), metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
+            owner.GetOrAddComponent(getComponent, (func, context) => func(context), metadata);
 
-        public static TComponent GetOrAddComponent<TComponent, TState>(this IComponentOwner owner, TState state, Func<TState, IReadOnlyMetadataContext?, TComponent> getComponent, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
+        public static TComponent GetOrAddComponent<TComponent, TState>(this IComponentOwner owner, TState state, Func<TState, IReadOnlyMetadataContext?, TComponent> getComponent,
+            IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(getComponent, nameof(getComponent));
@@ -104,15 +97,10 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
-        {
-            return owner.GetComponent<TComponent>(false, metadata)!;
-        }
+        public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent => owner.GetComponent<TComponent>(false, metadata)!;
 
-        public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
-        {
-            return owner.GetComponent<TComponent>(true, metadata);
-        }
+        public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
+            owner.GetComponent<TComponent>(true, metadata);
 
         public static T[] GetOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
         {
@@ -121,15 +109,10 @@ namespace MugenMvvm.Extensions
             return collection.Get<T>(metadata);
         }
 
-        public static bool LazyInitialize(this IComponentCollectionManager? componentCollectionManager, [NotNull] ref IComponentCollection? item, object target, IReadOnlyMetadataContext? metadata = null)
-        {
-            return item == null && LazyInitialize(ref item, componentCollectionManager.DefaultIfNull().GetComponentCollection(target, metadata));
-        }
+        public static bool LazyInitialize(this IComponentCollectionManager? componentCollectionManager, [NotNull] ref IComponentCollection? item, object target, IReadOnlyMetadataContext? metadata = null) =>
+            item == null && LazyInitialize(ref item, componentCollectionManager.DefaultIfNull().GetComponentCollection(target, metadata));
 
-        public static int GetPriority(this IComponent component, object? owner = null)
-        {
-            return GetComponentPriority(component, owner);
-        }
+        public static int GetPriority(this IComponent component, object? owner = null) => GetComponentPriority(component, owner);
 
         public static int GetComponentPriority(object component, object? owner)
         {

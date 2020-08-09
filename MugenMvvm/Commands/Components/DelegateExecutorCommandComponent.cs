@@ -43,10 +43,7 @@ namespace MugenMvvm.Commands.Components
 
         #region Implementation of interfaces
 
-        public bool HasCanExecute(ICompositeCommand command)
-        {
-            return !_allowMultipleExecution || _canExecute != null;
-        }
+        public bool HasCanExecute(ICompositeCommand command) => !_allowMultipleExecution || _canExecute != null;
 
         public bool CanExecute(ICompositeCommand command, object? parameter)
         {
@@ -55,7 +52,7 @@ namespace MugenMvvm.Commands.Components
                 return _execute != null;
             if (canExecuteDelegate is Func<bool> func)
                 return func();
-            return ((Func<T, bool>)canExecuteDelegate).Invoke((T)parameter!);
+            return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
         }
 
         public void Dispose()
@@ -84,7 +81,7 @@ namespace MugenMvvm.Commands.Components
                 command.RaiseCanExecuteChanged();
                 executionTask.ContinueWith((t, o) =>
                 {
-                    var component = (DelegateExecutorCommandComponent<T>)o!;
+                    var component = (DelegateExecutorCommandComponent<T>) o!;
                     var cmd = component._executingCommand;
                     component._executingCommand = null;
                     cmd?.RaiseCanExecuteChanged();
@@ -130,13 +127,13 @@ namespace MugenMvvm.Commands.Components
 
             if (executeAction is Action<T> genericExecute)
             {
-                genericExecute((T)parameter!);
+                genericExecute((T) parameter!);
                 return Default.CompletedTask;
             }
 
             if (executeAction is Func<Task> executeTask)
                 return executeTask();
-            return ((Func<T, Task>)executeAction).Invoke((T)parameter!);
+            return ((Func<T, Task>) executeAction).Invoke((T) parameter!);
         }
 
         #endregion

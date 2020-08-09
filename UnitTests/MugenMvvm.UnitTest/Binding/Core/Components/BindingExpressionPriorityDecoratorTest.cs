@@ -61,9 +61,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(maxPriorityName)},
                 new HasPriorityBindingBuilder {Priority = int.MaxValue - 1},
                 new TestBindingBuilder {TargetExpression = new HasPriorityExpressionNode {Priority = 1}},
-                new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(fakePriorityName)},
+                new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(fakePriorityName)}
             };
-            var expected = new[] { expressions[2], expressions[3], expressions[5], expressions[4], expressions[0], expressions[1] };
+            var expected = new[] {expressions[2], expressions[3], expressions[5], expressions[4], expressions[0], expressions[1]};
             IList<IBindingBuilder> result;
             if (inputParameterState == 1)
                 result = expressions;
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 result = new Collection<IBindingBuilder>(expressions);
 
             var bindingManager = new BindingManager();
-            var decorator = new BindingExpressionPriorityDecorator { FakeMemberPriority = 2 };
+            var decorator = new BindingExpressionPriorityDecorator {FakeMemberPriority = 2};
             decorator.BindingMemberPriorities.Clear();
             decorator.BindingMemberPriorities[maxPriorityName] = int.MaxValue;
             decorator.BindingMemberPriorities[minPriorityName] = int.MinValue;
@@ -107,19 +107,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             #region Implementation of interfaces
 
-            public IMemberExpressionNode UpdateTarget(IExpressionNode? target)
-            {
-                throw new NotSupportedException();
-            }
+            public IMemberExpressionNode UpdateTarget(IExpressionNode? target) => throw new NotSupportedException();
 
             #endregion
 
             #region Methods
 
-            protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
-            {
-                throw new NotSupportedException();
-            }
+            protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
 
             #endregion
         }
@@ -128,10 +122,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             #region Implementation of interfaces
 
-            public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
-            {
-                throw new NotSupportedException();
-            }
+            public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null) => throw new NotSupportedException();
 
             #endregion
         }
@@ -146,10 +137,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             #region Implementation of interfaces
 
-            public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
-            {
-                throw new NotSupportedException();
-            }
+            public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null) => throw new NotSupportedException();
 
             #endregion
         }

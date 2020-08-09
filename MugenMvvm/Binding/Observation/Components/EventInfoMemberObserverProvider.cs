@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            var tuple = (Tuple<EventInfo, string>)member;
+            var tuple = (Tuple<EventInfo, string>) member;
             if (target == null && !tuple.Item1.IsStatic())
                 return default;
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         private MemberObserver TryGetMemberObserver(EventInfo member)
         {
-            if (member.EventHandlerType == typeof(EventHandler) || (member.EventHandlerType != null && member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionManager)))
+            if (member.EventHandlerType == typeof(EventHandler) || member.EventHandlerType != null && member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionManager))
                 return new MemberObserver(_memberObserverHandler, Tuple.Create(member, BindingInternalConstant.EventPrefixObserverMember + member.Name));
             return default;
         }

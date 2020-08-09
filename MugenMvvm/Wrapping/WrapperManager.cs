@@ -23,10 +23,7 @@ namespace MugenMvvm.Wrapping
 
         #region Implementation of interfaces
 
-        public bool CanWrap(Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IWrapperManagerComponent>(metadata).CanWrap(this, wrapperType, request, metadata);
-        }
+        public bool CanWrap(Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null) => GetComponents<IWrapperManagerComponent>(metadata).CanWrap(this, wrapperType, request, metadata);
 
         public object? TryWrap(Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
         {

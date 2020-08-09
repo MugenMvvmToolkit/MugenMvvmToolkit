@@ -70,6 +70,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         ? Expression.Equal(variable, MugenExtensions.NullConstantExpression)
                         : Expression.ReferenceEqual(variable, MugenExtensions.NullConstantExpression), nullConstant, exp.ConvertIfNeed(type, false));
                 }
+
                 ParameterExpressionBuffer[0] = variable;
                 ExpressionBuffer[0] = Expression.Assign(variable, target);
                 ExpressionBuffer[1] = resultExpression;
@@ -96,6 +97,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     result = r;
                     return true;
                 }
+
                 target = target.Target as IHasTargetExpressionNode<IExpressionNode>;
             }
 

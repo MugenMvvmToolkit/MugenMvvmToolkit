@@ -293,7 +293,7 @@ namespace MugenMvvm.UnitTest.Messaging.Components
 
             var handlers = component.TryGetMessengerHandlers(messenger, typeof(string), null)!.AsList();
             weakRef.Release();
-            handlers[0].Handle(new MessageContext(this, "", null)).ShouldEqual(MessengerResult.Invalid);
+            handlers[0].Handle(new MessageContext(this, "")).ShouldEqual(MessengerResult.Invalid);
         }
 
         #endregion

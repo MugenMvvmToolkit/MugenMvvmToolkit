@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             var target = new ConstantExpressionNode("1");
             var exp = new MemberExpressionNode(target, MemberName);
 
-            var result = isPostOrder ? new IExpressionNode[] { target, exp } : new IExpressionNode[] { exp, target };
+            var result = isPostOrder ? new IExpressionNode[] {target, exp} : new IExpressionNode[] {exp, target};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
@@ -152,7 +152,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
                 IsPostOrder = isPostOrder
             };
             var exp = new MemberExpressionNode(target, MemberName);
-            var expressionNode = (MemberExpressionNode)exp.Accept(testExpressionVisitor, DefaultMetadata);
+            var expressionNode = (MemberExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
             expressionNode.Member.ShouldEqual(MemberName);

@@ -37,8 +37,8 @@ namespace MugenMvvm.Binding.Extensions
         internal const char CommaChar = ',';
         internal const char DotChar = '.';
 
-        public static readonly char[] CommaSeparator = { CommaChar };
-        public static readonly char[] DotSeparator = { DotChar };
+        public static readonly char[] CommaSeparator = {CommaChar};
+        public static readonly char[] DotSeparator = {DotChar};
         private static readonly int[] ArraySize = new int[1];
 
         #endregion
@@ -273,16 +273,10 @@ namespace MugenMvvm.Binding.Extensions
         }
 
         [Preserve(Conditional = true)]
-        public static void Raise<TArg>(this EventListenerCollection collection, object? sender, TArg args)
-        {
-            collection.Raise(sender, args, null);
-        }
+        public static void Raise<TArg>(this EventListenerCollection collection, object? sender, TArg args) => collection.Raise(sender, args, null);
 
         [Preserve(Conditional = true)]
-        public static void RaisePropertyChanged(this MemberListenerCollection collection, object? sender, PropertyChangedEventArgs args)
-        {
-            collection.Raise(sender, args, args.PropertyName, null);
-        }
+        public static void RaisePropertyChanged(this MemberListenerCollection collection, object? sender, PropertyChangedEventArgs args) => collection.Raise(sender, args, args.PropertyName, null);
 
         public static object? Invoke(this ICompiledExpression? expression, object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {
@@ -356,10 +350,7 @@ namespace MugenMvvm.Binding.Extensions
             return true;
         }
 
-        public static bool IsAllMembersAvailable(this IMemberPathObserver observer)
-        {
-            return observer.GetLastMember().IsAvailable;
-        }
+        public static bool IsAllMembersAvailable(this IMemberPathObserver observer) => observer.GetLastMember().IsAvailable;
 
         public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
             int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
@@ -440,52 +431,52 @@ namespace MugenMvvm.Binding.Extensions
                 switch (target)
                 {
                     case IMemberExpressionNode memberExpressionNode:
-                        {
-                            var memberName = memberExpressionNode.Member.Trim();
-                            builder.Insert(0, memberName);
-                            if (memberExpressionNode.Target != null)
-                                builder.Insert(0, '.');
-                            target = memberExpressionNode.Target;
-                            break;
-                        }
-                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
-                        {
-                            var args = indexExpressionNode.Arguments;
-                            builder.Insert(0, ']');
-                            if (args.Count > 0)
-                            {
-                                args.Last().ToStringValue(builder);
-                                for (var i = args.Count - 2; i >= 0; i--)
-                                {
-                                    builder.Insert(0, ',');
-                                    args[i].ToStringValue(builder);
-                                }
-                            }
-
-                            builder.Insert(0, '[');
-                            target = indexExpressionNode.Target;
-                            break;
-                        }
-                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
-                        {
-                            var args = methodCallExpression.Arguments;
-                            builder.Insert(0, ')');
-                            if (args.Count > 0)
-                            {
-                                args.Last().ToStringValue(builder);
-                                for (var i = args.Count - 2; i >= 0; i--)
-                                {
-                                    builder.Insert(0, ',');
-                                    args[i].ToStringValue(builder);
-                                }
-                            }
-
-                            builder.Insert(0, '(');
-                            builder.Insert(0, methodCallExpression.Method);
+                    {
+                        var memberName = memberExpressionNode.Member.Trim();
+                        builder.Insert(0, memberName);
+                        if (memberExpressionNode.Target != null)
                             builder.Insert(0, '.');
-                            target = methodCallExpression.Target;
-                            break;
+                        target = memberExpressionNode.Target;
+                        break;
+                    }
+                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
+                    {
+                        var args = indexExpressionNode.Arguments;
+                        builder.Insert(0, ']');
+                        if (args.Count > 0)
+                        {
+                            args.Last().ToStringValue(builder);
+                            for (var i = args.Count - 2; i >= 0; i--)
+                            {
+                                builder.Insert(0, ',');
+                                args[i].ToStringValue(builder);
+                            }
                         }
+
+                        builder.Insert(0, '[');
+                        target = indexExpressionNode.Target;
+                        break;
+                    }
+                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
+                    {
+                        var args = methodCallExpression.Arguments;
+                        builder.Insert(0, ')');
+                        if (args.Count > 0)
+                        {
+                            args.Last().ToStringValue(builder);
+                            for (var i = args.Count - 2; i >= 0; i--)
+                            {
+                                builder.Insert(0, ',');
+                                args[i].ToStringValue(builder);
+                            }
+                        }
+
+                        builder.Insert(0, '(');
+                        builder.Insert(0, methodCallExpression.Method);
+                        builder.Insert(0, '.');
+                        target = methodCallExpression.Target;
+                        break;
+                    }
                     default:
                         return false;
                 }
@@ -524,15 +515,9 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        public static WeakEventListener ToWeak(this IEventListener listener)
-        {
-            return new WeakEventListener(listener);
-        }
+        public static WeakEventListener ToWeak(this IEventListener listener) => new WeakEventListener(listener);
 
-        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state)
-        {
-            return new WeakEventListener<TState>(listener, state);
-        }
+        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state) => new WeakEventListener<TState>(listener, state);
 
         public static string[]? GetIndexerArgsRaw(string path)
         {
@@ -578,10 +563,7 @@ namespace MugenMvvm.Binding.Extensions
 #endif
         }
 
-        public static Type GetTargetType<T>(this MemberFlags flags, ref T? target) where T : class
-        {
-            return GetTargetType(flags.HasFlagEx(MemberFlags.Static), ref target);
-        }
+        public static Type GetTargetType<T>(this MemberFlags flags, ref T? target) where T : class => GetTargetType(flags.HasFlagEx(MemberFlags.Static), ref target);
 
         public static Type GetTargetType<T>(bool isStatic, ref T? target) where T : class
         {
@@ -597,70 +579,39 @@ namespace MugenMvvm.Binding.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag)
-        {
-            return (value & flag) == flag;
-        }
+        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag) => (value & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this ArgumentFlags value, ArgumentFlags flag)
-        {
-            return (value & flag) == flag;
-        }
+        public static bool HasFlagEx(this ArgumentFlags value, ArgumentFlags flag) => (value & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BindingMemberExpressionFlags value, BindingMemberExpressionFlags flag)
-        {
-            return (value & flag) == flag;
-        }
+        public static bool HasFlagEx(this BindingMemberExpressionFlags value, BindingMemberExpressionFlags flag) => (value & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this MemberType value, MemberType flag)
-        {
-            return (value & flag) == flag;
-        }
+        public static bool HasFlagEx(this MemberType value, MemberType flag) => (value & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static BindingMemberExpressionFlags SetTargetFlags(this BindingMemberExpressionFlags flags, bool isTarget)
-        {
-            return isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
-        }
+        internal static BindingMemberExpressionFlags SetTargetFlags(this BindingMemberExpressionFlags flags, bool isTarget) =>
+            isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MemberFlags SetInstanceOrStaticFlags(this MemberFlags value, bool isStatic)
-        {
-            return isStatic ? (value | MemberFlags.Static) & ~MemberFlags.Instance : (value | MemberFlags.Instance) & ~MemberFlags.Static;
-        }
+        internal static MemberFlags SetInstanceOrStaticFlags(this MemberFlags value, bool isStatic) =>
+            isStatic ? (value | MemberFlags.Static) & ~MemberFlags.Instance : (value | MemberFlags.Instance) & ~MemberFlags.Static;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MemberFlags ClearInstanceOrStaticFlags(this MemberFlags value, bool isStatic)
-        {
-            return isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
-        }
+        internal static MemberFlags ClearInstanceOrStaticFlags(this MemberFlags value, bool isStatic) => isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsNullOrUnsetValue([NotNullWhen(false)] this object? value)
-        {
-            return value == null || value == BindingMetadata.UnsetValue;
-        }
+        internal static bool IsNullOrUnsetValue([NotNullWhen(false)] this object? value) => value == null || value == BindingMetadata.UnsetValue;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsUnsetValueOrDoNothing(this object? value)
-        {
-            return value == BindingMetadata.UnsetValue || value == BindingMetadata.DoNothing;
-        }
+        internal static bool IsUnsetValueOrDoNothing(this object? value) => value == BindingMetadata.UnsetValue || value == BindingMetadata.DoNothing;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsDoNothing(this object? value)
-        {
-            return value == BindingMetadata.DoNothing;
-        }
+        internal static bool IsDoNothing(this object? value) => value == BindingMetadata.DoNothing;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsUnsetValue(this object? value)
-        {
-            return value == BindingMetadata.UnsetValue;
-        }
+        internal static bool IsUnsetValue(this object? value) => value == BindingMetadata.UnsetValue;
 
         internal static string GetPath(this StringBuilder memberNameBuilder)
         {
@@ -672,7 +623,7 @@ namespace MugenMvvm.Binding.Extensions
         internal static T[] InsertFirstArg<T>(this T[] args, T firstArg)
         {
             if (args == null || args.Length == 0)
-                return new[] { firstArg };
+                return new[] {firstArg};
             var objects = new T[args.Length + 1];
             objects[0] = firstArg;
             Array.Copy(args, 0, objects, 1, args.Length);
@@ -732,22 +683,19 @@ namespace MugenMvvm.Binding.Extensions
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var member = (IAccessorMemberInfo?)memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
+            var member = (IAccessorMemberInfo?) memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
             if (member == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(type, path);
             return member.GetValue(target, metadata);
         }
 
 #if SPAN_API
-        private static ReadOnlySpan<char> RemoveBounds(this ReadOnlySpan<char> st, int start = 1)
-        {
-            return st.Slice(start, st.Length - start - 1);
-        }
+        private static ReadOnlySpan<char> RemoveBounds(this ReadOnlySpan<char> st, int start = 1) => st.Slice(start, st.Length - start - 1);
 
         private static string[] UnescapeString(this ReadOnlySpan<char> source, char separator)
         {
-            int length = 1;
-            for (int i = 0; i < source.Length; i++)
+            var length = 1;
+            for (var i = 0; i < source.Length; i++)
             {
                 if (source[i] == separator)
                     ++length;
@@ -757,12 +705,12 @@ namespace MugenMvvm.Binding.Extensions
                 return Array.Empty<string>();
 
             var args = new string[length];
-            int index = 0;
+            var index = 0;
             foreach (var arg in source.Split(separator))
             {
                 var value = source[arg].Trim();
                 if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal)
-                || value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
+                    || value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
                     value = value.RemoveBounds();
                 args[index++] = value.ToString();
             }
@@ -792,7 +740,7 @@ namespace MugenMvvm.Binding.Extensions
 
         private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)
         {
-            var constantExpressionNode = (IConstantExpressionNode)expression;
+            var constantExpressionNode = (IConstantExpressionNode) expression;
             var value = constantExpressionNode.Value;
 
             if (value == null)

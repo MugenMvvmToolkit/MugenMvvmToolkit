@@ -30,20 +30,11 @@ namespace MugenMvvm.Navigation
 
         #region Implementation of interfaces
 
-        public void OnCompleted(INavigationContext navigationContext)
-        {
-            Callback.Invoke(navigationContext, null, null);
-        }
+        public void OnCompleted(INavigationContext navigationContext) => Callback.Invoke(navigationContext, null, null);
 
-        public void OnError(INavigationContext navigationContext, Exception exception)
-        {
-            Callback.Invoke(navigationContext, exception, null);
-        }
+        public void OnError(INavigationContext navigationContext, Exception exception) => Callback.Invoke(navigationContext, exception, null);
 
-        public void OnCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
-        {
-            Callback.Invoke(navigationContext, null, cancellationToken);
-        }
+        public void OnCanceled(INavigationContext navigationContext, CancellationToken cancellationToken) => Callback.Invoke(navigationContext, null, cancellationToken);
 
         #endregion
     }

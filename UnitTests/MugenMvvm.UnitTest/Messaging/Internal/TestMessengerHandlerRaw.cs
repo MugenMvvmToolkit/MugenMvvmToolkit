@@ -16,15 +16,9 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
 
         #region Implementation of interfaces
 
-        bool IMessengerHandlerRaw.CanHandle(Type messageType)
-        {
-            return CanHandle?.Invoke(messageType) ?? false;
-        }
+        bool IMessengerHandlerRaw.CanHandle(Type messageType) => CanHandle?.Invoke(messageType) ?? false;
 
-        MessengerResult IMessengerHandlerRaw.Handle(IMessageContext messageContext)
-        {
-            return Handle?.Invoke(messageContext) ?? MessengerResult.Ignored;
-        }
+        MessengerResult IMessengerHandlerRaw.Handle(IMessageContext messageContext) => Handle?.Invoke(messageContext) ?? MessengerResult.Ignored;
 
         #endregion
     }

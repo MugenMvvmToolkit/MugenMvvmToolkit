@@ -40,15 +40,9 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(UnhandledExceptionType? left, UnhandledExceptionType? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(UnhandledExceptionType? left, UnhandledExceptionType? right) => !(left == right);
 
-        protected override bool Equals(int value)
-        {
-            return Value == value;
-        }
+        protected override bool Equals(int value) => Value == value;
 
         #endregion
     }

@@ -20,7 +20,8 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(application, lifecycleState, state, metadata);
         }
 
-        public static void OnUnhandledException(this IApplicationUnhandledExceptionComponent[] components, IMugenApplication application, Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata)
+        public static void OnUnhandledException(this IApplicationUnhandledExceptionComponent[] components, IMugenApplication application, Exception exception, UnhandledExceptionType type,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(application, nameof(application));

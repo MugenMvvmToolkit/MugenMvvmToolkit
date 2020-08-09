@@ -39,10 +39,10 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
 
 
-            var viewModel = new TestCleanableViewModel { Service = new Messenger() };
+            var viewModel = new TestCleanableViewModel {Service = new Messenger()};
             var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner { ClearDataContext = true });
+            viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
             view.Target.BindableMembers().SetDataContext(viewModel);
             view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void ShouldUnsubscribeViewModel()
         {
             var invokeCount = 0;
-            var viewModel = new TestCleanableViewModel { Service = new Messenger() };
+            var viewModel = new TestCleanableViewModel {Service = new Messenger()};
             viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
             {
                 TryUnsubscribe = (o, arg3) =>
@@ -74,9 +74,9 @@ namespace MugenMvvm.UnitTest.Views.Components
         [Fact]
         public void ShouldCleanCleanableViews()
         {
-            string? state = "t";
-            int invokeCount = 0;
-            int componentInvokeCount = 0;
+            var state = "t";
+            var invokeCount = 0;
+            var componentInvokeCount = 0;
             var rawView = new TestCleanableView
             {
                 Cleanup = (o, arg3) =>
@@ -153,10 +153,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             #region Implementation of interfaces
 
-            void ICleanableView.Cleanup(object? state, IReadOnlyMetadataContext? metadata)
-            {
-                Cleanup?.Invoke(state, metadata);
-            }
+            void ICleanableView.Cleanup(object? state, IReadOnlyMetadataContext? metadata) => Cleanup?.Invoke(state, metadata);
 
             #endregion
         }

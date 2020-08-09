@@ -12,9 +12,11 @@ namespace MugenMvvm.Wrapping.Components
     {
         #region Fields
 
+        private readonly Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> _condition;
+
         [AllowNull]
         private readonly TState _state;
-        private readonly Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> _condition;
+
         private readonly Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> _wrapperFactory;
 
         #endregion

@@ -17,10 +17,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        void IWeakReference.Release()
-        {
-            Release?.Invoke();
-        }
+        void IWeakReference.Release() => Release?.Invoke();
 
         #endregion
     }

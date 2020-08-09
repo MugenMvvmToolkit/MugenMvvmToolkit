@@ -57,10 +57,7 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key)
-        {
-            return HashCode.Combine(key.Key, key.Type, (int)key.MemberType, (int)key.MemberFlags, key.Types.Length);
-        }
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, (int) key.MemberType, (int) key.MemberFlags, key.Types.Length);
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -110,15 +107,9 @@ namespace MugenMvvm.Binding.Members.Components
                 _cache.Clear();
         }
 
-        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            Invalidate(null, metadata);
-        }
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(null, metadata);
 
-        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            Invalidate(null, metadata);
-        }
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(null, metadata);
 
         #endregion
 

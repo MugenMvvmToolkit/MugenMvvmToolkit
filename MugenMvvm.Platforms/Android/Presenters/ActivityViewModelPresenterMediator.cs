@@ -32,9 +32,9 @@ namespace MugenMvvm.Android.Presenters
 
         private ActivityViewDispatcher? _activityDispatcher;
         private bool _addedComponent;
+        private bool _ignoreFinishingNavigation;
         private bool _shouldRaiseOnResume;
         private bool _shouldRaiseOnShow;
-        private bool _ignoreFinishingNavigation;
 
         #endregion
 
@@ -57,10 +57,8 @@ namespace MugenMvvm.Android.Presenters
 
         #region Methods
 
-        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, metadata);
-        }
+        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => NavigationDispatcher.WaitNavigationAsync(this,
+            (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, metadata);
 
         protected override void ShowInternal(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -98,19 +96,13 @@ namespace MugenMvvm.Android.Presenters
             }
         }
 
-        protected override bool ActivateView(IActivityView view, INavigationContext context)
-        {
-            return true;
-        }
+        protected override bool ActivateView(IActivityView view, INavigationContext context) => true;
 
         protected override void InitializeView(IActivityView view, INavigationContext context)
         {
         }
 
-        protected override void CloseView(IActivityView view, INavigationContext context)
-        {
-            view.Finish();
-        }
+        protected override void CloseView(IActivityView view, INavigationContext context) => view.Finish();
 
         protected override void CleanupView(IActivityView view, INavigationContext context)
         {
@@ -128,7 +120,7 @@ namespace MugenMvvm.Android.Presenters
             {
                 if (activityView == CurrentView)
                     return;
-                flags = (int)ActivityFlags.ReorderToFront;
+                flags = (int) ActivityFlags.ReorderToFront;
             }
 
             Class? activityType = null;
@@ -263,19 +255,14 @@ namespace MugenMvvm.Android.Presenters
                 return tcs.Task;
             }
 
-            public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            {
-                return Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
-            }
+            public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+                Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
 
             #endregion
 
             #region Methods
 
-            public void WaitView()
-            {
-                _viewTask = new TaskCompletionSource<object>();
-            }
+            public void WaitView() => _viewTask = new TaskCompletionSource<object>();
 
             #endregion
         }

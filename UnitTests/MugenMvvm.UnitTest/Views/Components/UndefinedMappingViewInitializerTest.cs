@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return new[] { new ViewMapping("1", typeof(object), typeof(IViewModelBase)), new ViewMapping("1", typeof(object), typeof(IViewModelBase)) };
+                    return new[] {new ViewMapping("1", typeof(object), typeof(IViewModelBase)), new ViewMapping("1", typeof(object), typeof(IViewModelBase))};
                 }
             });
             viewManager.AddComponent(new TestViewManagerComponent
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)!.Result.ShouldEqual(result);
         }
-        
+
         [Fact]
         public void TryInitializeAsyncShouldBeHandledByComponentsWithNewMapping1()
         {
@@ -166,7 +166,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
-        
+
         [Fact]
         public void TryInitializeAsyncShouldBeHandledByComponentsWithNewMapping2()
         {

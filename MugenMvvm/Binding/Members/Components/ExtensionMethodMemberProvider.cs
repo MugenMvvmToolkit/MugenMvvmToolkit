@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (!memberTypes.HasFlagEx(MemberType.Method))
                 return default;
 
-            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> members = ItemOrListEditor.Get<IMemberInfo>();
+            var members = ItemOrListEditor.Get<IMemberInfo>();
             foreach (var exType in _types)
             {
                 var methods = exType.GetMethods(BindingFlagsEx.StaticOnly);

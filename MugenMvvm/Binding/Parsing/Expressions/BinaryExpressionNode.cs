@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
-            bool changed = false;
+            var changed = false;
             var left = VisitWithCheck(visitor, Left, true, ref changed, metadata);
             var right = VisitWithCheck(visitor, Right, true, ref changed, metadata);
             if (changed)
@@ -45,10 +45,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return this;
         }
 
-        public override string ToString()
-        {
-            return $"({Left} {Token.Value} {Right})";
-        }
+        public override string ToString() => $"({Left} {Token.Value} {Right})";
 
         #endregion
     }

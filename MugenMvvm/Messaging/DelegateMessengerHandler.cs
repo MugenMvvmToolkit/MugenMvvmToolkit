@@ -24,10 +24,7 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
-        public bool CanHandle(Type messageType)
-        {
-            return typeof(TMessage).IsAssignableFrom(messageType);
-        }
+        public bool CanHandle(Type messageType) => typeof(TMessage).IsAssignableFrom(messageType);
 
         public MessengerResult Handle(IMessageContext messageContext)
         {

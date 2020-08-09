@@ -23,10 +23,8 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            (component as IInitializableView)?.Initialize((IView)collection.Owner, null, metadata);
-        }
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            (component as IInitializableView)?.Initialize((IView) collection.Owner, null, metadata);
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
@@ -59,10 +57,7 @@ namespace MugenMvvm.Views.Components
                 view.Target.BindableMembers().SetDataContext(view.ViewModel);
         }
 
-        protected virtual void Cleanup(IView view, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            view.Components.RemoveComponent(this);
-        }
+        protected virtual void Cleanup(IView view, object? state, IReadOnlyMetadataContext? metadata) => view.Components.RemoveComponent(this);
 
         #endregion
     }

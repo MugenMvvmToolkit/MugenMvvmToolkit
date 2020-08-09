@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
         public void ConstructorShouldInitializeValues()
         {
             var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
             var exp = new IndexExpressionNode(target, args);
             exp.ExpressionType.ShouldEqual(ExpressionNodeType.Index);
             exp.Target.ShouldEqual(target);
@@ -28,8 +28,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
         public void UpdateArgumentsShouldCreateNewNode()
         {
             var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
-            var newArgs = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
+            var newArgs = new IExpressionNode[] {new ConstantExpressionNode("2")};
             var exp = new IndexExpressionNode(target, args);
             exp.UpdateArguments(args).ShouldEqual(exp);
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
         public void UpdateTargetShouldCreateNewNode()
         {
             var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
             var newTarget = new ConstantExpressionNode("2");
             var exp = new IndexExpressionNode(target, args);
             exp.UpdateTarget(target).ShouldEqual(exp);
@@ -76,9 +76,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             var target = new ConstantExpressionNode("1");
             var arg1 = new ConstantExpressionNode("2");
             var arg2 = new ConstantExpressionNode("3");
-            var exp = new IndexExpressionNode(target, new[] { arg1, arg2 });
+            var exp = new IndexExpressionNode(target, new[] {arg1, arg2});
 
-            var result = isPostOrder ? new IExpressionNode[] { target, arg1, arg2, exp } : new IExpressionNode[] { exp, target, arg1, arg2 };
+            var result = isPostOrder ? new IExpressionNode[] {target, arg1, arg2, exp} : new IExpressionNode[] {exp, target, arg1, arg2};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
@@ -110,18 +110,18 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
                 },
                 IsPostOrder = isPostOrder
             };
-            var exp = new IndexExpressionNode(target, new[] { arg1, arg2 });
-            var expressionNode = (IndexExpressionNode)exp.Accept(testExpressionVisitor, DefaultMetadata);
+            var exp = new IndexExpressionNode(target, new[] {arg1, arg2});
+            var expressionNode = (IndexExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
-            expressionNode.Arguments.SequenceEqual(new[] { arg1Changed, arg2Changed }).ShouldBeTrue();
+            expressionNode.Arguments.SequenceEqual(new[] {arg1Changed, arg2Changed}).ShouldBeTrue();
         }
 
         [Fact]
         public void AcceptShouldCreateNewNode2()
         {
             var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
             var testExpressionVisitor = new TestExpressionVisitor
             {
                 Visit = (node, context) => target

@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var expression = bindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
             expression.ShouldNotBeNull();
 
-            var binding = (InvalidBinding)expression.Build(this, this, DefaultMetadata);
+            var binding = (InvalidBinding) expression.Build(this, this, DefaultMetadata);
             binding.Exception.ShouldEqual(exception);
         }
 
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             for (var i = 0; i < result.Count; i++)
             {
-                var binding = (InvalidBinding)result[i].Build(target, source, DefaultMetadata);
+                var binding = (InvalidBinding) result[i].Build(target, source, DefaultMetadata);
                 binding.Exception.ShouldEqual(exception);
             }
         }

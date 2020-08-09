@@ -22,14 +22,14 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
 
-            var decoratedItems = new[] { item1 };
+            var decoratedItems = new[] {item1};
             var collection = CreateCollection(item1, item2);
             collection.AddComponent(CollectionDecoratorManager.Instance);
             var decorator = new TestCollectionDecorator
             {
                 DecorateItems = items =>
                 {
-                    items.SequenceEqual(new[] { item1, item2 }).ShouldBeTrue();
+                    items.SequenceEqual(new[] {item1, item2}).ShouldBeTrue();
                     return decoratedItems;
                 }
             };
@@ -43,9 +43,9 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
 
-            var original = new[] { item1, item2 };
-            var decoratedItems1 = new[] { item2 };
-            var decoratedItems2 = new[] { item1 };
+            var original = new[] {item1, item2};
+            var decoratedItems1 = new[] {item2};
+            var decoratedItems2 = new[] {item1};
             var collection = CreateCollection(item1, item2);
             collection.AddComponent(CollectionDecoratorManager.Instance);
             var decorator1 = new TestCollectionDecorator
@@ -79,11 +79,11 @@ namespace MugenMvvm.UnitTest.Collections.Components
         [InlineData(true, false)]
         public void DecoratorShouldTrackItemsMulti1(bool defaultComparer, bool filterFirst)
         {
-            var comparer = defaultComparer ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int)o!, (int)o1!)) : Comparer<object?>.Create((i, i1) => ((int)i1!).CompareTo((int)i!));
+            var comparer = defaultComparer ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int) o!, (int) o1!)) : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
             var observableCollection = CreateCollection<int>();
             observableCollection.AddComponent(CollectionDecoratorManager.Instance);
             var decorator1 = new SortingCollectionDecorator(comparer);
-            var decorator2 = new FilterCollectionDecorator<int> { Filter = i => i % 2 == 0 };
+            var decorator2 = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             if (filterFirst)
                 decorator2.Priority = int.MaxValue;
             else
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             observableCollection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection[0] = 200;
@@ -156,8 +156,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
         {
             var comparer = Comparer<object?>.Create((x1, x2) =>
             {
-                var item = (TestCollectionItem)x1!;
-                var collectionItem = (TestCollectionItem)x2!;
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
                 if (defaultComparer)
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var observableCollection = CreateCollection<TestCollectionItem>();
             observableCollection.AddComponent(CollectionDecoratorManager.Instance);
             var decorator1 = new SortingCollectionDecorator(comparer);
-            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> { Filter = i => i.Id % 2 == 0 };
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
             if (filterFirst)
                 decorator2.Priority = int.MaxValue;
             else
@@ -177,10 +177,10 @@ namespace MugenMvvm.UnitTest.Collections.Components
             observableCollection.AddComponent(tracker);
             var items = observableCollection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
-            observableCollection.Add(new TestCollectionItem { Id = 1 });
+            observableCollection.Add(new TestCollectionItem {Id = 1});
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            var item2 = new TestCollectionItem { Id = 2 };
+            var item2 = new TestCollectionItem {Id = 2};
             observableCollection.Insert(1, item2);
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             });
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection[0] = new TestCollectionItem { Id = 200 };
+            observableCollection[0] = new TestCollectionItem {Id = 200};
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
             observableCollection.Move(1, 2);
@@ -208,7 +208,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection.Add(new TestCollectionItem { Id = Guid.NewGuid().GetHashCode() });
+                observableCollection.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
                 tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
             }
 
@@ -220,7 +220,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection[i] = new TestCollectionItem { Id = i + Guid.NewGuid().GetHashCode() };
+                observableCollection[i] = new TestCollectionItem {Id = i + Guid.NewGuid().GetHashCode()};
                 tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
             }
 
@@ -501,7 +501,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnReset = (enumerable) =>
+                    OnReset = enumerable =>
                     {
                         expectedItem.SequenceEqual(enumerable).ShouldBeTrue();
                         ++reset;
@@ -512,7 +512,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
             for (var i = 0; i < count; i++)
             {
-                expectedItem = new[] { new TestCollectionItem(), new TestCollectionItem() };
+                expectedItem = new[] {new TestCollectionItem(), new TestCollectionItem()};
                 collection.Reset(expectedItem);
             }
 
@@ -537,10 +537,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnCleared = () =>
-                    {
-                        ++clear;
-                    },
+                    OnCleared = () => { ++clear; },
                     OnAdded = (item, arg3) => { }
                 };
                 collection.AddComponent(changedListener);
@@ -556,10 +553,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             clear.ShouldEqual(count * listenersCount);
         }
 
-        protected IObservableCollection<T> CreateCollection<T>(params T[] items)
-        {
-            return new SynchronizedObservableCollection<T>(items);
-        }
+        protected IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items);
 
         #endregion
     }

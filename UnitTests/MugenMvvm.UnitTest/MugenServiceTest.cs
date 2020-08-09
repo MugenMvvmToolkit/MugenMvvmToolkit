@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest
         {
             MugenService.Configuration.Clear<MugenServiceTest>();
             MugenService.Configuration.InitializeFallback(null);
-            var service = new TestHasServiceModel<MugenServiceTest> { Service = this, ServiceOptional = new MugenServiceTest() };
+            var service = new TestHasServiceModel<MugenServiceTest> {Service = this, ServiceOptional = new MugenServiceTest()};
             ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
             MugenService.Optional<MugenServiceTest>().ShouldBeNull();
 

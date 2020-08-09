@@ -54,10 +54,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             invokeCount.ShouldEqual(count);
         }
 
-        protected override IMemberManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new MemberManager(collectionProvider);
-        }
+        protected override IMemberManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new MemberManager(collectionProvider);
 
         #endregion
     }

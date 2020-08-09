@@ -37,10 +37,7 @@ namespace MugenMvvm.Internal
 
         #region Implementation of interfaces
 
-        bool IEqualityComparer<(object, object?)>.Equals((object, object?) x, (object, object?) y)
-        {
-            return x.Item1 == y.Item1 && x.Item2 == y.Item2;
-        }
+        bool IEqualityComparer<(object, object?)>.Equals((object, object?) x, (object, object?) y) => x.Item1 == y.Item1 && x.Item2 == y.Item2;
 
         int IEqualityComparer<(object, object?)>.GetHashCode((object, object?) key)
         {
@@ -48,6 +45,10 @@ namespace MugenMvvm.Internal
                 return RuntimeHelpers.GetHashCode(key.Item1);
             return HashCode.Combine(RuntimeHelpers.GetHashCode(key.Item1), RuntimeHelpers.GetHashCode(key.Item2));
         }
+
+        bool IEqualityComparer<IMetadataContextKey?>.Equals(IMetadataContextKey? x, IMetadataContextKey? y) => x!.Equals(y);
+
+        int IEqualityComparer<IMetadataContextKey?>.GetHashCode(IMetadataContextKey? obj) => obj!.GetHashCode();
 
         bool IEqualityComparer<KeyValuePair<Type, MemberInfo>>.Equals(KeyValuePair<Type, MemberInfo> x, KeyValuePair<Type, MemberInfo> y) => x.Key == y.Key && x.Value == y.Value;
 
@@ -102,9 +103,5 @@ namespace MugenMvvm.Internal
         }
 
         #endregion
-
-        bool IEqualityComparer<IMetadataContextKey?>.Equals(IMetadataContextKey? x, IMetadataContextKey? y) => x!.Equals(y);
-
-        int IEqualityComparer<IMetadataContextKey?>.GetHashCode(IMetadataContextKey? obj) => obj!.GetHashCode();
     }
 }

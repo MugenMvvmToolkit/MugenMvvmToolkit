@@ -32,35 +32,20 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         #region Implementation of interfaces
 
-        void IDisposable.Dispose()
-        {
-            Dispose?.Invoke();
-        }
+        void IDisposable.Dispose() => Dispose?.Invoke();
 
-        bool IValidatorComponent.HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
-        {
-            return HasErrors?.Invoke(validator, memberName, metadata) ?? false;
-        }
+        bool IValidatorComponent.HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => HasErrors?.Invoke(validator, memberName, metadata) ?? false;
 
-        ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
-        {
-            return GetErrors?.Invoke(validator, memberName, metadata) ?? default;
-        }
+        ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) =>
+            GetErrors?.Invoke(validator, memberName, metadata) ?? default;
 
-        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> IValidatorComponent.TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata)
-        {
-            return GetAllErrors?.Invoke(validator, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
-        }
+        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> IValidatorComponent.TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata) =>
+            GetAllErrors?.Invoke(validator, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
 
-        Task? IValidatorComponent.TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return ValidateAsync?.Invoke(validator, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
-        }
+        Task? IValidatorComponent.TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            ValidateAsync?.Invoke(validator, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
 
-        void IValidatorComponent.ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
-        {
-            ClearErrors?.Invoke(validator, memberName, metadata);
-        }
+        void IValidatorComponent.ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => ClearErrors?.Invoke(validator, memberName, metadata);
 
         #endregion
     }

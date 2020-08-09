@@ -14,10 +14,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        object? IValueExpression.Invoke(IReadOnlyMetadataContext? metadata)
-        {
-            return Invoke?.Invoke(metadata);
-        }
+        object? IValueExpression.Invoke(IReadOnlyMetadataContext? metadata) => Invoke?.Invoke(metadata);
 
         #endregion
     }

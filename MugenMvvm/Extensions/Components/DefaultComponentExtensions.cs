@@ -61,7 +61,7 @@ namespace MugenMvvm.Extensions.Components
 
             return new ActionToken((o, _) =>
             {
-                var list = (ActionToken[])o!;
+                var list = (ActionToken[]) o!;
                 for (var i = 0; i < list.Length; i++)
                     list[i].Dispose();
             }, tokens);

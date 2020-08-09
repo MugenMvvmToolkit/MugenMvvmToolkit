@@ -25,24 +25,15 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        IBinding IBindingBuilder.Build(object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return this;
-        }
+        IBinding IBindingBuilder.Build(object target, object? source, IReadOnlyMetadataContext? metadata) => this;
 
         #endregion
 
         #region Methods
 
-        protected override bool UpdateSourceInternal(out object? newValue)
-        {
-            throw Exception;
-        }
+        protected override bool UpdateSourceInternal(out object? newValue) => throw Exception;
 
-        protected override bool UpdateTargetInternal(out object? newValue)
-        {
-            throw Exception;
-        }
+        protected override bool UpdateTargetInternal(out object? newValue) => throw Exception;
 
         #endregion
     }

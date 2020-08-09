@@ -8,7 +8,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
     {
         #region Properties
 
-        public new Func<T, T, bool>? Equals { get; set; }
+        public Func<T, T, bool>? Equals { get; set; }
 
         public new Func<T, int>? GetHashCode { get; set; }
 

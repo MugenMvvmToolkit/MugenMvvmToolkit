@@ -20,10 +20,7 @@ namespace MugenMvvm.Extensions
 
         #region Methods
 
-        public static IReadOnlyMetadataContext ToContext<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
-        {
-            return new SingleValueMetadataContext(key.ToValue(value));
-        }
+        public static IReadOnlyMetadataContext ToContext<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value) => new SingleValueMetadataContext(key.ToValue(value));
 
         public static KeyValuePair<IMetadataContextKey, object?> ToValue<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
         {
@@ -31,10 +28,7 @@ namespace MugenMvvm.Extensions
             return new KeyValuePair<IMetadataContextKey, object?>(key, key.SetValue(Default.Metadata, null, value));
         }
 
-        public static bool IsNullOrEmpty(this IReadOnlyMetadataContext? metadata)
-        {
-            return metadata == null || metadata.Count == 0;
-        }
+        public static bool IsNullOrEmpty(this IReadOnlyMetadataContext? metadata) => metadata == null || metadata.Count == 0;
 
         public static IReadOnlyMetadataContext GetMetadataOrDefault(this IMetadataOwner<IReadOnlyMetadataContext>? owner, IReadOnlyMetadataContext? defaultValue = null)
         {
@@ -50,10 +44,7 @@ namespace MugenMvvm.Extensions
             return new MetadataContext(metadata);
         }
 
-        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata)
-        {
-            return metadata ?? Default.Metadata;
-        }
+        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata) => metadata ?? Default.Metadata;
 
         public static string Dump(this IReadOnlyMetadataContext? metadata)
         {
@@ -75,14 +66,14 @@ namespace MugenMvvm.Extensions
             where T : Delegate?
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Combine(currentValue, value)!);
+            metadata.AddOrUpdate(key, handler, (object?) null, (item, value, currentValue, _) => (T) Delegate.Combine(currentValue, value)!);
         }
 
         public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T, T> key, T handler)
             where T : Delegate?
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Remove(currentValue, value)!);
+            metadata.AddOrUpdate(key, handler, (object?) null, (item, value, currentValue, _) => (T) Delegate.Remove(currentValue, value)!);
         }
 
         public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
@@ -92,12 +83,10 @@ namespace MugenMvvm.Extensions
         }
 
         [return: MaybeNull]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key)
-        {
-            return metadataContext.Get(key, default);
-        }
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key) => metadataContext.Get(key, default);
 
-        [return: MaybeNull, NotNullIfNotNull("defaultValue")]
+        [return: MaybeNull]
+        [return: NotNullIfNotNull("defaultValue")]
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
@@ -105,7 +94,7 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
-        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false), NotNullIfNotNull("defaultValue")]
+        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
             out T value, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
@@ -134,7 +123,7 @@ namespace MugenMvvm.Extensions
             {
                 metadataOwner.Metadata.Clear();
                 if (clearComponents)
-                    metadataOwner.Metadata.ClearComponents(null);
+                    metadataOwner.Metadata.ClearComponents();
             }
         }
 
@@ -163,7 +152,7 @@ namespace MugenMvvm.Extensions
 
             var context = metadata;
             Interlocked.CompareExchange(ref metadata, new MetadataContext(metadata), context);
-            return (IMetadataContext)metadata!;
+            return (IMetadataContext) metadata!;
         }
 
         #endregion

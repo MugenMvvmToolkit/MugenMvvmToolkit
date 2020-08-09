@@ -18,10 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Implementation of interfaces
 
-        IExpressionNode? ITokenParserComponent.TryParse(ITokenParserContext context, IExpressionNode? expression)
-        {
-            return TryParse?.Invoke(context, expression);
-        }
+        IExpressionNode? ITokenParserComponent.TryParse(ITokenParserContext context, IExpressionNode? expression) => TryParse?.Invoke(context, expression);
 
         #endregion
     }

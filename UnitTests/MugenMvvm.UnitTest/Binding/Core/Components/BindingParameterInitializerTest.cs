@@ -99,9 +99,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var initializer = new BindingParameterInitializer(compiler);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameters, DefaultMetadata);
             if (ignore)
-            {
                 context.BindingComponents[BindingParameterNameConstant.ParameterHandler] = null;
-            }
             initializer.Initialize(null!, context);
             context.BindingComponents.Count.ShouldEqual(1);
             if (ignore)
@@ -111,8 +109,8 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             }
 
             parameterVisitCount.ShouldEqual(1);
-            var bindingComponentProvider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.ParameterHandler]!;
-            var component = (ParameterHandlerBindingComponent)bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
+            var bindingComponentProvider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.ParameterHandler]!;
+            var component = (ParameterHandlerBindingComponent) bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
 
             component.Converter.Parameter.ShouldEqual(converter);
             component.Converter.Expression.ShouldBeNull();

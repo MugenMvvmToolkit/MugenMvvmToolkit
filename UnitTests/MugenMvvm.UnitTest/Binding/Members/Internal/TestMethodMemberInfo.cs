@@ -31,35 +31,17 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         #region Implementation of interfaces
 
-        IReadOnlyList<IParameterInfo> IMethodMemberInfo.GetParameters()
-        {
-            return GetParameters?.Invoke() ?? Default.Array<IParameterInfo>();
-        }
+        IReadOnlyList<IParameterInfo> IMethodMemberInfo.GetParameters() => GetParameters?.Invoke() ?? Default.Array<IParameterInfo>();
 
-        IReadOnlyList<Type> IMethodMemberInfo.GetGenericArguments()
-        {
-            return GetGenericArguments?.Invoke() ?? Default.Array<Type>();
-        }
+        IReadOnlyList<Type> IMethodMemberInfo.GetGenericArguments() => GetGenericArguments?.Invoke() ?? Default.Array<Type>();
 
-        IMethodMemberInfo IMethodMemberInfo.GetGenericMethodDefinition()
-        {
-            return GetGenericMethodDefinition?.Invoke()!;
-        }
+        IMethodMemberInfo IMethodMemberInfo.GetGenericMethodDefinition() => GetGenericMethodDefinition?.Invoke()!;
 
-        IMethodMemberInfo IMethodMemberInfo.MakeGenericMethod(Type[] types)
-        {
-            return MakeGenericMethod?.Invoke(types) ?? this;
-        }
+        IMethodMemberInfo IMethodMemberInfo.MakeGenericMethod(Type[] types) => MakeGenericMethod?.Invoke(types) ?? this;
 
-        IAccessorMemberInfo? IMethodMemberInfo.TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata)
-        {
-            return TryGetAccessor?.Invoke(argumentFlags, args, metadata);
-        }
+        IAccessorMemberInfo? IMethodMemberInfo.TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata) => TryGetAccessor?.Invoke(argumentFlags, args, metadata);
 
-        object? IMethodMemberInfo.Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata)
-        {
-            return Invoke?.Invoke(target, args, metadata);
-        }
+        object? IMethodMemberInfo.Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata) => Invoke?.Invoke(target, args, metadata);
 
         #endregion
     }

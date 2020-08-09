@@ -198,15 +198,9 @@ namespace MugenMvvm.UnitTest.Binding.Observation
 
             #region Methods
 
-            protected override void OnListenersAdded()
-            {
-                ++AddedCount;
-            }
+            protected override void OnListenersAdded() => ++AddedCount;
 
-            protected override void OnListenersRemoved()
-            {
-                ++RemovedCount;
-            }
+            protected override void OnListenersRemoved() => ++RemovedCount;
 
             #endregion
         }

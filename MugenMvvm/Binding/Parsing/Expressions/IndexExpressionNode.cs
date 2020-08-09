@@ -39,10 +39,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return new IndexExpressionNode(Target, arguments);
         }
 
-        public IIndexExpressionNode UpdateTarget(IExpressionNode? target)
-        {
-            return target == Target ? this : new IndexExpressionNode(target, Arguments);
-        }
+        public IIndexExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new IndexExpressionNode(target, Arguments);
 
         #endregion
 

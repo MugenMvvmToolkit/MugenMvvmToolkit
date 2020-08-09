@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
         public void OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {

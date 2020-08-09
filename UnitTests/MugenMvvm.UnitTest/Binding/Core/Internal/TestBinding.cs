@@ -43,25 +43,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        void IDisposable.Dispose()
-        {
-            Dispose?.Invoke();
-        }
+        void IDisposable.Dispose() => Dispose?.Invoke();
 
-        ItemOrList<object, object[]> IBinding.GetComponents()
-        {
-            return GetComponents?.Invoke() ?? default;
-        }
+        ItemOrList<object, object[]> IBinding.GetComponents() => GetComponents?.Invoke() ?? default;
 
-        void IBinding.UpdateTarget()
-        {
-            UpdateTarget?.Invoke();
-        }
+        void IBinding.UpdateTarget() => UpdateTarget?.Invoke();
 
-        void IBinding.UpdateSource()
-        {
-            UpdateSource?.Invoke();
-        }
+        void IBinding.UpdateSource() => UpdateSource?.Invoke();
 
         #endregion
     }

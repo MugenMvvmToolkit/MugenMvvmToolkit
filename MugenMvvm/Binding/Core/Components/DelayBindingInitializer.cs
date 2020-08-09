@@ -35,8 +35,8 @@ namespace MugenMvvm.Binding.Core.Components
             if (delay != null)
             {
                 var builder = parameterName == BindingParameterNameConstant.Delay
-                    ? new DelegateBindingComponentProvider<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetSource(i), (ushort)delay.Value)
-                    : new DelegateBindingComponentProvider<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetTarget(i), (ushort)delay.Value);
+                    ? new DelegateBindingComponentProvider<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetSource(i), (ushort) delay.Value)
+                    : new DelegateBindingComponentProvider<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetTarget(i), (ushort) delay.Value);
                 context.BindingComponents[parameterName] = builder;
             }
         }

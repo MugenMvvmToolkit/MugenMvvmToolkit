@@ -117,7 +117,7 @@ namespace MugenMvvm.Extensions
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service, IReadOnlyMetadataContext? metadata = null)
             where TService : class
         {
-            MugenService.Configuration.InitializeInstance((TService)service);
+            MugenService.Configuration.InitializeInstance((TService) service);
             return configuration.ServiceConfiguration<TService>();
         }
 
@@ -128,15 +128,9 @@ namespace MugenMvvm.Extensions
             return configuration;
         }
 
-        public static TService Service<TService>(this ServiceConfiguration<TService> _) where TService : class
-        {
-            return MugenService.Instance<TService>();
-        }
+        public static TService Service<TService>(this ServiceConfiguration<TService> _) where TService : class => MugenService.Instance<TService>();
 
-        public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration)
-        {
-            return configuration.Application;
-        }
+        public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration) => configuration.Application;
 
         #endregion
     }

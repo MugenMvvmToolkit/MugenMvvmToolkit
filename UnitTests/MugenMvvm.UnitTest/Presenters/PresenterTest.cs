@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTest.Presenters
                         o.ShouldEqual(request);
                         arg3.ShouldEqual(DefaultMetadata);
                         arg4.ShouldEqual(cancellationToken);
-                        return new[] { result };
+                        return new[] {result};
                     },
                     Priority = -i
                 };
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTest.Presenters
                         o.ShouldEqual(request);
                         arg3.ShouldEqual(DefaultMetadata);
                         arg4.ShouldEqual(cancellationToken);
-                        return new[] { result };
+                        return new[] {result};
                     },
                     Priority = -i
                 };
@@ -84,10 +84,7 @@ namespace MugenMvvm.UnitTest.Presenters
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override Presenter GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new Presenter(collectionProvider);
-        }
+        protected override Presenter GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Presenter(collectionProvider);
 
         #endregion
     }

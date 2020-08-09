@@ -338,7 +338,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnCleared(collection);
         }
 
-        public static void OnItemChanged<T>(this T[] listeners, IObservableCollection collection, object? item, int index, object? args) 
+        public static void OnItemChanged<T>(this T[] listeners, IObservableCollection collection, object? item, int index, object? args)
             where T : class, ICollectionChangedListenerBase
         {
             Should.NotBeNull(listeners, nameof(listeners));

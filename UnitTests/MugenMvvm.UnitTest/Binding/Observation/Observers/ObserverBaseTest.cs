@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
         [Fact]
         public void ConstructorShouldInitializeValues2()
         {
-            var o = new TestWeakReference { IsAlive = true, Target = new object() };
+            var o = new TestWeakReference {IsAlive = true, Target = new object()};
             var observer = GetObserver(o);
             observer.IsAlive.ShouldBeTrue();
             observer.Target.ShouldEqual(o.Target);
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             var memberPathObserver = GetObserver(this);
             memberPathObserver.IsAlive.ShouldBeTrue();
             memberPathObserver.Target.ShouldEqual(this);
-            ((IHasDisposeCondition)memberPathObserver).CanDispose = canDispose;
+            ((IHasDisposeCondition) memberPathObserver).CanDispose = canDispose;
 
             memberPathObserver.Dispose();
             if (canDispose)

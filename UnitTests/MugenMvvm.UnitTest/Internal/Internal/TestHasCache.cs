@@ -14,10 +14,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        void IHasCache.Invalidate(object? state, IReadOnlyMetadataContext? metadata)
-        {
-            Invalidate?.Invoke(state, metadata);
-        }
+        void IHasCache.Invalidate(object? state, IReadOnlyMetadataContext? metadata) => Invalidate?.Invoke(state, metadata);
 
         #endregion
     }

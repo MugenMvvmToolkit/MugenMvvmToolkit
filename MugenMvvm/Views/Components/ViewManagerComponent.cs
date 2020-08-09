@@ -62,7 +62,7 @@ namespace MugenMvvm.Views.Components
                     return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, v, m) => c.Add(v, m), (c, v, m) => c.Remove(v, m), metadata));
                 }
 
-                var list = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, o) => new List<IView>(2));
+                var list = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (context, o) => new List<IView>(2));
                 return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
             }
             catch (Exception e)
@@ -108,7 +108,7 @@ namespace MugenMvvm.Views.Components
             }
 
             if (view != null && _attachedValueManager.DefaultIfNull().TryGetAttachedValues(view, metadata).TryGet(InternalConstant.ViewsValueKey, out var value))
-                return GetViews((List<IView>?)value);
+                return GetViews((List<IView>?) value);
             return default;
         }
 
@@ -120,7 +120,7 @@ namespace MugenMvvm.Views.Components
         {
             if (views == null)
                 return default;
-            ItemOrListEditor<IView, List<IView>> result = ItemOrListEditor.Get<IView>();
+            var result = ItemOrListEditor.Get<IView>();
             for (var i = 0; i < views.Count; i++)
                 result.Add(views[i]);
             return result.ToItemOrList<IReadOnlyList<IView>>();

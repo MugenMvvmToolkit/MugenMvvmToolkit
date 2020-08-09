@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             owner.AddComponent(component);
             owner.Components.Add(hasCache);
 
-            var member = new TestAccessorMemberInfo { Name = memberName, DeclaringType = requestType, MemberType = MemberType.Accessor };
+            var member = new TestAccessorMemberInfo {Name = memberName, DeclaringType = requestType, MemberType = MemberType.Accessor};
             component.Register(member, name);
             invalidateCount.ShouldEqual(1);
 
@@ -74,9 +74,9 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var component = new AttachedMemberProvider();
             owner.AddComponent(component);
 
-            var memberInfo1 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(List<object>), MemberType = MemberType.Method };
-            var memberInfo2 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(IEnumerable<object>), MemberType = MemberType.Accessor };
-            var memberInfo3 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(string), MemberType = MemberType.Event };
+            var memberInfo1 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(List<object>), MemberType = MemberType.Method};
+            var memberInfo2 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(IEnumerable<object>), MemberType = MemberType.Accessor};
+            var memberInfo3 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(string), MemberType = MemberType.Event};
             component.Register(memberInfo1);
             component.Register(memberInfo2);
             component.Register(memberInfo3);
@@ -98,9 +98,9 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var component = new AttachedMemberProvider();
             owner.AddComponent(component);
 
-            var memberInfo1 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(object), MemberType = MemberType.Method };
-            var memberInfo2 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(IEnumerable<char>), MemberType = MemberType.Accessor };
-            var memberInfo3 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(string), MemberType = MemberType.Event };
+            var memberInfo1 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(object), MemberType = MemberType.Method};
+            var memberInfo2 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(IEnumerable<char>), MemberType = MemberType.Accessor};
+            var memberInfo3 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(string), MemberType = MemberType.Event};
             component.Register(memberInfo1);
             component.Register(memberInfo2);
             component.Register(memberInfo3);
@@ -111,7 +111,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             members.ShouldContain(memberInfo2);
             members.ShouldContain(memberInfo3);
 
-            component.TryGetMembers(null!, typeof(MemberManager), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo1); ;
+            component.TryGetMembers(null!, typeof(MemberManager), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo1);
+            ;
             component.TryGetMembers(null!, typeof(IList<string>), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo1);
         }
 
@@ -123,10 +124,10 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var component = new AttachedMemberProvider();
             owner.AddComponent(component);
 
-            var memberInfo1 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(List<>), MemberType = MemberType.Accessor };
-            var memberInfo2 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(IEnumerable<>), MemberType = MemberType.Accessor };
-            var memberInfo3 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(string), MemberType = MemberType.Accessor };
-            var memberInfo4 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(object), MemberType = MemberType.Accessor };
+            var memberInfo1 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(List<>), MemberType = MemberType.Accessor};
+            var memberInfo2 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(IEnumerable<>), MemberType = MemberType.Accessor};
+            var memberInfo3 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(string), MemberType = MemberType.Accessor};
+            var memberInfo4 = new TestAccessorMemberInfo {Name = memberName, DeclaringType = typeof(object), MemberType = MemberType.Accessor};
             component.Register(memberInfo1);
             component.Register(memberInfo2);
             component.Register(memberInfo3);

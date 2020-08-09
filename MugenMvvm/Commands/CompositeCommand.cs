@@ -65,15 +65,9 @@ namespace MugenMvvm.Commands
 
         #region Implementation of interfaces
 
-        public bool CanExecute(object parameter)
-        {
-            return GetComponents<IConditionCommandComponent>().CanExecute(this, parameter);
-        }
+        public bool CanExecute(object parameter) => GetComponents<IConditionCommandComponent>().CanExecute(this, parameter);
 
-        public void Execute(object parameter)
-        {
-            GetComponents<IExecutorCommandComponent>().ExecuteAsync(this, parameter);
-        }
+        public void Execute(object parameter) => GetComponents<IExecutorCommandComponent>().ExecuteAsync(this, parameter);
 
         public void Dispose()
         {
@@ -84,15 +78,9 @@ namespace MugenMvvm.Commands
             this.ClearMetadata(true);
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<ISuspendable>().Suspend(state, metadata);
-        }
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<ISuspendable>().Suspend(state, metadata);
 
-        public void RaiseCanExecuteChanged()
-        {
-            GetComponents<IConditionEventCommandComponent>().RaiseCanExecuteChanged(this);
-        }
+        public void RaiseCanExecuteChanged() => GetComponents<IConditionEventCommandComponent>().RaiseCanExecuteChanged(this);
 
         void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
@@ -100,27 +88,20 @@ namespace MugenMvvm.Commands
                 RaiseCanExecuteChanged();
         }
 
-        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            return !IsDisposed;
-        }
+        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
         #endregion
 
         #region Methods
 
         private new TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
-            where TComponent : class
-        {
-            return IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
-        }
+            where TComponent : class =>
+            IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
 
         public static ICompositeCommand Create(Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
 
         public static ICompositeCommand Create(Action execute, Func<bool> canExecute, params object[] notifiers)
         {
@@ -136,10 +117,8 @@ namespace MugenMvvm.Commands
 
         public static ICompositeCommand Create<T>(Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
 
         public static ICompositeCommand Create<T>(Action<T> execute, Func<T, bool> canExecute, params object[] notifiers)
         {
@@ -155,10 +134,8 @@ namespace MugenMvvm.Commands
 
         public static ICompositeCommand CreateFromTask(Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
 
         public static ICompositeCommand CreateFromTask(Func<Task> execute, Func<bool> canExecute, params object[] notifiers)
         {
@@ -174,10 +151,8 @@ namespace MugenMvvm.Commands
 
         public static ICompositeCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            MugenService.CommandManager.GetCommand(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
 
         public static ICompositeCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool> canExecute, params object[] notifiers)
         {

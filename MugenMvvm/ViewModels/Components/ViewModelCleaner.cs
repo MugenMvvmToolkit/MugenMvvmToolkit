@@ -95,7 +95,7 @@ namespace MugenMvvm.ViewModels.Components
             {
                 if (!TypesToCommandsProperties.TryGetValue(type, out rawValue))
                 {
-                    ItemOrListEditor<Func<object, ICommand>, List<Func<object, ICommand>>> items = ItemOrListEditor.Get<Func<object, ICommand>>();
+                    var items = ItemOrListEditor.Get<Func<object, ICommand>>();
                     foreach (var p in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
                         if (typeof(ICommand).IsAssignableFrom(p.PropertyType) && p.CanRead &&

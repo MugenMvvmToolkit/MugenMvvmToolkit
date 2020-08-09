@@ -29,10 +29,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         #region Implementation of interfaces
 
-        ActionToken IObservableMemberInfo.TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            return TryObserve?.Invoke(target, listener, metadata) ?? default;
-        }
+        ActionToken IObservableMemberInfo.TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata) => TryObserve?.Invoke(target, listener, metadata) ?? default;
 
         #endregion
 

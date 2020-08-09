@@ -10,15 +10,9 @@ namespace MugenMvvm.Components
     {
         #region Implementation of interfaces
 
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentAdded(collection, component, metadata);
-        }
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentAdded(collection, component, metadata);
 
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentRemoved(collection, component, metadata);
-        }
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentRemoved(collection, component, metadata);
 
         public abstract void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null);
 

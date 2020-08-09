@@ -50,21 +50,15 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Implementation of interfaces
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            _binding = (IBinding)owner;
+            _binding = (IBinding) owner;
             _timer = new Timer(CallbackDelegate, this, Timeout.Infinite, Timeout.Infinite);
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -108,20 +102,11 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             return BindingMetadata.DoNothing;
         }
 
-        public static IComponent<IBinding> GetTarget(ushort delay)
-        {
-            return new Target(delay);
-        }
+        public static IComponent<IBinding> GetTarget(ushort delay) => new Target(delay);
 
-        public static IComponent<IBinding> GetSource(ushort delay)
-        {
-            return new Source(delay);
-        }
+        public static IComponent<IBinding> GetSource(ushort delay) => new Source(delay);
 
-        private static void Callback(object? state)
-        {
-            MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler)state!, null);
-        }
+        private static void Callback(object? state) => MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler) state!, null);
 
         #endregion
 
@@ -139,19 +124,13 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             #region Implementation of interfaces
 
-            public object? InterceptTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
-            {
-                return OnValueChanging(value);
-            }
+            public object? InterceptTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) => OnValueChanging(value);
 
             #endregion
 
             #region Methods
 
-            protected override void Update(IBinding binding)
-            {
-                binding.UpdateTarget();
-            }
+            protected override void Update(IBinding binding) => binding.UpdateTarget();
 
             #endregion
         }
@@ -168,19 +147,13 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             #region Implementation of interfaces
 
-            public object? InterceptSourceValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata)
-            {
-                return OnValueChanging(value);
-            }
+            public object? InterceptSourceValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata) => OnValueChanging(value);
 
             #endregion
 
             #region Methods
 
-            protected override void Update(IBinding binding)
-            {
-                binding.UpdateSource();
-            }
+            protected override void Update(IBinding binding) => binding.UpdateSource();
 
             #endregion
         }

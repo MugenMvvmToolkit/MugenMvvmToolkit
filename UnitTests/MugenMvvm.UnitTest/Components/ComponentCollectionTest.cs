@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Components
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent { Priority = i };
+                var component = new TestComponentCollectionProviderComponent {Priority = i};
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata).ShouldBeTrue();
             }
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Components
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent { Priority = i };
+                var component = new TestComponentCollectionProviderComponent {Priority = i};
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata);
             }
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest.Components
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent { Priority = i };
+                var component = new TestComponentCollectionProviderComponent {Priority = i};
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata);
             }
@@ -340,48 +340,48 @@ namespace MugenMvvm.UnitTest.Components
             var componentDecorated1 = new TestThreadDispatcherComponent();
             var componentDecorated2 = new TestThreadDispatcherComponent();
 
-            var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> { Priority = 0 };
-            var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> { Priority = 1 };
+            var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 0};
+            var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 1};
             var component = new TestThreadDispatcherComponent();
             componentCollection.Add(component);
 
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component }).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component}).ShouldBeTrue();
             decoratorComponent1.DecorateHandler = (c, list, context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
-                list.SequenceEqual(new[] { component }).ShouldBeTrue();
+                list.SequenceEqual(new[] {component}).ShouldBeTrue();
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated1);
             };
             componentCollection.AddComponent(decoratorComponent1);
 
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             decoratorComponent2.DecorateHandler = (c, list, context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
-                list.SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
+                list.SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated2);
             };
             componentCollection.AddComponent(decoratorComponent2);
 
             executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1, componentDecorated2 }).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1, componentDecorated2}).ShouldBeTrue();
             executed.ShouldEqual(2);
 
             componentCollection.RemoveComponent(decoratorComponent2);
             executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
             componentCollection.RemoveComponent(decoratorComponent1);
             var components = componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata);
-            components.SequenceEqual(new[] { component }).ShouldBeTrue();
+            components.SequenceEqual(new[] {component}).ShouldBeTrue();
             executed.ShouldEqual(0);
         }
 
@@ -413,10 +413,7 @@ namespace MugenMvvm.UnitTest.Components
             components.OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
         }
 
-        protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ComponentCollection(this);
-        }
+        protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollection(this);
 
         #endregion
 
@@ -426,15 +423,9 @@ namespace MugenMvvm.UnitTest.Components
         {
             #region Implementation of interfaces
 
-            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
-            {
-                throw new NotSupportedException();
-            }
+            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
 
-            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
-            {
-                throw new NotSupportedException();
-            }
+            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
 
             #endregion
         }

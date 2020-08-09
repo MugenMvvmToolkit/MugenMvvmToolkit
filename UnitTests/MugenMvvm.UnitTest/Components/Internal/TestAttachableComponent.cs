@@ -31,10 +31,7 @@ namespace MugenMvvm.UnitTest.Components.Internal
             base.OnAttached(owner, metadata);
         }
 
-        protected override bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata)
-        {
-            return OnAttachingHandler?.Invoke(owner, metadata) ?? base.OnAttaching(owner, metadata);
-        }
+        protected override bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => OnAttachingHandler?.Invoke(owner, metadata) ?? base.OnAttaching(owner, metadata);
 
         protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
@@ -42,10 +39,7 @@ namespace MugenMvvm.UnitTest.Components.Internal
             base.OnDetached(owner, metadata);
         }
 
-        protected override bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata)
-        {
-            return OnDetachingHandler?.Invoke(owner, metadata) ?? base.OnDetaching(owner, metadata);
-        }
+        protected override bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => OnDetachingHandler?.Invoke(owner, metadata) ?? base.OnDetaching(owner, metadata);
 
         #endregion
     }

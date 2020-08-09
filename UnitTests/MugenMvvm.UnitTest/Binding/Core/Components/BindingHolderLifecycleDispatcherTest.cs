@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             manager.AddComponent(holder);
             manager.AddComponent(new BindingHolderLifecycleDispatcher());
 
-            binding.Target = new TestMemberPathObserver { Target = target };
+            binding.Target = new TestMemberPathObserver {Target = target};
             manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, DefaultMetadata);
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(0);

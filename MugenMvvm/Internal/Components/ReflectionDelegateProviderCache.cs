@@ -85,20 +85,11 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        void IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, IList<IMemberReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
-        {
-            _memberComponents = this.Decorate(components);
-        }
+        void IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, IList<IMemberReflectionDelegateProviderComponent> components,
+            IReadOnlyMetadataContext? metadata) => _memberComponents = this.Decorate(components);
 
-        void IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, IList<IMethodReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
-        {
-            _methodComponents = this.Decorate(components);
-        }
-
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            Invalidate(true, true, true);
-        }
+        void IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, IList<IMethodReflectionDelegateProviderComponent> components,
+            IReadOnlyMetadataContext? metadata) => _methodComponents = this.Decorate(components);
 
         public Delegate? TryGetMemberGetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
@@ -163,20 +154,14 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            InvalidateComponent(component);
-        }
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => Invalidate(true, true, true);
 
-        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            InvalidateComponent(component);
-        }
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => InvalidateComponent(component);
 
-        private void InvalidateComponent(object component)
-        {
-            Invalidate(component is IActivatorReflectionDelegateProviderComponent, component is IMethodReflectionDelegateProviderComponent, component is IMemberReflectionDelegateProviderComponent);
-        }
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => InvalidateComponent(component);
+
+        private void InvalidateComponent(object component) => Invalidate(component is IActivatorReflectionDelegateProviderComponent, component is IMethodReflectionDelegateProviderComponent,
+            component is IMemberReflectionDelegateProviderComponent);
 
         private void Invalidate(bool activator, bool method, bool member)
         {

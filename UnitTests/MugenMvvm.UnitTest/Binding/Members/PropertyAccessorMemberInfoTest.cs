@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
         public string WriteOnlyProperty
         {
-            set {; }
+            set { ; }
         }
 
         public static string? Property1Static { get; set; }
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
         public static string WriteOnlyPropertyStatic
         {
-            set {; }
+            set { ; }
         }
 
         #endregion

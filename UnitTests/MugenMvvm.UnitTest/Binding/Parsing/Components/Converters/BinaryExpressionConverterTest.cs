@@ -33,14 +33,11 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
 
         [Theory]
         [MemberData(nameof(GetData))]
-        public void TryConvertShouldConvertBinaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result)
-        {
+        public void TryConvertShouldConvertBinaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
             new BinaryExpressionConverter().TryConvert(ctx, expression).ShouldEqual(result);
-        }
 
-        public static IEnumerable<object?[]> GetData()
-        {
-            return new[]
+        public static IEnumerable<object?[]> GetData() =>
+            new[]
             {
                 GetBinary(ExpressionType.Multiply, BinaryTokenType.Multiplication),
                 GetBinary(ExpressionType.Divide, BinaryTokenType.Division),
@@ -62,12 +59,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
                 GetBinary(ExpressionType.OrElse, BinaryTokenType.ConditionalOr, true, false),
                 GetBinary(ExpressionType.Coalesce, BinaryTokenType.NullCoalescing, null!, "")
             };
-        }
 
-        private static object[] GetBinary(ExpressionType expressionType, BinaryTokenType binaryTokenType)
-        {
-            return GetBinary(expressionType, binaryTokenType, 1, 2);
-        }
+        private static object[] GetBinary(ExpressionType expressionType, BinaryTokenType binaryTokenType) => GetBinary(expressionType, binaryTokenType, 1, 2);
 
         private static object[] GetBinary<T>(ExpressionType expressionType, BinaryTokenType binaryTokenType, T v1, T v2)
         {
@@ -77,7 +70,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
             var result = new BinaryExpressionNode(binaryTokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
             context.SetExpression(left, result.Left);
             context.SetExpression(right, result.Right);
-            return new object[] { context, Expression.MakeBinary(expressionType, left, right), result };
+            return new object[] {context, Expression.MakeBinary(expressionType, left, right), result};
         }
 
         #endregion

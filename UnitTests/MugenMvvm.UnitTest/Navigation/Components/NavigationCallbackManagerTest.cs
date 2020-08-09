@@ -71,6 +71,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                     component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
                 }
             }
+
             addedCallbacks.Count.ShouldEqual(1);
         }
 

@@ -16,20 +16,11 @@ namespace MugenMvvm.Extensions
 
         #region Methods
 
-        public static ParameterExpression GetParameterExpression<TType>()
-        {
-            return ParameterExpressionCache<TType>.Parameter;
-        }
+        public static ParameterExpression GetParameterExpression<TType>() => ParameterExpressionCache<TType>.Parameter;
 
-        public static ParameterExpression[] GetParametersExpression<TType>()
-        {
-            return ParameterExpressionCache<TType>.Parameters;
-        }
+        public static ParameterExpression[] GetParametersExpression<TType>() => ParameterExpressionCache<TType>.Parameters;
 
-        public static ConstantExpression GetConstantExpression(byte value)
-        {
-            return ExpressionCache<byte>.Items[value];
-        }
+        public static ConstantExpression GetConstantExpression(byte value) => ExpressionCache<byte>.Items[value];
 
         public static ConstantExpression GetConstantExpression(sbyte value)
         {
@@ -122,22 +113,13 @@ namespace MugenMvvm.Extensions
             #region Fields
 
             public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
-            public static readonly ParameterExpression[] Parameters = new[] { Parameter };
+            public static readonly ParameterExpression[] Parameters = {Parameter};
 
             #endregion
         }
 
         internal static class ExpressionCache<T>
         {
-            #region Fields
-
-            // ReSharper disable StaticMemberInGenericType
-            public static readonly ConstantExpression[] Items = GenerateItems(false);
-            public static readonly ConstantExpression[] NegativeItems = GenerateItems(true);
-            // ReSharper restore StaticMemberInGenericType
-
-            #endregion
-
             #region Methods
 
             private static ConstantExpression[] GenerateItems(bool negative)
@@ -153,6 +135,12 @@ namespace MugenMvvm.Extensions
             }
 
             #endregion
+
+            // ReSharper disable StaticMemberInGenericType
+            public static readonly ConstantExpression[] Items = GenerateItems(false);
+
+            public static readonly ConstantExpression[] NegativeItems = GenerateItems(true);
+            // ReSharper restore StaticMemberInGenericType
         }
 
         #endregion

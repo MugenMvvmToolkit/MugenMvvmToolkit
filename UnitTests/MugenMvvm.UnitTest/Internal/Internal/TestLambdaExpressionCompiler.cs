@@ -16,15 +16,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        Delegate ILambdaExpressionCompiler.Compile(LambdaExpression lambdaExpression)
-        {
-            return Compile?.Invoke(lambdaExpression) ?? lambdaExpression.Compile();
-        }
+        Delegate ILambdaExpressionCompiler.Compile(LambdaExpression lambdaExpression) => Compile?.Invoke(lambdaExpression) ?? lambdaExpression.Compile();
 
-        TDelegate ILambdaExpressionCompiler.Compile<TDelegate>(Expression<TDelegate> lambdaExpression)
-        {
-            return (TDelegate) CompileGeneric?.Invoke(lambdaExpression, typeof(TDelegate))! ?? lambdaExpression.Compile();
-        }
+        TDelegate ILambdaExpressionCompiler.Compile<TDelegate>(Expression<TDelegate> lambdaExpression) => (TDelegate) CompileGeneric?.Invoke(lambdaExpression, typeof(TDelegate))! ?? lambdaExpression.Compile();
 
         #endregion
     }

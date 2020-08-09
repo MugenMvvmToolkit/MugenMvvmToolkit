@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var source = new object();
             var targetExp = MemberExpressionNode.Self;
             var sourceExp = MemberExpressionNode.Source;
-            var parameters = new[] { MemberExpressionNode.Self, MemberExpressionNode.Source };
+            var parameters = new[] {MemberExpressionNode.Self, MemberExpressionNode.Source};
             context.Initialize(target, source, targetExp, sourceExp, parameters, DefaultMetadata);
 
             context.Target.ShouldEqual(target);
@@ -46,7 +46,6 @@ namespace MugenMvvm.UnitTest.Binding.Core
             context.TargetExpression.ShouldBeNull();
             context.SourceExpression.ShouldBeNull();
             context.Parameters.ShouldEqual(default);
-
         }
 
         [Theory]
@@ -87,9 +86,9 @@ namespace MugenMvvm.UnitTest.Binding.Core
             context.TryGetParameterValue<bool?>(parameter3).ShouldEqual(parameterValue3);
 
             if (reinitialize)
-                context.Initialize(this, this, MemberExpressionNode.Self, MemberExpressionNode.Source, new[] { new MemberExpressionNode(null, parameter4) }, null);
+                context.Initialize(this, this, MemberExpressionNode.Self, MemberExpressionNode.Source, new[] {new MemberExpressionNode(null, parameter4)}, null);
             else
-                context.Parameters = new[] { new MemberExpressionNode(null, parameter4) };
+                context.Parameters = new[] {new MemberExpressionNode(null, parameter4)};
 
             context.AssignmentParameters.Count.ShouldEqual(0);
             context.TryGetParameterValue<IExpressionNode>(parameter1).ShouldBeNull();

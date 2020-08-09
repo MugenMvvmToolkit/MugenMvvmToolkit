@@ -58,7 +58,7 @@ namespace MugenMvvm.Navigation
             {
                 if (_callbacks is List<INavigationCallbackListener> callbacks)
                     return ItemOrList.FromListToReadOnly(callbacks.ToArray());
-                return ItemOrList.FromItem((INavigationCallbackListener)_callbacks!);
+                return ItemOrList.FromItem((INavigationCallbackListener) _callbacks!);
             }
         }
 
@@ -96,15 +96,9 @@ namespace MugenMvvm.Navigation
 
         #region Methods
 
-        public bool TrySetResult(INavigationContext navigationContext)
-        {
-            return SetResult(SuccessState, navigationContext, null, default, false);
-        }
+        public bool TrySetResult(INavigationContext navigationContext) => SetResult(SuccessState, navigationContext, null, default, false);
 
-        public void SetResult(INavigationContext navigationContext)
-        {
-            SetResult(SuccessState, navigationContext, null, default, true);
-        }
+        public void SetResult(INavigationContext navigationContext) => SetResult(SuccessState, navigationContext, null, default, true);
 
         public bool TrySetException(INavigationContext navigationContext, Exception exception)
         {
@@ -118,15 +112,9 @@ namespace MugenMvvm.Navigation
             SetResult(ErrorState, navigationContext, exception, default, true);
         }
 
-        public bool TrySetCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
-        {
-            return SetResult(CanceledState, navigationContext, null, cancellationToken, false);
-        }
+        public bool TrySetCanceled(INavigationContext navigationContext, CancellationToken cancellationToken) => SetResult(CanceledState, navigationContext, null, cancellationToken, false);
 
-        public void SetCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
-        {
-            SetResult(CanceledState, navigationContext, null, cancellationToken, true);
-        }
+        public void SetCanceled(INavigationContext navigationContext, CancellationToken cancellationToken) => SetResult(CanceledState, navigationContext, null, cancellationToken, true);
 
         private bool SetResult(int state, INavigationContext navigationContext, Exception? exception, CancellationToken cancellationToken, bool throwOnError)
         {
@@ -178,10 +166,7 @@ namespace MugenMvvm.Navigation
             }
         }
 
-        private ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> GetCallbacksRaw()
-        {
-            return ItemOrList.FromRawValue<INavigationCallbackListener, List<INavigationCallbackListener>>(_callbacks, true);
-        }
+        private ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> GetCallbacksRaw() => ItemOrList.FromRawValue<INavigationCallbackListener, List<INavigationCallbackListener>>(_callbacks, true);
 
         #endregion
     }

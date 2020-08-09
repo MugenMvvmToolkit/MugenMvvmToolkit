@@ -56,17 +56,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
-        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
-        {
-            return this;
-        }
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
 
-        protected MemberPathObserverRequest GetObserverRequest(string path, IReadOnlyMetadataContext? metadata)
-        {
-            return new MemberPathObserverRequest(ObservationManager.DefaultIfNull().GetMemberPath(path, metadata), MemberFlags,
+        protected MemberPathObserverRequest GetObserverRequest(string path, IReadOnlyMetadataContext? metadata) =>
+            new MemberPathObserverRequest(ObservationManager.DefaultIfNull().GetMemberPath(path, metadata), MemberFlags,
                 Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
                 Flags.HasFlagEx(BindingMemberExpressionFlags.Observable), Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath));
-        }
 
         protected string MergePath(string value)
         {
@@ -77,10 +72,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return value + "." + Path;
         }
 
-        public override string ToString()
-        {
-            return $"bind{Index}({Path})";
-        }
+        public override string ToString() => $"bind{Index}({Path})";
 
         #endregion
     }

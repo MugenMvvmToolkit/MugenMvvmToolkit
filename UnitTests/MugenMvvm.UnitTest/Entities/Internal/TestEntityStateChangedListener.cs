@@ -19,10 +19,8 @@ namespace MugenMvvm.UnitTest.Entities.Internal
 
         #region Implementation of interfaces
 
-        void IEntityStateChangedListener.OnEntityStateChanged(IEntityTrackingCollection collection, object entity, EntityState from, EntityState to, IReadOnlyMetadataContext? metadata)
-        {
+        void IEntityStateChangedListener.OnEntityStateChanged(IEntityTrackingCollection collection, object entity, EntityState from, EntityState to, IReadOnlyMetadataContext? metadata) =>
             OnEntityStateChanged?.Invoke(collection, entity, from, to, metadata);
-        }
 
         #endregion
     }

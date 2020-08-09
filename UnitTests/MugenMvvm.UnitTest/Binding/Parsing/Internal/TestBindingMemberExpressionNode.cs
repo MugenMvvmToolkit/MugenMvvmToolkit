@@ -49,24 +49,15 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
             return tuple?.Item1!;
         }
 
-        object? IBindingMemberExpressionNode.GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return GetBindingSource?.Invoke(target, source, metadata)!;
-        }
+        object? IBindingMemberExpressionNode.GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata) => GetBindingSource?.Invoke(target, source, metadata)!;
 
         #endregion
 
         #region Methods
 
-        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
-        {
-            return VisitHandler?.Invoke(visitor, metadata) ?? this;
-        }
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => VisitHandler?.Invoke(visitor, metadata) ?? this;
 
-        public override string ToString()
-        {
-            return Path ?? base.ToString()!;
-        }
+        public override string ToString() => Path ?? base.ToString()!;
 
         #endregion
     }

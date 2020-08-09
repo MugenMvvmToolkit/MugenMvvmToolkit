@@ -47,10 +47,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
 
         [Theory]
         [MemberData(nameof(GetData))]
-        public void TryParseShouldParseBinaryExpression(TokenParserContext ctx, IExpressionNode? expression, IExpressionNode result)
-        {
-            new BinaryTokenParser().TryParse(ctx, expression).ShouldEqual(result);
-        }
+        public void TryParseShouldParseBinaryExpression(TokenParserContext ctx, IExpressionNode? expression, IExpressionNode result) => new BinaryTokenParser().TryParse(ctx, expression).ShouldEqual(result);
 
         [Fact]
         public void TryParseShouldParseAlias()
@@ -73,9 +70,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
             component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldEqual(new BinaryExpressionNode(tokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
         }
 
-        public static IEnumerable<object?[]> GetData()
-        {
-            return new[]
+        public static IEnumerable<object?[]> GetData() =>
+            new[]
             {
                 GetBinary(BinaryTokenType.Multiplication),
                 GetBinary(BinaryTokenType.Division),
@@ -97,7 +93,6 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
                 GetBinary(BinaryTokenType.ConditionalOr),
                 GetBinary(BinaryTokenType.NullCoalescing)
             };
-        }
 
         private static object?[] GetBinary(BinaryTokenType binaryToken)
         {

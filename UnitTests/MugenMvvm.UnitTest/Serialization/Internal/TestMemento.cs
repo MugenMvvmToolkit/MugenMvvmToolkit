@@ -18,15 +18,9 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         #region Implementation of interfaces
 
-        void IMemento.Preserve(ISerializationContext serializationContext)
-        {
-            Preserve?.Invoke(serializationContext);
-        }
+        void IMemento.Preserve(ISerializationContext serializationContext) => Preserve?.Invoke(serializationContext);
 
-        MementoResult IMemento.Restore(ISerializationContext serializationContext)
-        {
-            return Restore?.Invoke(serializationContext) ?? default;
-        }
+        MementoResult IMemento.Restore(ISerializationContext serializationContext) => Restore?.Invoke(serializationContext) ?? default;
 
         #endregion
     }

@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Messaging
                 var component = new TestMessagePublisherComponent(messenger)
                 {
                     Priority = -i,
-                    TryPublish = (messageContext) =>
+                    TryPublish = messageContext =>
                     {
                         ++invokeCount;
                         messageContext.ShouldEqual(ctx);
@@ -167,7 +167,7 @@ namespace MugenMvvm.UnitTest.Messaging
                 var component = new TestMessengerSubscriberComponent(messenger)
                 {
                     Priority = -i,
-                    TryUnsubscribeAll = (arg3) =>
+                    TryUnsubscribeAll = arg3 =>
                     {
                         ++invokeCount;
                         arg3.ShouldEqual(DefaultMetadata);
@@ -208,10 +208,10 @@ namespace MugenMvvm.UnitTest.Messaging
                 var component = new TestMessengerSubscriberComponent(messenger)
                 {
                     Priority = -i,
-                    TryGetSubscribers = (arg3) =>
+                    TryGetSubscribers = arg3 =>
                     {
                         arg3.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
+                        return new[] {info};
                     }
                 };
                 messenger.AddComponent(component);
@@ -229,7 +229,7 @@ namespace MugenMvvm.UnitTest.Messaging
         {
             var invokedCount = 0;
             var messenger = new Messenger();
-            var hasCache = new TestHasCache { Invalidate = (o, arg3) => { ++invokedCount; } };
+            var hasCache = new TestHasCache {Invalidate = (o, arg3) => { ++invokedCount; }};
             messenger.AddComponent(new MessengerHandlerSubscriber());
             messenger.Components.Add(hasCache);
 
@@ -251,10 +251,7 @@ namespace MugenMvvm.UnitTest.Messaging
             invokedCount.ShouldEqual(1);
         }
 
-        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new Messenger(collectionProvider);
-        }
+        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Messenger(collectionProvider);
 
         #endregion
     }

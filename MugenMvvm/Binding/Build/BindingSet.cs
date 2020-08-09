@@ -47,10 +47,7 @@ namespace MugenMvvm.Binding.Build
 
         #region Implementation of interfaces
 
-        public void Dispose()
-        {
-            Build();
-        }
+        public void Dispose() => Build();
 
         #endregion
 
@@ -89,7 +86,7 @@ namespace MugenMvvm.Binding.Build
 
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildIncludeBindings(IReadOnlyMetadataContext? metadata = null)
         {
-            ItemOrListEditor<IBinding, List<IBinding>> list = ItemOrListEditor.Get<IBinding>();
+            var list = ItemOrListEditor.Get<IBinding>();
             BuildInternal(true, ref list, metadata);
             return list.ToItemOrList<IReadOnlyList<IBinding>>();
         }

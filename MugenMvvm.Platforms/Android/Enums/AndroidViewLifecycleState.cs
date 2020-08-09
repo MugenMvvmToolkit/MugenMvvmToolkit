@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Enums;
-using MugenMvvm.Android.Native.Constants;
+﻿using MugenMvvm.Android.Native.Constants;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Android.Enums
 {
@@ -94,6 +94,7 @@ namespace MugenMvvm.Android.Enums
                 case LifecycleState.Cancel:
                     return Canceling;
             }
+
             return null;
         }
 

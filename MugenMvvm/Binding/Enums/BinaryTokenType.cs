@@ -80,15 +80,9 @@ namespace MugenMvvm.Binding.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(BinaryTokenType? left, BinaryTokenType? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(BinaryTokenType? left, BinaryTokenType? right) => !(left == right);
 
-        protected override bool Equals(string value)
-        {
-            return Value.Equals(value);
-        }
+        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }

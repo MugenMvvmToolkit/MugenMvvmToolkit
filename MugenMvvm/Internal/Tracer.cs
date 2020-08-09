@@ -23,34 +23,19 @@ namespace MugenMvvm.Internal
 
         #region Implementation of interfaces
 
-        public bool CanTrace(TraceLevel level, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<ITracerComponent>().CanTrace(this, level, metadata);
-        }
+        public bool CanTrace(TraceLevel level, IReadOnlyMetadataContext? metadata = null) => GetComponents<ITracerComponent>().CanTrace(this, level, metadata);
 
-        public void Trace(TraceLevel level, string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            GetComponents<ITracerComponent>().Trace(this, level, message, exception, metadata);
-        }
+        public void Trace(TraceLevel level, string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<ITracerComponent>().Trace(this, level, message, exception, metadata);
 
         #endregion
 
         #region Methods
 
-        public static MugenExtensions.TracerWithLevel? Info(IReadOnlyMetadataContext? metadata = null)
-        {
-            return MugenService.Optional<ITracer>().Info(metadata);
-        }
+        public static MugenExtensions.TracerWithLevel? Info(IReadOnlyMetadataContext? metadata = null) => MugenService.Optional<ITracer>().Info(metadata);
 
-        public static MugenExtensions.TracerWithLevel? Warn(IReadOnlyMetadataContext? metadata = null)
-        {
-            return MugenService.Optional<ITracer>().Warn(metadata);
-        }
+        public static MugenExtensions.TracerWithLevel? Warn(IReadOnlyMetadataContext? metadata = null) => MugenService.Optional<ITracer>().Warn(metadata);
 
-        public static MugenExtensions.TracerWithLevel? Error(IReadOnlyMetadataContext? metadata = null)
-        {
-            return MugenService.Optional<ITracer>().Error(metadata);
-        }
+        public static MugenExtensions.TracerWithLevel? Error(IReadOnlyMetadataContext? metadata = null) => MugenService.Optional<ITracer>().Error(metadata);
 
         #endregion
     }

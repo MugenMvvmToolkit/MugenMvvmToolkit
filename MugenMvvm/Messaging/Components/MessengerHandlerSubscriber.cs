@@ -23,6 +23,7 @@ namespace MugenMvvm.Messaging.Components
 
         private static readonly Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?> Cache =
             new Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?>(59, InternalComparer.TypeType);
+
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerDelegate = Handle;
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerRawDelegate = HandleRaw;
 
@@ -144,7 +145,7 @@ namespace MugenMvvm.Messaging.Components
             if (subscriber == null || handler == null)
                 return MessengerResult.Invalid;
 
-            ((Action<object?, object?, IMessageContext>)handler).Invoke(subscriber, context.Message, context);
+            ((Action<object?, object?, IMessageContext>) handler).Invoke(subscriber, context.Message, context);
             return MessengerResult.Handled;
         }
 
@@ -154,7 +155,7 @@ namespace MugenMvvm.Messaging.Components
                 subscriber = weakReference.Target!;
             if (subscriber == null)
                 return MessengerResult.Invalid;
-            return ((IMessengerHandlerRaw)subscriber).Handle(context);
+            return ((IMessengerHandlerRaw) subscriber).Handle(context);
         }
 
         private new bool Add(HandlerSubscriber subscriber)
@@ -269,15 +270,9 @@ namespace MugenMvvm.Messaging.Components
 
             #region Implementation of interfaces
 
-            public bool Equals(HandlerSubscriber x, HandlerSubscriber y)
-            {
-                return x.Subscriber == y.Subscriber || x.GetSubscriber() == y.GetSubscriber();
-            }
+            public bool Equals(HandlerSubscriber x, HandlerSubscriber y) => x.Subscriber == y.Subscriber || x.GetSubscriber() == y.GetSubscriber();
 
-            public int GetHashCode(HandlerSubscriber obj)
-            {
-                return obj.Hash;
-            }
+            public int GetHashCode(HandlerSubscriber obj) => obj.Hash;
 
             #endregion
         }

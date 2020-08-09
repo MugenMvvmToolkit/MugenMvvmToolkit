@@ -49,8 +49,8 @@ namespace MugenMvvm.Binding.Members.Components
         int IEqualityComparer<IMemberInfo>.GetHashCode([AllowNull] IMemberInfo key)
         {
             if (key is IMethodMemberInfo method)
-                return HashCode.Combine((int)key.MemberType, method.GetParameters().Count);
-            return HashCode.Combine((int)key!.MemberType);
+                return HashCode.Combine((int) key.MemberType, method.GetParameters().Count);
+            return HashCode.Combine((int) key!.MemberType);
         }
 
         bool IEqualityComparer<IMemberInfo>.Equals([AllowNull] IMemberInfo x, [AllowNull] IMemberInfo y)
@@ -64,8 +64,8 @@ namespace MugenMvvm.Binding.Members.Components
             if (x.MemberType != MemberType.Method)
                 return true;
 
-            var xM = ((IMethodMemberInfo)x).GetParameters();
-            var yM = ((IMethodMemberInfo)y).GetParameters();
+            var xM = ((IMethodMemberInfo) x).GetParameters();
+            var yM = ((IMethodMemberInfo) y).GetParameters();
             if (xM.Count != yM.Count)
                 return false;
 
@@ -189,14 +189,14 @@ namespace MugenMvvm.Binding.Members.Components
                 else if (_members is List<IMemberInfo> list)
                     list.Add(member);
                 else
-                    _members = new List<IMemberInfo> { (IMemberInfo)_members, member };
+                    _members = new List<IMemberInfo> {(IMemberInfo) _members, member};
                 return true;
             }
 
             public IMemberInfo GetBestMember()
             {
                 if (!(_members is List<IMemberInfo> members))
-                    return (IMemberInfo)_members!;
+                    return (IMemberInfo) _members!;
 
                 for (var i = 0; i < members.Count; i++)
                 {

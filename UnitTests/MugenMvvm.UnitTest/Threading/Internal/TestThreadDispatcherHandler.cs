@@ -13,10 +13,7 @@ namespace MugenMvvm.UnitTest.Threading.Internal
 
         #region Implementation of interfaces
 
-        void IThreadDispatcherHandler.Execute(object? state)
-        {
-            Execute?.Invoke(state!);
-        }
+        void IThreadDispatcherHandler.Execute(object? state) => Execute?.Invoke(state!);
 
         #endregion
     }

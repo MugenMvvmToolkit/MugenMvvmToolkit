@@ -76,19 +76,13 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => true;
 
         protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
         }
 
-        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => true;
 
         protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {

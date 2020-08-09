@@ -4,10 +4,7 @@
     {
         #region Methods
 
-        public static object? TestMethod(this string target, object? arg)
-        {
-            return null;
-        }
+        public static object? TestMethod(this string target, object? arg) => null;
 
         #endregion
     }

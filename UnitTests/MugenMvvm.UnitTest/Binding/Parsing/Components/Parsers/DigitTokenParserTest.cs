@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
             var component = new DigitTokenParser();
             var ctx = new TokenParserContext
             {
-                Parsers = new[] { new ConstantTokenParser() }
+                Parsers = new[] {new ConstantTokenParser()}
             };
             ctx.Initialize("null", DefaultMetadata);
             component.TryParse(ctx, null).ShouldBeNull();

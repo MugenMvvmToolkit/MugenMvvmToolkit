@@ -15,10 +15,7 @@ namespace MugenMvvm.Internal
 
         #region Implementation of interfaces
 
-        public void Release()
-        {
-            Target = null;
-        }
+        public void Release() => Target = null;
 
         #endregion
     }

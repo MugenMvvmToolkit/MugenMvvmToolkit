@@ -11,6 +11,8 @@ namespace MugenMvvm.UnitTest.Metadata
     {
         #region Fields
 
+        protected const string DefaultGetterValue = "Testf";
+
         protected static readonly IMetadataContextKey<string?, string?> CustomGetterKey = MetadataContextKey
             .Create<string?, string?>(nameof(CustomGetterKey))
             .Getter(Getter)
@@ -20,8 +22,6 @@ namespace MugenMvvm.UnitTest.Metadata
             .Create<int, int>(nameof(CustomSetterKey))
             .Setter(Setter)
             .Build();
-
-        protected const string DefaultGetterValue = "Testf";
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Metadata
             context.TryGet(key, out var value, default!).ShouldBeTrue();
             value!.ShouldEqual(expectedValue);
 
-            context.TryGetRaw(key, out object? rawValue).ShouldBeTrue();
+            context.TryGetRaw(key, out var rawValue).ShouldBeTrue();
             key.GetValue(context, rawValue).ShouldEqual(expectedValue);
         }
 

@@ -53,16 +53,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Attributes
         }
 
         [BindingMacros(MethodName)]
-        public static string StaticMethod()
-        {
-            return "";
-        }
+        public static string StaticMethod() => "";
 
         [BindingMacros(0)]
-        public static string ResourceMethod(string name)
-        {
-            return name;
-        }
+        public static string ResourceMethod(string name) => name;
 
         #endregion
     }

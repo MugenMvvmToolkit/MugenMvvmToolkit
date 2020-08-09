@@ -21,7 +21,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void CanReadShouldBeFalseNullGetter()
         {
-            var memberInfo = new DelegateAccessorMemberInfo<string, string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, null, (member, target, value, metadata) => { }, false, null, null);
+            var memberInfo = new DelegateAccessorMemberInfo<string, string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, null, (member, target, value, metadata) => { }, false, null,
+                null);
             memberInfo.CanRead.ShouldBeFalse();
             memberInfo.CanWrite.ShouldBeTrue();
             ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, DefaultMetadata));
@@ -77,11 +78,9 @@ namespace MugenMvvm.UnitTest.Binding.Members
         }
 
         protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-        {
-            return new DelegateAccessorMemberInfo<TTarget, object, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, metadata) => "",
+            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
+            new DelegateAccessorMemberInfo<TTarget, object, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, metadata) => "",
                 (member, target, value, metadata) => { }, tryObserveByMember, tryObserve, raise);
-        }
 
         #endregion
     }

@@ -38,14 +38,14 @@ namespace MugenMvvm.Binding.Members.Components
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (!_registeredMembers.TryGetValue(name, out var members))
                 return default;
 
-            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result = ItemOrListEditor.Get<IMemberInfo>();
+            var result = ItemOrListEditor.Get<IMemberInfo>();
             for (var index = 0; index < members.Count; index++)
             {
                 var memberInfo = members[index];
@@ -56,9 +56,13 @@ namespace MugenMvvm.Binding.Members.Components
             return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();
         }
 
+        #endregion
+
+        #region Methods
+
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
         {
-            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> members = ItemOrListEditor.Get<IMemberInfo>();
+            var members = ItemOrListEditor.Get<IMemberInfo>();
             foreach (var keyValuePair in _registeredMembers)
                 members.AddRange(ItemOrList.FromList(keyValuePair.Value));
             return members.ToItemOrList<IReadOnlyList<IMemberInfo>>();

@@ -35,28 +35,19 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Implementation of interfaces
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var binding = (IBinding)owner;
+            var binding = (IBinding) owner;
             binding.UpdateSource();
             if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source))
                 binding.AddComponent(OneTimeHandlerComponent.Instance, metadata);
         }
 
-        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-        {
-            binding.UpdateSource();
-        }
+        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateSource();
 
-        void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-        {
-            binding.UpdateSource();
-        }
+        void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateSource();
 
         void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
         {
@@ -84,15 +75,9 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             #region Implementation of interfaces
 
-            public void OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-            {
-                Invoke(binding);
-            }
+            public void OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding);
 
-            public void OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-            {
-                Invoke(binding);
-            }
+            public void OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding);
 
             public void OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
             {
@@ -106,7 +91,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             {
                 if (MugenBindingExtensions.IsAllMembersAvailable(binding.Source))
                 {
-                    binding.RemoveComponent(this, null);
+                    binding.RemoveComponent(this);
                     binding.UpdateSource();
                 }
             }

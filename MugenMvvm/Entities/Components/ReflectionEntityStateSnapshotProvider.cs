@@ -84,15 +84,9 @@ namespace MugenMvvm.Entities.Components
             return new EntityStateSnapshot(entity, value, this);
         }
 
-        bool IEqualityComparer<object?>.Equals(object? x, object? y)
-        {
-            return Equals(GetUnderlyingValue(x!), GetUnderlyingValue(y!));
-        }
+        bool IEqualityComparer<object?>.Equals(object? x, object? y) => Equals(GetUnderlyingValue(x!), GetUnderlyingValue(y!));
 
-        int IEqualityComparer<object?>.GetHashCode(object? key)
-        {
-            return GetUnderlyingValue(key!).GetHashCode();
-        }
+        int IEqualityComparer<object?>.GetHashCode(object? key) => GetUnderlyingValue(key!).GetHashCode();
 
         #endregion
 

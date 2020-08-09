@@ -51,10 +51,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
         }
 
         [Fact]
-        public void ConstructorShouldThrowWrongType()
-        {
-            ShouldThrow<ArgumentException>(() => new ConstantExpressionNode("", typeof(int)));
-        }
+        public void ConstructorShouldThrowWrongType() => ShouldThrow<ArgumentException>(() => new ConstantExpressionNode("", typeof(int)));
 
         [Theory]
         [InlineData(true)]
@@ -74,7 +71,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             };
 
             var exp = new ConstantExpressionNode("-");
-            var result = new IExpressionNode[] { exp };
+            var result = new IExpressionNode[] {exp};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
@@ -110,8 +107,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
         [Fact]
         public void GetShouldUseCacheBool()
         {
-            ConstantExpressionNode.Get((object)true).ShouldEqual(ConstantExpressionNode.True);
-            ConstantExpressionNode.Get((object)false).ShouldEqual(ConstantExpressionNode.False);
+            ConstantExpressionNode.Get((object) true).ShouldEqual(ConstantExpressionNode.True);
+            ConstantExpressionNode.Get((object) false).ShouldEqual(ConstantExpressionNode.False);
         }
 
         [Fact]
@@ -178,8 +175,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             nodes.Count.ShouldEqual(BoxingExtensions.CacheSize);
 
             nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((ushort)(BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((ushort)(BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((ushort) (BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((ushort) (BoxingExtensions.CacheSize + 1)));
             nodes.Count.ShouldEqual(2);
         }
 
@@ -201,8 +198,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             nodes.Count.ShouldEqual(BoxingExtensions.CacheSize * 2);
 
             nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((short)(BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((short)(BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((short) (BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((short) (BoxingExtensions.CacheSize + 1)));
             nodes.Count.ShouldEqual(2);
         }
 
@@ -224,8 +221,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             nodes.Count.ShouldEqual(BoxingExtensions.CacheSize);
 
             nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((uint)(BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((uint)(BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((uint) (BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((uint) (BoxingExtensions.CacheSize + 1)));
             nodes.Count.ShouldEqual(2);
         }
 
@@ -247,8 +244,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             nodes.Count.ShouldEqual(BoxingExtensions.CacheSize * 2);
 
             nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((int)(BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((int)(BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get(BoxingExtensions.CacheSize + 1));
+            nodes.Add(ConstantExpressionNode.Get(BoxingExtensions.CacheSize + 1));
             nodes.Count.ShouldEqual(2);
         }
 
@@ -270,8 +267,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             nodes.Count.ShouldEqual(BoxingExtensions.CacheSize);
 
             nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((ulong)(BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((ulong)(BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((ulong) (BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((ulong) (BoxingExtensions.CacheSize + 1)));
             nodes.Count.ShouldEqual(2);
         }
 
@@ -293,8 +290,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             nodes.Count.ShouldEqual(BoxingExtensions.CacheSize * 2);
 
             nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((long)(BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((long)(BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((long) (BoxingExtensions.CacheSize + 1)));
+            nodes.Add(ConstantExpressionNode.Get((long) (BoxingExtensions.CacheSize + 1)));
             nodes.Count.ShouldEqual(2);
         }
 

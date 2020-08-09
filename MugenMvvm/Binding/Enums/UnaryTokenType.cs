@@ -10,8 +10,8 @@ namespace MugenMvvm.Binding.Enums
     {
         #region Fields
 
-        public static readonly UnaryTokenType DynamicExpression = new UnaryTokenType("$") { IsSingleExpression = true };
-        public static readonly UnaryTokenType StaticExpression = new UnaryTokenType("$$") { IsSingleExpression = true };
+        public static readonly UnaryTokenType DynamicExpression = new UnaryTokenType("$") {IsSingleExpression = true};
+        public static readonly UnaryTokenType StaticExpression = new UnaryTokenType("$$") {IsSingleExpression = true};
         public static readonly UnaryTokenType Minus = new UnaryTokenType("-");
         public static readonly UnaryTokenType Plus = new UnaryTokenType("+");
         public static readonly UnaryTokenType LogicalNegation = new UnaryTokenType("!");
@@ -52,15 +52,9 @@ namespace MugenMvvm.Binding.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(UnaryTokenType? left, UnaryTokenType? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(UnaryTokenType? left, UnaryTokenType? right) => !(left == right);
 
-        protected override bool Equals(string value)
-        {
-            return Value.Equals(value);
-        }
+        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }

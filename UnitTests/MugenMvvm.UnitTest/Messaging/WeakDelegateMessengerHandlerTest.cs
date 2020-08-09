@@ -20,16 +20,10 @@ namespace MugenMvvm.UnitTest.Messaging
         }
 
         [Fact]
-        public void ShouldValidateStaticMethod()
-        {
-            ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>(StaticMethod));
-        }
+        public void ShouldValidateStaticMethod() => ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>(StaticMethod));
 
         [Fact]
-        public void ShouldValidateAnonymousMethod()
-        {
-            ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>((o, o1, arg3) => { }));
-        }
+        public void ShouldValidateAnonymousMethod() => ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>((o, o1, arg3) => { }));
 
         [Fact]
         public void ShouldHandleOnlySupportedTypes()
@@ -96,6 +90,35 @@ namespace MugenMvvm.UnitTest.Messaging
             count.ShouldEqual(1);
         }
 
+        private void Handler(object? arg1, object arg2, IMessageContext arg3)
+        {
+        }
+
+        private static void StaticMethod(object? arg1, object arg2, IMessageContext arg3)
+        {
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class HandlerImpl
+        {
+            #region Properties
+
+            public Action<object?, string, IMessageContext>? HandleFunc { get; set; }
+
+            #endregion
+
+            #region Methods
+
+            public void Handle(object? arg1, string arg2, IMessageContext arg3) => HandleFunc!(arg1, arg2, arg3);
+
+            #endregion
+        }
+
+        #endregion
+
 #if !DEBUG
         [Fact]
         public void ShouldBeWeek1()
@@ -104,10 +127,7 @@ namespace MugenMvvm.UnitTest.Messaging
             var msg2 = "test";
             var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
 
-            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl
-            {
-                HandleFunc = { }
-            }.Handle);
+            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl().Handle);
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
@@ -128,34 +148,5 @@ namespace MugenMvvm.UnitTest.Messaging
             subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Invalid);
         }
 #endif
-
-        private void Handler(object? arg1, object arg2, IMessageContext arg3)
-        {
-        }
-
-        private static void StaticMethod(object? arg1, object arg2, IMessageContext arg3)
-        {
-        }
-
-
-        private sealed class HandlerImpl
-        {
-            #region Properties
-
-            public Action<object?, string, IMessageContext>? HandleFunc { get; set; }
-
-            #endregion
-
-            #region Methods
-
-            public void Handle(object? arg1, string arg2, IMessageContext arg3)
-            {
-                HandleFunc!(arg1, arg2, arg3);
-            }
-
-            #endregion
-        }
-
-        #endregion
     }
 }

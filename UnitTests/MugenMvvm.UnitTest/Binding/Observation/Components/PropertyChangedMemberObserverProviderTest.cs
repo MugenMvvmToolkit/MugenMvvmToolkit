@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
-                    ((PropertyChangedEventArgs)o1!).PropertyName.ShouldEqual(propertyName);
+                    ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);
                     return true;
                 }
             };
@@ -63,12 +63,12 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
-                    ((PropertyChangedEventArgs)o1!).PropertyName.ShouldEqual(propertyName);
+                    ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);
                     return true;
                 }
             };
 
-            var member = new TestAccessorMemberInfo { Name = propertyName };
+            var member = new TestAccessorMemberInfo {Name = propertyName};
             var observer = component.TryGetMemberObserver(null!, target.GetType(), member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 

@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < componentCount; i++)
             {
                 var suspendableComponent = GetSuspendableComponent();
-                suspendableComponent.Suspend = (s,  m) =>
+                suspendableComponent.Suspend = (s, m) =>
                 {
                     s.ShouldEqual(this);
                     m.ShouldEqual(DefaultMetadata);
@@ -66,10 +66,7 @@ namespace MugenMvvm.UnitTest.Internal
             methodCallCount.ShouldEqual(componentCount);
         }
 
-        protected virtual TestSuspendableComponent GetSuspendableComponent()
-        {
-            return new TestSuspendableComponent();
-        }
+        protected virtual TestSuspendableComponent GetSuspendableComponent() => new TestSuspendableComponent();
 
         #endregion
     }

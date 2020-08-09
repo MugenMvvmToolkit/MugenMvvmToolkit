@@ -82,15 +82,10 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
                 isValueType ? 0 : 1, false);
         }
 
-        protected override MultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
-        {
-            return new MethodMultiPathObserver(MethodName, target, path, memberFlags, hasStablePath, optional);
-        }
+        protected override MultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional) =>
+            new MethodMultiPathObserver(MethodName, target, path, memberFlags, hasStablePath, optional);
 
-        protected override MultiPathObserver GetObserver(object target)
-        {
-            return new MethodMultiPathObserver(MethodName, target, DefaultPath, MemberFlags.All, false, false);
-        }
+        protected override MultiPathObserver GetObserver(object target) => new MethodMultiPathObserver(MethodName, target, DefaultPath, MemberFlags.All, false, false);
 
         #endregion
     }

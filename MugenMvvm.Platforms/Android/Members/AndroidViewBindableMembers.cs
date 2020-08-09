@@ -99,7 +99,7 @@ namespace MugenMvvm.Android.Members
 
         [BindingMember(nameof(ContentTemplateSelector))]
         public static IContentTemplateSelector? ContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View =>
-            (IContentTemplateSelector?)ContentTemplateSelector<T>(_: default).GetValue(descriptor.Target);
+            (IContentTemplateSelector?) ContentTemplateSelector<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, IContentTemplateSelector? value) where T : View =>
             ContentTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);

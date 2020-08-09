@@ -18,10 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Implementation of interfaces
 
-        IExpressionNode? IExpressionConverterComponent<T>.TryConvert(IExpressionConverterContext<T> context, T expression)
-        {
-            return TryConvert?.Invoke(context, expression);
-        }
+        IExpressionNode? IExpressionConverterComponent<T>.TryConvert(IExpressionConverterContext<T> context, T expression) => TryConvert?.Invoke(context, expression);
 
         #endregion
     }

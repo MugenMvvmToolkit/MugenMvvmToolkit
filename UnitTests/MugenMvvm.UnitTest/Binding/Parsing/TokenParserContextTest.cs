@@ -152,7 +152,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             context.TryParse(constantExpression, (parserContext, component) =>
             {
                 context.ShouldEqual(context);
-                return ((IHasPriority)component).Priority == 0;
+                return ((IHasPriority) component).Priority == 0;
             }).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }

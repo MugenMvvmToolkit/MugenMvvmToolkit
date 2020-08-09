@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         {
             var cmd = new CompositeCommand();
             var executed = 0;
-            bool canExecuteValue = false;
+            var canExecuteValue = false;
             Action execute = () => { };
             Func<bool> canExecute = () =>
             {
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         {
             var cmd = new CompositeCommand();
             var executed = 0;
-            bool canExecuteValue = false;
+            var canExecuteValue = false;
             Action execute = () => { };
             Func<object?, bool> canExecute = item =>
             {
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             Func<Task> execute = () => tcs.Task;
             var cmd = new CompositeCommand();
 
-            var listener = new TestConditionEventCommandComponent { RaiseCanExecuteChanged = (c) => { ++executed; } };
+            var listener = new TestConditionEventCommandComponent {RaiseCanExecuteChanged = c => { ++executed; }};
             cmd.AddComponent(listener);
 
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, value);
@@ -190,7 +190,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var executed = 0;
             var canExecuted = 0;
             Action execute = () => ++executed;
-            bool canExecuteValue = false;
+            var canExecuteValue = false;
             Func<bool> canExecute = () =>
             {
                 ++canExecuted;
@@ -213,7 +213,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var executed = 0;
             var canExecuted = 0;
             Action execute = () => ++executed;
-            bool canExecuteValue = false;
+            var canExecuteValue = false;
             Func<bool> canExecute = () =>
             {
                 ++canExecuted;
@@ -240,7 +240,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var executed = 0;
             var canExecuted = 0;
             Action execute = () => ++executed;
-            bool canExecuteValue = false;
+            var canExecuteValue = false;
             Func<bool> canExecute = () =>
             {
                 ++canExecuted;
@@ -274,7 +274,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         public void DisposeShouldClearDelegates()
         {
             var cmd = new CompositeCommand();
-            int executed = 0;
+            var executed = 0;
             Action execute = () => ++executed;
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, true);
             component.Dispose();

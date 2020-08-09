@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
 
             testDelegateProvider.TryCreateDelegate = (type, o, arg3) =>
             {
-                var collection = (EventListenerCollection)o!;
+                var collection = (EventListenerCollection) o!;
                 return new Action(() => collection.Raise(target, msg, DefaultMetadata));
             };
 
@@ -169,20 +169,11 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
 
             #region Methods
 
-            public static void OnEventHandlerStatic(EventArgs args)
-            {
-                EventHandlerStatic?.Invoke(null, args);
-            }
+            public static void OnEventHandlerStatic(EventArgs args) => EventHandlerStatic?.Invoke(null, args);
 
-            public void OnEventHandler(EventArgs args)
-            {
-                EventHandler?.Invoke(this, args);
-            }
+            public void OnEventHandler(EventArgs args) => EventHandler?.Invoke(this, args);
 
-            public void OnAction()
-            {
-                Action?.Invoke();
-            }
+            public void OnAction() => Action?.Invoke();
 
             #endregion
         }

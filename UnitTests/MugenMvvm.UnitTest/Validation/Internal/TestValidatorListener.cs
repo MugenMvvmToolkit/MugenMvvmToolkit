@@ -23,20 +23,12 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         #region Implementation of interfaces
 
-        void IValidatorListener.OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
-        {
-            OnErrorsChanged?.Invoke(validator, target, memberName, metadata);
-        }
+        void IValidatorListener.OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata) => OnErrorsChanged?.Invoke(validator, target, memberName, metadata);
 
-        void IValidatorListener.OnAsyncValidation(IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
-        {
+        void IValidatorListener.OnAsyncValidation(IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata) =>
             OnAsyncValidation?.Invoke(validator, target, memberName, validationTask, metadata);
-        }
 
-        void IValidatorListener.OnDisposed(IValidator validator)
-        {
-            OnDisposed?.Invoke(validator);
-        }
+        void IValidatorListener.OnDisposed(IValidator validator) => OnDisposed?.Invoke(validator);
 
         #endregion
     }

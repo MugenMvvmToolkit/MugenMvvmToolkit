@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         {
             const string member = "Test";
             var component = new MemberPathProvider();
-            var path = (SingleMemberPath)component.TryGetMemberPath(null!, member, DefaultMetadata)!;
+            var path = (SingleMemberPath) component.TryGetMemberPath(null!, member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
         }
 
@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         {
             const string member = "Test.Test[T]";
             var component = new MemberPathProvider();
-            var path = (MultiMemberPath)component.TryGetMemberPath(null!, member, DefaultMetadata)!;
+            var path = (MultiMemberPath) component.TryGetMemberPath(null!, member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
         }
 

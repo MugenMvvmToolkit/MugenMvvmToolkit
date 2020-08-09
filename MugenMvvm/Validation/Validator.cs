@@ -54,10 +54,7 @@ namespace MugenMvvm.Validation
                 GetComponents<IValidatorListener>().OnErrorsChanged(this, null, string.Empty, metadata);
         }
 
-        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            return !IsDisposed;
-        }
+        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
         void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
@@ -75,40 +72,25 @@ namespace MugenMvvm.Validation
             this.ClearMetadata(true);
         }
 
-        public bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IValidatorComponent>(metadata).HasErrors(this, memberName, metadata);
-        }
+        public bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).HasErrors(this, memberName, metadata);
 
-        public ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, memberName, metadata);
-        }
+        public ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, memberName, metadata);
 
-        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrors(IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
-        }
+        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrors(IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
 
-        public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IValidatorComponent>(metadata).TryValidateAsync(this, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
-        }
+        public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IValidatorComponent>(metadata).TryValidateAsync(this, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
 
-        public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            GetComponents<IValidatorComponent>(metadata).ClearErrors(this, memberName, metadata);
-        }
+        public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).ClearErrors(this, memberName, metadata);
 
         #endregion
 
         #region Methods
 
         private new TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
-            where TComponent : class
-        {
-            return IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
-        }
+            where TComponent : class =>
+            IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
 
         #endregion
     }

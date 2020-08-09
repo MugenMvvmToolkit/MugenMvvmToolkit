@@ -9,15 +9,9 @@ namespace MugenMvvm.UnitTest.Internal.Components
     {
         #region Methods
 
-        protected override object GetSupportedItem()
-        {
-            return new TestValueHolder<IDictionary<string, object?>>();
-        }
+        protected override object GetSupportedItem() => new TestValueHolder<IDictionary<string, object?>>();
 
-        protected override IAttachedValueStorageProviderComponent GetComponent()
-        {
-            return new ValueHolderAttachedValueStorage();
-        }
+        protected override IAttachedValueStorageProviderComponent GetComponent() => new ValueHolderAttachedValueStorage();
 
         #endregion
     }

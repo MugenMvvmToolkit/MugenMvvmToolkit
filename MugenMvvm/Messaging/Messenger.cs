@@ -13,7 +13,6 @@ namespace MugenMvvm.Messaging
 {
     public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger
     {
-
         #region Constructors
 
         public Messenger(IComponentCollectionManager? componentCollectionManager = null)
@@ -25,15 +24,10 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
-        public IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(this, sender, message, metadata) ?? new MessageContext(sender, message, metadata);
-        }
+        public IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(this, sender, message, metadata) ?? new MessageContext(sender, message, metadata);
 
-        public bool Publish(IMessageContext messageContext)
-        {
-            return GetComponents<IMessagePublisherComponent>().TryPublish(this, messageContext);
-        }
+        public bool Publish(IMessageContext messageContext) => GetComponents<IMessagePublisherComponent>().TryPublish(this, messageContext);
 
         public bool TrySubscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -59,10 +53,8 @@ namespace MugenMvvm.Messaging
             return result;
         }
 
-        public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> GetSubscribers(IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(this, metadata);
-        }
+        public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> GetSubscribers(IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(this, metadata);
 
         #endregion
     }

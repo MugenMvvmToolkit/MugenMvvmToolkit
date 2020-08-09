@@ -80,7 +80,7 @@ namespace MugenMvvm.Entities
                 }
             }
 
-            return (IReadOnlyList<TrackingEntity>?)list.List ?? Default.Array<TrackingEntity>();
+            return (IReadOnlyList<TrackingEntity>?) list.List ?? Default.Array<TrackingEntity>();
         }
 
         public EntityState GetState(object entity, IReadOnlyMetadataContext? metadata = null)
@@ -133,14 +133,11 @@ namespace MugenMvvm.Entities
                 var index = 0;
                 foreach (var pair in _dictionary)
                     entities[index++] = new TrackingEntity(pair.Key, pair.Value);
-                return ((IEnumerable<TrackingEntity>)entities).GetEnumerator();
+                return ((IEnumerable<TrackingEntity>) entities).GetEnumerator();
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
     }

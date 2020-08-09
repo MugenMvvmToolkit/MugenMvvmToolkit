@@ -13,8 +13,17 @@
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']" name="managedName">MugenMvvm.Android.Native.Interfaces.Views</attr>
 
   <attr path="/api/package[@name='com.mugen.mvvm']/class[@name='MugenNativeService']" name="managedName">MugenAndroidNativeService</attr>
-  <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']/interface[@name='IViewDispatcher']" name="managedName">IAndroidNativeViewDispatcher</attr>
-  <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='ILifecycleDispatcher']" name="managedName">IAndroidNativeLifecycleDispatcher</attr>
-  <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='IMemberChangedListener']" name="managedName">IAndroidNativeMemberChangedListener</attr>
+  <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']/interface[@name='IViewDispatcher']"
+        name="managedName">
+    IAndroidNativeViewDispatcher
+  </attr>
+  <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='ILifecycleDispatcher']"
+        name="managedName">
+    IAndroidNativeLifecycleDispatcher
+  </attr>
+  <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='IMemberChangedListener']"
+        name="managedName">
+    IAndroidNativeMemberChangedListener
+  </attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='IHasPriority']" name="managedName">IAndroidHasPriority</attr>
 </metadata>

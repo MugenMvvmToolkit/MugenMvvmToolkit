@@ -18,10 +18,8 @@ namespace MugenMvvm.Navigation.Components
         #region Implementation of interfaces
 
         public INavigationContext TryGetNavigationContext(INavigationDispatcher navigationDispatcher, object? target, INavigationProvider navigationProvider, string navigationId,
-            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
-        {
-            return new NavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
-        }
+            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null) =>
+            new NavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
 
         #endregion
     }

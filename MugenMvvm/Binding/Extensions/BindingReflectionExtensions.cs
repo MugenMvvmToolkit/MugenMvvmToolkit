@@ -103,10 +103,7 @@ namespace MugenMvvm.Binding.Extensions
             return inferredTypes;
         }
 
-        public static bool IsCompatibleWith(this Type source, Type target)
-        {
-            return IsCompatibleWith(source, target, out _);
-        }
+        public static bool IsCompatibleWith(this Type source, Type target) => IsCompatibleWith(source, target, out _);
 
         public static bool IsCompatibleWith(this Type source, Type target, out bool boxRequired)
         {
@@ -262,19 +259,12 @@ namespace MugenMvvm.Binding.Extensions
             return type;
         }
 
-        public static bool IsNullableType(this Type type)
-        {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
+        public static bool IsNullableType(this Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
-        public static Type GetNonNullableType(this Type type)
-        {
-            return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
-        }
+        public static Type GetNonNullableType(this Type type) => IsNullableType(type) ? type.GetGenericArguments()[0] : type;
 
-        public static MemberFlags GetAccessModifiers(this MemberInfo member)
-        {
-            return member switch
+        public static MemberFlags GetAccessModifiers(this MemberInfo member) =>
+            member switch
             {
                 FieldInfo f => f.GetAccessModifiers(),
                 PropertyInfo p => p.GetAccessModifiers(),
@@ -282,7 +272,6 @@ namespace MugenMvvm.Binding.Extensions
                 MethodBase m => m.GetAccessModifiers(),
                 _ => 0
             };
-        }
 
         public static MemberFlags GetAccessModifiers(this FieldInfo? fieldInfo)
         {
@@ -348,10 +337,7 @@ namespace MugenMvvm.Binding.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool HasFlagEx(this GenericParameterAttributes attributes, GenericParameterAttributes flag)
-        {
-            return (attributes & flag) == flag;
-        }
+        internal static bool HasFlagEx(this GenericParameterAttributes attributes, GenericParameterAttributes flag) => (attributes & flag) == flag;
 
         internal static bool IsAssignableFromGeneric(this Type type, Type sourceType)
         {

@@ -32,35 +32,17 @@ namespace MugenMvvm.UnitTest.Collections.Internal
         {
         }
 
-        public void OnAdded(IObservableCollection<T> collection, T item, int index)
-        {
-            OnAddEvent(ChangedItems, new[] {item}, index);
-        }
+        public void OnAdded(IObservableCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
 
-        public void OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
-        {
-            OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
-        }
+        public void OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index) => OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
 
-        public void OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
-        {
-            OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
-        }
+        public void OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
 
-        public void OnRemoved(IObservableCollection<T> collection, T item, int index)
-        {
-            OnRemoveEvent(ChangedItems, new[] {item}, index);
-        }
+        public void OnRemoved(IObservableCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
 
-        public void OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
-        {
-            OnReset(ChangedItems, items);
-        }
+        public void OnReset(IObservableCollection<T> collection, IEnumerable<T> items) => OnReset(ChangedItems, items);
 
-        public void OnCleared(IObservableCollection<T> collection)
-        {
-            OnReset(ChangedItems, Enumerable.Empty<T>());
-        }
+        public void OnCleared(IObservableCollection<T> collection) => OnReset(ChangedItems, Enumerable.Empty<T>());
 
         #endregion
 

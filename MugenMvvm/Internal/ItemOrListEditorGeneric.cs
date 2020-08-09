@@ -64,7 +64,7 @@ namespace MugenMvvm.Internal
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if ((uint)index >= (uint)Count)
+                if ((uint) index >= (uint) Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 return _list == null ? _item : _list[index];
@@ -72,7 +72,7 @@ namespace MugenMvvm.Internal
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                if ((uint)index >= (uint)Count)
+                if ((uint) index >= (uint) Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 if (_list != null)
@@ -154,7 +154,7 @@ namespace MugenMvvm.Internal
 
         public void RemoveAt(int index)
         {
-            if ((uint)index >= (uint)Count)
+            if ((uint) index >= (uint) Count)
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
             if (_list == null)
                 _item = default!;
@@ -170,7 +170,7 @@ namespace MugenMvvm.Internal
 
             if (_list.Count > 1)
                 return _list;
-            return _list.Count == 0 ? null : (object?)_list[0];
+            return _list.Count == 0 ? null : (object?) _list[0];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -191,7 +191,7 @@ namespace MugenMvvm.Internal
                 return _item;
 
             if (_list.Count > 1)
-                return new ItemOrList<TItem, TNewList>((TNewList)(object)_list);
+                return new ItemOrList<TItem, TNewList>((TNewList) (object) _list);
             return _list.Count == 0 ? default! : _list[0];
         }
 

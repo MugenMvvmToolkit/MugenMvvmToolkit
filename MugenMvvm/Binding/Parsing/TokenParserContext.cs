@@ -74,27 +74,15 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Implementation of interfaces
 
-        public char TokenAt(int position)
-        {
-            return Source[position];
-        }
+        public char TokenAt(int position) => Source[position];
 
-        public string GetValue(int start, int end)
-        {
-            return Source.Substring(start, end - start);
-        }
+        public string GetValue(int start, int end) => Source.Substring(start, end - start);
 
 #if SPAN_API
-        public ReadOnlySpan<char> GetValueSpan(int start, int end)
-        {
-            return Source.AsSpan(start, end - start);
-        }
+        public ReadOnlySpan<char> GetValueSpan(int start, int end) => Source.AsSpan(start, end - start);
 #endif
 
-        public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null)
-        {
-            return Parsers.TryParse(this, expression, condition);
-        }
+        public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null) => Parsers.TryParse(this, expression, condition);
 
         #endregion
 
@@ -111,10 +99,7 @@ namespace MugenMvvm.Binding.Parsing
                 Metadata.Merge(metadata!);
         }
 
-        public override string ToString()
-        {
-            return $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{Source}'";
-        }
+        public override string ToString() => $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{Source}'";
 
         private string GetToken(int position)
         {

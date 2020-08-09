@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var type = typeof(string);
             var memberType = MemberType.Accessor;
             var memberFlags = MemberFlags.All;
-            var request = new MemberTypesRequest("test", new[] { typeof(object) });
+            var request = new MemberTypesRequest("test", new[] {typeof(object)});
             var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)

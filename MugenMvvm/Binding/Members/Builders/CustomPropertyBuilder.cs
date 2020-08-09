@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 member.State._setter!(member, target, value, metadata);
             }, (member, target, listener, metadata) =>
             {
-                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IAccessorMemberInfo)member, member.State.AttachedHandlerField!, metadata);
+                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IAccessorMemberInfo) member, member.State.AttachedHandlerField!, metadata);
                 if (member.State.id == null)
                     return member.State._tryObserve!(member, target, listener, metadata);
                 return EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State.id).Add(listener);
@@ -128,11 +128,9 @@ namespace MugenMvvm.Binding.Members.Builders
 
         private DelegateAccessorMemberInfo<TTarget, TValue, TState> Property<TState>(in TState state,
             GetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? getValue, SetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? setValue,
-            TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-        {
-            return _propertyBuilder.Property(state, _getter == null ? null : getValue, _setter == null ? null : setValue,
+            TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
+            _propertyBuilder.Property(state, _getter == null ? null : getValue, _setter == null ? null : setValue,
                 _tryObserve == null && !_isObservable ? null : tryObserve, raise);
-        }
 
         #endregion
     }

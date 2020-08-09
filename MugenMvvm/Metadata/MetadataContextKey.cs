@@ -34,19 +34,13 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public bool Equals(IMetadataContextKey? other)
-        {
-            return EqualsInternal(other);
-        }
+        public bool Equals(IMetadataContextKey? other) => EqualsInternal(other);
 
         #endregion
 
         #region Methods
 
-        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, IReadOnlyDictionary<string, object?>? metadata = null)
-        {
-            return FromKey<TGet, TSet>(key, metadata);
-        }
+        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, IReadOnlyDictionary<string, object?>? metadata = null) => FromKey<TGet, TSet>(key, metadata);
 
         public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(string key, IReadOnlyDictionary<string, object?>? metadata = null)
         {
@@ -54,10 +48,8 @@ namespace MugenMvvm.Metadata
             return new MetadataContextKeyInternal<TGet, TSet>(key, metadata);
         }
 
-        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, bool serializable = false, IReadOnlyDictionary<string, object?>? metadata = null)
-        {
-            return FromMember<TGet, TSet>(declaredType, fieldOrPropertyName, serializable, metadata);
-        }
+        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, bool serializable = false,
+            IReadOnlyDictionary<string, object?>? metadata = null) => FromMember<TGet, TSet>(declaredType, fieldOrPropertyName, serializable, metadata);
 
         public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(Type declaredType, string fieldOrPropertyName, bool serializable = false, IReadOnlyDictionary<string, object?>? metadata = null)
         {
@@ -75,10 +67,8 @@ namespace MugenMvvm.Metadata
             return new MetadataContextKeyInternal<TGet, TSet>(key, metadata);
         }
 
-        public static Builder<TGet, TSet> Create<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, string? key = null)
-        {
-            return Create<TGet, TSet>(declaredType, fieldOrPropertyName, key);
-        }
+        public static Builder<TGet, TSet> Create<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, string? key = null) =>
+            Create<TGet, TSet>(declaredType, fieldOrPropertyName, key);
 
         public static Builder<TGet, TSet> Create<TGet, TSet>(Type declaredType, string fieldOrPropertyName, string? key = null)
         {
@@ -89,10 +79,8 @@ namespace MugenMvvm.Metadata
             return Create<TGet, TSet>(key!, declaredType, fieldOrPropertyName);
         }
 
-        public static Builder<TGet, TSet> Create<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, Type? declaredType = null, string? fieldOrPropertyName = null)
-        {
-            return Create<TGet, TSet>(key, declaredType, fieldOrPropertyName);
-        }
+        public static Builder<TGet, TSet> Create<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, Type? declaredType = null, string? fieldOrPropertyName = null) =>
+            Create<TGet, TSet>(key, declaredType, fieldOrPropertyName);
 
         public static Builder<TGet, TSet> Create<TGet, TSet>(string key, Type? declaredType = null, string? fieldOrPropertyName = null)
         {
@@ -110,15 +98,9 @@ namespace MugenMvvm.Metadata
             return obj is IMetadataContextKey other && EqualsInternal(other);
         }
 
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
-        public override string ToString()
-        {
-            return Id;
-        }
+        public override string ToString() => Id;
 
         protected virtual bool EqualsInternal(IMetadataContextKey? other)
         {
@@ -223,10 +205,7 @@ namespace MugenMvvm.Metadata
                 return this;
             }
 
-            public Builder<TGet, TSet> Serializable()
-            {
-                return Serializable((_, __, ___) => true);
-            }
+            public Builder<TGet, TSet> Serializable() => Serializable((_, __, ___) => true);
 
             public Builder<TGet, TSet> Serializable(Func<IMetadataContextKey<TGet, TSet>, object?, ISerializationContext, bool> canSerialize)
             {
@@ -293,12 +272,13 @@ namespace MugenMvvm.Metadata
         {
             #region Fields
 
+            public TGet DefaultValue;
+
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet>? GetDefaultValueFunc;
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TGet>? GetValueFunc;
+            public bool HasDefaultValue;
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TSet, object?>? SetValueFunc;
             public Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet>? ValidateAction;
-            public bool HasDefaultValue;
-            public TGet DefaultValue;
 
             #endregion
 
@@ -320,7 +300,7 @@ namespace MugenMvvm.Metadata
                 {
                     if (value == null)
                         return default!;
-                    return (TGet)value!;
+                    return (TGet) value!;
                 }
 
                 return GetValueFunc(metadataContext, this, value);
@@ -348,9 +328,9 @@ namespace MugenMvvm.Metadata
         {
             #region Fields
 
-            private IMemento? _memento;
-
             private readonly Func<IMetadataContextKey<TGet, TSet>, IMemento?> _getMementoFunc;
+
+            private IMemento? _memento;
             public Func<IMetadataContextKey<TGet, TSet>, object?, ISerializationContext, bool>? CanSerializeFunc;
             public Func<IMetadataContextKey<TGet, TSet>, object?, ISerializationContext, object?>? DeserializeFunc;
             public Func<IMetadataContextKey<TGet, TSet>, object?, ISerializationContext, object?>? SerializeFunc;
@@ -369,10 +349,7 @@ namespace MugenMvvm.Metadata
 
             #region Implementation of interfaces
 
-            public IMemento? GetMemento()
-            {
-                return _memento ??= _getMementoFunc(this);
-            }
+            public IMemento? GetMemento() => _memento ??= _getMementoFunc(this);
 
             public bool CanSerialize(object? item, ISerializationContext serializationContext)
             {

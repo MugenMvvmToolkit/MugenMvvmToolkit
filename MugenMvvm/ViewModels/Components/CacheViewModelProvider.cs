@@ -41,7 +41,8 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
@@ -76,9 +77,9 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             if (!_isWeakCache)
-                return (IViewModelBase)value;
+                return (IViewModelBase) value;
 
-            var vm = (IViewModelBase?)((IWeakReference)value).Target;
+            var vm = (IViewModelBase?) ((IWeakReference) value).Target;
             if (vm == null)
                 Remove(id);
             return vm;
@@ -92,7 +93,7 @@ namespace MugenMvvm.ViewModels.Components
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object)viewModel.ToWeakReference() : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object) viewModel.ToWeakReference() : viewModel;
             }
         }
 

@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.Threading.Components
         public void CanExecuteInlineShouldMainWaitPost()
         {
             _synchronizationContext.Callback.ShouldBeNull();
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, false);
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
             component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeFalse();
 
             _synchronizationContext.Callback.ShouldNotBeNull();
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTest.Threading.Components
         {
             var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
 
-            int executed = 0;
+            var executed = 0;
             var state = new object();
             Action action = () => ++executed;
             Action<object> actionWithState = o =>
@@ -84,11 +84,11 @@ namespace MugenMvvm.UnitTest.Threading.Components
             };
             var handler = new TestThreadDispatcherHandler
             {
-                Execute = (_) => ++executed
+                Execute = _ => ++executed
             };
             var handlerWithState = new TestThreadDispatcherHandler
             {
-                Execute = (o) =>
+                Execute = o =>
                 {
                     ++executed;
                     o.ShouldEqual(state);
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTest.Threading.Components
         public void TryExecuteShouldExecuteUsingContext()
         {
             var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
-            int executed = 0;
+            var executed = 0;
             var state = new object();
             Action action = () => ++executed;
             Action<object> actionWithState = o =>
@@ -128,11 +128,11 @@ namespace MugenMvvm.UnitTest.Threading.Components
             };
             var handler = new TestThreadDispatcherHandler
             {
-                Execute = (_) => ++executed
+                Execute = _ => ++executed
             };
             var handlerWithState = new TestThreadDispatcherHandler
             {
-                Execute = (o) =>
+                Execute = o =>
                 {
                     ++executed;
                     o.ShouldEqual(state);
@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTest.Threading.Components
         public void TryExecuteShouldExecuteUsingThreadPool()
         {
             var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
-            int executed = 0;
+            var executed = 0;
             var state = new object();
             Action action = () => ++executed;
             Action<object> actionWithState = o =>
@@ -192,11 +192,11 @@ namespace MugenMvvm.UnitTest.Threading.Components
             };
             var handler = new TestThreadDispatcherHandler
             {
-                Execute = (_) => ++executed
+                Execute = _ => ++executed
             };
             var handlerWithState = new TestThreadDispatcherHandler
             {
-                Execute = (o) =>
+                Execute = o =>
                 {
                     ++executed;
                     o.ShouldEqual(state);

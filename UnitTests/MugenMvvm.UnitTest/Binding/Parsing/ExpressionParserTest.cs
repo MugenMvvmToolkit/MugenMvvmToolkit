@@ -91,10 +91,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         {
             var expectedResult = new ConditionExpressionNode(
                 new BinaryExpressionNode(BinaryTokenType.Equality,
-                    new MethodCallExpressionNode(ConstantExpressionNode.Get("1"), "IndexOf", new IExpressionNode[] { ConstantExpressionNode.Get("1", typeof(string)) }, new string[0]),
+                    new MethodCallExpressionNode(ConstantExpressionNode.Get("1"), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))}, new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
                 new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), "Format",
-                    new IExpressionNode[] { ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) }, new string[0]),
+                    new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}, new string[0]),
                 new ConditionExpressionNode(new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(10, typeof(int))),
                     ConstantExpressionNode.Get("test", typeof(string)),
                     new BinaryExpressionNode(BinaryTokenType.NullCoalescing, ConstantExpressionNode.Get(null, typeof(object)), ConstantExpressionNode.Get("value", typeof(string)))));
@@ -193,14 +193,14 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                     {
                         new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, new ParameterExpressionNode("x"), ConstantExpressionNode.Get("test", typeof(string))),
                             new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
-                    }, new[] { "string" }), "Aggregate",
+                    }, new[] {"string"}), "Aggregate",
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("seed", typeof(string)),
                     new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")),
                         new IParameterExpressionNode[] {new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")}),
                     new LambdaExpressionNode(new MemberExpressionNode(new ParameterExpressionNode("s1"), "Length"), new IParameterExpressionNode[] {new ParameterExpressionNode("s1")})
-                }, new[] { "string", "string", "int" });
+                }, new[] {"string", "string", "int"});
             var source = "1.Where<string>(x => x == \"test\").Aggregate<string, string, int>(\"seed\", (s1, s2) => s1 + s2, s1 => s1.Length)";
             ValidateExpression(source, expectedResult, count, parameterCount);
         }
@@ -251,11 +251,11 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                                         new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
                                 }, new string[0]), "FirstOrDefault", new IExpressionNode[0], new string[0]),
                         new MethodCallExpressionNode(
-                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(new MemberExpressionNode(null, "value2")), new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(int)) }), "ToString",
+                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(new MemberExpressionNode(null, "value2")), new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
                             new IExpressionNode[0], new string[0])),
                     new MemberExpressionNode(
                         new NullConditionalMemberExpressionNode(new MethodCallExpressionNode(
-                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(new MemberExpressionNode(null, "value3")), new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(int)) }), "ToString",
+                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(new MemberExpressionNode(null, "value3")), new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
                             new IExpressionNode[0], new string[0])), "Length")),
                 new MethodCallExpressionNode(
                     new NullConditionalMemberExpressionNode(new ConditionExpressionNode(
@@ -290,10 +290,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         {
             var expectedResult = new ConditionExpressionNode(
                 new BinaryExpressionNode(BinaryTokenType.Equality,
-                    new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(StringProperty)), "IndexOf", new IExpressionNode[] { ConstantExpressionNode.Get("1", typeof(string)) }, new string[0]),
+                    new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(StringProperty)), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))}, new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
                 new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), "Format",
-                    new IExpressionNode[] { ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1, typeof(int)), ConstantExpressionNode.Get(2, typeof(int)) }, new string[0]),
+                    new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1, typeof(int)), ConstantExpressionNode.Get(2, typeof(int))}, new string[0]),
                 new ConditionExpressionNode(
                     new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
                         ConstantExpressionNode.Get(10, typeof(int))), ConstantExpressionNode.Get("test", typeof(string)),
@@ -345,16 +345,16 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                     {
                         new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, new ParameterExpressionNode("x"), ConstantExpressionNode.Get("test", typeof(string))),
                             new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
-                    }, new[] { typeof(string).AssemblyQualifiedName! }), "Aggregate",
+                    }, new[] {typeof(string).AssemblyQualifiedName!}), "Aggregate",
                 new IExpressionNode[]
                 {
                     new MemberExpressionNode(null, nameof(StringProperty)),
                     new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")),
                         new IParameterExpressionNode[] {new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")}),
                     new LambdaExpressionNode(new MemberExpressionNode(new ParameterExpressionNode("s1"), "Length"), new IParameterExpressionNode[] {new ParameterExpressionNode("s1")})
-                }, new[] { typeof(string).AssemblyQualifiedName!, typeof(string).AssemblyQualifiedName!, typeof(int).AssemblyQualifiedName! });
+                }, new[] {typeof(string).AssemblyQualifiedName!, typeof(string).AssemblyQualifiedName!, typeof(int).AssemblyQualifiedName!});
             ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(Test), test => test.Test,
-                test => ((string[])test.Test!).Where(x => x == "test").Aggregate(test.StringProperty, (s1, s2) => s1 + s2, s1 => s1!.Length), expectedResult, count, parameterCount);
+                test => ((string[]) test.Test!).Where(x => x == "test").Aggregate(test.StringProperty, (s1, s2) => s1 + s2, s1 => s1!.Length), expectedResult, count, parameterCount);
         }
 
         [Fact]
@@ -452,14 +452,14 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                     {
                         new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, new ParameterExpressionNode("x"), ConstantExpressionNode.Get("test", typeof(string))),
                             new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
-                    }, new[] { "string" }), "Aggregate",
+                    }, new[] {"string"}), "Aggregate",
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("seed", typeof(string)),
                     new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")),
                         new IParameterExpressionNode[] {new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")}),
                     new LambdaExpressionNode(new MemberExpressionNode(new ParameterExpressionNode("s1"), "Length"), new IParameterExpressionNode[] {new ParameterExpressionNode("s1")})
-                }, new[] { "string", "string", "int" });
+                }, new[] {"string", "string", "int"});
             var source = "1.Where<string>(x => x == \"test\").Aggregate<string, string, int>(\"seed\", (s1, s2) => s1 + s2, s1 => s1.Length)";
 
             var parser = GetInitializedExpressionParser();
@@ -470,10 +470,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             item.Parameters.Item.ShouldEqual(expectedResult);
         }
 
-        protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ExpressionParser(collectionProvider);
-        }
+        protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ExpressionParser(collectionProvider);
 
         private void ValidateExpression<TTarget, TSource>(string targetName, Expression<Func<TTarget, object?>> target, Expression<Func<TSource, object?>> source, IExpressionNode expectedResult, int count,
             int parameterCount)
@@ -499,7 +496,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 var array = result.Parameters.AsList();
                 for (var j = 0; j < parameterCount; j++)
                 {
-                    var binaryExpressionNode = (BinaryExpressionNode)array[j];
+                    var binaryExpressionNode = (BinaryExpressionNode) array[j];
                     binaryExpressionNode.Token.ShouldEqual(BinaryTokenType.Assignment);
                     binaryExpressionNode.Left.ShouldEqual(new MemberExpressionNode(null, parameterName + j));
                     binaryExpressionNode.Right.ShouldEqual(expectedResult);
@@ -531,7 +528,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 var array = result.Parameters.AsList();
                 for (var j = 0; j < parameterCount; j++)
                 {
-                    var binaryExpressionNode = (BinaryExpressionNode)array[j];
+                    var binaryExpressionNode = (BinaryExpressionNode) array[j];
                     binaryExpressionNode.Token.ShouldEqual(BinaryTokenType.Assignment);
                     binaryExpressionNode.Left.ShouldEqual(new MemberExpressionNode(null, parameterName + j));
                     binaryExpressionNode.Right.ShouldEqual(expectedResult);
@@ -574,10 +571,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             return expressionParser;
         }
 
-        private static Expression<Func<T, TResult>> GetExpression<T, TResult>([AllowNull] T t, Expression<Func<T, TResult>> expression)
-        {
-            return expression;
-        }
+        private static Expression<Func<T, TResult>> GetExpression<T, TResult>([AllowNull] T t, Expression<Func<T, TResult>> expression) => expression;
 
         #endregion
     }

@@ -76,10 +76,7 @@ namespace MugenMvvm.UnitTest.Components
         {
         }
 
-        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ComponentCollectionManager();
-        }
+        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollectionManager();
 
         #endregion
     }

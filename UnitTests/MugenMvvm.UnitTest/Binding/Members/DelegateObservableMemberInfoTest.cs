@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [InlineData(false)]
         public void TryObserverShouldUseObservationManager(bool tryObserveByMember)
         {
-            int invokeCount = 0;
+            var invokeCount = 0;
             var actionToken = new ActionToken((o, o1) => { });
             var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, tryObserveByMember, null, null);
             using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
@@ -107,23 +107,22 @@ namespace MugenMvvm.UnitTest.Binding.Members
             string t = "";
             var msg = new object();
             var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, false, (member, target, listener, metadata) => default, (member, target, message, metadata) =>
-             {
-                 ++invokeCount;
-                 member.ShouldEqual(m);
-                 target.ShouldEqual(t);
-                 message.ShouldEqual(msg);
-                 metadata.ShouldEqual(DefaultMetadata);
-             });
+            {
+                ++invokeCount;
+                member.ShouldEqual(m);
+                target.ShouldEqual(t);
+                message.ShouldEqual(msg);
+                metadata.ShouldEqual(DefaultMetadata);
+            });
             m = memberInfo;
             memberInfo.Raise(t, msg, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 
         protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) where TTarget : class?
-        {
-            return new DelegateObservableMemberInfo<TTarget, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
-        }
+            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
+            where TTarget : class? =>
+            new DelegateObservableMemberInfo<TTarget, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
 
         #endregion
     }

@@ -67,17 +67,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [InlineData(1, 1, true, false)]
         [InlineData(1, 1, false, true)]
         [InlineData(1, 1, false, false)]
-
         [InlineData(10, 1, true, true)]
         [InlineData(10, 1, true, false)]
         [InlineData(10, 1, false, true)]
         [InlineData(10, 1, false, false)]
-
         [InlineData(1, 10, true, true)]
         [InlineData(1, 10, true, false)]
         [InlineData(1, 10, false, true)]
         [InlineData(1, 10, false, false)]
-
         [InlineData(10, 10, true, true)]
         [InlineData(10, 10, true, false)]
         [InlineData(10, 10, false, true)]
@@ -89,11 +86,12 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var targetObserver = new TestMemberPathObserver();
             var sourceObserver = new TestMemberPathObserver();
             var results = new ExpressionParserResult[expressionCount];
-            for (int i = 0; i < results.Length; i++)
+            for (var i = 0; i < results.Length; i++)
             {
                 results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"), new TestBindingMemberExpressionNode("0_"),
                     ItemOrList.FromRawValue<IExpressionNode, IReadOnlyList<IExpressionNode>>(ConstantExpressionNode.Get(0)));
             }
+
             var parser = new ExpressionParser();
             parser.AddComponent(new TestExpressionParserComponent
             {
@@ -116,7 +114,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 bindingManager.AddComponent(new TestBindingExpressionInitializerComponent(bindingManager)
                 {
                     Priority = -i,
-                    Initialize = (context) =>
+                    Initialize = context =>
                     {
                         ++invokeCount;
                         context.Target.ShouldEqual(target);
@@ -171,11 +169,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             var expressions = builder.TryParseBindingExpression(null!, "", DefaultMetadata).AsList();
             expressions.Count.ShouldEqual(expressionCount);
-            for (int i = 0; i < expressions.Count; i++)
+            for (var i = 0; i < expressions.Count; i++)
             {
                 invokeCount = 0;
                 var result = results[i];
-                var expression = (IHasTargetExpressionBindingBuilder)expressions[i];
+                var expression = (IHasTargetExpressionBindingBuilder) expressions[i];
                 expression.ShouldNotBeNull();
                 expression.TargetExpression.ShouldEqual(result.Target);
                 invokeCount.ShouldEqual(0);
@@ -202,17 +200,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [InlineData(1, 1, true, false)]
         [InlineData(1, 1, false, true)]
         [InlineData(1, 1, false, false)]
-
         [InlineData(10, 1, true, true)]
         [InlineData(10, 1, true, false)]
         [InlineData(10, 1, false, true)]
         [InlineData(10, 1, false, false)]
-
         [InlineData(1, 10, true, true)]
         [InlineData(1, 10, true, false)]
         [InlineData(1, 10, false, true)]
         [InlineData(1, 10, false, false)]
-
         [InlineData(10, 10, true, true)]
         [InlineData(10, 10, true, false)]
         [InlineData(10, 10, false, true)]
@@ -226,7 +221,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var sourceObserver1 = new TestMemberPathObserver();
             var sourceObserver2 = new TestMemberPathObserver();
             var results = new ExpressionParserResult[expressionCount];
-            for (int i = 0; i < results.Length; i++)
+            for (var i = 0; i < results.Length; i++)
             {
                 results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"),
                     GetBindingSourceExpression(0, out _, out _), ItemOrList.FromRawValue<IExpressionNode, IReadOnlyList<IExpressionNode>>(ConstantExpressionNode.Get(0)));
@@ -267,7 +262,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 bindingManager.AddComponent(new TestBindingExpressionInitializerComponent
                 {
                     Priority = -i,
-                    Initialize = (context) =>
+                    Initialize = context =>
                     {
                         ++invokeCount;
                         context.Target.ShouldEqual(target);
@@ -328,29 +323,29 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             var expressions = builder.TryParseBindingExpression(null!, "", DefaultMetadata).AsList();
             expressions.Count.ShouldEqual(expressionCount);
-            for (int i = 0; i < expressions.Count; i++)
+            for (var i = 0; i < expressions.Count; i++)
             {
                 invokeCount = 0;
                 var result = results[i];
-                var expression = (IHasTargetExpressionBindingBuilder)expressions[i];
+                var expression = (IHasTargetExpressionBindingBuilder) expressions[i];
                 expression.ShouldNotBeNull();
                 expression.TargetExpression.ShouldEqual(result.Target);
                 invokeCount.ShouldEqual(0);
 
-                var binding = (MultiBinding)expression.Build(target, source, DefaultMetadata);
+                var binding = (MultiBinding) expression.Build(target, source, DefaultMetadata);
                 binding.Expression.ShouldEqual(exp);
                 expression.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{count}"));
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
-                binding.Source.AsList().SequenceEqual(new[] { sourceObserver1, sourceObserver2 }).ShouldBeTrue();
+                binding.Source.AsList().SequenceEqual(new[] {sourceObserver1, sourceObserver2}).ShouldBeTrue();
                 binding.State.ShouldEqual(BindingState.Valid);
                 binding.GetComponents().AsList().ShouldContain(components);
 
-                binding = (MultiBinding)expression.Build(target, source, DefaultMetadata);
+                binding = (MultiBinding) expression.Build(target, source, DefaultMetadata);
                 binding.Expression.ShouldEqual(exp);
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
-                binding.Source.AsList().SequenceEqual(new[] { sourceObserver1, sourceObserver2 }).ShouldBeTrue();
+                binding.Source.AsList().SequenceEqual(new[] {sourceObserver1, sourceObserver2}).ShouldBeTrue();
                 binding.State.ShouldEqual(BindingState.Valid);
                 binding.GetComponents().AsList().ShouldContain(components);
             }

@@ -332,7 +332,8 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].Initialize(bindingManager, context);
         }
 
-        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, IBindingManager bindingManager, object target, string? path,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
@@ -340,7 +341,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetBindings(bindingManager, target, path, metadata);
 
-            ItemOrListEditor<IBinding, List<IBinding>> result = ItemOrListEditor.Get<IBinding>();
+            var result = ItemOrListEditor.Get<IBinding>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetBindings(bindingManager, target, path, metadata));
             return result.ToItemOrList<IReadOnlyList<IBinding>>();
@@ -412,10 +413,8 @@ namespace MugenMvvm.Binding.Extensions.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IComponent<IBinding>? TryGetBindingComponent(object? item, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return item as IComponent<IBinding> ?? (item as IBindingComponentProvider)?.TryGetComponent(binding, target, source, metadata);
-        }
+        public static IComponent<IBinding>? TryGetBindingComponent(object? item, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata) =>
+            item as IComponent<IBinding> ?? (item as IBindingComponentProvider)?.TryGetComponent(binding, target, source, metadata);
 
         #endregion
     }

@@ -101,10 +101,7 @@ namespace MugenMvvm.UnitTest.Enums
 
             #region Methods
 
-            protected override bool Equals(int value)
-            {
-                return Value == value;
-            }
+            protected override bool Equals(int value) => Value == value;
 
             #endregion
         }

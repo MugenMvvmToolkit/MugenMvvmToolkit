@@ -18,10 +18,7 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public void Dispose()
-        {
-            this.ClearMetadata(true);
-        }
+        public void Dispose() => this.ClearMetadata(true);
 
         #endregion
     }

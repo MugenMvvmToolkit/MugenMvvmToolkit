@@ -91,7 +91,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             var source = Convert(expression.Source, metadata);
 
             var list = expression.Parameters.List;
-            ItemOrListEditor<IExpressionNode, List<IExpressionNode>> parameters = ItemOrListEditor.Get<IExpressionNode>();
+            var parameters = ItemOrListEditor.Get<IExpressionNode>();
             if (list != null)
             {
                 for (var i = 0; i < list.Count; i++)

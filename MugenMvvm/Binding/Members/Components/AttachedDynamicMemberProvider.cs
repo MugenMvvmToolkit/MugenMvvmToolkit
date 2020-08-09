@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Members.Components
         {
             if (_dynamicMembers.Count == 0)
                 return default;
-            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> members = ItemOrListEditor.Get<IMemberInfo>();
+            var members = ItemOrListEditor.Get<IMemberInfo>();
             for (var i = 0; i < _dynamicMembers.Count; i++)
                 members.Add(_dynamicMembers[i].Invoke(type, name, memberTypes, metadata));
             return members.ToItemOrList<IReadOnlyList<IMemberInfo>>();

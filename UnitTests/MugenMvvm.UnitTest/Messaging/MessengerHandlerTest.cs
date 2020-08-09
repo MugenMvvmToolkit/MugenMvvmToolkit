@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Messaging
             var subscriber = new object();
             var executionMode = ThreadExecutionMode.MainAsync;
             var state = new object();
-            int invokeCount = 0;
+            var invokeCount = 0;
             var result = MessengerResult.Ignored;
             Func<object, IMessageContext, object?, MessengerResult> handler = (o, arg3, o1) =>
             {

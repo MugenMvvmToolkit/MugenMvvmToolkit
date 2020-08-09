@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         #region Fields
 
         private static readonly MethodInfo StringConcatMethod =
-            typeof(string).GetMethodOrThrow(nameof(string.Concat), BindingFlagsEx.StaticPublic, new[] { typeof(object), typeof(object) });
+            typeof(string).GetMethodOrThrow(nameof(string.Concat), BindingFlagsEx.StaticPublic, new[] {typeof(object), typeof(object)});
 
         private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), BindingFlagsEx.StaticPublic);
 
@@ -75,6 +75,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBinaryExpressionFormat2.Format(expression, binaryExpression.Token));
             }
+
             return null;
         }
 
@@ -110,12 +111,10 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         [Preserve(Conditional = true)]
         // ReSharper disable UnusedMember.Local
-        private static void LinkerInclude()
-        {
+        private static void LinkerInclude() =>
             // ReSharper disable ReturnValueOfPureMethodIsNotUsed
             string.Concat(1, 1);
-            // ReSharper restore ReturnValueOfPureMethodIsNotUsed
-        }
+        // ReSharper restore ReturnValueOfPureMethodIsNotUsed
         // ReSharper restore UnusedMember.Local
 
         #endregion

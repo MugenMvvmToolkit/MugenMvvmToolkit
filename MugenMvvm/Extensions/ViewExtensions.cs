@@ -22,42 +22,26 @@ namespace MugenMvvm.Extensions
             return task;
         }
 
-        public static Task CleanupAsync(this IViewManager viewManager, IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
-        {
-            return viewManager.TryCleanupAsync(view, state, cancellationToken, metadata) ?? Task.CompletedTask;
-        }
+        public static Task CleanupAsync(this IViewManager viewManager, IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+            viewManager.TryCleanupAsync(view, state, cancellationToken, metadata) ?? Task.CompletedTask;
 
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
-            where TView : class
-        {
-            return (TView?)view.TryWrap(typeof(TView), metadata, wrapperManager);
-        }
+            where TView : class =>
+            (TView?) view.TryWrap(typeof(TView), metadata, wrapperManager);
 
-        public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
-        {
-            return wrapperManager.DefaultIfNull().TryWrap(wrapperType, view, metadata);
-        }
+        public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
+            wrapperManager.DefaultIfNull().TryWrap(wrapperType, view, metadata);
 
         public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
-            where TView : class
-        {
-            return (TView)view.Wrap(typeof(TView), metadata, wrapperManager);
-        }
+            where TView : class =>
+            (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
 
-        public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
-        {
-            return wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
-        }
+        public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) => wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
 
-        public static bool CanWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class
-        {
-            return view.CanWrap(typeof(TView), metadata, wrapperManager);
-        }
+        public static bool CanWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class => view.CanWrap(typeof(TView), metadata, wrapperManager);
 
-        public static bool CanWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
-        {
-            return wrapperManager.DefaultIfNull().CanWrap(wrapperType, view, metadata);
-        }
+        public static bool CanWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
+            wrapperManager.DefaultIfNull().CanWrap(wrapperType, view, metadata);
 
         #endregion
     }

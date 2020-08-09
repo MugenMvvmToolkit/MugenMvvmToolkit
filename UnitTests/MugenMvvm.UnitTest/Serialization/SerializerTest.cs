@@ -15,10 +15,7 @@ namespace MugenMvvm.UnitTest.Serialization
         #region Methods
 
         [Fact]
-        public void SerializeShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(new MemoryStream(), this));
-        }
+        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(new MemoryStream(), this));
 
         [Theory]
         [InlineData(1)]
@@ -63,10 +60,7 @@ namespace MugenMvvm.UnitTest.Serialization
         }
 
         [Fact]
-        public void DeserializeShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(new MemoryStream()));
-        }
+        public void DeserializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(new MemoryStream()));
 
         [Theory]
         [InlineData(1)]
@@ -78,7 +72,7 @@ namespace MugenMvvm.UnitTest.Serialization
             var serializer = new Serializer();
             serializer.AddComponent(new TestSerializationContextProvider(serializer)
             {
-                TryGetDeserializationContext = (arg4) =>
+                TryGetDeserializationContext = arg4 =>
                 {
                     arg4.ShouldEqual(DefaultMetadata);
                     return ctx;
@@ -109,10 +103,7 @@ namespace MugenMvvm.UnitTest.Serialization
             executeCount.ShouldEqual(count);
         }
 
-        protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new Serializer(collectionProvider);
-        }
+        protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Serializer(collectionProvider);
 
         #endregion
     }

@@ -65,10 +65,7 @@ namespace MugenMvvm.Binding.Parsing
             _expressions.Remove(expression);
         }
 
-        public IExpressionNode? TryConvert(TExpression expression)
-        {
-            return _converters.TryConvert(this, expression) ?? TryGetExpression(expression);
-        }
+        public IExpressionNode? TryConvert(TExpression expression) => _converters.TryConvert(this, expression) ?? TryGetExpression(expression);
 
         #endregion
 

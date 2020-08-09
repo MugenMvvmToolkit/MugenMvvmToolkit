@@ -74,6 +74,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
                 _request ??= GetObserverRequest(Path, metadata);
                 request = _request;
             }
+
             return resource.Resource;
         }
 

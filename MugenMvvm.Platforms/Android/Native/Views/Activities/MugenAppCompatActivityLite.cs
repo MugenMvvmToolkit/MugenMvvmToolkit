@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Android.Native.Views.Activities

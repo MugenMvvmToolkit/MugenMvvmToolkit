@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
         public void SetErrorsShouldUpdateErrors()
         {
             var memberName = "test";
-            var errors = new object[] { "test" };
+            var errors = new object[] {"test"};
             var validator = new InlineValidatorComponent(this);
             validator.HasErrors(null!).ShouldBeFalse();
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
             validator.GetComponents<InlineValidatorComponent>().ShouldBeEmpty();
 
             var memberName = "test";
-            var errors = new object[] { "test" };
+            var errors = new object[] {"test"};
             validator.HasErrors().ShouldBeFalse();
 
             validator.SetErrors(this, memberName, errors);

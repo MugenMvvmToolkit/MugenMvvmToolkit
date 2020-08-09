@@ -40,10 +40,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         #region Implementation of interfaces
 
-        IEventListener IMethodPathObserver.GetMethodListener()
-        {
-            return this;
-        }
+        IEventListener IMethodPathObserver.GetMethodListener() => this;
 
         #endregion
 

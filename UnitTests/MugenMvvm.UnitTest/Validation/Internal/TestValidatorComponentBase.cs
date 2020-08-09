@@ -26,10 +26,8 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         #region Methods
 
-        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return GetErrorsAsyncDelegate?.Invoke(memberName, cancellationToken, metadata) ?? default;
-        }
+        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            GetErrorsAsyncDelegate?.Invoke(memberName, cancellationToken, metadata) ?? default;
 
         #endregion
     }

@@ -24,20 +24,11 @@ namespace MugenMvvm.App.Configuration
 
         #region Methods
 
-        public static MugenApplicationConfiguration Configure()
-        {
-            return Configure(MugenService.Optional<IMugenApplication>() ?? new MugenApplication());
-        }
+        public static MugenApplicationConfiguration Configure() => Configure(MugenService.Optional<IMugenApplication>() ?? new MugenApplication());
 
-        public static MugenApplicationConfiguration Configure(IMugenApplication application)
-        {
-            return new MugenApplicationConfiguration(application);
-        }
+        public static MugenApplicationConfiguration Configure(IMugenApplication application) => new MugenApplicationConfiguration(application);
 
-        public ServiceConfiguration<TService> ServiceConfiguration<TService>() where TService : class
-        {
-            return new ServiceConfiguration<TService>(this);
-        }
+        public ServiceConfiguration<TService> ServiceConfiguration<TService>() where TService : class => new ServiceConfiguration<TService>(this);
 
         #endregion
     }

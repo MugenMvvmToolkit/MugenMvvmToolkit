@@ -32,10 +32,7 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name)
-        {
-            return MetadataContextKey.Create<TGet, TSet>(typeof(ApplicationMetadata), name);
-        }
+        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name) => MetadataContextKey.Create<TGet, TSet>(typeof(ApplicationMetadata), name);
 
         #endregion
     }

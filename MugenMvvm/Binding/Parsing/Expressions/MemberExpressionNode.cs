@@ -64,10 +64,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Implementation of interfaces
 
-        public IMemberExpressionNode UpdateTarget(IExpressionNode? target)
-        {
-            return target == Target ? this : new MemberExpressionNode(target, Member);
-        }
+        public IMemberExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new MemberExpressionNode(target, Member);
 
         #endregion
 

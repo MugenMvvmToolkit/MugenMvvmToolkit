@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (!(expression is IMemberExpressionNode memberExpression) || memberExpression.Target == null)
                 return null;
 
-            Expression? target = context.Build(memberExpression.Target);
+            var target = context.Build(memberExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
             MemberFlags flags;
             if (target == null)

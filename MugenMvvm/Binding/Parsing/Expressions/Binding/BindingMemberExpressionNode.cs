@@ -55,20 +55,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return GetObserver(source, metadata);
         }
 
-        private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata)
-        {
-            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, Request(metadata), metadata);
-        }
+        private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata) => ObservationManager.DefaultIfNull().GetMemberPathObserver(target, Request(metadata), metadata);
 
-        private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata)
-        {
-            return _request ??= GetObserverRequest(Path, metadata);
-        }
+        private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata) => _request ??= GetObserverRequest(Path, metadata);
 
-        private MemberPathObserverRequest DataContextRequest(IReadOnlyMetadataContext? metadata)
-        {
-            return _dataContextRequest ??= GetObserverRequest(GetDataContextPath(), metadata);
-        }
+        private MemberPathObserverRequest DataContextRequest(IReadOnlyMetadataContext? metadata) => _dataContextRequest ??= GetObserverRequest(GetDataContextPath(), metadata);
 
         private string GetDataContextPath()
         {

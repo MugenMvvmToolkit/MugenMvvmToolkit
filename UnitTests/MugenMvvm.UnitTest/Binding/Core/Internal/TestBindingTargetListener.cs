@@ -22,20 +22,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        void IBindingTargetListener.OnTargetUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata)
-        {
-            OnTargetUpdateFailed?.Invoke(binding, exception, metadata);
-        }
+        void IBindingTargetListener.OnTargetUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata) => OnTargetUpdateFailed?.Invoke(binding, exception, metadata);
 
-        void IBindingTargetListener.OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata)
-        {
-            OnTargetUpdateCanceled?.Invoke(binding, metadata);
-        }
+        void IBindingTargetListener.OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata) => OnTargetUpdateCanceled?.Invoke(binding, metadata);
 
-        void IBindingTargetListener.OnTargetUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata)
-        {
-            OnTargetUpdated?.Invoke(binding, newValue, metadata);
-        }
+        void IBindingTargetListener.OnTargetUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) => OnTargetUpdated?.Invoke(binding, newValue, metadata);
 
         #endregion
     }

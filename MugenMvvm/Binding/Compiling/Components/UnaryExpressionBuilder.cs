@@ -48,6 +48,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileUnaryExpressionFormat2.Format(expression, unaryExpressionNode.Token));
             }
+
             return null;
         }
 

@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(typeName, nameof(typeName));
-            int nameLevel = 0;
+            var nameLevel = 0;
 
             target = Members.BindableMembers.For<object>().Parent().GetValue(target, MemberFlags.InstancePublicAll, metadata, memberManager)!;
             while (target != null)

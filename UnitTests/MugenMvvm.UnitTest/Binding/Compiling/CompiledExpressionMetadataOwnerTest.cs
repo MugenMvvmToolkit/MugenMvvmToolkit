@@ -9,10 +9,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
     {
         #region Methods
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
-        {
-            return new CompiledExpression(ConstantExpressionNode.EmptyString, metadata);
-        }
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new CompiledExpression(ConstantExpressionNode.EmptyString, metadata);
 
         #endregion
     }

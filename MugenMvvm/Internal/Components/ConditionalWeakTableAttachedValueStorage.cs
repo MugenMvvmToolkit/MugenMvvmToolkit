@@ -35,10 +35,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => true;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
@@ -51,10 +48,7 @@ namespace MugenMvvm.Internal.Components
             return _weakTable.GetValue(item, key => new SortedList<string, object?>(StringComparer.Ordinal));
         }
 
-        protected override bool ClearInternal(object item)
-        {
-            return _weakTable.Remove(item);
-        }
+        protected override bool ClearInternal(object item) => _weakTable.Remove(item);
 
         #endregion
     }

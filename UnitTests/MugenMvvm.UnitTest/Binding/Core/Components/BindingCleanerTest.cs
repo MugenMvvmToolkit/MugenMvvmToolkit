@@ -61,9 +61,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var disposeComponentCount = 0;
             var components = Enumerable
                 .Range(0, count)
-                .Select(i => new TestComponent<IBinding> { Dispose = () => ++disposeComponentCount })
+                .Select(i => new TestComponent<IBinding> {Dispose = () => ++disposeComponentCount})
                 .OfType<IComponent<IBinding>>()
-                .Concat(new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() })
+                .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
                 .ToArray();
 
             var binding = new MugenMvvm.Binding.Core.Binding(target, source);
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var expressionDisposed = false;
             IMemberPathObserverListener? targetListener = null;
             IMemberPathObserverListener? sourceListener = null;
-            var expression = new TestCompiledExpression { Dispose = () => expressionDisposed = true };
+            var expression = new TestCompiledExpression {Dispose = () => expressionDisposed = true};
             var target = new TestMemberPathObserver
             {
                 Dispose = () => targetDisposed = true,
@@ -137,7 +137,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 }
             };
 
-            var components = new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() };
+            var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
             var binding = new MultiBinding(target, sources: source, expression: expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);

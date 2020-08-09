@@ -51,6 +51,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
                         f.ShouldEqual(MemberFlags.All.ClearInstanceOrStaticFlags(false));
                         return methodMember;
                     }
+
                     return accessorInfo;
                 }
             };
@@ -60,15 +61,9 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull());
         }
 
-        protected override SinglePathObserver GetObserver(object target)
-        {
-            return new MethodSinglePathObserver(MethodName, target, DefaultPath, MemberFlags.InstancePublic, true);
-        }
+        protected override SinglePathObserver GetObserver(object target) => new MethodSinglePathObserver(MethodName, target, DefaultPath, MemberFlags.InstancePublic, true);
 
-        protected override SinglePathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional)
-        {
-            return new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
-        }
+        protected override SinglePathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional) => new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
 
         #endregion
     }

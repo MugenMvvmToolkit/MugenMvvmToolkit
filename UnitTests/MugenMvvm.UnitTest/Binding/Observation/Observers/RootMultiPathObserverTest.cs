@@ -56,15 +56,10 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(), 0);
         }
 
-        protected override RootMultiPathObserver GetObserver(object target)
-        {
-            return new RootMultiPathObserver(target, DefaultPath, MemberFlags.All, false, false);
-        }
+        protected override RootMultiPathObserver GetObserver(object target) => new RootMultiPathObserver(target, DefaultPath, MemberFlags.All, false, false);
 
-        protected override RootMultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
-        {
-            return new RootMultiPathObserver(target, path, memberFlags, hasStablePath, optional);
-        }
+        protected override RootMultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional) =>
+            new RootMultiPathObserver(target, path, memberFlags, hasStablePath, optional);
 
         #endregion
     }

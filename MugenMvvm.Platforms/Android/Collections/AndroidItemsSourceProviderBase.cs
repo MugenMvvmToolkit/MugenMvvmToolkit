@@ -69,15 +69,9 @@ namespace MugenMvvm.Android.Collections
 
         public virtual ICharSequence GetItemTitleFormatted(int position) => (Selector as ITitleTemplateSelector)?.GetTitle(Owner, GetItemAt(position))!;
 
-        public virtual void AddObserver(IItemsSourceObserver observer)
-        {
-            CollectionAdapter.Observers.Add(observer);
-        }
+        public virtual void AddObserver(IItemsSourceObserver observer) => CollectionAdapter.Observers.Add(observer);
 
-        public virtual void RemoveObserver(IItemsSourceObserver observer)
-        {
-            CollectionAdapter.Observers.Remove(observer);
-        }
+        public virtual void RemoveObserver(IItemsSourceObserver observer) => CollectionAdapter.Observers.Remove(observer);
 
         public virtual object? GetItemAt(int position) => CollectionAdapter[position];
 

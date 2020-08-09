@@ -16,10 +16,10 @@ namespace MugenMvvm.Enums
         #region Fields
 
         public static readonly NavigationMode Undefined = new NavigationMode(nameof(Undefined));
-        public static readonly NavigationMode New = new NavigationMode(nameof(New)) { IsNew = true };
-        public static readonly NavigationMode Refresh = new NavigationMode(nameof(Refresh)) { IsRefresh = true };
-        public static readonly NavigationMode Restore = new NavigationMode(nameof(Restore)) { IsRefresh = true, IsRestore = true };
-        public static readonly NavigationMode Close = new NavigationMode(nameof(Close)) { IsClose = true };
+        public static readonly NavigationMode New = new NavigationMode(nameof(New)) {IsNew = true};
+        public static readonly NavigationMode Refresh = new NavigationMode(nameof(Refresh)) {IsRefresh = true};
+        public static readonly NavigationMode Restore = new NavigationMode(nameof(Restore)) {IsRefresh = true, IsRestore = true};
+        public static readonly NavigationMode Close = new NavigationMode(nameof(Close)) {IsClose = true};
 
         #endregion
 
@@ -76,15 +76,9 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(NavigationMode? left, NavigationMode? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(NavigationMode? left, NavigationMode? right) => !(left == right);
 
-        protected override bool Equals(string value)
-        {
-            return Value.Equals(value);
-        }
+        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }

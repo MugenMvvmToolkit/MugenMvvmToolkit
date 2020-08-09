@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var target = new MemberExpressionNode(null, "1");
             var source = new MemberExpressionNode(null, "2");
-            var parameters = new IExpressionNode[] { new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5") };
+            var parameters = new IExpressionNode[] {new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5")};
             var newNode = ConstantExpressionNode.Get(1);
             var ctx = new BindingExpressionInitializerContext(this);
             ctx.Initialize(this, this, target, source, parameters, DefaultMetadata);
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var target = new MemberExpressionNode(null, "1");
             var source = new MemberExpressionNode(null, "2");
-            var parameters = new IExpressionNode[] { new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5") };
+            var parameters = new IExpressionNode[] {new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5")};
             var newNode = ConstantExpressionNode.Get(1);
             var ctx = new BindingExpressionInitializerContext(this);
             ctx.Initialize(this, this, target, source, parameters, DefaultMetadata);
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var target = new MemberExpressionNode(null, "1");
             var source = new MemberExpressionNode(null, "2");
-            var parameters = new IExpressionNode[] { new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5") };
+            var parameters = new IExpressionNode[] {new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5")};
             var handledParameters = new List<IExpressionNode>();
             var newNode = ConstantExpressionNode.Get(1);
             var ctx = new BindingExpressionInitializerContext(this);
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             initializer.Initialize(null!, ctx);
             ctx.TargetExpression.ShouldEqual(target);
             ctx.SourceExpression.ShouldEqual(source);
-            ctx.Parameters.AsList().ShouldEqual(new[] { newNode, newNode, newNode });
+            ctx.Parameters.AsList().ShouldEqual(new[] {newNode, newNode, newNode});
             handledParameters.ShouldEqual(parameters);
         }
 

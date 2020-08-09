@@ -25,15 +25,9 @@ namespace MugenMvvm.Android.Collections
 
         #region Implementation of interfaces
 
-        public virtual int GetItemViewType(int position)
-        {
-            return Selector.SelectTemplate(Owner, GetItemAt(position));
-        }
+        public virtual int GetItemViewType(int position) => Selector.SelectTemplate(Owner, GetItemAt(position));
 
-        public virtual void OnBindView(View view, int position)
-        {
-            view.BindableMembers().SetDataContext(GetItemAt(position));
-        }
+        public virtual void OnBindView(View view, int position) => view.BindableMembers().SetDataContext(GetItemAt(position));
 
         public virtual void OnViewCreated(View view)
         {

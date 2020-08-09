@@ -70,7 +70,7 @@ namespace MugenMvvm.Collections
         object? IList.this[int index]
         {
             get => BoxingExtensions.Box(this[index])!;
-            set => this[index] = (T)value!;
+            set => this[index] = (T) value!;
         }
 
         public T this[int index]
@@ -112,7 +112,7 @@ namespace MugenMvvm.Collections
         {
             lock (Locker)
             {
-                InsertInternal(GetCountInternal(), (T)value!, true);
+                InsertInternal(GetCountInternal(), (T) value!, true);
                 return GetCountInternal() - 1;
             }
         }
@@ -120,37 +120,28 @@ namespace MugenMvvm.Collections
         bool IList.Contains(object? value)
         {
             if (IsCompatibleObject(value))
-                return Contains((T)value!);
+                return Contains((T) value!);
             return false;
         }
 
         int IList.IndexOf(object? value)
         {
             if (IsCompatibleObject(value!))
-                return IndexOf((T)value!);
+                return IndexOf((T) value!);
             return -1;
         }
 
-        void IList.Insert(int index, object? value)
-        {
-            Insert(index, (T)value!);
-        }
+        void IList.Insert(int index, object? value) => Insert(index, (T) value!);
 
         void IList.Remove(object? value)
         {
             if (IsCompatibleObject(value!))
-                Remove((T)value!);
+                Remove((T) value!);
         }
 
-        void IObservableCollection.Reset(IEnumerable<object> items)
-        {
-            Reset((IEnumerable<T>)items);
-        }
+        void IObservableCollection.Reset(IEnumerable<object> items) => Reset((IEnumerable<T>) items);
 
-        void IObservableCollection.RaiseItemChanged(object item, object? args)
-        {
-            RaiseItemChanged((T)item, args);
-        }
+        void IObservableCollection.RaiseItemChanged(object item, object? args) => RaiseItemChanged((T) item, args);
 
         public void RemoveAt(int index)
         {
@@ -179,7 +170,7 @@ namespace MugenMvvm.Collections
                     GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this);
             }
 
-            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>)@this!).EndBatchUpdate(), this);
+            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
         }
 
         public bool Remove(T item)
@@ -268,49 +259,25 @@ namespace MugenMvvm.Collections
             }
         }
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 
         #region Methods
 
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+        public Enumerator GetEnumerator() => new Enumerator(this);
 
-        protected virtual void CopyToInternal(Array array, int index)
-        {
-            ((ICollection)Items).CopyTo(array, index);
-        }
+        protected virtual void CopyToInternal(Array array, int index) => ((ICollection) Items).CopyTo(array, index);
 
-        protected virtual void CopyToInternal(T[] array, int index)
-        {
-            Items.CopyTo(array, index);
-        }
+        protected virtual void CopyToInternal(T[] array, int index) => Items.CopyTo(array, index);
 
-        protected virtual int GetCountInternal()
-        {
-            return Items.Count;
-        }
+        protected virtual int GetCountInternal() => Items.Count;
 
-        protected int IndexOfInternal(T item)
-        {
-            return Items.IndexOf(item);
-        }
+        protected int IndexOfInternal(T item) => Items.IndexOf(item);
 
-        protected bool ContainsInternal(T item)
-        {
-            return Items.Contains(item);
-        }
+        protected bool ContainsInternal(T item) => Items.Contains(item);
 
         protected virtual void MoveInternal(int oldIndex, int newIndex)
         {
@@ -386,10 +353,7 @@ namespace MugenMvvm.Collections
             GetComponentsOptional<ICollectionChangedListener>()?.OnRemoved(this, boxed.Value, index);
         }
 
-        protected virtual T GetInternal(int index)
-        {
-            return Items[index];
-        }
+        protected virtual T GetInternal(int index) => Items[index];
 
         protected virtual void SetInternal(int index, T item)
         {
@@ -532,10 +496,7 @@ namespace MugenMvvm.Collections
                 return true;
             }
 
-            public void Reset()
-            {
-                _index = 0;
-            }
+            public void Reset() => _index = 0;
 
             public void Dispose()
             {

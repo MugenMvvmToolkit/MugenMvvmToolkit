@@ -47,9 +47,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             expression.Invoke().ShouldEqual(result);
         }
 
-        public static IEnumerable<object?[]> GetData()
-        {
-            return new[]
+        public static IEnumerable<object?[]> GetData() =>
+            new[]
             {
                 GetUnary(UnaryTokenType.Minus, -1, 1, false),
                 GetUnary(UnaryTokenType.Minus, 1, -1, false),
@@ -67,7 +66,6 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 GetUnary(UnaryTokenType.BitwiseNegation, 1, ~1, false),
                 GetUnary(UnaryTokenType.BitwiseNegation, "", null, true)
             };
-        }
 
         private static object?[] GetUnary(UnaryTokenType unaryTokenType, object? operand, object? result, bool invalid)
         {

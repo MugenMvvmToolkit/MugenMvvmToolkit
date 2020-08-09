@@ -33,14 +33,11 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
 
         [Theory]
         [MemberData(nameof(GetData))]
-        public void TryConvertShouldConvertUnaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result)
-        {
+        public void TryConvertShouldConvertUnaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
             new UnaryExpressionConverter().TryConvert(ctx, expression).ShouldEqual(result);
-        }
 
-        public static IEnumerable<object?[]> GetData()
-        {
-            return new[]
+        public static IEnumerable<object?[]> GetData() =>
+            new[]
             {
                 GetUnary(ExpressionType.Negate, UnaryTokenType.Minus, 1),
                 GetUnary(ExpressionType.UnaryPlus, UnaryTokenType.Plus, -1),
@@ -49,7 +46,6 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
                 GetUnary(ExpressionType.Convert, null, 0),
                 GetUnary(ExpressionType.ConvertChecked, null, 0)
             };
-        }
 
         private static object[] GetUnary<T>(ExpressionType expressionType, UnaryTokenType? unaryTokenType, T value)
         {

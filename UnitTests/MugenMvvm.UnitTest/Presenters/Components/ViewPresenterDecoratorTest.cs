@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
         {
             var disposeCount = 0;
             var view = new object();
-            var viewModel = new TestViewModel { Dispose = () => ++disposeCount };
+            var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
             var mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
             var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
@@ -98,12 +98,12 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 }
             });
             var presenter = new Presenter();
-            presenter.AddComponent(new ViewPresenterDecorator(viewManager, viewModelManager, dispatcher) { DisposeViewModelOnClose = disposeViewModel });
+            presenter.AddComponent(new ViewPresenterDecorator(viewManager, viewModelManager, dispatcher) {DisposeViewModelOnClose = disposeViewModel});
             presenter.AddComponent(new TestPresenterComponent(presenter)
             {
                 TryShow = (o, arg4, arg5) =>
                 {
-                    var viewRequest = (ViewModelViewRequest)o;
+                    var viewRequest = (ViewModelViewRequest) o;
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);

@@ -19,10 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         #region Methods
 
         [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            default(BindingParameterValue).IsEmpty.ShouldBeTrue();
-        }
+        public void DefaultShouldBeEmpty() => default(BindingParameterValue).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void ConstructorShouldInitializeValues1()
@@ -76,7 +73,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         {
             var dispose = false;
             var result = this;
-            var values = new object[] { new object(), "", 1 };
+            var values = new[] {new object(), "", 1};
             var compiledExpression = new TestCompiledExpression
             {
                 Dispose = () => dispose = true,
@@ -98,7 +95,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         [Fact]
         public void ConstructorShouldInitializeValues4()
         {
-            int invokeCount = 0;
+            var invokeCount = 0;
             var disposeExpression = false;
             var disposeObserver = false;
             var target = new object();
@@ -122,7 +119,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             };
 
             var result = this;
-            var values = new object[] { observer, new object(), "", 1 };
+            var values = new[] {observer, new object(), "", 1};
             var compiledExpression = new TestCompiledExpression
             {
                 Dispose = () => disposeExpression = true,

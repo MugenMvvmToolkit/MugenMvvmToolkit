@@ -47,9 +47,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             expression.Invoke().ShouldEqual(result);
         }
 
-        public static IEnumerable<object?[]> GetData()
-        {
-            return new[]
+        public static IEnumerable<object?[]> GetData() =>
+            new[]
             {
                 GetBinary(BinaryTokenType.Multiplication, 5, 10, 5 * 10, false),
                 GetBinary(BinaryTokenType.Multiplication, 5.1f, 10, 5.1f * 10, false),
@@ -129,7 +128,6 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 GetBinary(BinaryTokenType.NullCoalescing, "f", "t", "f" ?? "t", false),
                 GetBinary(BinaryTokenType.NullCoalescing, "f", 1, null, true)
             };
-        }
 
         private static object?[] GetBinary(BinaryTokenType binaryToken, object? left, object? right, object? result, bool invalid)
         {

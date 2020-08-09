@@ -97,7 +97,7 @@ namespace MugenMvvm.Binding.Observation.Observers
                 _listeners = listeners;
             }
             else
-                _listeners = new[] { (IMemberPathObserverListener)oldListeners, listener };
+                _listeners = new[] {(IMemberPathObserverListener) oldListeners, listener};
 
             if (oldListeners == null)
                 OnListenersAdded();

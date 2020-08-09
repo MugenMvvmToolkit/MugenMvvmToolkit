@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Observation
             get
             {
                 if (_members == null)
-                    return (Exception?)_target;
+                    return (Exception?) _target;
                 return null;
             }
         }

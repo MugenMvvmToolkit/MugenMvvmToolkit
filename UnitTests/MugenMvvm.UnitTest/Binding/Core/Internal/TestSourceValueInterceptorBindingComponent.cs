@@ -18,10 +18,8 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        object? ISourceValueInterceptorBindingComponent.InterceptSourceValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata)
-        {
-            return InterceptSourceValue?.Invoke(binding, sourceMember, value, metadata);
-        }
+        object? ISourceValueInterceptorBindingComponent.InterceptSourceValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata) =>
+            InterceptSourceValue?.Invoke(binding, sourceMember, value, metadata);
 
         #endregion
 

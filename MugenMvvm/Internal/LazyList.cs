@@ -22,16 +22,10 @@ namespace MugenMvvm.Internal
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public List<T> Get()
-        {
-            return List ??= new List<T>();
-        }
+        public List<T> Get() => List ??= new List<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator List<T>?(LazyList<T> list)
-        {
-            return list.List;
-        }
+        public static implicit operator List<T>?(LazyList<T> list) => list.List;
 
         #endregion
     }

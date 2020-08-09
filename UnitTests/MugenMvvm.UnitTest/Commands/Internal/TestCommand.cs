@@ -29,15 +29,9 @@ namespace MugenMvvm.UnitTest.Commands.Internal
 
         #region Implementation of interfaces
 
-        bool ICommand.CanExecute(object? parameter)
-        {
-            return CanExecute?.Invoke(parameter) ?? true;
-        }
+        bool ICommand.CanExecute(object? parameter) => CanExecute?.Invoke(parameter) ?? true;
 
-        void ICommand.Execute(object? parameter)
-        {
-            Execute?.Invoke(parameter);
-        }
+        void ICommand.Execute(object? parameter) => Execute?.Invoke(parameter);
 
         #endregion
     }

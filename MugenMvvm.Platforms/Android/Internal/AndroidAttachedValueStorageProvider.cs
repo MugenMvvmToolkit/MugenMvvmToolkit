@@ -21,24 +21,21 @@ namespace MugenMvvm.Android.Internal
 
         #region Methods
 
-        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
-        {
-            return item is Object v && ViewExtensions.IsSupportAttachedValues(v);
-        }
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is Object v && ViewExtensions.IsSupportAttachedValues(v);
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
-            var attachedValues = (AttachedValueHolder?)ViewExtensions.GetAttachedValues((Object)item);
+            var attachedValues = (AttachedValueHolder?) ViewExtensions.GetAttachedValues((Object) item);
             if (optional || attachedValues != null)
                 return attachedValues?.Values;
             attachedValues = new AttachedValueHolder();
-            ViewExtensions.SetAttachedValues((Object)item, attachedValues);
+            ViewExtensions.SetAttachedValues((Object) item, attachedValues);
             return attachedValues.Values;
         }
 
         protected override bool ClearInternal(object item)
         {
-            var attachedValues = (AttachedValueHolder?)ViewExtensions.GetAttachedValues((Object)item);
+            var attachedValues = (AttachedValueHolder?) ViewExtensions.GetAttachedValues((Object) item);
             if (attachedValues != null)
             {
                 attachedValues.Values.Clear();

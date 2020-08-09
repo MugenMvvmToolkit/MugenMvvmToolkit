@@ -41,15 +41,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return Instance;
         }
 
-        public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return ObservationManager.DefaultIfNull().GetMemberPathObserver(Instance, Request(metadata), metadata);
-        }
+        public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata) => ObservationManager.DefaultIfNull().GetMemberPathObserver(Instance, Request(metadata), metadata);
 
-        private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata)
-        {
-            return _request ??= GetObserverRequest(Path, metadata);
-        }
+        private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata) => _request ??= GetObserverRequest(Path, metadata);
 
         #endregion
     }

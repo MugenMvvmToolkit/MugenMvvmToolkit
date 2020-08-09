@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 Dispose = () => ++disposeCount
             };
             var mode = dispose ? OneTimeBindingMode.Instance : OneTimeBindingMode.NonDisposeInstance;
-            ((IAttachableComponent)mode).OnAttaching(binding, DefaultMetadata).ShouldBeFalse();
+            ((IAttachableComponent) mode).OnAttaching(binding, DefaultMetadata).ShouldBeFalse();
             disposeCount.ShouldEqual(dispose ? 1 : 0);
             updateCount.ShouldEqual(1);
         }
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 Dispose = () => ++disposeCount
             };
             var mode = dispose ? OneTimeBindingMode.Instance : OneTimeBindingMode.NonDisposeInstance;
-            var listener = (IBindingSourceObserverListener)mode;
+            var listener = (IBindingSourceObserverListener) mode;
             binding.AddComponent(mode);
             binding.GetComponents<object>().Single().ShouldEqual(mode);
 

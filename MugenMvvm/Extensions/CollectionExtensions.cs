@@ -16,10 +16,7 @@ namespace MugenMvvm.Extensions
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Add<T>(this ref LazyList<T> list, T item)
-        {
-            list.Get().Add(item);
-        }
+        public static void Add<T>(this ref LazyList<T> list, T item) => list.Get().Add(item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddIfNotNull<T>(this ref LazyList<T> list, T? item) where T : class
@@ -49,7 +46,7 @@ namespace MugenMvvm.Extensions
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             if (component == null)
                 return collection as IEnumerable<object?> ?? collection.Cast<object?>();
-            return component.DecorateItems((IObservableCollection)collection);
+            return component.DecorateItems((IObservableCollection) collection);
         }
 
         public static MonitorLocker TryLock(this ICollection? collection)

@@ -28,10 +28,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         #region Methods
 
         [Fact]
-        public void TryGetCommandShouldReturnNullNotSupportedType()
-        {
-            _component.TryGetCommand<object>(new CommandManager(), _component, DefaultMetadata).ShouldBeNull();
-        }
+        public void TryGetCommandShouldReturnNullNotSupportedType() => _component.TryGetCommand<object>(new CommandManager(), _component, DefaultMetadata).ShouldBeNull();
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]

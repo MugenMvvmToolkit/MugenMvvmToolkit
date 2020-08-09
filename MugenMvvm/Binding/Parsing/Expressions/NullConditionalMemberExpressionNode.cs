@@ -49,10 +49,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return this;
         }
 
-        public override string ToString()
-        {
-            return Target + "?";
-        }
+        public override string ToString() => Target + "?";
 
         #endregion
     }

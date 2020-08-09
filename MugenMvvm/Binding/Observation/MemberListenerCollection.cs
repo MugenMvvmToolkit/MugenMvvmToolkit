@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Observation
 
         void ActionToken.IHandler.Invoke(object? target, object? state)
         {
-            var propertyName = (string)state!;
+            var propertyName = (string) state!;
             var listeners = _listeners;
             var size = _size;
             for (var i = 0; i < size; i++)
@@ -145,8 +145,8 @@ namespace MugenMvvm.Binding.Observation
 
         private void ClearDeadReferences()
         {
-            bool trim = false;
-            for (int i = 0; i < _listeners.Length; i++)
+            var trim = false;
+            for (var i = 0; i < _listeners.Length; i++)
             {
                 var listener = _listeners[i];
                 if (!listener.IsEmpty && !listener.IsAlive)

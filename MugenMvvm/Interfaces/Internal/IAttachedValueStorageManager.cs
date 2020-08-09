@@ -18,7 +18,8 @@ namespace MugenMvvm.Interfaces.Internal
 
         TValue AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory);
 
-        TValue AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> addValueFactory, UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory);
+        TValue AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> addValueFactory,
+            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory);
 
         TValue GetOrAdd<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> valueFactory);
 

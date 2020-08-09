@@ -86,7 +86,7 @@ namespace MugenMvvm.Validation.Components
 
                 if (string.IsNullOrEmpty(memberName))
                 {
-                    ItemOrListEditor<object, List<object>> errors = ItemOrListEditor.Get<object>();
+                    var errors = ItemOrListEditor.Get<object>();
                     foreach (var error in _errors)
                         errors.AddRange(ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value, true));
                     return errors.ToItemOrList<IReadOnlyList<object>>();
@@ -149,7 +149,7 @@ namespace MugenMvvm.Validation.Components
                 return;
             if (string.IsNullOrEmpty(memberName))
             {
-                ItemOrListEditor<string, List<string>> keys = ItemOrListEditor.Get<string>();
+                var keys = ItemOrListEditor.Get<string>();
                 lock (_errors)
                 {
                     foreach (var error in _errors)
@@ -170,15 +170,10 @@ namespace MugenMvvm.Validation.Components
 
         protected abstract ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
-        protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
-        {
-            OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, Target, memberName, metadata);
-        }
+        protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata) => OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, Target, memberName, metadata);
 
-        protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
-        {
+        protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata) =>
             OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnAsyncValidation(Owner, Target, memberName, validationTask, metadata);
-        }
 
         protected virtual void OnDispose()
         {
@@ -213,7 +208,7 @@ namespace MugenMvvm.Validation.Components
                 .AsTask()
                 .ContinueWith((t, state) =>
                 {
-                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>)state!;
+                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>) state!;
                     tuple.Item1.OnValidationCompleted(tuple.Item2, t.Result);
                 }, Tuple.Create(this, memberName), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
         }

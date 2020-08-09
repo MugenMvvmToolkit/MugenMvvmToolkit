@@ -42,15 +42,9 @@ namespace MugenMvvm.Binding.Observation.Paths
 
         #region Implementation of interfaces
 
-        IEnumerator<string> IEnumerable<string>.GetEnumerator()
-        {
-            return Default.SingleValueEnumerator(Path);
-        }
+        IEnumerator<string> IEnumerable<string>.GetEnumerator() => Default.SingleValueEnumerator(Path);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Default.SingleValueEnumerator(Path);
-        }
+        IEnumerator IEnumerable.GetEnumerator() => Default.SingleValueEnumerator(Path);
 
         #endregion
     }

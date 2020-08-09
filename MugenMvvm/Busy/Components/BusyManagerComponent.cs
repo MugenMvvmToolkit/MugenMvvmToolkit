@@ -46,10 +46,8 @@ namespace MugenMvvm.Busy.Components
             return BeginBusy(new BusyToken(this, request), delay, metadata);
         }
 
-        public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata)
-        {
-            return _busyTail?.TryGetToken(filter, state, metadata);
-        }
+        public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata) =>
+            _busyTail?.TryGetToken(filter, state, metadata);
 
         public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
@@ -63,15 +61,9 @@ namespace MugenMvvm.Busy.Components
 
         #region Methods
 
-        protected override void OnAttached(IBusyManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            OnBusyInfoChanged(metadata);
-        }
+        protected override void OnAttached(IBusyManager owner, IReadOnlyMetadataContext? metadata) => OnBusyInfoChanged(metadata);
 
-        protected override void OnDetached(IBusyManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            OnBusyInfoChanged(metadata);
-        }
+        protected override void OnDetached(IBusyManager owner, IReadOnlyMetadataContext? metadata) => OnBusyInfoChanged(metadata);
 
         private BusyToken BeginBusy(BusyToken busyToken, int millisecondsDelay, IReadOnlyMetadataContext? metadata)
         {
@@ -84,10 +76,10 @@ namespace MugenMvvm.Busy.Components
                             token.Owner.BeginBusy(token, 0, null);
                         else
                         {
-                            var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>)state!;
+                            var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>) state!;
                             tuple.Item1.Owner.BeginBusy(tuple.Item1, 0, tuple.Item2);
                         }
-                    }, metadata == null ? busyToken : (object)Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
+                    }, metadata == null ? busyToken : (object) Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
                 return busyToken;
             }
 
@@ -96,10 +88,7 @@ namespace MugenMvvm.Busy.Components
             return busyToken;
         }
 
-        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null)
-        {
-            OwnerOptional?.GetComponents<IBusyManagerListener>().OnBusyChanged(Owner, metadata);
-        }
+        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.GetComponents<IBusyManagerListener>().OnBusyChanged(Owner, metadata);
 
         #endregion
 
@@ -163,7 +152,7 @@ namespace MugenMvvm.Busy.Components
 
                             if (IsSuspended)
                                 callback.OnSuspendChanged(true);
-                            return new ActionToken((token, cal) => ((BusyToken)token!).RemoveCallback((IBusyTokenCallback)cal!), this, callback);
+                            return new ActionToken((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
                         }
                     }
                 }
@@ -177,7 +166,7 @@ namespace MugenMvvm.Busy.Components
                 if (Interlocked.Increment(ref _suspendCount) == 1)
                     SetSuspended(true);
 
-                return new ActionToken((t, _) => ((BusyToken)t!).OnEndSuspend(), this);
+                return new ActionToken((t, _) => ((BusyToken) t!).OnEndSuspend(), this);
             }
 
             public void Dispose()
@@ -201,10 +190,7 @@ namespace MugenMvvm.Busy.Components
                 Owner.OnBusyInfoChanged();
             }
 
-            public void OnCompleted(IBusyToken token)
-            {
-                Dispose();
-            }
+            public void OnCompleted(IBusyToken token) => Dispose();
 
             public void OnSuspendChanged(bool suspended)
             {

@@ -18,10 +18,7 @@ namespace MugenMvvm.Extensions
         }
 
         [Pure]
-        public static string Flatten(this Exception exception, bool includeStackTrace = false)
-        {
-            return exception.Flatten(string.Empty, includeStackTrace);
-        }
+        public static string Flatten(this Exception exception, bool includeStackTrace = false) => exception.Flatten(string.Empty, includeStackTrace);
 
         [Pure]
         public static string Flatten(this Exception exception, string message, bool includeStackTrace = false)

@@ -17,10 +17,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Implementation of interfaces
 
-        IExpressionNode? IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
-        {
-            return Visit?.Invoke(expression, metadata);
-        }
+        IExpressionNode? IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata) => Visit?.Invoke(expression, metadata);
 
         #endregion
     }

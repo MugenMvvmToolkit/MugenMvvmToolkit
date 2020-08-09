@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Members.Components
             var hasProperty = !memberTypes.HasFlagEx(MemberType.Accessor);
             var hasField = hasProperty;
             var hasEvent = !memberTypes.HasFlagEx(MemberType.Event);
-            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result = ItemOrListEditor.Get<IMemberInfo>();
+            var result = ItemOrListEditor.Get<IMemberInfo>();
             var types = MugenBindingExtensions.SelfAndBaseTypes(type, types: _types);
             foreach (var t in types)
             {

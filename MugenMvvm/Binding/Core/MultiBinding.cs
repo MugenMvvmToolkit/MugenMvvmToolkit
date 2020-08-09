@@ -55,29 +55,18 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public object? Invoke(IReadOnlyMetadataContext? metadata = null)
-        {
-            return _expression.Invoke(SourceRaw, metadata ?? this);
-        }
+        public object? Invoke(IReadOnlyMetadataContext? metadata = null) => _expression.Invoke(SourceRaw, metadata ?? this);
 
         #endregion
 
         #region Methods
 
-        protected override int GetMetadataCount()
-        {
-            return 2;
-        }
+        protected override int GetMetadataCount() => 2;
 
-        protected override IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetMetadataEnumerator()
-        {
-            return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>)new[] { BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true) }).GetEnumerator();
-        }
+        protected override IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetMetadataEnumerator() =>
+            ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>) new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true)}).GetEnumerator();
 
-        protected override bool ContainsMetadata(IMetadataContextKey contextKey)
-        {
-            return base.ContainsMetadata(contextKey) || BindingMetadata.IsMultiBinding.Equals(contextKey);
-        }
+        protected override bool ContainsMetadata(IMetadataContextKey contextKey) => base.ContainsMetadata(contextKey) || BindingMetadata.IsMultiBinding.Equals(contextKey);
 
         protected override bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {
@@ -90,10 +79,7 @@ namespace MugenMvvm.Binding.Core
             return base.TryGetMetadata(contextKey, out value);
         }
 
-        protected override void OnDispose()
-        {
-            _expression = null;
-        }
+        protected override void OnDispose() => _expression = null;
 
         protected override object? GetSourceValue(MemberPathLastMember targetMember)
         {

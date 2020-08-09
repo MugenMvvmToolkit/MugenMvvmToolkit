@@ -79,9 +79,9 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
             InstanceProperty = "f";
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
         }
 
         [Fact]
@@ -145,9 +145,9 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 Type = typeof(string)
             };
 
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
             InstanceProperty = "f";
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
             invokeCount.ShouldEqual(2);
         }
 
@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
             var build = _component.TryBuild(ctx, expressionNode)!;
-            ShouldThrow(() => build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata));
+            ShouldThrow(() => build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata));
         }
 
 
@@ -203,9 +203,9 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(StaticProperty);
             StaticProperty = "f";
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(StaticProperty);
         }
 
         [Fact]

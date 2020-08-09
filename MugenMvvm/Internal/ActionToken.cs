@@ -39,7 +39,7 @@ namespace MugenMvvm.Internal
 
         public readonly bool IsEmpty => _handler == null;
 
-        public static ActionToken NoDoToken => new ActionToken((_, __) => { }, null);
+        public static ActionToken NoDoToken => new ActionToken((_, __) => { });
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.Internal
             if (handler is IHandler h)
                 h.Invoke(_state1, _state2);
             else
-                ((Action<object?, object?>)handler).Invoke(_state1, _state2);
+                ((Action<object?, object?>) handler).Invoke(_state1, _state2);
             _state1 = null;
             _state2 = null;
         }

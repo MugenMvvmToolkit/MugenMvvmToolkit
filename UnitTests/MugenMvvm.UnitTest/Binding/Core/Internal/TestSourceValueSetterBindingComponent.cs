@@ -18,10 +18,8 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        bool ISourceValueSetterBindingComponent.TrySetSourceValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
-        {
-            return TrySetSourceValue?.Invoke(binding, targetMember, value, metadata) ?? false;
-        }
+        bool ISourceValueSetterBindingComponent.TrySetSourceValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) =>
+            TrySetSourceValue?.Invoke(binding, targetMember, value, metadata) ?? false;
 
         #endregion
 

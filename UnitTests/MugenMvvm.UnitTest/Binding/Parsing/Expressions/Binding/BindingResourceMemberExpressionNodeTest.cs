@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 TryGetMemberPathObserver = (target, req, arg4) =>
                 {
                     target.ShouldEqual(resource);
-                    var request = (MemberPathObserverRequest)req;
+                    var request = (MemberPathObserverRequest) req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
                     request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
@@ -175,7 +175,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             var observer = EmptyPathObserver.Empty;
             var t = "r";
             var src = new object();
-            var resource = new TestDynamicResource { Value = new object() };
+            var resource = new TestDynamicResource {Value = new object()};
 
             var resourceResolver = new ResourceResolver();
             resourceResolver.AddComponent(new TestResourceResolverComponent
@@ -211,7 +211,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 TryGetMemberPathObserver = (target, req, arg4) =>
                 {
                     target.ShouldEqual(resource);
-                    var request = (MemberPathObserverRequest)req;
+                    var request = (MemberPathObserverRequest) req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
                     request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
@@ -226,10 +226,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
         }
 
-        protected override BindingMemberExpressionNodeBase GetExpression()
-        {
-            return new BindingResourceMemberExpressionNode(ResourceName, Path);
-        }
+        protected override BindingMemberExpressionNodeBase GetExpression() => new BindingResourceMemberExpressionNode(ResourceName, Path);
 
         #endregion
     }

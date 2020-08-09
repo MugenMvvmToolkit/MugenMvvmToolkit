@@ -62,15 +62,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Implementation of interfaces
 
-        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y)
-        {
-            return x.MemberFlags == y.MemberFlags && x.MemberType == y.MemberType && x.Path == y.Path && x.MethodName == y.MethodName && Equals(x.Target, y.Target);
-        }
+        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) => x.MemberFlags == y.MemberFlags && x.MemberType == y.MemberType && x.Path == y.Path && x.MethodName == y.MethodName && Equals(x.Target, y.Target);
 
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key)
-        {
-            return HashCode.Combine(key.Path, key.MethodName, (int)key.MemberFlags, (int)key.MemberType, key.Target);
-        }
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Path, key.MethodName, (int) key.MemberFlags, (int) key.MemberType, key.Target);
 
         IExpressionNode? IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
@@ -105,10 +99,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             return expression;
         }
 
-        private IExpressionNode VisitMemberExpression(IMemberExpressionNode memberExpression, IReadOnlyMetadataContext? metadata)
-        {
-            return GetOrAddBindingMember(memberExpression, null, metadata) ?? memberExpression;
-        }
+        private IExpressionNode VisitMemberExpression(IMemberExpressionNode memberExpression, IReadOnlyMetadataContext? metadata) => GetOrAddBindingMember(memberExpression, null, metadata) ?? memberExpression;
 
         private IExpressionNode VisitHasTargetExpression(IHasTargetExpressionNode<IExpressionNode> expression, string? methodName, IReadOnlyMetadataContext? metadata)
         {
@@ -231,7 +222,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
             }
 
-            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType)type);
+            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType) type);
             if (!_members.TryGetValue(key, out var node))
             {
                 node = new BindingMemberExpressionNode(key.Path, _observationManager)

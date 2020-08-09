@@ -40,10 +40,8 @@ namespace MugenMvvm.Binding.Build
             return this;
         }
 
-        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder)
-        {
-            return new BindingExpressionRequest(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.ToItemOrList<IReadOnlyList<KeyValuePair<string?, object>>>());
-        }
+        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder) => new BindingExpressionRequest(builder._fromBuilder.PathOrExpression, builder._pathOrExpression,
+            builder._parameters.ToItemOrList<IReadOnlyList<KeyValuePair<string?, object>>>());
 
         #endregion
     }

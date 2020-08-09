@@ -24,10 +24,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
 
         #region Implementation of interfaces
 
-        void IDisposable.Dispose()
-        {
-            Dispose?.Invoke();
-        }
+        void IDisposable.Dispose() => Dispose?.Invoke();
 
         #endregion
     }

@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var targetMember = ((IBinding)owner).Target.GetLastMember(metadata);
+            var targetMember = ((IBinding) owner).Target.GetLastMember(metadata);
             if (!(targetMember.Member is IObservableMemberInfo eventInfo) || eventInfo.MemberType != MemberType.Event)
                 return false;
 
@@ -76,16 +76,13 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var binding = (IBinding)owner;
+            var binding = (IBinding) owner;
             binding.UpdateTarget();
             if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
                 binding.Components.Add(OneTimeBindingMode.NonDisposeInstance);
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -245,15 +242,9 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             #region Implementation of interfaces
 
-            public void OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-            {
-                binding.UpdateTarget();
-            }
+            public void OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 
-            public void OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-            {
-                binding.UpdateTarget();
-            }
+            public void OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 
             public void OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
             {

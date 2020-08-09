@@ -24,10 +24,7 @@ namespace MugenMvvm.Validation.Components
             UpdateErrors(memberName, errors, false, metadata);
         }
 
-        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return default;
-        }
+        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => default;
 
         #endregion
     }

@@ -15,15 +15,9 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
 
         #region Implementation of interfaces
 
-        void IMessengerHandler<int>.Handle(int message, IMessageContext messageContext)
-        {
-            HandleInt?.Invoke(message, messageContext);
-        }
+        void IMessengerHandler<int>.Handle(int message, IMessageContext messageContext) => HandleInt?.Invoke(message, messageContext);
 
-        void IMessengerHandler<string>.Handle(string message, IMessageContext messageContext)
-        {
-            HandleString?.Invoke(message, messageContext);
-        }
+        void IMessengerHandler<string>.Handle(string message, IMessageContext messageContext) => HandleString?.Invoke(message, messageContext);
 
         #endregion
     }

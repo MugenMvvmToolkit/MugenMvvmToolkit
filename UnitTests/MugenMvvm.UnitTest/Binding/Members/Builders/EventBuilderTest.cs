@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         {
             var message = "m";
             var target = isStatic ? null : new object();
-            int attachedInvokeCount = 0;
+            var attachedInvokeCount = 0;
             INotifiableMemberInfo? memberInfo = null;
             var builder = new EventBuilder<object>("t", typeof(object), typeof(EventHandler));
             if (withAttachedHandler)
@@ -96,10 +96,10 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             var message = "m";
             var target = isStatic ? null : new object();
             var testEventHandler = new TestWeakEventListener();
-            int attachedInvokeCount = 0;
-            int invokeCount = 0;
-            int raiseInvokeCount = 0;
-            ActionToken result = new ActionToken((o, o1) => { });
+            var attachedInvokeCount = 0;
+            var invokeCount = 0;
+            var raiseInvokeCount = 0;
+            var result = new ActionToken((o, o1) => { });
             INotifiableMemberInfo? memberInfo = null;
             var builder = new EventBuilder<object>("t", typeof(object), typeof(EventHandler)).CustomImplementation((member, o, listener, metadata) =>
             {

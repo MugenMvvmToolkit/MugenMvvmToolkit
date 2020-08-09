@@ -150,25 +150,21 @@ namespace MugenMvvm.Binding.Members.Builders
                 return member.State._invoke!(member, target, args, metadata);
             }, _getParameters, (member, target, listener, metadata) =>
             {
-                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IMethodMemberInfo)member, member.State._attachedHandler, metadata);
+                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IMethodMemberInfo) member, member.State._attachedHandler, metadata);
                 if (member.State.id == null)
                     return member.State._tryObserve!(member, target, listener, metadata);
                 return EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State.id).Add(listener);
             }, raise ?? _raise);
         }
 
-        private string GenerateMemberId(bool isMethodId)
-        {
-            return AttachedMemberBuilder.GenerateMemberId(isMethodId ? BindingInternalConstant.AttachedMethodPrefix : BindingInternalConstant.AttachedHandlerMethodPrefix, _declaringType, _name);
-        }
+        private string GenerateMemberId(bool isMethodId) =>
+            AttachedMemberBuilder.GenerateMemberId(isMethodId ? BindingInternalConstant.AttachedMethodPrefix : BindingInternalConstant.AttachedHandlerMethodPrefix, _declaringType, _name);
 
         private DelegateMethodMemberInfo<TTarget, TReturn, TState> Method<TState>(in TState state, InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturn, TState>, TTarget, TReturn> invoke,
             Func<DelegateMethodMemberInfo<TTarget, TReturn, TState>, IReadOnlyList<IParameterInfo>>? getParameters, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
-            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-        {
-            return new DelegateMethodMemberInfo<TTarget, TReturn, TState>(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
+            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
+            new DelegateMethodMemberInfo<TTarget, TReturn, TState>(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
                 state, invoke, getParameters, _tryGetAccessor, !_isNonObservable, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
-        }
 
         #endregion
     }

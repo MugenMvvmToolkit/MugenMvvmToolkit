@@ -50,15 +50,9 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            TryUpdateViewModel(component, ((IView)collection.Owner).ViewModel);
-        }
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => TryUpdateViewModel(component, ((IView) collection.Owner).ViewModel);
 
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            TryUpdateViewModel(component, null);
-        }
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => TryUpdateViewModel(component, null);
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -91,7 +85,7 @@ namespace MugenMvvm.Views.Components
         [Preserve(Conditional = true)]
         public void TryUpdateView<TView>(IView view, bool clear, IReadOnlyMetadataContext? metadata) where TView : class
         {
-            IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>)view.ViewModel;
+            IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>) view.ViewModel;
             if (clear)
             {
                 if (viewModel.View == view.Target)
@@ -120,12 +114,15 @@ namespace MugenMvvm.Views.Components
             {
                 if (!UpdateViewDelegates.TryGetValue(vmType, out delegates))
                 {
-                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>(vmType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View), UpdateViewMethodInfo).GetRawValue();
+                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>(vmType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View),
+                        UpdateViewMethodInfo).GetRawValue();
                     UpdateViewDelegates[vmType] = delegates;
                 }
             }
 
-            foreach (var t in ItemOrList.FromRawValue<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>(delegates, true).Iterator())
+            foreach (var t in ItemOrList
+                .FromRawValue<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>(delegates, true)
+                .Iterator())
                 t.Invoke(this, view, clear, metadata);
         }
 
@@ -137,7 +134,8 @@ namespace MugenMvvm.Views.Components
             {
                 if (!UpdateViewModelDelegates.TryGetValue(vType, out delegates))
                 {
-                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>(vType, typeof(IViewModelAwareView<>), nameof(IViewModelAwareView<IViewModelBase>.ViewModel), UpdateViewModelMethodInfo).GetRawValue();
+                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>(vType, typeof(IViewModelAwareView<>), nameof(IViewModelAwareView<IViewModelBase>.ViewModel),
+                        UpdateViewModelMethodInfo).GetRawValue();
                     UpdateViewModelDelegates[vType] = delegates;
                 }
             }
@@ -148,7 +146,7 @@ namespace MugenMvvm.Views.Components
 
         private ItemOrList<TInvoker, List<TInvoker>> GetDelegates<TInvoker>(Type targetType, Type interfaceType, string propertyName, MethodInfo method) where TInvoker : Delegate
         {
-            ItemOrListEditor<TInvoker, List<TInvoker>> result = ItemOrListEditor.Get<TInvoker>();
+            var result = ItemOrListEditor.Get<TInvoker>();
             var interfaces = targetType.GetInterfaces();
             for (var index = 0; index < interfaces.Length; index++)
             {

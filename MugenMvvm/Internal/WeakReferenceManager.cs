@@ -28,7 +28,7 @@ namespace MugenMvvm.Internal
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
         public IWeakReference? TryGetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
         {

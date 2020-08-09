@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var observerRequestCount = 0;
             using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o,  arg4) =>
+                TryGetMemberObserver = (type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -150,6 +150,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 Field2Static.ShouldEqual(int.MaxValue);
             }
         }
+
         #endregion
     }
 }

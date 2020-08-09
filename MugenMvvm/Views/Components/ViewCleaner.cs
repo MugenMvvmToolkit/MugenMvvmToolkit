@@ -27,10 +27,7 @@ namespace MugenMvvm.Views.Components
         {
         }
 
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            (component as ICleanableView)?.Cleanup(null, metadata);
-        }
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => (component as ICleanableView)?.Cleanup(null, metadata);
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -47,10 +44,7 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        protected virtual void Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            view.Components.AddComponent(this);
-        }
+        protected virtual void Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata) => view.Components.AddComponent(this);
 
         protected virtual void Cleanup(IView view, object? state, IReadOnlyMetadataContext? metadata)
         {

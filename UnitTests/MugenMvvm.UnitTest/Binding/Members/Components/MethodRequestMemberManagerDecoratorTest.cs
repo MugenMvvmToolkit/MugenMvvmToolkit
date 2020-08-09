@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++selectorCount;
-                    ((IEnumerable<IMemberInfo>)r).SequenceEqual(members).ShouldBeTrue();
+                    ((IEnumerable<IMemberInfo>) r).SequenceEqual(members).ShouldBeTrue();
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     }
                 }
             };
-            var additionMembers = new IMemberInfo[] { new TestEventInfo(), new TestAccessorMemberInfo() };
+            var additionMembers = new IMemberInfo[] {new TestEventInfo(), new TestAccessorMemberInfo()};
             var members = methods.Concat(additionMembers).ToArray();
             return new[]
             {

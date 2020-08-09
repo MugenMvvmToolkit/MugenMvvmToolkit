@@ -13,10 +13,7 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
 
         #region Implementation of interfaces
 
-        void IMessengerHandler<T>.Handle(T message, IMessageContext messageContext)
-        {
-            Handle?.Invoke(message!, typeof(T), messageContext);
-        }
+        void IMessengerHandler<T>.Handle(T message, IMessageContext messageContext) => Handle?.Invoke(message!, typeof(T), messageContext);
 
         #endregion
     }

@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
 
         public Action<IExpressionNode>? ClearExpression { get; set; }
 
-        public Func<IExpressionNode, Expression?>? Build { get; set; } = node => Expression.Constant(((IConstantExpressionNode)node).Value, ((IConstantExpressionNode)node).Type);
+        public Func<IExpressionNode, Expression?>? Build { get; set; } = node => Expression.Constant(((IConstantExpressionNode) node).Value, ((IConstantExpressionNode) node).Type);
 
         #endregion
 

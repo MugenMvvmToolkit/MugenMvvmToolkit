@@ -20,17 +20,17 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var component = new ExpressionCompilerComponent();
             expressionCompiler.AddComponent(component);
 
-            var compiledExpression = (CompiledExpression)component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;
+            var compiledExpression = (CompiledExpression) component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;
             compiledExpression.ExpressionBuilders.ShouldBeEmpty();
 
             var testBuilder = new TestExpressionBuilderComponent();
             expressionCompiler.AddComponent(testBuilder);
 
-            compiledExpression = (CompiledExpression)component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;
+            compiledExpression = (CompiledExpression) component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;
             compiledExpression.ExpressionBuilders.Single().ShouldEqual(testBuilder);
 
             expressionCompiler.RemoveComponent(testBuilder);
-            compiledExpression = (CompiledExpression)component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;
+            compiledExpression = (CompiledExpression) component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;
             compiledExpression.ExpressionBuilders.ShouldBeEmpty();
         }
 

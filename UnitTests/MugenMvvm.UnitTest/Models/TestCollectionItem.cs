@@ -37,10 +37,7 @@ namespace MugenMvvm.UnitTest.Models
 
         #region Methods
 
-        public override string ToString()
-        {
-            return $"Id: {Id}";
-        }
+        public override string ToString() => $"Id: {Id}";
 
         #endregion
 
@@ -59,10 +56,7 @@ namespace MugenMvvm.UnitTest.Models
                 return x.Id == y.Id;
             }
 
-            public int GetHashCode([AllowNull]TestCollectionItem obj)
-            {
-                return obj!.Id;
-            }
+            public int GetHashCode([AllowNull] TestCollectionItem obj) => obj!.Id;
 
             #endregion
         }

@@ -14,10 +14,8 @@ namespace MugenMvvm.UnitTest.Components.Internal
 
         #region Implementation of interfaces
 
-        void IComponentCollectionManagerListener.OnComponentCollectionCreated(IComponentCollectionManager provider, IComponentCollection componentCollection, IReadOnlyMetadataContext? metadata)
-        {
+        void IComponentCollectionManagerListener.OnComponentCollectionCreated(IComponentCollectionManager provider, IComponentCollection componentCollection, IReadOnlyMetadataContext? metadata) =>
             OnComponentCollectionCreated?.Invoke(provider, componentCollection, metadata);
-        }
 
         #endregion
     }

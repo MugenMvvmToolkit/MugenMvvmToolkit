@@ -64,10 +64,7 @@ namespace MugenMvvm.Binding.Members.Builders
             return this;
         }
 
-        public IParameterInfo Build()
-        {
-            return new DelegateParameterInfo<object?>(_name, _parameterType, _underlyingMember, _hasDefaultValue, _defaultValue, null, _isDefined);
-        }
+        public IParameterInfo Build() => new DelegateParameterInfo<object?>(_name, _parameterType, _underlyingMember, _hasDefaultValue, _defaultValue, null, _isDefined);
 
         #endregion
     }

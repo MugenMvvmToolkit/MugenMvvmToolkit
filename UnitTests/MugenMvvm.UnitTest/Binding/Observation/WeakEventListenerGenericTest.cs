@@ -11,10 +11,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
         #region Methods
 
         [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            default(WeakEventListener<object>).IsEmpty.ShouldBeTrue();
-        }
+        public void DefaultShouldBeEmpty() => default(WeakEventListener<object>).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void ConstructorShouldInitializeValues1()

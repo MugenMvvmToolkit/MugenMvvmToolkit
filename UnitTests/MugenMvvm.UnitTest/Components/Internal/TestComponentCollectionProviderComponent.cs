@@ -17,10 +17,8 @@ namespace MugenMvvm.UnitTest.Components.Internal
 
         #region Implementation of interfaces
 
-        IComponentCollection? IComponentCollectionProviderComponent.TryGetComponentCollection(IComponentCollectionManager collectionManager, object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return TryGetComponentCollection?.Invoke(collectionManager, owner, metadata);
-        }
+        IComponentCollection? IComponentCollectionProviderComponent.TryGetComponentCollection(IComponentCollectionManager collectionManager, object owner, IReadOnlyMetadataContext? metadata) =>
+            TryGetComponentCollection?.Invoke(collectionManager, owner, metadata);
 
         #endregion
     }

@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                         return Expression.Constant(constant.Value, constant.Type);
                     if (expressionNode is IMemberExpressionNode memberExpression)
                     {
-                        var target = ((IExpressionBuilderContext)ctx).Build(memberExpression.Target!);
+                        var target = ((IExpressionBuilderContext) ctx).Build(memberExpression.Target!);
                         return Expression.MakeMemberAccess(target, typeof(string).GetProperty(memberExpression.Member));
                     }
 
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                         return Expression.Constant(constant.Value, constant.Type);
                     if (expressionNode is IMethodCallExpressionNode methodCall)
                     {
-                        var target = ((IExpressionBuilderContext)ctx).Build(methodCall.Target!);
+                        var target = ((IExpressionBuilderContext) ctx).Build(methodCall.Target!);
                         return Expression.Call(target.ConvertIfNeed(typeof(object), false), typeof(object).GetMethods().FirstOrDefault(info => info.Name == nameof(ToString)));
                     }
 

@@ -211,15 +211,9 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
         }
 
-        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional)
-        {
-            return new SinglePathObserver(target, path, memberFlags, optional);
-        }
+        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional) => new SinglePathObserver(target, path, memberFlags, optional);
 
-        protected override SinglePathObserver GetObserver(object target)
-        {
-            return new SinglePathObserver(target, DefaultPath, MemberFlags.InstancePublic, true);
-        }
+        protected override SinglePathObserver GetObserver(object target) => new SinglePathObserver(target, DefaultPath, MemberFlags.InstancePublic, true);
 
         #endregion
     }

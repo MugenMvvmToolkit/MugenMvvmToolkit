@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var request = "";
             var selectorCount = 0;
             var providerCount = 0;
-            var members = new[] { new TestAccessorMemberInfo(), new TestAccessorMemberInfo() };
+            var members = new[] {new TestAccessorMemberInfo(), new TestAccessorMemberInfo()};
 
             var manager = new MemberManager();
             var selector = new TestMemberManagerComponent(manager)
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++selectorCount;
-                    ((IEnumerable<IMemberInfo>)r).SequenceEqual(members).ShouldBeTrue();
+                    ((IEnumerable<IMemberInfo>) r).SequenceEqual(members).ShouldBeTrue();
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);

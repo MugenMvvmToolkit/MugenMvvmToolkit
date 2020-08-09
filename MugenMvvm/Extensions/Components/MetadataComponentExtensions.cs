@@ -38,8 +38,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
-            int count = 0;
-            for (int i = 0; i < components.Length; i++)
+            var count = 0;
+            for (var i = 0; i < components.Length; i++)
                 count += components[i].GetCount(context);
             return count;
         }
@@ -49,7 +49,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].Contains(context, contextKey))
                     return true;
@@ -63,7 +63,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryGetValue(context, contextKey, out rawValue))
                     return true;
@@ -78,11 +78,12 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TrySetValue(context, contextKey, rawValue))
                     return true;
             }
+
             return false;
         }
 
@@ -91,8 +92,8 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
-            bool clear = false;
-            for (int i = 0; i < components.Length; i++)
+            var clear = false;
+            for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryRemove(context, contextKey))
                     clear = true;
@@ -105,7 +106,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
                 components[i].Clear(context);
         }
 

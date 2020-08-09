@@ -78,6 +78,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
                     metadata.ShouldEqual(DefaultMetadata);
                 });
             }
+
             memberInfo = builder.Build();
             var testEventHandler = new TestWeakEventListener
             {
@@ -232,7 +233,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             memberInfo.TryObserve(target, testEventHandler, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(0);
-            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
@@ -283,13 +284,13 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
                 }
             };
             var actionToken = memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
-            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
                 attachedInvokeCount.ShouldEqual(1);
 
             actionToken.Dispose();
-            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
             {
@@ -372,7 +373,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         [InlineData(false)]
         public void ShouldUseObservationManagerCustomProperty(bool observable)
         {
-            int invokeCount = 0;
+            var invokeCount = 0;
             var actionToken = new ActionToken((o, o1) => { });
             var b = new CustomPropertyBuilder<object, object>(new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler))).CustomGetter((member, target, metadata) => "");
             if (!observable)
@@ -406,7 +407,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         [Fact]
         public void ShouldUseObservationManagerAutoProperty()
         {
-            int invokeCount = 0;
+            var invokeCount = 0;
             var memberInfo = new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler)).NonObservable().Build();
             using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
@@ -566,7 +567,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
                 wrappedBuilder = wrappedBuilder.Static();
 
             var wrappedMember = wrappedBuilder.Build();
-            int invokeCount = 0;
+            var invokeCount = 0;
             TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
@@ -617,7 +618,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         {
             var parent = new object();
             var target = new object();
-            bool canReturnParent = false;
+            var canReturnParent = false;
             IEventListener? parentListener = null;
             var parentMember = new TestAccessorMemberInfo
             {
@@ -652,7 +653,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
                 }
             });
 
-            int changedCount = 0;
+            var changedCount = 0;
             var parentValue = new object();
             object defaultValue = new object();
             var memberInfo = new PropertyBuilder<object, object>("t", typeof(object), typeof(object)).Inherits().DefaultValue(defaultValue).Build();

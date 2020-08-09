@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Members
         {
             if (Types.Length == 0)
                 return Name;
-            return $"{Name}({string.Join(",", (object[])Types)})";
+            return $"{Name}({string.Join(",", (object[]) Types)})";
         }
 
         #endregion

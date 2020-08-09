@@ -30,10 +30,8 @@ namespace MugenMvvm.Binding.Resources.Components
 
         #region Implementation of interfaces
 
-        public ResourceResolverResult TryGetResource(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            return Resources.TryGetValue(name, out var value) ? new ResourceResolverResult(value) : default;
-        }
+        public ResourceResolverResult TryGetResource(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata) =>
+            Resources.TryGetValue(name, out var value) ? new ResourceResolverResult(value) : default;
 
         #endregion
 

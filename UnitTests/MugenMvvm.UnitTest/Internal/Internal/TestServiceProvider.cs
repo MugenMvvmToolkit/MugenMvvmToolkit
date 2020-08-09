@@ -12,10 +12,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        object IServiceProvider.GetService(Type serviceType)
-        {
-            return GetService?.Invoke(serviceType)!;
-        }
+        object IServiceProvider.GetService(Type serviceType) => GetService?.Invoke(serviceType)!;
 
         #endregion
     }

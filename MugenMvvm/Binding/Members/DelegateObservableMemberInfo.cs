@@ -15,8 +15,8 @@ namespace MugenMvvm.Binding.Members
 
         private readonly RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _raise;
         private readonly TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _tryObserve;
-        private MemberObserver _observer;
         public readonly TState State;
+        private MemberObserver _observer;
 
         #endregion
 
@@ -60,10 +60,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            _raise?.Invoke(this, (TTarget)target!, message, metadata);
-        }
+        public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null) => _raise?.Invoke(this, (TTarget) target!, message, metadata);
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
@@ -74,7 +71,8 @@ namespace MugenMvvm.Binding.Members
 
                 return _observer.TryObserve(target, listener, metadata);
             }
-            return _tryObserve(this, (TTarget)target!, listener, metadata);
+
+            return _tryObserve(this, (TTarget) target!, listener, metadata);
         }
 
         #endregion

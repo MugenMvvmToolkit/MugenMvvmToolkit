@@ -18,10 +18,8 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-        {
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>
             (view as IView)?.Metadata.Set(ViewMetadata.LifecycleState, lifecycleState, out _);
-        }
 
         #endregion
     }

@@ -19,16 +19,14 @@ namespace MugenMvvm.UnitTest.Entities.Components
             EntityStateTransitionManager.Instance.OnEntityStateChanging(null!, this, from, to, DefaultMetadata).ShouldEqual(result);
         }
 
-        public static IEnumerable<object?[]> GetData()
-        {
-            return new[]
+        public static IEnumerable<object?[]> GetData() =>
+            new[]
             {
                 new[] {EntityState.Added, EntityState.Deleted, EntityState.Detached},
                 new[] {EntityState.Added, EntityState.Modified, EntityState.Added},
                 new[] {EntityState.Deleted, EntityState.Added, EntityState.Modified},
                 new[] {EntityState.Modified, EntityState.Added, EntityState.Added}
             };
-        }
 
         #endregion
     }

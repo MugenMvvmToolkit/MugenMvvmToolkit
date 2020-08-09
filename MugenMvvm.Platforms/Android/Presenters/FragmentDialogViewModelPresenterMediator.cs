@@ -47,16 +47,12 @@ namespace MugenMvvm.Android.Presenters
 
         #region Methods
 
-        protected override Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => (callback.NavigationType == state.NavigationType || callback.NavigationType == NavigationType.Page)
-                                                                                       && (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), metadata);
-        }
+        protected override Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => (callback.NavigationType == state.NavigationType || callback.NavigationType == NavigationType.Page)
+                                                                                && (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), metadata);
 
-        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, metadata);
-        }
+        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => NavigationDispatcher.WaitNavigationAsync(this,
+            (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, metadata);
 
         protected override void ShowInternal(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -83,15 +79,9 @@ namespace MugenMvvm.Android.Presenters
         {
         }
 
-        protected override bool ActivateView(IDialogFragmentView view, INavigationContext context)
-        {
-            return true;
-        }
+        protected override bool ActivateView(IDialogFragmentView view, INavigationContext context) => true;
 
-        protected override void CloseView(IDialogFragmentView view, INavigationContext context)
-        {
-            view.DismissAllowingStateLoss();
-        }
+        protected override void CloseView(IDialogFragmentView view, INavigationContext context) => view.DismissAllowingStateLoss();
 
         protected override void CleanupView(IDialogFragmentView view, INavigationContext context)
         {

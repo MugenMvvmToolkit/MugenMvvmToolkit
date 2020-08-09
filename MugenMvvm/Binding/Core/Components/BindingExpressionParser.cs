@@ -122,12 +122,12 @@ namespace MugenMvvm.Binding.Core.Components
 
                 if (_compiledExpression == InitializedState)
                 {
-                    return InitializeBinding(new Core.Binding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
-                        ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
+                    return InitializeBinding(new Core.Binding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
+                        ((IBindingMemberExpressionNode) _sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
-                return InitializeBinding(new MultiBinding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
-                    MugenBindingExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression)_compiledExpression!), target, source, metadata);
+                return InitializeBinding(new MultiBinding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
+                    MugenBindingExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression) _compiledExpression!), target, source, metadata);
             }
 
             #endregion
@@ -141,18 +141,19 @@ namespace MugenMvvm.Binding.Core.Components
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
-                        binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)), metadata);
+                        binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)),
+                            metadata);
                 }
 
                 if (binding.State == BindingState.Valid)
-                    ((BindingExpressionParser)_context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, null, metadata);
+                    ((BindingExpressionParser) _context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, null, metadata);
                 return binding;
             }
 
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                var component = (BindingExpressionParser)_context.Owner;
-                _context.Initialize(target, source, TargetExpression, (IExpressionNode?)_sourceExpression, GetParameters(), metadata);
+                var component = (BindingExpressionParser) _context.Owner;
+                _context.Initialize(target, source, TargetExpression, (IExpressionNode?) _sourceExpression, GetParameters(), metadata);
                 component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(component.Owner, _context);
                 TargetExpression = _context.TargetExpression;
                 var sourceExpression = _context.SourceExpression;
@@ -173,7 +174,7 @@ namespace MugenMvvm.Binding.Core.Components
                     _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
                 }
 
-                ItemOrListEditor<object, List<object>> components = ItemOrListEditor.Get<object>();
+                var components = ItemOrListEditor.Get<object>();
                 foreach (var componentPair in _context.BindingComponents)
                     components.Add(componentPair.Value);
 

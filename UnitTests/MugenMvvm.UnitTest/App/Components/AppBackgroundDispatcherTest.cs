@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.App.Components
         [Fact]
         public void ShouldRegisterBackgroundCallback()
         {
-            int invokeCount = 0;
+            var invokeCount = 0;
             var callbackType = NavigationCallbackType.Showing;
             var app = new MugenApplication();
             var navigationDispatcher = new NavigationDispatcher();

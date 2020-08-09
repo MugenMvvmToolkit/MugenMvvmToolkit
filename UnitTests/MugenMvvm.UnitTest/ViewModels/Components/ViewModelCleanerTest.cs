@@ -101,11 +101,11 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void ShouldDisposeViewModels(bool dispose)
         {
             var manager = new ViewModelManager();
-            manager.AddComponent(new ViewModelCleaner(new ViewManager()) { CleanupCommands = dispose });
-            var viewModel = new TestCleanerViewModel { Command1 = new CompositeCommand(), Command2 = new CompositeCommand() };
+            manager.AddComponent(new ViewModelCleaner(new ViewManager()) {CleanupCommands = dispose});
+            var viewModel = new TestCleanerViewModel {Command1 = new CompositeCommand(), Command2 = new CompositeCommand()};
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            ((CompositeCommand)viewModel.Command1).IsDisposed.ShouldEqual(dispose);
-            ((CompositeCommand)viewModel.Command2).IsDisposed.ShouldEqual(dispose);
+            ((CompositeCommand) viewModel.Command1).IsDisposed.ShouldEqual(dispose);
+            ((CompositeCommand) viewModel.Command2).IsDisposed.ShouldEqual(dispose);
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
                     return view;
                 }
             });
-            int cleanupCount = 0;
+            var cleanupCount = 0;
             viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryCleanupAsync = (v, o, arg4, arg5) =>

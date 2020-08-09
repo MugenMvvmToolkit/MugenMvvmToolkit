@@ -10,19 +10,14 @@ namespace MugenMvvm.UnitTest.Internal.Components
     {
         #region Methods
 
-        protected override object GetSupportedItem()
-        {
-            return new TestMetadataOwner<IMetadataContext>
+        protected override object GetSupportedItem() =>
+            new TestMetadataOwner<IMetadataContext>
             {
                 HasMetadata = true,
                 Metadata = new MetadataContext()
             };
-        }
 
-        protected override IAttachedValueStorageProviderComponent GetComponent()
-        {
-            return new MetadataOwnerAttachedValueStorage();
-        }
+        protected override IAttachedValueStorageProviderComponent GetComponent() => new MetadataOwnerAttachedValueStorage();
 
         #endregion
     }

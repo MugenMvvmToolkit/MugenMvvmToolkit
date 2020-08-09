@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         protected TestCollectionChangedListenerBase(IObservableCollection<T> collection)
         {
-            _collection = (IObservableCollection)collection;
+            _collection = (IObservableCollection) collection;
         }
 
         #endregion
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
         void ICollectionChangedListenerBase.OnItemChanged(IObservableCollection collection, object? item, int index, object? args)
         {
             _collection.ShouldEqual(collection);
-            OnItemChanged?.Invoke((T)item!, index, args);
+            OnItemChanged?.Invoke((T) item!, index, args);
         }
 
         void ICollectionChangedListenerBase.OnAdded(IObservableCollection collection, object? item, int index)
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnAdded == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnAdded?.Invoke((T)item!, index);
+            OnAdded?.Invoke((T) item!, index);
         }
 
         void ICollectionChangedListenerBase.OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index)
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnReplaced == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnReplaced?.Invoke((T)oldItem!, (T)newItem!, index);
+            OnReplaced?.Invoke((T) oldItem!, (T) newItem!, index);
         }
 
         void ICollectionChangedListenerBase.OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex)
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnMoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnMoved?.Invoke((T)item!, oldIndex, newIndex);
+            OnMoved?.Invoke((T) item!, oldIndex, newIndex);
         }
 
         void ICollectionChangedListenerBase.OnRemoved(IObservableCollection collection, object? item, int index)
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnRemoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnRemoved?.Invoke((T)item!, index);
+            OnRemoved?.Invoke((T) item!, index);
         }
 
         void ICollectionChangedListenerBase.OnReset(IObservableCollection collection, IEnumerable<object?> items)
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnReset?.Invoke((IEnumerable<T>)items);
+            OnReset?.Invoke((IEnumerable<T>) items);
         }
 
         void ICollectionChangedListenerBase.OnCleared(IObservableCollection collection)

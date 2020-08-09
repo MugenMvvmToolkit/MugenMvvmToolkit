@@ -41,15 +41,9 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(MessengerResult? left, MessengerResult? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(MessengerResult? left, MessengerResult? right) => !(left == right);
 
-        protected override bool Equals(int value)
-        {
-            return Value == value;
-        }
+        protected override bool Equals(int value) => Value == value;
 
         #endregion
     }

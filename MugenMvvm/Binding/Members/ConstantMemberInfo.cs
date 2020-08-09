@@ -60,15 +60,9 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
-        {
-            return default;
-        }
+        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null) => default;
 
-        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
-        {
-            return TargetObj == _result ? target : _result;
-        }
+        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => TargetObj == _result ? target : _result;
 
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {

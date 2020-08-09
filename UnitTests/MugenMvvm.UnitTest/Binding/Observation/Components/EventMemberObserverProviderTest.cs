@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             var tryObserveCount = 0;
 
             var targetType = typeof(string);
-            var member = new TestAccessorMemberInfo { Name = memberName, AccessModifiers = flags };
+            var member = new TestAccessorMemberInfo {Name = memberName, AccessModifiers = flags};
             var result = new TestEventInfo
             {
                 TryObserve = (o, l, arg3) =>
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
-                    set.Add((string)r);
+                    set.Add((string) r);
                     if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
                         return result;
                     return default;
@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     f.ShouldEqual(flags);
-                    set.Add((string)r);
+                    set.Add((string) r);
                     if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
                         return result;
                     return default;
@@ -242,7 +242,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     f.ShouldEqual(flags);
-                    set.Add((string)r);
+                    set.Add((string) r);
                     if (r.Equals(member))
                         return result;
                     return default;

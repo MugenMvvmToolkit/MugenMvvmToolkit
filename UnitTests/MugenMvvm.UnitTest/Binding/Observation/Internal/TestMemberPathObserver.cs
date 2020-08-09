@@ -33,25 +33,13 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Internal
 
         #region Implementation of interfaces
 
-        void IDisposable.Dispose()
-        {
-            Dispose?.Invoke();
-        }
+        void IDisposable.Dispose() => Dispose?.Invoke();
 
-        void IMemberPathObserver.AddListener(IMemberPathObserverListener listener)
-        {
-            AddListener?.Invoke(listener);
-        }
+        void IMemberPathObserver.AddListener(IMemberPathObserverListener listener) => AddListener?.Invoke(listener);
 
-        void IMemberPathObserver.RemoveListener(IMemberPathObserverListener listener)
-        {
-            RemoveListener?.Invoke(listener);
-        }
+        void IMemberPathObserver.RemoveListener(IMemberPathObserverListener listener) => RemoveListener?.Invoke(listener);
 
-        ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> IMemberPathObserver.GetListeners()
-        {
-            return GetListeners?.Invoke() ?? default;
-        }
+        ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> IMemberPathObserver.GetListeners() => GetListeners?.Invoke() ?? default;
 
         MemberPathMembers IMemberPathObserver.GetMembers(IReadOnlyMetadataContext? metadata)
         {

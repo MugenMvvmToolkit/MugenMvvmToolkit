@@ -18,11 +18,11 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var provider = new EntityTrackingCollectionProvider();
             provider.Priority.ShouldEqual(EntityComponentPriority.TrackingCollectionProvider);
-            var collection = (EntityTrackingCollection)provider.TryGetTrackingCollection(null!, this, DefaultMetadata)!;
+            var collection = (EntityTrackingCollection) provider.TryGetTrackingCollection(null!, this, DefaultMetadata)!;
             collection.Components.Get<object>().Single().ShouldEqual(EntityStateTransitionManager.Instance);
             collection.Comparer.ShouldEqual(EqualityComparer<object>.Default);
 
-            collection = (EntityTrackingCollection)provider.TryGetTrackingCollection(null!, ReferenceEqualityComparer.Instance, DefaultMetadata)!;
+            collection = (EntityTrackingCollection) provider.TryGetTrackingCollection(null!, ReferenceEqualityComparer.Instance, DefaultMetadata)!;
             collection.Components.Get<object>().Single().ShouldEqual(EntityStateTransitionManager.Instance);
             collection.Comparer.ShouldEqual(ReferenceEqualityComparer.Instance);
         }

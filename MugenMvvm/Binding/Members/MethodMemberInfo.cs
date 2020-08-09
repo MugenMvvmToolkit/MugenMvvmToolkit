@@ -107,20 +107,11 @@ namespace MugenMvvm.Binding.Members
             return _observer.TryObserve(target, listener, metadata);
         }
 
-        public IReadOnlyList<IParameterInfo> GetParameters()
-        {
-            return _parameters;
-        }
+        public IReadOnlyList<IParameterInfo> GetParameters() => _parameters;
 
-        public IReadOnlyList<Type> GetGenericArguments()
-        {
-            return _genericArguments ?? _method.GetGenericArguments();
-        }
+        public IReadOnlyList<Type> GetGenericArguments() => _genericArguments ?? _method.GetGenericArguments();
 
-        public IMethodMemberInfo GetGenericMethodDefinition()
-        {
-            return new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType);
-        }
+        public IMethodMemberInfo GetGenericMethodDefinition() => new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType);
 
         public IMethodMemberInfo MakeGenericMethod(Type[] types)
         {
@@ -130,10 +121,7 @@ namespace MugenMvvm.Binding.Members
             return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType);
         }
 
-        public IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null)
-        {
-            return null;
-        }
+        public IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => null;
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {

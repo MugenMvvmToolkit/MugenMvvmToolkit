@@ -70,7 +70,7 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetErrors(validator, memberName, metadata);
 
-            ItemOrListEditor<object, List<object>> result = ItemOrListEditor.Get<object>();
+            var result = ItemOrListEditor.Get<object>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetErrors(validator, memberName, metadata));
             return result.ToItemOrList<IReadOnlyList<object>>();
@@ -116,7 +116,7 @@ namespace MugenMvvm.Extensions.Components
                 return null;
             if (components.Length == 1)
                 return components[0].TryValidateAsync(validator, memberName, cancellationToken, metadata);
-            ItemOrListEditor<Task, List<Task>> tasks = ItemOrListEditor.Get<Task>();
+            var tasks = ItemOrListEditor.Get<Task>();
             for (var i = 0; i < components.Length; i++)
                 tasks.Add(components[i].TryValidateAsync(validator, memberName, cancellationToken, metadata));
             return tasks.ToItemOrList().WhenAll();

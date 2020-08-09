@@ -20,15 +20,9 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentChanged(component, collection, metadata);
-        }
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentChanged(component, collection, metadata);
 
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentChanged(component, collection, metadata);
-        }
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentChanged(component, collection, metadata);
 
         #endregion
 
@@ -155,15 +149,9 @@ namespace MugenMvvm.Components
                     Update(collection, metadata);
             }
 
-            public void Update(IComponentCollection collection, IReadOnlyMetadataContext? metadata)
-            {
-                _update(true, _listener, _state, collection, metadata);
-            }
+            public void Update(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update(true, _listener, _state, collection, metadata);
 
-            public void Clear(IComponentCollection collection, IReadOnlyMetadataContext? metadata)
-            {
-                _update(false, _listener, _state, collection, metadata);
-            }
+            public void Clear(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update(false, _listener, _state, collection, metadata);
 
             #endregion
         }

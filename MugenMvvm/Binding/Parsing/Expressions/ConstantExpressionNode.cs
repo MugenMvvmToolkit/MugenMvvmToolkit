@@ -49,10 +49,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
-        public static ConstantExpressionNode Get<TType>()
-        {
-            return TypeCache<TType>.TypeConstant;
-        }
+        public static ConstantExpressionNode Get<TType>() => TypeCache<TType>.TypeConstant;
 
         public static ConstantExpressionNode Get(bool value)
         {
@@ -61,10 +58,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return False;
         }
 
-        public static ConstantExpressionNode Get(byte value)
-        {
-            return ExpressionCache<byte>.Items[value];
-        }
+        public static ConstantExpressionNode Get(byte value) => ExpressionCache<byte>.Items[value];
 
         public static ConstantExpressionNode Get(sbyte value)
         {
@@ -142,10 +136,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return new ConstantExpressionNode(value, type);
         }
 
-        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
-        {
-            return this;
-        }
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
 
         public override string ToString()
         {
@@ -166,15 +157,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         private static class ExpressionCache<T>
         {
-            #region Fields
-
-            // ReSharper disable StaticMemberInGenericType
-            public static readonly ConstantExpressionNode[] Items = GenerateItems(false);
-            public static readonly ConstantExpressionNode[] NegativeItems = GenerateItems(true);
-            // ReSharper restore StaticMemberInGenericType
-
-            #endregion
-
             #region Methods
 
             private static ConstantExpressionNode[] GenerateItems(bool negative)
@@ -194,6 +176,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             #endregion
+
+            // ReSharper disable StaticMemberInGenericType
+            public static readonly ConstantExpressionNode[] Items = GenerateItems(false);
+
+            public static readonly ConstantExpressionNode[] NegativeItems = GenerateItems(true);
+            // ReSharper restore StaticMemberInGenericType
         }
 
         private static class TypeCache<TType>

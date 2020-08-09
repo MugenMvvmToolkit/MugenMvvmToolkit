@@ -52,10 +52,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
-        {
-            return _observer.TryObserve(target, listener!, metadata);
-        }
+        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null) => _observer.TryObserve(target, listener!, metadata);
 
         #endregion
     }

@@ -18,10 +18,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
-        {
-            return expression is IReadOnlyList<IBindingBuilder> result ? ItemOrList.FromList(result) : default;
-        }
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata) =>
+            expression is IReadOnlyList<IBindingBuilder> result ? ItemOrList.FromList(result) : default;
 
         #endregion
     }

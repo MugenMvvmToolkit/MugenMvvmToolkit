@@ -13,10 +13,7 @@ namespace MugenMvvm.UnitTest.Internal
         #region Methods
 
         [Fact]
-        public void TryGetAttachedValuesShouldReturnEmptyNoComponents()
-        {
-            new AttachedValueManager().TryGetAttachedValues(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
+        public void TryGetAttachedValuesShouldReturnEmptyNoComponents() => new AttachedValueManager().TryGetAttachedValues(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
         [Theory]
         [InlineData(1)]
@@ -58,10 +55,7 @@ namespace MugenMvvm.UnitTest.Internal
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new AttachedValueManager(collectionProvider);
-        }
+        protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new AttachedValueManager(collectionProvider);
 
         #endregion
     }

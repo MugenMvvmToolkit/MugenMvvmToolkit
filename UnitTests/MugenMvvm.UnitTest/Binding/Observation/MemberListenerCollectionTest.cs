@@ -258,6 +258,8 @@ namespace MugenMvvm.UnitTest.Binding.Observation
 
         #endregion
 
+        #region Nested types
+
         private sealed class TestPropertyChangedListenerCollection : MemberListenerCollection
         {
             #region Properties
@@ -270,17 +272,13 @@ namespace MugenMvvm.UnitTest.Binding.Observation
 
             #region Methods
 
-            protected override void OnListenersAdded()
-            {
-                ++AddedCount;
-            }
+            protected override void OnListenersAdded() => ++AddedCount;
 
-            protected override void OnListenersRemoved()
-            {
-                ++RemovedCount;
-            }
+            protected override void OnListenersRemoved() => ++RemovedCount;
 
             #endregion
         }
+
+        #endregion
     }
 }

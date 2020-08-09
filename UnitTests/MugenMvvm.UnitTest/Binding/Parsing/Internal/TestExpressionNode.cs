@@ -19,10 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Methods
 
-        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
-        {
-            return VisitHandler?.Invoke(visitor, metadata) ?? this;
-        }
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => VisitHandler?.Invoke(visitor, metadata) ?? this;
 
         #endregion
     }

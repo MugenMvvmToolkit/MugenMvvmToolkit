@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
             var manager = new BindingManager();
-            int invokeCount = 0;
+            var invokeCount = 0;
             var state = "state";
             var binding = new TestBinding();
             var lifecycleState = BindingLifecycleState.Disposed;

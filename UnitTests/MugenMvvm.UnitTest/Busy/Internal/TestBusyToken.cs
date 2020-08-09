@@ -22,15 +22,9 @@ namespace MugenMvvm.UnitTest.Busy.Internal
         {
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            return default;
-        }
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) => default;
 
-        public ActionToken RegisterCallback(IBusyTokenCallback callback)
-        {
-            return default;
-        }
+        public ActionToken RegisterCallback(IBusyTokenCallback callback) => default;
 
         #endregion
     }

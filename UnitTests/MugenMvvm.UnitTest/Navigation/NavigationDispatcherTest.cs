@@ -62,10 +62,7 @@ namespace MugenMvvm.UnitTest.Navigation
         }
 
         [Fact]
-        public void GetNavigationEntriesShouldReturnEmptyListNoComponents()
-        {
-            new NavigationDispatcher().GetNavigationEntries(DefaultMetadata).AsList().ShouldBeEmpty();
-        }
+        public void GetNavigationEntriesShouldReturnEmptyListNoComponents() => new NavigationDispatcher().GetNavigationEntries(DefaultMetadata).AsList().ShouldBeEmpty();
 
         [Theory]
         [InlineData(1)]
@@ -85,7 +82,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     TryGetNavigationEntries = ctx =>
                     {
                         ctx.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
+                        return new[] {info};
                     }
                 };
                 dispatcher.AddComponent(component);
@@ -99,10 +96,8 @@ namespace MugenMvvm.UnitTest.Navigation
         }
 
         [Fact]
-        public void GetCallbacksShouldReturnEmptyListNoComponents()
-        {
+        public void GetCallbacksShouldReturnEmptyListNoComponents() =>
             new NavigationDispatcher().GetNavigationCallbacks(new NavigationEntry(this, new TestNavigationProvider(), "tes", NavigationType.Page)).AsList().ShouldBeEmpty();
-        }
 
         [Theory]
         [InlineData(1)]
@@ -124,7 +119,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     {
                         entry.ShouldEqual(navEntry);
                         ctx.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
+                        return new[] {info};
                     }
                 };
                 dispatcher.AddComponent(component);
@@ -159,7 +154,7 @@ namespace MugenMvvm.UnitTest.Navigation
         {
             var cts = new CancellationTokenSource();
             var token = cts.Token;
-            int navigatingCount = 0;
+            var navigatingCount = 0;
             var navigationContext = new NavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
             var callbacks = new List<TaskCompletionSource<bool>>();
@@ -332,10 +327,7 @@ namespace MugenMvvm.UnitTest.Navigation
             invokeCount.ShouldEqual(count);
         }
 
-        protected override NavigationDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new NavigationDispatcher(collectionProvider);
-        }
+        protected override NavigationDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new NavigationDispatcher(collectionProvider);
 
         #endregion
     }

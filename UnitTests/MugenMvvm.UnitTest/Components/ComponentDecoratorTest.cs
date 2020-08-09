@@ -43,14 +43,14 @@ namespace MugenMvvm.UnitTest.Components
             var decorator2 = new TestThreadDispatcherDecorator();
             var component1 = new TestThreadDispatcherComponent();
             var component2 = new TestThreadDispatcherComponent();
-            var components = new List<IThreadDispatcherComponent> { decorator1, decorator2, component1, component2 };
+            var components = new List<IThreadDispatcherComponent> {decorator1, decorator2, component1, component2};
 
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator2).Decorate(collection, components, DefaultMetadata);
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator1).Decorate(collection, components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator2).Decorate(collection, components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator1).Decorate(collection, components, DefaultMetadata);
 
             components.Single().ShouldEqual(decorator1);
             decorator1.Components.Single().ShouldEqual(decorator2);
-            decorator2.Components.SequenceEqual(new[] { component1, component2 });
+            decorator2.Components.SequenceEqual(new[] {component1, component2});
         }
 
         #endregion
@@ -61,15 +61,9 @@ namespace MugenMvvm.UnitTest.Components
         {
             #region Implementation of interfaces
 
-            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
-            {
-                throw new NotSupportedException();
-            }
+            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
 
-            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
-            {
-                throw new NotSupportedException();
-            }
+            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
 
             #endregion
         }

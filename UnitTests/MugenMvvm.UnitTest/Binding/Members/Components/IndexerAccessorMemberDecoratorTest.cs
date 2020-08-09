@@ -40,16 +40,16 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             manager.TryGetMembers(typeof(int[]), MemberType.Method, MemberFlags.All, "[1]", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
 
-            var member = (MethodAccessorMemberInfo)manager.TryGetMembers(typeof(int[]), MemberType.Accessor, MemberFlags.All, "[1]", DefaultMetadata).Item!;
+            var member = (MethodAccessorMemberInfo) manager.TryGetMembers(typeof(int[]), MemberType.Accessor, MemberFlags.All, "[1]", DefaultMetadata).Item!;
             member.ShouldNotBeNull();
 
-            var array = new[] { 1, 2 };
+            var array = new[] {1, 2};
             member.GetValue(array, DefaultMetadata).ShouldEqual(array[1]);
 
-            array = new[] { 1, 5 };
+            array = new[] {1, 5};
             member.GetValue(array, DefaultMetadata).ShouldEqual(array[1]);
 
-            array = new[] { 1, 2 };
+            array = new[] {1, 2};
             member.SetValue(array, int.MaxValue, DefaultMetadata);
             array[1].ShouldEqual(int.MaxValue);
         }
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             manager.AddComponent(new NameRequestMemberManagerDecorator());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = (MethodAccessorMemberInfo)manager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, "[1]", DefaultMetadata).Item!;
+            var member = (MethodAccessorMemberInfo) manager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, "[1]", DefaultMetadata).Item!;
             member.ShouldNotBeNull();
 
             var value = "12";
@@ -209,7 +209,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         public void TryGetMembersShouldHandleIndexerArray()
         {
             const int index1 = 2;
-            var args = new[] { 2, 3, 4, 56 };
+            var args = new[] {2, 3, 4, 56};
             var manager = new MemberManager();
             manager.AddComponent(new NameRequestMemberManagerDecorator());
             manager.AddComponent(new IndexerAccessorMemberDecorator());

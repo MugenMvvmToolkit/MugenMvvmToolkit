@@ -94,24 +94,15 @@ namespace MugenMvvm.Binding.Members
             return _observer.TryObserve(target, listener, metadata);
         }
 
-        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
-        {
-            return _getterFunc(target);
-        }
+        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => _getterFunc(target);
 
-        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
-        {
-            _setterFunc(target, value);
-        }
+        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null) => _setterFunc(target, value);
 
         #endregion
 
         #region Methods
 
-        private void MustBeWritable(object? _, object? __)
-        {
-            BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
-        }
+        private void MustBeWritable(object? _, object? __) => BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
 
         private object MustBeReadable(object? _)
         {

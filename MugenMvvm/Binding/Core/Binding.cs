@@ -117,16 +117,13 @@ namespace MugenMvvm.Binding.Core
                 Target.RemoveListener(this);
             if (CheckFlag(HasSourceObserverListener))
                 BindingComponentExtensions.RemoveListener(SourceRaw, this);
-            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, null);
+            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
             OnDispose();
             Target = EmptyPathObserver.Empty;
             SourceRaw = null;
         }
 
-        public ItemOrList<object, object[]> GetComponents()
-        {
-            return ItemOrList.FromRawValue<object, object[]>(_components, true);
-        }
+        public ItemOrList<object, object[]> GetComponents() => ItemOrList.FromRawValue<object, object[]>(_components, true);
 
         public void UpdateTarget()
         {
@@ -182,10 +179,7 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y)
-        {
-            return MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
-        }
+        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y) => MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
 
         bool IComponentCollection.Add(object component, IReadOnlyMetadataContext? metadata)
         {
@@ -202,8 +196,8 @@ namespace MugenMvvm.Binding.Core
             else
             {
                 _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                      ? new[] { _components, component }
-                      : new[] { component, _components };
+                    ? new[] {_components, component}
+                    : new[] {component, _components};
             }
 
             OnComponentAdded(component, metadata);
@@ -239,6 +233,7 @@ namespace MugenMvvm.Binding.Core
                 if (component != null)
                     OnComponentRemoved(null, 0, component, isValid, metadata);
             }
+
             return true;
         }
 
@@ -272,25 +267,13 @@ namespace MugenMvvm.Binding.Core
                 BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
         }
 
-        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator()
-        {
-            return GetMetadataEnumerator();
-        }
+        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator() => GetMetadataEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetMetadataEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetMetadataEnumerator();
 
-        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, out object? value)
-        {
-            return TryGetMetadata(contextKey, out value);
-        }
+        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, out object? value) => TryGetMetadata(contextKey, out value);
 
-        bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey)
-        {
-            return ContainsMetadata(contextKey);
-        }
+        bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
 
         #endregion
 
@@ -311,10 +294,11 @@ namespace MugenMvvm.Binding.Core
                     _components = components.Item;
                     OnComponentAdded(components.Item, metadata);
                 }
+
                 return;
             }
 
-            int currentLength = 0;
+            var currentLength = 0;
             for (var i = 0; i < list.Length; i++)
             {
                 if (OnComponentAdding(list[i], metadata))
@@ -337,14 +321,11 @@ namespace MugenMvvm.Binding.Core
             if (list.Length != currentLength)
                 Array.Resize(ref list, currentLength);
             _components = list;
-            for (int i = 0; i < list.Length; i++)
+            for (var i = 0; i < list.Length; i++)
                 OnComponentAdded(list[i]!, metadata);
         }
 
-        protected virtual object? GetTargetValue(MemberPathLastMember sourceMember)
-        {
-            return Target.GetLastMember(this).GetValueOrThrow(this);
-        }
+        protected virtual object? GetTargetValue(MemberPathLastMember sourceMember) => Target.GetLastMember(this).GetValueOrThrow(this);
 
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
         {
@@ -381,6 +362,7 @@ namespace MugenMvvm.Binding.Core
                     return false;
                 pathLastMember.TrySetValueWithConvert(newValue, this);
             }
+
             return true;
         }
 
@@ -406,15 +388,13 @@ namespace MugenMvvm.Binding.Core
                     return false;
                 pathLastMember.TrySetValueWithConvert(newValue, this);
             }
+
             return true;
         }
 
         protected virtual int GetMetadataCount() => 1;
 
-        protected virtual IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetMetadataEnumerator()
-        {
-            return Default.SingleValueEnumerator(BindingMetadata.Binding.ToValue(this));
-        }
+        protected virtual IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetMetadataEnumerator() => Default.SingleValueEnumerator(BindingMetadata.Binding.ToValue(this));
 
         protected virtual bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {
@@ -428,32 +408,20 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
-        protected virtual bool ContainsMetadata(IMetadataContextKey contextKey)
-        {
-            return BindingMetadata.Binding.Equals(contextKey);
-        }
+        protected virtual bool ContainsMetadata(IMetadataContextKey contextKey) => BindingMetadata.Binding.Equals(contextKey);
 
         protected virtual void OnDispose()
         {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool CheckFlag(int flag)
-        {
-            return (_state & flag) == flag;
-        }
+        protected bool CheckFlag(int flag) => (_state & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetFlag(int flag)
-        {
-            _state |= flag;
-        }
+        protected void SetFlag(int flag) => _state |= flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ClearFlag(int flag)
-        {
-            _state &= ~flag;
-        }
+        protected void ClearFlag(int flag) => _state &= ~flag;
 
         private bool RemoveComponent(object component, IReadOnlyMetadataContext? metadata)
         {
@@ -540,6 +508,7 @@ namespace MugenMvvm.Binding.Core
                 SetFlag(HasTargetObserverListener);
                 Target.AddListener(this);
             }
+
             if (!CheckFlag(HasSourceObserverListener) && component is IBindingSourceObserverListener)
             {
                 SetFlag(HasSourceObserverListener);
@@ -567,6 +536,7 @@ namespace MugenMvvm.Binding.Core
                     Target.RemoveListener(this);
                     ClearFlag(HasTargetObserverListener);
                 }
+
                 if (component is IBindingSourceObserverListener && !ComponentComponentExtensions.HasComponent<IBindingSourceObserverListener>(_components))
                 {
                     BindingComponentExtensions.RemoveListener(SourceRaw, this);

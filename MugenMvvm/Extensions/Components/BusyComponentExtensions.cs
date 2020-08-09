@@ -25,7 +25,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata)
+        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(filter, nameof(filter));
@@ -46,7 +47,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(busyManager, nameof(busyManager));
             if (components.Length == 1)
                 return components[0].TryGetTokens(busyManager, metadata);
-            ItemOrListEditor<IBusyToken, List<IBusyToken>> result = ItemOrListEditor.Get<IBusyToken>();
+            var result = ItemOrListEditor.Get<IBusyToken>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetTokens(busyManager, metadata));
             return result.ToItemOrList<IReadOnlyList<IBusyToken>>();

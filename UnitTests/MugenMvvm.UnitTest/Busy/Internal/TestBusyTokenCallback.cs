@@ -15,15 +15,9 @@ namespace MugenMvvm.UnitTest.Busy.Internal
 
         #region Implementation of interfaces
 
-        void IBusyTokenCallback.OnCompleted(IBusyToken token)
-        {
-            OnCompleted?.Invoke(token);
-        }
+        void IBusyTokenCallback.OnCompleted(IBusyToken token) => OnCompleted?.Invoke(token);
 
-        void IBusyTokenCallback.OnSuspendChanged(bool suspended)
-        {
-            OnSuspendChanged?.Invoke(suspended);
-        }
+        void IBusyTokenCallback.OnSuspendChanged(bool suspended) => OnSuspendChanged?.Invoke(suspended);
 
         #endregion
     }

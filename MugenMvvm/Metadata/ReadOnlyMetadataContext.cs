@@ -33,25 +33,13 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator()
-        {
-            return _dictionary.GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator() => _dictionary.GetEnumerator();
 
-        public bool TryGetRaw(IMetadataContextKey contextKey, out object? value)
-        {
-            return _dictionary.TryGetValue(contextKey, out value);
-        }
+        public bool TryGetRaw(IMetadataContextKey contextKey, out object? value) => _dictionary.TryGetValue(contextKey, out value);
 
-        public bool Contains(IMetadataContextKey contextKey)
-        {
-            return _dictionary.ContainsKey(contextKey);
-        }
+        public bool Contains(IMetadataContextKey contextKey) => _dictionary.ContainsKey(contextKey);
 
         #endregion
     }

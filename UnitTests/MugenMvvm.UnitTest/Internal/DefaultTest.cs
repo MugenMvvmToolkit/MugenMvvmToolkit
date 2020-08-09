@@ -51,15 +51,9 @@ namespace MugenMvvm.UnitTest.Internal
         {
             #region Implementation of interfaces
 
-            public IEnumerator<int> GetEnumerator()
-            {
-                return Default.SingleValueEnumerator(1);
-            }
+            public IEnumerator<int> GetEnumerator() => Default.SingleValueEnumerator(1);
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             #endregion
         }

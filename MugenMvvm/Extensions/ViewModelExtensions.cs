@@ -66,10 +66,8 @@ namespace MugenMvvm.Extensions
         }
 
         public static void NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state = null,
-            IReadOnlyMetadataContext? metadata = null, IViewModelManager? manager = null)
-        {
+            IReadOnlyMetadataContext? metadata = null, IViewModelManager? manager = null) =>
             manager.DefaultIfNull().OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
-        }
 
         public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IMessagePublisher>
         {

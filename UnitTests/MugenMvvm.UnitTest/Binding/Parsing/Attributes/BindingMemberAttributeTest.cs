@@ -21,16 +21,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Attributes
         #region Methods
 
         [BindingMember(Name)]
-        public static int L(this string target)
-        {
-            return target.Length;
-        }
+        public static int L(this string target) => target.Length;
 
         [BindingMember(1)]
-        public static int M(this string target, string name)
-        {
-            return target.Length;
-        }
+        public static int M(this string target, string name) => target.Length;
 
         #endregion
     }
@@ -166,28 +160,16 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Attributes
         }
 
         [BindingMember(MethodName)]
-        public static string StaticMethod()
-        {
-            return "";
-        }
+        public static string StaticMethod() => "";
 
         [BindingMember(0)]
-        public static string StaticMemberMethod(string name)
-        {
-            return name;
-        }
+        public static string StaticMemberMethod(string name) => name;
 
         [BindingMember(MethodName)]
-        public string Method()
-        {
-            return "";
-        }
+        public string Method() => "";
 
         [BindingMember(0)]
-        public string MemberMethod(string name)
-        {
-            return name;
-        }
+        public string MemberMethod(string name) => name;
 
         #endregion
     }

@@ -14,31 +14,19 @@ namespace MugenMvvm.Binding.Members.Builders
     {
         #region Methods
 
-        public static EventBuilder<TTarget> Event<TTarget>(string name, Type? declaringType = null, Type? eventType = null) where TTarget : class?
-        {
-            return new EventBuilder<TTarget>(name, declaringType ?? typeof(TTarget), eventType ?? typeof(EventHandler));
-        }
+        public static EventBuilder<TTarget> Event<TTarget>(string name, Type? declaringType = null, Type? eventType = null) where TTarget : class? =>
+            new EventBuilder<TTarget>(name, declaringType ?? typeof(TTarget), eventType ?? typeof(EventHandler));
 
         public static PropertyBuilder<TTarget, TValue> Property<TTarget, TValue>(string name, Type? declaringType = null, Type? propertyType = null)
-            where TTarget : class?
-        {
-            return new PropertyBuilder<TTarget, TValue>(name, declaringType ?? typeof(TTarget), propertyType ?? typeof(TValue));
-        }
+            where TTarget : class? =>
+            new PropertyBuilder<TTarget, TValue>(name, declaringType ?? typeof(TTarget), propertyType ?? typeof(TValue));
 
-        public static MethodBuilder<TTarget, TReturn> Method<TTarget, TReturn>(string name, Type? declaringType = null, Type? returnType = null) where TTarget : class?
-        {
-            return new MethodBuilder<TTarget, TReturn>(name, declaringType ?? typeof(TTarget), returnType ?? typeof(TReturn));
-        }
+        public static MethodBuilder<TTarget, TReturn> Method<TTarget, TReturn>(string name, Type? declaringType = null, Type? returnType = null) where TTarget : class? =>
+            new MethodBuilder<TTarget, TReturn>(name, declaringType ?? typeof(TTarget), returnType ?? typeof(TReturn));
 
-        public static ParameterBuilder Parameter<TType>(string? name = null)
-        {
-            return new ParameterBuilder(name ?? "", typeof(TType));
-        }
+        public static ParameterBuilder Parameter<TType>(string? name = null) => new ParameterBuilder(name ?? "", typeof(TType));
 
-        public static ParameterBuilder Parameter(string name, Type type)
-        {
-            return new ParameterBuilder(name, type);
-        }
+        public static ParameterBuilder Parameter(string name, Type type) => new ParameterBuilder(name, type);
 
         public static EventBuilder<TTarget> GetBuilder<TTarget>(this BindableEventDescriptor<TTarget> descriptor, Type? eventType = null) where TTarget : class
         {
@@ -61,7 +49,7 @@ namespace MugenMvvm.Binding.Members.Builders
             if (types.Length != 0 && addParameters)
             {
                 var parameters = new IParameterInfo[types.Length];
-                for (int i = 0; i < types.Length; i++)
+                for (var i = 0; i < types.Length; i++)
                     parameters[i] = Parameter("", types[i]).Build();
                 m = m.WithParameters(parameters);
             }
@@ -69,31 +57,20 @@ namespace MugenMvvm.Binding.Members.Builders
             return m;
         }
 
-        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TReturn> descriptor) where TTarget : class
-        {
-            return descriptor.RawMethod.GetBuilder();
-        }
+        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TReturn> descriptor) where TTarget : class => descriptor.RawMethod.GetBuilder();
 
-        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TReturn> descriptor) where TTarget : class
-        {
-            return descriptor.RawMethod.GetBuilder();
-        }
+        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TReturn> descriptor) where TTarget : class =>
+            descriptor.RawMethod.GetBuilder();
 
-        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TReturn> descriptor) where TTarget : class
-        {
-            return descriptor.RawMethod.GetBuilder();
-        }
+        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TReturn> descriptor) where TTarget : class =>
+            descriptor.RawMethod.GetBuilder();
 
-        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn> descriptor) where TTarget : class
-        {
-            return descriptor.RawMethod.GetBuilder();
-        }
+        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn> descriptor)
+            where TTarget : class => descriptor.RawMethod.GetBuilder();
 
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> descriptor)
-            where TTarget : class
-        {
-            return descriptor.RawMethod.GetBuilder();
-        }
+            where TTarget : class =>
+            descriptor.RawMethod.GetBuilder();
 
         internal static void RaiseMemberAttached<TTarget, TMember>(string id, TTarget target, TMember member, MemberAttachedDelegate<TMember, TTarget> handler, IReadOnlyMetadataContext? metadata)
             where TTarget : class?
@@ -106,8 +83,8 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 attachedValues.GetOrAdd(id, (member, handler, metadata), (t, s) =>
                 {
-                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, s.metadata);
-                    return (object?)null;
+                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget) t, s.metadata);
+                    return (object?) null;
                 });
             }
         }
@@ -120,15 +97,10 @@ namespace MugenMvvm.Binding.Members.Builders
             return target!;
         }
 
-        internal static MemberFlags GetFlags(bool isStatic)
-        {
-            return isStatic ? MemberFlags.StaticPublic | MemberFlags.Attached : MemberFlags.InstancePublic | MemberFlags.Attached;
-        }
+        internal static MemberFlags GetFlags(bool isStatic) => isStatic ? MemberFlags.StaticPublic | MemberFlags.Attached : MemberFlags.InstancePublic | MemberFlags.Attached;
 
-        internal static string GenerateMemberId(string prefix, Type declaringType, string name)
-        {
-            return prefix + declaringType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + declaringType.Name + declaringType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture) + name;
-        }
+        internal static string GenerateMemberId(string prefix, Type declaringType, string name) => prefix + declaringType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + declaringType.Name +
+                                                                                                   declaringType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture) + name;
 
         #endregion
     }

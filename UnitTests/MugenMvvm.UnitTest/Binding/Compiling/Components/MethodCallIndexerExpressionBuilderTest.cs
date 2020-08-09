@@ -101,7 +101,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -173,8 +173,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
-            members = new[] { result };
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            members = new[] {result};
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -199,7 +199,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
-            ShouldThrow(() => build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata));
+            ShouldThrow(() => build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata));
         }
 
         [Fact]
@@ -234,7 +234,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -432,7 +432,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 return typeof(decimal);
             };
 
-            var call = GetMethodCall(ctx, memberName, false, instance, state, new[] { typeName }, 1);
+            var call = GetMethodCall(ctx, memberName, false, instance, state, new[] {typeName}, 1);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             invokeCount.ShouldEqual(1);
             instance.Assert(() => instance.Method4<decimal>(1), 1M);
@@ -583,7 +583,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 return typeof(decimal);
             };
 
-            var call = GetMethodCall(ctx, memberName, false, typeof(MethodInvokerStatic), state, new[] { typeName }, 1);
+            var call = GetMethodCall(ctx, memberName, false, typeof(MethodInvokerStatic), state, new[] {typeName}, 1);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             invokeCount.ShouldEqual(1);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method4<decimal>(1), 1M);
@@ -593,8 +593,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
         public void TryBuildShouldBuildArray()
         {
             var ctx = new TestExpressionBuilderContext();
-            var array = new[] { 1, 2, 3 };
-            var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(array), new[] { ConstantExpressionNode.Get(1) });
+            var array = new[] {1, 2, 3};
+            var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(array), new[] {ConstantExpressionNode.Get(1)});
             var build = _component.TryBuild(ctx, expressionNode)!;
             build.Invoke().ShouldEqual(array[1]);
         }
@@ -609,7 +609,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
-                GetParameters = () => new[] { new TestParameterInfo { ParameterType = typeof(bool) }, },
+                GetParameters = () => new[] {new TestParameterInfo {ParameterType = typeof(bool)}},
                 Invoke = (o, objects, arg3) =>
                 {
                     o.ShouldEqual(this);
@@ -617,7 +617,6 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                     arg3.ShouldEqual(DefaultMetadata);
                     return this;
                 }
-
             };
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
@@ -630,21 +629,15 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(this), new[] { ConstantExpressionNode.False });
+            var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(this), new[] {ConstantExpressionNode.False});
             var build = _component.TryBuild(ctx, expressionNode)!;
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
-        public object? InstanceMethod1()
-        {
-            return InstanceMethod1Delegate?.Invoke();
-        }
+        public object? InstanceMethod1() => InstanceMethod1Delegate?.Invoke();
 
-        public static object? StaticMethod1()
-        {
-            return StaticMethod1Delegate?.Invoke();
-        }
+        public static object? StaticMethod1() => StaticMethod1Delegate?.Invoke();
 
         private static List<IMemberInfo> GetMethods(Type type, string memberName, bool underlying)
         {
@@ -679,10 +672,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
         }
 
         private (Expression exp, Expression[] parameters, object?[] args, object?[] compiledArgs) GetMethodCall(TestExpressionBuilderContext context, string method, bool underlying,
-            object? instance, int state, params object[] args)
-        {
-            return GetMethodCall(context, method, underlying, instance, state, null, args);
-        }
+            object? instance, int state, params object[] args) =>
+            GetMethodCall(context, method, underlying, instance, state, null, args);
 
         private (Expression exp, Expression[] parameters, object?[] args, object?[] compiledArgs) GetMethodCall(TestExpressionBuilderContext context, string method, bool underlying,
             object? instance, int state, IReadOnlyList<string>? typeArgs, params object[] args)
@@ -696,7 +687,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 {
                     if (expressionNode is IConstantExpressionNode c)
                         return Expression.Constant(c.Value, c.Type);
-                    return parameters[((IBindingMemberExpressionNode)expressionNode).Index];
+                    return parameters[((IBindingMemberExpressionNode) expressionNode).Index];
                 };
             }
 
@@ -716,7 +707,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                         break;
                     }
 
-                    target = new BindingInstanceMemberExpressionNode(instance!, "") { Index = 0 };
+                    target = new BindingInstanceMemberExpressionNode(instance!, "") {Index = 0};
                     parameters.Add(Expression.Parameter(instance!.GetType()));
                     compilingArgs = compilingArgs.InsertFirstArg(instance);
                     break;
@@ -733,7 +724,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                         arg = ConstantExpressionNode.Get(args[i]);
                         break;
                     default:
-                        arg = new BindingInstanceMemberExpressionNode(args[i], "") { Index = parameters.Count };
+                        arg = new BindingInstanceMemberExpressionNode(args[i], "") {Index = parameters.Count};
                         parameters.Add(Expression.Parameter(args[i].GetType(), i.ToString()));
                         break;
                 }
@@ -746,7 +737,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
 
             var node = new MethodCallExpressionNode(target, method, arguments, typeArgs);
             var expression = _component.TryBuild(context, node);
-            return (expression!, parameters.ToArray(), args, state == 0 && underlying ? compilingArgs : compilingArgs.Concat(new[] { DefaultMetadata }).ToArray());
+            return (expression!, parameters.ToArray(), args, state == 0 && underlying ? compilingArgs : compilingArgs.Concat(new[] {DefaultMetadata}).ToArray());
         }
 
         #endregion
@@ -772,10 +763,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 args.SequenceEqual(Args).ShouldBeTrue();
             }
 
-            public object This()
-            {
-                return this;
-            }
+            public object This() => this;
 
             private void SetMethod(Expression<Action> expression, params object?[] args)
             {
@@ -797,73 +785,34 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             {
                 if (expression.Body is UnaryExpression unaryExpression && unaryExpression.Operand is MethodCallExpression memberExpression)
                     return memberExpression.Method;
-                return ((MethodCallExpression)expression.Body).Method;
+                return ((MethodCallExpression) expression.Body).Method;
             }
 
-            public void Method(decimal x1, decimal x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
+            public void Method(decimal x1, decimal x2) => SetMethod(() => Method(x1, x2), x1, x2);
 
-            public void Method(int x1, int x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
+            public void Method(int x1, int x2) => SetMethod(() => Method(x1, x2), x1, x2);
 
-            public void Method(object x1, object x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
+            public void Method(object x1, object x2) => SetMethod(() => Method(x1, x2), x1, x2);
 
-            public void Method(decimal x1, decimal x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
+            public void Method(decimal x1, decimal x2, params object[] items) => SetMethod(() => Method(x1, x2, items), x1, x2, items);
 
-            public void Method(int x1, int x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
+            public void Method(int x1, int x2, params object[] items) => SetMethod(() => Method(x1, x2, items), x1, x2, items);
 
-            public void Method(object x1, object x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
+            public void Method(object x1, object x2, params object[] items) => SetMethod(() => Method(x1, x2, items), x1, x2, items);
 
-            public void Method(object item, decimal x = 0, params object[] items)
-            {
-                SetMethod(() => Method(item, x, items), item, x, items);
-            }
+            public void Method(object item, decimal x = 0, params object[] items) => SetMethod(() => Method(item, x, items), item, x, items);
 
-            public void Method(string item, decimal x = 0)
-            {
-                SetMethod(() => Method(item, x), item, x);
-            }
+            public void Method(string item, decimal x = 0) => SetMethod(() => Method(item, x), item, x);
 
-            public void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
-            {
-                SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
-            }
+            public void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items) => SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
 
-            public void Method2(int x, int y = 1)
-            {
-                SetMethod(() => Method2(x, y), x, y);
-            }
+            public void Method2(int x, int y = 1) => SetMethod(() => Method2(x, y), x, y);
 
-            public void Method2(int x, params int[] items)
-            {
-                SetMethod(() => Method2(x, items), x, items);
-            }
+            public void Method2(int x, params int[] items) => SetMethod(() => Method2(x, items), x, items);
 
-            public void Method3(object x1, object x2, IReadOnlyMetadataContext? metadata = null)
-            {
-                SetMethod(() => Method3(x1, x2, metadata), x1, x2, metadata);
-            }
+            public void Method3(object x1, object x2, IReadOnlyMetadataContext? metadata = null) => SetMethod(() => Method3(x1, x2, metadata), x1, x2, metadata);
 
-            public void Method4<T>(T value)
-            {
-                SetMethod(() => Method4(value), value);
-            }
+            public void Method4<T>(T value) => SetMethod(() => Method4(value), value);
 
             #endregion
         }
@@ -908,73 +857,34 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 if (expression.Body is UnaryExpression unaryExpression && unaryExpression.Operand is MethodCallExpression memberExpression)
                     return memberExpression.Method;
 
-                return ((MethodCallExpression)expression.Body).Method;
+                return ((MethodCallExpression) expression.Body).Method;
             }
 
-            public static void Method(decimal x1, decimal x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
+            public static void Method(decimal x1, decimal x2) => SetMethod(() => Method(x1, x2), x1, x2);
 
-            public static void Method(int x1, int x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
+            public static void Method(int x1, int x2) => SetMethod(() => Method(x1, x2), x1, x2);
 
-            public static void Method(object x1, object x2)
-            {
-                SetMethod(() => Method(x1, x2), x1, x2);
-            }
+            public static void Method(object x1, object x2) => SetMethod(() => Method(x1, x2), x1, x2);
 
-            public static void Method(decimal x1, decimal x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
+            public static void Method(decimal x1, decimal x2, params object[] items) => SetMethod(() => Method(x1, x2, items), x1, x2, items);
 
-            public static void Method(int x1, int x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
+            public static void Method(int x1, int x2, params object[] items) => SetMethod(() => Method(x1, x2, items), x1, x2, items);
 
-            public static void Method(object x1, object x2, params object[] items)
-            {
-                SetMethod(() => Method(x1, x2, items), x1, x2, items);
-            }
+            public static void Method(object x1, object x2, params object[] items) => SetMethod(() => Method(x1, x2, items), x1, x2, items);
 
-            public static void Method(object item, decimal x = 0, params object[] items)
-            {
-                SetMethod(() => Method(item, x, items), item, x, items);
-            }
+            public static void Method(object item, decimal x = 0, params object[] items) => SetMethod(() => Method(item, x, items), item, x, items);
 
-            public static void Method(string item, decimal x = 0)
-            {
-                SetMethod(() => Method(item, x), item, x);
-            }
+            public static void Method(string item, decimal x = 0) => SetMethod(() => Method(item, x), item, x);
 
-            public static void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
-            {
-                SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
-            }
+            public static void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items) => SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
 
-            public static void Method2(int x, int y = 1)
-            {
-                SetMethod(() => Method2(x, y), x, y);
-            }
+            public static void Method2(int x, int y = 1) => SetMethod(() => Method2(x, y), x, y);
 
-            public static void Method2(int x, params int[] items)
-            {
-                SetMethod(() => Method2(x, items), x, items);
-            }
+            public static void Method2(int x, params int[] items) => SetMethod(() => Method2(x, items), x, items);
 
-            public static void Method3(object x1, object x2, IReadOnlyMetadataContext? metadata = null)
-            {
-                SetMethod(() => Method3(x1, x2, metadata), x1, x2, metadata);
-            }
+            public static void Method3(object x1, object x2, IReadOnlyMetadataContext? metadata = null) => SetMethod(() => Method3(x1, x2, metadata), x1, x2, metadata);
 
-            public static void Method4<T>(T value)
-            {
-                SetMethod(() => Method4(value), value);
-            }
+            public static void Method4<T>(T value) => SetMethod(() => Method4(value), value);
 
             #endregion
         }

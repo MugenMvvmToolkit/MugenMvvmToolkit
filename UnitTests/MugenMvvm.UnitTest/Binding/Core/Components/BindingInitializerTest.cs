@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.HasFlagEx(BindingMemberExpressionFlags.DataContextPath);
                     return null;
                 }
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
@@ -141,7 +141,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false));
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
@@ -247,6 +247,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                             expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
                             expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
                         }
+
                         return null;
                     }
                 };
@@ -297,7 +298,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             else
             {
                 binding.Metadata = BindingMetadata.IsMultiBinding.ToContext(false);
-                parameters = new[] { new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode) };
+                parameters = new[] {new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)};
                 component.Flags = flags;
                 component.IgnoreIndexMembers = ignoreIndexMembers;
                 component.IgnoreMethodMembers = ignoreMethodMembers;
@@ -319,7 +320,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
@@ -333,7 +334,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods));
                     expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
                     expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
@@ -347,8 +348,8 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
             context.BindingComponents[BindingParameterNameConstant.Mode].ShouldBeNull();
-            var bindingComponentProvider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.EventHandler]!;
-            var bindingComponent = (EventHandlerBindingComponent)bindingComponentProvider.TryGetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
+            var bindingComponentProvider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.EventHandler]!;
+            var bindingComponent = (EventHandlerBindingComponent) bindingComponentProvider.TryGetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
             if (parametersSetting)
                 bindingComponent.ShouldBeType<EventHandlerBindingComponent>();
             else

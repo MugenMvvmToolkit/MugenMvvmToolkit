@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 TryGetMemberPathObserver = (t, req, arg4) =>
                 {
                     t.ShouldEqual(this);
-                    var request = (MemberPathObserverRequest)req;
+                    var request = (MemberPathObserverRequest) req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
                     request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
@@ -99,10 +99,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(observer);
         }
 
-        protected override BindingMemberExpressionNodeBase GetExpression()
-        {
-            return new BindingInstanceMemberExpressionNode(this, Path);
-        }
+        protected override BindingMemberExpressionNodeBase GetExpression() => new BindingInstanceMemberExpressionNode(this, Path);
 
         #endregion
     }

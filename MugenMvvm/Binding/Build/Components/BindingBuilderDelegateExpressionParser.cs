@@ -20,10 +20,10 @@ namespace MugenMvvm.Binding.Build.Components
     {
         #region Fields
 
-        private static readonly MethodInfo GetRequestMethod = typeof(BindingBuilderDelegateExpressionParser).GetMethodOrThrow(nameof(GetRequest), BindingFlags.Static | BindingFlags.Public);
-
         private readonly Dictionary<object, object?> _cache;
         private readonly object[] _singleValueArray;
+
+        private static readonly MethodInfo GetRequestMethod = typeof(BindingBuilderDelegateExpressionParser).GetMethodOrThrow(nameof(GetRequest), BindingFlags.Static | BindingFlags.Public);
 
         #endregion
 
@@ -66,10 +66,7 @@ namespace MugenMvvm.Binding.Build.Components
 
         #region Methods
 
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            _cache.Clear();
-        }
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
 
         private object? GetExpression(Delegate del, IBindingManager bindingManager, IReadOnlyMetadataContext? metadata)
         {
@@ -86,10 +83,7 @@ namespace MugenMvvm.Binding.Build.Components
         }
 
         [Preserve(Conditional = true)]
-        public static BindingExpressionRequest GetRequest<T1, T2>(BindingBuilderDelegate<T1, T2> buildDelegate) where T1 : class where T2 : class
-        {
-            return buildDelegate(default);
-        }
+        public static BindingExpressionRequest GetRequest<T1, T2>(BindingBuilderDelegate<T1, T2> buildDelegate) where T1 : class where T2 : class => buildDelegate(default);
 
         #endregion
     }

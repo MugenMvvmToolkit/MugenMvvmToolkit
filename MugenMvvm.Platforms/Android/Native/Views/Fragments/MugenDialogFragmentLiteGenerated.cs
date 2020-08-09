@@ -95,25 +95,13 @@ namespace MugenMvvm.Android.Native.Views.Fragments
 
         #region Properties
 
-        internal static IntPtr class_ref
-        {
-            get { return _members.JniPeerType.PeerReference.Handle; }
-        }
+        internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
 
-        public override JniPeerMembers JniPeerMembers
-        {
-            get { return _members; }
-        }
+        public override JniPeerMembers JniPeerMembers => _members;
 
-        protected override IntPtr ThresholdClass
-        {
-            get { return _members.JniPeerType.PeerReference.Handle; }
-        }
+        protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
 
-        protected override Type ThresholdType
-        {
-            get { return _members.ManagedPeerType; }
-        }
+        protected override Type ThresholdType => _members.ManagedPeerType;
 
         public unsafe Activity Activity
         {

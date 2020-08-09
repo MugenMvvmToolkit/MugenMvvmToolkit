@@ -32,10 +32,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
 
         #region Methods
 
-        public static T[] NewArrayInit<T>(params T[] items)
-        {
-            return items;
-        }
+        public static T[] NewArrayInit<T>(params T[] items) => items;
 
         #endregion
     }

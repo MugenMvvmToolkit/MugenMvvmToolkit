@@ -31,15 +31,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
         #region Methods
 
         [BindingMacros(MethodResource)]
-        public object? MethodResourceExt(object? arg)
-        {
-            return null;
-        }
+        public object? MethodResourceExt(object? arg) => null;
 
-        public object? Method(object? arg)
-        {
-            return null;
-        }
+        public object? Method(object? arg) => null;
 
         #endregion
     }

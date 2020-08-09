@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             set
             {
                 if (value)
-                    _state = (byte)(_state & ~NoDisposeFlag);
+                    _state = (byte) (_state & ~NoDisposeFlag);
                 else
                     _state |= NoDisposeFlag;
             }
@@ -79,7 +79,7 @@ namespace MugenMvvm.Binding.Observation.Observers
                 var target = Target;
                 if (target == null)
                     return default;
-                return new MemberPathMembers(target, new[] { member });
+                return new MemberPathMembers(target, new[] {member});
             }
 
             if (_lastMemberOrException is Exception e)
@@ -116,10 +116,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             }
         }
 
-        protected override void OnListenersRemoved()
-        {
-            UnsubscribeLastMember();
-        }
+        protected override void OnListenersRemoved() => UnsubscribeLastMember();
 
         protected override void OnDisposed()
         {
@@ -175,13 +172,13 @@ namespace MugenMvvm.Binding.Observation.Observers
             }
             finally
             {
-                _state = (byte)(_state & ~UpdatingFlag);
+                _state = (byte) (_state & ~UpdatingFlag);
             }
         }
 
         private void SetLastMember(IMemberInfo? lastMember, Exception? exception)
         {
-            _lastMemberOrException = (object?)exception ?? lastMember;
+            _lastMemberOrException = (object?) exception ?? lastMember;
             if (exception == null)
                 _state |= InitializedFlag;
             OnLastMemberChanged();
@@ -196,16 +193,10 @@ namespace MugenMvvm.Binding.Observation.Observers
                 _lastMemberUnsubscriber = ActionToken.NoDoToken;
         }
 
-        protected virtual void UnsubscribeLastMember()
-        {
-            _lastMemberUnsubscriber.Dispose();
-        }
+        protected virtual void UnsubscribeLastMember() => _lastMemberUnsubscriber.Dispose();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CheckFlag(byte flag)
-        {
-            return (_state & flag) == flag;
-        }
+        private bool CheckFlag(byte flag) => (_state & flag) == flag;
 
         #endregion
     }

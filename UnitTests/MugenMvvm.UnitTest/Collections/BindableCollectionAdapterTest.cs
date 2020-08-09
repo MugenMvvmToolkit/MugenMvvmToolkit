@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -30,7 +29,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChanges1()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent { CanExecuteInline = (_, __) => true };
+            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
             using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
@@ -55,7 +54,7 @@ namespace MugenMvvm.UnitTest.Collections
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
 
-            observableCollection.Reset(new Object[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new object[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
 
@@ -80,7 +79,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChanges2()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent { CanExecuteInline = (_, __) => true };
+            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
             using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new ObservableCollection<object?>();
@@ -106,7 +105,7 @@ namespace MugenMvvm.UnitTest.Collections
             collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
 
             observableCollection.Clear();
-            observableCollection.AddRange(new object[] { 1, 2, 3, 4, 5 });
+            observableCollection.AddRange(new object[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
 
@@ -153,7 +152,7 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.Insert(1, 2);
             observableCollection.Remove(2);
             observableCollection.RemoveAt(0);
-            observableCollection.Reset(new object?[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new object?[] {1, 2, 3, 4, 5});
             observableCollection[0] = 200;
             observableCollection.Move(1, 2);
             tracker.ChangedItems.Count.ShouldEqual(0);
@@ -191,7 +190,7 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.Remove(2);
             observableCollection.RemoveAt(0);
             observableCollection.Clear();
-            observableCollection.AddRange(new object?[] { 1, 2, 3, 4, 5 });
+            observableCollection.AddRange(new object?[] {1, 2, 3, 4, 5});
             observableCollection[0] = 200;
             observableCollection.Move(1, 2);
             tracker.ChangedItems.Count.ShouldEqual(0);
@@ -206,7 +205,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate1()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent { CanExecuteInline = (_, __) => true };
+            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
             using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
@@ -221,7 +220,7 @@ namespace MugenMvvm.UnitTest.Collections
                 observableCollection.Insert(1, 2);
                 observableCollection.Remove(2);
                 observableCollection.RemoveAt(0);
-                observableCollection.Reset(new object?[] { 1, 2, 3, 4, 5 });
+                observableCollection.Reset(new object?[] {1, 2, 3, 4, 5});
                 observableCollection[0] = 200;
                 observableCollection.Move(1, 2);
                 tracker.ChangedItems.Count.ShouldEqual(0);
@@ -235,7 +234,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate2()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent { CanExecuteInline = (_, __) => true };
+            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
             using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
@@ -297,7 +296,7 @@ namespace MugenMvvm.UnitTest.Collections
             tracker.ChangedItems.Count.ShouldEqual(0);
             collectionAdapter.Count.ShouldEqual(0);
 
-            int invokeCount = 0;
+            var invokeCount = 0;
             collectionAdapter.CollectionChanged += (sender, args) =>
             {
                 ++invokeCount;
@@ -309,10 +308,7 @@ namespace MugenMvvm.UnitTest.Collections
             collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
         }
 
-        protected virtual BindableCollectionAdapter GetCollection()
-        {
-            return new BindableCollectionAdapter();
-        }
+        protected virtual BindableCollectionAdapter GetCollection() => new BindableCollectionAdapter();
 
         #endregion
     }

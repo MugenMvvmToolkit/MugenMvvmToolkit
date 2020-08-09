@@ -23,8 +23,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
         int IComparer<object?>.Compare(object? x1, object? x2)
         {
-            var x = (int)x1!;
-            var y = (int)x2!;
+            var x = (int) x1!;
+            var y = (int) x2!;
             if (DefaultComparer)
                 return Comparer<int>.Default.Compare(x, y);
             return y.CompareTo(x);
@@ -280,7 +280,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 observableCollection.Add(i);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
         }
 
@@ -314,8 +314,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
         {
             var comparer = Comparer<object?>.Create((x1, x2) =>
             {
-                var item = (TestCollectionItem)x1!;
-                var collectionItem = (TestCollectionItem)x2!;
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
                 if (defaultComparer)
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
@@ -329,7 +329,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var items = observableCollection.OrderBy(item => item, comparer);
 
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(new TestCollectionItem { Id = i });
+                observableCollection.Add(new TestCollectionItem {Id = i});
 
             for (var i = 0; i < 100; i++)
             {
@@ -366,7 +366,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             observableCollection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection[0] = 200;
@@ -406,7 +406,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             observableCollection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] { Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5 });
+            observableCollection.Reset(new[] {Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5});
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection[0] = 200;

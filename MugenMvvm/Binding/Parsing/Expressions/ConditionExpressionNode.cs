@@ -46,10 +46,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return this;
         }
 
-        public override string ToString()
-        {
-            return $"if ({Condition}) {{{IfTrue}}} else {{{IfFalse}}}";
-        }
+        public override string ToString() => $"if ({Condition}) {{{IfTrue}}} else {{{IfFalse}}}";
 
         #endregion
     }

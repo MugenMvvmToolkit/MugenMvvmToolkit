@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryShow = (o, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
+                TryShow = (o, arg3, arg4) => new[] {presenterResult1, presenterResult2}
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 {
                     suspended.ShouldBeTrue();
                     id.ShouldEqual(presenterResult1.NavigationType == navType ? presenterResult1.NavigationId : presenterResult2.NavigationId);
-                    addedCallbacks.Add(((IPresenterResult)target, callbackType));
+                    addedCallbacks.Add(((IPresenterResult) target, callbackType));
                     m.ShouldEqual(DefaultMetadata);
                     return null;
                 }
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryClose = (o, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
+                TryClose = (o, arg3, arg4) => new[] {presenterResult1, presenterResult2}
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 {
                     suspended.ShouldBeTrue();
                     id.ShouldEqual(presenterResult1.NavigationType == navType ? presenterResult1.NavigationId : presenterResult2.NavigationId);
-                    addedCallbacks.Add(((IPresenterResult)target, callbackType));
+                    addedCallbacks.Add(((IPresenterResult) target, callbackType));
                     m.ShouldEqual(DefaultMetadata);
                     return null;
                 }

@@ -46,10 +46,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return ReferenceEquals(arguments, Arguments) ? this : new MethodCallExpressionNode(Target, Method, arguments, TypeArgs);
         }
 
-        public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target)
-        {
-            return target == Target ? this : new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);
-        }
+        public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);
 
         #endregion
 

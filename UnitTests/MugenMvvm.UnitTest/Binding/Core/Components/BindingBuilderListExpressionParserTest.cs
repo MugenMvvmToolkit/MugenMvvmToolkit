@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [Fact]
         public void ShouldDispatchInputBuilders()
         {
-            var bindingExpressions = new List<IBindingBuilder> { new TestBindingBuilder(), new TestBindingBuilder() };
+            var bindingExpressions = new List<IBindingBuilder> {new TestBindingBuilder(), new TestBindingBuilder()};
             var builder = new BindingBuilderListExpressionParser();
             builder.TryParseBindingExpression(null!, bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
 

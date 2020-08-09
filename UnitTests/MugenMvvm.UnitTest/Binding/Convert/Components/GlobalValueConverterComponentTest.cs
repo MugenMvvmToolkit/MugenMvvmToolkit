@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Binding.Convert.Components
             component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
             value.ShouldEqual(f.ToString());
 
-            component.FormatProvider = () => new NumberFormatInfo { CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";" };
+            component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
             value = f;
             component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
             value.ShouldEqual(f.ToString(component.FormatProvider()));
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTest.Binding.Convert.Components
             value.ShouldEqual(int.MaxValue);
 
             const float f = 1.1f;
-            component.FormatProvider = () => new NumberFormatInfo { CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";" };
+            component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
             value = f.ToString(component.FormatProvider());
             component.TryConvert(null!, ref value, typeof(float), null, null).ShouldEqual(true);
             value.ShouldEqual(f);
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTest.Binding.Convert.Components
         {
             var component = new GlobalValueConverterComponent();
             var v = new object();
-            object? value = v;
+            var value = v;
 
             component.TryConvert(null!, ref value, GetType(), null, null).ShouldBeFalse();
             value.ShouldEqual(v);

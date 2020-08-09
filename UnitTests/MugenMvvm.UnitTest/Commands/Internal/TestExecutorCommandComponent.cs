@@ -16,10 +16,7 @@ namespace MugenMvvm.UnitTest.Commands.Internal
 
         #region Implementation of interfaces
 
-        Task IExecutorCommandComponent.ExecuteAsync(ICompositeCommand command, object? parameter)
-        {
-            return ExecuteAsync?.Invoke(command, parameter) ?? Default.CompletedTask;
-        }
+        Task IExecutorCommandComponent.ExecuteAsync(ICompositeCommand command, object? parameter) => ExecuteAsync?.Invoke(command, parameter) ?? Default.CompletedTask;
 
         #endregion
     }

@@ -62,20 +62,16 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
-        }
+        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
 
         #endregion
 
         #region Methods
 
-        private object ToViewModelViewRequest(IViewMapping mapping, object request, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata)
-        {
-            return ViewModelViewRequest.GetRequestOrRaw(request, viewModel ?? _viewModelManager.DefaultIfNull().TryGetViewModel(mapping.ViewModelType, metadata),
+        private object ToViewModelViewRequest(IViewMapping mapping, object request, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata) =>
+            ViewModelViewRequest.GetRequestOrRaw(request, viewModel ?? _viewModelManager.DefaultIfNull().TryGetViewModel(mapping.ViewModelType, metadata),
                 view ?? _serviceProvider.DefaultIfNull().GetService(mapping.ViewType));
-        }
 
         #endregion
     }

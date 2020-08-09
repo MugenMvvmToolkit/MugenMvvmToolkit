@@ -56,10 +56,7 @@ namespace MugenMvvm.Android.Observation
 
         #region Implementation of interfaces
 
-        public void OnChanged(Object target, ICharSequence path, Object? state)
-        {
-            _listeners.Raise(target, state, GetMember(path), null);
-        }
+        public void OnChanged(Object target, ICharSequence path, Object? state) => _listeners.Raise(target, state, GetMember(path), null);
 
         #endregion
 
@@ -103,6 +100,7 @@ namespace MugenMvvm.Android.Observation
                 r = member.ToString();
                 JavaToNetMapping[member] = r;
             }
+
             return r;
         }
 

@@ -8,10 +8,7 @@ namespace MugenMvvm.UnitTest.Validation
     {
         #region Methods
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
-        {
-            return new Validator(metadata);
-        }
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new Validator(metadata);
 
         #endregion
     }

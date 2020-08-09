@@ -48,9 +48,8 @@ namespace MugenMvvm.Android.Binding
 
         #region Methods
 
-        public static ActionToken AddListener(IMenuItem menuItem, IEventListener listener)
-        {
-            return MugenService
+        public static ActionToken AddListener(IMenuItem menuItem, IEventListener listener) =>
+            MugenService
                 .AttachedValueManager
                 .TryGetAttachedValues(menuItem)
                 .GetOrAdd(AndroidInternalConstant.MenuClickListener, menuItem, (key, item) =>
@@ -60,7 +59,6 @@ namespace MugenMvvm.Android.Binding
                     return l;
                 })
                 .AddListener(listener);
-        }
 
         private ActionToken AddListener(IEventListener listener)
         {

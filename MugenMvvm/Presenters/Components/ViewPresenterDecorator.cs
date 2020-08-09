@@ -73,10 +73,8 @@ namespace MugenMvvm.Presenters.Components
             return result;
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return Components.TryClose(presenter, request, cancellationToken, metadata);
-        }
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            Components.TryClose(presenter, request, cancellationToken, metadata);
 
         #endregion
 

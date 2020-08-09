@@ -22,10 +22,8 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Implementation of interfaces
 
-        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(object expression, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<IExpressionParserComponent>(metadata).TryParse(this, expression, metadata);
-        }
+        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(object expression, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IExpressionParserComponent>(metadata).TryParse(this, expression, metadata);
 
         #endregion
     }

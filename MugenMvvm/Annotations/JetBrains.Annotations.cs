@@ -120,4 +120,4 @@ namespace JetBrains.Annotations
         IS_NOT_NULL = 3
     }
 }
-#pragma warning restore CS8618  
+#pragma warning restore CS8618

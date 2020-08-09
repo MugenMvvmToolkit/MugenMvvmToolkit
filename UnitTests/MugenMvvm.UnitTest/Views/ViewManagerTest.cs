@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest.Views
                     {
                         r.ShouldEqual(viewModel);
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] { view };
+                        return new[] {view};
                     },
                     Priority = -i
                 };
@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTest.Views
                     {
                         r.ShouldEqual(view);
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] { mapping };
+                        return new[] {mapping};
                     },
                     Priority = -i
                 };
@@ -187,10 +187,7 @@ namespace MugenMvvm.UnitTest.Views
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ViewManager(collectionProvider);
-        }
+        protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ViewManager(collectionProvider);
 
         #endregion
     }

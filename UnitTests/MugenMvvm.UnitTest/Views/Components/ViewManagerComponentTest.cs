@@ -100,6 +100,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                             list = new List<ViewLifecycleState>();
                             states[s] = list;
                         }
+
                         list.Add(s);
                         v.ShouldEqual(expectedView);
                         st.ShouldEqual(viewModel);
@@ -143,12 +144,13 @@ namespace MugenMvvm.UnitTest.Views.Components
                 {
                     OnLifecycleChanged = (vRaw, s, st, m) =>
                     {
-                        var v = (IView)vRaw;
+                        var v = (IView) vRaw;
                         if (!states.TryGetValue(s, out var list))
                         {
                             list = new List<ViewLifecycleState>();
                             states[s] = list;
                         }
+
                         list.Add(s);
                         v.Mapping.ShouldEqual(mapping);
                         if (s == ViewLifecycleState.Clearing || s == ViewLifecycleState.Cleared)

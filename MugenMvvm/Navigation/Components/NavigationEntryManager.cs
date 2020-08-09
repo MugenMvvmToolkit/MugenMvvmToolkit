@@ -62,6 +62,7 @@ namespace MugenMvvm.Navigation.Components
                         list.Add(addedEntry);
                     }
                 }
+
                 if (navigationContext.NavigationMode.IsClose)
                 {
                     if (_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
@@ -95,10 +96,9 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrListEditor<INavigationEntry, List<INavigationEntry>> result = ItemOrListEditor.Get<INavigationEntry>();
+            var result = ItemOrListEditor.Get<INavigationEntry>();
             lock (_navigationEntries)
             {
-
                 foreach (var t in _navigationEntries)
                     result.AddRange(ItemOrList.FromList(t.Value));
             }

@@ -14,15 +14,9 @@
 
         #region Methods
 
-        public object? Method(object? arg)
-        {
-            return null;
-        }
+        public object? Method(object? arg) => null;
 
-        public static object? MethodStatic(object? arg)
-        {
-            return null;
-        }
+        public static object? MethodStatic(object? arg) => null;
 
         #endregion
     }

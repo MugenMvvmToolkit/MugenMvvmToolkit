@@ -20,15 +20,9 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         #region Implementation of interfaces
 
-        object? IAccessorMemberInfo.GetValue(object? target, IReadOnlyMetadataContext? metadata)
-        {
-            return GetValue?.Invoke(target, metadata);
-        }
+        object? IAccessorMemberInfo.GetValue(object? target, IReadOnlyMetadataContext? metadata) => GetValue?.Invoke(target, metadata);
 
-        void IAccessorMemberInfo.SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata)
-        {
-            SetValue?.Invoke(target, value, metadata);
-        }
+        void IAccessorMemberInfo.SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata) => SetValue?.Invoke(target, value, metadata);
 
         #endregion
     }

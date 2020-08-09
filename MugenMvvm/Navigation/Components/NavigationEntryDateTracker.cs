@@ -17,15 +17,11 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public void OnNavigationEntryAdded(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
-        {
+        public void OnNavigationEntryAdded(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext) =>
             navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow, out _);
-        }
 
-        public void OnNavigationEntryUpdated(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
-        {
+        public void OnNavigationEntryUpdated(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext) =>
             navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow, out _);
-        }
 
         public void OnNavigationEntryRemoved(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {

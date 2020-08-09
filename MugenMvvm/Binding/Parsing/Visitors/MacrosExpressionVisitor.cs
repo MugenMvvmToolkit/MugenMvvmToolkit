@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             {
                 {MacrosConstant.Binding, context => bindingImpl},
                 {MacrosConstant.EventArgs, context => eventArgsImpl},
-                {MacrosConstant.Action, context => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString())},
+                {MacrosConstant.Action, context => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString())}
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
             {
@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {"Rel", BindableMembers.For<object>().RelativeSourceMethod()},
                 {"Relative", BindableMembers.For<object>().RelativeSourceMethod()},
                 {"El", BindableMembers.For<object>().ElementSourceMethod()},
-                {"Element", BindableMembers.For<object>().ElementSourceMethod()},
+                {"Element", BindableMembers.For<object>().ElementSourceMethod()}
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>
             {

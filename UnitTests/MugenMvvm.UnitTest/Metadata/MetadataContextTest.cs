@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>)values);
+            var context = new MetadataContext((ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>) values);
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -97,8 +97,8 @@ namespace MugenMvvm.UnitTest.Metadata
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = contextKey.ToValue(intValue);
             var context = new MetadataContext(value);
-            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
-            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
+            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
+            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             TryGetTest(context, contextKey, intValue);
         }
 
@@ -714,10 +714,7 @@ namespace MugenMvvm.UnitTest.Metadata
             CurrentSetterOldValue.ShouldEqual(int.MinValue);
         }
 
-        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null)
-        {
-            return new MetadataContext(values);
-        }
+        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null) => new MetadataContext(values);
 
         #endregion
     }

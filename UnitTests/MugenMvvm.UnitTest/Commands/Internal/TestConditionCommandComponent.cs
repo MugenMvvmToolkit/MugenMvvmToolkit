@@ -16,15 +16,9 @@ namespace MugenMvvm.UnitTest.Commands.Internal
 
         #region Implementation of interfaces
 
-        bool IConditionCommandComponent.HasCanExecute(ICompositeCommand command)
-        {
-            return HasCanExecute?.Invoke(command) ?? false;
-        }
+        bool IConditionCommandComponent.HasCanExecute(ICompositeCommand command) => HasCanExecute?.Invoke(command) ?? false;
 
-        bool IConditionCommandComponent.CanExecute(ICompositeCommand command, object? parameter)
-        {
-            return CanExecute?.Invoke(command, parameter) ?? true;
-        }
+        bool IConditionCommandComponent.CanExecute(ICompositeCommand command, object? parameter) => CanExecute?.Invoke(command, parameter) ?? true;
 
         #endregion
     }

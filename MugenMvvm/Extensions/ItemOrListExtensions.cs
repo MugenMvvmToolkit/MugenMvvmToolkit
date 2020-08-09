@@ -15,26 +15,20 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            return (object?)itemOrList.Item ?? itemOrList.List;
-        }
+            where TList : class, IEnumerable<TItem> =>
+            (object?) itemOrList.Item ?? itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrListEditor<TItem, TList> itemOrList)
             where TItem : class?
-            where TList : class, IList<TItem>
-        {
-            return itemOrList.GetRawValueInternal();
-        }
+            where TList : class, IList<TItem> =>
+            itemOrList.GetRawValueInternal();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            return itemOrList.Item == null && itemOrList.List == null;
-        }
+            where TList : class, IEnumerable<TItem> =>
+            itemOrList.Item == null && itemOrList.List == null;
 
         public static Task WhenAll<TList>(this ItemOrList<Task, TList> itemOrList) where TList : class, IEnumerable<Task>
         {
@@ -130,26 +124,18 @@ namespace MugenMvvm.Extensions
         }
 
         public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
-            where TItem : class
-        {
-            return itemOrList.Editor(item => item == null);
-        }
+            where TItem : class =>
+            itemOrList.Editor(item => item == null);
 
-        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList, Func<TItem, bool> isEmpty)
-        {
-            return new ItemOrListEditor<TItem, IList<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
-        }
+        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList, Func<TItem, bool> isEmpty) =>
+            new ItemOrListEditor<TItem, IList<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
 
         public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList)
-            where TItem : class
-        {
-            return itemOrList.Editor(item => item == null);
-        }
+            where TItem : class =>
+            itemOrList.Editor(item => item == null);
 
-        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, Func<TItem, bool> isEmpty)
-        {
-            return new ItemOrListEditor<TItem, List<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
-        }
+        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, Func<TItem, bool> isEmpty) =>
+            new ItemOrListEditor<TItem, List<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
 
         #endregion
     }

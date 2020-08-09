@@ -59,10 +59,7 @@ namespace MugenMvvm.Collections.Components
 
         #region Implementation of interfaces
 
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(IObservableCollection observableCollection, IEnumerable<object?> items)
-        {
-            return HasFilter ? items.Where(_internalFilter) : items;
-        }
+        IEnumerable<object?> ICollectionDecorator.DecorateItems(IObservableCollection observableCollection, IEnumerable<object?> items) => HasFilter ? items.Where(_internalFilter) : items;
 
         bool ICollectionDecorator.OnItemChanged(IObservableCollection observableCollection, ref object? item, ref int index, ref object? args)
         {
@@ -190,10 +187,7 @@ namespace MugenMvvm.Collections.Components
                 yield return _values[i];
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 
@@ -211,10 +205,7 @@ namespace MugenMvvm.Collections.Components
             _decoratorManager = null;
         }
 
-        public void UpdateFilter()
-        {
-            UpdateFilterInternal(null, false);
-        }
+        public void UpdateFilter() => UpdateFilterInternal(null, false);
 
         private void UpdateFilterInternal(Func<T, bool>? filter, bool setFilter)
         {
@@ -247,10 +238,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private bool FilterInternal(object? value)
-        {
-            return _filter == null || !(value is T v) || _filter(v);
-        }
+        private bool FilterInternal(object? value) => _filter == null || !(value is T v) || _filter(v);
 
         private void UpdateIndexes(int index, int value)
         {

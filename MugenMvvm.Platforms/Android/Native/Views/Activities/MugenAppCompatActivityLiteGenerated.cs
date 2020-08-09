@@ -39,10 +39,10 @@ namespace MugenMvvm.Android.Native.Views.Activities
         {
             const string __id = "()V";
 
-            if (this.Handle != IntPtr.Zero)
+            if (Handle != IntPtr.Zero)
                 return;
 
-            var __r = _members.InstanceMethods.StartCreateInstance(__id, this.GetType(), null);
+            var __r = _members.InstanceMethods.StartCreateInstance(__id, GetType(), null);
             SetHandle(__r.Handle, JniHandleOwnership.TransferLocalRef);
             _members.InstanceMethods.FinishCreateInstance(__id, this, null);
         }

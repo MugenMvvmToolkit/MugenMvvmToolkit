@@ -18,10 +18,8 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        bool ITargetValueSetterBindingComponent.TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
-        {
-            return TrySetTargetValue?.Invoke(binding, targetMember, value, metadata) ?? false;
-        }
+        bool ITargetValueSetterBindingComponent.TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) =>
+            TrySetTargetValue?.Invoke(binding, targetMember, value, metadata) ?? false;
 
         #endregion
 

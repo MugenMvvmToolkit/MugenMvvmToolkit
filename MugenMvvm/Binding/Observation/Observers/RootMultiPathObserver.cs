@@ -42,10 +42,7 @@ namespace MugenMvvm.Binding.Observation.Observers
         {
         }
 
-        protected override void ClearListeners()
-        {
-            _unsubscriber.Dispose();
-        }
+        protected override void ClearListeners() => _unsubscriber.Dispose();
 
         #endregion
     }

@@ -8,16 +8,10 @@ namespace MugenMvvm.Internal
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullable<T>()
-        {
-            return GenericChecker<T>.IsNullableType;
-        }
+        public static bool IsNullable<T>() => GenericChecker<T>.IsNullableType;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsValueType<T>()
-        {
-            return GenericChecker<T>.IsValueType;
-        }
+        public static bool IsValueType<T>() => GenericChecker<T>.IsValueType;
 
         #endregion
 

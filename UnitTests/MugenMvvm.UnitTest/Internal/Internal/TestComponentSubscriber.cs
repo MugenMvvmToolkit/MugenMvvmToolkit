@@ -26,15 +26,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Methods
 
-        public static TestComponentSubscriber Subscribe<T>(params IComponent<T>[] components) where T : class, IComponentOwner
-        {
-            return Subscribe(MugenService.Instance<T>(), components);
-        }
+        public static TestComponentSubscriber Subscribe<T>(params IComponent<T>[] components) where T : class, IComponentOwner => Subscribe(MugenService.Instance<T>(), components);
 
-        public static TestComponentSubscriber Subscribe<T>(T componentOwner, params IComponent<T>[] components) where T : class, IComponentOwner
-        {
-            return new TestComponentSubscriber(componentOwner, components);
-        }
+        public static TestComponentSubscriber Subscribe<T>(T componentOwner, params IComponent<T>[] components) where T : class, IComponentOwner => new TestComponentSubscriber(componentOwner, components);
 
         public void Dispose()
         {

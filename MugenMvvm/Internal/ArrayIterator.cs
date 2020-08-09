@@ -35,7 +35,7 @@ namespace MugenMvvm.Internal
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if ((uint)index >= (uint)Count)
+                if ((uint) index >= (uint) Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 return _list == null ? _item : _list[index];
@@ -62,14 +62,11 @@ namespace MugenMvvm.Internal
                 return _list;
             if (Count == 0)
                 return Default.Array<TItem>();
-            return new[] { _item };
+            return new[] {_item};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(Count, _item!, _list);
-        }
+        public Enumerator GetEnumerator() => new Enumerator(Count, _item!, _list);
 
         #endregion
 
@@ -113,10 +110,7 @@ namespace MugenMvvm.Internal
             #region Methods
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool MoveNext()
-            {
-                return ++_index < _count;
-            }
+            public bool MoveNext() => ++_index < _count;
 
             #endregion
         }

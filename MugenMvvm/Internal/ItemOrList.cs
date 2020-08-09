@@ -10,16 +10,10 @@ namespace MugenMvvm.Internal
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromItem<TItem>([AllowNull] TItem item)
-        {
-            return new ItemOrList<TItem, IReadOnlyList<TItem>>(item);
-        }
+        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromItem<TItem>([AllowNull] TItem item) => new ItemOrList<TItem, IReadOnlyList<TItem>>(item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, TList> FromItem<TItem, TList>([AllowNull] TItem item) where TList : class, IEnumerable<TItem>
-        {
-            return new ItemOrList<TItem, TList>(item);
-        }
+        public static ItemOrList<TItem, TList> FromItem<TItem, TList>([AllowNull] TItem item) where TList : class, IEnumerable<TItem> => new ItemOrList<TItem, TList>(item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, IReadOnlyList<TItem>> FromListToReadOnly<TItem>(TItem[]? array)
@@ -127,14 +121,11 @@ namespace MugenMvvm.Internal
                 return FromList<TItem, TList>(list);
             }
 
-            return new ItemOrList<TItem, TList>((TItem)value!);
+            return new ItemOrList<TItem, TList>((TItem) value!);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, TList> FromListRaw<TItem, TList>(TList? list) where TList : class, IEnumerable<TItem>
-        {
-            return new ItemOrList<TItem, TList>(list);
-        }
+        public static ItemOrList<TItem, TList> FromListRaw<TItem, TList>(TList? list) where TList : class, IEnumerable<TItem> => new ItemOrList<TItem, TList>(list);
 
         //note because of slow cast for covariant\contravariant types (value is IReadonlyList<T> list), we should use this method, fixed in net5.0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -143,8 +134,8 @@ namespace MugenMvvm.Internal
             if (value is TItem item)
                 return new ItemOrList<TItem, IReadOnlyList<TItem>>(item);
             if (@unchecked)
-                return new ItemOrList<TItem, IReadOnlyList<TItem>>((IReadOnlyList<TItem>?)value);
-            return FromList((IReadOnlyList<TItem>?)value);
+                return new ItemOrList<TItem, IReadOnlyList<TItem>>((IReadOnlyList<TItem>?) value);
+            return FromList((IReadOnlyList<TItem>?) value);
         }
 
         #endregion

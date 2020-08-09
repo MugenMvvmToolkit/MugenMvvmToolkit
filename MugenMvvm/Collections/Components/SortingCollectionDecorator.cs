@@ -43,10 +43,7 @@ namespace MugenMvvm.Collections.Components
 
         #region Implementation of interfaces
 
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(IObservableCollection observableCollection, IEnumerable<object?> items)
-        {
-            return items.OrderBy(arg => arg, Comparer);
-        }
+        IEnumerable<object?> ICollectionDecorator.DecorateItems(IObservableCollection observableCollection, IEnumerable<object?> items) => items.OrderBy(arg => arg, Comparer);
 
         bool ICollectionDecorator.OnItemChanged(IObservableCollection observableCollection, ref object? item, ref int index, ref object? args)
         {
@@ -239,10 +236,7 @@ namespace MugenMvvm.Collections.Components
 
             #region Implementation of interfaces
 
-            int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y)
-            {
-                return Comparer.Compare(x.Item, y.Item);
-            }
+            int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y) => Comparer.Compare(x.Item, y.Item);
 
             #endregion
         }
@@ -269,10 +263,7 @@ namespace MugenMvvm.Collections.Components
 
             #region Methods
 
-            public void UpdateIndex(int index)
-            {
-                OriginalIndex += index;
-            }
+            public void UpdateIndex(int index) => OriginalIndex += index;
 
             #endregion
         }

@@ -23,7 +23,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void ShouldNotBeGeneric()
         {
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null, null);
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null,
+                null);
             memberInfo.IsGenericMethod.ShouldBeFalse();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
             ShouldThrow<NotSupportedException>(() => memberInfo.GetGenericMethodDefinition());
@@ -34,11 +35,12 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void GetParametersShouldUseDelegate()
         {
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null, null);
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null,
+                null);
             memberInfo.GetParameters().ShouldBeEmpty();
 
             var invokeCount = 0;
-            var parameters = new List<IParameterInfo> { null! };
+            var parameters = new List<IParameterInfo> {null!};
             memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", info =>
             {
                 ++invokeCount;
@@ -52,8 +54,9 @@ namespace MugenMvvm.UnitTest.Binding.Members
         public void TryGetAccessorShouldUseDelegate()
         {
             var flags = ArgumentFlags.Metadata;
-            var values = new object[] { this };
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null, null);
+            var values = new object[] {this};
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null,
+                null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldBeNull();
 
             var invokeCount = 0;
@@ -77,7 +80,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             IMemberInfo? m = null;
             var invokeCount = 0;
             string t = "";
-            var objects = new object?[] { "t", 1 };
+            var objects = new object?[] {"t", 1};
             var result = "test";
             var memberInfo = new DelegateMethodMemberInfo<string, string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, (member, target, args, metadata) =>
             {
@@ -94,11 +97,9 @@ namespace MugenMvvm.UnitTest.Binding.Members
         }
 
         protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-        {
-            return new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, args, metadata) => "",
+            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
+            new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, args, metadata) => "",
                 null, null, tryObserveByMember, tryObserve, raise);
-        }
 
         #endregion
     }

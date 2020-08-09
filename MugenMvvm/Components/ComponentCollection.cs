@@ -70,10 +70,7 @@ namespace MugenMvvm.Components
             return result;
         }
 
-        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y)
-        {
-            return MugenExtensions.GetComponentPriority(y!, Owner).CompareTo(MugenExtensions.GetComponentPriority(x!, Owner));
-        }
+        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y) => MugenExtensions.GetComponentPriority(y!, Owner).CompareTo(MugenExtensions.GetComponentPriority(x!, Owner));
 
         public bool Add(object component, IReadOnlyMetadataContext? metadata = null)
         {
@@ -140,7 +137,7 @@ namespace MugenMvvm.Components
             for (var i = 0; i < componentTrackers.Length; i++)
             {
                 if (componentTrackers[i].ComponentType == typeof(TComponent))
-                    return (TComponent[])componentTrackers[i].Components;
+                    return (TComponent[]) componentTrackers[i].Components;
             }
 
             return AddNewTracker<TComponent>(componentTrackers, metadata);
@@ -174,7 +171,7 @@ namespace MugenMvvm.Components
             Array.Resize(ref componentTrackers, componentTrackers.Length + 1);
             componentTrackers[componentTrackers.Length - 1] = tracker;
             _componentTrackers = componentTrackers;
-            return (TComponent[])tracker.Components;
+            return (TComponent[]) tracker.Components;
         }
 
         private void UpdateTrackers(object? component, IComponentCollectionDecorator? decorator = null)
@@ -264,10 +261,8 @@ namespace MugenMvvm.Components
 
             #region Methods
 
-            public static ComponentTracker Get<TComponent>(TComponent[] components) where TComponent : class
-            {
-                return new ComponentTracker(components, typeof(TComponent), (o, decorator) => o is TComponent || decorator is IComponentCollectionDecorator<TComponent>);
-            }
+            public static ComponentTracker Get<TComponent>(TComponent[] components) where TComponent : class =>
+                new ComponentTracker(components, typeof(TComponent), (o, decorator) => o is TComponent || decorator is IComponentCollectionDecorator<TComponent>);
 
             #endregion
         }

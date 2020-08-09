@@ -34,7 +34,7 @@ namespace MugenMvvm.Enums
             Value = value;
             _name = name;
             if (!_enumerations.ContainsKey(value))
-                _enumerations[value] = (TEnumeration)this;
+                _enumerations[value] = (TEnumeration) this;
         }
 
         protected EnumBase(TValue value)
@@ -77,10 +77,7 @@ namespace MugenMvvm.Enums
             return Value.CompareTo(other.Value);
         }
 
-        public bool Equals(TEnumeration? other)
-        {
-            return !ReferenceEquals(other, null) && Equals(other.Value);
-        }
+        public bool Equals(TEnumeration? other) => !ReferenceEquals(other, null) && Equals(other.Value);
 
         #endregion
 
@@ -88,21 +85,13 @@ namespace MugenMvvm.Enums
 
         protected abstract bool Equals(TValue value);
 
-        public sealed override bool Equals(object? obj)
-        {
-            return Equals(obj as TEnumeration);
-        }
+        public sealed override bool Equals(object? obj) => Equals(obj as TEnumeration);
 
-        public sealed override int GetHashCode()
-        {
+        public sealed override int GetHashCode() =>
             // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return HashCode.Combine(Value);
-        }
+            HashCode.Combine(Value);
 
-        public sealed override string ToString()
-        {
-            return Name;
-        }
+        public sealed override string ToString() => Name;
 
         public static bool operator ==(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
         {
@@ -113,22 +102,13 @@ namespace MugenMvvm.Enums
             return left.Equals(right);
         }
 
-        public static bool operator !=(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right) => !(left == right);
 
-        public static explicit operator EnumBase<TEnumeration, TValue>(TValue value)
-        {
-            return Parse(value);
-        }
+        public static explicit operator EnumBase<TEnumeration, TValue>(TValue value) => Parse(value);
 
-        public static ICollection<TEnumeration> GetAll()
-        {
-            return Enumerations.Values;
-        }
+        public static ICollection<TEnumeration> GetAll() => Enumerations.Values;
 
-        public static bool TryParse([AllowNull]TValue value, [NotNullWhen(true)] out TEnumeration? result)
+        public static bool TryParse([AllowNull] TValue value, [NotNullWhen(true)] out TEnumeration? result)
         {
             if (value == null)
             {
@@ -160,10 +140,7 @@ namespace MugenMvvm.Enums
             _enumerations = enumerations;
         }
 
-        public static void SetEnum(TValue value, TEnumeration enumeration)
-        {
-            _enumerations[value] = enumeration;
-        }
+        public static void SetEnum(TValue value, TEnumeration enumeration) => _enumerations[value] = enumeration;
 
         #endregion
     }

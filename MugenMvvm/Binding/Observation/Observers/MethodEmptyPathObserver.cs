@@ -97,10 +97,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             }
         }
 
-        protected override void OnListenersRemoved()
-        {
-            _unsubscriber.Dispose();
-        }
+        protected override void OnListenersRemoved() => _unsubscriber.Dispose();
 
         #endregion
     }

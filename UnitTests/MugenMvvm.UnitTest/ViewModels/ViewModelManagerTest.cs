@@ -117,10 +117,7 @@ namespace MugenMvvm.UnitTest.ViewModels
             executeCount.ShouldEqual(count);
         }
 
-        protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ViewModelManager(collectionProvider);
-        }
+        protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ViewModelManager(collectionProvider);
 
         #endregion
     }

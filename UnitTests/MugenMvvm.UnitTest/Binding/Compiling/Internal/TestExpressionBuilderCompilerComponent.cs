@@ -16,10 +16,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
 
         #region Implementation of interfaces
 
-        Expression? IExpressionBuilderComponent.TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
-        {
-            return TryBuild?.Invoke(context, expression);
-        }
+        Expression? IExpressionBuilderComponent.TryBuild(IExpressionBuilderContext context, IExpressionNode expression) => TryBuild?.Invoke(context, expression);
 
         #endregion
     }

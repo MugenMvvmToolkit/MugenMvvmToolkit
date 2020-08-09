@@ -55,10 +55,7 @@ namespace MugenMvvm.UnitTest.Internal
         }
 
         [Fact]
-        public void NoDoShouldNotBeEmpty()
-        {
-            ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
-        }
+        public void NoDoShouldNotBeEmpty() => ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
 
         [Fact]
         public void NoDoShouldReturnNewObject()

@@ -65,10 +65,7 @@ namespace MugenMvvm.Binding.Observation.Observers
         {
         }
 
-        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners()
-        {
-            return default;
-        }
+        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners() => default;
 
         public MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
@@ -88,10 +85,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             return new MemberPathLastMember(target, ConstantMemberInfo.Target);
         }
 
-        public void Dispose()
-        {
-            _target = Disposed;
-        }
+        public void Dispose() => _target = Disposed;
 
         #endregion
     }

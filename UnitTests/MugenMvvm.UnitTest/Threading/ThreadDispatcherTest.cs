@@ -15,10 +15,7 @@ namespace MugenMvvm.UnitTest.Threading
         #region Methods
 
         [Fact]
-        public void CanExecuteInlineShouldReturnFalseNoComponents()
-        {
-            new ThreadDispatcher().CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
-        }
+        public void CanExecuteInlineShouldReturnFalseNoComponents() => new ThreadDispatcher().CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
 
         [Theory]
         [InlineData(1)]
@@ -101,10 +98,7 @@ namespace MugenMvvm.UnitTest.Threading
             executeCount.ShouldEqual(count);
         }
 
-        protected override ThreadDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ThreadDispatcher(collectionProvider);
-        }
+        protected override ThreadDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ThreadDispatcher(collectionProvider);
 
         #endregion
     }

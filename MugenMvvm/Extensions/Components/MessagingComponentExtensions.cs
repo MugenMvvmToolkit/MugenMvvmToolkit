@@ -33,7 +33,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(messageContext, nameof(messageContext));
-            bool published = false;
+            var published = false;
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryPublish(messenger, messageContext))
@@ -77,7 +77,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messenger, nameof(messenger));
-            bool result = false;
+            var result = false;
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryUnsubscribeAll(messenger, metadata))
@@ -87,26 +87,28 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        public static ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(this IMessengerSubscriberComponent[] components, IMessenger messenger, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(this IMessengerSubscriberComponent[] components, IMessenger messenger,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messenger, nameof(messenger));
             if (components.Length == 1)
                 return components[0].TryGetSubscribers(messenger, metadata);
-            ItemOrListEditor<MessengerSubscriberInfo, List<MessengerSubscriberInfo>> subscribers = ItemOrListEditor.Get<MessengerSubscriberInfo>(info => info.IsEmpty);
+            var subscribers = ItemOrListEditor.Get<MessengerSubscriberInfo>(info => info.IsEmpty);
             for (var i = 0; i < components.Length; i++)
                 subscribers.AddRange(components[i].TryGetSubscribers(messenger, metadata));
             return subscribers.ToItemOrList<IReadOnlyList<MessengerSubscriberInfo>>();
         }
 
-        public static ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, IMessenger messenger, Type messageType,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(messageType, nameof(messageType));
             if (components.Length == 1)
                 return components[0].TryGetMessengerHandlers(messenger, messageType, metadata);
-            ItemOrListEditor<MessengerHandler, List<MessengerHandler>> handlers = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
+            var handlers = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
             for (var i = 0; i < components.Length; i++)
                 handlers.AddRange(components[i].TryGetMessengerHandlers(messenger, messageType, metadata));
             return handlers.ToItemOrList<IReadOnlyList<MessengerHandler>>();

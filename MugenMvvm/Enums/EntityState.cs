@@ -48,15 +48,9 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(EntityState? left, EntityState? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(EntityState? left, EntityState? right) => !(left == right);
 
-        protected override bool Equals(int value)
-        {
-            return Value == value;
-        }
+        protected override bool Equals(int value) => Value == value;
 
         #endregion
     }

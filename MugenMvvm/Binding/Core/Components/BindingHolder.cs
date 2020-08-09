@@ -53,11 +53,11 @@ namespace MugenMvvm.Binding.Core.Components
             if (iterator.Count == 0)
                 return default;
             if (iterator.Count == 1)
-                return ItemOrList.FromItem((IBinding)values.Item.Value!);
+                return ItemOrList.FromItem((IBinding) values.Item.Value!);
 
             var bindings = new IBinding[iterator.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding)iterator[i].Value!;
+                bindings[i] = (IBinding) iterator[i].Value!;
             return ItemOrList.FromListToReadOnly(bindings);
         }
 

@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             {
                 GetService = type =>
                 {
-                    var instance = (TestViewModelPresenterMediator)Activator.CreateInstance(type)!;
+                    var instance = (TestViewModelPresenterMediator) Activator.CreateInstance(type)!;
                     instance.Initialize = (vm, viewMapping, m) =>
                     {
                         ++initializeCount;
@@ -96,12 +96,12 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var wrapperManager = new WrapperManager();
 
             var presenter = new ViewModelPresenter(viewManager, wrapperManager, serviceProvider);
-            presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView2>), typeof(TestView2), true, 0);
+            presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView2>), typeof(TestView2), true);
             presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView2>), typeof(ViewModelPresenterTest), false, 1);
             var t2 = presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestViewBase>), typeof(TestViewBase), false, 2);
             var t1 = presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView1>), typeof(TestView1), true, 3);
 
-            var list = presenter.TryShow(null!, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            var list = presenter.TryShow(null!, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             mediators.Clear();
             initializeCount = 0;
             showCount = 0;
-            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(0);
             list.Count.ShouldEqual(1);
             initializeCount.ShouldEqual(0);
@@ -124,7 +124,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             t1.Dispose();
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
@@ -137,13 +137,13 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             t2.Dispose();
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(0);
             list.Count.ShouldEqual(0);
             initializeCount.ShouldEqual(0);
             showCount.ShouldEqual(0);
 
-            int canWrapCount = 0;
+            var canWrapCount = 0;
             wrapperManager.AddComponent(new DelegateWrapperManager<Type, object, object>((type, r, rt, m) =>
             {
                 ++canWrapCount;
@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             }, (type, o, arg3, arg4) => null!, null));
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            list = presenter.TryShow(null!, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var viewModel = new TestViewModel();
             var viewManager = new ViewManager();
             var result = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Popup);
-            int closeCount = 0;
+            var closeCount = 0;
             var mediator = new TestViewModelPresenterMediator
             {
                 TryClose = (token, context) =>
@@ -184,7 +184,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (o, arg3) => mapping,
+                TryGetMappings = (o, arg3) => mapping
             });
             var wrapperManager = new WrapperManager();
             var serviceProvider = new TestServiceProvider

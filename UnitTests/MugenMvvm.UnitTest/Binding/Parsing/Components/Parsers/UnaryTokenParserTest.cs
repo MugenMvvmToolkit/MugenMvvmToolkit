@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
             var component = new UnaryTokenParser();
             var ctx = new TokenParserContext
             {
-                Parsers = new[] { new DigitTokenParser() }
+                Parsers = new[] {new DigitTokenParser()}
             };
             ctx.Initialize("1", DefaultMetadata);
             component.TryParse(ctx, null).ShouldBeNull();
@@ -34,13 +34,13 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
 
             var ctx = new TokenParserContext
             {
-                Parsers = new ITokenParserComponent[] { new DigitTokenParser(), new MemberTokenParser(), }
+                Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new MemberTokenParser()}
             };
 
             ctx.Initialize("-1", DefaultMetadata);
             component.TryParse(ctx, null).ShouldBeNull();
 
-            component.Mapping['-'] = new[] { token };
+            component.Mapping['-'] = new[] {token};
             ctx.Initialize("-1", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(new UnaryExpressionNode(token, ConstantExpressionNode.Get(1)));
 

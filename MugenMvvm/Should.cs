@@ -15,8 +15,8 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]
-            [NotNull]object? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
+            object? argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
                 ExceptionManager.ThrowNullArgument(paramName);
@@ -26,8 +26,8 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]
-            [NotNull]string? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
+            string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
                 ExceptionManager.ThrowNullOrEmptyArgument(paramName);
@@ -36,7 +36,8 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)][DoesNotReturnIf(false)] bool isSupported, string error)
+        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
+            bool isSupported, string error)
         {
             if (!isSupported)
                 ExceptionManager.ThrowNotSupported(error);
@@ -44,7 +45,8 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)][DoesNotReturnIf(false)] bool validation)
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
+            bool validation)
         {
             if (!validation)
                 ExceptionManager.ThrowNotValidArgument(paramName);
@@ -58,16 +60,10 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>([NotNull] object? instance, string paramName)
-        {
-            BeOfType(instance, paramName, typeof(T));
-        }
+        public static void BeOfType<T>([NotNull] object? instance, string paramName) => BeOfType(instance, paramName, typeof(T));
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>([NotNull] Type? type, string paramName)
-        {
-            BeOfType(type, paramName, typeof(T));
-        }
+        public static void BeOfType<T>([NotNull] Type? type, string paramName) => BeOfType(type, paramName, typeof(T));
 
         [DebuggerStepThrough]
         public static void BeOfType([NotNull] Type? type, string paramName, [NotNull] Type? requiredType)
@@ -81,10 +77,8 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
-            bool isSupported, string methodName)
-        {
+            bool isSupported, string methodName) =>
             BeSupported(isSupported, MessageConstant.ShouldMethodBeSupportedFormat1.Format(methodName));
-        }
 
         #endregion
     }

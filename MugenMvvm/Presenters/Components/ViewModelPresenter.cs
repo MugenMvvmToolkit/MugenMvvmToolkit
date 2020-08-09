@@ -58,7 +58,7 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel == null)
                 return default;
 
-            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = ItemOrListEditor.Get<IPresenterResult>();
             foreach (var mediator in TryGetMediators(viewModel, request, metadata).Iterator())
                 result.Add(mediator.TryShow(view, cancellationToken, metadata));
 
@@ -71,7 +71,7 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel == null)
                 return default;
 
-            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = ItemOrListEditor.Get<IPresenterResult>();
             lock (_mediators)
             {
                 var dictionary = viewModel.GetMetadataOrDefault().Get(Mediators);
@@ -90,10 +90,8 @@ namespace MugenMvvm.Presenters.Components
 
         public ActionToken RegisterMediator<TMediator, TView>(bool viewExactlyEqual = false, int priority = 0)
             where TMediator : ViewModelPresenterMediatorBase<TView>
-            where TView : class
-        {
-            return RegisterMediator(typeof(TMediator), typeof(TView), viewExactlyEqual, priority);
-        }
+            where TView : class =>
+            RegisterMediator(typeof(TMediator), typeof(TView), viewExactlyEqual, priority);
 
         public ActionToken RegisterMediator(Type mediatorType, Type viewType, bool viewExactlyEqual, int priority = 0)
         {
@@ -107,10 +105,10 @@ namespace MugenMvvm.Presenters.Components
 
             return new ActionToken((l, m) =>
             {
-                var list = (List<MediatorRegistration>)l!;
+                var list = (List<MediatorRegistration>) l!;
                 lock (list)
                 {
-                    list.Remove((MediatorRegistration)m!);
+                    list.Remove((MediatorRegistration) m!);
                 }
             }, _mediators, registration);
         }
@@ -120,7 +118,7 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel == null)
                 return default;
 
-            ItemOrListEditor<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> result = ItemOrListEditor.Get<IViewModelPresenterMediator>();
+            var result = ItemOrListEditor.Get<IViewModelPresenterMediator>();
             lock (_mediators)
             {
                 if (_mediators.Count == 0)
@@ -179,7 +177,7 @@ namespace MugenMvvm.Presenters.Components
             if (mediatorType == null)
                 return null;
 
-            var mediator = (IViewModelPresenterMediator?)_serviceProvider.DefaultIfNull().GetService(mediatorType);
+            var mediator = (IViewModelPresenterMediator?) _serviceProvider.DefaultIfNull().GetService(mediatorType);
             mediator?.Initialize(viewModel, mapping, metadata);
             return mediator;
         }

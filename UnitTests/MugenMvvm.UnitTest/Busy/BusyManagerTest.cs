@@ -118,11 +118,11 @@ namespace MugenMvvm.UnitTest.Busy
             {
                 var component = new TestBusyManagerComponent(componentOwner)
                 {
-                    TryGetTokens = (context) =>
+                    TryGetTokens = context =>
                     {
                         ++methodCallCount;
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] { new TestBusyToken(), new TestBusyToken() };
+                        return new[] {new TestBusyToken(), new TestBusyToken()};
                     }
                 };
                 componentOwner.AddComponent(component);
@@ -132,10 +132,7 @@ namespace MugenMvvm.UnitTest.Busy
             methodCallCount.ShouldEqual(componentCount);
         }
 
-        protected override BusyManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new BusyManager(collectionProvider);
-        }
+        protected override BusyManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new BusyManager(collectionProvider);
 
         #endregion
     }

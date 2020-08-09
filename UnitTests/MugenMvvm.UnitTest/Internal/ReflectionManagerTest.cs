@@ -22,52 +22,28 @@ namespace MugenMvvm.UnitTest.Internal
         #region Methods
 
         [Fact]
-        public void CanCreateDelegateShouldReturnFalseNoComponents()
-        {
-            new ReflectionManager().CanCreateDelegate(typeof(Action), TestMethod).ShouldBeFalse();
-        }
+        public void CanCreateDelegateShouldReturnFalseNoComponents() => new ReflectionManager().CanCreateDelegate(typeof(Action), TestMethod).ShouldBeFalse();
 
         [Fact]
-        public void TryCreateDelegateShouldReturnNullNoComponents()
-        {
-            new ReflectionManager().TryCreateDelegate(typeof(Action), this, TestMethod).ShouldBeNull();
-        }
+        public void TryCreateDelegateShouldReturnNullNoComponents() => new ReflectionManager().TryCreateDelegate(typeof(Action), this, TestMethod).ShouldBeNull();
 
         [Fact]
-        public void GetActivatorShouldThrowNoComponents1()
-        {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor));
-        }
+        public void GetActivatorShouldThrowNoComponents1() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor));
 
         [Fact]
-        public void GetActivatorShouldThrowNoComponents2()
-        {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor, typeof(Action)));
-        }
+        public void GetActivatorShouldThrowNoComponents2() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor, typeof(Action)));
 
         [Fact]
-        public void GetMethodInvokerShouldThrowNoComponents1()
-        {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod));
-        }
+        public void GetMethodInvokerShouldThrowNoComponents1() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod));
 
         [Fact]
-        public void GetMethodInvokerShouldThrowNoComponents2()
-        {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod, typeof(Action)));
-        }
+        public void GetMethodInvokerShouldThrowNoComponents2() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod, typeof(Action)));
 
         [Fact]
-        public void GetMemberGetterShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberGetter(TestMethod, typeof(Action)));
-        }
+        public void GetMemberGetterShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberGetter(TestMethod, typeof(Action)));
 
         [Fact]
-        public void GetMemberSetterShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberSetter(TestMethod, typeof(Action)));
-        }
+        public void GetMemberSetterShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberSetter(TestMethod, typeof(Action)));
 
         [Theory]
         [InlineData(1)]
@@ -305,10 +281,7 @@ namespace MugenMvvm.UnitTest.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override ReflectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new ReflectionManager(collectionProvider);
-        }
+        protected override ReflectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ReflectionManager(collectionProvider);
 
         #endregion
     }

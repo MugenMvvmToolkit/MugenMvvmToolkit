@@ -25,7 +25,7 @@ namespace MugenMvvm.Presenters.Components
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
-            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = ItemOrListEditor.Get<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
                 var presenterComponent = components[i];
@@ -39,7 +39,7 @@ namespace MugenMvvm.Presenters.Components
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
-            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = ItemOrListEditor.Get<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
                 var presenterComponent = components[i];

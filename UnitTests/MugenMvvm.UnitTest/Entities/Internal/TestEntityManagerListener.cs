@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Entities.Internal
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
         void IEntityManagerListener.OnSnapshotCreated(IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, IReadOnlyMetadataContext? metadata)
         {

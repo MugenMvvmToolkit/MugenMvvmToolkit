@@ -26,10 +26,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of IEqualityComparer<in object>
 
-        bool IEqualityComparer<object?>.Equals(object? x, object? y)
-        {
-            return ReferenceEquals(x, y);
-        }
+        bool IEqualityComparer<object?>.Equals(object? x, object? y) => ReferenceEquals(x, y);
 
         int IEqualityComparer<object?>.GetHashCode(object? obj)
         {

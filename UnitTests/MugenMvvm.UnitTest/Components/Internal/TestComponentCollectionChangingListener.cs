@@ -19,15 +19,9 @@ namespace MugenMvvm.UnitTest.Components.Internal
 
         #region Implementation of interfaces
 
-        bool IComponentCollectionChangingListener.OnAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            return OnAdding?.Invoke(collection, component, metadata) ?? true;
-        }
+        bool IComponentCollectionChangingListener.OnAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnAdding?.Invoke(collection, component, metadata) ?? true;
 
-        bool IComponentCollectionChangingListener.OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            return OnRemoving?.Invoke(collection, component, metadata) ?? true;
-        }
+        bool IComponentCollectionChangingListener.OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnRemoving?.Invoke(collection, component, metadata) ?? true;
 
         #endregion
     }

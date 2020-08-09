@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Convert.Internal
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
         bool IGlobalValueConverterComponent.TryConvert(IGlobalValueConverter converter, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
         {

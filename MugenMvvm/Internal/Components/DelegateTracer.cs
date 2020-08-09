@@ -37,10 +37,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public bool CanTrace(ITracer tracer, TraceLevel level, IReadOnlyMetadataContext? metadata)
-        {
-            return _canTrace(level, metadata);
-        }
+        public bool CanTrace(ITracer tracer, TraceLevel level, IReadOnlyMetadataContext? metadata) => _canTrace(level, metadata);
 
         public void Trace(ITracer tracer, TraceLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
         {

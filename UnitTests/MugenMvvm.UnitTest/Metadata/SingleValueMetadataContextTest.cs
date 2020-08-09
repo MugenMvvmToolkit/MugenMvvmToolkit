@@ -32,8 +32,8 @@ namespace MugenMvvm.UnitTest.Metadata
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = contextKey.ToValue(intValue);
             var context = new SingleValueMetadataContext(value);
-            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
-            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
+            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
+            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             TryGetTest(context, contextKey, intValue);
         }
 

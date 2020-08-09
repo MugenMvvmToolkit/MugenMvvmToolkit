@@ -18,15 +18,9 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
 
         #region Implementation of interfaces
 
-        object? ICompiledExpression.Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata)
-        {
-            return Invoke?.Invoke(values, metadata);
-        }
+        object? ICompiledExpression.Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata) => Invoke?.Invoke(values, metadata);
 
-        void IDisposable.Dispose()
-        {
-            Dispose?.Invoke();
-        }
+        void IDisposable.Dispose() => Dispose?.Invoke();
 
         #endregion
     }

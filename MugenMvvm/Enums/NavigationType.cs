@@ -17,10 +17,10 @@ namespace MugenMvvm.Enums
 
         public static readonly NavigationType Undefined = new NavigationType(nameof(Undefined));
 
-        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) { IsNestedNavigation = true };
-        public static readonly NavigationType Window = new NavigationType(nameof(Window)) { IsRootNavigation = true };
-        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) { IsRootNavigation = true };
-        public static readonly NavigationType Page = new NavigationType(nameof(Page)) { IsRootNavigation = true };
+        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) {IsNestedNavigation = true};
+        public static readonly NavigationType Window = new NavigationType(nameof(Window)) {IsRootNavigation = true};
+        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) {IsRootNavigation = true};
+        public static readonly NavigationType Page = new NavigationType(nameof(Page)) {IsRootNavigation = true};
 
         public static readonly NavigationType Background = new NavigationType(nameof(Background));
         public static readonly NavigationType Alert = new NavigationType(nameof(Alert));
@@ -68,15 +68,9 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(NavigationType? left, NavigationType? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(NavigationType? left, NavigationType? right) => !(left == right);
 
-        protected override bool Equals(string value)
-        {
-            return Value.Equals(value);
-        }
+        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }

@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 changed = true;
             if (notNull && result == null)
                 BindingExceptionManager.ThrowExpressionNodeCannotBeNull(GetType());
-            return (T)result!;
+            return (T) result!;
         }
 
         protected IReadOnlyList<T> VisitWithCheck<T>(IExpressionVisitor visitor, IReadOnlyList<T> nodes, ref bool changed, IReadOnlyMetadataContext? metadata)

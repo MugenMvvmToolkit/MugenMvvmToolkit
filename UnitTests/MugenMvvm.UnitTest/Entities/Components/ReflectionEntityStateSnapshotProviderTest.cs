@@ -107,15 +107,15 @@ namespace MugenMvvm.UnitTest.Entities.Components
 
             var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(3);
-            var v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Guid));
+            var v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
 
-            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Int));
+            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Int));
             v.OldValue.ShouldEqual(IntValue);
             v.NewValue.ShouldEqual(IntValue);
 
-            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.String));
+            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.String));
             v.OldValue.ShouldEqual(StringValue);
             v.NewValue.ShouldEqual(StringValue);
 
@@ -125,15 +125,15 @@ namespace MugenMvvm.UnitTest.Entities.Components
 
             values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(3);
-            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Guid));
+            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(Guid.Empty);
 
-            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Int));
+            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Int));
             v.OldValue.ShouldEqual(IntValue);
             v.NewValue.ShouldEqual(int.MaxValue);
 
-            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.String));
+            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.String));
             v.OldValue.ShouldEqual(StringValue);
             v.NewValue.ShouldEqual(null);
         }
@@ -151,15 +151,12 @@ namespace MugenMvvm.UnitTest.Entities.Components
 
             var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(1);
-            var v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Guid));
+            var v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
         }
 
-        private static EntityStateModel GetModel()
-        {
-            return new EntityStateModel { Guid = GuidValue, Int = IntValue, String = StringValue };
-        }
+        private static EntityStateModel GetModel() => new EntityStateModel {Guid = GuidValue, Int = IntValue, String = StringValue};
 
         private static void AssertModel(EntityStateModel model)
         {

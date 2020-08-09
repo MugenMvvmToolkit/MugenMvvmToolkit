@@ -16,15 +16,9 @@ namespace MugenMvvm.UnitTest.Binding.Members
     {
         #region Methods
 
-        public string Method1([Obfuscation] string v)
-        {
-            return v;
-        }
+        public string Method1([Obfuscation] string v) => v;
 
-        public T Method2<T>(T v)
-        {
-            return v;
-        }
+        public T Method2<T>(T v) => v;
 
         [Fact]
         public void ConstructorShouldInitializeMember1()
@@ -49,7 +43,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var observerRequestCount = 0;
             using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o,  arg4) =>
+                TryGetMemberObserver = (type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -84,7 +78,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             count.ShouldEqual(1);
             observerRequestCount.ShouldEqual(1);
 
-            memberInfo.Invoke(this, new object[] { name }, DefaultMetadata).ShouldEqual(name);
+            memberInfo.Invoke(this, new object[] {name}, DefaultMetadata).ShouldEqual(name);
         }
 
         [Fact]
@@ -102,7 +96,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
 
-            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(int) });
+            memberInfo = (MethodMemberInfo) memberInfo.MakeGenericMethod(new[] {typeof(int)});
             memberInfo.Name.ShouldEqual(methodInfo.Name);
             memberInfo.Type.ShouldEqual(typeof(int));
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
@@ -114,7 +108,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var parameters = memberInfo.GetParameters();
             parameters.Count.ShouldEqual(1);
 
-            memberInfo.Invoke(this, new object[] { int.MaxValue }, DefaultMetadata).ShouldEqual(int.MaxValue);
+            memberInfo.Invoke(this, new object[] {int.MaxValue}, DefaultMetadata).ShouldEqual(int.MaxValue);
         }
 
         [Fact]
@@ -132,7 +126,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
 
-            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(char) });
+            memberInfo = (MethodMemberInfo) memberInfo.MakeGenericMethod(new[] {typeof(char)});
             memberInfo.Name.ShouldEqual(methodInfo.Name);
             memberInfo.Type.ShouldEqual(typeof(char));
             memberInfo.DeclaringType.ShouldEqual(typeof(IEnumerable<char>));

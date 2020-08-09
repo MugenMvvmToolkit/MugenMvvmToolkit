@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTest.Validation
                         v.ShouldEqual(validator);
                         m.ShouldEqual(memberName);
                         metadata.ShouldEqual(DefaultMetadata);
-                        return new[] { s };
+                        return new[] {s};
                     }
                 };
                 validator.AddComponent(component);
@@ -230,10 +230,7 @@ namespace MugenMvvm.UnitTest.Validation
             count.ShouldEqual(componentCount);
         }
 
-        protected override Validator GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new Validator(null, collectionProvider);
-        }
+        protected override Validator GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Validator(null, collectionProvider);
 
         #endregion
     }

@@ -17,10 +17,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        IBinding IBindingBuilder.Build(object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return Build?.Invoke(target, source, metadata)!;
-        }
+        IBinding IBindingBuilder.Build(object target, object? source, IReadOnlyMetadataContext? metadata) => Build?.Invoke(target, source, metadata)!;
 
         #endregion
     }

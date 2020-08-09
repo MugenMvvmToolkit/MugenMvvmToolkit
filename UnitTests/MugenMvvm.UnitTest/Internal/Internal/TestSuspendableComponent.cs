@@ -17,10 +17,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        ActionToken ISuspendable.Suspend(object? state, IReadOnlyMetadataContext? metadata)
-        {
-            return Suspend?.Invoke(state, metadata) ?? default;
-        }
+        ActionToken ISuspendable.Suspend(object? state, IReadOnlyMetadataContext? metadata) => Suspend?.Invoke(state, metadata) ?? default;
 
         #endregion
     }

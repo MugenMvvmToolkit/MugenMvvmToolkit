@@ -18,20 +18,11 @@ namespace MugenMvvm.UnitTest.Commands.Internal
 
         #region Implementation of interfaces
 
-        void IConditionEventCommandComponent.AddCanExecuteChanged(ICompositeCommand command, EventHandler handler)
-        {
-            AddCanExecuteChanged?.Invoke(command, handler);
-        }
+        void IConditionEventCommandComponent.AddCanExecuteChanged(ICompositeCommand command, EventHandler handler) => AddCanExecuteChanged?.Invoke(command, handler);
 
-        void IConditionEventCommandComponent.RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler)
-        {
-            RemoveCanExecuteChanged?.Invoke(command, handler);
-        }
+        void IConditionEventCommandComponent.RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler) => RemoveCanExecuteChanged?.Invoke(command, handler);
 
-        void IConditionEventCommandComponent.RaiseCanExecuteChanged(ICompositeCommand command)
-        {
-            RaiseCanExecuteChanged?.Invoke(command);
-        }
+        void IConditionEventCommandComponent.RaiseCanExecuteChanged(ICompositeCommand command) => RaiseCanExecuteChanged?.Invoke(command);
 
         #endregion
     }

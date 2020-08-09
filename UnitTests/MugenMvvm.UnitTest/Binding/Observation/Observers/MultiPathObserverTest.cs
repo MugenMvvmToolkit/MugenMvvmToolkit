@@ -8,15 +8,10 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
     {
         #region Methods
 
-        protected override MultiPathObserver GetObserver(object target)
-        {
-            return new MultiPathObserver(target, DefaultPath, MemberFlags.All, false, false);
-        }
+        protected override MultiPathObserver GetObserver(object target) => new MultiPathObserver(target, DefaultPath, MemberFlags.All, false, false);
 
-        protected override MultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
-        {
-            return new MultiPathObserver(target, path, memberFlags, hasStablePath, optional);
-        }
+        protected override MultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional) =>
+            new MultiPathObserver(target, path, memberFlags, hasStablePath, optional);
 
         #endregion
     }

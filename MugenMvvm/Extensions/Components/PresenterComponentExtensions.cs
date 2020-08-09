@@ -51,7 +51,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(request, nameof(request));
             if (components.Length == 1)
                 return components[0].TryShow(presenter, request, cancellationToken, metadata);
-            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = ItemOrListEditor.Get<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryShow(presenter, request, cancellationToken, metadata));
             return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
@@ -65,7 +65,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(request, nameof(request));
             if (components.Length == 1)
                 return components[0].TryClose(presenter, request, cancellationToken, metadata);
-            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = ItemOrListEditor.Get<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryClose(presenter, request, cancellationToken, metadata));
             return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();

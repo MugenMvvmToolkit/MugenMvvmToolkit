@@ -103,10 +103,7 @@ namespace MugenMvvm.UnitTest.Wrapping
             listenerExecuteCount.ShouldEqual(count);
         }
 
-        protected override WrapperManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new WrapperManager(collectionProvider);
-        }
+        protected override WrapperManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new WrapperManager(collectionProvider);
 
         #endregion
     }

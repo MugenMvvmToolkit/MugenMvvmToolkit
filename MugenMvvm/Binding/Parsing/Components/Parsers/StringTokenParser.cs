@@ -103,7 +103,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
             LazyList<IExpressionNode> args = default;
             StringBuilder? builder = null;
 
-            int openedBraceCount = 0;
+            var openedBraceCount = 0;
             var start = context.Position;
             int? end;
             while (true)
@@ -174,7 +174,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
                     if (context.IsToken(':'))
                     {
-                        int count = builder.Length + 1;
+                        var count = builder.Length + 1;
                         while (!context.IsEof() && !context.IsToken('}'))
                         {
                             builder.Append(context.TokenAt());
@@ -193,6 +193,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                         AddErrorIfNeed(BindingMessageConstant.CannotParseInterpolatedStringExpressionExpectedTokenFormat1, context, start, intStart, ref builder);
                         return null;
                     }
+
                     builder.Append('}');
                     context.MoveNext();
                     continue;

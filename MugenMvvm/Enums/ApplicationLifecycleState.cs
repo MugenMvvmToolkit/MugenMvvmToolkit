@@ -53,15 +53,9 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(ApplicationLifecycleState? left, ApplicationLifecycleState? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(ApplicationLifecycleState? left, ApplicationLifecycleState? right) => !(left == right);
 
-        protected override bool Equals(string value)
-        {
-            return Value.Equals(value);
-        }
+        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }

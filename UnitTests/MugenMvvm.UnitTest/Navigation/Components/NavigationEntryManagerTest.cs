@@ -29,14 +29,14 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [InlineData(10)]
         public void OnNavigatedShouldTrackEntriesAdd(int count)
         {
-            var provider = new TestNavigationProvider { Id = "t" };
+            var provider = new TestNavigationProvider {Id = "t"};
             var dispatcher = new NavigationDispatcher();
             var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
             NavigationContext? ctx = null;
-            int invokedCount = 0;
+            var invokedCount = 0;
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var listener = new TestNavigationDispatcherEntryListener(dispatcher)
                 {
@@ -78,12 +78,12 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [InlineData(10)]
         public void OnNavigatedShouldTrackEntriesUpdate(int count)
         {
-            var provider = new TestNavigationProvider { Id = "t" };
+            var provider = new TestNavigationProvider {Id = "t"};
             var dispatcher = new NavigationDispatcher();
             var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
             NavigationContext? ctx = null;
-            int invokedCount = 0;
+            var invokedCount = 0;
 
             foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
             {
@@ -99,7 +99,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 }
             }
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var listener = new TestNavigationDispatcherEntryListener(dispatcher)
                 {
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [InlineData(10)]
         public void OnNavigatedShouldTrackEntriesRemove(int count)
         {
-            var provider = new TestNavigationProvider { Id = "t" };
+            var provider = new TestNavigationProvider {Id = "t"};
             var dispatcher = new NavigationDispatcher();
             var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             foreach (var closeMode in NavigationMode.GetAll().Where(mode => mode.IsClose))
             {
                 dispatcher.Components.Clear();
-                int invokedCount = 0;
+                var invokedCount = 0;
                 foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
                 {
                     foreach (var navigationType in NavigationType.GetAll())
@@ -157,7 +157,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                     }
                 }
 
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     var listener = new TestNavigationDispatcherEntryListener(dispatcher)
                     {
@@ -171,7 +171,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                             entry.NavigationId.ShouldEqual(arg3!.NavigationId);
                             entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
                         },
-                        OnNavigationEntryUpdated = (entry, arg3) => throw new NotSupportedException(),
+                        OnNavigationEntryUpdated = (entry, arg3) => throw new NotSupportedException()
                     };
                     dispatcher.AddComponent(listener);
                 }
@@ -195,6 +195,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 contexts.Count.ShouldEqual(0);
                 return;
             }
+
             entries.Count.ShouldEqual(contexts.Count);
             for (var i = 0; i < entries.Count; i++)
             {

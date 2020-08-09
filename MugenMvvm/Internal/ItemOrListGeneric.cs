@@ -13,6 +13,7 @@ namespace MugenMvvm.Internal
 
         [MaybeNull]
         public readonly TItem Item;
+
         public readonly TList? List;
 
         #endregion
@@ -53,16 +54,10 @@ namespace MugenMvvm.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>([AllowNull] TItem item)
-        {
-            return new ItemOrList<TItem, TList>(item);
-        }
+        public static implicit operator ItemOrList<TItem, TList>([AllowNull] TItem item) => new ItemOrList<TItem, TList>(item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>(TList? items)
-        {
-            return ItemOrList.FromList<TItem, TList>(items);
-        }
+        public static implicit operator ItemOrList<TItem, TList>(TList? items) => ItemOrList.FromList<TItem, TList>(items);
 
         #endregion
     }

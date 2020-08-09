@@ -48,10 +48,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Implementation of interfaces
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -79,10 +76,7 @@ namespace MugenMvvm.Messaging.Components
                 Invalidate(null, metadata);
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
+        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -184,7 +178,7 @@ namespace MugenMvvm.Messaging.Components
 
             public void Execute(object? state)
             {
-                var messageContext = (IMessageContext)state!;
+                var messageContext = (IMessageContext) state!;
                 for (var i = 0; i < Count; i++)
                 {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)

@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void TryGetShouldUseCustomGetter()
         {
-            var context = new ReadOnlyMetadataContext(new[] { CustomGetterKey.ToValue(DefaultGetterValue) });
+            var context = new ReadOnlyMetadataContext(new[] {CustomGetterKey.ToValue(DefaultGetterValue)});
             TryGetGetterTest(context);
         }
 

@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             rootListener.ShouldNotBeNull();
             rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
-            members.Members.SequenceEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 }).ShouldBeTrue();
+            members.Members.SequenceEqual(new[] {accessorInfo1, accessorInfo2, accessorInfo3}).ShouldBeTrue();
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
             getMembersCount.ShouldEqual(3);
@@ -136,7 +136,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             getMembersCount = 0;
             rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
-            members.Members.SequenceEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 }).ShouldBeTrue();
+            members.Members.SequenceEqual(new[] {accessorInfo1, accessorInfo2, accessorInfo3}).ShouldBeTrue();
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
             if (hasStablePath)
@@ -352,7 +352,6 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.Members, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed =>
             {
-
                 if (disposed)
                     currentListener.ShouldBeNull();
             });

@@ -51,10 +51,7 @@ namespace MugenMvvm.Android.Binding
             return null;
         }
 
-        public ICharSequence? GetTitle(object container, object? item)
-        {
-            return (_selector as ITitleTemplateSelector)?.GetTitle(container, item);
-        }
+        public ICharSequence? GetTitle(object container, object? item) => (_selector as ITitleTemplateSelector)?.GetTitle(container, item);
 
         #endregion
     }

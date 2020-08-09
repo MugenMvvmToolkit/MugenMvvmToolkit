@@ -64,16 +64,10 @@ namespace MugenMvvm
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TService Instance<TService>() where TService : class
-        {
-            return Configuration<TService>.Instance;
-        }
+        public static TService Instance<TService>() where TService : class => Configuration<TService>.Instance;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TService? Optional<TService>() where TService : class
-        {
-            return Configuration<TService>.Optional;
-        }
+        public static TService? Optional<TService>() where TService : class => Configuration<TService>.Optional;
 
         #endregion
 
@@ -83,30 +77,15 @@ namespace MugenMvvm
         {
             #region Methods
 
-            public static IFallbackServiceConfiguration? GetFallbackConfiguration()
-            {
-                return _fallbackConfiguration;
-            }
+            public static IFallbackServiceConfiguration? GetFallbackConfiguration() => _fallbackConfiguration;
 
-            public static void InitializeFallback(IFallbackServiceConfiguration? fallbackConfiguration)
-            {
-                _fallbackConfiguration = fallbackConfiguration;
-            }
+            public static void InitializeFallback(IFallbackServiceConfiguration? fallbackConfiguration) => _fallbackConfiguration = fallbackConfiguration;
 
-            public static void Initialize<TService>(IHasService<TService>? serviceConfiguration) where TService : class
-            {
-                Configuration<TService>.Initialize(serviceConfiguration);
-            }
+            public static void Initialize<TService>(IHasService<TService>? serviceConfiguration) where TService : class => Configuration<TService>.Initialize(serviceConfiguration);
 
-            public static void InitializeInstance<TService>(TService service) where TService : class
-            {
-                Configuration<TService>.Initialize(service);
-            }
+            public static void InitializeInstance<TService>(TService service) where TService : class => Configuration<TService>.Initialize(service);
 
-            public static void Clear<TService>() where TService : class
-            {
-                Configuration<TService>.Clear();
-            }
+            public static void Clear<TService>() where TService : class => Configuration<TService>.Clear();
 
             #endregion
         }

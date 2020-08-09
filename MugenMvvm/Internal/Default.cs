@@ -43,25 +43,13 @@ namespace MugenMvvm.Internal
             yield return value;
         }
 
-        public static T[] Array<T>()
-        {
-            return EmptyArrayImpl<T>.Instance;
-        }
+        public static T[] Array<T>() => EmptyArrayImpl<T>.Instance;
 
-        public static Type[] Types<T1>()
-        {
-            return TypeCache<T1>.Types;
-        }
+        public static Type[] Types<T1>() => TypeCache<T1>.Types;
 
-        public static Type[] Types<T1, T2>()
-        {
-            return TypeCache<T1, T2>.Types;
-        }
+        public static Type[] Types<T1, T2>() => TypeCache<T1, T2>.Types;
 
-        public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>() where TKey : notnull
-        {
-            return EmptyDictionaryImpl<TKey, TValue>.Instance;
-        }
+        public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>() where TKey : notnull => EmptyDictionaryImpl<TKey, TValue>.Instance;
 
         internal static PropertyChangedEventArgs GetOrCreatePropertyChangedArgs(string propertyName)
         {
@@ -70,10 +58,7 @@ namespace MugenMvvm.Internal
             return new PropertyChangedEventArgs(propertyName);
         }
 
-        internal static int NextCounter()
-        {
-            return Interlocked.Increment(ref _counter);
-        }
+        internal static int NextCounter() => Interlocked.Increment(ref _counter);
 
         #endregion
 
@@ -83,7 +68,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = { typeof(T1) };
+            public static readonly Type[] Types = {typeof(T1)};
 
             #endregion
         }
@@ -92,7 +77,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = { typeof(T1), typeof(T2) };
+            public static readonly Type[] Types = {typeof(T1), typeof(T2)};
 
             #endregion
         }
@@ -131,15 +116,9 @@ namespace MugenMvvm.Internal
             {
             }
 
-            public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator()
-            {
-                return Enumerable.Empty<KeyValuePair<IMetadataContextKey, object?>>().GetEnumerator();
-            }
+            public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator() => Enumerable.Empty<KeyValuePair<IMetadataContextKey, object?>>().GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             public bool TryGetRaw(IMetadataContextKey contextKey, out object? value)
             {
@@ -147,10 +126,7 @@ namespace MugenMvvm.Internal
                 return false;
             }
 
-            public bool Contains(IMetadataContextKey contextKey)
-            {
-                return false;
-            }
+            public bool Contains(IMetadataContextKey contextKey) => false;
 
             void IWeakReference.Release()
             {

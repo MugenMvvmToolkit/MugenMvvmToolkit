@@ -59,10 +59,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        public static bool IsFakeMember(string name)
-        {
-            return name.Length != 0 && (name[0] == FakeMemberPrefixSymbol || name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal));
-        }
+        public static bool IsFakeMember(string name) => name.Length != 0 && (name[0] == FakeMemberPrefixSymbol || name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal));
 
         #endregion
     }

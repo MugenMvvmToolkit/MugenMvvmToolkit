@@ -73,10 +73,8 @@ namespace MugenMvvm.Binding.Observation
             Clear();
         }
 
-        public static RootSourceObserver GetOrAdd(object target)
-        {
-            return MugenService.AttachedValueManager.TryGetAttachedValues(target).GetOrAdd(BindingInternalConstant.RootObserver, target, (o, _) => new RootSourceObserver(o));
-        }
+        public static RootSourceObserver GetOrAdd(object target) =>
+            MugenService.AttachedValueManager.TryGetAttachedValues(target).GetOrAdd(BindingInternalConstant.RootObserver, target, (o, _) => new RootSourceObserver(o));
 
         public static void Clear(object target)
         {
@@ -84,16 +82,10 @@ namespace MugenMvvm.Binding.Observation
                 (value as RootSourceObserver)?.Dispose();
         }
 
-        public object? Get(IReadOnlyMetadataContext? metadata)
-        {
-            return Get(_targetRef.Target, metadata);
-        }
+        public object? Get(IReadOnlyMetadataContext? metadata) => Get(_targetRef.Target, metadata);
 
         [return: NotNullIfNotNull("target")]
-        public object? Get(object? target, IReadOnlyMetadataContext? metadata)
-        {
-            return MugenBindingExtensions.GetRoot(target, metadata);
-        }
+        public object? Get(object? target, IReadOnlyMetadataContext? metadata) => MugenBindingExtensions.GetRoot(target, metadata);
 
         protected override void OnListenersAdded()
         {
@@ -102,10 +94,7 @@ namespace MugenMvvm.Binding.Observation
                 UpdateParent(target, null);
         }
 
-        protected override void OnListenersRemoved()
-        {
-            ClearParent();
-        }
+        protected override void OnListenersRemoved() => ClearParent();
 
         private bool UpdateParent(object target, IReadOnlyMetadataContext? metadata)
         {

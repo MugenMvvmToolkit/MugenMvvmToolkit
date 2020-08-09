@@ -33,40 +33,19 @@ namespace MugenMvvm.Collections.Components
 
         #region Implementation of interfaces
 
-        void ICollectionChangedListenerBase.OnItemChanged(IObservableCollection collection, object? item, int index, object? args)
-        {
-            OnItemChanged(collection, null, item, index, args);
-        }
+        void ICollectionChangedListenerBase.OnItemChanged(IObservableCollection collection, object? item, int index, object? args) => OnItemChanged(collection, null, item, index, args);
 
-        void ICollectionChangedListenerBase.OnAdded(IObservableCollection collection, object? item, int index)
-        {
-            OnAdded(collection, null, item, index);
-        }
+        void ICollectionChangedListenerBase.OnAdded(IObservableCollection collection, object? item, int index) => OnAdded(collection, null, item, index);
 
-        void ICollectionChangedListenerBase.OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index)
-        {
-            OnReplaced(collection, null, oldItem, newItem, index);
-        }
+        void ICollectionChangedListenerBase.OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index) => OnReplaced(collection, null, oldItem, newItem, index);
 
-        void ICollectionChangedListenerBase.OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex)
-        {
-            OnMoved(collection, null, item, oldIndex, newIndex);
-        }
+        void ICollectionChangedListenerBase.OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex) => OnMoved(collection, null, item, oldIndex, newIndex);
 
-        void ICollectionChangedListenerBase.OnRemoved(IObservableCollection collection, object? item, int index)
-        {
-            OnRemoved(collection, null, item, index);
-        }
+        void ICollectionChangedListenerBase.OnRemoved(IObservableCollection collection, object? item, int index) => OnRemoved(collection, null, item, index);
 
-        void ICollectionChangedListenerBase.OnReset(IObservableCollection collection, IEnumerable<object?> items)
-        {
-            OnReset(collection, null, items);
-        }
+        void ICollectionChangedListenerBase.OnReset(IObservableCollection collection, IEnumerable<object?> items) => OnReset(collection, null, items);
 
-        void ICollectionChangedListenerBase.OnCleared(IObservableCollection collection)
-        {
-            OnCleared(collection, null);
-        }
+        void ICollectionChangedListenerBase.OnCleared(IObservableCollection collection) => OnCleared(collection, null);
 
         public IEnumerable<object?> DecorateItems(IObservableCollection collection, ICollectionDecorator? decorator = null)
         {
@@ -187,10 +166,7 @@ namespace MugenMvvm.Collections.Components
             return components;
         }
 
-        private static TComponent[] GetComponents<TComponent>(IComponentOwner collection) where TComponent : class
-        {
-            return collection.Components.Get<TComponent>();
-        }
+        private static TComponent[] GetComponents<TComponent>(IComponentOwner collection) where TComponent : class => collection.Components.Get<TComponent>();
 
         #endregion
     }

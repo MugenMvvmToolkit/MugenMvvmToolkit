@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Commands
             var commandManager = GetComponentOwner();
             ICompositeCommand command = new CompositeCommand();
             var count = 0;
-            for (int i = 0; i < componentCount; i++)
+            for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestCommandProviderComponent(commandManager)
                 {
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTest.Commands
             commandManager.AddComponent(component);
 
             var count = 0;
-            for (int i = 0; i < componentCount; i++)
+            for (var i = 0; i < componentCount; i++)
             {
                 var listener = new TestCommandManagerListener(commandManager)
                 {
@@ -82,10 +82,7 @@ namespace MugenMvvm.UnitTest.Commands
             ShouldThrow<InvalidOperationException>(() => commandManager.GetCommand<string>(commandManager, DefaultMetadata));
         }
 
-        protected override ICommandManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new CommandManager(collectionProvider);
-        }
+        protected override ICommandManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new CommandManager(collectionProvider);
 
         #endregion
     }

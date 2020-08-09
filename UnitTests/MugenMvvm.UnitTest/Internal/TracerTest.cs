@@ -15,16 +15,10 @@ namespace MugenMvvm.UnitTest.Internal
         #region Methods
 
         [Fact]
-        public void CanTraceShouldReturnFalseNoComponents()
-        {
-            new Tracer().CanTrace(TraceLevel.Information, DefaultMetadata).ShouldBeFalse();
-        }
+        public void CanTraceShouldReturnFalseNoComponents() => new Tracer().CanTrace(TraceLevel.Information, DefaultMetadata).ShouldBeFalse();
 
         [Fact]
-        public void TraceShouldNotThrowNoComponents()
-        {
-            new Tracer().Trace(TraceLevel.Information, string.Empty, null, DefaultMetadata);
-        }
+        public void TraceShouldNotThrowNoComponents() => new Tracer().Trace(TraceLevel.Information, string.Empty, null, DefaultMetadata);
 
         [Theory]
         [InlineData(1, "Information", true)]
@@ -94,10 +88,7 @@ namespace MugenMvvm.UnitTest.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override Tracer GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
-        {
-            return new Tracer(collectionProvider);
-        }
+        protected override Tracer GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Tracer(collectionProvider);
 
         #endregion
     }

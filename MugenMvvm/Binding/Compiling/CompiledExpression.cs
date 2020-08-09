@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Compiling
         private object?[] _values;
 
         private static readonly object?[] DisposedValues = new object?[0];
-        private static readonly ParameterExpression[] ArrayParameterArray = { MugenExtensions.GetParameterExpression<object[]>() };
+        private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
 
         #endregion
 
@@ -87,7 +87,7 @@ namespace MugenMvvm.Binding.Compiling
             if (_values == DisposedValues)
                 ExceptionManager.ThrowObjectDisposed(this);
             var list = values.List;
-            var key = list ?? values.Item.Type ?? (object)Default.Array<ParameterValue>();
+            var key = list ?? values.Item.Type ?? (object) Default.Array<ParameterValue>();
             if (!_cache.TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);
@@ -137,10 +137,8 @@ namespace MugenMvvm.Binding.Compiling
             return RuntimeHelpers.GetHashCode(key!);
         }
 
-        bool IEqualityComparer<IExpressionNode>.Equals([AllowNull] IExpressionNode x, [AllowNull] IExpressionNode y)
-        {
-            return x == y || x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP && xP.Index == yP.Index && xP.Path == yP.Path;
-        }
+        bool IEqualityComparer<IExpressionNode>.Equals([AllowNull] IExpressionNode x, [AllowNull] IExpressionNode y) =>
+            x == y || x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP && xP.Index == yP.Index && xP.Path == yP.Path;
 
         bool IEqualityComparer<object>.Equals([AllowNull] object x, [AllowNull] object y)
         {
@@ -162,9 +160,9 @@ namespace MugenMvvm.Binding.Compiling
                 return false;
 
             if (typesX == null)
-                return Equals(typesY!, (ParameterValue[])x!);
+                return Equals(typesY!, (ParameterValue[]) x!);
             if (typesY == null)
-                return Equals(typesX!, (ParameterValue[])y!);
+                return Equals(typesX!, (ParameterValue[]) y!);
 
             if (typesX.Length != typesY.Length)
                 return false;
@@ -190,7 +188,7 @@ namespace MugenMvvm.Binding.Compiling
             }
             else
             {
-                var types = (Type[])key!;
+                var types = (Type[]) key!;
                 for (var index = 0; index < types.Length; index++)
                     hashCode.Add(types[index]);
             }
@@ -218,10 +216,7 @@ namespace MugenMvvm.Binding.Compiling
             _expressions.Remove(expression);
         }
 
-        public Expression? TryBuild(IExpressionNode expression)
-        {
-            return _expressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
-        }
+        public Expression? TryBuild(IExpressionNode expression) => _expressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
 
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {

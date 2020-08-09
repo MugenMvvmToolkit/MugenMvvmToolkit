@@ -98,15 +98,9 @@ namespace MugenMvvm.Binding.Members.Builders
             return this;
         }
 
-        public CustomPropertyBuilder<TTarget, TValue> CustomGetter(GetValueDelegate<IAccessorMemberInfo, TTarget, TValue> getter)
-        {
-            return new CustomPropertyBuilder<TTarget, TValue>(this).CustomGetter(getter);
-        }
+        public CustomPropertyBuilder<TTarget, TValue> CustomGetter(GetValueDelegate<IAccessorMemberInfo, TTarget, TValue> getter) => new CustomPropertyBuilder<TTarget, TValue>(this).CustomGetter(getter);
 
-        public CustomPropertyBuilder<TTarget, TValue> CustomSetter(SetValueDelegate<IAccessorMemberInfo, TTarget, TValue> setter)
-        {
-            return new CustomPropertyBuilder<TTarget, TValue>(this).CustomSetter(setter);
-        }
+        public CustomPropertyBuilder<TTarget, TValue> CustomSetter(SetValueDelegate<IAccessorMemberInfo, TTarget, TValue> setter) => new CustomPropertyBuilder<TTarget, TValue>(this).CustomSetter(setter);
 
         public CustomPropertyBuilder<TTarget, TValue> WrapMember(string memberName, MemberFlags memberFlags = MemberFlags.All)
         {
@@ -152,18 +146,14 @@ namespace MugenMvvm.Binding.Members.Builders
                 (member, target, listener, metadata) => AutoProperty.GetOrAdd(target, member, metadata).Add(listener), null);
         }
 
-        internal string GenerateMemberId(bool isPropertyId)
-        {
-            return AttachedMemberBuilder.GenerateMemberId(isPropertyId ? BindingInternalConstant.AttachedPropertyPrefix : BindingInternalConstant.AttachedHandlerPropertyPrefix, DeclaringType, Name);
-        }
+        internal string GenerateMemberId(bool isPropertyId) =>
+            AttachedMemberBuilder.GenerateMemberId(isPropertyId ? BindingInternalConstant.AttachedPropertyPrefix : BindingInternalConstant.AttachedHandlerPropertyPrefix, DeclaringType, Name);
 
         internal DelegateAccessorMemberInfo<TTarget, TValue, TState> Property<TState>(in TState state,
             GetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? getValue, SetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? setValue,
-            TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-        {
-            return new DelegateAccessorMemberInfo<TTarget, TValue, TState>(Name, DeclaringType, PropertyType,
+            TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
+            new DelegateAccessorMemberInfo<TTarget, TValue, TState>(Name, DeclaringType, PropertyType,
                 AttachedMemberBuilder.GetFlags(IsStatic), UnderlyingMemberField, state, getValue, setValue, !IsNonObservable, IsNonObservable ? null : tryObserve, raise);
-        }
 
         #endregion
 
@@ -173,9 +163,10 @@ namespace MugenMvvm.Binding.Members.Builders
         {
             #region Fields
 
-            private MemberFlags _flags;
             private readonly string _key;
             private readonly string _memberName;
+
+            private MemberFlags _flags;
 
             #endregion
 
@@ -193,25 +184,16 @@ namespace MugenMvvm.Binding.Members.Builders
 
             #region Methods
 
-            public void SetFlags(bool isStatic)
-            {
-                _flags = _flags.SetInstanceOrStaticFlags(isStatic);
-            }
+            public void SetFlags(bool isStatic) => _flags = _flags.SetInstanceOrStaticFlags(isStatic);
 
-            public TValue GetValue(IAccessorMemberInfo member, TTarget target, IReadOnlyMetadataContext? metadata)
-            {
-                return MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).GetValue(target, metadata);
-            }
+            public TValue GetValue(IAccessorMemberInfo member, TTarget target, IReadOnlyMetadataContext? metadata) =>
+                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).GetValue(target, metadata);
 
-            public void SetValue(IAccessorMemberInfo member, TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
-            {
+            public void SetValue(IAccessorMemberInfo member, TTarget target, TValue value, IReadOnlyMetadataContext? metadata) =>
                 MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).SetValue(target, value, metadata);
-            }
 
-            public ActionToken TryObserve(IObservableMemberInfo member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata)
-            {
-                return MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).TryObserve(target, listener, metadata);
-            }
+            public ActionToken TryObserve(IObservableMemberInfo member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata) =>
+                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).TryObserve(target, listener, metadata);
 
             #endregion
         }
@@ -256,6 +238,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 {
                     MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.Binding, metadata);
                 }
+
                 return true;
             }
 
@@ -268,7 +251,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 Should.NotBeNull(target, nameof(target));
                 var attachedValues = MugenService.AttachedValueManager.TryGetAttachedValues(target, metadata);
                 if (attachedValues.TryGet(key, out var value))
-                    return (MemberWrapper)value!;
+                    return (MemberWrapper) value!;
 
                 return attachedValues.GetOrAdd(key, (wrapMemberName, flags, metadata), (o, s) =>
                 {
@@ -284,7 +267,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 var member = _member;
                 if (member == null)
                     return _value;
-                return (TValue)member.GetValue(target, metadata)!;
+                return (TValue) member.GetValue(target, metadata)!;
             }
 
             public void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
@@ -311,10 +294,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 return Add(listener);
             }
 
-            protected override void OnListenersRemoved()
-            {
-                _listener.Dispose();
-            }
+            protected override void OnListenersRemoved() => _listener.Dispose();
 
             #endregion
         }
@@ -346,7 +326,7 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 _targetRef = target.ToWeakReference();
                 _member = member;
-                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo)member, target);
+                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo) member, target);
                 InvalidateParent(target!, metadata);
             }
 
@@ -366,7 +346,7 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 try
                 {
-                    var target = (TTarget)_targetRef.Target;
+                    var target = (TTarget) _targetRef.Target;
                     if (target == null)
                         return false;
                     if (message is InheritedProperty inheritedProperty)
@@ -378,6 +358,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 {
                     MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.Binding, metadata);
                 }
+
                 return true;
             }
 
@@ -392,19 +373,16 @@ namespace MugenMvvm.Binding.Members.Builders
 #pragma warning disable 8634
                 var attachedValues = MugenService.AttachedValueManager.TryGetAttachedValues(target!, metadata);
                 if (attachedValues.TryGet(member.State.id, out var value))
-                    return (InheritedProperty)value!;
+                    return (InheritedProperty) value!;
                 return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, state) =>
                 {
-                    state.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)state.member, (TTarget)t, state.metadata);
-                    return new InheritedProperty((TTarget)t, state.member, state.metadata);
+                    state.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) state.member, (TTarget) t, state.metadata);
+                    return new InheritedProperty((TTarget) t, state.member, state.metadata);
                 });
 #pragma warning restore 8634
             }
 
-            public void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
-            {
-                SetValue(target, value, HasValueState, metadata);
-            }
+            public void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata) => SetValue(target, value, HasValueState, metadata);
 
             private void SetValue(TTarget target, TValue value, byte state, IReadOnlyMetadataContext? metadata)
             {
@@ -414,7 +392,7 @@ namespace MugenMvvm.Binding.Members.Builders
                         _parentToken.Dispose();
                     if (_parentRef != null)
                     {
-                        TryUnsubscribe((TTarget)_parentRef?.Target!, metadata);
+                        TryUnsubscribe((TTarget) _parentRef?.Target!, metadata);
                         _parentRef = null;
                     }
                 }
@@ -426,7 +404,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 if (EqualityComparer<TValue>.Default.Equals(oldValue, value))
                     return;
                 Value = value;
-                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo)_member, target, oldValue, value, metadata);
+                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo) _member, target, oldValue, value, metadata);
                 Raise(target, this, metadata);
             }
 
@@ -442,7 +420,7 @@ namespace MugenMvvm.Binding.Members.Builders
                     return;
                 }
 
-                TryUnsubscribe((TTarget)oldParent!, metadata);
+                TryUnsubscribe((TTarget) oldParent!, metadata);
                 if (member != null && _parentToken.IsEmpty)
                     _parentToken = member.TryObserve(target, this, metadata);
                 if (parent == null)
@@ -463,7 +441,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 if (parentProperty != null && parentProperty._state != DefaultState)
                     SetValue(target, parentProperty.Value, ParentState, metadata);
                 else if (_state == ParentState)
-                    SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo)_member, target), DefaultState, metadata);
+                    SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo) _member, target), DefaultState, metadata);
             }
 
             private void TryUnsubscribe(TTarget parent, IReadOnlyMetadataContext? metadata)
@@ -502,14 +480,14 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 var attachedValues = MugenService.AttachedValueManager.TryGetAttachedValues(member.GetTarget(target), metadata);
                 if (attachedValues.TryGet(member.State.id, out var value))
-                    return (AutoProperty)value!;
+                    return (AutoProperty) value!;
                 return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, s) =>
                 {
                     if (s.member.AccessModifiers.HasFlagEx(MemberFlags.Static))
                         t = null!;
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, (TTarget)t, s.metadata);
+                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) s.member, (TTarget) t, s.metadata);
                     return new AutoProperty(s.member.State.PropertyChanged,
-                        s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, (TTarget)t));
+                        s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo) s.member, (TTarget) t));
                 });
             }
 

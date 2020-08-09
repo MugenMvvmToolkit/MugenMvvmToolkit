@@ -9,20 +9,11 @@ namespace MugenMvvm.Navigation
     {
         #region Implementation of interfaces
 
-        public void OnCompleted(INavigationContext navigationContext)
-        {
-            TrySetResult(navigationContext);
-        }
+        public void OnCompleted(INavigationContext navigationContext) => TrySetResult(navigationContext);
 
-        public void OnError(INavigationContext navigationContext, Exception exception)
-        {
-            TrySetException(exception);
-        }
+        public void OnError(INavigationContext navigationContext, Exception exception) => TrySetException(exception);
 
-        public void OnCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
-        {
-            TrySetCanceled(cancellationToken);
-        }
+        public void OnCanceled(INavigationContext navigationContext, CancellationToken cancellationToken) => TrySetCanceled(cancellationToken);
 
         #endregion
     }

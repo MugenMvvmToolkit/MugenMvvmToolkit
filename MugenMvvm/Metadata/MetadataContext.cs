@@ -77,10 +77,7 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator()
         {
@@ -88,7 +85,7 @@ namespace MugenMvvm.Metadata
             lock (_dictionary)
             {
                 if (components.Length == 0)
-                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>)_dictionary.ToArray()).GetEnumerator();
+                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>) _dictionary.ToArray()).GetEnumerator();
 
                 var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(value => value.Key == null);
                 foreach (var keyValuePair in _dictionary)
@@ -352,15 +349,10 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        public void Add<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
-        {
-            Set(contextKey, value, out _);
-        }
+        public void Add<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value) => Set(contextKey, value, out _);
 
-        private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue)
-        {
-            return components.TryGetValue(this, contextKey, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
-        }
+        private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue) =>
+            components.TryGetValue(this, contextKey, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
 
         private void Set(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, object? rawValue)
         {
@@ -374,15 +366,9 @@ namespace MugenMvvm.Metadata
             return components.TryClear(this, contextKey) || remove;
         }
 
-        private IMetadataContextValueManagerComponent[] GetComponents()
-        {
-            return _components.GetOrDefault<IMetadataContextValueManagerComponent>();
-        }
+        private IMetadataContextValueManagerComponent[] GetComponents() => _components.GetOrDefault<IMetadataContextValueManagerComponent>();
 
-        private IMetadataContextListener[] GetListeners()
-        {
-            return _components.GetOrDefault<IMetadataContextListener>();
-        }
+        private IMetadataContextListener[] GetListeners() => _components.GetOrDefault<IMetadataContextListener>();
 
         #endregion
     }

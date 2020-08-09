@@ -32,9 +32,8 @@ namespace MugenMvvm.Android.App
 
         #region Methods
 
-        private static PlatformIdiom GetIdiom()
-        {
-            return DeviceService.Idiom() switch
+        private static PlatformIdiom GetIdiom() =>
+            DeviceService.Idiom() switch
             {
                 DeviceService.Desktop => PlatformIdiom.Desktop,
                 DeviceService.Phone => PlatformIdiom.Phone,
@@ -43,7 +42,6 @@ namespace MugenMvvm.Android.App
                 DeviceService.Watch => PlatformIdiom.Watch,
                 _ => PlatformIdiom.Unknown
             };
-        }
 
         #endregion
     }

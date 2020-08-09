@@ -28,7 +28,8 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(this IExpressionParserComponent[] components, IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(this IExpressionParserComponent[] components, IExpressionParser parser, object expression,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(parser, nameof(parser));

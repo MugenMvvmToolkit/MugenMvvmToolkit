@@ -23,20 +23,11 @@ namespace MugenMvvm.UnitTest.Entities.Internal
 
         #region Implementation of interfaces
 
-        bool IEntityStateSnapshot.HasChanges(object entity, object? member, IReadOnlyMetadataContext? metadata)
-        {
-            return HasChanges?.Invoke(entity, member, metadata) ?? false;
-        }
+        bool IEntityStateSnapshot.HasChanges(object entity, object? member, IReadOnlyMetadataContext? metadata) => HasChanges?.Invoke(entity, member, metadata) ?? false;
 
-        void IEntityStateSnapshot.Restore(object entity, IReadOnlyMetadataContext? metadata)
-        {
-            Restore?.Invoke(entity, metadata);
-        }
+        void IEntityStateSnapshot.Restore(object entity, IReadOnlyMetadataContext? metadata) => Restore?.Invoke(entity, metadata);
 
-        IReadOnlyList<EntityStateValue> IEntityStateSnapshot.Dump(object entity, IReadOnlyMetadataContext? metadata)
-        {
-            return Dump?.Invoke(entity, metadata) ?? Default.Array<EntityStateValue>();
-        }
+        IReadOnlyList<EntityStateValue> IEntityStateSnapshot.Dump(object entity, IReadOnlyMetadataContext? metadata) => Dump?.Invoke(entity, metadata) ?? Default.Array<EntityStateValue>();
 
         #endregion
     }

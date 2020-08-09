@@ -13,10 +13,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         #region Methods
 
         [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            default(BindingParameterExpression).IsEmpty.ShouldBeTrue();
-        }
+        public void DefaultShouldBeEmpty() => default(BindingParameterExpression).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void ToBindingParameterShouldReturnBindingParameterValue1()

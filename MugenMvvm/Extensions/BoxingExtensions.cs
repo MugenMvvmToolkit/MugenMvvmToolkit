@@ -33,10 +33,7 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(byte value)
-        {
-            return Cache<byte>.Items[value];
-        }
+        public static object Box(byte value) => Cache<byte>.Items[value];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(sbyte value)
@@ -208,10 +205,7 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Preserve(Conditional = true)]
-        public static bool CanBox<T>()
-        {
-            return BoxingType<T>.BoxDelegate != null;
-        }
+        public static bool CanBox<T>() => BoxingType<T>.BoxDelegate != null;
 
         public static bool CanBox(Type? type)
         {
@@ -243,7 +237,7 @@ namespace MugenMvvm.Extensions
             {
                 var boxMethods = new Dictionary<Type, MethodInfo>(19, InternalComparer.Type);
                 var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static);
-                for (int i = 0; i < methods.Length; i++)
+                for (var i = 0; i < methods.Length; i++)
                 {
                     var method = methods[i];
                     if (method.Name == nameof(Box) && method.IsGenericMethod)
@@ -286,7 +280,7 @@ namespace MugenMvvm.Extensions
             canBoxMethodInfo = null!;
             MethodInfo? boxMethodInfo = null;
             var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public);
-            for (int i = 0; i < methods.Length; i++)
+            for (var i = 0; i < methods.Length; i++)
             {
                 var method = methods[i];
                 if (!method.IsGenericMethod)
@@ -307,8 +301,6 @@ namespace MugenMvvm.Extensions
         #endregion
 
         #region Nested types
-
-        public delegate object? BoxingDelegate<T>([AllowNull] T value);
 
         private static class BoxingType<T>
         {
@@ -379,6 +371,8 @@ namespace MugenMvvm.Extensions
 
             #endregion
         }
+
+        public delegate object? BoxingDelegate<T>([AllowNull] T value);
 
         #endregion
     }

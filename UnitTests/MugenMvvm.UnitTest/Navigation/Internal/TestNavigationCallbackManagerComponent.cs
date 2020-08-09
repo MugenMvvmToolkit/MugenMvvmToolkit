@@ -46,7 +46,8 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         #region Implementation of interfaces
 
-        INavigationCallback? INavigationCallbackManagerComponent.TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId, NavigationType navigationType,
+        INavigationCallback? INavigationCallbackManagerComponent.TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId,
+            NavigationType navigationType,
             object request, IReadOnlyMetadataContext? metadata)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);

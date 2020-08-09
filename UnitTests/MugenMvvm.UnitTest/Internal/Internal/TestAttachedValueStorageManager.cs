@@ -11,7 +11,11 @@ namespace MugenMvvm.UnitTest.Internal.Internal
     {
         #region Properties
 
-        public Func<object, object?, object?, Func<object, KeyValuePair<string, object?>, object?, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues { get; set; }
+        public Func<object, object?, object?, Func<object, KeyValuePair<string, object?>, object?, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues
+        {
+            get;
+            set;
+        }
 
         public Func<object, object?, int>? GetCount { get; set; }
 
@@ -42,10 +46,8 @@ namespace MugenMvvm.UnitTest.Internal.Internal
         int IAttachedValueStorageManager.GetCount(object item, ref object? internalState) => GetCount!.Invoke(item, internalState);
 
         ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueStorageManager.GetValues<TState>(object item, ref object? internalState,
-            TState state, Func<object, KeyValuePair<string, object?>, TState, bool>? predicate)
-        {
-            return TryGetValues!.Invoke(item, internalState, state, predicate == null ? null : new Func<object, KeyValuePair<string, object?>, object?, bool>((o, pair, arg3) => predicate(o, pair, (TState)arg3!)));
-        }
+            TState state, Func<object, KeyValuePair<string, object?>, TState, bool>? predicate) =>
+            TryGetValues!.Invoke(item, internalState, state, predicate == null ? null : new Func<object, KeyValuePair<string, object?>, object?, bool>((o, pair, arg3) => predicate(o, pair, (TState) arg3!)));
 
         bool IAttachedValueStorageManager.TryGet(object item, ref object? internalState, string path, out object? value)
         {
@@ -60,48 +62,27 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return true;
         }
 
-        bool IAttachedValueStorageManager.Contains(object item, ref object? internalState, string path)
-        {
-            return Contains!.Invoke(item, internalState, path);
-        }
+        bool IAttachedValueStorageManager.Contains(object item, ref object? internalState, string path) => Contains!.Invoke(item, internalState, path);
 
         TValue IAttachedValueStorageManager.AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TValue addValue, TState state,
-            UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory)
-        {
-            return (TValue)AddOrUpdate!.Invoke(item, internalState, path, addValue, state, (o, value, currentValue, state1) => updateValueFactory(o, (TValue)value!, (TValue)currentValue!, (TState)state1!))!;
-        }
+            UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory) =>
+            (TValue) AddOrUpdate!.Invoke(item, internalState, path, addValue, state, (o, value, currentValue, state1) => updateValueFactory(o, (TValue) value!, (TValue) currentValue!, (TState) state1!))!;
 
         TValue IAttachedValueStorageManager.AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> addValueFactory,
-            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory)
-        {
-            return (TValue)AddOrUpdate1!.Invoke(item, internalState, path, state, (o, o1) => addValueFactory(o, (TState)o1!),
-                (o, factory, value, state1) => updateValueFactory(o, (o1, state2) => (TValue)factory(o1, state2)!, (TValue)value!, (TState)state1!))!;
-        }
+            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory) =>
+            (TValue) AddOrUpdate1!.Invoke(item, internalState, path, state, (o, o1) => addValueFactory(o, (TState) o1!),
+                (o, factory, value, state1) => updateValueFactory(o, (o1, state2) => (TValue) factory(o1, state2)!, (TValue) value!, (TState) state1!))!;
 
-        TValue IAttachedValueStorageManager.GetOrAdd<TValue>(object item, ref object? internalState, string path, TValue value)
-        {
-            return (TValue)GetOrAdd!.Invoke(item, internalState, path, value)!;
-        }
+        TValue IAttachedValueStorageManager.GetOrAdd<TValue>(object item, ref object? internalState, string path, TValue value) => (TValue) GetOrAdd!.Invoke(item, internalState, path, value)!;
 
-        TValue IAttachedValueStorageManager.GetOrAdd<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> valueFactory)
-        {
-            return (TValue)GetOrAdd1!.Invoke(item, internalState, path, state, (o, o1) => valueFactory(o, (TState)o1!))!;
-        }
+        TValue IAttachedValueStorageManager.GetOrAdd<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> valueFactory) =>
+            (TValue) GetOrAdd1!.Invoke(item, internalState, path, state, (o, o1) => valueFactory(o, (TState) o1!))!;
 
-        void IAttachedValueStorageManager.Set(object item, ref object? internalState, string path, object? value, out object? oldValue)
-        {
-            Set!.Invoke(item, internalState, path, value!, out oldValue);
-        }
+        void IAttachedValueStorageManager.Set(object item, ref object? internalState, string path, object? value, out object? oldValue) => Set!.Invoke(item, internalState, path, value!, out oldValue);
 
-        bool IAttachedValueStorageManager.Remove(object item, ref object? internalState, string path, out object? oldValue)
-        {
-            return ClearKey!.Invoke(item, internalState, path, out oldValue);
-        }
+        bool IAttachedValueStorageManager.Remove(object item, ref object? internalState, string path, out object? oldValue) => ClearKey!.Invoke(item, internalState, path, out oldValue);
 
-        bool IAttachedValueStorageManager.Clear(object item, ref object? internalState)
-        {
-            return Clear!.Invoke(item);
-        }
+        bool IAttachedValueStorageManager.Clear(object item, ref object? internalState) => Clear!.Invoke(item);
 
         #endregion
 

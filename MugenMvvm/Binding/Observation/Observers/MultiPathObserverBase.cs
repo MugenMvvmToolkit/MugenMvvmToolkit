@@ -15,9 +15,9 @@ namespace MugenMvvm.Binding.Observation.Observers
         #region Fields
 
         protected readonly MemberFlags MemberFlags;
+        private byte _state;
         protected IMemberInfo[]? Members;
         protected object? PenultimateValueOrException;
-        private byte _state;
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             set
             {
                 if (value)
-                    _state = (byte)(_state & ~NoDisposeFlag);
+                    _state = (byte) (_state & ~NoDisposeFlag);
                 else
                     _state |= NoDisposeFlag;
             }
@@ -62,10 +62,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         #region Implementation of interfaces
 
-        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
-        {
-            return Update();
-        }
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata) => Update();
 
         #endregion
 
@@ -115,15 +112,9 @@ namespace MugenMvvm.Binding.Observation.Observers
             return default;
         }
 
-        protected override void OnListenersAdded()
-        {
-            UpdateIfNeed();
-        }
+        protected override void OnListenersAdded() => UpdateIfNeed();
 
-        protected override void OnListenersRemoved()
-        {
-            UnsubscribeLastMember();
-        }
+        protected override void OnListenersRemoved() => UnsubscribeLastMember();
 
         protected override void OnDisposed()
         {
@@ -210,7 +201,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             }
             finally
             {
-                _state = (byte)(_state & ~UpdatingFlag);
+                _state = (byte) (_state & ~UpdatingFlag);
             }
 
             return true;
@@ -241,7 +232,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         private void SetMembers(IWeakReference? penultimateValue, IMemberInfo[]? members, Exception? exception)
         {
-            PenultimateValueOrException = (object?)exception ?? penultimateValue;
+            PenultimateValueOrException = (object?) exception ?? penultimateValue;
             Members = members;
             if (exception == null)
                 _state |= InitializedFlag;
@@ -249,10 +240,7 @@ namespace MugenMvvm.Binding.Observation.Observers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CheckFlag(byte flag)
-        {
-            return (_state & flag) == flag;
-        }
+        private bool CheckFlag(byte flag) => (_state & flag) == flag;
 
         #endregion
     }

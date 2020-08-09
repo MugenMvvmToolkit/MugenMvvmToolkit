@@ -19,7 +19,10 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Paths
             singleMemberPath.Members[0].ShouldEqual(path);
             singleMemberPath.Members.Count.ShouldEqual(1);
             singleMemberPath.Path.ShouldEqual(path);
-            ShouldThrow<ArgumentOutOfRangeException>(() => singleMemberPath.Members[1].ToString());
+            ShouldThrow<ArgumentOutOfRangeException>(() =>
+            {
+                var member = singleMemberPath.Members[1];
+            });
         }
 
         #endregion

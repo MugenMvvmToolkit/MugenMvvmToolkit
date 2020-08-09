@@ -23,10 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         #region Implementation of interfaces
 
-        bool IParameterInfo.IsDefined(Type type)
-        {
-            return IsDefined?.Invoke(type) ?? false;
-        }
+        bool IParameterInfo.IsDefined(Type type) => IsDefined?.Invoke(type) ?? false;
 
         #endregion
     }

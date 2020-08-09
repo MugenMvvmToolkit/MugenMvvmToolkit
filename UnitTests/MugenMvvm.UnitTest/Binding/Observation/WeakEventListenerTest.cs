@@ -11,10 +11,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
         #region Methods
 
         [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            default(WeakEventListener).IsEmpty.ShouldBeTrue();
-        }
+        public void DefaultShouldBeEmpty() => default(WeakEventListener).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void ConstructorShouldInitializeValues1()
@@ -43,7 +40,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 IsAlive = true
             };
             var listener = new WeakEventListener(target);
-            ((IWeakReference)listener.Target).Target.ShouldEqual(target);
+            ((IWeakReference) listener.Target).Target.ShouldEqual(target);
             listener.IsAlive.ShouldEqual(true);
             listener.Listener.ShouldEqual(target);
             listener.IsEmpty.ShouldBeFalse();

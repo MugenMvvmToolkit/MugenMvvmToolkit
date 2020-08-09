@@ -12,10 +12,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         #region Methods
 
         [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            default(ExpressionParserResult).IsEmpty.ShouldBeTrue();
-        }
+        public void DefaultShouldBeEmpty() => default(ExpressionParserResult).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void ConstructorShouldInitializeValues1()

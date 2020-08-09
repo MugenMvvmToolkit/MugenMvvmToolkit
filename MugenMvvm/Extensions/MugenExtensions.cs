@@ -140,20 +140,14 @@ namespace MugenMvvm.Extensions
                 ExceptionManager.ThrowRequestNotSupported<IThreadDispatcherComponent>(threadDispatcher.DefaultIfNull(), handler, metadata);
         }
 
-        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null)
-        {
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, action, null, metadata);
-        }
 
-        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action<object?> action, object? state, IReadOnlyMetadataContext? metadata = null)
-        {
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action<object?> action, object? state, IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, action, state, metadata);
-        }
 
-        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state, IReadOnlyMetadataContext? metadata = null)
-        {
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state, IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, handler, state, metadata);
-        }
 
         public static IViewModelBase? TryGetViewModelView<TView>(object request, out TView? view) where TView : class
         {
@@ -181,31 +175,23 @@ namespace MugenMvvm.Extensions
 
         public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
         public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
         public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
         public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            return commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
         public static ICompositeCommand GetCommand<TParameter>(this ICommandManager commandManager, object request, IReadOnlyMetadataContext? metadata = null)
         {
@@ -223,22 +209,16 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BusyMessageHandlerType value, BusyMessageHandlerType flag)
-        {
-            return (value & flag) == flag;
-        }
+        public static bool HasFlagEx(this BusyMessageHandlerType value, BusyMessageHandlerType flag) => (value & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BindingFlags value, BindingFlags flag)
-        {
-            return (value & flag) == flag;
-        }
+        public static bool HasFlagEx(this BindingFlags value, BindingFlags flag) => (value & flag) == flag;
 
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo)(object)value!;
+                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo) (object) value!;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -282,10 +262,7 @@ namespace MugenMvvm.Extensions
         }
 
         [StringFormatMethod("format")]
-        public static string Format(this string format, params object?[] args)
-        {
-            return string.Format(format, args);
-        }
+        public static string Format(this string format, params object?[] args) => string.Format(format, args);
 
         public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task, TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
         {
@@ -308,19 +285,13 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
-        internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder)
-        {
-            valueHolder?.Value?.Release();
-        }
+        internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static IWeakReference ToWeakReference(this object? item)
-        {
-            return MugenService.WeakReferenceManager.GetWeakReference(item);
-        }
+        internal static IWeakReference ToWeakReference(this object? item) => MugenService.WeakReferenceManager.GetWeakReference(item);
 
         internal static Task ContinueWithEx<TState>(this Task task, TState state, Action<Task, TState> execute)
         {
@@ -341,7 +312,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task, TState>>)o!;
+                var tuple = (Tuple<TState, Action<Task, TState>>) o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -365,7 +336,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o!;
+                var tuple = (Tuple<TState, Action<Task<T>, TState>>) o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -378,10 +349,7 @@ namespace MugenMvvm.Extensions
                 tcs.SetException(e);
         }
 
-        internal static bool LazyInitialize<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
-        {
-            return Interlocked.CompareExchange(ref item, value, null) == null;
-        }
+        internal static bool LazyInitialize<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class => Interlocked.CompareExchange(ref item, value, null) == null;
 
         internal static bool LazyInitializeDisposable<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class, IDisposable
         {
@@ -422,15 +390,18 @@ namespace MugenMvvm.Extensions
             private int _startNext;
 
             /// <summary>
-            /// Returns an enumerator that allows for iteration over the split span.
+            ///     Returns an enumerator that allows for iteration over the split span.
             /// </summary>
-            /// <returns>Returns a <see cref="System.SpanSplitEnumerator{T}"/> that can be used to iterate over the split span.</returns>
+            /// <returns>Returns a <see cref="System.SpanSplitEnumerator{T}" /> that can be used to iterate over the split span.</returns>
             public SpanSplitEnumerator<T> GetEnumerator() => this;
 
             /// <summary>
-            /// Returns the current element of the enumeration.
+            ///     Returns the current element of the enumeration.
             /// </summary>
-            /// <returns>Returns a <see cref="System.Range"/> instance that indicates the bounds of the current element withing the source span.</returns>
+            /// <returns>
+            ///     Returns a <see cref="System.Range" /> instance that indicates the bounds of the current element withing the
+            ///     source span.
+            /// </returns>
             public Range Current => new Range(_startCurrent, _endCurrent);
 
             internal SpanSplitEnumerator(ReadOnlySpan<T> span, ReadOnlySpan<T> separators)
@@ -460,21 +431,22 @@ namespace MugenMvvm.Extensions
             }
 
             /// <summary>
-            /// Advances the enumerator to the next element of the enumeration.
+            ///     Advances the enumerator to the next element of the enumeration.
             /// </summary>
-            /// <returns><see langword="true"/> if the enumerator was successfully advanced to the next element; <see langword="false"/> if the enumerator has passed the end of the enumeration.</returns>
+            /// <returns>
+            ///     <see langword="true" /> if the enumerator was successfully advanced to the next element;
+            ///     <see langword="false" /> if the enumerator has passed the end of the enumeration.
+            /// </returns>
             public bool MoveNext()
             {
                 if (!_isInitialized || _startNext > _buffer.Length)
-                {
                     return false;
-                }
 
-                ReadOnlySpan<T> slice = _buffer.Slice(_startNext);
+                var slice = _buffer.Slice(_startNext);
                 _startCurrent = _startNext;
 
-                int separatorIndex = _splitOnSingleToken ? slice.IndexOf(_separator) : slice.IndexOf(_separators);
-                int elementLength = (separatorIndex != -1 ? separatorIndex : slice.Length);
+                var separatorIndex = _splitOnSingleToken ? slice.IndexOf(_separator) : slice.IndexOf(_separators);
+                var elementLength = separatorIndex != -1 ? separatorIndex : slice.Length;
 
                 _endCurrent = _startCurrent + elementLength;
                 _startNext = _endCurrent + _separatorLength;

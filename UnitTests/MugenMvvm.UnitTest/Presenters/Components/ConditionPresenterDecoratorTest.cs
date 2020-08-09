@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 TryShow = (o, arg3, arg4) =>
                 {
                     ++invoked;
-                    return new[] { result };
+                    return new[] {result};
                 }
             };
             presenter.AddComponent(presenterComponent);
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 TryClose = (o, arg3, arg4) =>
                 {
                     ++invoked;
-                    return new[] { result };
+                    return new[] {result};
                 }
             };
             presenter.AddComponent(presenterComponent);

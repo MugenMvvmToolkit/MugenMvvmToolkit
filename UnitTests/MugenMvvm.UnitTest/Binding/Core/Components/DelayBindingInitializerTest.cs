@@ -35,9 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Delay), ConstantExpressionNode.Get(delay));
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
             if (ignore)
-            {
                 context.BindingComponents[BindingParameterNameConstant.Delay] = null;
-            }
 
             initializer.Initialize(null!, context);
             context.BindingComponents.Count.ShouldEqual(1);
@@ -46,9 +44,10 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 context.BindingComponents[BindingParameterNameConstant.Delay].ShouldBeNull();
                 return;
             }
-            var provider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.Delay]!;
-            var component = (DelayBindingComponent.Source)provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
-            component.Delay.ShouldEqual((ushort)delay);
+
+            var provider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.Delay]!;
+            var component = (DelayBindingComponent.Source) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
+            component.Delay.ShouldEqual((ushort) delay);
         }
 
         [Theory]
@@ -62,9 +61,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetDelay), ConstantExpressionNode.Get(delay));
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
             if (ignore)
-            {
                 context.BindingComponents[BindingParameterNameConstant.TargetDelay] = null;
-            }
 
             initializer.Initialize(null!, context);
             context.BindingComponents.Count.ShouldEqual(1);
@@ -73,9 +70,10 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 context.BindingComponents[BindingParameterNameConstant.TargetDelay].ShouldBeNull();
                 return;
             }
-            var provider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.TargetDelay]!;
-            var component = (DelayBindingComponent.Target)provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
-            component.Delay.ShouldEqual((ushort)delay);
+
+            var provider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.TargetDelay]!;
+            var component = (DelayBindingComponent.Target) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
+            component.Delay.ShouldEqual((ushort) delay);
         }
 
         #endregion

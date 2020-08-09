@@ -101,10 +101,10 @@ namespace MugenMvvm.UnitTest.Presenters
             var exception = new Exception();
             var cts = new CancellationTokenSource();
             string? navigationId = null;
-            int navigatedCount = 0;
-            int errorCount = 0;
-            int cancelCount = 0;
-            int contextCount = 0;
+            var navigatedCount = 0;
+            var errorCount = 0;
+            var cancelCount = 0;
+            var contextCount = 0;
 
             var navigationDispatcher = new NavigationDispatcher();
             var viewManager = new ViewManager();
@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
             {
-                OnNavigated = (context) =>
+                OnNavigated = context =>
                 {
                     ++navigatedCount;
                     context.ShouldEqual(navigationContext);
@@ -159,6 +159,7 @@ namespace MugenMvvm.UnitTest.Presenters
                         cts.Cancel();
                         return Task.FromCanceled<IView>(cts.Token);
                     }
+
                     return Task.FromException<IView>(exception);
                 }
             });
@@ -206,10 +207,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var viewManager = new ViewManager();
             var threadDispatcher = new ThreadDispatcher();
             var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.InitializeViewHandler = context =>
-            {
-                ++initCount;
-            };
+            mediator.InitializeViewHandler = context => { ++initCount; };
             mediator.ShowViewHandler = context => mediator.OnViewShown();
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
@@ -219,12 +217,13 @@ namespace MugenMvvm.UnitTest.Presenters
                     viewMapping.ShouldEqual(mapping);
                     if (includeView)
                     {
-                        var request = (ViewModelViewRequest)r;
+                        var request = (ViewModelViewRequest) r;
                         request.ViewModel.ShouldEqual(vm);
                         request.View.ShouldEqual(view.Target);
                     }
                     else
                         r.ShouldEqual(vm);
+
                     token.ShouldEqual(cts.Token);
                     return Task.FromResult<IView>(view);
                 }
@@ -284,7 +283,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
-            int showCount = 0;
+            var showCount = 0;
 
             var navigationDispatcher = new NavigationDispatcher();
             var viewManager = new ViewManager();
@@ -329,10 +328,10 @@ namespace MugenMvvm.UnitTest.Presenters
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
-            int showCount = 0;
-            int activateCount = 0;
-            int navigateCount = 0;
-            int cancelCount = 0;
+            var showCount = 0;
+            var activateCount = 0;
+            var navigateCount = 0;
+            var cancelCount = 0;
 
             var navigationDispatcher = new NavigationDispatcher();
             var viewManager = new ViewManager();
@@ -352,7 +351,7 @@ namespace MugenMvvm.UnitTest.Presenters
                     mediator.OnViewActivated();
                 return result;
             };
-            mediator.OnNavigatedHandler = (context) =>
+            mediator.OnNavigatedHandler = context =>
             {
                 ++navigateCount;
                 return true;
@@ -399,18 +398,15 @@ namespace MugenMvvm.UnitTest.Presenters
             var view = new View(mapping, new object(), vm);
             var newView = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
-            int cleanupCount = 0;
-            int showCount = 0;
-            int activateCount = 0;
+            var cleanupCount = 0;
+            var showCount = 0;
+            var activateCount = 0;
 
             var navigationDispatcher = new NavigationDispatcher();
             var viewManager = new ViewManager();
             var threadDispatcher = new ThreadDispatcher();
             var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.CleanupViewHandler = context =>
-            {
-                ++cleanupCount;
-            };
+            mediator.CleanupViewHandler = context => { ++cleanupCount; };
             mediator.ShowViewHandler = context =>
             {
                 ++showCount;
@@ -477,7 +473,7 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             var threadDispatcher = new ThreadDispatcher();
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher) { ShowViewHandler = context => { ++showCount; } };
+            var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher) {ShowViewHandler = context => { ++showCount; }};
             mediator.Initialize(vm, mapping, DefaultMetadata);
 
             Action invoke;
@@ -494,7 +490,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 };
                 navigationDispatcher.AddComponent(new TestNavigationEntryProviderComponent
                 {
-                    TryGetNavigationEntries = (context) =>
+                    TryGetNavigationEntries = context =>
                     {
                         context.ShouldEqual(DefaultMetadata);
                         return entries;
@@ -571,7 +567,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var threadDispatcher = new ThreadDispatcher();
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
 
-            var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher) { ShowViewHandler = context => { ++showCount; } };
+            var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher) {ShowViewHandler = context => { ++showCount; }};
             mediator.Initialize(vm, mapping, DefaultMetadata);
             mediator.TryShow(null, cts, DefaultMetadata);
             tcs.SetResult(result);
@@ -599,10 +595,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var viewManager = new ViewManager();
             var threadDispatcher = new ThreadDispatcher();
             var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.InitializeViewHandler = context =>
-            {
-                ++initCount;
-            };
+            mediator.InitializeViewHandler = context => { ++initCount; };
             mediator.CleanupViewHandler = context =>
             {
                 ++clearMediatorCount;
@@ -646,7 +639,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
             var closeCount = 0;
             var cancelCount = 0;
-            bool canClose = true;
+            var canClose = true;
             var tcs = new TaskCompletionSource<bool>();
 
             var navigationDispatcher = new NavigationDispatcher();
@@ -661,7 +654,7 @@ namespace MugenMvvm.UnitTest.Presenters
                     context.ShouldEqual(navigationContext);
                     t.ShouldEqual(cts);
                     if (canClose)
-                        return Task.FromResult<bool>(true);
+                        return Task.FromResult(true);
                     return tcs.Task;
                 }
             });
@@ -713,7 +706,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
-            bool canClose = true;
+            var canClose = true;
             var tcs = new TaskCompletionSource<bool>();
 
             var navigationDispatcher = new NavigationDispatcher();
@@ -743,10 +736,7 @@ namespace MugenMvvm.UnitTest.Presenters
 
             var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher);
             mediator.ShowViewHandler = context => mediator.OnViewShown();
-            mediator.CloseViewHandler = context =>
-            {
-                mediator.OnViewClosed();
-            };
+            mediator.CloseViewHandler = context => { mediator.OnViewClosed(); };
             mediator.Initialize(vm, mapping, DefaultMetadata);
             mediator.TryShow(null, default, DefaultMetadata);
 
@@ -772,11 +762,11 @@ namespace MugenMvvm.UnitTest.Presenters
             var exception = new Exception();
             var cts = new CancellationTokenSource();
             string? navigationId = null;
-            int navigatedCount = 0;
-            int errorCount = 0;
-            int cancelCount = 0;
-            int contextCount = 0;
-            bool ignore = true;
+            var navigatedCount = 0;
+            var errorCount = 0;
+            var cancelCount = 0;
+            var contextCount = 0;
+            var ignore = true;
 
             var navigationDispatcher = new NavigationDispatcher();
             var viewManager = new ViewManager();
@@ -821,7 +811,7 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
             {
-                OnNavigated = (context) =>
+                OnNavigated = context =>
                 {
                     ++navigatedCount;
                     context.ShouldEqual(navigationContext);
@@ -888,7 +878,7 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             var threadDispatcher = new ThreadDispatcher();
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher) { CloseViewHandler = context => ++closeCount };
+            var mediator = new TestViewModelPresenterMediatorBase<object>(viewManager, null, navigationDispatcher, threadDispatcher) {CloseViewHandler = context => ++closeCount};
             mediator.ShowViewHandler = context => mediator.OnViewShown();
             mediator.Initialize(vm, mapping, DefaultMetadata);
 

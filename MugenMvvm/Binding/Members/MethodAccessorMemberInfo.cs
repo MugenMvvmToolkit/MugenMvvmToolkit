@@ -70,11 +70,6 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<object?> GetArgs()
-        {
-            return _args;
-        }
-
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_getMethod != null && _setMethod == null)
@@ -83,6 +78,7 @@ namespace MugenMvvm.Binding.Members
                 if (!token.IsEmpty)
                     return token;
             }
+
             if (_observer.IsEmpty)
             {
                 _observer = _observationManager
@@ -122,6 +118,8 @@ namespace MugenMvvm.Binding.Members
                 args[args.Length - 2] = metadata;
             _setMethod.Invoke(target, args, metadata);
         }
+
+        public IReadOnlyList<object?> GetArgs() => _args;
 
         #endregion
     }

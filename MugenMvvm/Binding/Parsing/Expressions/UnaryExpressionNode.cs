@@ -78,10 +78,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return this;
         }
 
-        public override string ToString()
-        {
-            return $"{Token.Value}{Operand}";
-        }
+        public override string ToString() => $"{Token.Value}{Operand}";
 
         #endregion
     }

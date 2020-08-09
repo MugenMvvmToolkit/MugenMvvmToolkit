@@ -83,11 +83,9 @@ namespace MugenMvvm.Commands.Components
                 _canExecuteChanged += handler;
         }
 
-        public void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler)
-        {
+        public void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler) =>
             // ReSharper disable once DelegateSubtraction
             _canExecuteChanged -= handler;
-        }
 
         public void RaiseCanExecuteChanged(ICompositeCommand? command = null)
         {
@@ -113,13 +111,10 @@ namespace MugenMvvm.Commands.Components
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((o, _) => ((ConditionEventCommandComponent)o!).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((ConditionEventCommandComponent) o!).EndSuspendNotifications(), this);
         }
 
-        void IThreadDispatcherHandler.Execute(object? _)
-        {
-            _canExecuteChanged?.Invoke(Owner, EventArgs.Empty);
-        }
+        void IThreadDispatcherHandler.Execute(object? _) => _canExecuteChanged?.Invoke(Owner, EventArgs.Empty);
 
         #endregion
 
@@ -133,7 +128,7 @@ namespace MugenMvvm.Commands.Components
 
         private void Handle(object message)
         {
-            if ((_canNotify == null || _canNotify(message)))
+            if (_canNotify == null || _canNotify(message))
                 RaiseCanExecuteChanged();
         }
 
@@ -161,14 +156,11 @@ namespace MugenMvvm.Commands.Components
 
             #region Implementation of interfaces
 
-            public bool CanHandle(Type messageType)
-            {
-                return true;
-            }
+            public bool CanHandle(Type messageType) => true;
 
             public MessengerResult Handle(IMessageContext messageContext)
             {
-                var mediator = (ConditionEventCommandComponent?)_reference?.Target;
+                var mediator = (ConditionEventCommandComponent?) _reference?.Target;
                 if (mediator == null)
                     return MessengerResult.Invalid;
                 mediator.Handle(messageContext.Message);
@@ -179,10 +171,7 @@ namespace MugenMvvm.Commands.Components
 
             #region Methods
 
-            public PropertyChangedEventHandler GetPropertyChangedEventHandler()
-            {
-                return _handler ??= OnPropertyChanged;
-            }
+            public PropertyChangedEventHandler GetPropertyChangedEventHandler() => _handler ??= OnPropertyChanged;
 
             public void OnDispose()
             {
@@ -192,7 +181,7 @@ namespace MugenMvvm.Commands.Components
 
             private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var component = (ConditionEventCommandComponent?)_reference?.Target;
+                var component = (ConditionEventCommandComponent?) _reference?.Target;
                 if (component == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)

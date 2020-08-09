@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             var ifFalse = new ConstantExpressionNode("2");
             var exp = new ConditionExpressionNode(condition, ifTrue, ifFalse);
 
-            var result = isPostOrder ? new IExpressionNode[] { condition, ifTrue, ifFalse, exp } : new IExpressionNode[] { exp, condition, ifTrue, ifFalse };
+            var result = isPostOrder ? new IExpressionNode[] {condition, ifTrue, ifFalse, exp} : new IExpressionNode[] {exp, condition, ifTrue, ifFalse};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
                 IsPostOrder = isPostOrder
             };
             var exp = new ConditionExpressionNode(condition, ifTrue, ifFalse);
-            var expressionNode = (ConditionExpressionNode)exp.Accept(testExpressionVisitor, DefaultMetadata);
+            var expressionNode = (ConditionExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Condition.ShouldEqual(conditionChanged);
             expressionNode.IfFalse.ShouldEqual(ifFalseChanged);

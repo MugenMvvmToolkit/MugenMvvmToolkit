@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var expressionDisposed = false;
             IMemberPathObserverListener? targetListener = null;
             IMemberPathObserverListener? sourceListener = null;
-            var expression = new TestCompiledExpression { Dispose = () => expressionDisposed = true };
+            var expression = new TestCompiledExpression {Dispose = () => expressionDisposed = true};
             var target = new TestMemberPathObserver
             {
                 Dispose = () => targetDisposed = true,
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 }
             };
 
-            var components = new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() };
+            var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
             var binding = new MultiBinding(target, sources: source, expression: expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 Invoke = (list, context) =>
                 {
                     ++expressionInvoke;
-                    list.AsList().SequenceEqual(new[] { new ParameterValue(sourceValue.GetType(), sourceValue) }).ShouldBeTrue();
+                    list.AsList().SequenceEqual(new[] {new ParameterValue(sourceValue.GetType(), sourceValue)}).ShouldBeTrue();
                     context.ShouldEqual(binding);
                     return expressionValue;
                 }
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void MetadataShouldReturnBindingAndMultiBinding()
         {
             var binding = new MultiBinding(EmptyPathObserver.Empty, ItemOrList.FromRawValue<object?, object?[]>(null), new TestCompiledExpression());
-            var context = (IReadOnlyMetadataContext)binding;
+            var context = (IReadOnlyMetadataContext) binding;
             context.Count.ShouldEqual(2);
             context.Contains(BindingMetadata.Binding).ShouldBeTrue();
             context.Contains(BindingMetadata.IsMultiBinding).ShouldBeTrue();
@@ -186,7 +186,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             context.TryGet(BindingMetadata.IsMultiBinding, out var isMulti).ShouldBeTrue();
             b.ShouldEqual(binding);
             isMulti.ShouldBeTrue();
-            context.ToArray().ShouldEqual(new[] { BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsMultiBinding.ToValue(true) });
+            context.ToArray().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsMultiBinding.ToValue(true)});
         }
 
         #endregion

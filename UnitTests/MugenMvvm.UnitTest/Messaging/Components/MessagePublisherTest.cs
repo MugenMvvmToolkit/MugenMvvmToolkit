@@ -188,7 +188,7 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             invokedCount.ShouldEqual(2);
             tryGetMessengerHandlersCount.ShouldEqual(1);
 
-            component.Invalidate(null, null);
+            component.Invalidate();
 
             component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(3);

@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Enums
         #endregion
 
         #region Constructors
-        
+
         [Preserve(Conditional = true)]
         protected BindingLifecycleState()
         {
@@ -47,15 +47,9 @@ namespace MugenMvvm.Binding.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(BindingLifecycleState? left, BindingLifecycleState? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(BindingLifecycleState? left, BindingLifecycleState? right) => !(left == right);
 
-        protected override bool Equals(string value)
-        {
-            return Value.Equals(value);
-        }
+        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }
