@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -43,13 +42,13 @@ namespace MugenMvvm.Extensions
         }
 
         [return: NotNullIfNotNull("collection")]
-        public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase collection)
+        public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase? collection)
         {
             if (collection == null)
                 return null;
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             if (component == null)
-                return collection as IEnumerable<object?> ?? collection.OfType<object?>();
+                return collection as IEnumerable<object?> ?? collection.Cast<object?>();
             return component.DecorateItems((IObservableCollection)collection);
         }
 

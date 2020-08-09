@@ -26,6 +26,7 @@
         public const string CannotGetComponentFormat2 = "Cannot get component {0} owner {1}";
         public const string AmbiguousMappingMatchFound = "Ambiguous mapping match found";
         public const string ObjectNotInitializedOrRequestNotSupportedFormat4 = "The '{0}' is not initialized ({1}) or request '{2}' is not supported {3}";
+        public const string AdapterSupportsOnlySynchronizedMode = "The collection adapter supports only synchronized execution mode";
 
         #endregion
     }

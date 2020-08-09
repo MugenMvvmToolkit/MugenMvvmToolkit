@@ -14,8 +14,8 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly ThreadExecutionMode Main = new ThreadExecutionMode(1);
-        public static readonly ThreadExecutionMode MainAsync = new ThreadExecutionMode(2);
+        public static readonly ThreadExecutionMode Main = new ThreadExecutionMode(1) { IsSynchronized = true };
+        public static readonly ThreadExecutionMode MainAsync = new ThreadExecutionMode(2) { IsSynchronized = true };
         public static readonly ThreadExecutionMode Background = new ThreadExecutionMode(3);
         public static readonly ThreadExecutionMode Current = new ThreadExecutionMode(4);
 
@@ -34,6 +34,12 @@ namespace MugenMvvm.Enums
 
         #endregion
 
+        #region Properties
+
+        public bool IsSynchronized { get; set; }
+
+        #endregion
+
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -47,15 +53,9 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(ThreadExecutionMode? left, ThreadExecutionMode? right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(ThreadExecutionMode? left, ThreadExecutionMode? right) => !(left == right);
 
-        protected override bool Equals(int value)
-        {
-            return Value == value;
-        }
+        protected override bool Equals(int value) => Value == value;
 
         #endregion
     }

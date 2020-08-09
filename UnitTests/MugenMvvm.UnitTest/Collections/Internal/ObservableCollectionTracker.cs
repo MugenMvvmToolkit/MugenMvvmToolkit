@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -12,13 +11,6 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 {
     public class ObservableCollectionTracker<T> : ICollectionChangedListener<T>
     {
-        #region Fields
-
-        private bool _countRaised;
-        private bool _indexerRaised;
-
-        #endregion
-
         #region Constructors
 
         public ObservableCollectionTracker()
@@ -74,18 +66,9 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Methods
 
-        private void CheckPropertyChanged(bool countChanged)
-        {
-            _indexerRaised.ShouldBeTrue();
-            if (countChanged)
-                _countRaised.ShouldBeTrue();
-            _indexerRaised = false;
-            _countRaised = false;
-        }
-
         private static void OnAddEvent(List<T> items, IList newItems, int index)
         {
-            foreach (T newItem in newItems.Cast<T>())
+            foreach (var newItem in newItems.Cast<T>())
             {
                 items.Insert(index, newItem);
                 index++;
@@ -121,15 +104,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
         private void OnReset(List<T> items, IEnumerable<T> resetItems)
         {
             items.Clear();
-            items.AddRange(resetItems.Cast<T>());
-        }
-
-        public void CollectionOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
-        {
-            if (propertyChangedEventArgs.PropertyName == "Item[]")
-                _indexerRaised = true;
-            if (propertyChangedEventArgs.PropertyName == "Count")
-                _countRaised = true;
+            items.AddRange(resetItems);
         }
 
         public void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -139,23 +114,18 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             {
                 case NotifyCollectionChangedAction.Add:
                     OnAddEvent(items, args.NewItems, args.NewStartingIndex);
-                    CheckPropertyChanged(true);
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     OnRemoveEvent(items, args.OldItems, args.OldStartingIndex);
-                    CheckPropertyChanged(true);
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     OnReplaceEvent(items, args.OldItems, args.NewItems, args.NewStartingIndex);
-                    CheckPropertyChanged(false);
                     break;
                 case NotifyCollectionChangedAction.Move:
                     OnMoveEvent(items, args.OldItems, args.OldStartingIndex, args.NewStartingIndex);
-                    CheckPropertyChanged(false);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     OnReset(items, (IEnumerable<T>) sender);
-                    CheckPropertyChanged(true);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
