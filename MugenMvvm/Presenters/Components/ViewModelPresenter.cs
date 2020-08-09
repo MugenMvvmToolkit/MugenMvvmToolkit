@@ -88,16 +88,19 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
+        public ActionToken RegisterMediator(Func<IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> tryGetMediator, int priority = 0) =>
+            RegisterMediator(new MediatorRegistration(tryGetMediator, priority));
+
         public ActionToken RegisterMediator<TMediator, TView>(bool viewExactlyEqual = false, int priority = 0)
             where TMediator : ViewModelPresenterMediatorBase<TView>
             where TView : class =>
             RegisterMediator(typeof(TMediator), typeof(TView), viewExactlyEqual, priority);
 
-        public ActionToken RegisterMediator(Type mediatorType, Type viewType, bool viewExactlyEqual, int priority = 0)
+        public ActionToken RegisterMediator(Type mediatorType, Type viewType, bool viewExactlyEqual, int priority = 0) =>
+            RegisterMediator(new MediatorRegistration(mediatorType, viewType, viewExactlyEqual, priority));
+
+        private ActionToken RegisterMediator(MediatorRegistration registration)
         {
-            Should.BeOfType<IViewModelPresenterMediator>(mediatorType, nameof(mediatorType));
-            Should.NotBeNull(viewType, nameof(viewType));
-            var registration = new MediatorRegistration(mediatorType, viewType, viewExactlyEqual, priority);
             lock (_mediators)
             {
                 MugenExtensions.AddOrdered(_mediators, registration, registration);
@@ -105,10 +108,10 @@ namespace MugenMvvm.Presenters.Components
 
             return new ActionToken((l, m) =>
             {
-                var list = (List<MediatorRegistration>) l!;
+                var list = (List<MediatorRegistration>)l!;
                 lock (list)
                 {
-                    list.Remove((MediatorRegistration) m!);
+                    list.Remove((MediatorRegistration)m!);
                 }
             }, _mediators, registration);
         }
@@ -151,35 +154,17 @@ namespace MugenMvvm.Presenters.Components
 
         private IViewModelPresenterMediator? GetMediator(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
         {
-            var wrapperManager = _wrapperManager.DefaultIfNull();
-            Type? mediatorType = null;
             for (var i = 0; i < _mediators.Count; i++)
             {
-                var mediatorInfo = _mediators[i];
-                if (mediatorInfo.ExactlyEqual)
+                var mediator = _mediators[i].TryGetMediator(this, viewModel, mapping, metadata);
+                if (mediator != null)
                 {
-                    if (mediatorInfo.ViewType == mapping.ViewType)
-                    {
-                        mediatorType = mediatorInfo.MediatorType;
-                        break;
-                    }
-                }
-                else
-                {
-                    if (mediatorInfo.ViewType.IsAssignableFrom(mapping.ViewType) || wrapperManager.CanWrap(mediatorInfo.ViewType, mapping.ViewType, metadata))
-                    {
-                        mediatorType = mediatorInfo.MediatorType;
-                        break;
-                    }
+                    mediator.Initialize(viewModel, mapping, metadata);
+                    return mediator;
                 }
             }
 
-            if (mediatorType == null)
-                return null;
-
-            var mediator = (IViewModelPresenterMediator?) _serviceProvider.DefaultIfNull().GetService(mediatorType);
-            mediator?.Initialize(viewModel, mapping, metadata);
-            return mediator;
+            return null;
         }
 
         #endregion
@@ -190,28 +175,55 @@ namespace MugenMvvm.Presenters.Components
         {
             #region Fields
 
-            public readonly bool ExactlyEqual;
-            public readonly Type MediatorType;
-            public readonly int Priority;
-            public readonly Type ViewType;
+            private readonly bool _exactlyEqual;
+            private readonly Type? _mediatorType;
+            private readonly int _priority;
+            private readonly Type? _viewType;
+            private readonly Func<IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?>? _tryGetMediator;
 
             #endregion
 
             #region Constructors
 
+            public MediatorRegistration(Func<IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> tryGetMediator, int priority)
+            {
+                Should.NotBeNull(tryGetMediator, nameof(tryGetMediator));
+                _tryGetMediator = tryGetMediator;
+                _priority = priority;
+            }
+
             public MediatorRegistration(Type mediatorType, Type viewType, bool exactlyEqual, int priority)
             {
-                MediatorType = mediatorType;
-                ViewType = viewType;
-                ExactlyEqual = exactlyEqual;
-                Priority = priority;
+                Should.BeOfType<IViewModelPresenterMediator>(mediatorType, nameof(mediatorType));
+                Should.NotBeNull(viewType, nameof(viewType));
+                _mediatorType = mediatorType;
+                _viewType = viewType;
+                _exactlyEqual = exactlyEqual;
+                _priority = priority;
             }
 
             #endregion
 
+            public IViewModelPresenterMediator? TryGetMediator(ViewModelPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
+            {
+                if (_tryGetMediator != null)
+                    return _tryGetMediator(viewModel, mapping, metadata);
+
+                if (_exactlyEqual)
+                {
+                    if (_viewType == mapping.ViewType)
+                        return (IViewModelPresenterMediator?)presenter._serviceProvider.DefaultIfNull().GetService(_mediatorType!);
+                    return null;
+                }
+
+                if (_viewType!.IsAssignableFrom(mapping.ViewType) || presenter._wrapperManager.DefaultIfNull().CanWrap(_viewType, mapping.ViewType, metadata))
+                    return (IViewModelPresenterMediator?)presenter._serviceProvider.DefaultIfNull().GetService(_mediatorType!);
+                return null;
+            }
+
             #region Implementation of interfaces
 
-            public int Compare([AllowNull] MediatorRegistration x, [AllowNull] MediatorRegistration y) => y!.Priority.CompareTo(x!.Priority);
+            public int Compare([AllowNull] MediatorRegistration x, [AllowNull] MediatorRegistration y) => y!._priority.CompareTo(x!._priority);
 
             #endregion
         }
