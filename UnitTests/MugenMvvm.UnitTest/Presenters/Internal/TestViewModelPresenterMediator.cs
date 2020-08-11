@@ -12,19 +12,21 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
     {
         #region Properties
 
-        public Action<IViewModelBase, IViewMapping, IReadOnlyMetadataContext?>? Initialize { get; set; }
-
         public Func<object?, CancellationToken, IReadOnlyMetadataContext?, IPresenterResult?>? TryShow { get; set; }
 
         public Func<CancellationToken, IReadOnlyMetadataContext?, IPresenterResult?>? TryClose { get; set; }
 
         public string Id { get; set; } = null!;
 
+        public IViewMapping Mapping { get; set; } = null!;
+
+        public IViewModelBase ViewModel { get; set; } = null!;
+
+        public IView? View { get; set; } = null!;
+
         #endregion
 
         #region Implementation of interfaces
-
-        void IViewModelPresenterMediator.Initialize(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) => Initialize?.Invoke(viewModel, mapping, metadata);
 
         IPresenterResult? IViewModelPresenterMediator.TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryShow?.Invoke(view, cancellationToken, metadata);
 

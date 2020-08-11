@@ -14,7 +14,7 @@ namespace MugenMvvm.Requests
 
         #region Constructors
 
-        public StateRequest(bool cancel = false, object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public StateRequest(bool? cancel = null, object? state = null, IReadOnlyMetadataContext? metadata = null)
             : base(cancel, state)
         {
             _metadata = metadata;

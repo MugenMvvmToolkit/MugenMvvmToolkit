@@ -4,6 +4,6 @@
     {
         object? State { get; set; }
 
-        bool Cancel { get; set; }
+        bool? Cancel { get; set; }
     }
 }

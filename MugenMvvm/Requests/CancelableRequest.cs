@@ -1,16 +1,15 @@
-﻿using System.ComponentModel;
-using MugenMvvm.Interfaces.Requests;
+﻿using MugenMvvm.Interfaces.Requests;
 
 namespace MugenMvvm.Requests
 {
-    public class CancelableRequest : CancelEventArgs, ICancelableRequest
+    public class CancelableRequest : ICancelableRequest
     {
         #region Constructors
 
-        public CancelableRequest(bool cancel, object? state = null)
-            : base(cancel)
+        public CancelableRequest(bool? cancel = null, object? state = null)
         {
             State = state;
+            Cancel = cancel;
         }
 
         #endregion
@@ -18,6 +17,8 @@ namespace MugenMvvm.Requests
         #region Properties
 
         public object? State { get; set; }
+
+        public bool? Cancel { get; set; }
 
         #endregion
     }

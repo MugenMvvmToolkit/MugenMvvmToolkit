@@ -24,20 +24,14 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Constructors
 
-        public TestViewModelPresenterMediatorBase(IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
-            : base(viewManager, wrapperManager, navigationDispatcher, threadDispatcher)
+        public TestViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
+            : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher)
         {
         }
 
         #endregion
 
         #region Properties
-
-        public new IViewModelBase ViewModel => base.ViewModel;
-
-        public new IViewMapping Mapping => base.Mapping;
-
-        public new IView? View => base.View;
 
         public new T? CurrentView => base.CurrentView;
 
@@ -53,7 +47,6 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         public Func<object?, IReadOnlyMetadataContext?, NavigationMode>? GetShowNavigationModeHandler { get; set; }
 
-        public Action<IReadOnlyMetadataContext?>? OnInitializedHandler { get; set; }
 
         public Func<INavigationContext, bool>? OnNavigatedHandler { get; set; }
 
@@ -85,12 +78,6 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
         protected override IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) => GetPresenterResultHandler?.Invoke(show, metadata) ?? base.GetPresenterResult(show, metadata);
 
         protected override NavigationMode GetShowNavigationMode(object? view, IReadOnlyMetadataContext? metadata) => GetShowNavigationModeHandler?.Invoke(view, metadata) ?? base.GetShowNavigationMode(view, metadata);
-
-        protected override void OnInitialized(IReadOnlyMetadataContext? metadata)
-        {
-            OnInitializedHandler?.Invoke(metadata);
-            base.OnInitialized(metadata);
-        }
 
         protected override void OnNavigated(INavigationContext navigationContext)
         {

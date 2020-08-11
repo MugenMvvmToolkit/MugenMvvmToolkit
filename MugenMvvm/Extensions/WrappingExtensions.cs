@@ -45,12 +45,11 @@ namespace MugenMvvm.Extensions
             return wrapper;
         }
 
-        public static IWrapperManagerComponent AddWrapper<TConditionRequest, TWrapRequest, TState>(this IWrapperManager wrapperManager, TState state,
-            Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> condition,
-            Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
+        public static IWrapperManagerComponent AddWrapper<TConditionRequest, TWrapRequest>(this IWrapperManager wrapperManager, Func<Type, TConditionRequest, IReadOnlyMetadataContext?, bool> condition,
+            Func<Type, TWrapRequest, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest, TState>(condition, wrapperFactory, state) { Priority = priority };
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
         }

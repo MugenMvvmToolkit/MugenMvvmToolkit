@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>monoandroid10.0;net461;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>monoandroid10.0;xamarin.ios10;net461;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -19,6 +19,10 @@
     <DefineConstants>NET_CORE;SPAN_API;ANDROID</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
+    <DefineConstants>NET_CORE;SPAN_API;IOS</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>MugenMvvm.UnitTest</_Parameter1>
@@ -26,10 +30,23 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>MugenMvvm.Android</_Parameter1>
     </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MugenMvvm.Platforms</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MugenMvvm.Android</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MugenMvvm.Ios</_Parameter1>
+    </AssemblyAttribute>
     <AssemblyAttribute Include="MugenMvvm.Attributes.LinkerSafeAttribute" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
 

@@ -35,18 +35,18 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             var wrapper = new AwareView();
             wrapperManager.AddComponent(new ViewWrapperManagerDecorator());
-            wrapperManager.AddComponent(new DelegateWrapperManager<AwareViewBase, AwareViewBase, object?>((type, v, arg3, arg4) =>
+            wrapperManager.AddComponent(new DelegateWrapperManager<AwareViewBase, AwareViewBase>((type, v, arg4) =>
             {
                 arg4.ShouldEqual(DefaultMetadata);
                 v.ShouldEqual(view.Target);
                 return type == typeof(AwareView);
-            }, (type, v, arg3, arg4) =>
+            }, (type, v, arg4) =>
             {
                 arg4.ShouldEqual(DefaultMetadata);
                 v.ShouldEqual(view.Target);
                 type.ShouldEqual(typeof(AwareView));
                 return wrapper;
-            }, this));
+            }));
 
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, DefaultMetadata);
             viewModel.ViewBase.ShouldEqual(view.Target);

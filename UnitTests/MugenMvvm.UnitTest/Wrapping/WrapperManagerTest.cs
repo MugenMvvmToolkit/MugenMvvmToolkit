@@ -26,15 +26,14 @@ namespace MugenMvvm.UnitTest.Wrapping
             var result = false;
             for (var i = 0; i < count; i++)
             {
-                var component = new DelegateWrapperManager<object, object, object>((wrapperType, targetType, state, metadata) =>
+                var component = new DelegateWrapperManager<object, object>((wrapperType, targetType, metadata) =>
                 {
                     ++executeCount;
                     targetType.ShouldEqual(expectedTargetType);
                     wrapperType.ShouldEqual(wrapperType);
-                    state.ShouldEqual(this);
                     metadata.ShouldEqual(DefaultMetadata);
                     return result;
-                }, (o, type1, arg3, arg4) => null, this)
+                }, (o, type1, arg4) => null)
                 {
                     Priority = -i
                 };
@@ -70,18 +69,17 @@ namespace MugenMvvm.UnitTest.Wrapping
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new DelegateWrapperManager<object, object, object>((wrapperType, targetType, state, metadata) => true,
-                    (wrapperType, t, state, metadata) =>
+                var component = new DelegateWrapperManager<object, object>((wrapperType, targetType, metadata) => true,
+                    (wrapperType, t, metadata) =>
                     {
                         ++executeCount;
                         t.ShouldEqual(manager);
                         wrapperType.ShouldEqual(expectedWrapperType);
-                        state.ShouldEqual(this);
                         metadata.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;
                         return null;
-                    }, this)
+                    })
                 {
                     Priority = -i
                 };
