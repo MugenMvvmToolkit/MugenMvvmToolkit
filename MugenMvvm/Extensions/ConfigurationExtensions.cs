@@ -6,9 +6,14 @@ using MugenMvvm.Commands.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Entities;
 using MugenMvvm.Entities.Components;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Interfaces.Presenters.Components;
+using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
@@ -81,7 +86,8 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ConditionPresenterDecorator())
                 .WithComponent(new NavigationCallbackPresenterDecorator())
                 .WithComponent(new ViewModelPresenter())
-                .WithComponent(new ViewPresenterDecorator());
+                .WithComponent(new ViewPresenterDecorator())
+                .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator));
 
             configuration.WithAppService(new Serializer());
 
@@ -117,7 +123,7 @@ namespace MugenMvvm.Extensions
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service, IReadOnlyMetadataContext? metadata = null)
             where TService : class
         {
-            MugenService.Configuration.InitializeInstance((TService) service);
+            MugenService.Configuration.InitializeInstance((TService)service);
             return configuration.ServiceConfiguration<TService>();
         }
 
@@ -131,6 +137,14 @@ namespace MugenMvvm.Extensions
         public static TService Service<TService>(this ServiceConfiguration<TService> _) where TService : class => MugenService.Instance<TService>();
 
         public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration) => configuration.Application;
+
+        private static IViewModelPresenterMediator? GetViewModelPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
+        {
+            var viewPresenter = presenter.GetComponents<IViewPresenterProviderComponent>().TryGetViewPresenter(presenter, viewModel, mapping, metadata);
+            if (viewPresenter == null)
+                return null;
+            return new ViewModelPresenterMediator<object>(viewModel, mapping, viewPresenter);
+        }
 
         #endregion
     }
