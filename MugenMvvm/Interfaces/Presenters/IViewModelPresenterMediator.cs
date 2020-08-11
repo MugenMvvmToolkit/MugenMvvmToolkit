@@ -7,7 +7,11 @@ namespace MugenMvvm.Interfaces.Presenters
 {
     public interface IViewModelPresenterMediator
     {
-        void Initialize(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata);
+        IViewMapping Mapping { get; }
+
+        IViewModelBase ViewModel { get; }
+
+        IView? View { get; }
 
         IPresenterResult? TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
