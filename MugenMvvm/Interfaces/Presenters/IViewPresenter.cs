@@ -16,10 +16,14 @@ namespace MugenMvvm.Interfaces.Presenters
 
         object? TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext);
 
-        bool Activate(IViewModelPresenterMediator mediator, object view, INavigationContext context);
+        void Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
 
-        void Show(IViewModelPresenterMediator mediator, object view, INavigationContext context);
+        void Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
 
-        void Close(IViewModelPresenterMediator mediator, object view, INavigationContext context);
+        void Activate(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
+
+        void Show(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
+
+        void Close(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
     }
 }

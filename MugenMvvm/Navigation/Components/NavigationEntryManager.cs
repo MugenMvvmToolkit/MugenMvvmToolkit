@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationEntryManager : INavigationEntryProviderComponent, INavigationDispatcherNavigatedListener, IHasPriority
+    public sealed class NavigationEntryManager : INavigationEntryProviderComponent, INavigationDispatcherNavigatingListener, IHasPriority
     {
         #region Fields
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             INavigationEntry? addedEntry = null;

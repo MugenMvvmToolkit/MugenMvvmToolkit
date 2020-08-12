@@ -75,12 +75,12 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 instance.TryShow = (o, token, m) =>
                 {
                     ++showCount;
-                    o.ShouldEqual(isRawRequest ? null : request.View);
+                    o.ShouldEqual(isRawRequest ? null : request!.View);
                     token.ShouldEqual(cancellationToken);
                     m.ShouldEqual(DefaultMetadata);
-                    return new PresenterResult(viewModel, mapping.Id, instance, NavigationType.Popup);
+                    return new PresenterResult(viewModel!, mapping!.Id, instance, NavigationType.Popup);
                 };
-                mediators.Add(instance);
+                mediators!.Add(instance);
                 return instance;
             }
 

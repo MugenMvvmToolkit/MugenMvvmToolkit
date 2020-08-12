@@ -23,8 +23,6 @@ namespace MugenMvvm.Presenters
         protected readonly IViewPresenter ViewPresenter;
         protected bool IsAppeared;
         protected bool LifecycleAdded;
-        protected bool ShouldRaiseOnAppeared;
-        protected bool ShouldRaiseOnDisappeared;
 
         #endregion
 
@@ -55,7 +53,7 @@ namespace MugenMvvm.Presenters
             if (view is IView v)
                 view = v.Target;
 
-            if (View != null && Equals(View?.Target, view))
+            if (View != null && Equals(View.Target, view))
                 OnViewLifecycleChanged(lifecycleState, state, metadata);
         }
 
@@ -74,24 +72,18 @@ namespace MugenMvvm.Presenters
 
         protected override void ShowView(TView view, INavigationContext navigationContext)
         {
-            ShouldRaiseOnAppeared = true;
+            var isAppeared = IsAppeared;
             ViewPresenter.Show(this, view, navigationContext);
-            if (IsAppeared && ShouldRaiseOnAppeared)
-            {
-                OnViewShown();
-                ShouldRaiseOnAppeared = false;
-            }
+            if (IsAppeared && isAppeared)
+                OnViewShown(null);
         }
 
         protected override bool ActivateView(TView view, INavigationContext navigationContext)
         {
-            ShouldRaiseOnAppeared = true;
-            if (!ViewPresenter.Activate(this, view, navigationContext))
-            {
-                ShouldRaiseOnAppeared = false;
-                return base.ActivateView(view, navigationContext);
-            }
-
+            var isAppeared = IsAppeared;
+            ViewPresenter.Activate(this, view, navigationContext);
+            if (IsAppeared && isAppeared)
+                OnViewActivated(null);
             return true;
         }
 
@@ -102,57 +94,69 @@ namespace MugenMvvm.Presenters
                 LifecycleAdded = true;
                 ViewManager.AddComponent(this);
             }
+
+            ViewPresenter.Initialize(this, view, navigationContext);
         }
 
         protected override void CloseView(TView view, INavigationContext navigationContext) => ViewPresenter.Close(this, view, navigationContext);
 
         protected override void CleanupView(TView view, INavigationContext navigationContext)
         {
-        }
-
-        protected internal override void OnViewClosed()
-        {
-            if (IsAppeared)
+            if (LifecycleAdded)
             {
-                ShouldRaiseOnDisappeared = true;
-                return;
+                LifecycleAdded = false;
+                ViewManager.RemoveComponent(this);
             }
 
-            LifecycleAdded = false;
-            IsAppeared = false;
-            ShouldRaiseOnDisappeared = false;
-            ShouldRaiseOnAppeared = false;
-            ViewManager.RemoveComponent(this);
-            base.OnViewClosed();
+            ViewPresenter.Cleanup(this, view, navigationContext);
+        }
+
+        protected internal override void OnViewClosed(IReadOnlyMetadataContext? metadata)
+        {
+            if (ClosingContext == null)
+            {
+                ClosingContext = GetNavigationContext(NavigationMode.Close, metadata);
+                OnNavigating(ClosingContext);
+            }
+
+            if (!IsAppeared)
+                base.OnViewClosed(metadata);
+        }
+
+        protected virtual void OnViewAppearing(object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state is ICancelableRequest cancelableRequest && cancelableRequest.Cancel.GetValueOrDefault())
+                return;
+            if (ShowingContext != null && ShowingContext.NavigationMode != NavigationMode.New)
+                OnNavigating(ShowingContext);
         }
 
         protected virtual void OnViewAppeared(object? state, IReadOnlyMetadataContext? metadata)
         {
             IsAppeared = true;
-            if (ShouldRaiseOnAppeared)
-            {
-                ShouldRaiseOnAppeared = false;
-                OnViewShown();
-            }
+            if (ShowingContext != null)
+                OnViewShown(metadata);
         }
 
         protected virtual void OnViewDisappeared(object? state, IReadOnlyMetadataContext? metadata)
         {
             IsAppeared = false;
-            if (ShouldRaiseOnDisappeared)
-                OnViewClosed();
+            if (ClosingContext != null)
+                OnViewClosed(metadata);
         }
 
         protected virtual void OnViewLifecycleChanged(ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewLifecycleState.Appeared)
+            if (lifecycleState == ViewLifecycleState.Appearing)
+                OnViewAppearing(state, metadata);
+            else if (lifecycleState == ViewLifecycleState.Appeared)
                 OnViewAppeared(state, metadata);
             else if (lifecycleState == ViewLifecycleState.Disappeared)
                 OnViewDisappeared(state, metadata);
             else if (lifecycleState == ViewLifecycleState.Closing && state is ICancelableRequest cancelableRequest)
-                OnViewClosing(cancelableRequest);
+                OnViewClosing(cancelableRequest, metadata);
             else if (lifecycleState == ViewLifecycleState.Closed)
-                OnViewClosed();
+                OnViewClosed(metadata);
         }
 
         #endregion
