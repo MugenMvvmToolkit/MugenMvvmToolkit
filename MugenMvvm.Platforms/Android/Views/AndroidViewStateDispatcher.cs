@@ -54,9 +54,9 @@ namespace MugenMvvm.Android.Views
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && state is ICancelableRequest cancelableRequest
-                && !cancelableRequest.Cancel && cancelableRequest.State is Bundle bundle)
+                && !cancelableRequest.Cancel.GetValueOrDefault() && cancelableRequest.State is Bundle bundle)
                 PreserveState(viewManager, v, bundle, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Creating && state is ICancelableRequest r && !r.Cancel && r.State is Bundle b)
+            else if (lifecycleState == AndroidViewLifecycleState.Creating && state is ICancelableRequest r && !r.Cancel.GetValueOrDefault() && r.State is Bundle b)
             {
                 if (view is IView wrapperView)
                     view = wrapperView.Target;
@@ -87,9 +87,9 @@ namespace MugenMvvm.Android.Views
             var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id).ToString("N");
             bundle.PutString(AndroidInternalConstant.BundleVmId, id);
 
-            var request = new StateRequest(false, view);
+            var request = new StateRequest(null, view);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Preserving, request, metadata);
-            if (request.Cancel || !request.HasMetadata)
+            if (request.Cancel.GetValueOrDefault() || !request.HasMetadata)
                 bundle.Remove(AndroidInternalConstant.BundleViewState);
             else
             {
@@ -120,9 +120,9 @@ namespace MugenMvvm.Android.Views
                 if (!_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value) || !(value is IReadOnlyMetadataContext restoredState))
                     return null;
 
-                var request = new StateRequest(false, view, restoredState);
+                var request = new StateRequest(null, view, restoredState);
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Restoring, request, metadata);
-                if (request.Cancel)
+                if (request.Cancel.GetValueOrDefault())
                     return null;
 
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Restored, restoredState, metadata);

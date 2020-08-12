@@ -48,6 +48,13 @@ namespace MugenMvvm.Android.Views
                     viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappearing, state, metadata);
                 else if (lifecycleState == AndroidViewLifecycleState.Paused)
                     viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared, state, metadata);
+                else if (lifecycleState == AndroidViewLifecycleState.Finished || lifecycleState == AndroidViewLifecycleState.Dismissed ||
+                         lifecycleState == AndroidViewLifecycleState.DismissedAllowingStateLoss || lifecycleState == AndroidViewLifecycleState.Canceled ||
+                         lifecycleState == AndroidViewLifecycleState.Destroyed && v.Target is IActivityView activity && activity.IsFinishing)
+                    viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closed, state, metadata);
+                else if (lifecycleState == AndroidViewLifecycleState.Finishing || lifecycleState == AndroidViewLifecycleState.FinishingAfterTransition ||
+                         lifecycleState == AndroidViewLifecycleState.Dismissing || lifecycleState == AndroidViewLifecycleState.DismissingAllowingStateLoss)
+                    viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, state, metadata);
                 if (lifecycleState == AndroidViewLifecycleState.Destroyed)
                     viewManager.TryCleanupAsync(v, state, default, metadata);
                 view = v.Target;

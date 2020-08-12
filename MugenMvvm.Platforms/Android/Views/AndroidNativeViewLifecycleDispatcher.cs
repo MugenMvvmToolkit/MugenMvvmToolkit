@@ -45,9 +45,9 @@ namespace MugenMvvm.Android.Views
             var viewLifecycleState = AndroidViewLifecycleState.TryParseNativeChanging(lifecycleState);
             if (viewLifecycleState != null)
             {
-                var request = new CancelableRequest(false, state);
+                var request = new CancelableRequest(null, state);
                 _viewManager.DefaultIfNull().OnLifecycleChanged(target, viewLifecycleState, request);
-                return !request.Cancel;
+                return !request.Cancel.GetValueOrDefault();
             }
 
             return true;
