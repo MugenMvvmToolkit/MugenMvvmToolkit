@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         public Func<object?, CancellationToken, IReadOnlyMetadataContext?, IPresenterResult?>? TryShow { get; set; }
 
-        public Func<CancellationToken, IReadOnlyMetadataContext?, IPresenterResult?>? TryClose { get; set; }
+        public Func<object?, CancellationToken, IReadOnlyMetadataContext?, IPresenterResult?>? TryClose { get; set; }
 
         public string Id { get; set; } = null!;
 
@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         IPresenterResult? IViewModelPresenterMediator.TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryShow?.Invoke(view, cancellationToken, metadata);
 
-        IPresenterResult? IViewModelPresenterMediator.TryClose(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryClose?.Invoke(cancellationToken, metadata);
+        IPresenterResult? IViewModelPresenterMediator.TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryClose?.Invoke(view, cancellationToken, metadata);
 
         #endregion
     }

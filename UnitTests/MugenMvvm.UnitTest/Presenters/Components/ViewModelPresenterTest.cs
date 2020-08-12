@@ -151,14 +151,17 @@ namespace MugenMvvm.UnitTest.Presenters.Components
         {
             var cancellationToken = new CancellationTokenSource().Token;
             var viewModel = new TestViewModel();
+            var view = new object();
+            var request = new ViewModelViewRequest(viewModel, view);
             var viewManager = new ViewManager();
             var result = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Popup);
             var closeCount = 0;
             var mediator = new TestViewModelPresenterMediator
             {
-                TryClose = (token, context) =>
+                TryClose = (v, token, context) =>
                 {
                     ++closeCount;
+                    v.ShouldEqual(request.View);
                     token.ShouldEqual(cancellationToken);
                     context.ShouldEqual(DefaultMetadata);
                     return result;
@@ -175,7 +178,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(object), false, (p, vm, m, meta) => mediator));
 
             viewModelPresenter.TryShow(presenter, viewModel, cancellationToken, DefaultMetadata);
-            viewModelPresenter.TryClose(presenter, viewModel, cancellationToken, DefaultMetadata).AsList().Single().ShouldEqual(result);
+            viewModelPresenter.TryClose(presenter, request, cancellationToken, DefaultMetadata).AsList().Single().ShouldEqual(result);
             closeCount.ShouldEqual(1);
         }
 

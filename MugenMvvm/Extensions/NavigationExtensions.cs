@@ -19,6 +19,33 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static Task ClearBackStackAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, object navigationTarget,
+            IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            Should.NotBeNull(navigationTarget, nameof(navigationTarget));
+            IReadOnlyMetadataContext? closeMetadata = null;
+            var callbacks = ItemOrListEditor.Get<Task>();
+            foreach (var navigationEntry in navigationDispatcher.GetNavigationEntries(metadata).Iterator())
+            {
+                if (navigationEntry.NavigationType != navigationType || navigationEntry.Target == null || Equals(navigationEntry.Target, navigationTarget))
+                    continue;
+
+                closeMetadata ??= new MetadataContext(metadata) { { NavigationMetadata.ForceClose, true }, { NavigationMetadata.NavigationType, navigationType } };
+                foreach (var result in presenter.DefaultIfNull().TryClose(navigationEntry.Target, default, closeMetadata).Iterator())
+                {
+                    foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata).Iterator())
+                    {
+                        if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
+                            callbacks.Add(navigationCallback.AsTask());
+                    }
+                }
+            }
+
+            return callbacks.ToItemOrList().WhenAll();
+        }
+
         public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, IReadOnlyMetadataContext? metadata = null)
             where TView : class =>
             navigationDispatcher.GetTopNavigation(navigationType, (entry, type, m) =>
@@ -88,7 +115,7 @@ namespace MugenMvvm.Extensions
             {
                 var tuple =
                     (Tuple<INavigationContext, INavigationDispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool>, Action<INavigationDispatcher, INavigationContext, Exception?, TState>?,
-                        CancellationToken, TState>) st!;
+                        CancellationToken, TState>)st!;
                 InvokeCompletedCallback(task, tuple.Item1, tuple.Item6, tuple.Item2, tuple.Item3, tuple.Item4, tuple.Item5);
             }, Tuple.Create(context, dispatcher, completeNavigationCallback, fallback, cancellationToken, state), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -110,13 +137,17 @@ namespace MugenMvvm.Extensions
             return dispatcher.GetNavigationContext(target, navigationProvider, navigationProvider.GetNavigationId(target), navigationType, navigationMode, metadata);
         }
 
-        public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, TState state, Func<INavigationCallback, TState, bool> filter, IReadOnlyMetadataContext? metadata = null)
+        public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, object? navigationTarget, TState state,
+            Func<INavigationCallback, TState, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
             var tasks = ItemOrListEditor.Get<Task>();
             foreach (var t in dispatcher.GetNavigationEntries(metadata).Iterator())
             {
+                if (navigationTarget != null && Equals(t.Target, navigationTarget))
+                    continue;
+
                 foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata).Iterator())
                 {
                     if (filter(callback, state))

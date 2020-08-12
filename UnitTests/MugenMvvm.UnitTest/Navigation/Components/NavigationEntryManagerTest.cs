@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                     {
                         ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
                         ctx.Metadata.Set(Key, i);
-                        component.OnNavigating(dispatcher, ctx);
+                        component.OnNavigated(dispatcher, ctx);
                         contexts.Add(ctx);
                     }
                 }
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                     {
                         ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
                         ctx.Metadata.Set(Key, i);
-                        component.OnNavigating(dispatcher, ctx);
+                        component.OnNavigated(dispatcher, ctx);
                         contexts.Add(ctx);
                     }
                 }
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             foreach (var navigationContext in contexts)
             {
                 ctx = navigationContext;
-                component.OnNavigating(dispatcher, navigationContext);
+                component.OnNavigated(dispatcher, navigationContext);
             }
 
             ValidateEntries(component.TryGetNavigationEntries(null!, null).AsList(), contexts);
@@ -151,7 +151,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                         {
                             ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
                             ctx.Metadata.Set(Key, i);
-                            component.OnNavigating(dispatcher, ctx);
+                            component.OnNavigated(dispatcher, ctx);
                             contexts.Add(ctx);
                         }
                     }
@@ -179,7 +179,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 foreach (var navigationContext in contexts)
                 {
                     ctx = new NavigationContext(this, navigationContext.NavigationProvider, navigationContext.NavigationId, navigationContext.NavigationType, closeMode, navigationContext.Metadata);
-                    component.OnNavigating(dispatcher, ctx);
+                    component.OnNavigated(dispatcher, ctx);
                 }
 
                 invokedCount.ShouldEqual(contexts.Count * count);

@@ -50,10 +50,10 @@ namespace MugenMvvm.Presenters
 
         void IViewLifecycleDispatcherComponent.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (view is IView v)
-                view = v.Target;
+            if (View == null && lifecycleState == ViewLifecycleState.Initializing && view is IView v && Equals(v.ViewModel, ViewModel) && v.Mapping.Id == Mapping.Id)
+                UpdateView(v, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
 
-            if (View != null && Equals(View.Target, view))
+            if (View != null && Equals(View.Target, MugenExtensions.GetUnderlyingView(view)))
                 OnViewLifecycleChanged(lifecycleState, state, metadata);
         }
 
@@ -102,25 +102,29 @@ namespace MugenMvvm.Presenters
 
         protected override void CleanupView(TView view, INavigationContext navigationContext)
         {
-            if (LifecycleAdded)
-            {
-                LifecycleAdded = false;
-                ViewManager.RemoveComponent(this);
-            }
-
             ViewPresenter.Cleanup(this, view, navigationContext);
         }
 
         protected internal override void OnViewClosed(IReadOnlyMetadataContext? metadata)
         {
+            //close from lifecycle
             if (ClosingContext == null)
             {
+                if (ShowingContext != null)//todo review
+                    return;
                 ClosingContext = GetNavigationContext(NavigationMode.Close, metadata);
                 OnNavigating(ClosingContext);
             }
 
             if (!IsAppeared)
+            {
+                if (LifecycleAdded)
+                {
+                    LifecycleAdded = false;
+                    ViewManager.RemoveComponent(this);
+                }
                 base.OnViewClosed(metadata);
+            }
         }
 
         protected virtual void OnViewAppearing(object? state, IReadOnlyMetadataContext? metadata)
@@ -145,6 +149,11 @@ namespace MugenMvvm.Presenters
                 OnViewClosed(metadata);
         }
 
+        protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata)
+        {
+            UpdateView(null, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+        }
+
         protected virtual void OnViewLifecycleChanged(ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == ViewLifecycleState.Appearing)
@@ -157,6 +166,8 @@ namespace MugenMvvm.Presenters
                 OnViewClosing(cancelableRequest, metadata);
             else if (lifecycleState == ViewLifecycleState.Closed)
                 OnViewClosed(metadata);
+            else if (lifecycleState == ViewLifecycleState.Cleared)
+                OnViewCleared(state, metadata);
         }
 
         #endregion

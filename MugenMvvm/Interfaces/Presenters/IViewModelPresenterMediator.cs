@@ -15,6 +15,6 @@ namespace MugenMvvm.Interfaces.Presenters
 
         IPresenterResult? TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
-        IPresenterResult? TryClose(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        IPresenterResult? TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
     }
 }

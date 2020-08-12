@@ -61,7 +61,7 @@ namespace MugenMvvm.Presenters.Components
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            var viewModel = MugenExtensions.TryGetViewModelView(request, out object? _);
+            var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (viewModel == null)
                 return default;
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.Presenters.Components
                     return default;
 
                 foreach (var mediator in dictionary)
-                    result.Add(mediator.Value.TryClose(cancellationToken, metadata));
+                    result.Add(mediator.Value.TryClose(view, cancellationToken, metadata));
                 return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
             }
         }

@@ -23,19 +23,20 @@ namespace MugenMvvm.Views.Components
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (view is IView)
-                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
-            else
             {
-                var hasView = false;
-                foreach (var v in Owner.GetViews(view, metadata).Iterator())
-                {
-                    hasView = true;
-                    Components.OnLifecycleChanged(viewManager, v, lifecycleState, state, metadata);
-                }
-
-                if (!hasView)
-                    Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
+                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
+                return;
             }
+
+            var hasView = false;
+            foreach (var v in Owner.GetViews(view, metadata).Iterator())
+            {
+                hasView = true;
+                Components.OnLifecycleChanged(viewManager, v, lifecycleState, state, metadata);
+            }
+
+            if (!hasView)
+                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
         }
 
         #endregion

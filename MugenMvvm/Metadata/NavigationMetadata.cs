@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -16,6 +17,8 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<string, string>? _viewName;
         private static IMetadataContextKey<bool, bool>? _nonModal;
+        private static IMetadataContextKey<bool, bool>? _forceClose;
+        private static IMetadataContextKey<NavigationType, NavigationType>? _navigationType;
         private static IMetadataContextKey<bool, bool>? _clearBackStack;
         private static IMetadataContextKey<DateTime, DateTime>? _navigationDate;
 
@@ -24,10 +27,24 @@ namespace MugenMvvm.Metadata
         #region Properties
 
         [AllowNull]
+        public static IMetadataContextKey<NavigationType, NavigationType> NavigationType
+        {
+            get => _navigationType ??= GetBuilder(_navigationType, nameof(NavigationType)).NotNull().Build();
+            set => _navigationType = value;
+        }
+
+        [AllowNull]
         public static IMetadataContextKey<string, string> ViewName
         {
             get => _viewName ??= GetBuilder(_viewName, nameof(ViewName)).Serializable().NotNull().Build();
             set => _viewName = value;
+        }
+
+        [AllowNull]
+        public static IMetadataContextKey<bool, bool> ForceClose
+        {
+            get => _forceClose ??= GetBuilder(_forceClose, nameof(ForceClose)).Build();
+            set => _forceClose = value;
         }
 
         [AllowNull]
