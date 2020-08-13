@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void ShouldClearViews()
         {
             var viewModel = new TestCleanerViewModel();
-            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewProviderComponent
             {

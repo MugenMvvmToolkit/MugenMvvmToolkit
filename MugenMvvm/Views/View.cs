@@ -23,7 +23,7 @@ namespace MugenMvvm.Views
             : base(metadata)
         {
             Should.NotBeNull(mapping, nameof(mapping));
-            Should.NotBeNull(view, nameof(view));
+            Should.BeOfType(view, nameof(view), mapping.ViewType);
             Should.NotBeNull(viewModel, nameof(viewModel));
             Mapping = mapping;
             ViewModel = viewModel;

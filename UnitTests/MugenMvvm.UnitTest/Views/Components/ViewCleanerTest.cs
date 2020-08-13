@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
 
             var viewModel = new TestCleanableViewModel {Service = new Messenger()};
-            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
             view.Target.BindableMembers().SetDataContext(viewModel);
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                     return true;
                 }
             });
-            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner());
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                 }
             };
             var viewModel = new TestCleanableViewModel();
-            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), rawView, viewModel);
+            var view = new View(new ViewMapping("1", rawView.GetType(), typeof(IViewModelBase)), rawView, viewModel);
             view.Components.Add(componentView);
             view.Components.Components.Add(this);
             var viewManager = new ViewManager();
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void ShouldClearMetadata()
         {
             var viewModel = new TestCleanableViewModel();
-            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner());
             view.Metadata.Set(ViewMetadata.LifecycleState, ViewLifecycleState.Clearing);
