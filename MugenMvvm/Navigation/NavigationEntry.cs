@@ -33,6 +33,8 @@ namespace MugenMvvm.Navigation
 
         public object? Target { get; }
 
+        public bool IsPending { get; set; }
+
         #endregion
     }
 }

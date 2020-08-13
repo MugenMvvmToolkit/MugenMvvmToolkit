@@ -24,32 +24,32 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         #region Properties
 
-        public Action<INavigationEntry, INavigationContext?>? OnNavigationEntryAdded { get; set; }
+        public Action<INavigationEntry, IHasNavigationInfo?>? OnNavigationEntryAdded { get; set; }
 
-        public Action<INavigationEntry, INavigationContext?>? OnNavigationEntryUpdated { get; set; }
+        public Action<INavigationEntry, IHasNavigationInfo?>? OnNavigationEntryUpdated { get; set; }
 
-        public Action<INavigationEntry, INavigationContext?>? OnNavigationEntryRemoved { get; set; }
+        public Action<INavigationEntry, IHasNavigationInfo?>? OnNavigationEntryRemoved { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void INavigationDispatcherEntryListener.OnNavigationEntryAdded(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
+        void INavigationDispatcherEntryListener.OnNavigationEntryAdded(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
-            OnNavigationEntryAdded?.Invoke(navigationEntry, navigationContext);
+            OnNavigationEntryAdded?.Invoke(navigationEntry, navigationInfo);
         }
 
-        void INavigationDispatcherEntryListener.OnNavigationEntryUpdated(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
+        void INavigationDispatcherEntryListener.OnNavigationEntryUpdated(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
-            OnNavigationEntryUpdated?.Invoke(navigationEntry, navigationContext);
+            OnNavigationEntryUpdated?.Invoke(navigationEntry, navigationInfo);
         }
 
-        void INavigationDispatcherEntryListener.OnNavigationEntryRemoved(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
+        void INavigationDispatcherEntryListener.OnNavigationEntryRemoved(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
-            OnNavigationEntryRemoved?.Invoke(navigationEntry, navigationContext);
+            OnNavigationEntryRemoved?.Invoke(navigationEntry, navigationInfo);
         }
 
         #endregion

@@ -5,5 +5,6 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationEntry : IMetadataOwner<IMetadataContext>, IHasNavigationInfo, IHasNavigationProvider, IHasTarget<object?>
     {
+        bool IsPending { get; }
     }
 }

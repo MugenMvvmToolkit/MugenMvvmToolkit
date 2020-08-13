@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using MugenMvvm.Attributes;
+using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -8,14 +11,18 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationEntryManager : INavigationEntryProviderComponent, INavigationDispatcherNavigatingListener, IHasPriority
+    public sealed class NavigationEntryManager : ComponentDecoratorBase<IPresenter, IPresenterComponent>, INavigationEntryProviderComponent,
+        INavigationDispatcherNavigatedListener, INavigationDispatcherErrorListener, IPresenterComponent, IHasPriority
     {
         #region Fields
 
+        private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly Dictionary<NavigationType, List<INavigationEntry>> _navigationEntries;
 
         #endregion
@@ -23,8 +30,9 @@ namespace MugenMvvm.Navigation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationEntryManager()
+        public NavigationEntryManager(INavigationDispatcher? navigationDispatcher = null)
         {
+            _navigationDispatcher = navigationDispatcher;
             _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
         }
 
@@ -32,66 +40,22 @@ namespace MugenMvvm.Navigation.Components
 
         #region Properties
 
-        public int Priority { get; set; } = NavigationComponentPriority.EntryProvider;
+        public int Priority { get; set; } = ComponentPriority.Max;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
+            => UpdateEntries(navigationDispatcher, true, navigationContext, false);
+
+        public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => UpdateEntries(navigationDispatcher, true, navigationContext, false);
+
+        public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            INavigationEntry? addedEntry = null;
-            INavigationEntry? updatedEntry = null;
-            INavigationEntry? removedEntry = null;
-            lock (_navigationEntries)
-            {
-                if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
-                {
-                    if (!_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
-                    {
-                        list = new List<INavigationEntry>();
-                        _navigationEntries[navigationContext.NavigationType] = list;
-                    }
-
-                    updatedEntry = FindEntry(list, navigationContext.NavigationId);
-                    if (updatedEntry == null)
-                    {
-                        addedEntry = new NavigationEntry(navigationContext.Target, navigationContext.NavigationProvider, navigationContext.NavigationId,
-                            navigationContext.NavigationType, navigationContext.GetMetadataOrDefault().ToNonReadonly());
-                        list.Add(addedEntry);
-                    }
-                }
-
-                if (navigationContext.NavigationMode.IsClose)
-                {
-                    if (_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
-                    {
-                        removedEntry = FindEntry(list, navigationContext.NavigationId);
-                        if (removedEntry != null)
-                            list.Remove(removedEntry);
-                    }
-                }
-            }
-
-            if (addedEntry != null)
-            {
-                navigationDispatcher
-                    .GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault())
-                    .OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationContext);
-            }
-            else if (updatedEntry != null)
-            {
-                navigationDispatcher
-                    .GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault())
-                    .OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationContext);
-            }
-            else if (removedEntry != null)
-            {
-                navigationDispatcher
-                    .GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault())
-                    .OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationContext);
-            }
+            if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsClose || navigationContext.NavigationMode.IsNew)
+                UpdateEntries(navigationDispatcher, false, navigationContext, !navigationContext.NavigationMode.IsClose);
         }
 
         public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
@@ -106,9 +70,82 @@ namespace MugenMvvm.Navigation.Components
             return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
         }
 
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            var result = Components.TryShow(presenter, request, cancellationToken, metadata);
+            foreach (var r in result.Iterator())
+                UpdateEntries(_navigationDispatcher.DefaultIfNull(), true, r.Target, r.NavigationProvider, r, true, r.GetMetadataOrDefault());
+            return result;
+        }
+
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            => Components.TryClose(presenter, request, cancellationToken, metadata);
+
         #endregion
 
         #region Methods
+
+        private void UpdateEntries(INavigationDispatcher navigationDispatcher, bool isPending, INavigationContext navigationContext, bool isAdd)
+            => UpdateEntries(navigationDispatcher, isPending, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, isAdd, navigationContext.GetMetadataOrDefault());
+
+        private void UpdateEntries(INavigationDispatcher navigationDispatcher, bool isPending, object? target, INavigationProvider navigationProvider,
+            IHasNavigationInfo navigationInfo, bool isAdd, IReadOnlyMetadataContext? metadata)
+        {
+            INavigationEntry? addedEntry = null;
+            INavigationEntry? updatedEntry = null;
+            INavigationEntry? removedEntry = null;
+            lock (_navigationEntries)
+            {
+                if (isAdd)
+                {
+                    if (!_navigationEntries.TryGetValue(navigationInfo.NavigationType, out var list))
+                    {
+                        list = new List<INavigationEntry>();
+                        _navigationEntries[navigationInfo.NavigationType] = list;
+                    }
+
+                    updatedEntry = FindEntry(list, navigationInfo.NavigationId);
+                    if (updatedEntry == null)
+                    {
+                        addedEntry = new NavigationEntry(target, navigationProvider, navigationInfo.NavigationId, navigationInfo.NavigationType, metadata.ToNonReadonly())
+                        {
+                            IsPending = isPending
+                        };
+                        list.Add(addedEntry);
+                    }
+                }
+                else
+                {
+                    if (_navigationEntries.TryGetValue(navigationInfo.NavigationType, out var list))
+                    {
+                        removedEntry = FindEntry(list, navigationInfo.NavigationId);
+                        if (removedEntry != null && (!isPending || removedEntry.IsPending))
+                            list.Remove(removedEntry);
+                    }
+                }
+            }
+
+            if (addedEntry != null)
+            {
+                navigationDispatcher
+                    .GetComponents<INavigationDispatcherEntryListener>(metadata)
+                    .OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationInfo);
+            }
+            else if (updatedEntry != null)
+            {
+                if (!isPending)
+                    ((NavigationEntry)updatedEntry).IsPending = false;
+                navigationDispatcher
+                    .GetComponents<INavigationDispatcherEntryListener>(metadata)
+                    .OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationInfo);
+            }
+            else if (removedEntry != null)
+            {
+                navigationDispatcher
+                    .GetComponents<INavigationDispatcherEntryListener>(metadata)
+                    .OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationInfo);
+            }
+        }
 
         private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
         {

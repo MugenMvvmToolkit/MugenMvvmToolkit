@@ -20,7 +20,7 @@ namespace MugenMvvm.Extensions
         #region Methods
 
         public static Task ClearBackStackAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, object navigationTarget,
-            IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null)
+            bool includePending = false, IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
@@ -29,6 +29,9 @@ namespace MugenMvvm.Extensions
             var callbacks = ItemOrListEditor.Get<Task>();
             foreach (var navigationEntry in navigationDispatcher.GetNavigationEntries(metadata).Iterator())
             {
+                if (!includePending && navigationEntry.IsPending)
+                    continue;
+
                 if (navigationEntry.NavigationType != navigationType || navigationEntry.Target == null || Equals(navigationEntry.Target, navigationTarget))
                     continue;
 
@@ -46,11 +49,13 @@ namespace MugenMvvm.Extensions
             return callbacks.ToItemOrList().WhenAll();
         }
 
-        public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, IReadOnlyMetadataContext? metadata = null)
+        public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
             where TView : class =>
-            navigationDispatcher.GetTopNavigation(navigationType, (entry, type, m) =>
+            navigationDispatcher.GetTopNavigation((navigationType, includePending), (entry, state, m) =>
             {
-                if (type != null && entry.NavigationType != type || !(entry.Target is IViewModelBase viewModel))
+                if (!state.includePending && entry.IsPending)
+                    return null;
+                if (state.navigationType != null && entry.NavigationType != state.navigationType || !(entry.Target is IViewModelBase viewModel))
                     return null;
                 foreach (var t in MugenService.ViewManager.GetViews(viewModel, m).Iterator())
                 {
@@ -61,11 +66,13 @@ namespace MugenMvvm.Extensions
                 return null;
             }, metadata);
 
-        public static T? GetTopNavigationTarget<T>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, IReadOnlyMetadataContext? metadata = null)
+        public static T? GetTopNavigationTarget<T>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
             where T : class =>
-            navigationDispatcher.GetTopNavigation(navigationType, (entry, type, m) =>
+            navigationDispatcher.GetTopNavigation((navigationType, includePending), (entry, state, m) =>
             {
-                if ((type == null || entry.NavigationType == type) && entry.Target is T target)
+                if (!state.includePending && entry.IsPending)
+                    return null;
+                if ((state.navigationType == null || entry.NavigationType == state.navigationType) && entry.Target is T target)
                     return target;
                 return null;
             }, metadata);
@@ -138,13 +145,16 @@ namespace MugenMvvm.Extensions
         }
 
         public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, object? navigationTarget, TState state,
-            Func<INavigationCallback, TState, bool> filter, IReadOnlyMetadataContext? metadata = null)
+            Func<INavigationCallback, TState, bool> filter, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
             var tasks = ItemOrListEditor.Get<Task>();
             foreach (var t in dispatcher.GetNavigationEntries(metadata).Iterator())
             {
+                if (!includePending && t.IsPending)
+                    continue;
+
                 if (navigationTarget != null && Equals(t.Target, navigationTarget))
                     continue;
 

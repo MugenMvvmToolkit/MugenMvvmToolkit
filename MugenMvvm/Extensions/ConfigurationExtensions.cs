@@ -75,18 +75,20 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new MessagePublisher())
                 .WithComponent(new MessengerHandlerSubscriber());
 
+            var entryManager = new NavigationEntryManager();
             configuration.WithAppService(new NavigationDispatcher())
                 .WithComponent(new NavigationCallbackInvoker())
                 .WithComponent(new NavigationCallbackManager())
                 .WithComponent(new NavigationContextProvider())
                 .WithComponent(new NavigationEntryDateTracker())
-                .WithComponent(new NavigationEntryManager());
+                .WithComponent(entryManager);
 
             configuration.WithAppService(new Presenter())
                 .WithComponent(new ConditionPresenterDecorator())
                 .WithComponent(new NavigationCallbackPresenterDecorator())
                 .WithComponent(new ViewModelPresenter())
                 .WithComponent(new ViewPresenterDecorator())
+                .WithComponent(entryManager)
                 .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator));
 
             configuration.WithAppService(new Serializer());

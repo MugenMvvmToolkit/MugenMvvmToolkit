@@ -5,10 +5,13 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
+using MugenMvvm.Presenters;
 using MugenMvvm.UnitTest.Navigation.Internal;
+using MugenMvvm.UnitTest.Presenters.Internal;
 using Should;
 using Xunit;
 
@@ -29,7 +32,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [InlineData(10)]
         public void OnNavigatedShouldTrackEntriesAdd(int count)
         {
-            var provider = new TestNavigationProvider {Id = "t"};
+            var provider = new TestNavigationProvider { Id = "t" };
             var dispatcher = new NavigationDispatcher();
             var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
@@ -44,7 +47,8 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                     {
                         ++invokedCount;
                         arg3.ShouldEqual(ctx);
-                        entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
+                        entry.IsPending.ShouldBeFalse();
+                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
                         entry.NavigationType.ShouldEqual(arg3!.NavigationType);
                         entry.NavigationId.ShouldEqual(arg3!.NavigationId);
                         entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
@@ -78,7 +82,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [InlineData(10)]
         public void OnNavigatedShouldTrackEntriesUpdate(int count)
         {
-            var provider = new TestNavigationProvider {Id = "t"};
+            var provider = new TestNavigationProvider { Id = "t" };
             var dispatcher = new NavigationDispatcher();
             var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
@@ -109,7 +113,8 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                     {
                         ++invokedCount;
                         arg3!.ShouldEqual(ctx);
-                        entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
+                        entry.IsPending.ShouldBeFalse();
+                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
                         entry.NavigationType.ShouldEqual(arg3!.NavigationType);
                         entry.NavigationId.ShouldEqual(arg3!.NavigationId);
                         entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
@@ -133,7 +138,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [InlineData(10)]
         public void OnNavigatedShouldTrackEntriesRemove(int count)
         {
-            var provider = new TestNavigationProvider {Id = "t"};
+            var provider = new TestNavigationProvider { Id = "t" };
             var dispatcher = new NavigationDispatcher();
             var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
@@ -166,7 +171,8 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                         {
                             ++invokedCount;
                             arg3.ShouldEqual(ctx);
-                            entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
+                            entry.IsPending.ShouldBeFalse();
+                            entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
                             entry.NavigationType.ShouldEqual(arg3!.NavigationType);
                             entry.NavigationId.ShouldEqual(arg3!.NavigationId);
                             entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
@@ -188,7 +194,147 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             }
         }
 
-        private static void ValidateEntries(IReadOnlyList<INavigationEntry>? entries, List<NavigationContext> contexts)
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void TryShowShouldTrackEntriesAdd(int count)
+        {
+            var provider = new TestNavigationProvider { Id = "t" };
+            var dispatcher = new NavigationDispatcher();
+            var component = new NavigationEntryManager(dispatcher);
+            var presenter = new Presenter();
+            presenter.AddComponent(component);
+            presenter.AddComponent(new TestPresenterComponent
+            {
+                TryShow = (o, context, arg3) => (PresenterResult)o
+            });
+
+            var contexts = new List<IHasNavigationInfo>();
+            IPresenterResult? ctx = null;
+            var invokedCount = 0;
+
+            for (var i = 0; i < count; i++)
+            {
+                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
+                {
+                    OnNavigationEntryAdded = (entry, arg3) =>
+                    {
+                        ++invokedCount;
+                        arg3.ShouldEqual(ctx);
+                        entry.IsPending.ShouldBeTrue();
+                        entry.NavigationProvider.ShouldEqual(((IHasNavigationProvider)arg3!).NavigationProvider);
+                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
+                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+                    },
+                    OnNavigationEntryRemoved = (entry, arg3) => throw new NotSupportedException(),
+                    OnNavigationEntryUpdated = (entry, arg3) => throw new NotSupportedException()
+                };
+                dispatcher.AddComponent(listener);
+            }
+
+            foreach (var navigationType in NavigationType.GetAll())
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    ctx = new PresenterResult(this, Guid.NewGuid().ToString(), provider, navigationType);
+                    ctx.Metadata.Set(Key, i);
+                    presenter.TryShow(ctx);
+                    contexts.Add(ctx);
+                }
+            }
+
+            ValidateEntries(component.TryGetNavigationEntries(dispatcher, null).AsList(), contexts, true);
+            invokedCount.ShouldEqual(contexts.Count * count);
+        }
+
+        [Fact]
+        public void OnNavigationCanceledShouldRemoveOnlyPendingEntries()
+        {
+            var provider = new TestNavigationProvider { Id = "t" };
+            var dispatcher = new NavigationDispatcher();
+            var component = new NavigationEntryManager(dispatcher);
+            var presenter = new Presenter();
+            presenter.AddComponent(component);
+            presenter.AddComponent(new TestPresenterComponent
+            {
+                TryShow = (o, context, arg3) => (PresenterResult)o
+            });
+
+            var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
+            var presenterResult = new PresenterResult(this, "id2", provider, NavigationType.Background);
+            component.OnNavigated(dispatcher, navigationContext);
+            presenter.TryShow(presenterResult);
+
+            var entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
+            entries.AsList().Single(entry => entry.NavigationId == presenterResult.NavigationId).ShouldNotBeNull();
+
+            component.OnNavigationCanceled(dispatcher, navigationContext, default);
+            component.OnNavigationCanceled(dispatcher, new NavigationContext(this, provider, "id2", NavigationType.Background, NavigationMode.New), default);
+
+            entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
+            entries.AsList().SingleOrDefault(entry => entry.NavigationId == presenterResult.NavigationId).ShouldBeNull();
+        }
+
+        [Fact]
+        public void OnNavigationFailedShouldRemoveOnlyPendingEntries()
+        {
+            var provider = new TestNavigationProvider { Id = "t" };
+            var dispatcher = new NavigationDispatcher();
+            var component = new NavigationEntryManager(dispatcher);
+            var presenter = new Presenter();
+            presenter.AddComponent(component);
+            presenter.AddComponent(new TestPresenterComponent
+            {
+                TryShow = (o, context, arg3) => (PresenterResult)o
+            });
+
+            var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
+            var presenterResult = new PresenterResult(this, "id2", provider, NavigationType.Background);
+            component.OnNavigated(dispatcher, navigationContext);
+            presenter.TryShow(presenterResult);
+
+            var entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
+            entries.AsList().Single(entry => entry.NavigationId == presenterResult.NavigationId).ShouldNotBeNull();
+
+            component.OnNavigationFailed(dispatcher, navigationContext, new Exception());
+            component.OnNavigationFailed(dispatcher, new NavigationContext(this, provider, "id2", NavigationType.Background, NavigationMode.New), new Exception());
+
+            entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
+            entries.AsList().SingleOrDefault(entry => entry.NavigationId == presenterResult.NavigationId).ShouldBeNull();
+        }
+
+
+        [Fact]
+        public void OnNavigatedShouldUpdatePendingEntry()
+        {
+            var provider = new TestNavigationProvider { Id = "t" };
+            var dispatcher = new NavigationDispatcher();
+            var component = new NavigationEntryManager(dispatcher);
+            var presenter = new Presenter();
+            presenter.AddComponent(component);
+            presenter.AddComponent(new TestPresenterComponent
+            {
+                TryShow = (o, context, arg3) => (PresenterResult)o
+            });
+
+            var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
+            var presenterResult = new PresenterResult(this, "id1", provider, NavigationType.Background);
+
+            presenter.TryShow(presenterResult);
+            var entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeTrue();
+
+            component.OnNavigated(dispatcher, navigationContext);
+            entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeFalse();
+        }
+
+        private static void ValidateEntries(IReadOnlyList<INavigationEntry>? entries, IReadOnlyCollection<IHasNavigationInfo> contexts, bool isPending = false)
         {
             if (entries == null)
             {
@@ -200,10 +346,11 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             for (var i = 0; i < entries.Count; i++)
             {
                 var entry = entries[i];
+                entry.IsPending.ShouldEqual(isPending);
                 var navigationContext = contexts.Single(context => context.NavigationId == entry.NavigationId);
                 navigationContext.NavigationType.ShouldEqual(entry.NavigationType);
-                navigationContext.NavigationProvider.ShouldEqual(entry.NavigationProvider);
-                navigationContext.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+                ((IHasNavigationProvider)navigationContext).NavigationProvider.ShouldEqual(entry.NavigationProvider);
+                ((IMetadataOwner<IReadOnlyMetadataContext>)navigationContext).Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
             }
         }
 

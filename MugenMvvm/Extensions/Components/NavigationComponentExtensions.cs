@@ -14,34 +14,34 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnNavigationEntryAdded(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
+        public static void OnNavigationEntryAdded(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationContext);
+                listeners[i].OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationInfo);
         }
 
         public static void OnNavigationEntryUpdated(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
-            INavigationContext? navigationContext)
+            IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationContext);
+                listeners[i].OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationInfo);
         }
 
         public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
-            INavigationContext? navigationContext)
+            IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigationEntryRemoved(navigationDispatcher, navigationEntry, navigationContext);
+                listeners[i].OnNavigationEntryRemoved(navigationDispatcher, navigationEntry, navigationInfo);
         }
 
         public static INavigationCallback? TryAddNavigationCallback(this INavigationCallbackManagerComponent[] components,
@@ -278,7 +278,7 @@ namespace MugenMvvm.Extensions.Components
                     if (resultTask == null)
                         OnExecuted(Default.TrueTask);
                     else
-                        resultTask.ContinueWith((t, state) => ((NavigatingResult) state!).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
+                        resultTask.ContinueWith((t, state) => ((NavigatingResult)state!).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
                 }
                 catch (Exception e)
                 {
