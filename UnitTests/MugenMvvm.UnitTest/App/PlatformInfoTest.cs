@@ -8,7 +8,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.App
 {
-    public class DeviceInfoTest : UnitTestBase
+    public class PlatformInfoTest : UnitTestBase
     {
         #region Methods
 
@@ -17,11 +17,12 @@ namespace MugenMvvm.UnitTest.App
         {
             PlatformType type = PlatformType.Android;
             var meta = new MetadataContext();
-            var deviceInfo = new DeviceInfo(type, meta);
+            var deviceInfo = new PlatformInfo(type, meta);
             deviceInfo.Metadata.ShouldEqual(meta);
             deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
-            deviceInfo.Platform.ShouldEqual(type);
-            deviceInfo.Version.ShouldEqual("0.0");
+            deviceInfo.Type.ShouldEqual(type);
+            deviceInfo.ApplicationVersion.ShouldEqual("0.0");
+            deviceInfo.DeviceVersion.ShouldEqual("0.0");
             deviceInfo.HasMetadata.ShouldBeFalse();
             meta.Set(ViewModelMetadata.Id, Guid.Empty);
             deviceInfo.HasMetadata.ShouldBeTrue();

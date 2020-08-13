@@ -196,7 +196,7 @@ namespace MugenMvvm.UnitTest.Presenters
                     else
                         r.ShouldEqual(vm);
 
-                    token.ShouldEqual(cts.Token);
+                    token.CanBeCanceled.ShouldBeTrue();
                     return Task.FromResult<IView>(view);
                 }
             });
@@ -447,7 +447,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var tcs = new TaskCompletionSource<object?>();
             mediator.WaitNavigationBeforeShowAsyncHandler = (token, context) =>
             {
-                token.ShouldEqual(cts);
+                token.CanBeCanceled.ShouldBeTrue();
                 context.ShouldEqual(DefaultMetadata);
                 return tcs.Task;
             };
@@ -483,7 +483,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 CanNavigateAsync = (context, t) =>
                 {
                     context.ShouldEqual(navigationContext);
-                    t.ShouldEqual(cts);
+                    t.CanBeCanceled.ShouldBeTrue();
                     return tcs.Task;
                 }
             });
@@ -493,7 +493,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 {
                     ++cancelCount;
                     context.ShouldEqual(navigationContext);
-                    t.ShouldEqual(cts);
+                    t.CanBeCanceled.ShouldBeTrue();
                 }
             });
 
@@ -589,7 +589,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 CanNavigateAsync = (context, t) =>
                 {
                     context.ShouldEqual(navigationContext);
-                    t.ShouldEqual(cts);
+                    t.CanBeCanceled.ShouldBeTrue();
                     if (canClose)
                         return Task.FromResult(true);
                     return tcs.Task;

@@ -5,18 +5,19 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Android.App
 {
-    public class AndroidDeviceInfo : DeviceInfo
+    public class AndroidPlatformInfo : PlatformInfo
     {
         #region Fields
 
         private PlatformIdiom? _idiom;
-        private string? _version;
+        private string? _deviceVersion;
+        private string? _appVersion;
 
         #endregion
 
         #region Constructors
 
-        public AndroidDeviceInfo(IReadOnlyMetadataContext? metadata = null) : base(PlatformType.Android, metadata)
+        public AndroidPlatformInfo(IReadOnlyMetadataContext? metadata = null) : base(PlatformType.Android, metadata)
         {
         }
 
@@ -24,9 +25,11 @@ namespace MugenMvvm.Android.App
 
         #region Properties
 
+        public override string ApplicationVersion => _appVersion ??= DeviceService.AppVersion();
+
         public override PlatformIdiom Idiom => _idiom ??= GetIdiom();
 
-        public override string Version => _version ??= DeviceService.Version();
+        public override string DeviceVersion => _deviceVersion ??= DeviceService.Version();
 
         #endregion
 

@@ -14,7 +14,7 @@ namespace MugenMvvm.App
         #region Fields
 
         private IComponentCollection? _components;
-        private IDeviceInfo? _deviceInfo;
+        private IPlatformInfo? _deviceInfo;
 
         #endregion
 
@@ -46,9 +46,9 @@ namespace MugenMvvm.App
             }
         }
 
-        public IDeviceInfo DeviceInfo
+        public IPlatformInfo PlatformInfo
         {
-            get => _deviceInfo ??= new DeviceInfo(PlatformType.Unknown);
+            get => _deviceInfo ??= new PlatformInfo(PlatformType.Unknown);
             private set => _deviceInfo = value;
         }
 
@@ -62,12 +62,12 @@ namespace MugenMvvm.App
         public void OnLifecycleChanged(ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null) =>
             Components.Get<IApplicationLifecycleDispatcherComponent>().OnLifecycleChanged(this, lifecycleState, state, metadata);
 
-        public void Initialize(IDeviceInfo deviceInfo, object? state, IReadOnlyMetadataContext? metadata = null)
+        public void Initialize(IPlatformInfo platformInfo, object? state, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(deviceInfo, nameof(deviceInfo));
+            Should.NotBeNull(platformInfo, nameof(platformInfo));
             if (_deviceInfo != null && _deviceInfo.HasMetadata)
-                deviceInfo.Metadata.Merge(_deviceInfo.Metadata);
-            DeviceInfo = deviceInfo;
+                platformInfo.Metadata.Merge(_deviceInfo.Metadata);
+            PlatformInfo = platformInfo;
             OnLifecycleChanged(ApplicationLifecycleState.Initializing, state, metadata);
             OnLifecycleChanged(ApplicationLifecycleState.Initialized, state, metadata);
         }

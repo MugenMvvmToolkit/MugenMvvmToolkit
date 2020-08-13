@@ -17,6 +17,7 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<string, string>? _viewName;
         private static IMetadataContextKey<bool, bool>? _nonModal;
+        private static IMetadataContextKey<bool, bool>? _animated;
         private static IMetadataContextKey<bool, bool>? _forceClose;
         private static IMetadataContextKey<NavigationType, NavigationType>? _navigationType;
         private static IMetadataContextKey<bool, bool>? _clearBackStack;
@@ -52,6 +53,13 @@ namespace MugenMvvm.Metadata
         {
             get => _nonModal ??= GetBuilder(_nonModal, nameof(NonModal)).Serializable().Build();
             set => _nonModal = value;
+        }
+
+        [AllowNull]
+        public static IMetadataContextKey<bool, bool> Animated
+        {
+            get => _animated ??= GetBuilder(_animated, nameof(Animated)).Serializable().Build();
+            set => _animated = value;
         }
 
         [AllowNull]

@@ -29,7 +29,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal.Components;
-using MugenMvvm.Metadata;
 using MugenMvvm.Threading.Components;
 using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
 
@@ -44,7 +43,6 @@ namespace MugenMvvm.Android.Extensions
         {
             MugenAndroidNativeService.Initialize(context ?? Application.Context, new AndroidBindViewCallback(), rawViewTagMode);
             LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeMode);
-            configuration.Application.Metadata.Set(ApplicationMetadata.Version, DeviceService.AppVersion());
 
             if (nativeMode)
                 MugenAndroidNativeService.SetNativeMode();

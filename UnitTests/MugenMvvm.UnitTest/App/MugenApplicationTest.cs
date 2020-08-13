@@ -22,11 +22,12 @@ namespace MugenMvvm.UnitTest.App
             mugenApplication.HasMetadata.ShouldBeFalse();
             mugenApplication.Components.ShouldNotBeNull();
             mugenApplication.HasComponents.ShouldBeFalse();
-            var deviceInfo = mugenApplication.DeviceInfo;
+            var deviceInfo = mugenApplication.PlatformInfo;
             deviceInfo.ShouldNotBeNull();
             deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
-            deviceInfo.Platform.ShouldEqual(PlatformType.Unknown);
-            deviceInfo.Version.ShouldEqual("0.0");
+            deviceInfo.Type.ShouldEqual(PlatformType.Unknown);
+            deviceInfo.ApplicationVersion.ShouldEqual("0.0");
+            deviceInfo.DeviceVersion.ShouldEqual("0.0");
             deviceInfo.Metadata.ShouldNotBeNull();
             MugenService.Application.ShouldEqual(mugenApplication);
         }
@@ -95,7 +96,7 @@ namespace MugenMvvm.UnitTest.App
         {
             var state = this;
             var states = new List<ApplicationLifecycleState>();
-            var device = new DeviceInfo(PlatformType.UnitTest, new MetadataContext());
+            var device = new PlatformInfo(PlatformType.UnitTest, new MetadataContext());
             var application = new MugenApplication();
             application.AddComponent(new TestApplicationLifecycleDispatcherComponent(application)
             {
@@ -107,7 +108,7 @@ namespace MugenMvvm.UnitTest.App
                 }
             });
             application.Initialize(device, state, DefaultMetadata);
-            application.DeviceInfo.ShouldEqual(device);
+            application.PlatformInfo.ShouldEqual(device);
             states.Count.ShouldEqual(2);
             states[0].ShouldEqual(ApplicationLifecycleState.Initializing);
             states[1].ShouldEqual(ApplicationLifecycleState.Initialized);
