@@ -30,17 +30,18 @@ namespace MugenMvvm.Views.Components
                 var mappings = viewManager.GetMappings(request, metadata);
                 if (mappings.List == null)
                 {
-                    var viewType = r.View as Type ?? r.View.GetType();
+                    if (r.View is Type viewType)
+                        r.View = null;
+                    else
+                        viewType = r.View.GetType();
                     var mappingId = mappings.Item?.Id ?? $"a{r.ViewModel.GetType().FullName}{viewType.FullName}";
                     foreach (var view in viewManager.GetViews(r.ViewModel, metadata).Iterator())
                     {
-                        if (view.Mapping.Id == mappingId)
+                        if (view.Mapping.Id == mappingId && (r.View == null || Equals(r.View, view.Target)))
                             return Task.FromResult(view);
                     }
 
                     mapping = mappings.Item ?? new ViewMapping(mappingId, viewType, r.ViewModel.GetType(), metadata);
-                    if (r.View is Type)
-                        r.View = null;
                 }
             }
 
