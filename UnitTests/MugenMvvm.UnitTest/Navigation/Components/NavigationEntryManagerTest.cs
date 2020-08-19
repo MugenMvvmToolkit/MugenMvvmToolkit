@@ -30,6 +30,56 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
+        public void OnNavigatingShouldTrackEntriesAdd(int count)
+        {
+            var provider = new TestNavigationProvider { Id = "t" };
+            var dispatcher = new NavigationDispatcher();
+            var component = new NavigationEntryManager();
+            var contexts = new List<NavigationContext>();
+            NavigationContext? ctx = null;
+            var invokedCount = 0;
+
+            for (var i = 0; i < count; i++)
+            {
+                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
+                {
+                    OnNavigationEntryAdded = (entry, arg3) =>
+                    {
+                        ++invokedCount;
+                        arg3.ShouldEqual(ctx);
+                        entry.IsPending.ShouldBeTrue();
+                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
+                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
+                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+                    },
+                    OnNavigationEntryRemoved = (entry, arg3) => throw new NotSupportedException(),
+                    OnNavigationEntryUpdated = (entry, arg3) => throw new NotSupportedException()
+                };
+                dispatcher.AddComponent(listener);
+            }
+
+            foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
+            {
+                foreach (var navigationType in NavigationType.GetAll())
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
+                        ctx.Metadata.Set(Key, i);
+                        component.OnNavigating(dispatcher, ctx);
+                        contexts.Add(ctx);
+                    }
+                }
+            }
+
+            ValidateEntries(component.TryGetNavigationEntries(null!, null).AsList(), contexts, true);
+            invokedCount.ShouldEqual(contexts.Count * count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
         public void OnNavigatedShouldTrackEntriesAdd(int count)
         {
             var provider = new TestNavigationProvider { Id = "t" };
