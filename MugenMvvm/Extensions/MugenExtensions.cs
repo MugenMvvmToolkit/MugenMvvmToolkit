@@ -38,6 +38,16 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static IViewModelBase GetViewModel(this IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
+            Should.NotBeNull(request, nameof(request));
+            var viewModel = viewModelManager.TryGetViewModel(request, metadata);
+            if (viewModel == null)
+                ExceptionManager.ThrowRequestNotSupported<IEntityTrackingCollectionProviderComponent>(viewModelManager, request, metadata);
+            return viewModel;
+        }
+
         public static IEntityTrackingCollection GetTrackingCollection(this IEntityManager entityManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(entityManager, nameof(entityManager));
@@ -217,8 +227,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo) (object) value!;
+                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo)(object)value!;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -285,7 +295,7 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o!).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
@@ -312,7 +322,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task, TState>>) o!;
+                var tuple = (Tuple<TState, Action<Task, TState>>)o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -336,7 +346,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task<T>, TState>>) o!;
+                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -389,19 +399,8 @@ namespace MugenMvvm.Extensions
             private int _endCurrent;
             private int _startNext;
 
-            /// <summary>
-            ///     Returns an enumerator that allows for iteration over the split span.
-            /// </summary>
-            /// <returns>Returns a <see cref="System.SpanSplitEnumerator{T}" /> that can be used to iterate over the split span.</returns>
             public SpanSplitEnumerator<T> GetEnumerator() => this;
 
-            /// <summary>
-            ///     Returns the current element of the enumeration.
-            /// </summary>
-            /// <returns>
-            ///     Returns a <see cref="System.Range" /> instance that indicates the bounds of the current element withing the
-            ///     source span.
-            /// </returns>
             public Range Current => new Range(_startCurrent, _endCurrent);
 
             internal SpanSplitEnumerator(ReadOnlySpan<T> span, ReadOnlySpan<T> separators)
@@ -430,13 +429,6 @@ namespace MugenMvvm.Extensions
                 _startNext = 0;
             }
 
-            /// <summary>
-            ///     Advances the enumerator to the next element of the enumeration.
-            /// </summary>
-            /// <returns>
-            ///     <see langword="true" /> if the enumerator was successfully advanced to the next element;
-            ///     <see langword="false" /> if the enumerator has passed the end of the enumeration.
-            /// </returns>
             public bool MoveNext()
             {
                 if (!_isInitialized || _startNext > _buffer.Length)

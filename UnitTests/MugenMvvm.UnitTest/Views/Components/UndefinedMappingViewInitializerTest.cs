@@ -202,6 +202,46 @@ namespace MugenMvvm.UnitTest.Views.Components
         }
 
         [Fact]
+        public void TryInitializeAsyncShouldBeHandledByComponentsWithNewMapping3()
+        {
+            var request = new TestViewModel();
+            var mapping = ViewMapping.Undefined;
+            var newMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var result = Task.FromResult<IView>(null!);
+            var invokeCount = 0;
+            var cancellationToken = new CancellationTokenSource().Token;
+
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new TestViewMappingProviderComponent
+            {
+                TryGetMappings = (o, context) =>
+                {
+                    o.ShouldEqual(request);
+                    context.ShouldEqual(DefaultMetadata);
+                    return newMapping;
+                }
+            });
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (m, r, meta, token) =>
+                {
+                    ++invokeCount;
+                    m.ShouldEqual(newMapping);
+                    r.ShouldEqual(request);
+                    meta.ShouldEqual(DefaultMetadata);
+                    token.ShouldEqual(cancellationToken);
+                    return result;
+                }
+            });
+
+            var component = new UndefinedMappingViewInitializer();
+            viewManager.AddComponent(component);
+
+            viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
         public void TryInitializeAsyncShouldBeHandledByComponentsDifferentView()
         {
             var view = new object();

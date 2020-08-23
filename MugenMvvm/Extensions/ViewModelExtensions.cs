@@ -18,6 +18,11 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)
+        {
+            return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).Result;
+        }
+
         public static IView GetOrCreateView(this IViewModelBase viewModel, Type viewType, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)
         {
             Should.NotBeNull(viewType, nameof(viewType));

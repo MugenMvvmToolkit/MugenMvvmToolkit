@@ -25,23 +25,29 @@ namespace MugenMvvm.Views.Components
 
         public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (mapping == ViewMapping.Undefined && request is ViewModelViewRequest r && r.ViewModel != null && r.View != null)
+            if (mapping == ViewMapping.Undefined)
             {
-                var mappings = viewManager.GetMappings(request, metadata);
-                if (mappings.List == null)
+                var viewModel = MugenExtensions.TryGetViewModelView(request, out object? v);
+                if (viewModel != null)
                 {
-                    if (r.View is Type viewType)
-                        r.View = null;
-                    else
-                        viewType = r.View.GetType();
-                    var mappingId = mappings.Item?.Id ?? $"a{r.ViewModel.GetType().FullName}{viewType.FullName}";
-                    foreach (var view in viewManager.GetViews(r.ViewModel, metadata).Iterator())
+                    var mappings = viewManager.GetMappings(request, metadata);
+                    if (mappings.List == null && (v != null || mappings.Item != null))
                     {
-                        if (view.Mapping.Id == mappingId && (r.View == null || Equals(r.View, view.Target)))
-                            return Task.FromResult(view);
+                        if (v is Type viewType)
+                            v = null;
+                        else
+                            viewType = v?.GetType()!;
+                        var mappingId = mappings.Item?.Id ?? $"a{viewModel.GetType().FullName}{viewType.FullName}";
+                        foreach (var view in viewManager.GetViews(viewModel, metadata).Iterator())
+                        {
+                            if (view.Mapping.Id == mappingId && (v == null || Equals(v, view.Target)))
+                                return Task.FromResult(view);
+                        }
+
+                        mapping = mappings.Item ?? new ViewMapping(mappingId, viewType, viewModel.GetType(), metadata);
                     }
 
-                    mapping = mappings.Item ?? new ViewMapping(mappingId, viewType, r.ViewModel.GetType(), metadata);
+                    request = ViewModelViewRequest.GetRequestOrRaw(request, viewModel, v);
                 }
             }
 
