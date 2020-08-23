@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,8 +18,14 @@ import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
 public final class ActivityExtensions {
     static final String ViewIdIntentKey = "~v_id!";
+    static final String ExtraBundleKey = "~eb@#";
 
     private ActivityExtensions() {
+    }
+
+    public static Bundle getExtras(IActivityView activityView) {
+        Activity activity = (Activity) activityView.getActivity();
+        return activity.getIntent().getBundleExtra(ExtraBundleKey);
     }
 
     public static Object getActionBar(IActivityView activityView) {
@@ -43,7 +50,7 @@ public final class ActivityExtensions {
         return false;
     }
 
-    public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {
+    public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags, Bundle extras) {
         if (activityClass == null)
             activityClass = ViewExtensions.tryGetClassById(resourceId);
         if (activityClass == null)
@@ -51,6 +58,8 @@ public final class ActivityExtensions {
 
         Context context = activityView == null ? MugenNativeService.getAppContext() : activityView.getActivity();
         Intent intent = new Intent(context, activityClass);
+        if (extras != null)
+            intent.putExtra(ExtraBundleKey, extras);
         if (activityView == null)
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (flags != 0)

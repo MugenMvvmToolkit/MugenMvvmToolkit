@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidViewFirstInitializer : IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class AndroidViewInitializer : IViewLifecycleDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Android.Views
 
         #region Constructors
 
-        public AndroidViewFirstInitializer(IPresenter? presenter = null)
+        public AndroidViewInitializer(IPresenter? presenter = null)
         {
             _presenter = presenter;
         }
@@ -32,7 +32,7 @@ namespace MugenMvvm.Android.Views
 
         public int Priority { get; set; } = ViewComponentPriority.PostInitializer - 1;
 
-        public bool FinishWithoutView { get; set; } = true;
+        public bool FinishNotInitializedView { get; set; } = true;
 
         #endregion
 
@@ -40,16 +40,9 @@ namespace MugenMvvm.Android.Views
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (view is IView)
-                return;
-
-            var views = viewManager.GetViews(view, metadata);
-            if (lifecycleState == AndroidViewLifecycleState.Started)
-            {
-                if (views.IsNullOrEmpty())
-                    _presenter.DefaultIfNull().TryShow(view, default, metadata);
-            }
-            else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishWithoutView && view is IActivityView activityView)
+            if (lifecycleState == AndroidViewLifecycleState.Started && !(view is IView) && viewManager.GetViews(view, metadata).IsNullOrEmpty())
+                _presenter.DefaultIfNull().TryShow(view, default, metadata);
+            else if (FinishNotInitializedView && lifecycleState == AndroidViewLifecycleState.Resumed && view is IActivityView activityView && viewManager.GetViews(view).IsNullOrEmpty())
                 activityView.Finish();
         }
 

@@ -13,6 +13,7 @@ using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Android.Native.Views.Support;
 using MugenMvvm.Android.Observation;
 using MugenMvvm.Android.Presenters;
+using MugenMvvm.Android.Requests;
 using MugenMvvm.Android.Views;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Binding;
@@ -26,17 +27,25 @@ using MugenMvvm.Binding.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Threading.Components;
+using MugenMvvm.Views;
 using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
+using View = Android.Views.View;
 
 namespace MugenMvvm.Android.Extensions
 {
-    public static partial class MugenAndroidExtensions
+    public static class MugenAndroidExtensions
     {
         #region Methods
+
+        public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
+            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new AndroidViewRequest(viewModel, container, resourceId), default, metadata).Result;
 
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeMode = false,
             bool disableFragmentState = false)
@@ -56,7 +65,7 @@ namespace MugenMvvm.Android.Extensions
 
             configuration.ServiceConfiguration<IViewManager>()
                 .WithComponent(new AndroidViewStateDispatcher())
-                .WithComponent(new AndroidViewFirstInitializer())
+                .WithComponent(new AndroidViewInitializer())
                 .WithComponent(new AndroidViewRequestManager())
                 .WithComponent(new AndroidViewStateMapperDispatcher())
                 .WithComponent(new AndroidActivityViewRequestManager())

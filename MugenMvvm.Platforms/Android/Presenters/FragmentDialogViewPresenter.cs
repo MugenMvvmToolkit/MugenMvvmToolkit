@@ -32,11 +32,14 @@ namespace MugenMvvm.Android.Presenters
         #region Methods
 
         public override Task WaitBeforeCloseAsync(IViewModelPresenterMediator mediator, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, metadata);
+            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this, (callback, state) => callback.NavigationType == NavigationType.Background &&
+                                                                                                       callback.CallbackType == NavigationCallbackType.Close, true, metadata);
 
         protected override Task WaitBeforeShowAsync(IViewModelPresenterMediator mediator, IDialogFragmentView? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => (callback.NavigationType == state.NavigationType || callback.NavigationType == NavigationType.Page)
-                                                                                   && (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), metadata);
+            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this,
+                (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close || 
+                                     (callback.NavigationType == state.NavigationType || callback.NavigationType == NavigationType.Page) &&
+                                     (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, metadata);
 
         protected override void Activate(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
         {

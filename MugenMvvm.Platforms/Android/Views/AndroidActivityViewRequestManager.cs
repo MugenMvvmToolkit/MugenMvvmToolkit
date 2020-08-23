@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Android.Enums;
+using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Requests;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -28,7 +29,7 @@ namespace MugenMvvm.Android.Views
         {
             if (!(request is AndroidActivityViewRequest activityRequest))
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
-            var handler = new PendingActivityHandler(activityRequest.Mapping);
+            var handler = new PendingActivityHandler(activityRequest.Mapping, cancellationToken);
             viewManager.AddComponent(handler);
             activityRequest.StartActivity();
 
@@ -41,12 +42,12 @@ namespace MugenMvvm.Android.Views
                     return;
                 }
 
-                activityRequest.View = task.Result;
+                tuple.activityRequest.View = task.Result;
                 var result = tuple.Components.TryInitializeAsync(tuple.viewManager, tuple.mapping, tuple.activityRequest, default, tuple.metadata);
                 if (result == null)
                     ExceptionManager.ThrowObjectNotInitialized(tuple.Components);
                 tuple.tcs.TrySetFromTask(result);
-            }).ContinueWith((task, o) => ((TaskCompletionSource<IView>) o).TrySetFromTask(task), tcs, TaskContinuationOptions.NotOnRanToCompletion);
+            }).ContinueWith((task, o) => ((TaskCompletionSource<IView>)o).TrySetFromTask(task), tcs, TaskContinuationOptions.NotOnRanToCompletion);
             return tcs.Task;
         }
 
@@ -62,14 +63,16 @@ namespace MugenMvvm.Android.Views
             #region Fields
 
             private readonly IViewMapping _mapping;
+            private readonly CancellationToken _cancellationToken;
 
             #endregion
 
             #region Constructors
 
-            public PendingActivityHandler(IViewMapping mapping)
+            public PendingActivityHandler(IViewMapping mapping, CancellationToken cancellationToken)
             {
                 _mapping = mapping;
+                _cancellationToken = cancellationToken;
             }
 
             #endregion
@@ -84,10 +87,21 @@ namespace MugenMvvm.Android.Views
 
             public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                if (view is IView || lifecycleState != AndroidViewLifecycleState.Created || !_mapping.ViewType.IsInstanceOfType(view))
+                if (lifecycleState != AndroidViewLifecycleState.Created)
                     return;
+                view = MugenExtensions.GetUnderlyingView(view);
+                if (!_mapping.ViewType.IsInstanceOfType(view))
+                    return;
+
                 viewManager.RemoveComponent(this);
-                TrySetResult(view);
+                if (_cancellationToken.IsCancellationRequested)
+                {
+                    if (view is IActivityView activityView)
+                        activityView.Finish();
+                    TrySetCanceled(_cancellationToken);
+                }
+                else
+                    TrySetResult(view);
             }
 
             #endregion

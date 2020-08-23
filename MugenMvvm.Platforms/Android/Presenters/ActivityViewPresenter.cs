@@ -1,7 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.OS;
 using Java.Lang;
+using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Native.Views;
@@ -11,8 +13,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presenters;
 
@@ -22,15 +22,15 @@ namespace MugenMvvm.Android.Presenters
     {
         #region Fields
 
-        private readonly IViewManager? _viewManager;
+        private readonly IPresenter? _presenter;
 
         #endregion
 
         #region Constructors
 
-        public ActivityViewPresenter(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null) : base(navigationDispatcher)
+        public ActivityViewPresenter(IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null) : base(navigationDispatcher)
         {
-            _viewManager = viewManager;
+            _presenter = presenter;
         }
 
         #endregion
@@ -39,17 +39,21 @@ namespace MugenMvvm.Android.Presenters
 
         public override NavigationType NavigationType => NavigationType.Page;
 
-        protected IViewManager ViewManager => _viewManager.DefaultIfNull();
+        protected IPresenter Presenter => _presenter.DefaultIfNull();
 
         #endregion
 
         #region Methods
 
         public override Task WaitBeforeCloseAsync(IViewModelPresenterMediator mediator, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, metadata);
+            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this,
+                (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, true, metadata);
 
         protected override Task WaitBeforeShowAsync(IViewModelPresenterMediator mediator, IActivityView? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => callback.NavigationType == state.NavigationType && callback.CallbackType == NavigationCallbackType.Showing, metadata);
+            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this,
+                (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close ||
+                                     callback.NavigationType == state.NavigationType &&
+                                     (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, metadata);
 
         protected override object? TryGetViewRequest(IViewModelPresenterMediator mediator, IActivityView? view, INavigationContext navigationContext)
         {
@@ -73,11 +77,8 @@ namespace MugenMvvm.Android.Presenters
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext)
         {
-            var flags = 0;
-            if (navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack))
-                flags = (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-
-            StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), flags, navigationContext);
+            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
+            StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), flags, null, navigationContext);
         }
 
         protected virtual void RefreshActivity(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
@@ -86,25 +87,10 @@ namespace MugenMvvm.Android.Presenters
             var metadata = navigationContext.GetMetadataOrDefault();
             if (metadata.Get(NavigationMetadata.ClearBackStack))
             {
-                var callbacks = ItemOrListEditor.Get<Task>();
-                foreach (var navigationEntry in NavigationDispatcher.GetNavigationEntries(metadata).Iterator())
-                {
-                    if (navigationEntry.NavigationType != NavigationType || !(navigationEntry.Target is IActivityView targetActivity) || Equals(targetActivity, view))
-                        continue;
-                    foreach (var navigationCallback in NavigationDispatcher.GetNavigationCallbacks(navigationEntry, metadata).Iterator())
-                    {
-                        if (navigationCallback.CallbackType == NavigationCallbackType.Close)
-                            callbacks.Add(navigationCallback.AsTask());
-                    }
-
-                    ViewManager.OnLifecycleChanged(targetActivity, ViewLifecycleState.Closed, null, metadata);
-                    targetActivity.Finish();
-                }
-
-                var task = callbacks.ToItemOrList().WhenAll();
+                var task = NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
                 if (!task.IsCompleted)
                 {
-                    task.ContinueWithEx((this, mediator, view, navigationContext), (t, tuple) => tuple.Item1.RefreshActivity(tuple.mediator, tuple.view, tuple.navigationContext));
+                    task.ContinueWithEx((this, mediator, view, navigationContext), (_, state) => state.Item1.RefreshActivity(state.mediator, state.view, state.navigationContext));
                     return;
                 }
 
@@ -116,10 +102,12 @@ namespace MugenMvvm.Android.Presenters
                 return;
 
             flags |= (int)ActivityFlags.ReorderToFront;
-            StartActivity(mediator, topActivity, flags, navigationContext);
+            var bundle = new Bundle(1);
+            bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.Metadata.Get(ViewModelMetadata.Id).ToString("N"));
+            StartActivity(mediator, topActivity, flags, bundle, navigationContext);
         }
 
-        protected virtual void StartActivity(IViewModelPresenterMediator mediator, IActivityView? topActivity, int flags, INavigationContext navigationContext)
+        protected virtual void StartActivity(IViewModelPresenterMediator mediator, IActivityView? topActivity, int flags, Bundle? bundle, INavigationContext navigationContext)
         {
             var mapping = mediator.Mapping;
             Class? activityType = null;
@@ -129,7 +117,7 @@ namespace MugenMvvm.Android.Presenters
             if (mapping is IAndroidViewMapping m)
                 resourceId = m.ResourceId;
 
-            if (!ActivityExtensions.StartActivity(topActivity!, activityType!, resourceId, flags))
+            if (!ActivityExtensions.StartActivity(topActivity!, activityType!, resourceId, flags, bundle!))
                 ExceptionManager.ThrowPresenterCannotShowRequest(mediator.Mapping, navigationContext.GetMetadataOrDefault());
         }
 

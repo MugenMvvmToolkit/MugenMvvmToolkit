@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Android.OS;
 using MugenMvvm.Android.Constants;
@@ -53,14 +54,11 @@ namespace MugenMvvm.Android.Views
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && state is ICancelableRequest cancelableRequest
-                && !cancelableRequest.Cancel.GetValueOrDefault() && cancelableRequest.State is Bundle bundle)
+            if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && TryGetBundle(view, state, false, out var bundle))
                 PreserveState(viewManager, v, bundle, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Creating && state is ICancelableRequest r && !r.Cancel.GetValueOrDefault() && r.State is Bundle b)
+            else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(view, state, true, out var b))
             {
-                if (view is IView wrapperView)
-                    view = wrapperView.Target;
-
+                view = MugenExtensions.GetUnderlyingView(view);
                 var request = TryRestoreState(viewManager, view, b, metadata);
                 if (request == null)
                 {
@@ -69,12 +67,13 @@ namespace MugenMvvm.Android.Views
                         av.Finish();
                     else if (view is IFragmentView f)
                         FragmentExtensions.Remove(f);
-                    return;
                 }
-
-                viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
-                if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsNullOrEmpty() && view is IActivityView activity)
-                    activity.Finish();
+                else
+                {
+                    viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
+                    if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsNullOrEmpty() && view is IActivityView activity)
+                        activity.Finish();
+                }
             }
         }
 
@@ -94,13 +93,13 @@ namespace MugenMvvm.Android.Views
             else
             {
                 using var stream = new MemoryStream();
-                if (_serializer.DefaultIfNull().TrySerialize(stream, request, metadata))
-                    bundle.Remove(AndroidInternalConstant.BundleViewState);
-                else
+                if (_serializer.DefaultIfNull().TrySerialize(stream, request.Metadata, metadata))
                 {
                     bundle.PutByteArray(AndroidInternalConstant.BundleViewState, stream.ToArray());
                     viewManager.OnLifecycleChanged(view, ViewLifecycleState.Preserved, request, metadata);
                 }
+                else
+                    bundle.Remove(AndroidInternalConstant.BundleViewState);
             }
         }
 
@@ -133,6 +132,39 @@ namespace MugenMvvm.Android.Views
             }
 
             return new ViewModelViewRequest(viewModel, view);
+        }
+
+        private static bool TryGetBundle(object view, object? state, bool extrasAsFallback, [NotNullWhen(true)] out Bundle? bundle)
+        {
+            while (true)
+            {
+                if (state is Bundle b)
+                {
+                    bundle = b;
+                    return true;
+                }
+
+                if (state is ICancelableRequest cancelableRequest)
+                {
+                    if (cancelableRequest.Cancel.GetValueOrDefault())
+                    {
+                        bundle = null;
+                        return false;
+                    }
+
+                    state = cancelableRequest.State;
+                    continue;
+                }
+
+                if (extrasAsFallback && MugenExtensions.GetUnderlyingView(view) is IActivityView activityView)
+                {
+                    bundle = ActivityExtensions.GetExtras(activityView);
+                    return bundle != null;
+                }
+
+                bundle = null;
+                return false;
+            }
         }
 
         #endregion
