@@ -51,7 +51,7 @@ namespace MugenMvvm.Presenters
         void IViewLifecycleDispatcherComponent.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (View == null && lifecycleState == ViewLifecycleState.Initializing && view is IView v && Equals(v.ViewModel, ViewModel) && v.Mapping.Id == Mapping.Id)
-                UpdateView(v, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+                UpdateView(v, ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
 
             if (View != null && Equals(View.Target, MugenExtensions.GetUnderlyingView(view)))
                 OnViewLifecycleChanged(lifecycleState, state, metadata);
@@ -110,8 +110,11 @@ namespace MugenMvvm.Presenters
             //close from lifecycle
             if (ClosingContext == null)
             {
-                if (ShowingContext != null)//todo review
+                if (ShowingContext != null)
+                {
+                    TryClose(CurrentView, default, metadata);
                     return;
+                }
                 ClosingContext = GetNavigationContext(NavigationMode.Close, metadata);
                 OnNavigating(ClosingContext);
             }

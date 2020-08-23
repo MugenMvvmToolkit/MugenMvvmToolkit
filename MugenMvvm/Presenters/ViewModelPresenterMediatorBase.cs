@@ -104,7 +104,7 @@ namespace MugenMvvm.Presenters
                 return null;
 
             if (ShowingContext != null)
-                return GetPresenterResult(false, ShowingContext.Metadata ?? metadata);
+                return GetPresenterResult(false, ShowingContext.GetMetadataOrDefault(metadata));
 
             ShowingTaskCompletionSource?.TrySetCanceled();
             ShowingCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
@@ -130,7 +130,7 @@ namespace MugenMvvm.Presenters
                 return null;
 
             if (ClosingContext != null)
-                return GetPresenterResult(false, ClosingContext.Metadata ?? metadata);
+                return GetPresenterResult(false, ClosingContext.GetMetadataOrDefault(metadata));
 
             ShowingCancellationTokenSource?.Cancel();
             Task.WhenAll(WaitBeforeCloseAsync(cancellationToken, metadata), ShowingTaskCompletionSource?.Task ?? Task.CompletedTask)
