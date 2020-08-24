@@ -14,8 +14,6 @@ namespace MugenMvvm.Interfaces.Collections.Components
 
         void OnRemoved(IObservableCollection collection, object? item, int index);
 
-        void OnReset(IObservableCollection collection, IEnumerable<object?> items);
-
-        void OnCleared(IObservableCollection collection);
+        void OnReset(IObservableCollection collection, IEnumerable<object?>? items);
     }
 }

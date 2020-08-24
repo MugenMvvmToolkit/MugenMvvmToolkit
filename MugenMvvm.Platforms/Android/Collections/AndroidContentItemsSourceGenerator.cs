@@ -55,19 +55,13 @@ namespace MugenMvvm.Android.Collections
             return MugenService
                 .AttachedValueManager
                 .TryGetAttachedValues(owner)
-                .GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector, (o, templateSelector) => new AndroidContentItemsSourceGenerator((View) o, templateSelector));
+                .GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector, (o, templateSelector) => new AndroidContentItemsSourceGenerator((View)o, templateSelector));
         }
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
             base.OnAdded(item, index, batchUpdate, version);
             ViewGroupExtensions.Add(_owner, GetItem(item)!, index, false);
-        }
-
-        protected override void OnCleared(bool batchUpdate, int version)
-        {
-            base.OnCleared(batchUpdate, version);
-            ViewGroupExtensions.Clear(_owner);
         }
 
         protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
@@ -100,7 +94,7 @@ namespace MugenMvvm.Android.Collections
             ViewGroupExtensions.Add(_owner, GetItem(newItem)!, index, false);
         }
 
-        protected override void OnReset(IEnumerable<object?> items, bool batchUpdate, int version)
+        protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
             base.OnReset(items, batchUpdate, version);
             ViewGroupExtensions.Clear(_owner);
@@ -110,7 +104,7 @@ namespace MugenMvvm.Android.Collections
 
         private Object? GetItem(object? item)
         {
-            var template = (Object?) _selector.SelectTemplate(_owner, item);
+            var template = (Object?)_selector.SelectTemplate(_owner, item);
             if (template != null)
             {
                 template.BindableMembers().SetDataContext(item);

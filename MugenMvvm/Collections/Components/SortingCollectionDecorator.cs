@@ -123,16 +123,16 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        public bool OnReset(IObservableCollection observableCollection, ref IEnumerable<object?> items)
+        public bool OnReset(IObservableCollection observableCollection, ref IEnumerable<object?>? items)
         {
-            Reset(items);
-            items = this;
-            return true;
-        }
+            if (items == null)
+                _items.Clear();
+            else
+            {
+                Reset(items);
+                items = this;
+            }
 
-        public bool OnCleared(IObservableCollection observableCollection)
-        {
-            _items.Clear();
             return true;
         }
 

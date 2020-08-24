@@ -34,9 +34,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         public Func<T, int, bool>? CanRemove { get; set; }
 
-        public Func<IEnumerable<T>, bool>? CanReset { get; set; }
-
-        public Func<bool>? CanClear { get; set; }
+        public Func<IEnumerable<T>?, bool>? CanReset { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -78,20 +76,12 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             return CanRemove?.Invoke(item!, index) ?? true;
         }
 
-        bool IConditionCollectionComponent<T>.CanReset(IObservableCollection<T> collection, IEnumerable<T> items)
+        bool IConditionCollectionComponent<T>.CanReset(IObservableCollection<T> collection, IEnumerable<T>? items)
         {
             _collection.ShouldEqual(collection);
             if (CanReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return CanReset?.Invoke(items) ?? true;
-        }
-
-        bool IConditionCollectionComponent<T>.CanClear(IObservableCollection<T> collection)
-        {
-            _collection.ShouldEqual(collection);
-            if (CanClear == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            return CanClear?.Invoke() ?? true;
         }
 
         #endregion

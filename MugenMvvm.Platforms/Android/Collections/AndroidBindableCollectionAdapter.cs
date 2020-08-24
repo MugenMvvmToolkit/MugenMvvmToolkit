@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Android.Collections
 {
@@ -15,7 +16,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        public AndroidBindableCollectionAdapter()
+        public AndroidBindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null) : base(source, threadDispatcher)
         {
             Observers = new List<IItemsSourceObserver>();
             _isAlive = true;
@@ -61,16 +62,9 @@ namespace MugenMvvm.Android.Collections
                 GetObserver(i)?.OnItemChanged(index);
         }
 
-        protected override void OnReset(IEnumerable<object?> items, bool batchUpdate, int version)
+        protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
             base.OnReset(items, batchUpdate, version);
-            for (var i = 0; i < Observers.Count; i++)
-                GetObserver(i)?.OnReset();
-        }
-
-        protected override void OnCleared(bool batchUpdate, int version)
-        {
-            base.OnCleared(batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnReset();
         }

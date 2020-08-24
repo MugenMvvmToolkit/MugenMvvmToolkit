@@ -77,15 +77,9 @@ namespace MugenMvvm.Android.Collections
             _template.Apply(_menu, index, index, newItem);
         }
 
-        protected override void OnReset(IEnumerable<object?> items, bool batchUpdate, int version)
+        protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
             base.OnReset(items, batchUpdate, version);
-            Reload();
-        }
-
-        protected override void OnCleared(bool batchUpdate, int version)
-        {
-            base.OnCleared(batchUpdate, version);
             Reload();
         }
 

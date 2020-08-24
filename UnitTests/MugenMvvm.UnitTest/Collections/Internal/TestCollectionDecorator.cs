@@ -20,11 +20,9 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         public FuncRef<object?, int, bool>? OnRemoved { get; set; }
 
-        public FuncRef<IEnumerable<object?>, bool>? OnReset { get; set; }
+        public FuncRef<IEnumerable<object?>?, bool>? OnReset { get; set; }
 
         public FuncRef<object?, int, object?, bool>? OnItemChanged { get; set; }
-
-        public Func<bool>? OnCleared { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -76,18 +74,11 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             return OnRemoved?.Invoke(ref item, ref index) ?? true;
         }
 
-        bool ICollectionDecorator.OnReset(IObservableCollection collection, ref IEnumerable<object?> items)
+        bool ICollectionDecorator.OnReset(IObservableCollection collection, ref IEnumerable<object?>? items)
         {
             if (OnReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnReset?.Invoke(ref items) ?? true;
-        }
-
-        bool ICollectionDecorator.OnCleared(IObservableCollection collection)
-        {
-            if (OnCleared == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            return OnCleared?.Invoke() ?? true;
         }
 
         #endregion

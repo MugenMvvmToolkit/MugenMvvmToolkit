@@ -310,14 +310,14 @@ namespace MugenMvvm.Android.Extensions
                     if (contentTemplateSelector == null)
                         ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                    var newValue = (Object)contentTemplateSelector.SelectTemplate(target, value);
+                    var newValue = (Object)contentTemplateSelector.SelectTemplate(target, value)!;
                     if (newValue != null)
                     {
                         newValue.BindableMembers().SetDataContext(value);
                         newValue.BindableMembers().SetParent(target);
                     }
 
-                    ViewGroupExtensions.SetContent(target, newValue);
+                    ViewGroupExtensions.SetContent(target, newValue!);
                 })
                 .Observable()
                 .Build());

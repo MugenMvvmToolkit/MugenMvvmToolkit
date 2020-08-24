@@ -43,9 +43,7 @@ namespace MugenMvvm.Collections.Components
 
         void ICollectionChangedListenerBase.OnRemoved(IObservableCollection collection, object? item, int index) => OnRemoved(collection, null, item, index);
 
-        void ICollectionChangedListenerBase.OnReset(IObservableCollection collection, IEnumerable<object?> items) => OnReset(collection, null, items);
-
-        void ICollectionChangedListenerBase.OnCleared(IObservableCollection collection) => OnCleared(collection, null);
+        void ICollectionChangedListenerBase.OnReset(IObservableCollection collection, IEnumerable<object?>? items) => OnReset(collection, null, items);
 
         public IEnumerable<object?> DecorateItems(IObservableCollection collection, ICollectionDecorator? decorator = null)
         {
@@ -117,7 +115,7 @@ namespace MugenMvvm.Collections.Components
             GetComponents<ICollectionDecoratorListener>(collection).OnRemoved(collection, item, index);
         }
 
-        public void OnReset(IObservableCollection collection, ICollectionDecorator? decorator, IEnumerable<object?> items)
+        public void OnReset(IObservableCollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -127,18 +125,6 @@ namespace MugenMvvm.Collections.Components
             }
 
             GetComponents<ICollectionDecoratorListener>(collection).OnReset(collection, items);
-        }
-
-        public void OnCleared(IObservableCollection collection, ICollectionDecorator? decorator)
-        {
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Length; i++)
-            {
-                if (!decorators[i].OnCleared(collection))
-                    return;
-            }
-
-            GetComponents<ICollectionDecoratorListener>(collection).OnCleared(collection);
         }
 
         #endregion

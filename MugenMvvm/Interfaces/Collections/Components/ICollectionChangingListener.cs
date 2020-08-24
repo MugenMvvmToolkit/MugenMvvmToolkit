@@ -13,8 +13,6 @@ namespace MugenMvvm.Interfaces.Collections.Components
 
         void OnRemoving(IObservableCollection collection, object? item, int index);
 
-        void OnResetting(IObservableCollection collection, IEnumerable<object?> items);
-
-        void OnClearing(IObservableCollection collection);
+        void OnResetting(IObservableCollection collection, IEnumerable<object?>? items);
     }
 }

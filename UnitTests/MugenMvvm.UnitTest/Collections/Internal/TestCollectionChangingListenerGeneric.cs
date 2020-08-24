@@ -34,9 +34,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         public Action<T, int>? OnRemoving { get; set; }
 
-        public Action<IEnumerable<T>>? OnResetting { get; set; }
-
-        public Action? OnClearing { get; set; }
+        public Action<IEnumerable<T>?>? OnResetting { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -78,20 +76,12 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             OnRemoving?.Invoke(item!, index);
         }
 
-        void ICollectionChangingListener<T>.OnResetting(IObservableCollection<T> collection, IEnumerable<T> items)
+        void ICollectionChangingListener<T>.OnResetting(IObservableCollection<T> collection, IEnumerable<T>? items)
         {
             _collection.ShouldEqual(collection);
             if (OnResetting == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             OnResetting?.Invoke(items);
-        }
-
-        void ICollectionChangingListener<T>.OnClearing(IObservableCollection<T> collection)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnClearing == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnClearing?.Invoke();
         }
 
         #endregion

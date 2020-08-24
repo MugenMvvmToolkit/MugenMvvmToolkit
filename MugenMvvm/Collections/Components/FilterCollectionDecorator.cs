@@ -164,20 +164,17 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool ICollectionDecorator.OnReset(IObservableCollection observableCollection, ref IEnumerable<object?> items)
+        bool ICollectionDecorator.OnReset(IObservableCollection observableCollection, ref IEnumerable<object?>? items)
         {
             if (!HasFilter)
                 return true;
 
             Clear();
-            UpdateItems(items);
-            items = this;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnCleared(IObservableCollection observableCollection)
-        {
-            Clear();
+            if (items != null)
+            {
+                UpdateItems(items);
+                items = this;
+            }
             return true;
         }
 

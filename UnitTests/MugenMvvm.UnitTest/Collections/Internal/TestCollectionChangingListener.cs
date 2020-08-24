@@ -35,9 +35,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         public Action<T, int>? OnRemoving { get; set; }
 
-        public Action<IEnumerable<T>>? OnResetting { get; set; }
-
-        public Action? OnClearing { get; set; }
+        public Action<IEnumerable<T>?>? OnResetting { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -52,7 +50,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnAdding == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnAdding?.Invoke((T) item!, index);
+            OnAdding?.Invoke((T)item!, index);
         }
 
         void ICollectionChangingListener.OnReplacing(IObservableCollection collection, object? oldItem, object? newItem, int index)
@@ -60,7 +58,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnReplacing == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnReplacing?.Invoke((T) oldItem!, (T) newItem!, index);
+            OnReplacing?.Invoke((T)oldItem!, (T)newItem!, index);
         }
 
         void ICollectionChangingListener.OnMoving(IObservableCollection collection, object? item, int oldIndex, int newIndex)
@@ -68,7 +66,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnMoving == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnMoving?.Invoke((T) item!, oldIndex, newIndex);
+            OnMoving?.Invoke((T)item!, oldIndex, newIndex);
         }
 
         void ICollectionChangingListener.OnRemoving(IObservableCollection collection, object? item, int index)
@@ -76,23 +74,15 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnRemoving == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnRemoving?.Invoke((T) item!, index);
+            OnRemoving?.Invoke((T)item!, index);
         }
 
-        void ICollectionChangingListener.OnResetting(IObservableCollection collection, IEnumerable<object?> items)
+        void ICollectionChangingListener.OnResetting(IObservableCollection collection, IEnumerable<object?>? items)
         {
             _collection.ShouldEqual(collection);
             if (OnResetting == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnResetting?.Invoke(items.Cast<T>());
-        }
-
-        void ICollectionChangingListener.OnClearing(IObservableCollection collection)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnClearing == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnClearing?.Invoke();
+            OnResetting?.Invoke(items as IEnumerable<T> ?? items?.Cast<T>());
         }
 
         #endregion

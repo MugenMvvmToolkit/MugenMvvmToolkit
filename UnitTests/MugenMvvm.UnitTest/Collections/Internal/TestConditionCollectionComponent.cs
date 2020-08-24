@@ -35,9 +35,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         public Func<T, int, bool>? CanRemove { get; set; }
 
-        public Func<IEnumerable<T>, bool>? CanReset { get; set; }
-
-        public Func<bool>? CanClear { get; set; }
+        public Func<IEnumerable<T>?, bool>? CanReset { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -52,7 +50,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (CanAdd == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanAdd?.Invoke((T) item!, index) ?? true;
+            return CanAdd?.Invoke((T)item!, index) ?? true;
         }
 
         bool IConditionCollectionComponent.CanReplace(IObservableCollection collection, object? oldItem, object? newItem, int index)
@@ -60,7 +58,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (CanReplace == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanReplace?.Invoke((T) oldItem!, (T) newItem!, index) ?? true;
+            return CanReplace?.Invoke((T)oldItem!, (T)newItem!, index) ?? true;
         }
 
         bool IConditionCollectionComponent.CanMove(IObservableCollection collection, object? item, int oldIndex, int newIndex)
@@ -68,7 +66,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (CanMove == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanMove?.Invoke((T) item!, oldIndex, newIndex) ?? true;
+            return CanMove?.Invoke((T)item!, oldIndex, newIndex) ?? true;
         }
 
         bool IConditionCollectionComponent.CanRemove(IObservableCollection collection, object? item, int index)
@@ -76,23 +74,15 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (CanRemove == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanRemove?.Invoke((T) item!, index) ?? true;
+            return CanRemove?.Invoke((T)item!, index) ?? true;
         }
 
-        bool IConditionCollectionComponent.CanReset(IObservableCollection collection, IEnumerable<object?> items)
+        bool IConditionCollectionComponent.CanReset(IObservableCollection collection, IEnumerable<object?>? items)
         {
             _collection.ShouldEqual(collection);
             if (CanReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanReset?.Invoke(items.Cast<T>()) ?? true;
-        }
-
-        bool IConditionCollectionComponent.CanClear(IObservableCollection collection)
-        {
-            _collection.ShouldEqual(collection);
-            if (CanClear == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            return CanClear?.Invoke() ?? true;
+            return CanReset?.Invoke(items as IEnumerable<T> ?? items?.Cast<T>()) ?? true;
         }
 
         #endregion
