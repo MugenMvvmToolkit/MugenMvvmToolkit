@@ -29,13 +29,13 @@ namespace MugenMvvm.Metadata
             var list = values.List;
             if (list == null)
             {
-                _dictionary = new Dictionary<IMetadataContextKey, object?>(3, InternalComparer.MetadataContextKey);
+                _dictionary = new Dictionary<IMetadataContextKey, object?>(3, InternalEqualityComparer.MetadataContextKey);
                 if (item.Key != null)
                     _dictionary[item.Key] = item.Value;
             }
             else
             {
-                _dictionary = new Dictionary<IMetadataContextKey, object?>(list.Count, InternalComparer.MetadataContextKey);
+                _dictionary = new Dictionary<IMetadataContextKey, object?>(list.Count, InternalEqualityComparer.MetadataContextKey);
                 foreach (var keyValuePair in list)
                     _dictionary[keyValuePair.Key] = keyValuePair.Value;
             }

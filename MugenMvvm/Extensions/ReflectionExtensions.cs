@@ -17,7 +17,7 @@ namespace MugenMvvm.Extensions
 
         private static Action<object, PropertyChangedEventHandler>? _unsubscribePropertyChangedDelegate;
         private static Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler>? _createPropertyChangedHandlerDelegate;
-        private static readonly Dictionary<Type, bool> HasClosureDictionary = new Dictionary<Type, bool>(47, InternalComparer.Type);
+        private static readonly Dictionary<Type, bool> HasClosureDictionary = new Dictionary<Type, bool>(47, InternalEqualityComparer.Type);
 
         #endregion
 

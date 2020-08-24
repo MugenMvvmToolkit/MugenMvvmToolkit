@@ -20,7 +20,7 @@ namespace MugenMvvm.Internal.Components
         public static readonly ParameterExpression TargetParameter = MugenExtensions.GetParameterExpression<object>();
         private static readonly ParameterExpression[] TargetArgsParameters = {TargetParameter, MugenExtensions.GetParameterExpression<object[]>()};
         private static readonly ParameterExpression[] ArgsParameters = MugenExtensions.GetParametersExpression<object[]>();
-        private static readonly Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?> CacheMethodDelegates = new Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?>(17, InternalComparer.TypeMethod);
+        private static readonly Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?> CacheMethodDelegates = new Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?>(17, InternalEqualityComparer.TypeMethod);
 
         #endregion
 

@@ -33,7 +33,7 @@ namespace MugenMvvm.Messaging.Components
         {
             _threadDispatcher = threadDispatcher;
             DefaultExecutionMode = ThreadExecutionMode.Current;
-            _cache = new Dictionary<Type, Dictionary<ThreadExecutionMode, MessageThreadExecutor>?>(InternalComparer.Type);
+            _cache = new Dictionary<Type, Dictionary<ThreadExecutionMode, MessageThreadExecutor>?>(InternalEqualityComparer.Type);
         }
 
         #endregion
@@ -131,7 +131,7 @@ namespace MugenMvvm.Messaging.Components
             if (handlers.Count == 0)
                 return null;
 
-            var dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>(InternalComparer.ThreadExecutionMode);
+            var dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>(InternalEqualityComparer.ThreadExecutionMode);
             foreach (var subscriber in handlers)
             {
                 var mode = subscriber.ExecutionMode ?? defaultMode;

@@ -22,7 +22,7 @@ namespace MugenMvvm.Messaging.Components
         private readonly IReflectionManager? _reflectionManager;
 
         private static readonly Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?> Cache =
-            new Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?>(59, InternalComparer.TypeType);
+            new Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?>(59, InternalEqualityComparer.TypeType);
 
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerDelegate = Handle;
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerRawDelegate = HandleRaw;

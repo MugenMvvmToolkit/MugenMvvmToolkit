@@ -29,7 +29,7 @@ namespace MugenMvvm.Entities.Components
         public ReflectionEntityStateSnapshotProvider(IReflectionManager? reflectionManager = null)
         {
             _reflectionManager = reflectionManager;
-            _cache = new Dictionary<Type, EntityMemberAccessor[]>(7, InternalComparer.Type);
+            _cache = new Dictionary<Type, EntityMemberAccessor[]>(7, InternalEqualityComparer.Type);
         }
 
         #endregion

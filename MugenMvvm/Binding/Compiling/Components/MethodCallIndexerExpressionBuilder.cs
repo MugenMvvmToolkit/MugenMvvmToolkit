@@ -579,7 +579,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Constructors
 
-            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3, InternalComparer.TypeArray)
+            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3, InternalEqualityComparer.TypeArray)
             {
                 _component = component;
             }

@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Build
 
         private IBindingManager BindingManager => _bindingManager ??= _bindingManager.DefaultIfNull();
 
-        private Dictionary<(object, object?), object?> Builders => _builders ??= new Dictionary<(object, object?), object?>(InternalComparer.ValueTupleReference);
+        private Dictionary<(object, object?), object?> Builders => _builders ??= new Dictionary<(object, object?), object?>(InternalEqualityComparer.ValueTupleReference);
 
         #endregion
 

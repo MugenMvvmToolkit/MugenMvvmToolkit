@@ -38,12 +38,12 @@ namespace MugenMvvm.Internal.Components
         {
             _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
             _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();
-            _activatorCache = new Dictionary<ConstructorInfo, Func<object?[], object>?>(59, InternalComparer.MemberInfo);
-            _activatorCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
-            _invokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>?>(59, InternalComparer.MemberInfo);
-            _invokeMethodCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
-            _memberGetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
-            _memberSetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
+            _activatorCache = new Dictionary<ConstructorInfo, Func<object?[], object>?>(59, InternalEqualityComparer.MemberInfo);
+            _activatorCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
+            _invokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>?>(59, InternalEqualityComparer.MemberInfo);
+            _invokeMethodCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
+            _memberGetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
+            _memberSetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
         }
 
         #endregion

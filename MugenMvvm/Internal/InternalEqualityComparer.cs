@@ -7,13 +7,13 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class InternalComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type[]?>,
+    public sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type[]?>,
         IEqualityComparer<Type?>, IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>,
         IEqualityComparer<ThreadExecutionMode?>, IEqualityComparer<KeyValuePair<Type, Type>>, IEqualityComparer<IMetadataContextKey?>
     {
         #region Fields
 
-        private static readonly InternalComparer Comparer = new InternalComparer();
+        private static readonly InternalEqualityComparer Comparer = new InternalEqualityComparer();
         public static readonly IEqualityComparer<MemberInfo> MemberInfo = Comparer;
         public static readonly IEqualityComparer<(object, object?)> ValueTupleReference = Comparer;
         public static readonly IEqualityComparer<object> Reference = Comparer;
@@ -29,7 +29,7 @@ namespace MugenMvvm.Internal
 
         #region Constructors
 
-        private InternalComparer()
+        private InternalEqualityComparer()
         {
         }
 

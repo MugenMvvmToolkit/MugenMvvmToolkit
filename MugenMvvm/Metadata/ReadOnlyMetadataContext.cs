@@ -18,7 +18,7 @@ namespace MugenMvvm.Metadata
         public ReadOnlyMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             Should.NotBeNull(values, nameof(values));
-            _dictionary = new Dictionary<IMetadataContextKey, object?>(values.Count, InternalComparer.MetadataContextKey);
+            _dictionary = new Dictionary<IMetadataContextKey, object?>(values.Count, InternalEqualityComparer.MetadataContextKey);
             foreach (var contextValue in values)
                 _dictionary[contextValue.Key] = contextValue.Value;
         }

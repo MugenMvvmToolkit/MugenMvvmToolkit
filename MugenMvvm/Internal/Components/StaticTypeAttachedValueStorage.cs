@@ -19,7 +19,7 @@ namespace MugenMvvm.Internal.Components
 
         public StaticTypeAttachedValueStorage()
         {
-            _attachedValues = new Dictionary<Type, SortedList<string, object?>>(7, InternalComparer.Type);
+            _attachedValues = new Dictionary<Type, SortedList<string, object?>>(7, InternalEqualityComparer.Type);
         }
 
         #endregion

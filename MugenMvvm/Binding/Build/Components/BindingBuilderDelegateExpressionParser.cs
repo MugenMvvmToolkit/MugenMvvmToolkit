@@ -32,7 +32,7 @@ namespace MugenMvvm.Binding.Build.Components
         public BindingBuilderDelegateExpressionParser()
         {
             _singleValueArray = new object[1];
-            _cache = new Dictionary<object, object?>(47, InternalComparer.Reference);
+            _cache = new Dictionary<object, object?>(47, InternalEqualityComparer.Reference);
         }
 
         #endregion
