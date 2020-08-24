@@ -1,18 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface IConditionCollectionComponent : IComponent<IObservableCollection>
+    public interface IConditionCollectionComponent<in T> : IComponent<ICollection>
     {
-        bool CanAdd(IObservableCollection collection, object? item, int index);
+        bool CanAdd(IReadOnlyCollection<T> collection, T item, int index);
 
-        bool CanReplace(IObservableCollection collection, object? oldItem, object? newItem, int index);
+        bool CanReplace(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index);
 
-        bool CanMove(IObservableCollection collection, object? item, int oldIndex, int newIndex);
+        bool CanMove(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex);
 
-        bool CanRemove(IObservableCollection collection, object? item, int index);
+        bool CanRemove(IReadOnlyCollection<T> collection, T item, int index);
 
-        bool CanReset(IObservableCollection collection, IEnumerable<object?>? items);
+        bool CanReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items);
     }
 }

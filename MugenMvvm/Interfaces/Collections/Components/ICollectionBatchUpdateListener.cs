@@ -1,11 +1,12 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using System.Collections;
+using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionBatchUpdateListener : IComponent<IObservableCollection>
+    public interface ICollectionBatchUpdateListener : IComponent<ICollection>
     {
-        void OnBeginBatchUpdate(IObservableCollection collection);
+        void OnBeginBatchUpdate(ICollection collection);
 
-        void OnEndBatchUpdate(IObservableCollection collection);
+        void OnEndBatchUpdate(ICollection collection);
     }
 }

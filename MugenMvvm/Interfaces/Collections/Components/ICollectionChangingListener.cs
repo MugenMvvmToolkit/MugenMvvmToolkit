@@ -1,18 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionChangingListener : IComponent<IObservableCollection>
+    public interface ICollectionChangingListener<in T> : IComponent<ICollection>
     {
-        void OnAdding(IObservableCollection collection, object? item, int index);
+        void OnAdding(IReadOnlyCollection<T> collection, T item, int index);
 
-        void OnReplacing(IObservableCollection collection, object? oldItem, object? newItem, int index);
+        void OnReplacing(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index);
 
-        void OnMoving(IObservableCollection collection, object? item, int oldIndex, int newIndex);
+        void OnMoving(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex);
 
-        void OnRemoving(IObservableCollection collection, object? item, int index);
+        void OnRemoving(IReadOnlyCollection<T> collection, T item, int index);
 
-        void OnResetting(IObservableCollection collection, IEnumerable<object?>? items);
+        void OnResetting(IReadOnlyCollection<T> collection, IEnumerable<T>? items);
     }
 }

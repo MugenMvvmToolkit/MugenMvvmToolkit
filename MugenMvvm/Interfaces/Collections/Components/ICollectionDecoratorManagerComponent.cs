@@ -1,22 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionDecoratorManagerComponent : IComponent<IObservableCollection>
+    public interface ICollectionDecoratorManagerComponent : IComponent<ICollection>
     {
-        IEnumerable<object?> DecorateItems(IObservableCollection collection, ICollectionDecorator? decorator = null);
+        IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null);
 
-        void OnItemChanged(IObservableCollection collection, ICollectionDecorator decorator, object? item, int index, object? args);
+        void OnItemChanged(ICollection collection, ICollectionDecorator decorator, object? item, int index, object? args);
 
-        void OnAdded(IObservableCollection collection, ICollectionDecorator decorator, object? item, int index);
+        void OnAdded(ICollection collection, ICollectionDecorator decorator, object? item, int index);
 
-        void OnReplaced(IObservableCollection collection, ICollectionDecorator decorator, object? oldItem, object? newItem, int index);
+        void OnReplaced(ICollection collection, ICollectionDecorator decorator, object? oldItem, object? newItem, int index);
 
-        void OnMoved(IObservableCollection collection, ICollectionDecorator decorator, object? item, int oldIndex, int newIndex);
+        void OnMoved(ICollection collection, ICollectionDecorator decorator, object? item, int oldIndex, int newIndex);
 
-        void OnRemoved(IObservableCollection collection, ICollectionDecorator decorator, object? item, int index);
+        void OnRemoved(ICollection collection, ICollectionDecorator decorator, object? item, int index);
 
-        void OnReset(IObservableCollection collection, ICollectionDecorator decorator, IEnumerable<object?>? items);
+        void OnReset(ICollection collection, ICollectionDecorator decorator, IEnumerable<object?>? items);
     }
 }

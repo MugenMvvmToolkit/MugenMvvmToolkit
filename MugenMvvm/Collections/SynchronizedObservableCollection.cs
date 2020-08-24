@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
@@ -14,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<IObservableCollection<T>>, IObservableCollection<T>, IObservableCollection
+    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<IObservableCollection<T>>, IObservableCollection<T>, IObservableCollection, IReadOnlyList<T>
     {
         #region Fields
 
@@ -58,6 +56,8 @@ namespace MugenMvvm.Collections
                 }
             }
         }
+
+        Type IObservableCollectionBase.ItemType => typeof(T);
 
         protected object Locker { get; }
 
@@ -158,7 +158,7 @@ namespace MugenMvvm.Collections
         {
             lock (Locker)
             {
-                ClearInternal();
+                ResetInternal(null);
             }
         }
 
@@ -227,10 +227,7 @@ namespace MugenMvvm.Collections
             {
                 var index = IndexOfInternal(item);
                 if (index >= 0)
-                {
                     GetComponents<ICollectionChangedListener<T>>().OnItemChanged(this, item, index, args);
-                    GetComponentsOptional<ICollectionChangedListener>()?.OnItemChanged(this, item, index, args);
-                }
             }
         }
 
@@ -285,72 +282,46 @@ namespace MugenMvvm.Collections
                 return;
 
             var obj = Items[oldIndex];
-            var boxed = new LazyBoxedValue(obj);
-            if (!GetComponents<IConditionCollectionComponent<T>>().CanMove(this, obj, oldIndex, newIndex) ||
-                !(GetComponentsOptional<IConditionCollectionComponent>()?.CanMove(this, boxed.Value, oldIndex, newIndex) ?? true))
+            if (!GetComponents<IConditionCollectionComponent<T>>().CanMove(this, obj, oldIndex, newIndex))
                 return;
 
             GetComponents<ICollectionChangingListener<T>>().OnMoving(this, obj, oldIndex, newIndex);
-            GetComponentsOptional<ICollectionChangingListener>()?.OnMoving(this, boxed.Value, oldIndex, newIndex);
             Items.RemoveAt(oldIndex);
             Items.Insert(newIndex, obj);
             GetComponents<ICollectionChangedListener<T>>().OnMoved(this, obj, oldIndex, newIndex);
-            GetComponentsOptional<ICollectionChangedListener>()?.OnMoved(this, boxed.Value, oldIndex, newIndex);
         }
 
-        protected virtual void ClearInternal()
+        protected virtual void ResetInternal(IEnumerable<T>? items)
         {
-            if (GetCountInternal() == 0 || !GetComponents<IConditionCollectionComponent<T>>().CanReset(this, null) || !GetComponents<IConditionCollectionComponent>().CanReset(this, null))
-                return;
-
-            GetComponents<ICollectionChangingListener<T>>().OnResetting(this, null);
-            GetComponents<ICollectionChangingListener>().OnResetting(this, null);
-            Items.Clear();
-            GetComponents<ICollectionChangedListener<T>>().OnReset(this, null);
-            GetComponents<ICollectionChangedListener>().OnReset(this, null);
-        }
-
-        protected virtual void ResetInternal(IEnumerable<T> items)
-        {
-            var itemsObj = items as IEnumerable<object> ?? items.OfType<object>();
-            if (!GetComponents<IConditionCollectionComponent<T>>().CanReset(this, items) || !GetComponents<IConditionCollectionComponent>().CanReset(this, itemsObj))
+            if (items == null && GetCountInternal() == 0 || !GetComponents<IConditionCollectionComponent<T>>().CanReset(this, items))
                 return;
 
             GetComponents<ICollectionChangingListener<T>>().OnResetting(this, items);
-            GetComponents<ICollectionChangingListener>().OnResetting(this, itemsObj);
             Items.Clear();
-            Items.AddRange(items);
+            if (items != null)
+                Items.AddRange(items);
             GetComponents<ICollectionChangedListener<T>>().OnReset(this, items);
-            GetComponents<ICollectionChangedListener>().OnReset(this, itemsObj);
         }
 
         protected virtual void InsertInternal(int index, T item, bool isAdd)
         {
-            var boxed = new LazyBoxedValue(item);
-            if (!GetComponents<IConditionCollectionComponent<T>>().CanAdd(this, item, index) ||
-                !(GetComponentsOptional<IConditionCollectionComponent>()?.CanAdd(this, boxed.Value, index) ?? true))
+            if (!GetComponents<IConditionCollectionComponent<T>>().CanAdd(this, item, index))
                 return;
 
             GetComponents<ICollectionChangingListener<T>>().OnAdding(this, item, index);
-            GetComponentsOptional<ICollectionChangingListener>()?.OnAdding(this, boxed.Value, index);
             Items.Insert(index, item);
             GetComponents<ICollectionChangedListener<T>>().OnAdded(this, item, index);
-            GetComponentsOptional<ICollectionChangedListener>()?.OnAdded(this, boxed.Value, index);
         }
 
         protected virtual void RemoveInternal(int index)
         {
             var oldItem = Items[index];
-            var boxed = new LazyBoxedValue(oldItem);
-            if (!GetComponents<IConditionCollectionComponent<T>>().CanRemove(this, oldItem, index) ||
-                !(GetComponentsOptional<IConditionCollectionComponent>()?.CanRemove(this, boxed.Value, index) ?? true))
+            if (!GetComponents<IConditionCollectionComponent<T>>().CanRemove(this, oldItem, index))
                 return;
 
             GetComponents<ICollectionChangingListener<T>>().OnRemoving(this, oldItem, index);
-            GetComponentsOptional<ICollectionChangingListener>()?.OnRemoving(this, boxed.Value, index);
             Items.RemoveAt(index);
             GetComponents<ICollectionChangedListener<T>>().OnRemoved(this, oldItem, index);
-            GetComponentsOptional<ICollectionChangedListener>()?.OnRemoved(this, boxed.Value, index);
         }
 
         protected virtual T GetInternal(int index) => Items[index];
@@ -360,18 +331,13 @@ namespace MugenMvvm.Collections
             var oldItem = Items[index];
             if (EqualityComparer<T>.Default.Equals(item, oldItem))
                 return;
-            var boxedOld = new LazyBoxedValue(oldItem);
-            var boxedNew = new LazyBoxedValue(item);
 
-            if (!GetComponents<IConditionCollectionComponent<T>>().CanReplace(this, oldItem, item, index) ||
-                !(GetComponentsOptional<IConditionCollectionComponent>()?.CanReplace(this, boxedOld.Value, boxedNew.Value, index) ?? true))
+            if (!GetComponents<IConditionCollectionComponent<T>>().CanReplace(this, oldItem, item, index))
                 return;
 
             GetComponents<ICollectionChangingListener<T>>().OnReplacing(this, oldItem, item, index);
-            GetComponentsOptional<ICollectionChangingListener>()?.OnReplacing(this, boxedOld.Value, boxedNew.Value, index);
             Items[index] = item;
             GetComponents<ICollectionChangedListener<T>>().OnReplaced(this, oldItem, item, index);
-            GetComponentsOptional<ICollectionChangedListener>()?.OnReplaced(this, boxedOld.Value, boxedNew.Value, index);
         }
 
         protected static bool IsCompatibleObject(object? value)
@@ -394,59 +360,9 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected TComponent[]? GetComponentsOptional<TComponent>()
-            where TComponent : class
-        {
-            var components = GetComponents<TComponent>();
-            if (components.Length == 0)
-                return null;
-            return components;
-        }
-
         #endregion
 
         #region Nested types
-
-        private ref struct LazyBoxedValue
-        {
-            #region Fields
-
-            private readonly T _value;
-            private object? _boxed;
-            private bool _hasValue;
-
-            #endregion
-
-            #region Constructors
-
-            public LazyBoxedValue(T value)
-            {
-                _value = value;
-                _hasValue = false;
-                _boxed = null;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public object? Value
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    if (!_hasValue)
-                    {
-                        _boxed = BoxingExtensions.Box(_value);
-                        _hasValue = true;
-                    }
-
-                    return _boxed;
-                }
-            }
-
-            #endregion
-        }
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>

@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
             var decoratedItems = new[] { item1 };
             var collection = CreateCollection(item1, item2);
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
             var decorator = new TestCollectionDecorator
             {
                 DecorateItems = items =>
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var decoratedItems1 = new[] { item2 };
             var decoratedItems2 = new[] { item1 };
             var collection = CreateCollection(item1, item2);
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
             var decorator1 = new TestCollectionDecorator
             {
                 DecorateItems = items =>
@@ -80,70 +80,70 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void DecoratorShouldTrackItemsMulti1(bool defaultComparer, bool filterFirst)
         {
             var comparer = defaultComparer ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int)o!, (int)o1!)) : Comparer<object?>.Create((i, i1) => ((int)i1!).CompareTo((int)i!));
-            var observableCollection = CreateCollection<int>();
-            observableCollection.AddComponent(CollectionDecoratorManager.Instance);
+            var collection = CreateCollection<int>();
+            CollectionDecoratorManager.GetOrAdd(collection);
             var decorator1 = new SortingCollectionDecorator(comparer);
             var decorator2 = new FilterCollectionDecorator<int> { Filter = i => i % 2 == 0 };
             if (filterFirst)
                 decorator2.Priority = int.MaxValue;
             else
                 decorator1.Priority = int.MaxValue;
-            observableCollection.AddComponent(decorator1);
-            observableCollection.AddComponent(decorator2);
+            collection.AddComponent(decorator1);
+            collection.AddComponent(decorator2);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, comparer).Where(decorator2.Filter);
+            collection.AddComponent(tracker);
+            var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
-            observableCollection.Add(1);
+            collection.Add(1);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Insert(1, 2);
+            collection.Insert(1, 2);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Remove(2);
+            collection.Remove(2);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.RemoveAt(0);
+            collection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            collection.Reset(new[] { 1, 2, 3, 4, 5 });
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection[0] = 200;
+            collection[0] = 200;
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Move(1, 2);
+            collection.Move(1, 2);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Clear();
+            collection.Clear();
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection.Add(Guid.NewGuid().GetHashCode());
+                collection.Add(Guid.NewGuid().GetHashCode());
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection.Move(i, i + 1);
+                collection.Move(i, i + 1);
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection[i] = i + Guid.NewGuid().GetHashCode();
+                collection[i] = i + Guid.NewGuid().GetHashCode();
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
             }
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection.RemoveAt(0);
+                collection.RemoveAt(0);
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
             }
 
-            observableCollection.Clear();
+            collection.Clear();
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
         }
 
@@ -162,82 +162,82 @@ namespace MugenMvvm.UnitTest.Collections.Components
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
             });
-            var observableCollection = CreateCollection<TestCollectionItem>();
-            observableCollection.AddComponent(CollectionDecoratorManager.Instance);
+            var collection = CreateCollection<TestCollectionItem>();
+            CollectionDecoratorManager.GetOrAdd(collection);
             var decorator1 = new SortingCollectionDecorator(comparer);
             var decorator2 = new FilterCollectionDecorator<TestCollectionItem> { Filter = i => i.Id % 2 == 0 };
             if (filterFirst)
                 decorator2.Priority = int.MaxValue;
             else
                 decorator1.Priority = int.MaxValue;
-            observableCollection.AddComponent(decorator1);
-            observableCollection.AddComponent(decorator2);
+            collection.AddComponent(decorator1);
+            collection.AddComponent(decorator2);
 
             var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, comparer).Where(decorator2.Filter);
+            collection.AddComponent(tracker);
+            var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
-            observableCollection.Add(new TestCollectionItem { Id = 1 });
+            collection.Add(new TestCollectionItem { Id = 1 });
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
             var item2 = new TestCollectionItem { Id = 2 };
-            observableCollection.Insert(1, item2);
+            collection.Insert(1, item2);
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection.Remove(item2);
+            collection.Remove(item2);
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection.RemoveAt(0);
+            collection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection.Reset(new[]
+            collection.Reset(new[]
             {
                 new TestCollectionItem {Id = 1}, new TestCollectionItem {Id = 2}, new TestCollectionItem {Id = 3},
                 new TestCollectionItem {Id = 4}, new TestCollectionItem {Id = 5}
             });
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection[0] = new TestCollectionItem { Id = 200 };
+            collection[0] = new TestCollectionItem { Id = 200 };
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection.Move(1, 2);
+            collection.Move(1, 2);
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection.Clear();
+            collection.Clear();
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection.Add(new TestCollectionItem { Id = Guid.NewGuid().GetHashCode() });
+                collection.Add(new TestCollectionItem { Id = Guid.NewGuid().GetHashCode() });
                 tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection.Move(i, i + 1);
+                collection.Move(i, i + 1);
                 tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection[i] = new TestCollectionItem { Id = i + Guid.NewGuid().GetHashCode() };
+                collection[i] = new TestCollectionItem { Id = i + Guid.NewGuid().GetHashCode() };
                 tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
             }
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection[i].Id = Guid.NewGuid().GetHashCode();
-                observableCollection.RaiseItemChanged(observableCollection[i], null);
+                collection[i].Id = Guid.NewGuid().GetHashCode();
+                collection.RaiseItemChanged(collection[i], null);
                 tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
             }
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection.RemoveAt(0);
+                collection.RemoveAt(0);
                 tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
             }
 
-            observableCollection.Clear();
+            collection.Clear();
             tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
         }
 
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
 
             for (var i = 0; i < listenersCount; i++)
             {
@@ -290,7 +290,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
 
             for (var i = 0; i < listenersCount; i++)
             {
@@ -328,7 +328,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedOldItem = null, expectedNewItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
@@ -371,7 +371,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedNewIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
+
             for (var i = 0; i < count + 1; i++)
                 collection.Add(new TestCollectionItem());
 
@@ -413,7 +414,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
+
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
@@ -453,7 +455,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
+
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
@@ -492,7 +495,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var reset = 0;
             IEnumerable<TestCollectionItem>? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
+
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
@@ -528,7 +532,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
         {
             var clear = 0;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(CollectionDecoratorManager.Instance);
+            CollectionDecoratorManager.GetOrAdd(collection);
+
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 

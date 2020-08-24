@@ -219,9 +219,6 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BusyMessageHandlerType value, BusyMessageHandlerType flag) => (value & flag) == flag;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BindingFlags value, BindingFlags flag) => (value & flag) == flag;
 
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)

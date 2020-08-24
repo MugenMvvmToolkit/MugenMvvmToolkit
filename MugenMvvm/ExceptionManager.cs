@@ -12,9 +12,6 @@ namespace MugenMvvm
         #region Methods
 
         [DoesNotReturn]
-        public static void ThrowAmbiguousMappingMatchFound() => throw new InvalidOperationException(AmbiguousMappingMatchFound);
-
-        [DoesNotReturn]
         public static void ThrowNullArgument(string paramName) => throw new ArgumentNullException(paramName);
 
         [DoesNotReturn]
@@ -56,9 +53,6 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         public static void ThrowObjectDisposed(object item) => throw new ObjectDisposedException(item.GetType().FullName, ObjectDisposedFormat1.Format(item.GetType()));
-
-        [DoesNotReturn]
-        public static void ThrowRequestNotSupported<T>(object obj, T[]? _, object? request, IReadOnlyMetadataContext? metadata) => ThrowRequestNotSupported<T>(obj, request, metadata);
 
         [DoesNotReturn]
         public static void ThrowRequestNotSupported<T>(object obj, object? request, IReadOnlyMetadataContext? metadata) =>

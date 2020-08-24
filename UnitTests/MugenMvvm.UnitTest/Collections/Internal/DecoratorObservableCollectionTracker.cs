@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
 
@@ -35,19 +34,19 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Implementation of interfaces
 
-        public void OnItemChanged(IObservableCollection collection, object? item, int index, object? args)
+        public void OnItemChanged(ICollection collection, object? item, int index, object? args)
         {
         }
 
-        public void OnAdded(IObservableCollection collection, object? item, int index) => OnAddEvent(ChangedItems, new[] { item }, index);
+        public void OnAdded(ICollection collection, object? item, int index) => OnAddEvent(ChangedItems, new[] { item }, index);
 
-        public void OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index) => OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
+        public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) => OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
 
-        public void OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
+        public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
 
-        public void OnRemoved(IObservableCollection collection, object? item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
+        public void OnRemoved(ICollection collection, object? item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
 
-        public void OnReset(IObservableCollection collection, IEnumerable<object?>? items) => OnReset(ChangedItems, items?.Cast<T>());
+        public void OnReset(ICollection collection, IEnumerable<object?>? items) => OnReset(ChangedItems, items?.Cast<T>());
 
         #endregion
 

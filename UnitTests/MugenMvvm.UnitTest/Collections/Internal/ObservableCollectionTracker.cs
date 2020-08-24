@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
 
@@ -28,19 +27,19 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Implementation of interfaces
 
-        public void OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
+        public void OnItemChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
         {
         }
 
-        public void OnAdded(IObservableCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] { item }, index);
+        public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] { item }, index);
 
-        public void OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index) => OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
+        public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) => OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
 
-        public void OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
+        public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
 
-        public void OnRemoved(IObservableCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
+        public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
 
-        public void OnReset(IObservableCollection<T> collection, IEnumerable<T>? items) => OnReset(ChangedItems, items);
+        public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset(ChangedItems, items);
 
         #endregion
 

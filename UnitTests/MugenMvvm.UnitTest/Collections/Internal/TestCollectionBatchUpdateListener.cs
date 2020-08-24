@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
@@ -34,7 +35,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Implementation of interfaces
 
-        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(IObservableCollection collection)
+        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(ICollection collection)
         {
             _collection.ShouldEqual(collection);
             if (OnBeginBatchUpdate == null && ThrowErrorNullDelegate)
@@ -42,7 +43,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             OnBeginBatchUpdate?.Invoke();
         }
 
-        void ICollectionBatchUpdateListener.OnEndBatchUpdate(IObservableCollection collection)
+        void ICollectionBatchUpdateListener.OnEndBatchUpdate(ICollection collection)
         {
             _collection.ShouldEqual(collection);
             if (OnEndBatchUpdate == null && ThrowErrorNullDelegate)

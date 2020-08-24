@@ -6,12 +6,14 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -115,11 +117,11 @@ namespace MugenMvvm.Collections
 
         protected virtual void AddCollectionListener(IEnumerable collection, int version)
         {
-            if (collection is IObservableCollection components)
+            if (collection is IComponentOwner componentOwner)
             {
                 Listener = Listener ??= new WeakListener(this);
                 Listener.SetVersion(version);
-                components.Components.Add(Listener);
+                componentOwner.Components.Add(Listener);
             }
             else if (collection is INotifyCollectionChanged notifyCollectionChanged)
             {
@@ -133,8 +135,8 @@ namespace MugenMvvm.Collections
         {
             if (Listener == null)
                 return;
-            if (collection is IObservableCollection hasComponents)
-                hasComponents.Components.Remove(Listener);
+            if (collection is IComponentOwner componentOwner)
+                componentOwner.Components.Remove(Listener);
             else if (collection is INotifyCollectionChanged notifyCollectionChanged)
                 notifyCollectionChanged.CollectionChanged -= Listener.OnCollectionChanged;
             Listener.SetVersion(int.MinValue);
@@ -364,7 +366,7 @@ namespace MugenMvvm.Collections
 
         #region Nested types
 
-        protected class WeakListener : AttachableComponentBase<IObservableCollection>, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasPriority
+        protected class WeakListener : AttachableComponentBase<ICollection>, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasPriority
         {
             #region Fields
 
@@ -390,21 +392,21 @@ namespace MugenMvvm.Collections
 
             #region Implementation of interfaces
 
-            public void OnBeginBatchUpdate(IObservableCollection collection) => GetAdapter()?.BeginBatchUpdate(_version);
+            public void OnBeginBatchUpdate(ICollection collection) => GetAdapter()?.BeginBatchUpdate(_version);
 
-            public void OnEndBatchUpdate(IObservableCollection collection) => GetAdapter()?.EndBatchUpdate(_version);
+            public void OnEndBatchUpdate(ICollection collection) => GetAdapter()?.EndBatchUpdate(_version);
 
-            public void OnItemChanged(IObservableCollection collection, object? item, int index, object? args) => GetAdapter()?.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
+            public void OnItemChanged(ICollection collection, object? item, int index, object? args) => GetAdapter()?.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
 
-            public void OnAdded(IObservableCollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
+            public void OnAdded(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
 
-            public void OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
+            public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
 
-            public void OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex) => GetAdapter()?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
+            public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) => GetAdapter()?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
 
-            public void OnRemoved(IObservableCollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
+            public void OnRemoved(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
 
-            public void OnReset(IObservableCollection collection, IEnumerable<object?>? items) => GetAdapter()?.AddEvent(CollectionChangedEvent.Reset(items), _version);
+            public void OnReset(ICollection collection, IEnumerable<object?>? items) => GetAdapter()?.AddEvent(CollectionChangedEvent.Reset(items), _version);
 
             #endregion
 
@@ -421,14 +423,14 @@ namespace MugenMvvm.Collections
                     adapter.OnCollectionChanged(sender, args, _version);
             }
 
-            protected override void OnAttached(IObservableCollection owner, IReadOnlyMetadataContext? metadata) => owner.GetOrAddCollectionDecoratorManager();
+            protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd(owner);
 
             protected BindableCollectionAdapter? GetAdapter()
             {
                 var adapter = (BindableCollectionAdapter?)_reference.Target;
                 if (adapter == null || !adapter.IsAlive)
                 {
-                    OwnerOptional?.Components.Remove(this);
+                    (OwnerOptional as IComponentOwner)?.Components.Remove(this);
                     return null;
                 }
 

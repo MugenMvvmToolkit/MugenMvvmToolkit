@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Collections.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
@@ -32,12 +31,6 @@ namespace MugenMvvm.Extensions
                 list.Get().AddRange(items);
         }
 
-        public static ICollectionDecoratorManagerComponent GetOrAddCollectionDecoratorManager(this IObservableCollectionBase collection)
-        {
-            Should.NotBeNull(collection, nameof(collection));
-            return collection.GetOrAddComponent(context => CollectionDecoratorManager.Instance);
-        }
-
         [return: NotNullIfNotNull("collection")]
         public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase? collection)
         {
@@ -46,7 +39,7 @@ namespace MugenMvvm.Extensions
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             if (component == null)
                 return collection as IEnumerable<object?> ?? collection.Cast<object?>();
-            return component.DecorateItems((IObservableCollection) collection);
+            return component.DecorateItems((ICollection)collection);
         }
 
         public static MonitorLocker TryLock(this ICollection? collection)
