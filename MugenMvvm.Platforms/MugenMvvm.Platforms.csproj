@@ -1,13 +1,19 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>monoandroid10.0</TargetFrameworks>
+    <!--https://github.com/novotnyllc/MSBuildSdkExtras/issues/235-->
+    <TargetFrameworks>xamarin.ios10</TargetFrameworks>
+    <!-- <TargetFrameworks>monoandroid10.0</TargetFrameworks> -->
   </PropertyGroup>
 
   <PropertyGroup>
     <RootNamespace>MugenMvvm</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
+    <AssemblyName>MugenMvvm.Ios</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
@@ -20,7 +26,13 @@
 
   <ItemGroup>
     <Compile Remove="Android\**\*.cs" />
+    <Compile Remove="Ios\**\*.cs" />
     <None Include="Android\**\*.cs" />
+    <None Include="Ios\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="MugenMvvm.Attributes.LinkerSafeAttribute" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
@@ -29,6 +41,10 @@
     <TransformFile Include="Android\Transforms\Metadata.xml" />
     <TransformFile Include="Android\Transforms\EnumFields.xml" />
     <TransformFile Include="Android\Transforms\EnumMethods.xml" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
+    <Compile Include="Ios\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
