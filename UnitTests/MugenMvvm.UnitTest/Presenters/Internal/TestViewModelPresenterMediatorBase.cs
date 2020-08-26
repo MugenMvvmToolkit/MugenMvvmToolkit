@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -54,10 +53,6 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         public Func<INavigationContext, Exception, bool>? OnNavigationFailedHandler { get; set; }
 
-        public Func<CancellationToken, IReadOnlyMetadataContext?, Task?>? WaitNavigationBeforeCloseAsyncHandler { get; set; }
-
-        public Func<CancellationToken, IReadOnlyMetadataContext?, Task?>? WaitNavigationBeforeShowAsyncHandler { get; set; }
-
         public Action<INavigationContext>? ShowViewHandler { get; set; }
 
         public Action<INavigationContext>? InitializeViewHandler { get; set; }
@@ -96,12 +91,6 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
             if (OnNavigationFailedHandler == null || OnNavigationFailedHandler.Invoke(navigationContext, exception))
                 base.OnNavigationFailed(navigationContext, exception);
         }
-
-        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-            WaitNavigationBeforeCloseAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeCloseAsync(cancellationToken, metadata);
-
-        protected override Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-            WaitNavigationBeforeShowAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeShowAsync(view, cancellationToken, metadata);
 
         protected override void ShowView(T view, INavigationContext context) => ShowViewHandler?.Invoke(context);
 

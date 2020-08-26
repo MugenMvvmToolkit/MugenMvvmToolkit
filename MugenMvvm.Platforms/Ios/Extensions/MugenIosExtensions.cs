@@ -14,6 +14,7 @@ using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Views;
@@ -21,6 +22,7 @@ using MugenMvvm.Internal;
 using MugenMvvm.Ios.Constants;
 using MugenMvvm.Ios.Internal;
 using MugenMvvm.Ios.Members;
+using MugenMvvm.Ios.Navigation;
 using MugenMvvm.Ios.Presenters;
 using MugenMvvm.Ios.Views;
 using MugenMvvm.Threading.Components;
@@ -46,6 +48,10 @@ namespace MugenMvvm.Ios.Extensions
             configuration
                 .ServiceConfiguration<IAttachedValueManager>()
                 .WithComponent(new IosAttachedValueStorageProvider());
+
+            configuration
+                .ServiceConfiguration<INavigationDispatcher>()
+                .WithComponent(new IosConditionNavigationDispatcher());
 
             configuration
                 .ServiceConfiguration<IViewManager>()

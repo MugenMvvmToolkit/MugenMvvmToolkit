@@ -139,10 +139,9 @@ namespace MugenMvvm.Navigation.Components
                     .GetComponents<INavigationDispatcherEntryListener>(metadata)
                     .OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationInfo);
             }
-            else if (updatedEntry != null)
+            else if (updatedEntry != null && !isPending)
             {
-                if (!isPending)
-                    ((NavigationEntry)updatedEntry).IsPending = false;
+                ((NavigationEntry)updatedEntry).IsPending = false;
                 navigationDispatcher
                     .GetComponents<INavigationDispatcherEntryListener>(metadata)
                     .OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationInfo);

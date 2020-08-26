@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using MugenMvvm.Constants;
+﻿using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -60,12 +58,6 @@ namespace MugenMvvm.Presenters
         #endregion
 
         #region Methods
-
-        protected override Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => ViewPresenter.WaitBeforeShowAsync(this, view, cancellationToken, metadata);
-
-        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => ViewPresenter.WaitBeforeCloseAsync(this, cancellationToken, metadata);
 
         protected override object GetViewRequest(object? view, INavigationContext navigationContext)
             => ViewPresenter.TryGetViewRequest(this, view, navigationContext) ?? base.GetViewRequest(view, navigationContext);
@@ -134,8 +126,11 @@ namespace MugenMvvm.Presenters
         {
             if (state is ICancelableRequest cancelableRequest && cancelableRequest.Cancel.GetValueOrDefault())
                 return;
-            if (ShowingContext != null && ShowingContext.NavigationMode != NavigationMode.New)
+            if (ShowingContext == null)
+            {
+                ShowingContext = GetNavigationContext(NavigationMode.Refresh, metadata);
                 OnNavigating(ShowingContext);
+            }
         }
 
         protected virtual void OnViewAppeared(object? state, IReadOnlyMetadataContext? metadata)

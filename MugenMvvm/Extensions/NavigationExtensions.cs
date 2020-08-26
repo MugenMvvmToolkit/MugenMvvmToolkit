@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
@@ -112,21 +111,6 @@ namespace MugenMvvm.Extensions
             return $"{navigationProvider.Id}/{viewModel.Metadata.Get(ViewModelMetadata.Id):N}";
         }
 
-        public static void OnNavigatingAsync<TState>(this INavigationDispatcher dispatcher, INavigationContext context, TState state,
-            Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
-            Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback = null, CancellationToken cancellationToken = default)
-        {
-            Should.NotBeNull(dispatcher, nameof(dispatcher));
-            Should.NotBeNull(context, nameof(context));
-            dispatcher.OnNavigatingAsync(context, cancellationToken).ContinueWith((task, st) =>
-            {
-                var tuple =
-                    (Tuple<INavigationContext, INavigationDispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool>, Action<INavigationDispatcher, INavigationContext, Exception?, TState>?,
-                        CancellationToken, TState>)st!;
-                InvokeCompletedCallback(task, tuple.Item1, tuple.Item6, tuple.Item2, tuple.Item3, tuple.Item4, tuple.Item5);
-            }, Tuple.Create(context, dispatcher, completeNavigationCallback, fallback, cancellationToken, state), TaskContinuationOptions.ExecuteSynchronously);
-        }
-
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType,
             NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
@@ -174,44 +158,6 @@ namespace MugenMvvm.Extensions
             var result = new NavigationCallbackTaskListener();
             callback.AddCallback(result);
             return result.Task;
-        }
-
-        private static void InvokeCompletedCallback<TState>(Task<bool> task, INavigationContext navigationContext, TState state,
-            INavigationDispatcher dispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
-            Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback, CancellationToken cancellationToken)
-        {
-            try
-            {
-                if (task.IsCanceled || cancellationToken.IsCancellationRequested)
-                {
-                    fallback?.Invoke(dispatcher, navigationContext, null, state);
-                    dispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
-                    return;
-                }
-
-                if (task.IsFaulted)
-                {
-                    fallback?.Invoke(dispatcher, navigationContext, task.Exception, state);
-                    dispatcher.OnNavigationFailed(navigationContext, task.Exception!);
-                    return;
-                }
-
-                if (task.Result)
-                {
-                    if (completeNavigationCallback(dispatcher, navigationContext, state))
-                        dispatcher.OnNavigated(navigationContext);
-                }
-                else
-                {
-                    fallback?.Invoke(dispatcher, navigationContext, null, state);
-                    dispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
-                }
-            }
-            catch (Exception e)
-            {
-                fallback?.Invoke(dispatcher, navigationContext, e, state);
-                dispatcher.OnNavigationFailed(navigationContext, e);
-            }
         }
 
         #endregion

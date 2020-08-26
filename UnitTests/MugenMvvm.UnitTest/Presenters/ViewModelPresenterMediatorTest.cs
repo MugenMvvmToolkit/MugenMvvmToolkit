@@ -181,6 +181,15 @@ namespace MugenMvvm.UnitTest.Presenters
             navigatedCount.ShouldEqual(1);
 
             navigatingCount = navigatedCount = 0;
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing);
+            navigatingCount.ShouldEqual(1);
+            navigatedCount.ShouldEqual(0);
+
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
+            navigatingCount.ShouldEqual(1);
+            navigatedCount.ShouldEqual(1);
+
+            navigatingCount = navigatedCount = 0;
 
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, new CancelableRequest());
             navigatingCount.ShouldEqual(1);
@@ -264,103 +273,6 @@ namespace MugenMvvm.UnitTest.Presenters
 
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared);
             navigatedCount.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void TryShowShouldWaitNavigation()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource().Token;
-            var showCount = 0;
-
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => Task.FromResult<IView>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
-
-            viewPresenter.Show = (p, v, context) =>
-            {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
-                ++showCount;
-            };
-
-            var tcs = new TaskCompletionSource<object?>();
-            viewPresenter.WaitBeforeShowAsync = (p, v, c, m) =>
-            {
-                p.ShouldEqual(mediator);
-                v.ShouldBeNull();
-                c.CanBeCanceled.ShouldBeTrue();
-                m.ShouldEqual(DefaultMetadata);
-                return tcs.Task;
-            };
-
-            Action invoke = () => tcs.SetResult(null);
-
-            mediator.TryShow(null, cts, DefaultMetadata);
-            showCount.ShouldEqual(0);
-            invoke();
-            showCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryCloseShouldWaitNavigation()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource().Token;
-            var closeCount = 0;
-
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => Task.FromResult<IView>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
-
-            viewPresenter.Close = (p, v, m) =>
-            {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
-                ++closeCount;
-            };
-            viewPresenter.Show = (p, v, m) =>
-            {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
-                viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
-            };
-
-            var tcs = new TaskCompletionSource<object?>();
-            viewPresenter.WaitBeforeCloseAsync = (p, token, context) =>
-            {
-                p.ShouldEqual(mediator);
-                token.ShouldEqual(cts);
-                context.ShouldEqual(DefaultMetadata);
-                return tcs.Task;
-            };
-            Action invoke = () => tcs.SetResult(null);
-
-            mediator.TryShow(null, cts, DefaultMetadata);
-            mediator.TryClose(null, cts, DefaultMetadata);
-            closeCount.ShouldEqual(0);
-            invoke();
-            closeCount.ShouldEqual(1);
         }
 
         #endregion

@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Android.Content;
+﻿using Android.Content;
 using Android.OS;
 using Java.Lang;
 using MugenMvvm.Android.Constants;
@@ -10,7 +8,6 @@ using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Android.Requests;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Metadata;
@@ -23,14 +20,16 @@ namespace MugenMvvm.Android.Presenters
         #region Fields
 
         private readonly IPresenter? _presenter;
+        private readonly INavigationDispatcher? _navigationDispatcher;
 
         #endregion
 
         #region Constructors
 
-        public ActivityViewPresenter(IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null) : base(navigationDispatcher)
+        public ActivityViewPresenter(IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
             _presenter = presenter;
+            _navigationDispatcher = navigationDispatcher;
         }
 
         #endregion
@@ -41,19 +40,11 @@ namespace MugenMvvm.Android.Presenters
 
         protected IPresenter Presenter => _presenter.DefaultIfNull();
 
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
+
         #endregion
 
         #region Methods
-
-        public override Task WaitBeforeCloseAsync(IViewModelPresenterMediator mediator, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this,
-                (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, true, metadata);
-
-        protected override Task WaitBeforeShowAsync(IViewModelPresenterMediator mediator, IActivityView? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this,
-                (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close ||
-                                     callback.NavigationType == state.NavigationType &&
-                                     (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, metadata);
 
         protected override object? TryGetViewRequest(IViewModelPresenterMediator mediator, IActivityView? view, INavigationContext navigationContext)
         {
@@ -77,7 +68,7 @@ namespace MugenMvvm.Android.Presenters
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext)
         {
-            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
+            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
             StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), flags, null, navigationContext);
         }
 
@@ -94,14 +85,14 @@ namespace MugenMvvm.Android.Presenters
                     return;
                 }
 
-                flags = (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 
             var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
             if (Equals(topActivity, view))
                 return;
 
-            flags |= (int)ActivityFlags.ReorderToFront;
+            flags |= (int) ActivityFlags.ReorderToFront;
             var bundle = new Bundle(1);
             bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.Metadata.Get(ViewModelMetadata.Id).ToString("N"));
             StartActivity(mediator, topActivity, flags, bundle, navigationContext);

@@ -11,6 +11,7 @@ using MugenMvvm.Android.Native;
 using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Android.Native.Views.Support;
+using MugenMvvm.Android.Navigation;
 using MugenMvvm.Android.Observation;
 using MugenMvvm.Android.Presenters;
 using MugenMvvm.Android.Requests;
@@ -28,6 +29,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
@@ -62,6 +64,9 @@ namespace MugenMvvm.Android.Extensions
 
             configuration.ServiceConfiguration<IAttachedValueManager>()
                 .WithComponent(new AndroidAttachedValueStorageProvider());
+
+            configuration.ServiceConfiguration<INavigationDispatcher>()
+                .WithComponent(new AndroidConditionNavigationDispatcher());
 
             configuration.ServiceConfiguration<IViewManager>()
                 .WithComponent(new AndroidViewStateDispatcher())

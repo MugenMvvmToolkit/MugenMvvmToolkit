@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,6 +17,8 @@ namespace MugenMvvm.Ios.Presenters
     {
         #region Fields
 
+        private readonly INavigationDispatcher? _navigationDispatcher;
+
         private readonly IPresenter? _presenter;
         private readonly IViewManager? _viewManager;
 
@@ -27,12 +27,12 @@ namespace MugenMvvm.Ios.Presenters
         #region Constructors
 
         public NavigationControllerViewPresenter(UINavigationController navigationController, IViewManager? viewManager = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
-            : base(navigationDispatcher)
         {
             Should.NotBeNull(navigationController, nameof(navigationController));
             NavigationController = navigationController;
             _viewManager = viewManager;
             _presenter = presenter;
+            _navigationDispatcher = navigationDispatcher;
         }
 
         #endregion
@@ -51,22 +51,14 @@ namespace MugenMvvm.Ios.Presenters
 
         protected IPresenter Presenter => _presenter.DefaultIfNull();
 
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
+
         #endregion
 
         #region Methods
 
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             base.CanPresent(presenter, viewModel, mapping, metadata) && (CanPresentHandler == null || CanPresentHandler(presenter, viewModel, mapping, metadata));
-
-        public override Task WaitBeforeCloseAsync(IViewModelPresenterMediator mediator, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(mediator, this,
-                (callback, state) => callback.NavigationType == state.NavigationType &&
-                                     (callback.CallbackType == NavigationCallbackType.Closing || callback.CallbackType == NavigationCallbackType.Showing), true, metadata);
-
-        protected override Task WaitBeforeShowAsync(IViewModelPresenterMediator mediator, UIViewController? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(mediator, this,
-                (callback, state) => callback.NavigationType == state.NavigationType &&
-                                     (callback.CallbackType == NavigationCallbackType.Closing || callback.CallbackType == NavigationCallbackType.Showing), true, metadata);
 
         protected override void Activate(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => ShowInternal(true, mediator, view, navigationContext);
 

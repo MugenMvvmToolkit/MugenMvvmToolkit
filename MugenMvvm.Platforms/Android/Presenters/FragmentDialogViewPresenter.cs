@@ -1,10 +1,7 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using MugenMvvm.Android.Native.Interfaces.Views;
+﻿using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Metadata;
@@ -14,11 +11,17 @@ namespace MugenMvvm.Android.Presenters
 {
     public class FragmentDialogViewPresenter : ViewPresenterBase<IDialogFragmentView>
     {
+        #region Fields
+
+        private readonly INavigationDispatcher? _navigationDispatcher;
+
+        #endregion
+
         #region Constructors
 
         public FragmentDialogViewPresenter(INavigationDispatcher? navigationDispatcher = null)
-            : base(navigationDispatcher)
         {
+            _navigationDispatcher = navigationDispatcher;
         }
 
         #endregion
@@ -27,19 +30,11 @@ namespace MugenMvvm.Android.Presenters
 
         public override NavigationType NavigationType => NavigationType.Window;
 
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
+
         #endregion
 
         #region Methods
-
-        public override Task WaitBeforeCloseAsync(IViewModelPresenterMediator mediator, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this, (callback, state) => callback.NavigationType == NavigationType.Background &&
-                                                                                                       callback.CallbackType == NavigationCallbackType.Close, true, metadata);
-
-        protected override Task WaitBeforeShowAsync(IViewModelPresenterMediator mediator, IDialogFragmentView? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => NavigationDispatcher.WaitNavigationAsync(mediator.ViewModel, this,
-                (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close || 
-                                     (callback.NavigationType == state.NavigationType || callback.NavigationType == NavigationType.Page) &&
-                                     (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, metadata);
 
         protected override void Activate(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
         {

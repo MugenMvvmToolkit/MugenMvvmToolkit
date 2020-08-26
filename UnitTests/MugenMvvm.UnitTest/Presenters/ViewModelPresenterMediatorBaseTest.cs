@@ -424,41 +424,6 @@ namespace MugenMvvm.UnitTest.Presenters
             cleanupViewCount.ShouldEqual(1);
         }
 
-        [Fact]
-        public void TryShowShouldWaitNavigation()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource().Token;
-            var showCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => Task.FromResult<IView>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher) { ShowViewHandler = context => { ++showCount; } };
-
-            var tcs = new TaskCompletionSource<object?>();
-            mediator.WaitNavigationBeforeShowAsyncHandler = (token, context) =>
-            {
-                token.CanBeCanceled.ShouldBeTrue();
-                context.ShouldEqual(DefaultMetadata);
-                return tcs.Task;
-            };
-            Action invoke = () => tcs.SetResult(null);
-
-            mediator.TryShow(null, cts, DefaultMetadata);
-            showCount.ShouldEqual(0);
-            invoke();
-            showCount.ShouldEqual(1);
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -686,13 +651,10 @@ namespace MugenMvvm.UnitTest.Presenters
         }
 
         [Theory]
-        [InlineData(1, true)]
-        [InlineData(1, false)]
-        [InlineData(2, true)]
-        [InlineData(2, false)]
-        [InlineData(3, true)]
-        [InlineData(3, false)]
-        public void TryCloseShouldNotifyNavigationDispatcher(int state, bool forceClose)
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TryCloseShouldNotifyNavigationDispatcher(int state)
         {
             var vm = new TestViewModel();
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
@@ -708,7 +670,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var cancelCount = 0;
             var contextCount = 0;
             var ignore = true;
-            var metadata = NavigationMetadata.ForceClose.ToContext(forceClose);
+            var metadata = DefaultMetadata;
 
             var navigationDispatcher = new NavigationDispatcher();
             var viewManager = new ViewManager();
@@ -798,7 +760,7 @@ namespace MugenMvvm.UnitTest.Presenters
             presenterResult.Target.ShouldEqual(vm);
             presenterResult.NavigationId.ShouldEqual(navigationId);
             navigatingCount.ShouldEqual(state == 2 ? 0 : 1);
-            navigatingConditionCount.ShouldEqual(state == 2 || forceClose ? 0 : 1);
+            navigatingConditionCount.ShouldEqual(state == 2 ? 0 : 1);
 
             if (state == 1)
             {
@@ -817,54 +779,6 @@ namespace MugenMvvm.UnitTest.Presenters
                 navigatedCount.ShouldEqual(0);
                 cancelCount.ShouldEqual(0);
                 errorCount.ShouldEqual(1);
-            }
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryCloseShouldWaitNavigation(bool defaultImpl)
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource().Token;
-            var closeCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => Task.FromResult<IView>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher) { CloseViewHandler = context => ++closeCount };
-            mediator.ShowViewHandler = context => mediator.OnViewShown(DefaultMetadata);
-
-            Action? invoke = null;
-            if (!defaultImpl)
-            {
-                var tcs = new TaskCompletionSource<object?>();
-                mediator.WaitNavigationBeforeCloseAsyncHandler = (token, context) =>
-                {
-                    token.ShouldEqual(cts);
-                    context.ShouldEqual(DefaultMetadata);
-                    return tcs.Task;
-                };
-                invoke = () => tcs.SetResult(null);
-            }
-
-            mediator.TryShow(null, cts, DefaultMetadata);
-            mediator.TryClose(null, cts, DefaultMetadata);
-            if (invoke == null)
-                closeCount.ShouldEqual(1);
-            else
-            {
-                closeCount.ShouldEqual(0);
-                invoke();
-                closeCount.ShouldEqual(1);
             }
         }
 
