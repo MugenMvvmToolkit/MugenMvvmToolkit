@@ -51,11 +51,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target))
                 return GetObserver(target, metadata);
             if (source == null)
-                return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, DataContextRequest(metadata), metadata);
+                return ObservationManager.DefaultIfNull().GetMemberPathObserver(target.ToWeakReference(), DataContextRequest(metadata), metadata);
             return GetObserver(source, metadata);
         }
 
-        private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata) => ObservationManager.DefaultIfNull().GetMemberPathObserver(target, Request(metadata), metadata);
+        private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata) => ObservationManager.DefaultIfNull().GetMemberPathObserver(target.ToWeakReference(), Request(metadata), metadata);
 
         private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata) => _request ??= GetObserverRequest(Path, metadata);
 

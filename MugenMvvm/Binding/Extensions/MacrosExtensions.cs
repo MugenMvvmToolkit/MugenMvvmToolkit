@@ -65,12 +65,28 @@ namespace MugenMvvm.Binding.Extensions
             }
         }
 
+        public static T? TryFindParent<T>(object? target, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where T : class
+        {
+            if (target == null)
+                return null;
+
+            target = Members.BindableMembers.For<object>().Parent().GetValue(target, MemberFlags.InstancePublicAll, metadata, memberManager);
+            while (target != null)
+            {
+                if (target is T r)
+                    return r;
+
+                target = Members.BindableMembers.For<object>().Parent().GetValue(target, MemberFlags.InstancePublicAll, metadata, memberManager)!;
+            }
+
+            return null;
+        }
+
         public static object? FindRelativeSource(object target, string typeName, int level, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(typeName, nameof(typeName));
             var nameLevel = 0;
-
             target = Members.BindableMembers.For<object>().Parent().GetValue(target, MemberFlags.InstancePublicAll, metadata, memberManager)!;
             while (target != null)
             {

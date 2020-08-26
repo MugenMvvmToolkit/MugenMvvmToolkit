@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Delegates;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Observation;
 
@@ -36,7 +37,7 @@ namespace MugenMvvm.Binding.Members.Builders
             _subscribe = null;
             _raise = null;
             _isStatic = false;
-            _eventType = eventType ?? typeof(EventHandler);
+            _eventType = eventType;
             _underlyingMember = null;
         }
 
@@ -57,6 +58,12 @@ namespace MugenMvvm.Binding.Members.Builders
             return this;
         }
 
+        public EventBuilder<TTarget> WrapMember(IObservableMemberInfo memberInfo)
+        {
+            Should.NotBeNull(memberInfo, nameof(memberInfo));
+            return CustomImplementation(memberInfo.TryObserve, memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?)null);
+        }
+
         public EventBuilder<TTarget> CustomImplementation(TryObserveDelegate<INotifiableMemberInfo, TTarget> subscribe, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
         {
             Should.NotBeNull(subscribe, nameof(subscribe));
@@ -74,13 +81,13 @@ namespace MugenMvvm.Binding.Members.Builders
 
         public INotifiableMemberInfo Build()
         {
-            //custom implementation
-            if (_subscribe != null && _attachedHandler == null)
-                return Event<object?>(null, _subscribe, _raise);
-
-            //auto implementation
             if (_attachedHandler == null)
             {
+                //custom implementation
+                if (_subscribe != null)
+                    return Event<object?>(null, _subscribe, _raise);
+
+                //auto implementation
                 var id = GenerateMemberId(true);
                 return Event(id, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
                     (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State, message, metadata));

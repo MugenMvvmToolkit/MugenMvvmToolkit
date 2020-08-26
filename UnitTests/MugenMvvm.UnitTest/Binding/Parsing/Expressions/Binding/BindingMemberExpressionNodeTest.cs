@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Observation.Observers;
 using MugenMvvm.Binding.Observation.Paths;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;
 using Xunit;
@@ -106,7 +107,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             {
                 TryGetMemberPathObserver = (target, req, arg4) =>
                 {
-                    target.ShouldEqual(expectedTarget);
+                    ((IWeakReference)target).Target.ShouldEqual(expectedTarget);
                     var request = (MemberPathObserverRequest) req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);

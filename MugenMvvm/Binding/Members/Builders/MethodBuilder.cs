@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Delegates;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Observation;
 
@@ -44,7 +45,7 @@ namespace MugenMvvm.Binding.Members.Builders
             _isStatic = false;
             _isObservable = false;
             _isNonObservable = false;
-            _returnType = returnType ?? typeof(EventHandler);
+            _returnType = returnType;
             _underlyingMember = null;
             _getParameters = null;
             _invoke = null;
@@ -80,6 +81,13 @@ namespace MugenMvvm.Binding.Members.Builders
             Should.BeSupported(_tryObserve == null, nameof(ObservableHandler));
             _isObservable = true;
             return this;
+        }
+
+        public MethodBuilder<TTarget, TReturn> Observable(IObservableMemberInfo? memberInfo)
+        {
+            if (memberInfo == null)
+                return this;
+            return ObservableHandler(memberInfo.TryObserve, memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?)null);
         }
 
         public MethodBuilder<TTarget, TReturn> ObservableHandler(TryObserveDelegate<IObservableMemberInfo, TTarget> tryObserve, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
@@ -150,7 +158,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 return member.State._invoke!(member, target, args, metadata);
             }, _getParameters, (member, target, listener, metadata) =>
             {
-                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IMethodMemberInfo) member, member.State._attachedHandler, metadata);
+                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IMethodMemberInfo)member, member.State._attachedHandler, metadata);
                 if (member.State.id == null)
                     return member.State._tryObserve!(member, target, listener, metadata);
                 return EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State.id).Add(listener);
