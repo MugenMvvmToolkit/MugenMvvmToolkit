@@ -22,7 +22,7 @@ namespace MugenMvvm.Android.Binding
             var template = accessor.ItemTemplate;
             if (template != 0)
                 ItemTemplateSelector.SetValue(view, SingleResourceTemplateSelector.Get(template));
-            view.BindWithoutResult(accessor.Bind);
+            view.Bind(accessor.Bind, includeResult: false);
         }
 
         public void OnSetView(Object owner, Object view) => view.BindableMembers().SetParent(owner);

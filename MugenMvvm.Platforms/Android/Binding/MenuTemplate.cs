@@ -30,7 +30,7 @@ namespace MugenMvvm.Android.Binding
             if (ItemTemplate != null)
                 menu.BindableMembers().SetItemTemplate(ItemTemplate);
             if (Bind != null)
-                menu.BindWithoutResult(Bind);
+                menu.Bind(Bind, includeResult: false);
             ApplyHandler?.Invoke(menu, owner);
         }
 

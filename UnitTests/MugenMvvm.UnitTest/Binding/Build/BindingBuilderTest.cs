@@ -186,7 +186,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
                 }
             });
 
-            target.BindWithoutResult(request, source, DefaultMetadata, bindingManager);
+            target.Bind(request, source, DefaultMetadata, bindingManager, false).IsNullOrEmpty().ShouldBeTrue();
             invokeCount.ShouldEqual(1);
             buildInvokeCount.ShouldEqual(2);
         }

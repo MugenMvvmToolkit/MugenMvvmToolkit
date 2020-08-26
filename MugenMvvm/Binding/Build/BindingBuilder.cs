@@ -40,13 +40,14 @@ namespace MugenMvvm.Binding.Build
             bindingManager.BindInternal(getBuilder, target, source, metadata);
 
         public static ItemOrList<IBinding, IReadOnlyList<IBinding>> Bind<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null,
-            IBindingManager? bindingManager = null)
-            where TTarget : class =>
-            bindingManager.BindInternal(expression, target, source, metadata);
-
-        public static void BindWithoutResult<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
-            where TTarget : class =>
+            IBindingManager? bindingManager = null, bool includeResult = true)
+            where TTarget : class
+        {
+            if (includeResult)
+                return bindingManager.BindInternal(expression, target, source, metadata);
             bindingManager.BindInternalWithoutBindings(expression, target, source, metadata);
+            return default;
+        }
 
         public static BindingBuilderTo<TTarget, TSource> TwoWay<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder)
             where TTarget : class
