@@ -28,7 +28,7 @@ namespace MugenMvvm.Internal.Components
             lock (holder)
             {
                 if (holder.Value == null)
-                    holder.Value = new SortedList<string, object?>(StringComparer.Ordinal);
+                    holder.Value = new SortedList<string, object?>(3, StringComparer.Ordinal);
             }
 
             return holder.Value;

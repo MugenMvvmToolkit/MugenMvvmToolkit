@@ -42,7 +42,7 @@ namespace MugenMvvm.Internal.Components
                 if (_attachedValues.TryGetValue(type, out var result) || optional)
                     return result;
 
-                result = new SortedList<string, object?>(StringComparer.Ordinal);
+                result = new SortedList<string, object?>(3, StringComparer.Ordinal);
                 _attachedValues[type] = result;
                 return result;
             }

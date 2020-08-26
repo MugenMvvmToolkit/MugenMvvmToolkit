@@ -61,12 +61,12 @@ namespace MugenMvvm.Android.Internal
 
             public AttachedValueHolder()
             {
-                Values = new SortedList<string, object?>(3);
+                Values = new SortedList<string, object?>(3, StringComparer.Ordinal);
             }
 
             public AttachedValueHolder(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
             {
-                Values = new SortedList<string, object?>(3);
+                Values = new SortedList<string, object?>(3, StringComparer.Ordinal);
             }
 
             #endregion

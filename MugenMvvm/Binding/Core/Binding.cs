@@ -503,16 +503,16 @@ namespace MugenMvvm.Binding.Core
             if (component is IComponentCollectionChangedListener)
                 SetFlag(HasComponentChangedListener);
 
-            if (!CheckFlag(HasTargetObserverListener) && component is IBindingTargetObserverListener)
-            {
-                SetFlag(HasTargetObserverListener);
-                Target.AddListener(this);
-            }
-
             if (!CheckFlag(HasSourceObserverListener) && component is IBindingSourceObserverListener)
             {
                 SetFlag(HasSourceObserverListener);
                 BindingComponentExtensions.AddListener(SourceRaw, this);
+            }
+
+            if (!CheckFlag(HasTargetObserverListener) && component is IBindingTargetObserverListener)
+            {
+                SetFlag(HasTargetObserverListener);
+                Target.AddListener(this);
             }
 
             ComponentComponentExtensions.OnComponentAdded(this, component, metadata);

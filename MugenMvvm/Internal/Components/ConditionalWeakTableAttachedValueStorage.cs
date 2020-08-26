@@ -29,7 +29,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Properties
 
-        public int Priority { get; set; } = InternalComponentPriority.WeakTable;
+        public int Priority { get; set; } = InternalComponentPriority.WeakTableAttachedValueProvider;
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace MugenMvvm.Internal.Components
                 return value;
             }
 
-            return _weakTable.GetValue(item, key => new SortedList<string, object?>(StringComparer.Ordinal));
+            return _weakTable.GetValue(item, key => new SortedList<string, object?>(3, StringComparer.Ordinal));
         }
 
         protected override bool ClearInternal(object item) => _weakTable.Remove(item);
