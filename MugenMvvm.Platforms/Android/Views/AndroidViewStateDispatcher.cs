@@ -55,11 +55,11 @@ namespace MugenMvvm.Android.Views
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && TryGetBundle(view, state, false, out var bundle))
-                PreserveState(viewManager, v, bundle, metadata);
+                PreserveState(v, bundle, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(view, state, true, out var b))
             {
                 view = MugenExtensions.GetUnderlyingView(view);
-                var request = TryRestoreState(viewManager, view, b, metadata);
+                var request = TryRestoreState(view, b, metadata);
                 if (request == null)
                 {
                     FragmentExtensions.ClearFragmentState(b);
@@ -81,29 +81,20 @@ namespace MugenMvvm.Android.Views
 
         #region Methods
 
-        private void PreserveState(IViewManager viewManager, IView view, Bundle bundle, IReadOnlyMetadataContext? metadata)
+        private void PreserveState(IView view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
             var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id).ToString("N");
             bundle.PutString(AndroidInternalConstant.BundleVmId, id);
 
-            var request = new StateRequest(null, view);
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Preserving, request, metadata);
-            if (request.Cancel.GetValueOrDefault() || !request.HasMetadata)
-                bundle.Remove(AndroidInternalConstant.BundleViewState);
+            var state = ViewModelMetadata.SerializableViewModel.ToContext(view.ViewModel);
+            using var stream = new MemoryStream();
+            if (_serializer.DefaultIfNull().TrySerialize(stream, state, metadata))
+                bundle.PutByteArray(AndroidInternalConstant.BundleViewState, stream.ToArray());
             else
-            {
-                using var stream = new MemoryStream();
-                if (_serializer.DefaultIfNull().TrySerialize(stream, request.Metadata, metadata))
-                {
-                    bundle.PutByteArray(AndroidInternalConstant.BundleViewState, stream.ToArray());
-                    viewManager.OnLifecycleChanged(view, ViewLifecycleState.Preserved, request, metadata);
-                }
-                else
-                    bundle.Remove(AndroidInternalConstant.BundleViewState);
-            }
+                bundle.Remove(AndroidInternalConstant.BundleViewState);
         }
 
-        private ViewModelViewRequest? TryRestoreState(IViewManager viewManager, object view, Bundle bundle, IReadOnlyMetadataContext? metadata)
+        private ViewModelViewRequest? TryRestoreState(object view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
             if (!Guid.TryParse(bundle.GetString(AndroidInternalConstant.BundleVmId), out var id))
                 return null;
@@ -119,14 +110,7 @@ namespace MugenMvvm.Android.Views
                 if (!_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value) || !(value is IReadOnlyMetadataContext restoredState))
                     return null;
 
-                var request = new StateRequest(null, view, restoredState);
-                viewManager.OnLifecycleChanged(view, ViewLifecycleState.Restoring, request, metadata);
-                if (request.Cancel.GetValueOrDefault())
-                    return null;
-
-                viewManager.OnLifecycleChanged(view, ViewLifecycleState.Restored, restoredState, metadata);
-                viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id, metadata);
-
+                viewModel = restoredState.Get(ViewModelMetadata.SerializableViewModel);
                 if (viewModel == null)
                     return null;
             }

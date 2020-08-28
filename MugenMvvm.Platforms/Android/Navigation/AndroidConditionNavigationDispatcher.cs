@@ -39,7 +39,7 @@ namespace MugenMvvm.Android.Navigation
                 return navigationDispatcher
                     .WaitNavigationAsync(navigationContext.Target, navigationContext, (callback, state)
                         => callback.NavigationType == NavigationType.Background &&
-                           callback.CallbackType == NavigationCallbackType.Close, true, navigationContext.GetMetadataOrDefault(), true, navigationContext.GetMetadataOrDefault())
+                           callback.CallbackType == NavigationCallbackType.Close, true, navigationContext.GetMetadataOrDefault())
                     .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
             }
 
