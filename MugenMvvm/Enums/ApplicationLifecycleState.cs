@@ -16,10 +16,6 @@ namespace MugenMvvm.Enums
 
         public static readonly ApplicationLifecycleState Initializing = new ApplicationLifecycleState(nameof(Initializing));
         public static readonly ApplicationLifecycleState Initialized = new ApplicationLifecycleState(nameof(Initialized));
-        public static readonly ApplicationLifecycleState Preserving = new ApplicationLifecycleState(nameof(Preserving));
-        public static readonly ApplicationLifecycleState Preserved = new ApplicationLifecycleState(nameof(Preserved));
-        public static readonly ApplicationLifecycleState Restoring = new ApplicationLifecycleState(nameof(Restoring));
-        public static readonly ApplicationLifecycleState Restored = new ApplicationLifecycleState(nameof(Restored));
         public static readonly ApplicationLifecycleState Activating = new ApplicationLifecycleState(nameof(Activating));
         public static readonly ApplicationLifecycleState Activated = new ApplicationLifecycleState(nameof(Activated));
         public static readonly ApplicationLifecycleState Deactivating = new ApplicationLifecycleState(nameof(Deactivating));

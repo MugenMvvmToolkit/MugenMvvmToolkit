@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Metadata
 {
@@ -12,7 +13,7 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<Guid, Guid>? _id;
         private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
-        private static IMetadataContextKey<bool, bool>? _noState;
+        private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _serializableViewModel;
 
         #endregion
 
@@ -33,10 +34,10 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool, bool> NoState
+        public static IMetadataContextKey<IViewModelBase?, IViewModelBase?> SerializableViewModel
         {
-            get => _noState ??= GetBuilder(_noState, nameof(NoState)).Serializable().Build();
-            set => _noState = value;
+            get => _serializableViewModel ??= GetBuilder(_serializableViewModel, nameof(SerializableViewModel)).Serializable().Build();
+            set => _serializableViewModel = value;
         }
 
         #endregion
