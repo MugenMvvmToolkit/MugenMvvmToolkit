@@ -18,7 +18,7 @@ namespace MugenMvvm.Ios.App
 
         #region Constructors
 
-        protected internal IosPlatformInfo(IReadOnlyMetadataContext? metadata = null)
+        public IosPlatformInfo(IReadOnlyMetadataContext? metadata = null)
             : base(PlatformType.iOS, metadata)
         {
         }

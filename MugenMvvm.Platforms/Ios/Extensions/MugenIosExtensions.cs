@@ -19,6 +19,7 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
+using MugenMvvm.Ios.App;
 using MugenMvvm.Ios.Constants;
 using MugenMvvm.Ios.Internal;
 using MugenMvvm.Ios.Members;
@@ -35,7 +36,7 @@ namespace MugenMvvm.Ios.Extensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration IosConfiguration(this MugenApplicationConfiguration configuration)
+        public static MugenApplicationConfiguration IosConfiguration(this MugenApplicationConfiguration configuration, bool shouldSaveAppState = true)
         {
             configuration
                 .ServiceConfiguration<IThreadDispatcher>()
@@ -52,6 +53,15 @@ namespace MugenMvvm.Ios.Extensions
             configuration
                 .ServiceConfiguration<INavigationDispatcher>()
                 .WithComponent(new IosConditionNavigationDispatcher());
+
+            if (shouldSaveAppState)
+            {
+                var applicationStateDispatcher = new IosApplicationStateDispatcher();
+                configuration.Application.AddComponent(applicationStateDispatcher);
+                configuration
+                    .ServiceConfiguration<IViewManager>()
+                    .WithComponent(applicationStateDispatcher);
+            }
 
             configuration
                 .ServiceConfiguration<IViewManager>()

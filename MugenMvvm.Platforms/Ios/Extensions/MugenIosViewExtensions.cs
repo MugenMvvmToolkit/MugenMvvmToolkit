@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Foundation;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
 using ObjCRuntime;
@@ -10,6 +11,29 @@ namespace MugenMvvm.Ios.Extensions
     public static partial class MugenIosExtensions
     {
         #region Methods
+
+        public static void Encode(this NSCoder coder, string? value, string key)
+        {
+            Should.NotBeNull(coder, nameof(coder));
+            Should.NotBeNull(key, nameof(key));
+            if (value == null)
+                return;
+            var s = new NSString(value);
+            coder.Encode(s, key);
+            s.Dispose();
+        }
+
+        public static string? DecodeString(this NSCoder coder, string key)
+        {
+            Should.NotBeNull(coder, nameof(coder));
+            Should.NotBeNull(key, nameof(key));
+            string? result = null;
+            var value = coder.DecodeObject(key);
+            if (value is NSString st)
+                result = st.ToString();
+            value?.Dispose();
+            return result;
+        }
 
         public static void SetItemsNotifyParent<T, TItem>(this T container, Action<T, TItem[]> setAction, params TItem[] items)
             where T : class, INativeObject

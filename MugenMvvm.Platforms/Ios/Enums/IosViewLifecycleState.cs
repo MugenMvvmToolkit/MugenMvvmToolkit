@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Ios.Enums
 {
-    public abstract class IosViewLifecycleState : ViewLifecycleState
+    public sealed class IosViewLifecycleState : ViewLifecycleState
     {
         #region Fields
 
