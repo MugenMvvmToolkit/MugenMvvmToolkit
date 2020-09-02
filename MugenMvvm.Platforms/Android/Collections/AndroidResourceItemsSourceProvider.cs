@@ -10,8 +10,8 @@ namespace MugenMvvm.Android.Collections
     {
         #region Constructors
 
-        public AndroidResourceItemsSourceProvider(object owner, IResourceTemplateSelector selector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter = null)
-            : base(owner, selector, stableIdProvider, collectionAdapter)
+        public AndroidResourceItemsSourceProvider(object owner, IResourceTemplateSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter = null)
+            : base(owner, itemTemplateSelector, stableIdProvider, collectionAdapter)
         {
         }
 
@@ -19,13 +19,13 @@ namespace MugenMvvm.Android.Collections
 
         #region Properties
 
-        public virtual int ViewTypeCount => Selector.TemplateTypeCount;
+        public virtual int ViewTypeCount => ItemTemplateSelector.TemplateTypeCount;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public virtual int GetItemViewType(int position) => Selector.SelectTemplate(Owner, GetItemAt(position));
+        public virtual int GetItemViewType(int position) => ItemTemplateSelector.SelectTemplate(Owner, GetItemAt(position));
 
         public virtual void OnBindView(View view, int position) => view.BindableMembers().SetDataContext(GetItemAt(position));
 

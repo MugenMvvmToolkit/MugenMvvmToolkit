@@ -11,27 +11,24 @@ namespace MugenMvvm.Android.Collections
 {
     public class AndroidMenuItemsSourceGenerator : BindableCollectionAdapter
     {
-        #region Fields
-
-        private readonly IMenu _menu;
-        private readonly IMenuItemTemplate _template;
-
-        #endregion
-
         #region Constructors
 
-        private AndroidMenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate template)
+        private AndroidMenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate itemTemplate)
         {
-            Should.NotBeNull(template, nameof(template));
-            _menu = menu;
-            _template = template;
+            Should.NotBeNull(itemTemplate, nameof(itemTemplate));
+            Menu = menu;
+            ItemTemplate = itemTemplate;
         }
 
         #endregion
 
         #region Properties
 
-        protected override bool IsAlive => _menu.Handle != IntPtr.Zero;
+        public IMenu Menu { get; }
+
+        public IMenuItemTemplate ItemTemplate { get; }
+
+        protected override bool IsAlive => Menu.Handle != IntPtr.Zero;
 
         #endregion
 
@@ -49,8 +46,8 @@ namespace MugenMvvm.Android.Collections
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
             base.OnAdded(item, index, batchUpdate, version);
-            if (index == _menu.Size())
-                _template.Apply(_menu, index, index, item);
+            if (index == Menu.Size())
+                ItemTemplate.Apply(Menu, index, index, item);
             else
                 Reload();
         }
@@ -64,7 +61,7 @@ namespace MugenMvvm.Android.Collections
         protected override void OnRemoved(object? item, int index, bool batchUpdate, int version)
         {
             base.OnRemoved(item, index, batchUpdate, version);
-            if (index == _menu.Size() - 1)
+            if (index == Menu.Size() - 1)
                 RemoveMenuItem(index);
             else
                 Reload();
@@ -74,7 +71,7 @@ namespace MugenMvvm.Android.Collections
         {
             base.OnReplaced(oldItem, newItem, index, batchUpdate, version);
             RemoveMenuItem(index);
-            _template.Apply(_menu, index, index, newItem);
+            ItemTemplate.Apply(Menu, index, index, newItem);
         }
 
         protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
@@ -85,20 +82,20 @@ namespace MugenMvvm.Android.Collections
 
         private void RemoveMenuItem(int id)
         {
-            var menuItem = _menu.FindItem(id);
-            _template.Clear(menuItem);
-            _menu.RemoveItem(id);
+            var menuItem = Menu.FindItem(id);
+            ItemTemplate.Clear(menuItem);
+            Menu.RemoveItem(id);
         }
 
         private void Reload()
         {
-            var size = _menu.Size();
+            var size = Menu.Size();
             for (var i = 0; i < size; i++)
-                _template.Clear(_menu.GetItem(i));
-            _menu.Clear();
+                ItemTemplate.Clear(Menu.GetItem(i));
+            Menu.Clear();
 
             for (var i = 0; i < Items.Count; i++)
-                _template.Apply(_menu, i, i, Items[i]);
+                ItemTemplate.Apply(Menu, i, i, Items[i]);
         }
 
         #endregion

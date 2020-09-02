@@ -7,30 +7,29 @@ namespace MugenMvvm.Android.Collections
 {
     public abstract class AndroidItemsSourceProviderBase<TSelector> : Object, IAndroidItemsSourceProvider where TSelector : class
     {
-        #region Fields
-
-        protected readonly AndroidBindableCollectionAdapter CollectionAdapter;
-        protected readonly object Owner;
-        protected readonly TSelector Selector;
-        protected readonly IStableIdProvider? StableIdProvider;
-
-        #endregion
-
         #region Constructors
 
-        protected AndroidItemsSourceProviderBase(object owner, TSelector selector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter)
+        protected AndroidItemsSourceProviderBase(object owner, TSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter)
         {
             Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(selector, nameof(selector));
+            Should.NotBeNull(itemTemplateSelector, nameof(itemTemplateSelector));
             Owner = owner;
-            Selector = selector;
-            StableIdProvider = stableIdProvider;
-            CollectionAdapter = collectionAdapter ?? new AndroidBindableCollectionAdapter();
+            ItemTemplateSelector = itemTemplateSelector;
+            StableIdProvider = stableIdProvider ?? itemTemplateSelector as IStableIdProvider;
+            CollectionAdapter = collectionAdapter ?? new AndroidBindableCollectionAdapter(itemTemplateSelector as IItemSourceEqualityComparer ?? stableIdProvider as IItemSourceEqualityComparer);
         }
 
         #endregion
 
         #region Properties
+
+        public object Owner { get; }
+
+        public AndroidBindableCollectionAdapter CollectionAdapter { get; }
+
+        public TSelector ItemTemplateSelector { get; }
+
+        public IStableIdProvider? StableIdProvider { get; }
 
         public virtual int Count => CollectionAdapter.Count;
 
@@ -67,11 +66,11 @@ namespace MugenMvvm.Android.Collections
             return false;
         }
 
-        public virtual ICharSequence GetItemTitleFormatted(int position) => (Selector as ITitleTemplateSelector)?.GetTitle(Owner, GetItemAt(position))!;
+        public virtual ICharSequence GetItemTitleFormatted(int position) => (ItemTemplateSelector as ITitleTemplateSelector)?.GetTitle(Owner, GetItemAt(position))!;
 
-        public virtual void AddObserver(IItemsSourceObserver observer) => CollectionAdapter.Observers.Add(observer);
+        public virtual void AddObserver(IItemsSourceObserver observer) => CollectionAdapter.AddObserver(observer);
 
-        public virtual void RemoveObserver(IItemsSourceObserver observer) => CollectionAdapter.Observers.Remove(observer);
+        public virtual void RemoveObserver(IItemsSourceObserver observer) => CollectionAdapter.RemoveObserver(observer);
 
         public virtual object? GetItemAt(int position) => CollectionAdapter[position];
 

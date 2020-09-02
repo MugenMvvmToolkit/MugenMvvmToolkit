@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<IObservableCollection<T>>, IObservableCollection<T>, IObservableCollection, IReadOnlyList<T>
+    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection, IReadOnlyList<T>
     {
         #region Fields
 

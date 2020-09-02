@@ -95,7 +95,7 @@ namespace MugenMvvm.Collections
 
         public bool IgnoreItemChangedEvent { get; set; } = true;
 
-        public int EventsResetLimit { get; set; } = 50;
+        public int BatchSize { get; set; } = 50;
 
         protected int Version { get; private set; } = -1;
 
@@ -153,15 +153,9 @@ namespace MugenMvvm.Collections
         {
         }
 
-        protected virtual void OnAdded(object? item, int index, bool batchUpdate, int version)
-        {
-            Items.Insert(index, item);
-        }
+        protected virtual void OnAdded(object? item, int index, bool batchUpdate, int version) => Items.Insert(index, item);
 
-        protected virtual void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version)
-        {
-            Items[index] = newItem;
-        }
+        protected virtual void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version) => Items[index] = newItem;
 
         protected virtual void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
         {
@@ -169,10 +163,7 @@ namespace MugenMvvm.Collections
             Items.Insert(newIndex, item);
         }
 
-        protected virtual void OnRemoved(object? item, int index, bool batchUpdate, int version)
-        {
-            Items.RemoveAt(index);
-        }
+        protected virtual void OnRemoved(object? item, int index, bool batchUpdate, int version) => Items.RemoveAt(index);
 
         protected virtual void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
@@ -191,7 +182,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void BatchUpdate(List<CollectionChangedEvent> events, int version)
         {
-            if (events.Count < EventsResetLimit)
+            if (events.Count < BatchSize)
             {
                 for (var i = 0; i < events.Count; i++)
                     events[i].Raise(this, true, version);
@@ -234,7 +225,7 @@ namespace MugenMvvm.Collections
 
         protected bool AddEvent(in CollectionChangedEvent collectionChangedEvent, int version)
         {
-            if (version != Version || IgnoreItemChangedEvent && collectionChangedEvent.Action == CollectionChangedAction.Changed)
+            if (version != Version)
                 return false;
 
             var canExecuteInline = ThreadDispatcher.CanExecuteInline(ExecutionMode);
@@ -366,7 +357,7 @@ namespace MugenMvvm.Collections
 
         #region Nested types
 
-        protected class WeakListener : AttachableComponentBase<ICollection>, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasPriority
+        protected class WeakListener : AttachableComponentBase<ICollection>, IHasTarget<BindableCollectionAdapter?>, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasPriority
         {
             #region Fields
 
@@ -388,6 +379,8 @@ namespace MugenMvvm.Collections
 
             public int Priority { get; set; } = ComponentPriority.PostInitializer;
 
+            public BindableCollectionAdapter? Target => GetAdapter();
+
             #endregion
 
             #region Implementation of interfaces
@@ -396,7 +389,12 @@ namespace MugenMvvm.Collections
 
             public void OnEndBatchUpdate(ICollection collection) => GetAdapter()?.EndBatchUpdate(_version);
 
-            public void OnItemChanged(ICollection collection, object? item, int index, object? args) => GetAdapter()?.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
+            public void OnItemChanged(ICollection collection, object? item, int index, object? args)
+            {
+                var adapter = GetAdapter();
+                if (adapter != null && !adapter.IgnoreItemChangedEvent)
+                    adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
+            }
 
             public void OnAdded(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
 

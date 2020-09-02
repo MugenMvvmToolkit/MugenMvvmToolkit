@@ -10,8 +10,8 @@ namespace MugenMvvm.Android.Collections
     {
         #region Constructors
 
-        public AndroidContentItemsSourceProvider(object owner, IContentTemplateSelector selector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter = null)
-            : base(owner, selector, stableIdProvider, collectionAdapter)
+        public AndroidContentItemsSourceProvider(object owner, IContentTemplateSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter = null)
+            : base(owner, itemTemplateSelector, stableIdProvider, collectionAdapter)
         {
         }
 
@@ -22,13 +22,13 @@ namespace MugenMvvm.Android.Collections
         public virtual Object GetContent(int position)
         {
             var item = GetItemAt(position);
-            var content = (Object) Selector.SelectTemplate(Owner, item)!;
+            var content = (Object) ItemTemplateSelector.SelectTemplate(Owner, item)!;
             content.BindableMembers().SetDataContext(item);
             content.BindableMembers().SetParent(Owner);
             return content;
         }
 
-        public virtual int GetContentPosition(Object content)
+        public virtual int GetContentPosition(Object? content)
         {
             if (Count == 0)
                 return ContentItemsSourceProvider.PositionNone;
