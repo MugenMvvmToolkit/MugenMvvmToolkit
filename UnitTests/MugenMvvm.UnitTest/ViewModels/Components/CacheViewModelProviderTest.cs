@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         #region Methods
 
         [Fact]
-        public void ShouldIgnoreNonGuidRequest()
+        public void ShouldIgnoreNonStringRequest()
         {
             var component = new CacheViewModelProvider();
             component.TryGetViewModel(null!, this, DefaultMetadata).ShouldBeNull();
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             for (var i = 0; i < count; i++)
             {
                 var testViewModel = vms[i];
-                var newId = Guid.NewGuid();
+                var newId = Guid.NewGuid().ToString("N");
                 var oldId = testViewModel.Metadata.Get(ViewModelMetadata.Id);
                 testViewModel.Metadata.Set(ViewModelMetadata.Id, newId);
                 manager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Restored, i, DefaultMetadata);
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             for (var i = 0; i < count; i++)
             {
                 var testViewModel = vms[i];
-                manager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Disposed, i, DefaultMetadata);
+                manager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Disposed, null, DefaultMetadata);
                 manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)).ShouldBeNull();
             }
 

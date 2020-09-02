@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.App;
+﻿using MugenMvvm.App;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Metadata;
@@ -24,7 +23,7 @@ namespace MugenMvvm.UnitTest.App
             deviceInfo.ApplicationVersion.ShouldEqual("0.0");
             deviceInfo.DeviceVersion.ShouldEqual("0.0");
             deviceInfo.HasMetadata.ShouldBeFalse();
-            meta.Set(ViewModelMetadata.Id, Guid.Empty);
+            meta.Set(ViewModelMetadata.Id, "");
             deviceInfo.HasMetadata.ShouldBeTrue();
         }
 

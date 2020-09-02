@@ -17,9 +17,9 @@ namespace MugenMvvm.ViewModels.Components
         #region Fields
 
         private readonly bool _isWeakCache;
-        private readonly Dictionary<Guid, object> _viewModelsCache;
+        private readonly Dictionary<string, object> _viewModelsCache;
 
-        private static readonly IMetadataContextKey<Guid, Guid> CreatedIdKey = MetadataContextKey.FromMember(CreatedIdKey, typeof(CacheViewModelProvider), nameof(CreatedIdKey));
+        private static readonly IMetadataContextKey<string, string> CreatedIdKey = MetadataContextKey.FromMember(CreatedIdKey, typeof(CacheViewModelProvider), nameof(CreatedIdKey));
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace MugenMvvm.ViewModels.Components
         public CacheViewModelProvider(bool isWeakCache = true)
         {
             _isWeakCache = isWeakCache;
-            _viewModelsCache = new Dictionary<Guid, object>();
+            _viewModelsCache = new Dictionary<string, object>(StringComparer.Ordinal);
         }
 
         #endregion
@@ -47,8 +47,11 @@ namespace MugenMvvm.ViewModels.Components
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
                 var id = viewModel.Metadata.Get(ViewModelMetadata.Id);
-                Add(id, viewModel);
-                viewModel.Metadata.Set(CreatedIdKey, id, out _);
+                if (id != null)
+                {
+                    Add(id, viewModel);
+                    viewModel.Metadata.Set(CreatedIdKey, id, out _);
+                }
             }
             else if (lifecycleState == ViewModelLifecycleState.Restored)
             {
@@ -66,7 +69,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is Guid id))
+            if (!(request is string id))
                 return null;
 
             object? value;
@@ -89,16 +92,20 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Methods
 
-        private void Add(Guid id, IViewModelBase viewModel)
+        private void Add(string? id, IViewModelBase viewModel)
         {
+            if (id == null)
+                return;
             lock (_viewModelsCache)
             {
                 _viewModelsCache[id] = _isWeakCache ? (object) viewModel.ToWeakReference() : viewModel;
             }
         }
 
-        private void Remove(Guid id)
+        private void Remove(string? id)
         {
+            if (id == null)
+                return;
             lock (_viewModelsCache)
             {
                 _viewModelsCache.Remove(id);

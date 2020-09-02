@@ -99,7 +99,7 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ValidatorProviderComponent());
 
             configuration.WithAppService(new ViewModelManager())
-                .WithComponent(new CacheViewModelProvider())
+                .WithComponent(new CacheViewModelProvider(false))
                 .WithComponent(new TypeViewModelProvider())
                 .WithComponent(new ViewModelCleaner())
                 .WithComponent(new ViewModelLifecycleTracker())

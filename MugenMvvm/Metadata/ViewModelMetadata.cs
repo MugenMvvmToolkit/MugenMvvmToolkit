@@ -11,7 +11,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<Guid, Guid>? _id;
+        private static IMetadataContextKey<string, string>? _id;
         private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
         private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _serializableViewModel;
 
@@ -20,9 +20,9 @@ namespace MugenMvvm.Metadata
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<Guid, Guid> Id
+        public static IMetadataContextKey<string, string> Id
         {
-            get => _id ??= GetBuilder(_id, nameof(Id)).DefaultValue((context, key, arg3) => GetViewModelIdDefaultValue(context, key, arg3)).Serializable().Build();
+            get => _id ??= GetBuilder(_id, nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
             set => _id = value;
         }
 
@@ -44,11 +44,11 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static Guid GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, IMetadataContextKey<Guid, Guid> key, Guid value)
+        private static string GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, IMetadataContextKey<string, string> key, string? value)
         {
-            if (value == Guid.Empty && ctx is IMetadataContext context)
-                return context.GetOrAdd(key, Guid.NewGuid());
-            return value;
+            if (value == null && ctx is IMetadataContext context)
+                return context.GetOrAdd(key, key, (metadataContext, contextKey) => Guid.NewGuid().ToString("n"));
+            return value ?? string.Empty;
         }
 
         private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name) => MetadataContextKey.Create<TGet, TSet>(typeof(ViewModelMetadata), name);
