@@ -86,6 +86,11 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
     }
 
     @Override
+    public boolean isDiffUtilSupported() {
+        return false;
+    }
+
+    @Override
     public void onItemChanged(int position) {
         notifyDataSetChanged();
     }

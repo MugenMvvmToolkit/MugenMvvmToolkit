@@ -75,6 +75,11 @@ public class MugenFragmentPager2Adapter extends FragmentStateAdapter implements 
     }
 
     @Override
+    public boolean isDiffUtilSupported() {
+        return true;
+    }
+
+    @Override
     public void onItemChanged(int position) {
         notifyItemChanged(position);
     }

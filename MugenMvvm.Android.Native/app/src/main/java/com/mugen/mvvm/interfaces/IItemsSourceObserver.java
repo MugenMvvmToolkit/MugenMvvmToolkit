@@ -1,6 +1,8 @@
 package com.mugen.mvvm.interfaces;
 
 public interface IItemsSourceObserver {
+    boolean isDiffUtilSupported();
+
     void onItemChanged(int position);
 
     void onItemInserted(int position);

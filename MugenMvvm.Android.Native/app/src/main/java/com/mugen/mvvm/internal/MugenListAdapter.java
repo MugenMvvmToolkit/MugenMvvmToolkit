@@ -100,6 +100,11 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
     }
 
     @Override
+    public boolean isDiffUtilSupported() {
+        return false;
+    }
+
+    @Override
     public void onItemChanged(int position) {
         notifyDataSetChanged();
     }

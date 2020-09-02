@@ -46,6 +46,11 @@ public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProvide
     }
 
     @Override
+    public boolean isDiffUtilSupported() {
+        return true;
+    }
+
+    @Override
     public void onItemChanged(int position) {
         notifyItemChanged(position);
     }
