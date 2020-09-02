@@ -135,6 +135,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual void OnViewAppeared(object? state, IReadOnlyMetadataContext? metadata)
         {
+            ClosingContext = null;
             IsAppeared = true;
             if (ShowingContext != null)
                 OnViewShown(metadata);

@@ -73,8 +73,25 @@ namespace MugenMvvm.Presenters.Components
             return result;
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-            Components.TryClose(presenter, request, cancellationToken, metadata);
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
+            if (vm == null && view != null)
+            {
+                var views = _viewManager.DefaultIfNull().GetViews(request, metadata).Iterator();
+                var result = ItemOrListEditor.Get<IPresenterResult>();
+                foreach (var v in views)
+                {
+                    var list = Components.TryClose(presenter, v.ViewModel, cancellationToken, metadata);
+                    result.AddRange(list);
+                }
+
+                if (views.Count != 0)
+                    return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
+            }
+
+            return Components.TryClose(presenter, request, cancellationToken, metadata);
+        }
 
         #endregion
 
