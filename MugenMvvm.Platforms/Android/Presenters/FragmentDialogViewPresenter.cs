@@ -28,7 +28,7 @@ namespace MugenMvvm.Android.Presenters
 
         #region Properties
 
-        public override NavigationType NavigationType => NavigationType.Window;
+        public override NavigationType NavigationType => NavigationType.Popup;
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 

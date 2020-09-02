@@ -18,7 +18,6 @@ namespace MugenMvvm.Ios.Presenters
         #region Fields
 
         private readonly INavigationDispatcher? _navigationDispatcher;
-
         private readonly IPresenter? _presenter;
         private readonly IViewManager? _viewManager;
 

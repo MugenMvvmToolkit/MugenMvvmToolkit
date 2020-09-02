@@ -69,6 +69,10 @@ namespace MugenMvvm.Ios.Extensions
                 .ServiceConfiguration<IViewManager>()
                 .WithComponent(new IosViewLifecycleDispatcher());
 
+            configuration
+                .ServiceConfiguration<IPresenter>()
+                .WithComponent(new IosModalViewPresenter());
+
             return configuration;
         }
 
