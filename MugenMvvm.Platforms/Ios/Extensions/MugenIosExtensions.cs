@@ -20,6 +20,8 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Ios.App;
+using MugenMvvm.Ios.Binding;
+using MugenMvvm.Ios.Collections;
 using MugenMvvm.Ios.Constants;
 using MugenMvvm.Ios.Internal;
 using MugenMvvm.Ios.Members;
@@ -74,7 +76,7 @@ namespace MugenMvvm.Ios.Extensions
         {
             configuration
                 .ServiceConfiguration<IPresenter>()
-                .WithComponent(new ApplicationPresenter(rootViewModelType, wrapToNavigationController));
+                .WithComponent(new IosApplicationPresenter(rootViewModelType, wrapToNavigationController));
             return configuration;
         }
 
@@ -111,6 +113,7 @@ namespace MugenMvvm.Ios.Extensions
                 .For<UIView>()
                 .ContentTemplateSelector()
                 .GetBuilder()
+                .DefaultValue(DefaultContentTemplateSelector.Instance)
                 .NonObservable()
                 .Build());
             attachedMemberProvider.Register(BindableMembers
@@ -145,13 +148,38 @@ namespace MugenMvvm.Ios.Extensions
                     return new ActionToken((t, r) => ((UIView)t!).RemoveGestureRecognizer((UIGestureRecognizer)r!), target, recognizer);
                 })
                 .Build());
+            attachedMemberProvider.Register(BindableMembers
+                .For<UIView>()
+                .ItemTemplateSelector()
+                .GetBuilder()
+                .NonObservable()
+                .Build());
+            attachedMemberProvider.Register(BindableMembers
+                .For<UIView>()
+                .CollectionViewManager()
+                .GetBuilder()
+                .DefaultValue((info, view) => new IosCollectionViewManager())
+                .NonObservable()
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<UIView>()
+                .ItemsSource()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
+                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<UIView>()
+                .SelectedItem()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
+                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
+                .Build());
 
             //UIControl
             var clickEvent = (IObservableMemberInfo?)memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.TouchUpInside));
             if (clickEvent != null)
             {
                 attachedMemberProvider.Register(BindableMembers
-                    .For<UIView>()
+                    .For<UIControl>()
                     .Click()
                     .GetBuilder()
                     .WrapMember(clickEvent)
