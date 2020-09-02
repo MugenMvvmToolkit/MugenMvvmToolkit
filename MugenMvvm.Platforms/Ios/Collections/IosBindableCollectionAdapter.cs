@@ -22,7 +22,7 @@ namespace MugenMvvm.Ios.Collections
 
         #region Constructors
 
-        public IosBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter, IItemSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
+        public IosBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter, IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
             Should.NotBeNull(collectionViewAdapter, nameof(collectionViewAdapter));
@@ -39,7 +39,7 @@ namespace MugenMvvm.Ios.Collections
 
         public ICollectionViewAdapter CollectionViewAdapter { get; }
 
-        public IItemSourceEqualityComparer? EqualityComparer { get; }
+        public IItemsSourceEqualityComparer? EqualityComparer { get; }
 
         bool DiffUtil.IListUpdateCallback.IsUseFinalPosition => true;
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.Ios.Collections
         {
             if (EqualityComparer == null)
                 return Equals(_beforeResetList[oldItemPosition], this[newItemPosition]);
-            return EqualityComparer.Equals(_beforeResetList[oldItemPosition], this[newItemPosition]);
+            return EqualityComparer.AreItemsTheSame(_beforeResetList[oldItemPosition], this[newItemPosition]);
         }
 
         bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => !_reloadIndexes.Contains(oldItemPosition);

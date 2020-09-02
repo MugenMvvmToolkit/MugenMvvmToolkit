@@ -18,7 +18,7 @@ namespace MugenMvvm.Ios.Collections
         #region Constructors
 
         public MugenTableViewSource(UITableView tableView, ICellTemplateSelector itemTemplateSelector)
-            : this(new IosBindableCollectionAdapter(new TableViewCollectionAdapter(tableView), itemTemplateSelector as IItemSourceEqualityComparer), itemTemplateSelector)
+            : this(new IosBindableCollectionAdapter(new TableViewCollectionAdapter(tableView), itemTemplateSelector as IItemsSourceEqualityComparer), itemTemplateSelector)
         {
         }
 

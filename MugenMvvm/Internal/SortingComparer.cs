@@ -29,7 +29,7 @@ namespace MugenMvvm.Internal
         {
             foreach (var item in _sortInfo.Iterator(info => info.IsEmpty))
             {
-                var compare = item.Compare(x, y);
+                var compare = item.Compare(x!, y!);
                 if (compare == 0)
                     continue;
                 return compare;

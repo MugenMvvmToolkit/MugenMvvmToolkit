@@ -22,7 +22,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        public AndroidBindableCollectionAdapter(IItemSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
+        public AndroidBindableCollectionAdapter(IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
             EqualityComparer = equalityComparer;
@@ -34,7 +34,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Properties
 
-        public IItemSourceEqualityComparer? EqualityComparer { get; }
+        public IItemsSourceEqualityComparer? EqualityComparer { get; }
 
         protected override bool IsAlive => _isAlive;
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Android.Collections
         {
             if (EqualityComparer == null)
                 return Equals(_beforeResetList![oldItemPosition], this[newItemPosition]);
-            return EqualityComparer.Equals(_beforeResetList![oldItemPosition], this[newItemPosition]);
+            return EqualityComparer.AreItemsTheSame(_beforeResetList![oldItemPosition], this[newItemPosition]);
         }
 
         bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => true;

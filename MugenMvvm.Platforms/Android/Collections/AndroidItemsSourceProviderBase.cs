@@ -16,7 +16,7 @@ namespace MugenMvvm.Android.Collections
             Owner = owner;
             ItemTemplateSelector = itemTemplateSelector;
             StableIdProvider = stableIdProvider ?? itemTemplateSelector as IStableIdProvider;
-            CollectionAdapter = collectionAdapter ?? new AndroidBindableCollectionAdapter(itemTemplateSelector as IItemSourceEqualityComparer ?? stableIdProvider as IItemSourceEqualityComparer);
+            CollectionAdapter = collectionAdapter ?? new AndroidBindableCollectionAdapter(itemTemplateSelector as IItemsSourceEqualityComparer ?? stableIdProvider as IItemsSourceEqualityComparer);
         }
 
         #endregion

@@ -6,8 +6,8 @@ namespace MugenMvvm.Ios.Interfaces
 namespace MugenMvvm.Android.Interfaces
 #endif
 {
-    public interface IItemSourceEqualityComparer
+    public interface IItemsSourceEqualityComparer
     {
-        bool Equals(object? x, object? y);
+        bool AreItemsTheSame(object? x, object? y);
     }
 }

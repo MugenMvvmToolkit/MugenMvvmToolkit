@@ -40,9 +40,9 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             {
                 var testViewModel = new TestViewModel();
                 vms.Add(testViewModel);
-                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)).ShouldBeNull();
+                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
                 manager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
-                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)).ShouldEqual(testViewModel);
+                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
             }
 
             //restored
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
                 var oldId = testViewModel.Metadata.Get(ViewModelMetadata.Id);
                 testViewModel.Metadata.Set(ViewModelMetadata.Id, newId);
                 manager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Restored, i, DefaultMetadata);
-                manager.TryGetViewModel(oldId).ShouldBeNull();
+                manager.TryGetViewModel(oldId!).ShouldBeNull();
                 manager.TryGetViewModel(newId).ShouldEqual(testViewModel);
             }
 
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             {
                 var testViewModel = vms[i];
                 manager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Disposed, null, DefaultMetadata);
-                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)).ShouldBeNull();
+                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
             }
 
             if (!isWeak)
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
                 var testViewModel = new TestViewModel();
                 vms.Add(testViewModel);
                 manager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
-                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)).ShouldEqual(testViewModel);
+                manager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
             }
 
             var array = vms.Select(model => model.Metadata.Get(ViewModelMetadata.Id)).ToArray();
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             GC.WaitForPendingFinalizers();
             GC.Collect();
             for (var i = 0; i < count; i++)
-                manager.TryGetViewModel(array[i]).ShouldBeNull();
+                manager.TryGetViewModel(array[i]!).ShouldBeNull();
         }
 
         #endregion

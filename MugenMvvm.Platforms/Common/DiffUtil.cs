@@ -600,7 +600,6 @@ namespace MugenMvvm.Internal
                             else
                             {
                                 // this is an addition that was postponed. Now dispatch it.
-                                var updatedNewPos = currentListSize - postponedUpdate.CurrentPos;
                                 if (isUseFinalPosition)
                                 {
                                     batchingCallback.OnMoved(posX, postponedUpdate.PosInOwnerList);
@@ -609,6 +608,7 @@ namespace MugenMvvm.Internal
                                 }
                                 else
                                 {
+                                    var updatedNewPos = currentListSize - postponedUpdate.CurrentPos;
                                     batchingCallback.OnMoved(posX, updatedNewPos - 1);
                                     if ((status & FlagMovedChanged) != 0)
                                         batchingCallback.OnChanged(updatedNewPos - 1, 1, true);
@@ -650,7 +650,6 @@ namespace MugenMvvm.Internal
                                 // oldPosFromEnd = foundListSize - posX
                                 // we can find posX if we swap the list sizes
                                 // posX = listSize - oldPosFromEnd
-                                var updatedOldPos = currentListSize - postponedUpdate.CurrentPos - 1;
                                 if (isUseFinalPosition)
                                 {
                                     batchingCallback.OnMoved(postponedUpdate.PosInOwnerList, posY);
@@ -659,6 +658,7 @@ namespace MugenMvvm.Internal
                                 }
                                 else
                                 {
+                                    var updatedOldPos = currentListSize - postponedUpdate.CurrentPos - 1;
                                     batchingCallback.OnMoved(updatedOldPos, posX);
                                     if ((status & FlagMovedChanged) != 0)
                                         batchingCallback.OnChanged(posX, 1, true);
@@ -694,26 +694,29 @@ namespace MugenMvvm.Internal
                 batchingCallback.DispatchLastEvent();
             }
 
-
             private static PostponedUpdate GetPostponedUpdate(List<PostponedUpdate> postponedUpdates, int posInList, bool removal)
             {
                 var postponedUpdate = PostponedUpdate.Undefined;
                 for (var i = 0; i < postponedUpdates.Count; i++)
                 {
                     var update = postponedUpdates[i];
-                    if (postponedUpdate.IsUndefined && update.PosInOwnerList == posInList && update.Removal == removal)
+                    if (postponedUpdate.IsUndefined)
                     {
+                        if (update.PosInOwnerList != posInList || update.Removal != removal)
+                            continue;
+
                         postponedUpdate = update;
                         postponedUpdates.RemoveAt(i);
                         --i;
-                        continue;
                     }
-
-                    if (removal)
-                        update.CurrentPos--;
                     else
-                        update.CurrentPos++;
-                    postponedUpdates[i] = update;
+                    {
+                        if (removal)
+                            update.CurrentPos--;
+                        else
+                            update.CurrentPos++;
+                        postponedUpdates[i] = update;
+                    }
                 }
 
                 return postponedUpdate;

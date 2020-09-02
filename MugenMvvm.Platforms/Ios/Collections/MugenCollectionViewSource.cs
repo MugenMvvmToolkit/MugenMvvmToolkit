@@ -18,7 +18,7 @@ namespace MugenMvvm.Ios.Collections
         #region Constructors
 
         public MugenCollectionViewSource(UICollectionView collectionView, ICellTemplateSelector itemTemplateSelector)
-            : this(new IosBindableCollectionAdapter(new CollectionViewAdapter(collectionView), itemTemplateSelector as IItemSourceEqualityComparer), itemTemplateSelector)
+            : this(new IosBindableCollectionAdapter(new CollectionViewAdapter(collectionView), itemTemplateSelector as IItemsSourceEqualityComparer), itemTemplateSelector)
         {
         }
 

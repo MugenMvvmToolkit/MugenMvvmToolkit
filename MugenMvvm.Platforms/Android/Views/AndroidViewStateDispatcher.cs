@@ -83,7 +83,7 @@ namespace MugenMvvm.Android.Views
 
         private void PreserveState(IView view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
-            var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id).ToString("N");
+            var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id)!;
             bundle.PutString(AndroidInternalConstant.BundleVmId, id);
 
             var state = ViewModelMetadata.SerializableViewModel.ToContext(view.ViewModel);
