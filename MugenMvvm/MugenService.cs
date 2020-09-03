@@ -96,7 +96,6 @@ namespace MugenMvvm
 
             private static TService? _service;
             private static IHasService<TService>? _serviceConfiguration;
-            private static IHasOptionalService<TService>? _serviceConfigurationOptional;
 
             #endregion
 
@@ -117,17 +116,13 @@ namespace MugenMvvm
 
             public static TService? Optional
             {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
                     if (_service != null)
                         return _service;
-
-                    if (_serviceConfigurationOptional != null)
-                        return _serviceConfigurationOptional.Service;
-
                     if (_serviceConfiguration != null)
-                        return _serviceConfiguration.Service;
-
+                        return _serviceConfiguration.ServiceOptional;
                     return _fallbackConfiguration?.Optional<TService>();
                 }
             }
@@ -140,14 +135,12 @@ namespace MugenMvvm
             {
                 _service = null;
                 _serviceConfiguration = serviceConfiguration;
-                _serviceConfigurationOptional = serviceConfiguration as IHasOptionalService<TService>;
             }
 
             public static void Initialize(TService service)
             {
                 Should.NotBeNull(service, nameof(service));
                 _serviceConfiguration = null;
-                _serviceConfigurationOptional = null;
                 _service = service;
             }
 
@@ -155,7 +148,6 @@ namespace MugenMvvm
             {
                 _service = null;
                 _serviceConfiguration = null;
-                _serviceConfigurationOptional = null;
                 if (clearFallback)
                     _fallbackConfiguration = null;
             }

@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Busy.Internal
             OnBeginBusy?.Invoke(busyToken, metadata);
         }
 
-        void IBusyManagerListener.OnBusyChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
+        void IBusyManagerListener.OnBusyStateChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
             _owner?.ShouldEqual(busyManager);
             OnBusyChanged?.Invoke(metadata);

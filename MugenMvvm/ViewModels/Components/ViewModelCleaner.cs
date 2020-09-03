@@ -68,14 +68,14 @@ namespace MugenMvvm.ViewModels.Components
             foreach (var v in viewManager.GetViews(viewModel, metadata).Iterator())
                 viewManager.CleanupAsync(v, state, default, metadata);
 
-            var busyManager = viewModel.TryGetOptionalService<IBusyManager>();
+            var busyManager = viewModel.TryGetService<IBusyManager>(true);
             if (busyManager != null)
             {
                 busyManager.ClearBusy();
                 busyManager.ClearComponents(metadata);
             }
 
-            var messenger = viewModel.TryGetOptionalService<IMessenger>();
+            var messenger = viewModel.TryGetService<IMessenger>(true);
             if (messenger != null)
             {
                 messenger.UnsubscribeAll(metadata);

@@ -39,10 +39,10 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
 
 
-            var viewModel = new TestCleanableViewModel {Service = new Messenger()};
+            var viewModel = new TestCleanableViewModel { ServiceOptional = new Messenger() };
             var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
+            viewManager.AddComponent(new ViewCleaner { ClearDataContext = true });
             view.Target.BindableMembers().SetDataContext(viewModel);
             view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
@@ -53,8 +53,8 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void ShouldUnsubscribeViewModel()
         {
             var invokeCount = 0;
-            var viewModel = new TestCleanableViewModel {Service = new Messenger()};
-            viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
+            var viewModel = new TestCleanableViewModel { ServiceOptional = new Messenger() };
+            viewModel.ServiceOptional.AddComponent(new TestMessengerSubscriberComponent
             {
                 TryUnsubscribe = (o, arg3) =>
                 {
@@ -134,11 +134,13 @@ namespace MugenMvvm.UnitTest.Views.Components
 
         #region Nested types
 
-        private sealed class TestCleanableViewModel : TestViewModel, IHasOptionalService<IMessenger>
+        private sealed class TestCleanableViewModel : TestViewModel, IHasService<IMessenger>
         {
             #region Properties
 
-            public IMessenger? Service { get; set; }
+            public IMessenger Service => throw new NotSupportedException();
+
+            public IMessenger? ServiceOptional { get; set; }
 
             #endregion
         }

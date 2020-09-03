@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
@@ -144,7 +145,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
 
         #region Nested types
 
-        private sealed class TestCleanerViewModel : TestViewModel, IHasOptionalService<IBusyManager>, IHasOptionalService<IMessenger>, IValueHolder<IWeakReference>
+        private sealed class TestCleanerViewModel : TestViewModel, IHasService<IBusyManager>, IHasService<IMessenger>, IValueHolder<IWeakReference>
         {
             #region Properties
 
@@ -156,9 +157,13 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
 
             public IMessenger? Messenger { get; set; }
 
-            IBusyManager? IHasOptionalService<IBusyManager>.Service => BusyManager;
+            IBusyManager IHasService<IBusyManager>.Service => throw new NotSupportedException();
 
-            IMessenger? IHasOptionalService<IMessenger>.Service => Messenger;
+            IMessenger IHasService<IMessenger>.Service => throw new NotSupportedException();
+
+            IBusyManager? IHasService<IBusyManager>.ServiceOptional => BusyManager;
+
+            IMessenger? IHasService<IMessenger>.ServiceOptional => Messenger;
 
             public IWeakReference? Value { get; set; }
 

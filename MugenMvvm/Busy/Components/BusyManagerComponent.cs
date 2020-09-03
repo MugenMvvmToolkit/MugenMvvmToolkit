@@ -88,7 +88,7 @@ namespace MugenMvvm.Busy.Components
             return busyToken;
         }
 
-        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.GetComponents<IBusyManagerListener>().OnBusyChanged(Owner, metadata);
+        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.GetComponents<IBusyManagerListener>().OnBusyStateChanged(Owner, metadata);
 
         #endregion
 

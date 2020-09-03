@@ -12,7 +12,7 @@ namespace MugenMvvm.ViewModels.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ViewModelComponentPriority.PostInitializer;
+        public int Priority { get; set; } = ViewModelComponentPriority.LifecycleTracker;
 
         #endregion
 

@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Busy.Components
     {
         void OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata);
 
-        void OnBusyChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata);
+        void OnBusyStateChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata);
     }
 }

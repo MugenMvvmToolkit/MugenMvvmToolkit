@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Linq;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
 using MugenMvvm.Views;
@@ -18,15 +15,43 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)
-        {
-            return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).Result;
-        }
+        public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
+            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).Result;
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Type viewType, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)
         {
             Should.NotBeNull(viewType, nameof(viewType));
             return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).Result;
+        }
+
+        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, Action<TViewModel, T>? callback = null, IReadOnlyMetadataContext? metadata = null,
+            IViewModelManager? viewModelManager = null)
+            where TViewModel : class, IViewModelBase
+            where T : class
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            if (service == null)
+            {
+                lock (viewModel)
+                {
+                    if (service == null)
+                    {
+                        if (viewModel.IsDisposed())
+                            ExceptionManager.ThrowObjectDisposed(viewModel);
+                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, typeof(T), metadata);
+                        callback?.Invoke(viewModel, service);
+                    }
+                }
+            }
+
+            return service;
+        }
+
+        public static TViewModel GetViewModel<TViewModel>(this IViewModelManager viewModelManager, IReadOnlyMetadataContext? metadata = null)
+            where TViewModel : class, IViewModelBase
+        {
+            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
+            return (TViewModel)viewModelManager.GetViewModel(typeof(TViewModel), metadata);
         }
 
         public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
@@ -41,44 +66,27 @@ namespace MugenMvvm.Extensions
         public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var service = viewModel.TryGetService<IMessenger>();
+            var service = viewModel.TryGetService<IMessenger>(false);
             return service != null && service.TrySubscribe(subscriber, executionMode, metadata);
         }
 
         public static bool TryUnsubscribe(this IViewModelBase viewModel, object subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var service = viewModel.TryGetService<IMessenger>();
+            var service = viewModel.TryGetService<IMessenger>(true);
             return service != null && service.TryUnsubscribe(subscriber, metadata);
         }
 
-        public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class
+        public static TService? TryGetService<TService>(this IViewModelBase viewModel, bool optional) where TService : class
         {
             if (viewModel is IHasService<TService> hasService)
-                return hasService.Service;
-            if (viewModel is IHasOptionalService<TService> hasOptionalService)
-                return hasOptionalService.Service;
-            if (viewModel is IComponentOwner owner && owner.HasComponents)
-                return owner.Components.Get<TService>().FirstOrDefault();
+                return optional ? hasService.ServiceOptional : hasService.Service;
             return null;
-        }
-
-        public static TService? TryGetOptionalService<TService>(this IViewModelBase viewModel) where TService : class
-        {
-            if (viewModel is IHasOptionalService<TService> hasOptionalService)
-                return hasOptionalService.Service;
-            return viewModel.TryGetService<TService>();
         }
 
         public static void NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state = null,
             IReadOnlyMetadataContext? metadata = null, IViewModelManager? manager = null) =>
             manager.DefaultIfNull().OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
-
-        public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IMessagePublisher>
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            viewModel.Service.Publish(viewModel, Default.EmptyPropertyChangedArgs);
-        }
 
         public static bool IsDisposed(this IViewModelBase viewModel)
         {

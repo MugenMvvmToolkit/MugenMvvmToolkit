@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.ViewModels;
 
 namespace MugenMvvm.Internal
 {
@@ -24,6 +25,8 @@ namespace MugenMvvm.Internal
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
+        internal static readonly PropertyChangedEventArgs IsBusyPropertyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
+        internal static readonly PropertyChangedEventArgs BusyTokenPropertyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.BusyToken));
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
 
         public static readonly IReadOnlyMetadataContext Metadata = EmptyContext.Instance;
@@ -68,7 +71,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = {typeof(T1)};
+            public static readonly Type[] Types = { typeof(T1) };
 
             #endregion
         }
@@ -77,7 +80,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = {typeof(T1), typeof(T2)};
+            public static readonly Type[] Types = { typeof(T1), typeof(T2) };
 
             #endregion
         }

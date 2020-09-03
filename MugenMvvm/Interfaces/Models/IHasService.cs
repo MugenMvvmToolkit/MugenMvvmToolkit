@@ -3,5 +3,7 @@
     public interface IHasService<out TService> where TService : class
     {
         TService Service { get; }
+
+        TService? ServiceOptional { get; }
     }
 }

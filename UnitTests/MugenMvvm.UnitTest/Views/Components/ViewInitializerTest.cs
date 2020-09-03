@@ -37,10 +37,10 @@ namespace MugenMvvm.UnitTest.Views.Components
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(accessorMemberInfo)
             });
 
-            var viewModel = new TestInitializableViewModel {Service = new Messenger()};
+            var viewModel = new TestInitializableViewModel { Service = new Messenger() };
             var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewInitializer {SetDataContext = true});
+            viewManager.AddComponent(new ViewInitializer { SetDataContext = true });
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
 
             view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void ShouldSubscribeViewModel()
         {
             var invokeCount = 0;
-            var viewModel = new TestInitializableViewModel {Service = new Messenger()};
+            var viewModel = new TestInitializableViewModel { Service = new Messenger() };
             viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
             {
                 TrySubscribe = (o, m, arg3) =>
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
+            viewManager.AddComponent(new ViewInitializer { SetDataContext = false });
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewModel = new TestInitializableViewModel();
             view = new View(new ViewMapping("1", rawView.GetType(), typeof(IViewModelBase)), rawView, viewModel);
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
+            viewManager.AddComponent(new ViewInitializer { SetDataContext = false });
             view.Components.Add(componentView);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
@@ -123,11 +123,13 @@ namespace MugenMvvm.UnitTest.Views.Components
 
         #region Nested types
 
-        private sealed class TestInitializableViewModel : TestViewModel, IHasOptionalService<IMessenger>
+        private sealed class TestInitializableViewModel : TestViewModel, IHasService<IMessenger>
         {
             #region Properties
 
-            public IMessenger? Service { get; set; }
+            public IMessenger Service { get; set; }
+
+            public IMessenger? ServiceOptional => throw new NotSupportedException();
 
             #endregion
         }
