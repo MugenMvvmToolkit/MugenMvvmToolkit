@@ -1,9 +1,11 @@
-﻿using Android.App;
+﻿using System;
+using System.Globalization;
+using Android.App;
 using Android.Content;
 using Android.Views;
-using Java.Lang;
 using MugenMvvm.Android.Binding;
 using MugenMvvm.Android.Collections;
+using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Internal;
 using MugenMvvm.Android.Members;
@@ -18,13 +20,19 @@ using MugenMvvm.Android.Requests;
 using MugenMvvm.Android.Views;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Binding;
+using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Binding.Parsing.Components.Parsers;
+using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -37,6 +45,7 @@ using MugenMvvm.Internal.Components;
 using MugenMvvm.Threading.Components;
 using MugenMvvm.Views;
 using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
+using Object = Java.Lang.Object;
 using View = Android.Views.View;
 
 namespace MugenMvvm.Android.Extensions
@@ -84,6 +93,32 @@ namespace MugenMvvm.Android.Extensions
                 .Service()
                 .GetOrAddComponent(ctx => new WeakReferenceProviderComponent())
                 .TrackResurrection = true;
+
+            return configuration;
+        }
+
+        public static MugenApplicationConfiguration AndroidBindingConfiguration(this MugenApplicationConfiguration configuration)
+        {
+            var digitTokenParser = configuration
+                .ServiceConfiguration<IExpressionParser>()
+                .Service()
+                .GetOrAddComponent(context => new DigitTokenParser());
+            var converter = new DigitTokenParser.ConvertDelegate(ConvertAndroidDigits);
+            digitTokenParser.PostfixToConverter[AndroidInternalConstant.DpMetric] = converter;
+            digitTokenParser.PostfixToConverter[AndroidInternalConstant.DipMetric] = converter;
+            digitTokenParser.PostfixToConverter[AndroidInternalConstant.MmMetric] = converter;
+            digitTokenParser.PostfixToConverter[AndroidInternalConstant.InMetric] = converter;
+            digitTokenParser.PostfixToConverter[AndroidInternalConstant.PtMetric] = converter;
+            digitTokenParser.PostfixToConverter[AndroidInternalConstant.SpMetric] = converter;
+
+            var macrosBindingInitializer = configuration
+                .ServiceConfiguration<IBindingManager>()
+                .Service()
+                .GetOrAddComponent(context => new MacrosBindingInitializer());
+            var resourceVisitor = new AndroidResourceExpressionVisitor();
+            macrosBindingInitializer.TargetVisitors.Add(resourceVisitor);
+            macrosBindingInitializer.SourceVisitors.Add(resourceVisitor);
+            macrosBindingInitializer.ParameterVisitors.Add(resourceVisitor);
 
             return configuration;
         }
@@ -415,6 +450,35 @@ namespace MugenMvvm.Android.Extensions
                 .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.SelectedIndexEventName))
                 .Build());
             return configuration;
+        }
+
+        private static IExpressionNode? ConvertAndroidDigits(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider)
+        {
+            if (!float.TryParse(value, NumberStyles.Any, formatProvider, out var floatValue))
+                return null;
+            switch (postfix)
+            {
+                case AndroidInternalConstant.DpMetric:
+                case AndroidInternalConstant.DipMetric:
+                    floatValue = MugenNativeUtils.DpToPx(floatValue);
+                    break;
+                case AndroidInternalConstant.SpMetric:
+                    floatValue = MugenNativeUtils.SpToPx(floatValue);
+                    break;
+                case AndroidInternalConstant.MmMetric:
+                    floatValue = MugenNativeUtils.MmToPx(floatValue);
+                    break;
+                case AndroidInternalConstant.InMetric:
+                    floatValue = MugenNativeUtils.InToPx(floatValue);
+                    break;
+                case AndroidInternalConstant.PtMetric:
+                    floatValue = MugenNativeUtils.PtToPx(floatValue);
+                    break;
+            }
+
+            if (integer)
+                return ConstantExpressionNode.Get((int)floatValue);
+            return ConstantExpressionNode.Get(floatValue);
         }
 
         #endregion

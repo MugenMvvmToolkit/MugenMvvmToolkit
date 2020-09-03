@@ -82,7 +82,7 @@ namespace MugenMvvm.Ios.App
                 {
                     using var stream = new MemoryStream(bytes);
                     if (_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value)
-                        && value is IReadOnlyMetadataContext restoredState && restoredState.TryGet(ViewModelMetadata.SerializableViewModel, out var vm) && vm != null)
+                        && value is IReadOnlyMetadataContext restoredState && restoredState.TryGet(ViewModelMetadata.ViewModel, out var vm) && vm != null)
                     {
                         var viewModelViewRequest = new ViewModelViewRequest(vm, viewType);
                         var view = _viewManager.DefaultIfNull().TryInitializeAsync(ViewMapping.Undefined, viewModelViewRequest, default, metadata)?.Result;
@@ -115,7 +115,7 @@ namespace MugenMvvm.Ios.App
             {
                 if (view is IView v)
                 {
-                    var stateMeta = ViewModelMetadata.SerializableViewModel.ToContext(v.ViewModel);
+                    var stateMeta = ViewModelMetadata.ViewModel.ToContext(v.ViewModel);
                     using var stream = new MemoryStream();
                     if (_serializer.DefaultIfNull().TrySerialize(stream, stateMeta, metadata))
                     {

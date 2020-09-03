@@ -86,7 +86,7 @@ namespace MugenMvvm.Android.Views
             var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id)!;
             bundle.PutString(AndroidInternalConstant.BundleVmId, id);
 
-            var state = ViewModelMetadata.SerializableViewModel.ToContext(view.ViewModel);
+            var state = ViewModelMetadata.ViewModel.ToContext(view.ViewModel);
             using var stream = new MemoryStream();
             if (_serializer.DefaultIfNull().TrySerialize(stream, state, metadata))
                 bundle.PutByteArray(AndroidInternalConstant.BundleViewState, stream.ToArray());
@@ -96,7 +96,8 @@ namespace MugenMvvm.Android.Views
 
         private ViewModelViewRequest? TryRestoreState(object view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
-            if (!Guid.TryParse(bundle.GetString(AndroidInternalConstant.BundleVmId), out var id))
+            var id = bundle.GetString(AndroidInternalConstant.BundleVmId);
+            if (string.IsNullOrEmpty(id))
                 return null;
 
             var viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id, metadata);
@@ -110,7 +111,7 @@ namespace MugenMvvm.Android.Views
                 if (!_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value) || !(value is IReadOnlyMetadataContext restoredState))
                     return null;
 
-                viewModel = restoredState.Get(ViewModelMetadata.SerializableViewModel);
+                viewModel = restoredState.Get(ViewModelMetadata.ViewModel);
                 if (viewModel == null)
                     return null;
             }

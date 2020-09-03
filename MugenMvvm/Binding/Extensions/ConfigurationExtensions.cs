@@ -49,7 +49,8 @@ namespace MugenMvvm.Binding.Extensions
             macrosBindingInitializer.SourceVisitors.Add(macrosVisitor);
             macrosBindingInitializer.ParameterVisitors.Add(macrosVisitor);
 
-            configuration.WithAppService(new BindingManager()).WithComponent(macrosBindingInitializer)
+            configuration.WithAppService(new BindingManager())
+                .WithComponent(macrosBindingInitializer)
                 .WithComponent(new BindingBuilderListExpressionParser())
                 .WithComponent(new BindingBuilderDelegateExpressionParser())
                 .WithComponent(new BindingCleaner())

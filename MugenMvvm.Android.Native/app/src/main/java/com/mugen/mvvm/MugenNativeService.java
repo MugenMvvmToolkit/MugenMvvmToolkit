@@ -54,6 +54,7 @@ public final class MugenNativeService {
         LifecycleExtensions.addLifecycleDispatcher(viewCleaner, false);
         LifecycleExtensions.addLifecycleDispatcher(fragmentDispatcher, false);
         LifecycleExtensions.addLifecycleDispatcher(new ActionBarHomeClickListener(), false);
+        LifecycleExtensions.addLifecycleDispatcher(new ActivityTrackerDispatcher(), false);
         ViewExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
     }
 

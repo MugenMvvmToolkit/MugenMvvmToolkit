@@ -19,6 +19,8 @@ import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 public final class ActivityExtensions {
     static final String ViewIdIntentKey = "~v_id!";
     static final String ExtraBundleKey = "~eb@#";
+    @SuppressLint("StaticFieldLeak")
+    private static Activity _currentActivity;
 
     private ActivityExtensions() {
     }
@@ -89,5 +91,19 @@ public final class ActivityExtensions {
 
     public static void addCommonActivityMapping(int resource, boolean isCompat) {
         ViewExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource);
+    }
+
+
+    public static Context getCurrentActivity() {
+        return _currentActivity;
+    }
+
+    public static void setCurrentActivity(Context activity) {
+        _currentActivity = (Activity) activity;
+    }
+
+    public static void clearCurrentActivity(Context activity) {
+        if (_currentActivity != null && _currentActivity.equals(activity))
+            _currentActivity = null;
     }
 }

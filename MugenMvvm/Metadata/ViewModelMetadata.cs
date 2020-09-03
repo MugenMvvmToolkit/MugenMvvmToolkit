@@ -13,7 +13,7 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<string, string>? _id;
         private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
-        private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _serializableViewModel;
+        private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _viewModel;
 
         #endregion
 
@@ -34,10 +34,10 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<IViewModelBase?, IViewModelBase?> SerializableViewModel
+        public static IMetadataContextKey<IViewModelBase?, IViewModelBase?> ViewModel
         {
-            get => _serializableViewModel ??= GetBuilder(_serializableViewModel, nameof(SerializableViewModel)).Serializable().Build();
-            set => _serializableViewModel = value;
+            get => _viewModel ??= GetBuilder(_viewModel, nameof(ViewModel)).Serializable().Build();
+            set => _viewModel = value;
         }
 
         #endregion
