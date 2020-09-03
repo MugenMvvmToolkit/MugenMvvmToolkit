@@ -52,18 +52,22 @@ namespace MugenMvvm.Navigation.Components
         public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
             => UpdateEntries(navigationDispatcher, true, navigationContext, false);
 
-        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
-        {
-            if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
-                UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
-                    navigationContext.GetMetadataOrDefault());
-        }
-
         public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsClose || navigationContext.NavigationMode.IsNew)
+            {
                 UpdateEntries(navigationDispatcher, false, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
                     navigationContext.GetMetadataOrDefault());
+            }
+        }
+
+        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        {
+            if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
+            {
+                UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
+                    navigationContext.GetMetadataOrDefault());
+            }
         }
 
         public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
@@ -141,7 +145,7 @@ namespace MugenMvvm.Navigation.Components
             }
             else if (updatedEntry != null && !isPending)
             {
-                ((NavigationEntry)updatedEntry).IsPending = false;
+                ((NavigationEntry) updatedEntry).IsPending = false;
                 navigationDispatcher
                     .GetComponents<INavigationDispatcherEntryListener>(metadata)
                     .OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationInfo);

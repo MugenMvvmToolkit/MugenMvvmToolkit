@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Members.Builders
         public EventBuilder<TTarget> WrapMember(IObservableMemberInfo memberInfo)
         {
             Should.NotBeNull(memberInfo, nameof(memberInfo));
-            return CustomImplementation(memberInfo.TryObserve, memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?)null);
+            return CustomImplementation(memberInfo.TryObserve, memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
         }
 
         public EventBuilder<TTarget> CustomImplementation(TryObserveDelegate<INotifiableMemberInfo, TTarget> subscribe, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)

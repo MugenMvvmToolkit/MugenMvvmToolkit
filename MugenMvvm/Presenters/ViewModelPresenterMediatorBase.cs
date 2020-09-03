@@ -28,20 +28,21 @@ namespace MugenMvvm.Presenters
         private readonly IViewManager? _viewManager;
         private readonly IWrapperManager? _wrapperManager;
 
-        protected ICancelableRequest? ClosingCancelArgs;
-        protected INavigationContext? ClosingContext;
-        protected INavigationContext? ShowingContext;
-        protected CancellationTokenSource? ShowingCancellationTokenSource;
-        protected TaskCompletionSource<object?>? ShowingTaskCompletionSource;
-
         private string _id;
         private string? _navigationId;
+
+        protected ICancelableRequest? ClosingCancelArgs;
+        protected INavigationContext? ClosingContext;
+        protected CancellationTokenSource? ShowingCancellationTokenSource;
+        protected INavigationContext? ShowingContext;
+        protected TaskCompletionSource<object?>? ShowingTaskCompletionSource;
 
         #endregion
 
         #region Constructors
 
-        protected ViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
+        protected ViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null,
+            INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(mapping, nameof(mapping));
@@ -193,10 +194,7 @@ namespace MugenMvvm.Presenters
             return NavigationMode.New;
         }
 
-        protected virtual void OnNavigating(INavigationContext navigationContext)
-        {
-            NavigationDispatcher.OnNavigating(navigationContext);
-        }
+        protected virtual void OnNavigating(INavigationContext navigationContext) => NavigationDispatcher.OnNavigating(navigationContext);
 
         protected virtual void OnNavigated(INavigationContext navigationContext)
         {
@@ -350,9 +348,8 @@ namespace MugenMvvm.Presenters
 
                 ViewManager
                     .InitializeAsync(Mapping, GetViewRequest(view, context), cancellationToken, context.GetMetadataOrDefault())
-                    .ContinueWith((context.NavigationMode.IsNew || view == null ? OnViewInitializedShowCallback : (Action<Task<IView>, object>)OnViewInitializedRefreshCallback)!, context,
+                    .ContinueWith((context.NavigationMode.IsNew || view == null ? OnViewInitializedShowCallback : (Action<Task<IView>, object>) OnViewInitializedRefreshCallback)!, context,
                         TaskContinuationOptions.ExecuteSynchronously);
-
             }
             catch (Exception e)
             {
@@ -383,15 +380,15 @@ namespace MugenMvvm.Presenters
         {
             if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
             {
-                ShowViewCallback(task, (INavigationContext)state, show);
+                ShowViewCallback(task, (INavigationContext) state, show);
                 return;
             }
 
             ThreadDispatcher.Execute(ExecutionMode, s =>
             {
-                var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, Task<IView>, INavigationContext, bool>)s!;
+                var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, Task<IView>, INavigationContext, bool>) s!;
                 tuple.Item1.ShowViewCallback(tuple.Item2, tuple.Item3, tuple.Item4);
-            }, Tuple.Create(this, task, (INavigationContext)state, show));
+            }, Tuple.Create(this, task, (INavigationContext) state, show));
         }
 
         private void ShowViewCallback(Task<IView> task, INavigationContext navigationContext, bool show)
@@ -412,7 +409,7 @@ namespace MugenMvvm.Presenters
 
         private void RefreshCallback(object? state)
         {
-            var ctx = (INavigationContext)state!;
+            var ctx = (INavigationContext) state!;
             try
             {
                 if (CurrentView == null || !ActivateView(CurrentView, ctx))
@@ -426,7 +423,7 @@ namespace MugenMvvm.Presenters
 
         private void CloseViewCallback(object? state)
         {
-            var ctx = (INavigationContext)state!;
+            var ctx = (INavigationContext) state!;
             try
             {
                 if (ClosingCancelArgs != null)

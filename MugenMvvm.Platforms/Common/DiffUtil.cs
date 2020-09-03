@@ -34,7 +34,7 @@ namespace MugenMvvm.Internal
             List<Range> rangePool = new List<Range>();
             while (stack.Count != 0)
             {
-                Range range = RemoveAt(stack, stack.Count - 1);
+                var range = RemoveAt(stack, stack.Count - 1);
                 MidPoint(range, cb, forward, backward, out var snake);
                 if (snake.IsUndefined)
                     rangePool.Add(range);
@@ -44,7 +44,7 @@ namespace MugenMvvm.Internal
                     if (snake.DiagonalSize > 0)
                         diagonals.Add(snake.ToDiagonal());
                     // add new ranges for left and right
-                    Range left = rangePool.Count == 0 ? new Range() : RemoveAt(rangePool, rangePool.Count - 1);
+                    var left = rangePool.Count == 0 ? new Range() : RemoveAt(rangePool, rangePool.Count - 1);
                     left.OldListStart = range.OldListStart;
                     left.NewListStart = range.NewListStart;
                     left.OldListEnd = snake.StartX;
@@ -79,6 +79,7 @@ namespace MugenMvvm.Internal
                 result = Snake.Undefined;
                 return;
             }
+
             var max = (range.OldSize + range.NewSize + 1) / 2;
             forward[1] = range.OldListStart;
             backward[1] = range.OldListEnd;
@@ -587,7 +588,7 @@ namespace MugenMvvm.Internal
                         {
                             var newPos = status >> FlagOffset;
                             // get postponed addition
-                            PostponedUpdate postponedUpdate = GetPostponedUpdate(postponedUpdates, newPos, false);
+                            var postponedUpdate = GetPostponedUpdate(postponedUpdates, newPos, false);
                             if (postponedUpdate.IsUndefined)
                             {
                                 // first time we are seeing this, we'll see a matching addition
@@ -634,7 +635,7 @@ namespace MugenMvvm.Internal
                             // see if this is postponed
                             var oldPos = status >> FlagOffset;
                             // get postponed removal
-                            PostponedUpdate postponedUpdate = GetPostponedUpdate(postponedUpdates, oldPos, true);
+                            var postponedUpdate = GetPostponedUpdate(postponedUpdates, oldPos, true);
                             // empty size returns 0 for indexOf
                             if (postponedUpdate.IsUndefined)
                             {

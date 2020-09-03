@@ -39,7 +39,7 @@ namespace MugenMvvm.Extensions
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             if (component == null)
                 return collection as IEnumerable<object?> ?? collection.Cast<object?>();
-            return component.DecorateItems((ICollection)collection);
+            return component.DecorateItems((ICollection) collection);
         }
 
         public static MonitorLocker TryLock(this ICollection? collection)

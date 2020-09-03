@@ -47,7 +47,7 @@ namespace MugenMvvm.Android.Views
                 if (result == null)
                     ExceptionManager.ThrowObjectNotInitialized(tuple.Components);
                 tuple.tcs.TrySetFromTask(result);
-            }).ContinueWith((task, o) => ((TaskCompletionSource<IView>)o).TrySetFromTask(task), tcs, TaskContinuationOptions.NotOnRanToCompletion);
+            }).ContinueWith((task, o) => ((TaskCompletionSource<IView>) o).TrySetFromTask(task), tcs, TaskContinuationOptions.NotOnRanToCompletion);
             return tcs.Task;
         }
 
@@ -62,8 +62,9 @@ namespace MugenMvvm.Android.Views
         {
             #region Fields
 
-            private readonly IViewMapping _mapping;
             private readonly CancellationToken _cancellationToken;
+
+            private readonly IViewMapping _mapping;
 
             #endregion
 

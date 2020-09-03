@@ -224,8 +224,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo)(object)value!;
+                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo) (object) value!;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -292,7 +292,7 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
@@ -319,7 +319,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task, TState>>)o!;
+                var tuple = (Tuple<TState, Action<Task, TState>>) o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -343,7 +343,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o!;
+                var tuple = (Tuple<TState, Action<Task<T>, TState>>) o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }

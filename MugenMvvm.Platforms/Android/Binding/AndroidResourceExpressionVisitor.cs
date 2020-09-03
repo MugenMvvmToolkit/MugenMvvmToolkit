@@ -49,7 +49,7 @@ namespace MugenMvvm.Android.Binding
 
             if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                 return ConstantExpressionNode.Get(resolver.resolver(member.Member));
-            return new MethodCallExpressionNode(ConstantExpressionNode.Get(resolver.genericResolver), nameof(resolver.resolver.Invoke), new[] { ConstantExpressionNode.Get(member.Member) });
+            return new MethodCallExpressionNode(ConstantExpressionNode.Get(resolver.genericResolver), nameof(resolver.resolver.Invoke), new[] {ConstantExpressionNode.Get(member.Member)});
         }
 
         #endregion

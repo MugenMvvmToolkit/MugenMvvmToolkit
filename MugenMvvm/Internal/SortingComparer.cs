@@ -123,7 +123,7 @@ namespace MugenMvvm.Internal
             public static SortingInfo Create<TValue>(Func<T, TValue> expression, bool isAscending) =>
                 new SortingInfo((exp, isAsc, x, y) =>
                 {
-                    var func = (Func<T, TValue>)exp;
+                    var func = (Func<T, TValue>) exp;
                     if (isAsc)
                         return Comparer<TValue>.Default.Compare(func(x), func(y));
                     return Comparer<TValue>.Default.Compare(func(y), func(x));

@@ -9,9 +9,10 @@ namespace MugenMvvm.Android.App
     {
         #region Fields
 
-        private PlatformIdiom? _idiom;
-        private string? _deviceVersion;
         private string? _appVersion;
+        private string? _deviceVersion;
+
+        private PlatformIdiom? _idiom;
 
         #endregion
 

@@ -169,10 +169,10 @@ namespace MugenMvvm.Ios.Extensions
                 .CustomImplementation((member, target, listener, metadata) =>
                 {
                     var closure = new ClickClosure(listener.ToWeak());
-                    var recognizer = new UITapGestureRecognizer(closure, ClickClosure.OnClickSelector) { NumberOfTapsRequired = 1 };
+                    var recognizer = new UITapGestureRecognizer(closure, ClickClosure.OnClickSelector) {NumberOfTapsRequired = 1};
                     target.UserInteractionEnabled = true;
                     target.AddGestureRecognizer(recognizer);
-                    return new ActionToken((t, r) => ((UIView)t!).RemoveGestureRecognizer((UIGestureRecognizer)r!), target, recognizer);
+                    return new ActionToken((t, r) => ((UIView) t!).RemoveGestureRecognizer((UIGestureRecognizer) r!), target, recognizer);
                 })
                 .Build());
             attachedMemberProvider.Register(BindableMembers
@@ -183,7 +183,7 @@ namespace MugenMvvm.Ios.Extensions
                 .Build());
 
             //UIControl
-            var clickEvent = (IObservableMemberInfo?)memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.TouchUpInside));
+            var clickEvent = (IObservableMemberInfo?) memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.TouchUpInside));
             if (clickEvent != null)
             {
                 attachedMemberProvider.Register(BindableMembers
@@ -194,7 +194,7 @@ namespace MugenMvvm.Ios.Extensions
                     .Build());
             }
 
-            var valueChangedEvent = (IObservableMemberInfo?)memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.ValueChanged));
+            var valueChangedEvent = (IObservableMemberInfo?) memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.ValueChanged));
             if (valueChangedEvent != null)
             {
                 attachedMemberProvider.Register(valueChangedEvent, nameof(UISwitch.On) + BindingInternalConstant.ChangedEventPostfix);

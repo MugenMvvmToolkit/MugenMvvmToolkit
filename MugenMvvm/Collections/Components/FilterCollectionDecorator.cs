@@ -173,6 +173,7 @@ namespace MugenMvvm.Collections.Components
                 UpdateItems(items);
                 items = this;
             }
+
             return true;
         }
 

@@ -34,7 +34,7 @@ namespace MugenMvvm.Ios.Views
                 BindableMembers.For<object>().ParentNative().TryRaise(controller);
             }
             else if (lifecycleState == ViewLifecycleState.Cleared && MugenExtensions.GetUnderlyingView(view) is UIViewController c)
-                c.ViewIfLoaded?.ClearBindings(true, DisposeView, true);
+                c.ViewIfLoaded?.ClearBindings(true, DisposeView);
         }
 
         #endregion

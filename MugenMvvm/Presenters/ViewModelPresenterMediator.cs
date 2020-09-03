@@ -92,10 +92,7 @@ namespace MugenMvvm.Presenters
 
         protected override void CloseView(TView view, INavigationContext navigationContext) => ViewPresenter.Close(this, view, navigationContext);
 
-        protected override void CleanupView(TView view, INavigationContext navigationContext)
-        {
-            ViewPresenter.Cleanup(this, view, navigationContext);
-        }
+        protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenter.Cleanup(this, view, navigationContext);
 
         protected internal override void OnViewClosed(IReadOnlyMetadataContext? metadata)
         {
@@ -107,6 +104,7 @@ namespace MugenMvvm.Presenters
                     TryClose(CurrentView, default, metadata);
                     return;
                 }
+
                 ClosingContext = GetNavigationContext(NavigationMode.Close, metadata);
                 OnNavigating(ClosingContext);
             }
@@ -118,6 +116,7 @@ namespace MugenMvvm.Presenters
                     LifecycleAdded = false;
                     ViewManager.RemoveComponent(this);
                 }
+
                 base.OnViewClosed(metadata);
             }
         }
@@ -148,10 +147,7 @@ namespace MugenMvvm.Presenters
                 OnViewClosed(metadata);
         }
 
-        protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata)
-        {
-            UpdateView(null, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
-        }
+        protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata) => UpdateView(null, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
 
         protected virtual void OnViewLifecycleChanged(ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {

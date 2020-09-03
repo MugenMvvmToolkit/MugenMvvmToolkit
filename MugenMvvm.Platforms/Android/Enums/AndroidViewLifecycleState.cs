@@ -53,11 +53,10 @@ namespace MugenMvvm.Android.Enums
 
         private AndroidViewLifecycleState()
         {
-
         }
 
         #endregion
-        
+
         #region Methods
 
         public static ViewLifecycleState? TryParseNativeChanging(int state)

@@ -141,8 +141,10 @@ namespace MugenMvvm.Binding.Core.Components
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
+                    {
                         binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)),
                             metadata);
+                    }
                 }
 
                 if (binding.State == BindingState.Valid)

@@ -55,7 +55,8 @@ namespace MugenMvvm.Android.Members
         [BindingMember(nameof(CollectionViewManager))]
         public static ICollectionViewManager? CollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : Object => CollectionViewManager<T>(_: default).GetValue(descriptor.Target);
 
-        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : Object => CollectionViewManager<T>(_: default).SetValue(descriptor.Target, value);
+        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : Object =>
+            CollectionViewManager<T>(_: default).SetValue(descriptor.Target, value);
 
 
         [BindingMember(nameof(StableIdProvider))]
@@ -107,7 +108,7 @@ namespace MugenMvvm.Android.Members
 
         [BindingMember(nameof(ContentTemplateSelector))]
         public static IContentTemplateSelector? ContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View =>
-            (IContentTemplateSelector?)ContentTemplateSelector<T>(_: default).GetValue(descriptor.Target);
+            (IContentTemplateSelector?) ContentTemplateSelector<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, IContentTemplateSelector? value) where T : View =>
             ContentTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);

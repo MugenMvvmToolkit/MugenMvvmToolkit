@@ -38,7 +38,7 @@ namespace MugenMvvm.Extensions
                     {
                         if (viewModel.IsDisposed())
                             ExceptionManager.ThrowObjectDisposed(viewModel);
-                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, typeof(T), metadata);
+                        service = (T) viewModelManager.DefaultIfNull().GetService(viewModel, typeof(T), metadata);
                         callback?.Invoke(viewModel, service);
                     }
                 }
@@ -51,7 +51,7 @@ namespace MugenMvvm.Extensions
             where TViewModel : class, IViewModelBase
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            return (TViewModel)viewModelManager.GetViewModel(typeof(TViewModel), metadata);
+            return (TViewModel) viewModelManager.GetViewModel(typeof(TViewModel), metadata);
         }
 
         public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)

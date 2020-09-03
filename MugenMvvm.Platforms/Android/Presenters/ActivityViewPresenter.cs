@@ -19,8 +19,9 @@ namespace MugenMvvm.Android.Presenters
     {
         #region Fields
 
-        private readonly IPresenter? _presenter;
         private readonly INavigationDispatcher? _navigationDispatcher;
+
+        private readonly IPresenter? _presenter;
 
         #endregion
 

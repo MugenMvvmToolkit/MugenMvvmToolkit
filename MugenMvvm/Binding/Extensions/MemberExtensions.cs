@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             Should.NotBeNull(target, nameof(target));
             flags = flags.SetInstanceOrStaticFlags(bindableMember.IsStatic);
-            return (TValue)memberManager.DefaultIfNull().GetValue(flags.GetTargetType(ref target!), target, bindableMember, flags, metadata)!;
+            return (TValue) memberManager.DefaultIfNull().GetValue(flags.GetTargetType(ref target!), target, bindableMember, flags, metadata)!;
         }
 
         public static void SetValue<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
@@ -75,28 +75,28 @@ namespace MugenMvvm.Binding.Extensions
             var method = methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager);
             if (method == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target, methodMember.ToString());
-            return (TReturn)method.Invoke(target, args ?? Default.Array<object?>(), metadata)!;
+            return (TReturn) method.Invoke(target, args ?? Default.Array<object?>(), metadata)!;
         }
 
         public static TReturn Invoke<TTarget, TArg1, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TReturn> methodMember, TTarget target,
             TArg1 arg1, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
-            methodMember.RawMethod.Invoke(target, new[] { BoxingExtensions.Box(arg1) }, flags, metadata, memberManager);
+            methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TReturn> methodMember, TTarget target,
             TArg1 arg1, TArg2 arg2, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
-            methodMember.RawMethod.Invoke(target, new[] { BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2) }, flags, metadata, memberManager);
+            methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TArg3, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TReturn> methodMember, TTarget target,
             TArg1 arg1, TArg2 arg2, TArg3 arg3, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
-            methodMember.RawMethod.Invoke(target, new[] { BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3) }, flags, metadata, memberManager);
+            methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn> methodMember, TTarget target,
             TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
-            methodMember.RawMethod.Invoke(target, new[] { BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3), BoxingExtensions.Box(arg4) }, flags, metadata, memberManager);
+            methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3), BoxingExtensions.Box(arg4)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> methodMember, TTarget target,
             TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
-            methodMember.RawMethod.Invoke(target, new[] { BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3), BoxingExtensions.Box(arg4), BoxingExtensions.Box(arg5) }, flags, metadata,
+            methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3), BoxingExtensions.Box(arg4), BoxingExtensions.Box(arg5)}, flags, metadata,
                 memberManager);
 
         public static ActionToken Subscribe<TTarget>(this BindableEventDescriptor<TTarget> eventMember, TTarget target,
@@ -150,15 +150,10 @@ namespace MugenMvvm.Binding.Extensions
             (methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager) as INotifiableMemberInfo)?.Raise(target, message, metadata);
         }
 
-        internal static ActionToken TryObserve(this IObservableMemberInfo observableMember, IMemberInfo _, object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            return observableMember.TryObserve(target, listener, metadata);
-        }
+        internal static ActionToken TryObserve(this IObservableMemberInfo observableMember, IMemberInfo _, object? target, IEventListener listener, IReadOnlyMetadataContext? metadata) =>
+            observableMember.TryObserve(target, listener, metadata);
 
-        internal static void Raise(this INotifiableMemberInfo notifiableMember, IMemberInfo _, object? target, object? message, IReadOnlyMetadataContext? metadata)
-        {
-            notifiableMember.Raise(target, message, metadata);
-        }
+        internal static void Raise(this INotifiableMemberInfo notifiableMember, IMemberInfo _, object? target, object? message, IReadOnlyMetadataContext? metadata) => notifiableMember.Raise(target, message, metadata);
 
         [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -166,7 +161,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             if (itemOrList.List != null)
                 BindingExceptionManager.ThrowAmbiguousMatchFound();
-            return (TReturn?)itemOrList.Item;
+            return (TReturn?) itemOrList.Item;
         }
 
         #endregion

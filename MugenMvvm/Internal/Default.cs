@@ -71,7 +71,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = { typeof(T1) };
+            public static readonly Type[] Types = {typeof(T1)};
 
             #endregion
         }
@@ -80,7 +80,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = { typeof(T1), typeof(T2) };
+            public static readonly Type[] Types = {typeof(T1), typeof(T2)};
 
             #endregion
         }

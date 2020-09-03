@@ -45,7 +45,7 @@ namespace MugenMvvm.Extensions
             #region Fields
 
             public readonly TraceLevel TraceLevel;
-            public readonly ITracer Tracer;
+            public readonly ITracer? Tracer;
 
             #endregion
 

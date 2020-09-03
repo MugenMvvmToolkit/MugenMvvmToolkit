@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Members.Descriptors
     {
         #region Fields
 
-        public readonly MemberTypesRequest Request;
+        public readonly MemberTypesRequest? Request;
 
         #endregion
 

@@ -278,7 +278,7 @@ namespace MugenMvvm.Extensions.Components
                     if (resultTask == null)
                         OnExecuted(Default.TrueTask);
                     else
-                        resultTask.ContinueWith((t, state) => ((NavigatingResult)state!).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
+                        resultTask.ContinueWith((t, state) => ((NavigatingResult) state!).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
                 }
                 catch (Exception e)
                 {

@@ -85,7 +85,7 @@ namespace MugenMvvm.Ios.Presenters
                     return presenter.Show(viewModel, cancellationToken, metadata);
                 }
 
-                SetRootController(window, viewModel, (UIViewController)viewModel.GetOrCreateView(metadata, _viewManager).Target, metadata);
+                SetRootController(window, viewModel, (UIViewController) viewModel.GetOrCreateView(metadata, _viewManager).Target, metadata);
                 return default;
             }
 
@@ -124,7 +124,7 @@ namespace MugenMvvm.Ios.Presenters
 
         private static void SetNavigationController(IPresenter presenter, UIWindow window, UINavigationController controller)
         {
-            presenter.AddComponent(new NavigationControllerViewPresenter(controller) { Priority = ComponentPriority.Min });
+            presenter.AddComponent(new NavigationControllerViewPresenter(controller) {Priority = ComponentPriority.Min});
             window.RootViewController = controller;
             window.MakeKeyAndVisible();
         }
