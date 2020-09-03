@@ -89,6 +89,29 @@ namespace MugenMvvm.Ios.Extensions
             var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service();
             var attachedMemberProvider = memberManager.GetOrAddComponent(context => new AttachedMemberProvider());
 
+            //NSObject
+            attachedMemberProvider.Register(BindableMembers
+                .For<NSObject>()
+                .CollectionViewManager()
+                .GetBuilder()
+                .DefaultValue((info, view) => new IosCollectionViewManager())
+                .NonObservable()
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<UIView>()
+                .ItemsSource()
+                .Override<NSObject>()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
+                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<UIView>()
+                .SelectedItem()
+                .Override<NSObject>()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
+                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
+                .Build());
+
             //UIViewController
             attachedMemberProvider.Register(BindableMembers
                 .For<UIViewController>()
@@ -157,25 +180,6 @@ namespace MugenMvvm.Ios.Extensions
                 .ItemTemplateSelector()
                 .GetBuilder()
                 .NonObservable()
-                .Build());
-            attachedMemberProvider.Register(BindableMembers
-                .For<UIView>()
-                .CollectionViewManager()
-                .GetBuilder()
-                .DefaultValue((info, view) => new IosCollectionViewManager())
-                .NonObservable()
-                .Build());
-            attachedMemberProvider.Register(BindableMembers.For<UIView>()
-                .ItemsSource()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
-                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
-                .Build());
-            attachedMemberProvider.Register(BindableMembers.For<UIView>()
-                .SelectedItem()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
-                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
                 .Build());
 
             //UIControl

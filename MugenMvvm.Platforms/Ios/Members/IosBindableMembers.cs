@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Foundation;
 using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
@@ -22,8 +23,7 @@ namespace MugenMvvm.Ios.Members
 
         public static BindablePropertyDescriptor<T, IContentTemplateSelector?> ContentTemplateSelector<T>(this BindableMembersDescriptor<T> _) where T : UIView => nameof(ContentTemplateSelector);
 
-
-        public static BindablePropertyDescriptor<T, ICollectionViewManager?> CollectionViewManager<T>(this BindableMembersDescriptor<T> _) where T : UIView => nameof(CollectionViewManager);
+        public static BindablePropertyDescriptor<T, ICollectionViewManager?> CollectionViewManager<T>(this BindableMembersDescriptor<T> _) where T : NSObject => nameof(CollectionViewManager);
 
         public static BindablePropertyDescriptor<T, IEnumerable?> ItemsSource<T>(this BindableMembersDescriptor<T> _) where T : UIView => nameof(ItemsSource);
 
@@ -38,9 +38,9 @@ namespace MugenMvvm.Ios.Members
 
 
         [BindingMember(nameof(CollectionViewManager))]
-        public static ICollectionViewManager? CollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : UIView => CollectionViewManager<T>(_: default).GetValue(descriptor.Target);
+        public static ICollectionViewManager? CollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : NSObject => CollectionViewManager<T>(_: default).GetValue(descriptor.Target);
 
-        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : UIView =>
+        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : NSObject =>
             CollectionViewManager<T>(_: default).SetValue(descriptor.Target, value);
 
 
