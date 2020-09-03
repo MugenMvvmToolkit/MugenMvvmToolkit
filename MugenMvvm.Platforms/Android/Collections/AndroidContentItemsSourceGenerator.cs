@@ -36,7 +36,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        public static AndroidContentItemsSourceGenerator? Get(View view)
+        public static AndroidContentItemsSourceGenerator? TryGet(View view)
         {
             MugenService
                 .AttachedValueManager

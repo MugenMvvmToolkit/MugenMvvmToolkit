@@ -9,7 +9,7 @@ using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidMenuItemsSourceGenerator : BindableCollectionAdapter
+    public sealed class AndroidMenuItemsSourceGenerator : BindableCollectionAdapter
     {
         #region Constructors
 
@@ -33,6 +33,15 @@ namespace MugenMvvm.Android.Collections
         #endregion
 
         #region Methods
+
+        public static AndroidMenuItemsSourceGenerator? TryGet(IMenu view)
+        {
+            MugenService
+                .AttachedValueManager
+                .TryGetAttachedValues(view)
+                .TryGet(AndroidInternalConstant.MenuItemsSource, out var provider);
+            return provider as AndroidMenuItemsSourceGenerator;
+        }
 
         public static AndroidMenuItemsSourceGenerator GetOrAdd(IMenu menu)
         {

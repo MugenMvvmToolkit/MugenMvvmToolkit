@@ -129,19 +129,46 @@ namespace MugenMvvm.Android.Extensions
             return configuration;
         }
 
-        public static MugenApplicationConfiguration AndroidMenuAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
+        public static MugenApplicationConfiguration AndroidAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
             var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service().GetOrAddComponent(context => new AttachedMemberProvider());
+            //object
+            attachedMemberProvider.Register(BindableMembers.For<Object>()
+                .CollectionViewManager()
+                .GetBuilder()
+                .DefaultValue((info, view) => new AndroidCollectionViewManager())
+                .NonObservable()
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                .ItemsSource()
+                .Override<Object>()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
+                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                .SelectedItem()
+                .Override<Object>()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
+                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
+                .Build());
+
+            //activity
+            attachedMemberProvider.Register(BindableMembers.For<object>()
+                .Parent()
+                .Override<IActivityView>()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => null)
+                .Build());
+
+            //IMenu
             attachedMemberProvider.Register(BindableMembers.For<IMenu>()
                 .ItemTemplate()
                 .GetBuilder()
                 .Build());
-            attachedMemberProvider.Register(BindableMembers.For<IMenu>()
-                .ItemsSource()
-                .GetBuilder()
-                .PropertyChangedHandler((member, target, value, newValue, metadata) => AndroidMenuItemsSourceGenerator.GetOrAdd(target).Collection = newValue)
-                .Build());
 
+            //IMenuItem
             var enabled = AttachedMemberBuilder
                 .Property<IMenuItem, bool>(nameof(IMenuItem.IsEnabled))
                 .CustomGetter((member, target, metadata) => target.IsEnabled)
@@ -175,19 +202,6 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .CustomImplementation((member, target, listener, metadata) => MenuItemClickListener.AddListener(target, listener))
                 .Build());
-            return configuration;
-        }
-
-        public static MugenApplicationConfiguration AndroidAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
-        {
-            var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service().GetOrAddComponent(context => new AttachedMemberProvider());
-            //activity
-            attachedMemberProvider.Register(BindableMembers.For<object>()
-                .Parent()
-                .Override<IActivityView>()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => null)
-                .Build());
 
             //view
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -196,12 +210,6 @@ namespace MugenMvvm.Android.Extensions
                 .CustomGetter((member, target, metadata) => ViewExtensions.GetParent(target))
                 .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object)value!))
                 .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ParentMemberName))
-                .Build());
-            attachedMemberProvider.Register(BindableMembers.For<View>()
-                .CollectionViewManager()
-                .GetBuilder()
-                .DefaultValue((info, view) => new AndroidCollectionViewManager())
-                .NonObservable()
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Visible()
@@ -410,12 +418,6 @@ namespace MugenMvvm.Android.Extensions
                 })
                 .NonObservable()
                 .Build());
-            attachedMemberProvider.Register(BindableMembers.For<View>()
-                .ItemsSource()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
-                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
-                .Build());
 
             //viewpager/viewpager2/tablayout
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -432,12 +434,6 @@ namespace MugenMvvm.Android.Extensions
                     if (!ViewGroupExtensions.SetSelectedIndex(target, value))
                         BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
-                .Build());
-            attachedMemberProvider.Register(BindableMembers.For<View>()
-                .SelectedItem()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
-                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .SelectedIndexChanged()

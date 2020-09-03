@@ -15,7 +15,7 @@ namespace MugenMvvm.Android.Members
     {
         #region Methods
 
-        public static BindablePropertyDescriptor<T, ICollectionViewManager?> CollectionViewManager<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(CollectionViewManager);
+        public static BindablePropertyDescriptor<T, ICollectionViewManager?> CollectionViewManager<T>(this BindableMembersDescriptor<T> _) where T : Object => nameof(CollectionViewManager);
 
         public static BindablePropertyDescriptor<T, IStableIdProvider?> StableIdProvider<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(StableIdProvider);
 
@@ -53,9 +53,9 @@ namespace MugenMvvm.Android.Members
 
 
         [BindingMember(nameof(CollectionViewManager))]
-        public static ICollectionViewManager? CollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View => CollectionViewManager<T>(_: default).GetValue(descriptor.Target);
+        public static ICollectionViewManager? CollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : Object => CollectionViewManager<T>(_: default).GetValue(descriptor.Target);
 
-        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : View => CollectionViewManager<T>(_: default).SetValue(descriptor.Target, value);
+        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : Object => CollectionViewManager<T>(_: default).SetValue(descriptor.Target, value);
 
 
         [BindingMember(nameof(StableIdProvider))]
