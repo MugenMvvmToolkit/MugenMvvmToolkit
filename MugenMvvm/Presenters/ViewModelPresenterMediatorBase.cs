@@ -216,16 +216,13 @@ namespace MugenMvvm.Presenters
 
         protected virtual void OnNavigationFailed(INavigationContext navigationContext, Exception exception)
         {
-            var canceledException = exception as OperationCanceledException;
-            if (canceledException == null && exception is AggregateException e && e.InnerExceptions.Count == 1 && e.InnerExceptions[0] is OperationCanceledException c)
-                canceledException = c;
-            if (canceledException == null)
+            if (exception.TryGetCanceledException(out var canceledException))
+                OnNavigationCanceled(navigationContext, canceledException.CancellationToken);
+            else
             {
                 ClearFields(navigationContext, null, exception);
                 NavigationDispatcher.OnNavigationFailed(navigationContext, exception);
             }
-            else
-                OnNavigationCanceled(navigationContext, canceledException.CancellationToken);
         }
 
         protected virtual void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
@@ -348,7 +345,7 @@ namespace MugenMvvm.Presenters
 
                 ViewManager
                     .InitializeAsync(Mapping, GetViewRequest(view, context), cancellationToken, context.GetMetadataOrDefault())
-                    .ContinueWith((context.NavigationMode.IsNew || view == null ? OnViewInitializedShowCallback : (Action<Task<IView>, object>) OnViewInitializedRefreshCallback)!, context,
+                    .ContinueWith((context.NavigationMode.IsNew || view == null ? OnViewInitializedShowCallback : (Action<Task<IView>, object>)OnViewInitializedRefreshCallback)!, context,
                         TaskContinuationOptions.ExecuteSynchronously);
             }
             catch (Exception e)
@@ -380,15 +377,15 @@ namespace MugenMvvm.Presenters
         {
             if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
             {
-                ShowViewCallback(task, (INavigationContext) state, show);
+                ShowViewCallback(task, (INavigationContext)state, show);
                 return;
             }
 
             ThreadDispatcher.Execute(ExecutionMode, s =>
             {
-                var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, Task<IView>, INavigationContext, bool>) s!;
+                var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, Task<IView>, INavigationContext, bool>)s!;
                 tuple.Item1.ShowViewCallback(tuple.Item2, tuple.Item3, tuple.Item4);
-            }, Tuple.Create(this, task, (INavigationContext) state, show));
+            }, Tuple.Create(this, task, (INavigationContext)state, show));
         }
 
         private void ShowViewCallback(Task<IView> task, INavigationContext navigationContext, bool show)
@@ -409,7 +406,7 @@ namespace MugenMvvm.Presenters
 
         private void RefreshCallback(object? state)
         {
-            var ctx = (INavigationContext) state!;
+            var ctx = (INavigationContext)state!;
             try
             {
                 if (CurrentView == null || !ActivateView(CurrentView, ctx))
@@ -423,7 +420,7 @@ namespace MugenMvvm.Presenters
 
         private void CloseViewCallback(object? state)
         {
-            var ctx = (INavigationContext) state!;
+            var ctx = (INavigationContext)state!;
             try
             {
                 if (ClosingCancelArgs != null)

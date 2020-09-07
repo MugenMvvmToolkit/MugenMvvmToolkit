@@ -125,6 +125,8 @@ namespace MugenMvvm.Presenters
         {
             if (state is ICancelableRequest cancelableRequest && cancelableRequest.Cancel.GetValueOrDefault())
                 return;
+            if (ClosingContext != null)
+                OnNavigationCanceled(ClosingContext, default);
             if (ShowingContext == null)
             {
                 ShowingContext = GetNavigationContext(NavigationMode.Refresh, metadata);
@@ -134,7 +136,6 @@ namespace MugenMvvm.Presenters
 
         protected virtual void OnViewAppeared(object? state, IReadOnlyMetadataContext? metadata)
         {
-            ClosingContext = null;
             IsAppeared = true;
             if (ShowingContext != null)
                 OnViewShown(metadata);
