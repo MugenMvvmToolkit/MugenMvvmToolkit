@@ -10,6 +10,7 @@ using MugenMvvm.UnitTest.Commands.Internal;
 using MugenMvvm.UnitTest.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using MugenMvvm.UnitTest.Models;
+using MugenMvvm.UnitTest.Models.Internal;
 using Should;
 using Xunit;
 

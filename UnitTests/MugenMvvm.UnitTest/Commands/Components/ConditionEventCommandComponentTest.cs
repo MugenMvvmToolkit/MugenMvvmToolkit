@@ -12,6 +12,7 @@ using MugenMvvm.Threading;
 using MugenMvvm.UnitTest.Internal.Internal;
 using MugenMvvm.UnitTest.Messaging.Internal;
 using MugenMvvm.UnitTest.Models;
+using MugenMvvm.UnitTest.Models.Internal;
 using MugenMvvm.UnitTest.Threading.Internal;
 using Should;
 using Xunit;

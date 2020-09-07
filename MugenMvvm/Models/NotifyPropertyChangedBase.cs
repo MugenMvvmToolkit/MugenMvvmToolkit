@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.ViewModels
+namespace MugenMvvm.Models
 {
     public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, IThreadDispatcherHandler, ISuspendable,
         IValueHolder<IWeakReference>, IValueHolder<Delegate>, IValueHolder<IDictionary<string, object?>>
@@ -59,10 +59,10 @@ namespace MugenMvvm.ViewModels
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((m, _) => ((NotifyPropertyChangedBase) m!).EndSuspend(), this);
+            return new ActionToken((m, _) => ((NotifyPropertyChangedBase)m!).EndSuspend(), this);
         }
 
-        void IThreadDispatcherHandler.Execute(object? state) => OnPropertyChangedInternal((PropertyChangedEventArgs) state!);
+        void IThreadDispatcherHandler.Execute(object? state) => OnPropertyChangedInternal((PropertyChangedEventArgs)state!);
 
         #endregion
 

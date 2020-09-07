@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTest.Collections.Internal;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Models;
+using MugenMvvm.UnitTest.Models.Internal;
 using Should;
 using Xunit;
 

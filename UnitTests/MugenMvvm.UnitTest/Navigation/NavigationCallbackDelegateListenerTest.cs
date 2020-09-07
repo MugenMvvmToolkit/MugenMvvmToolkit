@@ -4,6 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTest.Models;
+using MugenMvvm.UnitTest.Models.Internal;
 using Should;
 using Xunit;
 

@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.UnitTest.Models;
+using MugenMvvm.UnitTest.Models.Internal;
 
 namespace MugenMvvm.UnitTest.Components.Internal
 {

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
-namespace MugenMvvm.UnitTest.Models
+namespace MugenMvvm.UnitTest.Models.Internal
 {
     [DebuggerDisplay("Id = {Id}")]
     public class TestCollectionItem

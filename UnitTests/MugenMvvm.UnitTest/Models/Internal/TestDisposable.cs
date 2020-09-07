@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.UnitTest.Models
+namespace MugenMvvm.UnitTest.Models.Internal
 {
     public class TestDisposable : IDisposable
     {

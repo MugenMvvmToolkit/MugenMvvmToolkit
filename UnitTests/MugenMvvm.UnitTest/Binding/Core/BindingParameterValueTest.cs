@@ -9,6 +9,7 @@ using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using MugenMvvm.UnitTest.Models;
+using MugenMvvm.UnitTest.Models.Internal;
 using Should;
 using Xunit;
 
