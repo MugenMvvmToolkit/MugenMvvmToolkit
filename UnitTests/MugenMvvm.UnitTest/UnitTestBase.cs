@@ -20,11 +20,13 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTest.Threading.Internal;
+using MugenMvvm.ViewModels;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
@@ -80,6 +82,9 @@ namespace MugenMvvm.UnitTest
 
             IObservationManager observationManager = new ObservationManager();
             MugenService.Configuration.InitializeInstance(observationManager);
+
+            IViewModelManager viewModelManager = new ViewModelManager();
+            MugenService.Configuration.InitializeInstance(viewModelManager);
         }
 
         #endregion

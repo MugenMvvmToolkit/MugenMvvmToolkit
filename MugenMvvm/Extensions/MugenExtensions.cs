@@ -12,24 +12,19 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
-using MugenMvvm.Requests;
 using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.Extensions
@@ -37,16 +32,6 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
-
-        public static IViewModelBase GetViewModel(this IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            Should.NotBeNull(request, nameof(request));
-            var viewModel = viewModelManager.TryGetViewModel(request, metadata);
-            if (viewModel == null)
-                ExceptionManager.ThrowRequestNotSupported<IEntityTrackingCollectionProviderComponent>(viewModelManager, request, metadata);
-            return viewModel;
-        }
 
         public static IEntityTrackingCollection GetTrackingCollection(this IEntityManager entityManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -90,16 +75,6 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show(this IPresenter presenter, object request, CancellationToken cancellationToken = default,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(presenter, nameof(presenter));
-            var result = presenter.TryShow(request, cancellationToken, metadata);
-            if (result.IsNullOrEmpty())
-                ExceptionManager.ThrowPresenterCannotShowRequest(request, metadata);
-            return result;
-        }
-
         public static IWeakReference GetWeakReference(this IWeakReferenceManager weakReferenceManager, object? item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(weakReferenceManager, nameof(weakReferenceManager));
@@ -107,16 +82,6 @@ namespace MugenMvvm.Extensions
             if (result == null)
                 ExceptionManager.ThrowRequestNotSupported<IWeakReferenceProviderComponent>(weakReferenceManager, item, metadata);
             return result;
-        }
-
-        public static IComponentCollection GetComponentCollection(this IComponentCollectionManager provider, object owner, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(provider, nameof(provider));
-            Should.NotBeNull(owner, nameof(owner));
-            var collection = provider.TryGetComponentCollection(owner, metadata);
-            if (collection == null)
-                ExceptionManager.ThrowRequestNotSupported<IComponentCollectionProviderComponent>(provider, owner, metadata);
-            return collection;
         }
 
         public static void SetErrors(this IValidator validator, object target, string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
@@ -159,30 +124,6 @@ namespace MugenMvvm.Extensions
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state, IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, handler, state, metadata);
 
-        public static IViewModelBase? TryGetViewModelView<TView>(object request, out TView? view) where TView : class
-        {
-            if (request is ViewModelViewRequest viewModelViewRequest)
-            {
-                view = viewModelViewRequest.View as TView;
-                return viewModelViewRequest.ViewModel;
-            }
-
-            if (request is IViewModelBase vm)
-            {
-                view = null;
-                return vm;
-            }
-
-            if (request is IHasTarget<object?> hasTarget && hasTarget.Target is IViewModelBase result)
-            {
-                view = null;
-                return result;
-            }
-
-            view = request as TView;
-            return null;
-        }
-
         public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
@@ -224,8 +165,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo) (object) value!;
+                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo)(object)value!;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -292,7 +233,7 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o!).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
@@ -319,7 +260,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task, TState>>) o!;
+                var tuple = (Tuple<TState, Action<Task, TState>>)o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -343,17 +284,9 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task<T>, TState>>) o!;
+                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)
-        {
-            if (e is AggregateException aggregateException)
-                tcs.TrySetException(aggregateException.InnerExceptions);
-            else
-                tcs.SetException(e);
         }
 
         internal static bool LazyInitialize<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class => Interlocked.CompareExchange(ref item, value, null) == null;
@@ -367,6 +300,24 @@ namespace MugenMvvm.Extensions
             }
 
             return true;
+        }
+
+        internal static void Merge(ref Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>? dict, IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>? value)
+        {
+            if (value == null || value.Count == 0)
+                return;
+
+            foreach (var keyValuePair in value)
+            {
+                if (keyValuePair.Value.IsNullOrEmpty())
+                    continue;
+
+                dict ??= new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+                dict.TryGetValue(keyValuePair.Key, out var list);
+                var editableList = list.Cast<List<object>>().Editor();
+                editableList.AddRange(keyValuePair.Value);
+                dict[keyValuePair.Key] = editableList.ToItemOrList<IReadOnlyList<object>>();
+            }
         }
 
 #if SPAN_API

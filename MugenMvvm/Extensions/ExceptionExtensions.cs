@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +28,34 @@ namespace MugenMvvm.Extensions
             var sb = new StringBuilder(message);
             FlattenInternal(exception, sb, includeStackTrace);
             return sb.ToString();
+        }
+
+        internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)
+        {
+            if (e.TryGetCanceledException(out var canceledException))
+                tcs.TrySetCanceled(canceledException.CancellationToken);
+            else if (e is AggregateException aggregateException)
+                tcs.TrySetException(aggregateException.InnerExceptions);
+            else
+                tcs.SetException(e);
+        }
+
+        internal static bool TryGetCanceledException(this Exception e, [NotNullWhen(true)] out OperationCanceledException? canceledException)
+        {
+            if (e is OperationCanceledException canceled)
+            {
+                canceledException = canceled;
+                return true;
+            }
+
+            if (e is AggregateException aggregateException && aggregateException.InnerExceptions.Count == 1 && aggregateException.InnerExceptions[0] is OperationCanceledException c)
+            {
+                canceledException = c;
+                return true;
+            }
+
+            canceledException = null;
+            return false;
         }
 
         private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)

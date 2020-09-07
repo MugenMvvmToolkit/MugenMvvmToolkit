@@ -14,6 +14,16 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static IComponentCollection GetComponentCollection(this IComponentCollectionManager provider, object owner, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(provider, nameof(provider));
+            Should.NotBeNull(owner, nameof(owner));
+            var collection = provider.TryGetComponentCollection(owner, metadata);
+            if (collection == null)
+                ExceptionManager.ThrowRequestNotSupported<IComponentCollectionProviderComponent>(provider, owner, metadata);
+            return collection;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IServiceProvider DefaultIfNull(this IServiceProvider? serviceProvider) => serviceProvider ?? MugenService.Instance<IServiceProvider>();
 

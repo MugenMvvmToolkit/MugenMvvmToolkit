@@ -11,6 +11,7 @@
         public const int ViewModelViewProviderDecorator = 50;
         public const int PreInitializer = 10;
         public const int PostInitializer = -10;
+        public const int LifecycleTracker = -100;
 
         #endregion
     }

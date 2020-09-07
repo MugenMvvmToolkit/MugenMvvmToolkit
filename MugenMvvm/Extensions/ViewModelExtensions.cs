@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
 using MugenMvvm.Views;
@@ -14,6 +15,32 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IViewModelBase GetViewModel(this IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
+            Should.NotBeNull(request, nameof(request));
+            var viewModel = viewModelManager.TryGetViewModel(request, metadata);
+            if (viewModel == null)
+                ExceptionManager.ThrowRequestNotSupported<IViewProviderComponent>(viewModelManager, request, metadata);
+            return viewModel;
+        }
+
+        public static TViewModel GetViewModel<TViewModel>(this IViewModelManager viewModelManager, IReadOnlyMetadataContext? metadata = null)
+            where TViewModel : class, IViewModelBase
+        {
+            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
+            return (TViewModel)viewModelManager.GetViewModel(typeof(TViewModel), metadata);
+        }
+
+        public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
+            var result = viewModelManager.TryGetService(viewModel, request, metadata);
+            if (result == null)
+                ExceptionManager.ThrowCannotResolveService(request);
+            return result;
+        }
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).Result;
@@ -38,29 +65,13 @@ namespace MugenMvvm.Extensions
                     {
                         if (viewModel.IsDisposed())
                             ExceptionManager.ThrowObjectDisposed(viewModel);
-                        service = (T) viewModelManager.DefaultIfNull().GetService(viewModel, typeof(T), metadata);
+                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, typeof(T), metadata);
                         callback?.Invoke(viewModel, service);
                     }
                 }
             }
 
             return service;
-        }
-
-        public static TViewModel GetViewModel<TViewModel>(this IViewModelManager viewModelManager, IReadOnlyMetadataContext? metadata = null)
-            where TViewModel : class, IViewModelBase
-        {
-            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            return (TViewModel) viewModelManager.GetViewModel(typeof(TViewModel), metadata);
-        }
-
-        public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            var result = viewModelManager.TryGetService(viewModel, request, metadata);
-            if (result == null)
-                ExceptionManager.ThrowCannotResolveService(request);
-            return result;
         }
 
         public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
@@ -93,6 +104,30 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(viewModel, nameof(viewModel));
             var lifecycleState = viewModel.GetMetadataOrDefault().Get(ViewModelMetadata.LifecycleState, ViewModelLifecycleState.Created);
             return lifecycleState == ViewModelLifecycleState.Disposed || lifecycleState == ViewModelLifecycleState.Finalized;
+        }
+
+        public static IViewModelBase? TryGetViewModelView<TView>(object request, out TView? view) where TView : class
+        {
+            if (request is ViewModelViewRequest viewModelViewRequest)
+            {
+                view = viewModelViewRequest.View as TView;
+                return viewModelViewRequest.ViewModel;
+            }
+
+            if (request is IViewModelBase vm)
+            {
+                view = null;
+                return vm;
+            }
+
+            if (request is IHasTarget<object?> hasTarget && hasTarget.Target is IViewModelBase result)
+            {
+                view = null;
+                return result;
+            }
+
+            view = request as TView;
+            return null;
         }
 
         #endregion

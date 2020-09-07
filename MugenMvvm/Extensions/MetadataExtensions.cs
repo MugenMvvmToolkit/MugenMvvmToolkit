@@ -62,20 +62,6 @@ namespace MugenMvvm.Extensions
             return builder.ToString();
         }
 
-        public static void AddHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T, T> key, T handler)
-            where T : Delegate?
-        {
-            Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?) null, (item, value, currentValue, _) => (T) Delegate.Combine(currentValue, value)!);
-        }
-
-        public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T, T> key, T handler)
-            where T : Delegate?
-        {
-            Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?) null, (item, value, currentValue, _) => (T) Delegate.Remove(currentValue, value)!);
-        }
-
         public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));

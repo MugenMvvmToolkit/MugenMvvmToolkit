@@ -85,26 +85,7 @@ namespace MugenMvvm.Extensions.Components
 
             Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>? errors = null;
             for (var i = 0; i < components.Length; i++)
-            {
-                var dictionary = components[i].TryGetErrors(validator, metadata);
-                if (dictionary == null || dictionary.Count == 0)
-                    continue;
-
-                foreach (var keyValuePair in dictionary)
-                {
-                    if (keyValuePair.Value.IsNullOrEmpty())
-                        continue;
-
-                    if (errors == null)
-                        errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
-
-                    errors.TryGetValue(keyValuePair.Key, out var list);
-                    var editableList = list.Cast<List<object>>().Editor();
-                    editableList.AddRange(keyValuePair.Value);
-                    errors[keyValuePair.Key] = editableList.ToItemOrList<IReadOnlyList<object>>();
-                }
-            }
-
+                MugenExtensions.Merge(ref errors, components[i].TryGetErrors(validator, metadata));
             return errors;
         }
 

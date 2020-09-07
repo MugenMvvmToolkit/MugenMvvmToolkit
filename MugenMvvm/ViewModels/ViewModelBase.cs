@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
+using MugenMvvm.Models;
 
 namespace MugenMvvm.ViewModels
 {
@@ -37,7 +38,7 @@ namespace MugenMvvm.ViewModels
 
         public bool IsBusy => BusyToken != null;
 
-        public IBusyToken? BusyToken => BusyManager.TryGetToken(this, (_, token, ___) => !token.IsSuspended && !token.IsCompleted);
+        public IBusyToken? BusyToken => _busyManager?.TryGetToken(this, (_, token, ___) => !token.IsSuspended && !token.IsCompleted);
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
