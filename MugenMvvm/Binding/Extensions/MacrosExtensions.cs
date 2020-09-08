@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
@@ -10,6 +12,9 @@ using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Extensions
 {
@@ -48,6 +53,110 @@ namespace MugenMvvm.Binding.Extensions
             }
 
             return null;
+        }
+
+        public static bool HasErrors(object target, string[] members)
+        {
+            Should.NotBeNull(members, nameof(members));
+            if (target is IHasService<IValidator> hasValidator)
+            {
+                var validator = hasValidator.ServiceOptional;
+                if (validator != null)
+                {
+                    for (int i = 0; i < members.Length; i++)
+                    {
+                        if (validator.HasErrors(members[i]))
+                            return true;
+                    }
+                }
+            }
+            else if (target is INotifyDataErrorInfo dataErrorInfo)
+            {
+                for (int i = 0; i < members.Length; i++)
+                {
+                    if (dataErrorInfo.GetErrors(members[i]).Any())
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        public static object? GetError(object target, string[] members)
+        {
+            Should.NotBeNull(members, nameof(members));
+            if (target is IHasService<IValidator> hasValidator)
+            {
+                var validator = hasValidator.ServiceOptional;
+                if (validator != null)
+                {
+                    for (int i = 0; i < members.Length; i++)
+                    {
+                        var error = validator.GetErrors(members[i]).FirstOrDefault();
+                        if (error != null)
+                            return error;
+                    }
+                }
+            }
+            else if (target is INotifyDataErrorInfo dataErrorInfo)
+            {
+                for (int i = 0; i < members.Length; i++)
+                {
+                    var error = dataErrorInfo.GetErrors(members[i]).FirstOrDefault();
+                    if (error != null)
+                        return error;
+                }
+            }
+
+            return null;
+        }
+
+        public static IReadOnlyList<object> GetErrors(object target, string[] members)
+        {
+            Should.NotBeNull(members, nameof(members));
+            if (target is IHasService<IValidator> hasValidator)
+            {
+                var validator = hasValidator.ServiceOptional;
+                if (validator != null)
+                {
+                    var editor = ItemOrListEditor.Get<object>();
+                    for (int i = 0; i < members.Length; i++)
+                        editor.AddRange(validator.GetErrors(members[i]));
+
+                    if (editor.Count != 0)
+                        return editor.ToItemOrList().Iterator().ToArray();
+                }
+
+            }
+            else if (target is INotifyDataErrorInfo dataErrorInfo)
+            {
+                IReadOnlyList<object>? errors = null;
+                bool isList = false;
+                for (int i = 0; i < members.Length; i++)
+                {
+                    var list = dataErrorInfo.GetErrors(members[i]).ToReadOnlyList();
+                    if (list == null || list.Count == 0)
+                        continue;
+                    if (errors == null)
+                        errors = list;
+                    else
+                    {
+                        if (!isList)
+                        {
+                            isList = true;
+                            errors = new List<object>(errors);
+                        }
+
+                        ((List<object>)errors).AddRange(list);
+                    }
+                }
+
+                if (errors != null)
+                    return errors;
+            }
+
+            return Default.Array<object>();
         }
 
         [return: NotNullIfNotNull("target")]

@@ -6,8 +6,10 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
+using MugenMvvm.ViewModels;
 using MugenMvvm.Views;
 
 namespace MugenMvvm.Extensions
@@ -51,7 +53,7 @@ namespace MugenMvvm.Extensions
             return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).Result;
         }
 
-        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, Action<TViewModel, T>? callback = null, IReadOnlyMetadataContext? metadata = null,
+        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null, IReadOnlyMetadataContext? metadata = null,
             IViewModelManager? viewModelManager = null)
             where TViewModel : class, IViewModelBase
             where T : class
@@ -65,7 +67,7 @@ namespace MugenMvvm.Extensions
                     {
                         if (viewModel.IsDisposed())
                             ExceptionManager.ThrowObjectDisposed(viewModel);
-                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, typeof(T), metadata);
+                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, request ?? typeof(T), metadata);
                         callback?.Invoke(viewModel, service);
                     }
                 }
@@ -128,6 +130,13 @@ namespace MugenMvvm.Extensions
 
             view = request as TView;
             return null;
+        }
+
+        public static void RegisterDisposeToken(this ViewModelBase viewModel, IDisposable token)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(token, nameof(token));
+            viewModel.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable)o!).Dispose(), token));
         }
 
         #endregion

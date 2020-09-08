@@ -1,11 +1,14 @@
-﻿using MugenMvvm.App.Configuration;
+﻿using System.ComponentModel;
+using MugenMvvm.App.Configuration;
 using MugenMvvm.Binding.Build.Components;
 using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Compiling.Components;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Convert;
 using MugenMvvm.Binding.Convert.Components;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
@@ -20,6 +23,8 @@ using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Binding.Resources.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Validation;
 
 namespace MugenMvvm.Binding.Extensions
 {
@@ -139,7 +144,7 @@ namespace MugenMvvm.Binding.Extensions
                 .RawMethod
                 .GetBuilder(false)
                 .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p1").DefaultValue(BoxingExtensions.Box(1)).Build())
-                .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string) args[0]!, (int) args[1]!, metadata))
+                .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string)args[0]!, (int)args[1]!, metadata))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
@@ -147,6 +152,48 @@ namespace MugenMvvm.Binding.Extensions
                 .GetBuilder()
                 .WrapMember(Members.BindableMembers.For<object>().ParentNative())
                 .Build());
+
+            var errorsChangedEvent = memberManager.TryGetMember(typeof(INotifyDataErrorInfo), MemberType.Event, MemberFlags.InstancePublic, nameof(INotifyDataErrorInfo.ErrorsChanged));
+            if (errorsChangedEvent != null)
+            {
+                attachedMemberProvider.Register(errorsChangedEvent, Members.BindableMembers.For<object>().GetErrorMethod() + BindingInternalConstant.ChangedEventPostfix);
+                attachedMemberProvider.Register(errorsChangedEvent, Members.BindableMembers.For<object>().GetErrorsMethod() + BindingInternalConstant.ChangedEventPostfix);
+                attachedMemberProvider.Register(errorsChangedEvent, Members.BindableMembers.For<object>().HasErrorsMethod() + BindingInternalConstant.ChangedEventPostfix);
+            }
+
+            attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
+                .HasErrorsMethod()
+                .GetBuilder()
+                .InvokeHandler((member, target, args, metadata) => HasErrors(target, (string[])args[0]!))
+                .Build());
+            attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
+                .HasErrorsMethod()
+                .GetBuilder()
+                .InvokeHandler((member, target, args, metadata) => HasErrors(target, (string[])args[0]!))
+                .Build());
+
+            attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
+                .GetErrorMethod()
+                .GetBuilder()
+                .InvokeHandler((member, target, args, metadata) => GetError(target, (string[])args[0]!))
+                .Build());
+            attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
+                .GetErrorMethod()
+                .GetBuilder()
+                .InvokeHandler((member, target, args, metadata) => GetError(target, (string[])args[0]!))
+                .Build());
+
+            attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
+                .GetErrorsMethod()
+                .GetBuilder()
+                .InvokeHandler((member, target, args, metadata) => GetErrors(target, (string[])args[0]!))
+                .Build());
+            attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
+                .GetErrorsMethod()
+                .GetBuilder()
+                .InvokeHandler((member, target, args, metadata) => GetErrors(target, (string[])args[0]!))
+                .Build());
+
             return configuration;
         }
 

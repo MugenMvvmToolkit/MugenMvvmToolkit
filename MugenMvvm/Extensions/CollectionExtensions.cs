@@ -39,7 +39,7 @@ namespace MugenMvvm.Extensions
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             if (component == null)
                 return collection as IEnumerable<object?> ?? collection.Cast<object?>();
-            return component.DecorateItems((ICollection) collection);
+            return component.DecorateItems((ICollection)collection);
         }
 
         public static MonitorLocker TryLock(this ICollection? collection)
@@ -137,6 +137,30 @@ namespace MugenMvvm.Extensions
             if (array != null)
                 items = array;
             return array != null;
+        }
+
+        internal static IReadOnlyList<object>? ToReadOnlyList(this IEnumerable? enumerable)
+        {
+            if (enumerable == null)
+                return null;
+            return enumerable as IReadOnlyList<object> ?? enumerable.OfType<object>().ToList();
+        }
+
+        internal static bool Any(this IEnumerable? enumerable)
+        {
+            if (enumerable == null)
+                return false;
+            var enumerator = enumerable.GetEnumerator();
+            return enumerator.MoveNext();
+        }
+
+        internal static object? FirstOrDefault(this IEnumerable? enumerable)
+        {
+            if (enumerable == null)
+                return null;
+            var enumerator = enumerable.GetEnumerator();
+            enumerator.MoveNext();
+            return enumerator.Current;
         }
 
         internal static TValue FirstOrDefault<TValue>(this HashSet<TValue> hashSet)

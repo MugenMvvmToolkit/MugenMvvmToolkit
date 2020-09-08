@@ -47,11 +47,11 @@ namespace MugenMvvm.Binding.Members
         public static BindableMethodDescriptor<T, string[], bool> HasErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
             _hasErrorsMethod ??= new MemberTypesRequest(nameof(HasErrors), Default.Types<string[]>());
 
-        public static BindableMethodDescriptor<T, string[], IReadOnlyList<object>> GetErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), Default.Types<string[]>());
-
         public static BindableMethodDescriptor<T, string[], object?> GetErrorMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
             _getErrorMethod ??= new MemberTypesRequest(nameof(GetError), Default.Types<string[]>());
+
+        public static BindableMethodDescriptor<T, string[], IReadOnlyList<object>> GetErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
+            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), Default.Types<string[]>());
 
 
         [BindingMember(nameof(Root))]
@@ -82,9 +82,9 @@ namespace MugenMvvm.Binding.Members
 
         public static bool HasErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, params string[] members) where T : class => HasErrorsMethod<T>(default).Invoke(descriptor.Target, members);
 
-        public static IReadOnlyList<object> GetErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, params string[] members) where T : class => GetErrorsMethod<T>(default).Invoke(descriptor.Target, members);
-
         public static object? GetError<T>(this BindableMembersTargetDescriptor<T> descriptor, params string[] members) where T : class => GetErrorMethod<T>(default).Invoke(descriptor.Target, members);
+
+        public static IReadOnlyList<object> GetErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, params string[] members) where T : class => GetErrorsMethod<T>(default).Invoke(descriptor.Target, members);
 
         #endregion
     }

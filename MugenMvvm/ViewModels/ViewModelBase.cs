@@ -44,7 +44,7 @@ namespace MugenMvvm.ViewModels
 
         public IMetadataContext Metadata => this.InitializeService(ref _metadata);
 
-        public IBusyManager BusyManager => this.InitializeService(ref _busyManager, (vm, manager) => manager.AddComponent(vm));
+        public IBusyManager BusyManager => this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm));
 
         IBusyManager IHasService<IBusyManager>.Service => BusyManager;
 
