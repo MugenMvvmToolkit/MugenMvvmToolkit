@@ -68,6 +68,9 @@ namespace MugenMvvm
         [DoesNotReturn]
         public static void ThrowNotSupported(string msg) => throw new NotSupportedException(msg);
 
+        [DoesNotReturn]
+        public static void ThrowMultiplePresenterResultNotSupported() => throw new NotSupportedException(MultiplePresenterResultNotSupported);
+
         #endregion
     }
 }

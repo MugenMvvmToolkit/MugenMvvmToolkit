@@ -19,6 +19,7 @@
         public const string PresenterCannotShowRequestFormat2 = "Presenter cannot show request '{0}'-'{1}'";
         public const string FieldOrPropertyNotFoundFormat2 = "Cannot get field/property by name '{0}' on type '{1}'";
         public const string ObjectInitializedFormat2 = "The '{0}' is already initialized '{1}'";
+        public const string MultiplePresenterResultNotSupported = "Multiple presenter results not supported by this method";
         public const string ShouldSupportOnlyFieldsReadonlyFields = "supports only properties (non-readonly) and fields";
         public const string CannotResolveService = "Cannot resolve '{0}'";
         public const string ObjectDisposedFormat1 = "Cannot perform the operation, because the current '{0}' is disposed.";
