@@ -81,6 +81,7 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new NavigationCallbackManager())
                 .WithComponent(new NavigationContextProvider())
                 .WithComponent(new NavigationEntryDateTracker())
+                .WithComponent(new NavigationTargetCallbackDispatcher())
                 .WithComponent(entryManager);
 
             configuration.WithAppService(new Presenter())
@@ -115,6 +116,7 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ViewModelViewAwareInitializer())
                 .WithComponent(new ViewModelViewInitializerDecorator())
                 .WithComponent(new UndefinedMappingViewInitializer())
+                .WithComponent(new ViewLifecycleAwareViewModelDispatcher())
                 .WithComponent(new ViewMappingProvider());
             configuration.WithAppService(new WrapperManager())
                 .WithComponent(new ViewWrapperManagerDecorator());
@@ -125,7 +127,7 @@ namespace MugenMvvm.Extensions
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service, IReadOnlyMetadataContext? metadata = null)
             where TService : class
         {
-            MugenService.Configuration.InitializeInstance((TService) service);
+            MugenService.Configuration.InitializeInstance((TService)service);
             return configuration.ServiceConfiguration<TService>();
         }
 
