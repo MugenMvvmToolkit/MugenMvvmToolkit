@@ -74,12 +74,12 @@ namespace MugenMvvm.Extensions
             }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult) => ((Task) showResult.CloseCallback.AsTask()).GetAwaiter();
+        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult) => ((Task)showResult.CloseCallback.AsTask()).GetAwaiter();
 
         public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult) =>
             showResult.CloseCallback
                 .AsTask()
-                .ContinueWith(task => task.Result.Target is IHasNavigationResult<T> navigationResult ? navigationResult.Result : default, TaskContinuationOptions.ExecuteSynchronously)
+                .ContinueWith(task => (task.Result.Target is IHasNavigationResult<T> navigationResult ? navigationResult.Result : default)!, TaskContinuationOptions.ExecuteSynchronously)
                 .GetAwaiter()!;
 
         private static Task<bool> CancelToFalse(this Task<INavigationContext> task) =>

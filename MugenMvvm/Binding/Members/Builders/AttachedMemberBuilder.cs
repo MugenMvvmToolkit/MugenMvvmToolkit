@@ -44,8 +44,8 @@ namespace MugenMvvm.Binding.Members.Builders
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> descriptor, bool addParameters = true) where TTarget : class
         {
             Should.BeSupported(!descriptor.IsStatic, nameof(descriptor.IsStatic));
-            var m = Method<TTarget, TReturn>(descriptor.Request.Name, typeof(TTarget), typeof(TReturn));
-            var types = descriptor.Request.Types;
+            var m = Method<TTarget, TReturn>(descriptor.Request!.Name, typeof(TTarget), typeof(TReturn));
+            var types = descriptor.Request!.Types;
             if (types.Length != 0 && addParameters)
             {
                 var parameters = new IParameterInfo[types.Length];

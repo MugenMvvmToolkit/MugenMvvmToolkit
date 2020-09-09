@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Extensions
             where TTarget : class =>
             memberManager
                 .DefaultIfNull()
-                .TryGetMembers(type ?? typeof(TTarget), MemberType.Method, flags.SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Request, metadata)
+                .TryGetMembers(type ?? typeof(TTarget), MemberType.Method, flags.SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Request!, metadata)
                 .SingleOrDefault<IMethodMemberInfo>();
 
         public static IAccessorMemberInfo? TryGetMember<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember,

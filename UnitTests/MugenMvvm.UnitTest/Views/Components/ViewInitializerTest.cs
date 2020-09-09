@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             #region Properties
 
-            public IMessenger Service { get; set; }
+            public IMessenger Service { get; set; } = null!;
 
             public IMessenger? ServiceOptional => throw new NotSupportedException();
 

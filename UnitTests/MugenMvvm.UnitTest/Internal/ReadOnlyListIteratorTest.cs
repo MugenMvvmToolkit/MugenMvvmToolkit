@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Internal
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(10)]
-        public void AsListShouldBeCorrect(int count)
+        public void AsListShouldBeCorrect1(int count)
         {
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
@@ -75,7 +75,22 @@ namespace MugenMvvm.UnitTest.Internal
             var itemOrList = ItemOrList.FromList(objects);
 
             var iterator = new ReadOnlyListIterator<object, List<object>>(count, itemOrList.Item, itemOrList.List);
-            iterator.AsList(() => new List<object>(), o => new List<object> {o}).SequenceEqual(objects).ShouldBeTrue();
+            iterator.AsList().SequenceEqual(objects).ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void AsListShouldBeCorrect2(int count)
+        {
+            var objects = new List<object>();
+            for (var i = 0; i < count; i++)
+                objects.Add(new object());
+            var itemOrList = ItemOrList.FromList(objects);
+
+            var iterator = new ReadOnlyListIterator<object, List<object>>(count, itemOrList.Item, itemOrList.List);
+            iterator.AsList(() => new List<object>(), o => new List<object> { o }).SequenceEqual(objects).ShouldBeTrue();
         }
 
         #endregion

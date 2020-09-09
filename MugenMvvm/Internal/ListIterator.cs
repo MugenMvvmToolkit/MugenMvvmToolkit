@@ -38,7 +38,7 @@ namespace MugenMvvm.Internal
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if ((uint) index >= (uint) Count)
+                if ((uint)index >= (uint)Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 return _list == null ? _item : _list[index];
@@ -57,6 +57,15 @@ namespace MugenMvvm.Internal
             for (var i = 0; i < items.Length; i++)
                 items[i] = this[i];
             return items;
+        }
+
+        public IList<TItem> AsList()
+        {
+            if (_list != null)
+                return _list;
+            if (Count == 0)
+                return Default.Array<TItem>();
+            return new[] { _item };
         }
 
         public TList AsList(Func<TList> getDefaultList, Func<TItem, TList> getItemList)

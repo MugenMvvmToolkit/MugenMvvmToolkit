@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Validation.Internal;
 using MugenMvvm.Validation;
 using Should;
@@ -23,7 +22,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
             var invokeCount = 0;
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
-            var result = ValidationResult.FromErrors(new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>
+            var result = ValidationResult.Get(new Dictionary<string, object?>
             {
                 {expectedMember, new[] {expectedMember}}
             });
@@ -177,7 +176,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
         {
             var component = new TestValidatorComponentBase<object>(this, false)
             {
-                GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(ValidationResult.FromMemberErrors(s, s))
+                GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
             };
             component.HasErrors(null!).ShouldBeFalse();
 
@@ -239,7 +238,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
                 {
                     if (string.IsNullOrEmpty(s))
                         return new ValueTask<ValidationResult>(ValidationResult.NoErrors);
-                    return new ValueTask<ValidationResult>(ValidationResult.FromMemberErrors(s, s));
+                    return new ValueTask<ValidationResult>(ValidationResult.Get(s, s));
                 }
             };
             component.HasErrors(null!).ShouldBeFalse();
@@ -263,11 +262,11 @@ namespace MugenMvvm.UnitTest.Validation.Components
         [Fact]
         public void ValidateAsyncShouldUpdateAllErrorsEmptyString2()
         {
-            var errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>
+            var errors = new Dictionary<string, object?>
             {
                 {"test0", new[] {"1", "2"}}
             };
-            var emptyStringErrors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>
+            var emptyStringErrors = new Dictionary<string, object?>
             {
                 {"test1", new[] {"1", "2"}}
             };
@@ -276,8 +275,8 @@ namespace MugenMvvm.UnitTest.Validation.Components
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {
                     if (string.IsNullOrEmpty(s))
-                        return new ValueTask<ValidationResult>(ValidationResult.FromErrors(emptyStringErrors));
-                    return new ValueTask<ValidationResult>(ValidationResult.FromErrors(errors));
+                        return new ValueTask<ValidationResult>(ValidationResult.Get(emptyStringErrors));
+                    return new ValueTask<ValidationResult>(ValidationResult.Get(errors));
                 }
             };
             component.HasErrors(null!).ShouldBeFalse();
@@ -285,18 +284,18 @@ namespace MugenMvvm.UnitTest.Validation.Components
             validator.AddComponent(component);
 
             component.TryValidateAsync(null!, "test");
-            component.TryGetErrors(null!, errors.First().Key).AsList().SequenceEqual(errors.First().Value.AsList()).ShouldBeTrue();
+            component.TryGetErrors(null!, errors.First().Key).AsList().SequenceEqual((IEnumerable<object>) errors.First().Value!).ShouldBeTrue();
             var pair = component.TryGetErrors(null!).Single();
             pair.Key.ShouldEqual(errors.First().Key);
-            pair.Value.AsList().SequenceEqual(errors.First().Value.AsList()).ShouldBeTrue();
+            pair.Value.AsList().SequenceEqual((IEnumerable<object>) errors.First().Value!).ShouldBeTrue();
             component.HasErrors(null!).ShouldBeTrue();
             component.HasErrors(null!, errors.First().Key).ShouldBeTrue();
 
             component.TryValidateAsync(null!, string.Empty);
-            component.TryGetErrors(null!, emptyStringErrors.First().Key).AsList().SequenceEqual(emptyStringErrors.First().Value.AsList()).ShouldBeTrue();
+            component.TryGetErrors(null!, emptyStringErrors.First().Key).AsList().SequenceEqual((IEnumerable<object>) emptyStringErrors.First().Value!).ShouldBeTrue();
             pair = component.TryGetErrors(null!).Single();
             pair.Key.ShouldEqual(emptyStringErrors.First().Key);
-            pair.Value.AsList().SequenceEqual(emptyStringErrors.First().Value.AsList()).ShouldBeTrue();
+            pair.Value.AsList().SequenceEqual((IEnumerable<object>) emptyStringErrors.First().Value!).ShouldBeTrue();
             component.HasErrors(null!).ShouldBeTrue();
             component.HasErrors(null!, emptyStringErrors.First().Key).ShouldBeTrue();
         }
@@ -310,7 +309,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
             var expectedMember = "test";
             var component = new TestValidatorComponentBase<object>(this, false)
             {
-                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.FromMemberErrors(s, s))
+                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
             };
             var validator = new Validator();
             validator.AddComponent(component);
@@ -381,7 +380,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
             var expectedMember = "test";
             var component = new TestValidatorComponentBase<object>(this, false)
             {
-                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.FromMemberErrors(s, s))
+                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
             };
             var validator = new Validator();
             validator.AddComponent(component);
@@ -417,7 +416,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
             var expectedMember = "test";
             var component = new TestValidatorComponentBase<object>(this, false)
             {
-                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.FromMemberErrors(s, s))
+                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
             };
             var validator = new Validator();
             validator.AddComponent(component);

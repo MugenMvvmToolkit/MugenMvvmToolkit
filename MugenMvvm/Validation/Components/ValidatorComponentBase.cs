@@ -88,12 +88,12 @@ namespace MugenMvvm.Validation.Components
                 {
                     var errors = ItemOrListEditor.Get<object>();
                     foreach (var error in _errors)
-                        errors.AddRange(ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value, true));
+                        errors.AddRange(ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value));
                     return errors.ToItemOrList<IReadOnlyList<object>>();
                 }
 
                 if (_errors.TryGetValue(memberName!, out var value))
-                    return ItemOrList.FromRawValue<object, IReadOnlyList<object>>(value, true);
+                    return ItemOrList.FromRawValue<object, IReadOnlyList<object>>(value);
             }
 
             return default;
@@ -107,7 +107,7 @@ namespace MugenMvvm.Validation.Components
                     return Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
                 var errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
                 foreach (var error in _errors)
-                    errors[error.Key] = ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value, true);
+                    errors[error.Key] = ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value);
                 return errors;
             }
         }
@@ -158,10 +158,10 @@ namespace MugenMvvm.Validation.Components
 
                 var count = keys.Count;
                 for (var index = 0; index < count; index++)
-                    UpdateErrors(keys[index], default, true, metadata);
+                    UpdateErrors(keys[index], null, true, metadata);
             }
             else
-                UpdateErrors(memberName!, default, true, metadata);
+                UpdateErrors(memberName!, null, true, metadata);
         }
 
         #endregion
@@ -179,10 +179,9 @@ namespace MugenMvvm.Validation.Components
         {
         }
 
-        protected void UpdateErrors(string memberName, ItemOrList<object, IReadOnlyList<object>> errors, bool raiseNotifications, IReadOnlyMetadataContext? metadata)
+        protected void UpdateErrors(string memberName, object? rawValue, bool raiseNotifications, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(memberName, nameof(memberName));
-            var rawValue = errors.GetRawValue();
             lock (_errors)
             {
                 if (rawValue == null)
@@ -208,7 +207,7 @@ namespace MugenMvvm.Validation.Components
                 .AsTask()
                 .ContinueWith((t, state) =>
                 {
-                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>) state!;
+                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>)state!;
                     tuple.Item1.OnValidationCompleted(tuple.Item2, t.Result);
                 }, Tuple.Create(this, memberName), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
         }
@@ -218,18 +217,18 @@ namespace MugenMvvm.Validation.Components
             if (!result.HasResult)
                 return;
 
-            IDictionary<string, ItemOrList<object, IReadOnlyList<object>>> errors;
+            IDictionary<string, object?> errors;
             if (string.IsNullOrEmpty(memberName))
             {
                 if (result.SingleMemberName != null || result.Errors!.Count == 0)
                 {
                     ClearErrors(OwnerOptional!, memberName, result.Metadata);
-                    if (result.SingleMemberName != null && !result.SingleMemberErrors.IsNullOrEmpty())
-                        UpdateErrors(result.SingleMemberName, result.SingleMemberErrors, true, result.Metadata);
+                    if (result.SingleMemberName != null && result.RawErrors != null)
+                        UpdateErrors(result.SingleMemberName, result.RawErrors, true, result.Metadata);
                     return;
                 }
 
-                errors = result.GetErrorsNonReadOnly();
+                errors = result.GetErrors();
                 lock (_errors)
                 {
                     foreach (var pair in _errors)
@@ -243,13 +242,13 @@ namespace MugenMvvm.Validation.Components
             {
                 if (result.SingleMemberName != null)
                 {
-                    UpdateErrors(result.SingleMemberName, result.SingleMemberErrors, true, result.Metadata);
+                    UpdateErrors(result.SingleMemberName, result.RawErrors, true, result.Metadata);
                     if (result.SingleMemberName != memberName)
-                        UpdateErrors(memberName, default, true, result.Metadata);
+                        UpdateErrors(memberName, null, true, result.Metadata);
                     return;
                 }
 
-                errors = result.GetErrorsNonReadOnly();
+                errors = result.GetErrors();
                 if (!errors.ContainsKey(memberName))
                     errors[memberName] = null;
             }
