@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTest
             (TList) itemOrList
                 .Cast<IReadOnlyList<TItem>>()
                 .Iterator(item => EqualityComparer<TItem>.Default.Equals(item, default!))
-                .AsList(() => Default.Array<TItem>(), item => new[] {item});
+                .AsList();
 
         #endregion
 
