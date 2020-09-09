@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Binding.Build.Components;
 using MugenMvvm.Binding.Compiling;
@@ -10,6 +11,7 @@ using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Components;
@@ -23,8 +25,13 @@ using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Binding.Resources.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Extensions
 {
@@ -153,13 +160,32 @@ namespace MugenMvvm.Binding.Extensions
                 .WrapMember(Members.BindableMembers.For<object>().ParentNative())
                 .Build());
 
+            //validation
             var errorsChangedEvent = memberManager.TryGetMember(typeof(INotifyDataErrorInfo), MemberType.Event, MemberFlags.InstancePublic, nameof(INotifyDataErrorInfo.ErrorsChanged));
             if (errorsChangedEvent != null)
             {
-                attachedMemberProvider.Register(errorsChangedEvent, Members.BindableMembers.For<object>().GetErrorMethod() + BindingInternalConstant.ChangedEventPostfix);
-                attachedMemberProvider.Register(errorsChangedEvent, Members.BindableMembers.For<object>().GetErrorsMethod() + BindingInternalConstant.ChangedEventPostfix);
-                attachedMemberProvider.Register(errorsChangedEvent, Members.BindableMembers.For<object>().HasErrorsMethod() + BindingInternalConstant.ChangedEventPostfix);
+                attachedMemberProvider.Register(errorsChangedEvent, nameof(Members.BindableMembers.GetError) + BindingInternalConstant.ChangedEventPostfix);
+                attachedMemberProvider.Register(errorsChangedEvent, nameof(Members.BindableMembers.GetErrors) + BindingInternalConstant.ChangedEventPostfix);
+                attachedMemberProvider.Register(errorsChangedEvent, nameof(Members.BindableMembers.HasErrors) + BindingInternalConstant.ChangedEventPostfix);
             }
+
+            var errorsChangedEventValidator = AttachedMemberBuilder
+                .Event<IHasService<IValidator>>(nameof(INotifyDataErrorInfo.ErrorsChanged))
+                .CustomImplementation((member, target, listener, metadata) =>
+                {
+                    var component = new ErrorsChangedValidatorListener(listener);
+                    target.Service.AddComponent(component);
+                    return new ActionToken((t, c) =>
+                    {
+                        var hasService = (IHasService<IValidator>?)((IWeakReference)t!).Target;
+                        hasService?.Service.RemoveComponent((IComponent<IValidator>)c!);
+                    }, target.ToWeakReference(), component);
+                })
+                .Build();
+            attachedMemberProvider.Register(errorsChangedEventValidator);
+            attachedMemberProvider.Register(errorsChangedEventValidator, nameof(Members.BindableMembers.GetError) + BindingInternalConstant.ChangedEventPostfix);
+            attachedMemberProvider.Register(errorsChangedEventValidator, nameof(Members.BindableMembers.GetErrors) + BindingInternalConstant.ChangedEventPostfix);
+            attachedMemberProvider.Register(errorsChangedEventValidator, nameof(Members.BindableMembers.HasErrors) + BindingInternalConstant.ChangedEventPostfix);
 
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
                 .HasErrorsMethod()
@@ -195,6 +221,46 @@ namespace MugenMvvm.Binding.Extensions
                 .Build());
 
             return configuration;
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class ErrorsChangedValidatorListener : IValidatorListener
+        {
+            #region Fields
+
+            private readonly WeakEventListener _eventListener;
+
+            #endregion
+
+            #region Constructors
+
+            public ErrorsChangedValidatorListener(IEventListener eventListener)
+            {
+                _eventListener = eventListener.ToWeak();
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public void OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
+            {
+                if (!_eventListener.TryHandle(target, memberName, metadata))
+                    validator.RemoveComponent(this);
+            }
+
+            public void OnAsyncValidation(IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
+            {
+            }
+
+            public void OnDisposed(IValidator validator)
+            {
+            }
+
+            #endregion
         }
 
         #endregion
