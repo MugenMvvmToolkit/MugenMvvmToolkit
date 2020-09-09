@@ -12,7 +12,7 @@ namespace MugenMvvm.Validation.Components
     {
         #region Fields
 
-        private readonly ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> _rules;
+        public readonly ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> Rules;
 
         #endregion
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Validation.Components
         public RuleValidatorComponent(object target, ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> rules)
             : base(target, false)
         {
-            _rules = rules;
+            Rules = rules;
             foreach (var rule in rules.Iterator())
             {
                 if (rule.IsAsync)
@@ -40,7 +40,7 @@ namespace MugenMvvm.Validation.Components
         {
             var errors = new Dictionary<string, object?>(3);
             var tasks = ItemOrListEditor.Get<Task>();
-            foreach (var rule in _rules.Iterator())
+            foreach (var rule in Rules.Iterator())
             {
                 var task = rule.ValidateAsync(Target, memberName, errors, cancellationToken, metadata);
                 if (task != null && !task.IsCompleted)

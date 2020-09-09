@@ -31,7 +31,6 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validationManager, nameof(validationManager));
             Should.NotBeNull(validator, nameof(validator));
-            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnValidatorCreated(validationManager, validator, request, metadata);
         }

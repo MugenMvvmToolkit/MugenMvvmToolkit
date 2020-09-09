@@ -284,7 +284,6 @@ namespace MugenMvvm.Binding.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
-            Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
                 components[i].OnBeginEvent(bindingManager, sender, message, metadata);
         }
@@ -293,7 +292,6 @@ namespace MugenMvvm.Binding.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
-            Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
                 components[i].OnEndEvent(bindingManager, sender, message, metadata);
         }
@@ -303,7 +301,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(exception, nameof(exception));
-            Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
                 components[i].OnEventError(bindingManager, exception, sender, message, metadata);
         }
