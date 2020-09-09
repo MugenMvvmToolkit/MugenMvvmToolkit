@@ -130,7 +130,7 @@ namespace MugenMvvm.Binding.Observation
             return new ActionToken((@this, t) => ((EventListenerCollection) @this!).Unsubscribe(t), this, target);
         }
 
-        public bool Remove(IEventListener listener)
+        public bool Remove(IEventListener? listener)
         {
             if (listener == null)
                 return false;

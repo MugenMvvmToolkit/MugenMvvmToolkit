@@ -19,7 +19,6 @@ namespace MugenMvvm.Validation.Components
         #region Fields
 
         private readonly Dictionary<string, object> _errors;
-
         private readonly HashSet<string> _validatingMembers;
 
         private CancellationTokenSource? _disposeCancellationTokenSource;
@@ -49,7 +48,7 @@ namespace MugenMvvm.Validation.Components
 
         public TTarget Target { get; }
 
-        protected bool HasAsyncValidation { get; set; }
+        protected internal bool HasAsyncValidation { get; set; }
 
         public int Priority { get; set; }
 
