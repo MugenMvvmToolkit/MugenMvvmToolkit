@@ -22,14 +22,15 @@ namespace MugenMvvm.UnitTest.Serialization
         [InlineData(10)]
         public void SerializeShouldBeHandledByComponents(int count)
         {
-            var ctx = new SerializationContext();
+            var ctx = new SerializationContext(Stream.Null, false);
             var stream = Stream.Null;
             var serializer = new Serializer();
             serializer.AddComponent(new TestSerializationContextProvider(serializer)
             {
-                TryGetSerializationContext = (o, arg4) =>
+                TryGetSerializationContext = (s, o, arg4) =>
                 {
                     o.ShouldEqual(this);
+                    s.ShouldEqual(stream);
                     arg4.ShouldEqual(DefaultMetadata);
                     return ctx;
                 }
@@ -40,10 +41,9 @@ namespace MugenMvvm.UnitTest.Serialization
                 var isLast = i == count - 1;
                 var component = new TestSerializerComponent(serializer)
                 {
-                    TrySerialize = (s, t, context) =>
+                    TrySerialize = (t, context) =>
                     {
                         ++executeCount;
-                        s.ShouldEqual(stream);
                         t.ShouldEqual(this);
                         context.ShouldEqual(ctx);
                         if (isLast)
@@ -67,13 +67,14 @@ namespace MugenMvvm.UnitTest.Serialization
         [InlineData(10)]
         public void DeserializeShouldBeHandledByComponents(int count)
         {
-            var ctx = new SerializationContext();
+            var ctx = new SerializationContext(Stream.Null, false);
             var stream = Stream.Null;
             var serializer = new Serializer();
             serializer.AddComponent(new TestSerializationContextProvider(serializer)
             {
-                TryGetDeserializationContext = arg4 =>
+                TryGetDeserializationContext = (s, arg4) =>
                 {
+                    s.ShouldEqual(stream);
                     arg4.ShouldEqual(DefaultMetadata);
                     return ctx;
                 }
@@ -85,10 +86,9 @@ namespace MugenMvvm.UnitTest.Serialization
                 var isLast = i == count - 1;
                 var component = new TestSerializerComponent(serializer)
                 {
-                    TryDeserialize = (o, context) =>
+                    TryDeserialize = (context) =>
                     {
                         ++executeCount;
-                        o.ShouldEqual(stream);
                         context.ShouldEqual(ctx);
                         if (isLast)
                             return target;

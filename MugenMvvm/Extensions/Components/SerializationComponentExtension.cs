@@ -94,59 +94,59 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static ISerializationContext? TryGetSerializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, object request, IReadOnlyMetadataContext? metadata)
+        public static ISerializationContext? TryGetSerializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, Stream stream, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var context = components[i].TryGetSerializationContext(serializer, request, metadata);
-                if (context != null)
-                    return context;
-            }
-
-            return null;
-        }
-
-        public static ISerializationContext? TryGetDeserializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(serializer, nameof(serializer));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var context = components[i].TryGetDeserializationContext(serializer, metadata);
-                if (context != null)
-                    return context;
-            }
-
-            return null;
-        }
-
-        public static bool TrySerialize(this ISerializerComponent[] components, ISerializer serializer, Stream stream, object request, ISerializationContext serializationContext)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(serializationContext, nameof(serializationContext));
             Should.NotBeNull(stream, nameof(stream));
             Should.NotBeNull(request, nameof(request));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TrySerialize(serializer, stream, request, serializationContext))
+                var context = components[i].TryGetSerializationContext(serializer, stream, request, metadata);
+                if (context != null)
+                    return context;
+            }
+
+            return null;
+        }
+
+        public static ISerializationContext? TryGetDeserializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(stream, nameof(stream));
+            for (var i = 0; i < components.Length; i++)
+            {
+                var context = components[i].TryGetDeserializationContext(serializer, stream, metadata);
+                if (context != null)
+                    return context;
+            }
+
+            return null;
+        }
+
+        public static bool TrySerialize(this ISerializerComponent[] components, ISerializer serializer, object request, ISerializationContext serializationContext)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(serializationContext, nameof(serializationContext));
+            Should.NotBeNull(request, nameof(request));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TrySerialize(serializer, request, serializationContext))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TryDeserialize(this ISerializerComponent[] components, ISerializer serializer, Stream stream, ISerializationContext serializationContext, out object? value)
+        public static bool TryDeserialize(this ISerializerComponent[] components, ISerializer serializer, ISerializationContext serializationContext, out object? value)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(stream, nameof(stream));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryDeserialize(serializer, stream, serializationContext, out value))
+                if (components[i].TryDeserialize(serializer, serializationContext, out value))
                     return true;
             }
 

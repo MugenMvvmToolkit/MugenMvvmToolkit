@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Extensions;
+﻿using System.IO;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Metadata;
@@ -9,10 +10,21 @@ namespace MugenMvvm.Serialization
     {
         #region Constructors
 
-        public SerializationContext(IReadOnlyMetadataContext? metadata = null)
+        public SerializationContext(Stream stream, bool isSerialization, IReadOnlyMetadataContext? metadata = null)
             : base(metadata)
         {
+            Should.NotBeNull(stream, nameof(stream));
+            Stream = stream;
+            IsSerialization = isSerialization;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsSerialization { get; }
+
+        public Stream Stream { get; }
 
         #endregion
 

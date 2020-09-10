@@ -26,9 +26,9 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         #region Properties
 
-        public Func<Stream, object, ISerializationContext, bool>? TrySerialize { get; set; }
+        public Func<object, ISerializationContext, bool>? TrySerialize { get; set; }
 
-        public Func<Stream, ISerializationContext, object?>? TryDeserialize { get; set; }
+        public Func<ISerializationContext, object?>? TryDeserialize { get; set; }
 
         public int Priority { get; set; }
 
@@ -36,16 +36,16 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         #region Implementation of interfaces
 
-        bool ISerializerComponent.TrySerialize(ISerializer serializer, Stream stream, object request, ISerializationContext serializationContext)
+        bool ISerializerComponent.TrySerialize(ISerializer serializer, object request, ISerializationContext serializationContext)
         {
             _serializer?.ShouldEqual(serializer);
-            return TrySerialize?.Invoke(stream, request, serializationContext) ?? false;
+            return TrySerialize?.Invoke(request, serializationContext) ?? false;
         }
 
-        bool ISerializerComponent.TryDeserialize(ISerializer serializer, Stream stream, ISerializationContext serializationContext, out object? value)
+        bool ISerializerComponent.TryDeserialize(ISerializer serializer, ISerializationContext serializationContext, out object? value)
         {
             _serializer?.ShouldEqual(serializer);
-            value = TryDeserialize?.Invoke(stream, serializationContext);
+            value = TryDeserialize?.Invoke(serializationContext);
             return value != null;
         }
 

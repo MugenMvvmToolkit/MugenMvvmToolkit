@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.IO;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Serialization;
 using MugenMvvm.UnitTest.Metadata;
 
@@ -8,7 +9,7 @@ namespace MugenMvvm.UnitTest.Serialization
     {
         #region Methods
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new SerializationContext(metadata);
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new SerializationContext(Stream.Null, true, metadata);
 
         #endregion
     }
