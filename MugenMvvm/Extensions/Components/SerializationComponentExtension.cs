@@ -46,7 +46,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnDeserialized(serializer, instance, serializationContext!);
         }
 
-        public static ISurrogateProvider? TryGetSurrogateProvider(this ISurrogateProviderComponent[] components, ISerializer serializer, Type type, ISerializationContext? serializationContext)
+        public static ISurrogateProvider? TryGetSurrogateProvider(this ISurrogateProviderResolverComponent[] components, ISerializer serializer, Type type, ISerializationContext? serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));

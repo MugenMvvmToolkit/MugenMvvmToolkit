@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Serialization.Components
 {
-    public interface ISurrogateProviderComponent : IComponent<ISerializer>
+    public interface ISurrogateProviderResolverComponent : IComponent<ISerializer>
     {
         ISurrogateProvider? TryGetSurrogateProvider(ISerializer serializer, Type type, ISerializationContext? serializationContext);
     }
