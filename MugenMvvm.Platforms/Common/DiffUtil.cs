@@ -252,15 +252,13 @@ namespace MugenMvvm.Internal
 
         public interface IListUpdateCallback
         {
-            bool IsUseFinalPosition { get; }
-
-            void OnInserted(int position, int count);
+            void OnInserted(int position, int finalPosition, int count);
 
             void OnRemoved(int position, int count);
 
-            void OnMoved(int fromPosition, int toPosition);
+            void OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition);
 
-            void OnChanged(int position, int count, bool isMove);
+            void OnChanged(int position, int finalPosition, int count, bool isMove);
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -557,7 +555,6 @@ namespace MugenMvvm.Internal
             public void DispatchUpdatesTo(IListUpdateCallback updateCallback)
             {
                 var batchingCallback = new BatchingListUpdateCallback(updateCallback);
-                var isUseFinalPosition = batchingCallback.IsUseFinalPosition;
                 // track up to date current list size for moves
                 // when a move is found, we record its position from the end of the list (which is
                 // less likely to change since we iterate in reverse).
@@ -601,19 +598,10 @@ namespace MugenMvvm.Internal
                             else
                             {
                                 // this is an addition that was postponed. Now dispatch it.
-                                if (isUseFinalPosition)
-                                {
-                                    batchingCallback.OnMoved(posX, postponedUpdate.PosInOwnerList);
-                                    if ((status & FlagMovedChanged) != 0)
-                                        batchingCallback.OnChanged(postponedUpdate.PosInOwnerList, 1, true);
-                                }
-                                else
-                                {
-                                    var updatedNewPos = currentListSize - postponedUpdate.CurrentPos;
-                                    batchingCallback.OnMoved(posX, updatedNewPos - 1);
-                                    if ((status & FlagMovedChanged) != 0)
-                                        batchingCallback.OnChanged(updatedNewPos - 1, 1, true);
-                                }
+                                var updatedNewPos = currentListSize - postponedUpdate.CurrentPos - 1;
+                                batchingCallback.OnMoved(posX, updatedNewPos, posX, postponedUpdate.PosInOwnerList);
+                                if ((status & FlagMovedChanged) != 0)
+                                    batchingCallback.OnChanged(updatedNewPos, postponedUpdate.PosInOwnerList, 1, true);
                             }
                         }
                         else
@@ -651,25 +639,15 @@ namespace MugenMvvm.Internal
                                 // oldPosFromEnd = foundListSize - posX
                                 // we can find posX if we swap the list sizes
                                 // posX = listSize - oldPosFromEnd
-                                if (isUseFinalPosition)
-                                {
-                                    batchingCallback.OnMoved(postponedUpdate.PosInOwnerList, posY);
-                                    if ((status & FlagMovedChanged) != 0)
-                                        batchingCallback.OnChanged(posY, 1, true);
-                                }
-                                else
-                                {
-                                    var updatedOldPos = currentListSize - postponedUpdate.CurrentPos - 1;
-                                    batchingCallback.OnMoved(updatedOldPos, posX);
-                                    if ((status & FlagMovedChanged) != 0)
-                                        batchingCallback.OnChanged(posX, 1, true);
-                                }
+                                batchingCallback.OnMoved(currentListSize - postponedUpdate.CurrentPos - 1, posX, postponedUpdate.PosInOwnerList, posY);
+                                if ((status & FlagMovedChanged) != 0)
+                                    batchingCallback.OnChanged(posX, posY, 1, true);
                             }
                         }
                         else
                         {
                             // simple addition
-                            batchingCallback.OnInserted(isUseFinalPosition ? posY : posX, 1);
+                            batchingCallback.OnInserted(posX, posY, 1);
                             currentListSize++;
                         }
                     }
@@ -681,7 +659,7 @@ namespace MugenMvvm.Internal
                     {
                         // dispatch changes
                         if ((_oldItemStatuses[posX] & FlagMask) == FlagChanged)
-                            batchingCallback.OnChanged(posX, 1, false);
+                            batchingCallback.OnChanged(posX, posY, 1, false);
 
                         posX++;
                         posY++;
@@ -732,9 +710,9 @@ namespace MugenMvvm.Internal
             #region Fields
 
             private readonly IListUpdateCallback _callback;
-            public readonly bool IsUseFinalPosition;
             private int _lastEventCount;
             private int _lastEventPosition;
+            private int _lastEventFinalPosition;
             private int _lastEventType;
             private bool _lastMoved;
 
@@ -751,28 +729,30 @@ namespace MugenMvvm.Internal
             {
                 _lastEventCount = -1;
                 _lastEventPosition = -1;
+                _lastEventFinalPosition = -1;
                 _lastMoved = false;
                 _lastEventType = TypeNone;
                 _callback = callback;
-                IsUseFinalPosition = callback.IsUseFinalPosition;
             }
 
             #endregion
 
             #region Implementation of interfaces
 
-            public void OnInserted(int position, int count)
+            public void OnInserted(int position, int finalPosition, int count)
             {
-                if (_lastEventType == TypeAdd &&
-                    (IsUseFinalPosition && _lastEventPosition >= position && _lastEventPosition <= position + count || position >= _lastEventPosition && position <= _lastEventPosition + _lastEventCount))
+                if (_lastEventType == TypeAdd && position >= _lastEventPosition && position <= _lastEventPosition + _lastEventCount
+                                              && _lastEventFinalPosition >= finalPosition && _lastEventFinalPosition <= finalPosition + count)
                 {
                     _lastEventCount += count;
                     _lastEventPosition = Math.Min(position, _lastEventPosition);
+                    _lastEventFinalPosition = Math.Min(finalPosition, _lastEventFinalPosition);
                 }
                 else
                 {
                     DispatchLastEvent();
                     _lastEventPosition = position;
+                    _lastEventFinalPosition = finalPosition;
                     _lastEventCount = count;
                     _lastEventType = TypeAdd;
                 }
@@ -794,18 +774,20 @@ namespace MugenMvvm.Internal
                 }
             }
 
-            public void OnMoved(int fromPosition, int toPosition)
+            public void OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition)
             {
                 DispatchLastEvent();
-                _callback.OnMoved(fromPosition, toPosition);
+                _callback.OnMoved(fromPosition, toPosition, fromOriginalPosition, toFinalPosition);
             }
 
-            public void OnChanged(int position, int count, bool moved)
+            public void OnChanged(int position, int finalPosition, int count, bool moved)
             {
-                if (_lastEventType == TypeChange && _lastMoved == moved && !(position > _lastEventPosition + _lastEventCount || position + count < _lastEventPosition))
+                if (_lastEventType == TypeChange && _lastMoved == moved && !(position > _lastEventPosition + _lastEventCount || position + count < _lastEventPosition)
+                                                                        && !(finalPosition > _lastEventFinalPosition + _lastEventCount || finalPosition + count < _lastEventFinalPosition))
                 {
                     var previousEnd = _lastEventPosition + _lastEventCount;
                     _lastEventPosition = Math.Min(position, _lastEventPosition);
+                    _lastEventFinalPosition = Math.Min(finalPosition, _lastEventFinalPosition);
                     _lastEventCount = Math.Max(previousEnd, position + count) - _lastEventPosition;
                 }
                 else
@@ -813,6 +795,7 @@ namespace MugenMvvm.Internal
                     DispatchLastEvent();
                     _lastMoved = moved;
                     _lastEventPosition = position;
+                    _lastEventFinalPosition = finalPosition;
                     _lastEventCount = count;
                     _lastEventType = TypeChange;
                 }
@@ -829,13 +812,13 @@ namespace MugenMvvm.Internal
                 switch (_lastEventType)
                 {
                     case TypeAdd:
-                        _callback.OnInserted(_lastEventPosition, _lastEventCount);
+                        _callback.OnInserted(_lastEventPosition, _lastEventFinalPosition, _lastEventCount);
                         break;
                     case TypeRemove:
                         _callback.OnRemoved(_lastEventPosition, _lastEventCount);
                         break;
                     case TypeChange:
-                        _callback.OnChanged(_lastEventPosition, _lastEventCount, _lastMoved);
+                        _callback.OnChanged(_lastEventPosition, _lastEventFinalPosition, _lastEventCount, _lastMoved);
                         break;
                 }
 

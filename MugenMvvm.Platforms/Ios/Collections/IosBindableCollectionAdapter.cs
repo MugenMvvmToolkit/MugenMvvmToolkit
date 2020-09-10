@@ -13,7 +13,9 @@ namespace MugenMvvm.Ios.Collections
         #region Fields
 
         private readonly List<object?> _beforeResetList;
-        private readonly List<int> _reloadIndexes;
+        private readonly HashSet<int> _reloadIndexes;
+        private List<(int position, int count)>? _pendingReloads;
+        private int _pendingReloadCount;
         private Closure? _closure;
         private DiffUtil.DiffResult _diffResult;
         private bool _isInitialized;
@@ -30,7 +32,7 @@ namespace MugenMvvm.Ios.Collections
             CollectionViewAdapter = collectionViewAdapter;
             BatchSize = 2;
             _beforeResetList = new List<object?>();
-            _reloadIndexes = new List<int>();
+            _reloadIndexes = new HashSet<int>();
         }
 
         #endregion
@@ -40,8 +42,6 @@ namespace MugenMvvm.Ios.Collections
         public ICollectionViewAdapter CollectionViewAdapter { get; }
 
         public IItemsSourceEqualityComparer? EqualityComparer { get; }
-
-        bool DiffUtil.IListUpdateCallback.IsUseFinalPosition => true;
 
         protected override bool IsAlive => CollectionViewAdapter.IsAlive;
 
@@ -62,27 +62,20 @@ namespace MugenMvvm.Ios.Collections
 
         bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => !_reloadIndexes.Contains(oldItemPosition);
 
-        void DiffUtil.IListUpdateCallback.OnInserted(int position, int count) => NotifyInserted(position, count);
+        void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count) => NotifyInserted(finalPosition, count);
 
         void DiffUtil.IListUpdateCallback.OnRemoved(int position, int count) => NotifyDeleted(position, count);
 
-        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition) => NotifyMoved(fromPosition, toPosition);
+        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition) => NotifyMoved(fromOriginalPosition, toFinalPosition);
 
-        void DiffUtil.IListUpdateCallback.OnChanged(int position, int count, bool moved)
+        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool moved)
         {
             if (moved)
                 return;
 
-            for (var i = 0; i < count; i++)
-            {
-                if (position >= _beforeResetList.Count)
-                    break;
-
-                if (_diffResult.ConvertOldPositionToNew(position) == position)
-                    NotifyReload(position, 1);
-
-                ++position;
-            }
+            _pendingReloads ??= new List<(int, int)>();
+            _pendingReloads.Add((finalPosition, count));
+            _pendingReloadCount += count;
         }
 
         #endregion
@@ -98,8 +91,8 @@ namespace MugenMvvm.Ios.Collections
 
         public virtual void Reload(int index)
         {
-            _reloadIndexes.Add(index);
-            AddEvent(CollectionChangedEvent.Changed(null, index, null), Version);
+            if (_reloadIndexes.Add(index))
+                AddEvent(CollectionChangedEvent.Changed(null, index, null), Version);
         }
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
@@ -155,10 +148,10 @@ namespace MugenMvvm.Ios.Collections
 
         protected NSIndexPath[] GetIndexPaths(int startingPosition, int count)
         {
-            var newIndexPaths = new NSIndexPath[count];
+            var indexPaths = new NSIndexPath[count];
             for (var i = 0; i < count; i++)
-                newIndexPaths[i] = GetIndexPath(i + startingPosition);
-            return newIndexPaths;
+                indexPaths[i] = GetIndexPath(i + startingPosition);
+            return indexPaths;
         }
 
         protected void NotifyInserted(int index, int count)
@@ -250,9 +243,26 @@ namespace MugenMvvm.Ios.Collections
 
             private void EndPerformUpdatesImpl(bool _)
             {
+                var pendingReloads = _adapter._pendingReloads;
+                if (pendingReloads != null && pendingReloads.Count != 0)
+                {
+                    var indexPaths = new NSIndexPath[_adapter._pendingReloadCount];
+                    int index = 0;
+                    for (int i = 0; i < pendingReloads.Count; i++)
+                    {
+                        var pendingReload = pendingReloads[i];
+                        for (int j = 0; j < pendingReload.count; j++)
+                            indexPaths[index++] = _adapter.GetIndexPath(pendingReload.position + j);
+                    }
+
+                    _adapter.CollectionViewAdapter.ReloadItems(indexPaths);
+                    DisposeIndexPaths(indexPaths);
+                    pendingReloads.Clear();
+                }
                 _adapter._beforeResetList.Clear();
                 _adapter._reloadIndexes.Clear();
                 _adapter._diffResult = default;
+                _adapter._pendingReloadCount = 0;
                 _adapter.EndBatchUpdate(_version);
             }
 

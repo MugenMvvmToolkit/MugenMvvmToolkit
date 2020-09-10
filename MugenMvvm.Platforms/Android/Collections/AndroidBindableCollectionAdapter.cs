@@ -38,8 +38,6 @@ namespace MugenMvvm.Android.Collections
 
         protected override bool IsAlive => _isAlive;
 
-        bool DiffUtil.IListUpdateCallback.IsUseFinalPosition => false;
-
         #endregion
 
         #region Implementation of interfaces
@@ -57,7 +55,7 @@ namespace MugenMvvm.Android.Collections
 
         bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => true;
 
-        void DiffUtil.IListUpdateCallback.OnInserted(int position, int count)
+        void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count)
         {
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemRangeInserted(position, count);
@@ -69,13 +67,13 @@ namespace MugenMvvm.Android.Collections
                 GetObserver(i)?.OnItemRangeRemoved(position, count);
         }
 
-        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition)
+        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition)
         {
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemMoved(fromPosition, toPosition);
         }
 
-        void DiffUtil.IListUpdateCallback.OnChanged(int position, int count, bool isMove)
+        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
         {
         }
 
