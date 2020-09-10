@@ -60,8 +60,6 @@ namespace MugenMvvm.Validation.Components
 
         public void AddRule(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition) => AddRules(ItemOrList.FromItem(rule), condition);
 
-        public void AddRules<T>(ValidationRuleBuilder<T> builder) where T : class => AddRules(builder.Build(), (validator, o, arg3) => o is T);
-
         public void AddRules(ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> rules, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)
         {
             Should.NotBeNull(condition, nameof(condition));

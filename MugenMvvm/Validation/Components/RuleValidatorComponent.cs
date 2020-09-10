@@ -53,8 +53,8 @@ namespace MugenMvvm.Validation.Components
             var result = tasks.ToItemOrList().WhenAll().ContinueWith((task, e) =>
             {
                 task.Wait(); //rethrow if error
-                return ValidationResult.Get((IReadOnlyDictionary<string, object?>) e!);
-            }, errors, cancellationToken);
+                return ValidationResult.Get((IReadOnlyDictionary<string, object?>)e!);
+            }, errors, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             return new ValueTask<ValidationResult>(result);
         }
 

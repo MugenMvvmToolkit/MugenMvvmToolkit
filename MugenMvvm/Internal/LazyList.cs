@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
-    public ref struct LazyList<T>
+    public struct LazyList<T>
     {
         #region Fields
 

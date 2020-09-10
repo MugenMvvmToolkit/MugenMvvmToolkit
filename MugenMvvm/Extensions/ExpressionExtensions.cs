@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -89,6 +90,17 @@ namespace MugenMvvm.Extensions
             return Expression.Constant(value);
         }
 
+        public static MemberInfo GetMemberInfo(this LambdaExpression expression)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            if ((expression.Body as UnaryExpression)?.Operand is MemberExpression memberExpression)
+                return memberExpression.Member;
+            if (expression.Body is MemberExpression expressionBody)
+                return expressionBody.Member;
+            ExceptionManager.ThrowNotSupported(expression.ToString());
+            return null;
+        }
+
         internal static Expression GetIndexExpression(int index)
         {
             if (index >= 0 && index < ArrayIndexesCache.Length)
@@ -113,7 +125,7 @@ namespace MugenMvvm.Extensions
             #region Fields
 
             public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
-            public static readonly ParameterExpression[] Parameters = {Parameter};
+            public static readonly ParameterExpression[] Parameters = { Parameter };
 
             #endregion
         }
