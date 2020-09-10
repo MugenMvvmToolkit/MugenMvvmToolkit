@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTest.Metadata
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            (key is ISerializableMetadataContextKey).ShouldBeFalse();
+            key.IsSerializable.ShouldBeFalse();
         }
 
         [Theory]
@@ -50,20 +50,16 @@ namespace MugenMvvm.UnitTest.Metadata
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            var contextKey = (key as ISerializableMetadataContextKey)!;
+            key.IsSerializable.ShouldEqual(serializable);
             if (!serializable)
             {
-                contextKey.ShouldBeNull();
+                (key as IHasMemento)?.GetMemento().ShouldBeNull();
                 return;
             }
 
             var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
-            contextKey.CanSerialize(1, serializationContext).ShouldBeTrue();
-            contextKey.Serialize(1, serializationContext).ShouldEqual(1);
-            contextKey.Deserialize(1, serializationContext).ShouldEqual(1);
-
-            var memento = ((IHasMemento)contextKey).GetMemento()!;
-            memento.TargetType.ShouldEqual(contextKey.GetType());
+            var memento = ((IHasMemento)key).GetMemento()!;
+            memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(serializationContext);
             ContextKeyField = MetadataContextKey.FromKey<int, int>("121");
             var restore = memento.Restore(serializationContext);
@@ -82,20 +78,16 @@ namespace MugenMvvm.UnitTest.Metadata
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            var contextKey = (key as ISerializableMetadataContextKey)!;
+            key.IsSerializable.ShouldEqual(serializable);
             if (!serializable)
             {
-                contextKey.ShouldBeNull();
+                (key as IHasMemento)?.GetMemento().ShouldBeNull();
                 return;
             }
 
             var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
-            contextKey.CanSerialize(1, serializationContext).ShouldBeTrue();
-            contextKey.Serialize(1, serializationContext).ShouldEqual(1);
-            contextKey.Deserialize(1, serializationContext).ShouldEqual(1);
-
-            var memento = ((IHasMemento)contextKey).GetMemento()!;
-            memento.TargetType.ShouldEqual(contextKey.GetType());
+            var memento = ((IHasMemento)key).GetMemento()!;
+            memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(serializationContext);
             ContextKeyProperty = MetadataContextKey.FromKey<int, int>("121");
             var restore = memento.Restore(serializationContext);
@@ -111,7 +103,7 @@ namespace MugenMvvm.UnitTest.Metadata
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            (key is ISerializableMetadataContextKey).ShouldBeFalse();
+            key.IsSerializable.ShouldBeFalse();
         }
 
         [Fact]
@@ -135,7 +127,7 @@ namespace MugenMvvm.UnitTest.Metadata
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            (key is ISerializableMetadataContextKey).ShouldBeFalse();
+            key.IsSerializable.ShouldBeFalse();
         }
 
         [Theory]
@@ -151,20 +143,16 @@ namespace MugenMvvm.UnitTest.Metadata
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            var contextKey = (key as ISerializableMetadataContextKey)!;
+            key.IsSerializable.ShouldEqual(serializable);
             if (!serializable)
             {
-                contextKey.ShouldBeNull();
+                (key as IHasMemento)?.GetMemento().ShouldBeNull();
                 return;
             }
 
             var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
-            contextKey.CanSerialize(1, serializationContext).ShouldBeTrue();
-            contextKey.Serialize(1, serializationContext).ShouldEqual(1);
-            contextKey.Deserialize(1, serializationContext).ShouldEqual(1);
-
-            var memento = ((IHasMemento)contextKey).GetMemento()!;
-            memento.TargetType.ShouldEqual(contextKey.GetType());
+            var memento = ((IHasMemento)key).GetMemento()!;
+            memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(serializationContext);
             ContextKeyField = MetadataContextKey.FromKey<int, int>("121");
             var restore = memento.Restore(serializationContext);
@@ -185,20 +173,17 @@ namespace MugenMvvm.UnitTest.Metadata
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            var contextKey = (key as ISerializableMetadataContextKey)!;
+            key.IsSerializable.ShouldEqual(serializable);
+
             if (!serializable)
             {
-                contextKey.ShouldBeNull();
+                (key as IHasMemento)?.GetMemento().ShouldBeNull();
                 return;
             }
 
             var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
-            contextKey.CanSerialize(1, serializationContext).ShouldBeTrue();
-            contextKey.Serialize(1, serializationContext).ShouldEqual(1);
-            contextKey.Deserialize(1, serializationContext).ShouldEqual(1);
-
-            var memento = ((IHasMemento)contextKey).GetMemento()!;
-            memento.TargetType.ShouldEqual(contextKey.GetType());
+            var memento = ((IHasMemento)key).GetMemento()!;
+            memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(serializationContext);
             ContextKeyProperty = MetadataContextKey.FromKey<int, int>("121");
             var restore = memento.Restore(serializationContext);
@@ -269,59 +254,6 @@ namespace MugenMvvm.UnitTest.Metadata
             var memento = new TestMemento();
             var key = MetadataContextKey.Create<int, int>("k").WithMemento(contextKey => memento).Serializable().Build();
             ((IHasMemento)key).GetMemento().ShouldEqual(memento);
-        }
-
-        [Fact]
-        public void FromBuilderShouldSetSerializableConverter()
-        {
-            var canSerializeCount = 0;
-            var serializeCount = 0;
-            var deserializeCount = 0;
-            var currentValue = 100;
-            var serializeValue = new object();
-            var deserializeValue = new object();
-            var canSerializeValue = false;
-            var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
-            IMetadataContextKey<int, int>? key = null;
-            key = MetadataContextKey
-                .Create<int, int>(GetType(), nameof(ContextKeyField))
-                .Serializable((contextKey, o, arg3) =>
-                {
-                    ++canSerializeCount;
-                    contextKey.ShouldEqual(key);
-                    o.ShouldEqual(currentValue);
-                    arg3.ShouldEqual(serializationContext);
-                    return canSerializeValue;
-                })
-                .SerializableConverter((contextKey, o, arg3) =>
-                {
-                    ++serializeCount;
-                    contextKey.ShouldEqual(key);
-                    o.ShouldEqual(currentValue);
-                    arg3.ShouldEqual(serializationContext);
-                    return serializeValue;
-                }, (contextKey, o, arg3) =>
-                {
-                    ++deserializeCount;
-                    contextKey.ShouldEqual(key);
-                    o.ShouldEqual(currentValue);
-                    arg3.ShouldEqual(serializationContext);
-                    return deserializeValue;
-                }).Build();
-
-            var serKey = (ISerializableMetadataContextKey)key;
-            serKey.CanSerialize(currentValue, serializationContext).ShouldEqual(canSerializeValue);
-            canSerializeCount.ShouldEqual(1);
-
-            canSerializeValue = true;
-            serKey.CanSerialize(currentValue, serializationContext).ShouldEqual(canSerializeValue);
-            canSerializeCount.ShouldEqual(2);
-
-            serKey.Serialize(currentValue, serializationContext).ShouldEqual(serializeValue);
-            serializeCount.ShouldEqual(1);
-
-            serKey.Deserialize(currentValue, serializationContext).ShouldEqual(deserializeValue);
-            deserializeCount.ShouldEqual(1);
         }
 
         #endregion
