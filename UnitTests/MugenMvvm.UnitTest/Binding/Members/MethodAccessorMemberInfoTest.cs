@@ -33,20 +33,20 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var getValueCount = 0;
             var setValueCount = 0;
             var declaringType = typeof(object);
-            var inputArgs = isLastParameterMetadata ? new object?[] {"1", 2, null} : new object[] {"1", 2};
+            var inputArgs = isLastParameterMetadata ? new object?[] { "1", 2, null } : new object[] { "1", 2 };
             var checkGetterArgs = inputArgs.ToArray();
             if (isLastParameterMetadata)
                 checkGetterArgs[checkGetterArgs.Length - 1] = DefaultMetadata;
-            var checkSetterArgs = inputArgs.Concat(new object[] {setValue}).ToArray();
+            var checkSetterArgs = inputArgs.Concat(new object[] { setValue }).ToArray();
             if (isLastParameterMetadata)
                 checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
 
             var result = new ActionToken((o, o1) => { });
             var testEventListener = new TestWeakEventListener();
-            var count = 0;
+            var observeCount = 0;
             var memberObserver = new MemberObserver((target, member, listener, meta) =>
             {
-                ++count;
+                ++observeCount;
                 target.ShouldEqual(this);
                 listener.ShouldEqual(testEventListener);
                 meta.ShouldEqual(DefaultMetadata);
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                     },
                     TryObserve = (o, listener, arg3) =>
                     {
-                        ++count;
+                        ++observeCount;
                         o.ShouldEqual(this);
                         listener.ShouldEqual(testEventListener);
                         arg3.ShouldEqual(DefaultMetadata);
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                         metadata.ShouldEqual(DefaultMetadata);
                         return null;
                     },
-                    GetParameters = () => new[] {new TestParameterInfo {ParameterType = type}}
+                    GetParameters = () => new[] { new TestParameterInfo { ParameterType = type } }
                 };
             }
 
@@ -124,12 +124,11 @@ namespace MugenMvvm.UnitTest.Binding.Members
             memberInfo.AccessModifiers.ShouldEqual(memberFlags);
             memberInfo.CanWrite.ShouldEqual(canWrite);
             memberInfo.CanRead.ShouldEqual(canRead);
-
             memberInfo.GetArgs().ShouldEqual(inputArgs);
 
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
-            count.ShouldEqual(1);
-            observerRequestCount.ShouldEqual(!canWrite ? 0 : 1);
+            observeCount.ShouldEqual(1);
+            observerRequestCount.ShouldEqual(!canRead && canWrite ? 1 : 0);
 
             if (canRead)
             {

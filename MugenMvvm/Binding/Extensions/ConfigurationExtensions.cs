@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Binding.Build.Components;
@@ -24,7 +27,9 @@ using MugenMvvm.Binding.Parsing.Components.Parsers;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Binding.Resources.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -135,6 +140,14 @@ namespace MugenMvvm.Binding.Extensions
         {
             var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service();
             var attachedMemberProvider = memberManager.GetOrAddComponent(context => new AttachedMemberProvider());
+            RegisterObjectAttachedMembers(attachedMemberProvider);
+            RegisterCollectionAttachedMembers(attachedMemberProvider);
+            RegisterValidationAttachedMembers(memberManager, attachedMemberProvider);
+            return configuration;
+        }
+
+        public static void RegisterObjectAttachedMembers(AttachedMemberProvider attachedMemberProvider)
+        {
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
                 .DataContext()
                 .GetBuilder()
@@ -150,7 +163,7 @@ namespace MugenMvvm.Binding.Extensions
                 .RelativeSourceMethod()
                 .RawMethod
                 .GetBuilder(false)
-                .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p1").DefaultValue(BoxingExtensions.Box(1)).Build())
+                .WithParameters(AttachedMemberBuilder.Parameter<string>().Build(), AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build())
                 .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string)args[0]!, (int)args[1]!, metadata))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());
@@ -159,8 +172,31 @@ namespace MugenMvvm.Binding.Extensions
                 .GetBuilder()
                 .WrapMember(Members.BindableMembers.For<object>().ParentNative())
                 .Build());
+        }
 
-            //validation
+        public static void RegisterCollectionAttachedMembers(AttachedMemberProvider attachedMemberProvider)
+        {
+            attachedMemberProvider.Register(AttachedMemberBuilder
+                .Event<IComponentOwner<ICollection>>(nameof(ICollection.Count) + BindingInternalConstant.ChangedEventPostfix)
+                .CustomImplementation((member, target, listener, metadata) => CollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
+                .Build());
+            attachedMemberProvider.Register(AttachedMemberBuilder
+                .Event<IComponentOwner<ICollection>>(BindingInternalConstant.IndexerGetterName + BindingInternalConstant.ChangedEventPostfix)
+                .CustomImplementation((member, target, listener, metadata) => CollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
+                .Build());
+            attachedMemberProvider.Register(AttachedMemberBuilder
+                .Property<IObservableCollection, int>(nameof(IObservableCollection.Count))
+                .CustomGetter((member, target, metadata) => CollectionAdapter.GetOrAdd(target).Count)
+                .Build());
+            attachedMemberProvider.Register(AttachedMemberBuilder
+                .Method<IObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
+                .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
+                .InvokeHandler((member, target, args, metadata) => CollectionAdapter.GetOrAdd(target)[(int)args[0]!])
+                .Build());
+        }
+
+        public static void RegisterValidationAttachedMembers(IMemberManager memberManager, AttachedMemberProvider attachedMemberProvider)
+        {
             var errorsChangedEvent = memberManager.TryGetMember(typeof(INotifyDataErrorInfo), MemberType.Event, MemberFlags.InstancePublic, nameof(INotifyDataErrorInfo.ErrorsChanged));
             if (errorsChangedEvent != null)
             {
@@ -219,13 +255,79 @@ namespace MugenMvvm.Binding.Extensions
                 .GetBuilder()
                 .InvokeHandler((member, target, args, metadata) => GetErrors(target, (string[])args[0]!))
                 .Build());
-
-            return configuration;
         }
 
         #endregion
 
         #region Nested types
+
+        private sealed class CollectionAdapter : BindableCollectionAdapter, IComponent<ICollection>
+        {
+            #region Constructors
+
+            private CollectionAdapter()
+            {
+                Listeners = new EventListenerCollection();
+            }
+
+            #endregion
+
+            #region Properties
+
+            public EventListenerCollection Listeners { get; }
+
+            #endregion
+
+            #region Methods
+
+            public static CollectionAdapter GetOrAdd(IComponentOwner<ICollection> collection)
+                => collection.GetOrAddComponent(collection, (owner, context) => new CollectionAdapter { Collection = (IEnumerable)owner });
+
+            protected override void BatchUpdate(List<CollectionChangedEvent> events, int version)
+            {
+                base.BatchUpdate(events, version);
+                Raise();
+            }
+
+            protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
+            {
+                base.OnAdded(item, index, batchUpdate, version);
+                if (!batchUpdate)
+                    Raise();
+            }
+
+            protected override void OnRemoved(object? item, int index, bool batchUpdate, int version)
+            {
+                base.OnRemoved(item, index, batchUpdate, version);
+                if (!batchUpdate)
+                    Raise();
+            }
+
+            protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
+            {
+                base.OnMoved(item, oldIndex, newIndex, batchUpdate, version);
+                if (!batchUpdate)
+                    Raise();
+            }
+
+            protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version)
+            {
+                base.OnReplaced(oldItem, newItem, index, batchUpdate, version);
+                if (!batchUpdate)
+                    Raise();
+            }
+
+            protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+            {
+                base.OnReset(items, batchUpdate, version);
+                if (!batchUpdate)
+                    Raise();
+            }
+
+            private void Raise() => Listeners.Raise(Collection, EventArgs.Empty, null);
+
+            #endregion
+        }
 
         private sealed class ErrorsChangedValidatorListener : IValidatorListener
         {
