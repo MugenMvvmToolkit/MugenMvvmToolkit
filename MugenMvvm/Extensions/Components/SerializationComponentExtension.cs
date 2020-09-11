@@ -61,11 +61,10 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Type? TryResolveType(this ITypeResolverComponent[] components, ISerializer serializer, string assemblyName, string typeName, ISerializationContext? serializationContext)
+        public static Type? TryResolveType(this ITypeResolverComponent[] components, ISerializer serializer, string? assemblyName, string typeName, ISerializationContext? serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(assemblyName, nameof(assemblyName));
             Should.NotBeNull(typeName, nameof(typeName));
             for (var i = 0; i < components.Length; i++)
             {

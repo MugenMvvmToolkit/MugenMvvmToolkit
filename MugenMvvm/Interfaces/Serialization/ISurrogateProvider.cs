@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Serialization
 
         object? GetObjectToSerialize(object? instance, ISerializationContext serializationContext);
 
-        object? GetDeserializedObject(object? instance, ISerializationContext serializationContext);
+        object? GetDeserializedObject(object? surrogate, ISerializationContext serializationContext);
     }
 }
