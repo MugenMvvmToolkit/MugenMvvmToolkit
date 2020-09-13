@@ -47,6 +47,8 @@ namespace MugenMvvm.Android.Views
 
         public int Priority { get; set; } = ViewComponentPriority.StateManager;
 
+        public bool SaveState { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -84,6 +86,8 @@ namespace MugenMvvm.Android.Views
         {
             var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id)!;
             bundle.PutString(AndroidInternalConstant.BundleVmId, id);
+            if (!SaveState)
+                return;
 
             var state = ViewModelMetadata.ViewModel.ToContext(view.ViewModel);
             using var stream = new MemoryStream();
@@ -102,6 +106,9 @@ namespace MugenMvvm.Android.Views
             var viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id, metadata);
             if (viewModel == null)
             {
+                if (!SaveState)
+                    return null;
+
                 var state = bundle.GetByteArray(AndroidInternalConstant.BundleViewState);
                 if (state == null)
                     return null;

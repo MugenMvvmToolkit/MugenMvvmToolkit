@@ -8,16 +8,17 @@ namespace MugenMvvm.Navigation
     {
         #region Fields
 
-        public static readonly NavigationCallbackDelegateListener DisposeTargetCallback = new NavigationCallbackDelegateListener((context, exception, arg3) => (context.Target as IDisposable)?.Dispose());
+        public static readonly NavigationCallbackDelegateListener DisposeTargetCallback = new NavigationCallbackDelegateListener((context, exception, arg3) => (context.Target as IDisposable)?.Dispose(), true);
 
         #endregion
 
         #region Constructors
 
-        public NavigationCallbackDelegateListener(Action<INavigationContext, Exception?, CancellationToken?> callback)
+        public NavigationCallbackDelegateListener(Action<INavigationContext, Exception?, CancellationToken?> callback, bool isSerializable)
         {
             Should.NotBeNull(callback, nameof(callback));
             Callback = callback;
+            IsSerializable = isSerializable;
         }
 
         #endregion
@@ -25,6 +26,8 @@ namespace MugenMvvm.Navigation
         #region Properties
 
         public Action<INavigationContext, Exception?, CancellationToken?> Callback { get; }
+
+        public bool IsSerializable { get; }
 
         #endregion
 

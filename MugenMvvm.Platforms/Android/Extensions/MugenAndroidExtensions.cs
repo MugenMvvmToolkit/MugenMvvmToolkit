@@ -57,8 +57,8 @@ namespace MugenMvvm.Android.Extensions
         public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new AndroidViewRequest(viewModel, container, resourceId), default, metadata).Result;
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeMode = false,
-            bool disableFragmentState = false)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null,
+            bool shouldSaveAppState = true, bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
         {
             MugenAndroidNativeService.Initialize(context ?? Application.Context, new AndroidBindViewCallback(), rawViewTagMode);
             LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeMode);
@@ -77,7 +77,7 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new AndroidConditionNavigationDispatcher());
 
             configuration.ServiceConfiguration<IViewManager>()
-                .WithComponent(new AndroidViewStateDispatcher())
+                .WithComponent(new AndroidViewStateDispatcher { SaveState = shouldSaveAppState })
                 .WithComponent(new AndroidViewInitializer())
                 .WithComponent(new AndroidViewRequestManager())
                 .WithComponent(new AndroidViewStateMapperDispatcher())
@@ -208,7 +208,7 @@ namespace MugenMvvm.Android.Extensions
                 .Parent()
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => ViewExtensions.GetParent(target))
-                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object) value!))
+                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object)value!))
                 .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ParentMemberName))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -228,7 +228,7 @@ namespace MugenMvvm.Android.Extensions
                 .RawMethod
                 .GetBuilder()
                 .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build())
-                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
+                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string)args[0]!, (int)args[1]!))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -363,7 +363,7 @@ namespace MugenMvvm.Android.Extensions
                     if (contentTemplateSelector == null)
                         ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                    var newValue = (Object?) contentTemplateSelector.SelectTemplate(target, value)!;
+                    var newValue = (Object?)contentTemplateSelector.SelectTemplate(target, value)!;
                     if (newValue != null)
                     {
                         newValue.BindableMembers().SetDataContext(value);
@@ -473,7 +473,7 @@ namespace MugenMvvm.Android.Extensions
             }
 
             if (integer)
-                return ConstantExpressionNode.Get((int) floatValue);
+                return ConstantExpressionNode.Get((int)floatValue);
             return ConstantExpressionNode.Get(floatValue);
         }
 

@@ -42,7 +42,7 @@ namespace MugenMvvm.Extensions
             return new ShowPresenterResult<T>(presenterResult, showingCallback, closeCallback);
         }
 
-        public static Task<bool> CloseAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default,
+        public static Task<bool> CloseAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default, bool isSerializable = true,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
             var tasks = ItemOrListEditor.Get<Task<bool>>();
@@ -51,7 +51,7 @@ namespace MugenMvvm.Extensions
                 foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata).Iterator())
                 {
                     if (callback.CallbackType == NavigationCallbackType.Closing)
-                        tasks.Add(callback.AsTask().CancelToFalse());
+                        tasks.Add(callback.AsTask(isSerializable).CancelToFalse());
                 }
             }
 
@@ -74,11 +74,11 @@ namespace MugenMvvm.Extensions
             }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult) => ((Task)showResult.CloseCallback.AsTask()).GetAwaiter();
+        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult, bool isSerializable = true) => ((Task)showResult.CloseCallback.AsTask(isSerializable)).GetAwaiter();
 
-        public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult) =>
+        public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult, bool isSerializable = true) =>
             showResult.CloseCallback
-                .AsTask()
+                .AsTask(isSerializable)
                 .ContinueWith(task => (task.Result.Target is IHasNavigationResult<T> navigationResult ? navigationResult.Result : default)!, TaskContinuationOptions.ExecuteSynchronously)
                 .GetAwaiter()!;
 

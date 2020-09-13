@@ -37,6 +37,8 @@ namespace MugenMvvm.ViewModels.Components
 
         public int Priority { get; set; } = ViewModelComponentPriority.Provider;
 
+        public Func<IViewModelBase, object?, IReadOnlyMetadataContext?, bool>? ShouldCache { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -44,6 +46,9 @@ namespace MugenMvvm.ViewModels.Components
         void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
+            if (ShouldCache != null && !ShouldCache(viewModel, state, metadata))
+                return;
+
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
                 var id = viewModel.Metadata.Get(ViewModelMetadata.Id);
@@ -80,9 +85,9 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             if (!_isWeakCache)
-                return (IViewModelBase) value;
+                return (IViewModelBase)value;
 
-            var vm = (IViewModelBase?) ((IWeakReference) value).Target;
+            var vm = (IViewModelBase?)((IWeakReference)value).Target;
             if (vm == null)
                 Remove(id);
             return vm;
@@ -98,7 +103,7 @@ namespace MugenMvvm.ViewModels.Components
                 return;
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object) viewModel.ToWeakReference() : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object)viewModel.ToWeakReference() : viewModel;
             }
         }
 

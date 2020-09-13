@@ -30,7 +30,7 @@ namespace MugenMvvm.Android.Navigation
                     .WaitNavigationAsync(navigationContext.Target, navigationContext, (callback, context) =>
                         callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close ||
                         (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
-                        (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, navigationContext.GetMetadataOrDefault())
+                        (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, false, navigationContext.GetMetadataOrDefault())
                     .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
             }
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Android.Navigation
                 return navigationDispatcher
                     .WaitNavigationAsync(navigationContext.Target, navigationContext, (callback, state)
                         => callback.NavigationType == NavigationType.Background &&
-                           callback.CallbackType == NavigationCallbackType.Close, true, navigationContext.GetMetadataOrDefault())
+                           callback.CallbackType == NavigationCallbackType.Close, true, false, navigationContext.GetMetadataOrDefault())
                     .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
             }
 

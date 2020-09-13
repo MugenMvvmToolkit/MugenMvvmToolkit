@@ -7,6 +7,21 @@ namespace MugenMvvm.Navigation
 {
     public sealed class NavigationCallbackTaskListener : TaskCompletionSource<INavigationContext>, INavigationCallbackListener
     {
+        #region Constructors
+
+        public NavigationCallbackTaskListener(bool isSerializable)
+        {
+            IsSerializable = isSerializable;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsSerializable { get; }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public void OnCompleted(INavigationContext navigationContext) => TrySetResult(navigationContext);

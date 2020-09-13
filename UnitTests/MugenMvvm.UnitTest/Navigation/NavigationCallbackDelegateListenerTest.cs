@@ -3,7 +3,6 @@ using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
-using MugenMvvm.UnitTest.Models;
 using MugenMvvm.UnitTest.Models.Internal;
 using Should;
 using Xunit;
@@ -46,7 +45,8 @@ namespace MugenMvvm.UnitTest.Navigation
                 context.ShouldEqual(ctx);
                 exception.ShouldEqual(error);
                 arg3.ShouldEqual(token);
-            });
+            }, true);
+            listener.IsSerializable.ShouldBeTrue();
             listener.OnCompleted(ctx);
             invokeCount.ShouldEqual(invokeCount);
         }
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 context.ShouldEqual(ctx);
                 exception.ShouldEqual(error);
                 arg3.ShouldEqual(token);
-            });
+            }, true);
             listener.OnError(ctx, error);
             invokeCount.ShouldEqual(invokeCount);
         }
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 context.ShouldEqual(ctx);
                 exception.ShouldEqual(error);
                 arg3.ShouldEqual(token);
-            });
+            }, true);
             listener.OnCanceled(ctx, token);
             invokeCount.ShouldEqual(invokeCount);
         }

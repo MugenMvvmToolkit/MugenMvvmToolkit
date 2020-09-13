@@ -26,7 +26,7 @@ namespace MugenMvvm.Ios.Navigation
             {
                 return navigationDispatcher.WaitNavigationAsync(navigationContext.Target, navigationContext,
                         (callback, context) => (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
-                                               (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, navigationContext.GetMetadataOrDefault())
+                                               (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, false, navigationContext.GetMetadataOrDefault())
                     .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
             }
 

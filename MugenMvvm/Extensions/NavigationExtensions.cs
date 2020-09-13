@@ -34,13 +34,13 @@ namespace MugenMvvm.Extensions
                 if (navigationEntry.NavigationType != navigationType || navigationEntry.Target == null || Equals(navigationEntry.Target, navigationTarget))
                     continue;
 
-                closeMetadata ??= new MetadataContext(metadata) {{NavigationMetadata.ForceClose, true}, {NavigationMetadata.NavigationType, navigationType}};
+                closeMetadata ??= new MetadataContext(metadata) { { NavigationMetadata.ForceClose, true }, { NavigationMetadata.NavigationType, navigationType } };
                 foreach (var result in presenter.DefaultIfNull().TryClose(navigationEntry.Target, default, closeMetadata).Iterator())
                 {
                     foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata).Iterator())
                     {
                         if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
-                            callbacks.Add(navigationCallback.AsTask());
+                            callbacks.Add(navigationCallback.AsTask(false));
                     }
                 }
             }
@@ -129,7 +129,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, object? navigationTarget, TState state,
-            Func<INavigationCallback, TState, bool> filter, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
+            Func<INavigationCallback, TState, bool> filter, bool includePending = true, bool isSerializable = false, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
@@ -145,17 +145,17 @@ namespace MugenMvvm.Extensions
                 foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata).Iterator())
                 {
                     if (filter(callback, state))
-                        tasks.Add(callback.AsTask());
+                        tasks.Add(callback.AsTask(isSerializable));
                 }
             }
 
             return tasks.ToItemOrList().WhenAll();
         }
 
-        public static Task<INavigationContext> AsTask(this INavigationCallback callback)
+        public static Task<INavigationContext> AsTask(this INavigationCallback callback, bool isSerializable)
         {
             Should.NotBeNull(callback, nameof(callback));
-            var result = new NavigationCallbackTaskListener();
+            var result = new NavigationCallbackTaskListener(isSerializable);
             callback.AddCallback(result);
             return result.Task;
         }
