@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm", "MugenMvvm\Muge
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{E09341C2-A05B-4EFC-A1A1-CA1DA69FF5CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.UnitTest", "UnitTests\MugenMvvm.UnitTest\MugenMvvm.UnitTest.csproj", "{9E42749C-228F-4ADF-86A6-A892252EA2F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.UnitTests", "MugenMvvm.UnitTests\MugenMvvm.UnitTests.csproj", "{9E42749C-228F-4ADF-86A6-A892252EA2F2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.Platforms", "MugenMvvm.Platforms\MugenMvvm.Platforms.csproj", "{677DBE57-45FB-4BE7-9483-52A0D56742AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvm.UnitTest.Android", "UnitTests\MugenMvvm.UnitTest.Android\MugenMvvm.UnitTest.Android.csproj", "{3243B7DE-291F-4280-AA74-CF3EACC73F57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvm.UnitTests.Android", "MugenMvvm.UnitTests.Android\MugenMvvm.UnitTests.Android.csproj", "{3243B7DE-291F-4280-AA74-CF3EACC73F57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
