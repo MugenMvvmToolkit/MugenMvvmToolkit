@@ -78,8 +78,9 @@ namespace MugenMvvm.Internal
             var count = 0;
             foreach (var result in iterator)
             {
+                string r = iterator.Count == 1 ? ", result=" : $", result_{count++}=";
                 builder.Append(
-                    $"result_{count++}: type={result.NavigationType}, id={result.NavigationId}, target={result.Target}, provider={result.NavigationProvider}, metadata={result.GetMetadataOrDefault().Dump()}; ");
+                    $"{r}(type={result.NavigationType}, id={result.NavigationId}, target={result.Target}, provider={result.NavigationProvider}, metadata={result.GetMetadataOrDefault().Dump()})");
             }
 
             return builder.ToString();
@@ -344,7 +345,7 @@ namespace MugenMvvm.Internal
             {
                 Tracer.Info()?.Trace($"showing request={request}, metadata={metadata.Dump()}");
                 var result = Components.TryShow(presenter, request, cancellationToken, metadata);
-                Tracer.Info()?.Trace($"shown request={request}, result={Dump(result)}, metadata={metadata.Dump()}");
+                Tracer.Info()?.Trace($"shown request={request}{Dump(result)}, metadata={metadata.Dump()}");
                 return result;
             }
 
@@ -352,7 +353,7 @@ namespace MugenMvvm.Internal
             {
                 Tracer.Info()?.Trace($"closing request={request}, metadata={metadata.Dump()}");
                 var result = Components.TryClose(presenter, request, cancellationToken, metadata);
-                Tracer.Info()?.Trace($"closed request={request}, result={Dump(result)}, metadata={metadata.Dump()}");
+                Tracer.Info()?.Trace($"closed request={request}{Dump(result)}, metadata={metadata.Dump()}");
                 return result;
             }
 

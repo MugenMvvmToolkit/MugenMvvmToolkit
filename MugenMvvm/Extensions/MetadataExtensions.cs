@@ -58,6 +58,8 @@ namespace MugenMvvm.Extensions
                 builder.Append(item.Key).Append("=").Append(item.Value).Append(";");
             }
 
+            if (builder.Length != 0)
+                builder.Remove(builder.Length - 1, 1);
             builder.Append(")");
             return builder.ToString();
         }
