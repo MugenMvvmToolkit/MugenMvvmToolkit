@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.App.Components;
 using MugenMvvm.App.Configuration;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Components;
@@ -9,7 +10,10 @@ using MugenMvvm.Entities.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Interfaces.ViewModels;
@@ -121,6 +125,28 @@ namespace MugenMvvm.Extensions
             configuration.WithAppService(new WrapperManager())
                 .WithComponent(new ViewWrapperManagerDecorator());
 
+            return configuration;
+        }
+
+        public static MugenApplicationConfiguration TraceConfiguration(this MugenApplicationConfiguration configuration, bool traceApp = true, bool traceBinding = true,
+            bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true, bool includeConsoleTracer = true)
+        {
+            if (traceApp)
+                DebugTracer.TraceApp(configuration.Application);
+            if (traceBinding)
+                DebugTracer.TraceBindings(configuration.ServiceConfiguration<IBindingManager>().Service());
+            if (traceMessenger)
+                DebugTracer.TraceMessenger(configuration.ServiceConfiguration<IMessenger>().Service());
+            if (traceNavigation)
+                DebugTracer.TraceNavigation(configuration.ServiceConfiguration<INavigationDispatcher>().Service());
+            if (tracePresenter)
+                DebugTracer.TracePresenter(configuration.ServiceConfiguration<IPresenter>().Service());
+            if (traceViewModel)
+                DebugTracer.TraceViewModel(configuration.ServiceConfiguration<IViewModelManager>().Service());
+            if (traceView)
+                DebugTracer.TraceView(configuration.ServiceConfiguration<IViewManager>().Service());
+            if (includeConsoleTracer)
+                DebugTracer.AddConsoleTracer(configuration.ServiceConfiguration<ITracer>().Service());
             return configuration;
         }
 

@@ -11,6 +11,7 @@
         public const string IgnoreMethodMembers = nameof(IgnoreMethodMembers);
         public const string IgnoreIndexMembers = nameof(IgnoreIndexMembers);
         public const string ObservableMethods = nameof(ObservableMethods);
+        public const string Trace = nameof(Trace);
 
         public const string Converter = nameof(Converter);
         public const string ConverterParameter = nameof(ConverterParameter);

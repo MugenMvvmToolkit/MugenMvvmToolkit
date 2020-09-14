@@ -190,6 +190,15 @@ namespace MugenMvvm.Binding.Build
             where TSource : class =>
             builder.BindingParameter(BindingParameterNameConstant.TargetNullValue, ConstantExpressionNode.Get(value));
 
+        public static BindingBuilderTo<TTarget, TSource> Trace<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, string tag)
+            where TTarget : class
+            where TSource : class
+        {
+
+            Should.NotBeNullOrEmpty(tag, nameof(tag));
+            return builder.BindingParameter(BindingParameterNameConstant.Trace, ConstantExpressionNode.Get(tag));
+        }
+
         private static void BindInternalWithoutBindings(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));

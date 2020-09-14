@@ -49,7 +49,7 @@ namespace MugenMvvm.Extensions
         public static string Dump(this IReadOnlyMetadataContext? metadata)
         {
             if (metadata == null)
-                return string.Empty;
+                return "null";
             var builder = new StringBuilder("(");
             var values = metadata.ToArray();
             for (var index = 0; index < values.Length; index++)
@@ -138,7 +138,7 @@ namespace MugenMvvm.Extensions
 
             var context = metadata;
             Interlocked.CompareExchange(ref metadata, new MetadataContext(metadata), context);
-            return (IMetadataContext) metadata!;
+            return (IMetadataContext)metadata!;
         }
 
         #endregion
