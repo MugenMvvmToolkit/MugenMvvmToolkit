@@ -1,7 +1,7 @@
 SET localPath=%~dp0
-SET projectPath=%localPath%\MugenMvvm.Android.Native
+SET projectPath=%localPath%
 SET copyFromPath=%projectPath%\app\build\outputs\aar
-SET copyToPath=%localPath%\MugenMvvm.Platforms\Android\Jars
+SET copyToPath=%localPath%..\MugenMvvm.Platforms\Android\Jars
 
 SET buildTask=assembleRelease
 

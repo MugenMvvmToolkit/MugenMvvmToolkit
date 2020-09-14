@@ -62,6 +62,6 @@
   </ItemGroup>
 
   <Target Name="BuildAndroidNative" BeforeTargets="PrepareForBuild" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
-    <Exec Command="..\BuildAndroidNative.bat" />
+    <Exec Command="..\MugenMvvm.Android.Native\build.bat" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
 </Project>
