@@ -25,7 +25,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Components
 {
-    public class BindingInitializerTest : UnitTestBase
+    public class BindingExpressionInitializerTest : UnitTestBase
     {
         #region Methods
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var context = new BindingExpressionInitializerContext(this);
             var bindingManager = new BindingManager();
-            var component = new BindingInitializer();
+            var component = new BindingExpressionInitializer();
             bindingManager.AddComponent(component);
             var target = new TestExpressionNode
             {
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var context = new BindingExpressionInitializerContext(this);
             var bindingManager = new BindingManager();
-            var component = new BindingInitializer();
+            var component = new BindingExpressionInitializer();
             bindingManager.AddComponent(component);
 
             var sourceVisitCount = 0;
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var memberFlags = MemberFlags.Static;
             var context = new BindingExpressionInitializerContext(this);
             var bindingManager = new BindingManager();
-            var component = new BindingInitializer();
+            var component = new BindingExpressionInitializer();
             bindingManager.AddComponent(component);
             component.Flags.ShouldNotEqual(flags);
             component.IgnoreIndexMembers.ShouldNotEqual(ignoreIndexMembers);
@@ -270,7 +270,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 throw new NotSupportedException();
 
             var bindingManager = new BindingManager();
-            var component = new BindingInitializer(compiler, memberManager);
+            var component = new BindingExpressionInitializer(compiler, memberManager);
             bindingManager.AddComponent(component);
             component.Flags.ShouldNotEqual(flags);
             component.IgnoreIndexMembers.ShouldNotEqual(ignoreIndexMembers);

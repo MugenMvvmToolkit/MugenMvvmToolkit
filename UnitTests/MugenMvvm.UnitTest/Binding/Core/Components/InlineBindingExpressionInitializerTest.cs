@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Components
 {
-    public class InlineExpressionBindingInitializerTest : UnitTestBase
+    public class InlineBindingExpressionInitializerTest : UnitTestBase
     {
         #region Methods
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
             context.BindingComponents[BindingParameterNameConstant.EventHandler] = null;
 
-            var initializer = new InlineExpressionBindingInitializer();
+            var initializer = new InlineBindingExpressionInitializer();
             initializer.Initialize(null!, context);
             context.BindingComponents.Single().Key.ShouldEqual(BindingParameterNameConstant.EventHandler);
         }
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
             context.BindingComponents[BindingParameterNameConstant.Mode] = null;
 
-            var initializer = new InlineExpressionBindingInitializer();
+            var initializer = new InlineBindingExpressionInitializer();
             initializer.Initialize(null!, context);
             context.BindingComponents.Single().Key.ShouldEqual(BindingParameterNameConstant.Mode);
         }
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, new TestBindingMemberExpressionNode {MemberFlags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll}, default, null);
 
-            var initializer = new InlineExpressionBindingInitializer {UseOneTimeModeForStaticMembersImplicit = false};
+            var initializer = new InlineBindingExpressionInitializer {UseOneTimeModeForStaticMembersImplicit = false};
             initializer.Initialize(null!, context);
             context.BindingComponents.Count.ShouldEqual(0);
         }
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
 
-            var initializer = new InlineExpressionBindingInitializer();
+            var initializer = new InlineBindingExpressionInitializer();
             initializer.Initialize(null!, context);
             var pair = context.BindingComponents.Single();
             pair.Key.ShouldEqual(BindingParameterNameConstant.Mode);
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, new TestBindingMemberExpressionNode {MemberFlags = MemberFlags.StaticAll}, default, null);
 
-            var initializer = new InlineExpressionBindingInitializer {UseOneTimeModeForStaticMembersImplicit = true};
+            var initializer = new InlineBindingExpressionInitializer {UseOneTimeModeForStaticMembersImplicit = true};
             initializer.Initialize(null!, context);
             var pair = context.BindingComponents.Single();
             pair.Key.ShouldEqual(BindingParameterNameConstant.Mode);

@@ -19,7 +19,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
+    public sealed class BindingExpressionInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
         #region Fields
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Core.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingInitializer(IExpressionCompiler? compiler = null, IMemberManager? memberManager = null)
+        public BindingExpressionInitializer(IExpressionCompiler? compiler = null, IMemberManager? memberManager = null)
         {
             _memberExpressionVisitor = new BindingMemberExpressionVisitor
             {

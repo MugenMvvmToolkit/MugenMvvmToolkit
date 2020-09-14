@@ -77,10 +77,10 @@ namespace MugenMvvm.Binding.Extensions
                 .WithComponent(new BindingExpressionPriorityDecorator())
                 .WithComponent(new BindingHolder())
                 .WithComponent(new BindingHolderLifecycleDispatcher())
-                .WithComponent(new BindingInitializer())
+                .WithComponent(new BindingExpressionInitializer())
                 .WithComponent(new BindingModeInitializer())
                 .WithComponent(new BindingParameterInitializer())
-                .WithComponent(new InlineExpressionBindingInitializer())
+                .WithComponent(new InlineBindingExpressionInitializer())
                 .WithComponent(new DelayBindingInitializer());
 
             configuration.WithAppService(new MemberManager())
