@@ -7,6 +7,7 @@ import android.util.TypedValue;
 import com.mugen.mvvm.views.ActivityExtensions;
 
 public class MugenNativeUtils {
+    @SuppressWarnings("deprecation")
     public static int getResourceColor(String name) {
         Context context = getCurrentContext();
         int resourceId = getResourceId(context, name, "color");
