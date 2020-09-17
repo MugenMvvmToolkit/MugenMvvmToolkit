@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -132,6 +134,22 @@ namespace MugenMvvm.Extensions
             if (component is IHasPriority p)
                 return p.Priority;
             return 0;
+        }
+
+        public static ValueTask<TResult> InvokeAsync<TComponent, TState, TResult>(this TComponent[] components, TState state, Func<TComponent, TState, CancellationToken, ValueTask<TResult>> getResult,
+            Func<TResult, TState, bool> isValidResult, CancellationToken cancellationToken = default, TResult defaultResult = default, Action<TResult, TState>? setResultCallback = null)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(getResult, nameof(getResult));
+            Should.NotBeNull(isValidResult, nameof(isValidResult));
+            if (components.Length == 0)
+            {
+                setResultCallback?.Invoke(defaultResult, state);
+                return new ValueTask<TResult>(defaultResult);
+            }
+
+            return new TaskComponentResult<TComponent, TState, TResult>(components, getResult, isValidResult, state, cancellationToken, defaultResult, setResultCallback).GetTask();
         }
 
         private static TComponent? GetComponent<TComponent>(this IComponentOwner owner, bool optional, IReadOnlyMetadataContext? metadata)

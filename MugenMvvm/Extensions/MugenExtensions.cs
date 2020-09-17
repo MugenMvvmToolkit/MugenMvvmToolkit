@@ -236,6 +236,20 @@ namespace MugenMvvm.Extensions
                 task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
+        public static ValueTask<T> AsValueTask<T>(this Task<T>? task)
+        {
+            if (task == null)
+                return default;
+            return new ValueTask<T>(task);
+        }
+
+        internal static Task<bool> AsTaskEx(this ValueTask<bool> task)
+        {
+            if (task.IsCompletedSuccessfully)
+                return task.Result ? Default.TrueTask : Default.FalseTask;
+            return task.AsTask();
+        }
+
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

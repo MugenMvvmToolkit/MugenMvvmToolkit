@@ -166,13 +166,12 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            if (components.Length == 0)
-            {
-                listeners.OnNavigating(navigationDispatcher, navigationContext);
-                return Default.TrueTask;
-            }
-
-            return new NavigatingResult(navigationDispatcher, components, listeners, navigationContext, cancellationToken).Task;
+            return components.InvokeAsync((navigationDispatcher, listeners, navigationContext),
+                (component, s, c) => component.CanNavigateAsync(s.navigationDispatcher, s.navigationContext, c).AsValueTask(), (r, s) => !r, cancellationToken, true, (r, s) =>
+                {
+                    if (r)
+                        s.listeners.OnNavigating(s.navigationDispatcher, s.navigationContext);
+                }).AsTaskEx();
         }
 
         public static void OnNavigating(this INavigationDispatcherNavigatingListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -210,97 +209,6 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationCanceled(navigationDispatcher, navigationContext, cancellationToken);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class NavigatingResult : TaskCompletionSource<bool>
-        {
-            #region Fields
-
-            private readonly CancellationToken _cancellationToken;
-            private readonly IConditionNavigationDispatcherComponent[] _components;
-            private readonly INavigationDispatcher _dispatcher;
-            private readonly INavigationDispatcherNavigatingListener[] _listeners;
-            private readonly INavigationContext _navigationContext;
-            private int _index;
-
-            #endregion
-
-            #region Constructors
-
-            public NavigatingResult(INavigationDispatcher dispatcher, IConditionNavigationDispatcherComponent[] components,
-                INavigationDispatcherNavigatingListener[] listeners, INavigationContext navigationContext, CancellationToken cancellationToken)
-            {
-                _dispatcher = dispatcher;
-                _components = components;
-                _listeners = listeners;
-                _navigationContext = navigationContext;
-                _cancellationToken = cancellationToken;
-                OnExecuted(Default.TrueTask);
-            }
-
-            #endregion
-
-            #region Methods
-
-            private void OnExecuted(Task<bool> task)
-            {
-                try
-                {
-                    if (task.IsCanceled)
-                    {
-                        SetResult(false, null, true);
-                        return;
-                    }
-
-                    if (!task.Result)
-                    {
-                        SetResult(false, null, false);
-                        return;
-                    }
-
-                    if (_index >= _components.Length)
-                    {
-                        SetResult(true, null, false);
-                        return;
-                    }
-
-                    if (_cancellationToken.IsCancellationRequested)
-                    {
-                        SetResult(false, null, true);
-                        return;
-                    }
-
-                    var resultTask = _components[_index++].CanNavigateAsync(_dispatcher, _navigationContext, _cancellationToken);
-                    if (resultTask == null)
-                        OnExecuted(Default.TrueTask);
-                    else
-                        resultTask.ContinueWith((t, state) => ((NavigatingResult) state!).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
-                }
-                catch (Exception e)
-                {
-                    SetResult(false, e, false);
-                }
-            }
-
-            private void SetResult(bool result, Exception? exception, bool canceled)
-            {
-                if (exception != null)
-                    this.TrySetExceptionEx(exception);
-                else if (canceled)
-                    TrySetCanceled();
-                else
-                {
-                    if (result)
-                        _listeners.OnNavigating(_dispatcher, _navigationContext);
-                    TrySetResult(result);
-                }
-            }
-
-            #endregion
         }
 
         #endregion
