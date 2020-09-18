@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Validation
                 ct.ShouldEqual(cts.Token);
                 state.ShouldEqual(this);
                 m.ShouldEqual(DefaultMetadata);
-                return errorTcs?.Task;
+                return errorTcs.Task;
             }, null, null).Build().Item!;
             rule.IsAsync.ShouldBeTrue();
 
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Validation
             invokeCount.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
-            Thread.Sleep(10);
+            WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Validation
             invokeCount.ShouldEqual(2);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
-            Thread.Sleep(10);
+            WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             ((IEnumerable<object>)errors[memberName]!).SequenceEqual(new[] { error, error }).ShouldBeTrue();
@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTests.Validation
             invokeCount.ShouldEqual(3);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
-            Thread.Sleep(10);
+            WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(0);
         }
@@ -465,7 +465,7 @@ namespace MugenMvvm.UnitTests.Validation
             var task = rule.ValidateAsync(validationModel, propertyName, errors, cts.Token, DefaultMetadata)!;
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
-            Thread.Sleep(10);
+            WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
@@ -475,7 +475,7 @@ namespace MugenMvvm.UnitTests.Validation
             task = rule.ValidateAsync(validationModel, dpMember, errors, cts.Token, DefaultMetadata)!;
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
-            Thread.Sleep(10);
+            WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
@@ -492,7 +492,7 @@ namespace MugenMvvm.UnitTests.Validation
             task = rule.ValidateAsync(validationModel, propertyName, errors, cts.Token, DefaultMetadata)!;
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(true);
-            Thread.Sleep(10);
+            WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(0);
         }

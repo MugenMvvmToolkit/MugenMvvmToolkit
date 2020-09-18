@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
             };
 
             var exp = new ConstantExpressionNode("-");
-            var result = new IExpressionNode[] {exp};
+            var result = new IExpressionNode[] { exp };
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
@@ -107,8 +107,8 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
         [Fact]
         public void GetShouldUseCacheBool()
         {
-            ConstantExpressionNode.Get((object) true).ShouldEqual(ConstantExpressionNode.True);
-            ConstantExpressionNode.Get((object) false).ShouldEqual(ConstantExpressionNode.False);
+            ConstantExpressionNode.Get((object)true).ShouldEqual(ConstantExpressionNode.True);
+            ConstantExpressionNode.Get((object)false).ShouldEqual(ConstantExpressionNode.False);
         }
 
         [Fact]
@@ -119,111 +119,6 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
             var constantExpressionNode = ConstantExpressionNode.Get(null, typeof(string));
             constantExpressionNode.Type.ShouldEqual(typeof(string));
             constantExpressionNode.Value.ShouldEqual(null);
-        }
-
-        [Fact]
-        public void GetByteShouldUseCache()
-        {
-            var nodes = new HashSet<ConstantExpressionNode>();
-            for (byte i = 0; i < byte.MaxValue; i++)
-            {
-                var expressionNode = ConstantExpressionNode.Get(i);
-                expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
-                expressionNode.Value.ShouldEqual(i);
-
-                nodes.Add(expressionNode);
-                nodes.Add(ConstantExpressionNode.Get(i));
-            }
-
-            nodes.Count.ShouldEqual(byte.MaxValue);
-        }
-
-        [Fact]
-        public void GetSByteShouldUseCache()
-        {
-            var nodes = new HashSet<ConstantExpressionNode>();
-            for (var i = sbyte.MinValue; i < sbyte.MaxValue; i++)
-            {
-                var expressionNode = ConstantExpressionNode.Get(i);
-                expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
-                expressionNode.Value.ShouldEqual(i);
-
-                nodes.Add(expressionNode);
-                nodes.Add(ConstantExpressionNode.Get(i));
-            }
-
-            nodes.Count.ShouldEqual(byte.MaxValue);
-        }
-
-        [Fact]
-        public void GetUShortShouldUseCache()
-        {
-            var nodes = new HashSet<ConstantExpressionNode>();
-            for (ushort i = 0; i < BoxingExtensions.CacheSize; i++)
-            {
-                var expressionNode = ConstantExpressionNode.Get(i);
-                expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
-                expressionNode.Value.ShouldEqual(i);
-
-                nodes.Add(expressionNode);
-                nodes.Add(ConstantExpressionNode.Get(i));
-            }
-
-            nodes.Count.ShouldEqual(BoxingExtensions.CacheSize);
-
-            nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((ushort) (BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((ushort) (BoxingExtensions.CacheSize + 1)));
-            nodes.Count.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void GetShortShouldUseCache()
-        {
-            var nodes = new HashSet<ConstantExpressionNode>();
-            for (short i = -BoxingExtensions.CacheSize; i < BoxingExtensions.CacheSize; i++)
-            {
-                var expressionNode = ConstantExpressionNode.Get(i);
-                expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
-                expressionNode.Value.ShouldEqual(i);
-
-                nodes.Add(expressionNode);
-                nodes.Add(ConstantExpressionNode.Get(i));
-            }
-
-            nodes.Count.ShouldEqual(BoxingExtensions.CacheSize * 2);
-
-            nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((short) (BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((short) (BoxingExtensions.CacheSize + 1)));
-            nodes.Count.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void GetUIntShouldUseCache()
-        {
-            var nodes = new HashSet<ConstantExpressionNode>();
-            for (uint i = 0; i < BoxingExtensions.CacheSize; i++)
-            {
-                var expressionNode = ConstantExpressionNode.Get(i);
-                expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
-                expressionNode.Value.ShouldEqual(i);
-
-                nodes.Add(expressionNode);
-                nodes.Add(ConstantExpressionNode.Get(i));
-            }
-
-            nodes.Count.ShouldEqual(BoxingExtensions.CacheSize);
-
-            nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((uint) (BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((uint) (BoxingExtensions.CacheSize + 1)));
-            nodes.Count.ShouldEqual(2);
         }
 
         [Fact]
@@ -246,52 +141,6 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
             nodes.Clear();
             nodes.Add(ConstantExpressionNode.Get(BoxingExtensions.CacheSize + 1));
             nodes.Add(ConstantExpressionNode.Get(BoxingExtensions.CacheSize + 1));
-            nodes.Count.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void GetULongShouldUseCache()
-        {
-            var nodes = new HashSet<ConstantExpressionNode>();
-            for (ulong i = 0; i < BoxingExtensions.CacheSize; i++)
-            {
-                var expressionNode = ConstantExpressionNode.Get(i);
-                expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
-                expressionNode.Value.ShouldEqual(i);
-
-                nodes.Add(expressionNode);
-                nodes.Add(ConstantExpressionNode.Get(i));
-            }
-
-            nodes.Count.ShouldEqual(BoxingExtensions.CacheSize);
-
-            nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((ulong) (BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((ulong) (BoxingExtensions.CacheSize + 1)));
-            nodes.Count.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void GetLongShouldUseCache()
-        {
-            var nodes = new HashSet<ConstantExpressionNode>();
-            for (long i = -BoxingExtensions.CacheSize; i < BoxingExtensions.CacheSize; i++)
-            {
-                var expressionNode = ConstantExpressionNode.Get(i);
-                expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
-                expressionNode.Value.ShouldEqual(i);
-
-                nodes.Add(expressionNode);
-                nodes.Add(ConstantExpressionNode.Get(i));
-            }
-
-            nodes.Count.ShouldEqual(BoxingExtensions.CacheSize * 2);
-
-            nodes.Clear();
-            nodes.Add(ConstantExpressionNode.Get((long) (BoxingExtensions.CacheSize + 1)));
-            nodes.Add(ConstantExpressionNode.Get((long) (BoxingExtensions.CacheSize + 1)));
             nodes.Count.ShouldEqual(2);
         }
 

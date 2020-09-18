@@ -15,18 +15,19 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var memberName = "test";
             var errors = new object[] {"test"};
+
             var validator = new InlineValidatorComponent(this);
-            validator.HasErrors(null!).ShouldBeFalse();
+            validator.HasErrors(null!, null, null).ShouldBeFalse();
 
             validator.SetErrors(memberName, errors);
-            validator.HasErrors(null!, memberName).ShouldBeTrue();
-            validator.HasErrors(null!).ShouldBeTrue();
+            validator.HasErrors(null!, memberName, null).ShouldBeTrue();
+            validator.HasErrors(null!, null, null).ShouldBeTrue();
 
             validator.TryGetErrors(null!, memberName).AsList().ShouldContain(errors);
 
             validator.SetErrors(memberName, null, DefaultMetadata);
-            validator.HasErrors(null!, memberName).ShouldBeFalse();
-            validator.HasErrors(null!).ShouldBeFalse();
+            validator.HasErrors(null!, memberName, null).ShouldBeFalse();
+            validator.HasErrors(null!, null, null).ShouldBeFalse();
             validator.TryGetErrors(null!).ShouldBeEmpty();
         }
 

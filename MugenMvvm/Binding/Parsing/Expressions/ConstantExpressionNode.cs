@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -58,73 +57,17 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return False;
         }
 
-        public static ConstantExpressionNode Get(byte value) => ExpressionCache<byte>.Items[value];
-
-        public static ConstantExpressionNode Get(sbyte value)
-        {
-            if (value < 0)
-                return ExpressionCache<sbyte>.NegativeItems[~value];
-            return ExpressionCache<sbyte>.Items[value];
-        }
-
-        public static ConstantExpressionNode Get(ushort value)
-        {
-            if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<ushort>.Items[value];
-            return new ConstantExpressionNode(value, typeof(ushort));
-        }
-
-        public static ConstantExpressionNode Get(short value)
-        {
-            if (value < 0)
-            {
-                if (value >= -BoxingExtensions.CacheSize)
-                    return ExpressionCache<short>.NegativeItems[~value];
-            }
-            else if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<short>.Items[value];
-
-            return new ConstantExpressionNode(value, typeof(short));
-        }
-
-        public static ConstantExpressionNode Get(uint value)
-        {
-            if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<uint>.Items[value];
-            return new ConstantExpressionNode(value, typeof(uint));
-        }
-
         public static ConstantExpressionNode Get(int value)
         {
             if (value < 0)
             {
                 if (value >= -BoxingExtensions.CacheSize)
-                    return ExpressionCache<int>.NegativeItems[~value];
+                    return IntCache.Negative[~value];
             }
             else if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<int>.Items[value];
+                return IntCache.Positive[value];
 
             return new ConstantExpressionNode(value, typeof(int));
-        }
-
-        public static ConstantExpressionNode Get(ulong value)
-        {
-            if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<ulong>.Items[value];
-            return new ConstantExpressionNode(value, typeof(ulong));
-        }
-
-        public static ConstantExpressionNode Get(long value)
-        {
-            if (value < 0)
-            {
-                if (value >= -BoxingExtensions.CacheSize)
-                    return ExpressionCache<long>.NegativeItems[~value];
-            }
-            else if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<long>.Items[value];
-
-            return new ConstantExpressionNode(value, typeof(long));
         }
 
         public static ConstantExpressionNode Get(object? value, Type? type = null)
@@ -155,20 +98,23 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Nested types
 
-        private static class ExpressionCache<T>
+        private static class IntCache
         {
+            #region Fields
+
+            public static readonly ConstantExpressionNode[] Positive = GenerateItems(MugenExtensions.IntCache.Positive);
+            public static readonly ConstantExpressionNode[] Negative = GenerateItems(MugenExtensions.IntCache.Negative);
+
+            #endregion
+
             #region Methods
 
-            private static ConstantExpressionNode[] GenerateItems(bool negative)
+            private static ConstantExpressionNode[] GenerateItems(ConstantExpression[] values)
             {
-                var cache = negative ? MugenExtensions.ExpressionCache<T>.NegativeItems : MugenExtensions.ExpressionCache<T>.Items;
-                if (cache.Length == 0)
-                    return Default.Array<ConstantExpressionNode>();
-
-                var items = new ConstantExpressionNode[cache.Length];
+                var items = new ConstantExpressionNode[values.Length];
                 for (var i = 0; i < items.Length; i++)
                 {
-                    var constantExpression = cache[i];
+                    var constantExpression = values[i];
                     items[i] = new ConstantExpressionNode(constantExpression.Value, constantExpression.Type, constantExpression);
                 }
 
@@ -176,12 +122,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             #endregion
-
-            // ReSharper disable StaticMemberInGenericType
-            public static readonly ConstantExpressionNode[] Items = GenerateItems(false);
-
-            public static readonly ConstantExpressionNode[] NegativeItems = GenerateItems(true);
-            // ReSharper restore StaticMemberInGenericType
         }
 
         private static class TypeCache<TType>

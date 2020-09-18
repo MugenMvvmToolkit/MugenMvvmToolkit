@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Validation.Internal;
 using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
@@ -13,22 +13,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
     public class RuleValidatorComponentTest : UnitTestBase
     {
         #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeHasAsyncValidation()
-        {
-            new RuleValidatorComponent(this, new[]
-            {
-                new TestValidationRule {IsAsync = true},
-                new TestValidationRule {IsAsync = false}
-            }).HasAsyncValidation.ShouldBeTrue();
-
-            new RuleValidatorComponent(this, new[]
-            {
-                new TestValidationRule {IsAsync = false},
-                new TestValidationRule {IsAsync = false}
-            }).HasAsyncValidation.ShouldBeFalse();
-        }
 
         [Fact]
         public void ValidateShouldUseRules()
@@ -50,7 +34,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
                             errors[memberName1] = memberName1;
                             return tcs.Task;
                         }
-                        return Task.CompletedTask;
+
+                        return Default.CompletedTask;
                     }
                 },
                 new TestValidationRule
@@ -62,7 +47,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         ct.CanBeCanceled.ShouldBeTrue();
                         if (v == memberName2)
                             errors[memberName2] = memberName2;
-                        return Task.CompletedTask;
+                        return Default.CompletedTask;
                     }
                 }
             };
@@ -78,7 +63,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             task.IsCompleted.ShouldBeFalse();
 
             tcs.TrySetResult(null);
-            Thread.Sleep(10);
+            WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             validator.GetErrors(memberName1).Iterator().AsList().Single().ShouldEqual(memberName1);
         }

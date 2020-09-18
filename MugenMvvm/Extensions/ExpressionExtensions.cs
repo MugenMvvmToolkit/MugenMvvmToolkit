@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -17,75 +18,39 @@ namespace MugenMvvm.Extensions
 
         #region Methods
 
+        [return: NotNullIfNotNull("expression")]
+        public static Expression? ConvertIfNeed(this Expression? expression, Type? type, bool exactly)
+        {
+            if (type == null)
+                return expression;
+            if (expression == null)
+                return null;
+            if (type == typeof(void) || type == expression.Type)
+                return expression;
+            if (expression.Type == typeof(void))
+                return Expression.Block(expression, type == typeof(object) ? NullConstantExpression : (Expression) Expression.Default(type));
+            if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
+                return expression;
+            if (type.IsByRef && expression is ParameterExpression parameterExpression && parameterExpression.IsByRef && parameterExpression.Type == type.GetElementType())
+                return expression;
+            if (type == typeof(object) && BoxingExtensions.CanBox(expression.Type))
+                return Expression.Call(null, BoxingExtensions.GetBoxMethodInfo(expression.Type), expression);
+            return Expression.Convert(expression, type);
+        }
+
         public static ParameterExpression GetParameterExpression<TType>() => ParameterExpressionCache<TType>.Parameter;
 
         public static ParameterExpression[] GetParametersExpression<TType>() => ParameterExpressionCache<TType>.Parameters;
-
-        public static ConstantExpression GetConstantExpression(byte value) => ExpressionCache<byte>.Items[value];
-
-        public static ConstantExpression GetConstantExpression(sbyte value)
-        {
-            if (value < 0)
-                return ExpressionCache<sbyte>.NegativeItems[-value];
-            return ExpressionCache<sbyte>.Items[value];
-        }
-
-        public static ConstantExpression GetConstantExpression(ushort value)
-        {
-            if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<ushort>.Items[value];
-            return Expression.Constant(value);
-        }
-
-        public static ConstantExpression GetConstantExpression(short value)
-        {
-            if (value < 0)
-            {
-                if (value > -BoxingExtensions.CacheSize)
-                    return ExpressionCache<short>.NegativeItems[-value];
-            }
-            else if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<short>.Items[value];
-
-            return Expression.Constant(value);
-        }
-
-        public static ConstantExpression GetConstantExpression(uint value)
-        {
-            if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<uint>.Items[value];
-            return Expression.Constant(value);
-        }
 
         public static ConstantExpression GetConstantExpression(int value)
         {
             if (value < 0)
             {
                 if (value > -BoxingExtensions.CacheSize)
-                    return ExpressionCache<int>.NegativeItems[-value];
+                    return IntCache.Negative[-value];
             }
             else if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<int>.Items[value];
-
-            return Expression.Constant(value);
-        }
-
-        public static ConstantExpression GetConstantExpression(ulong value)
-        {
-            if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<ulong>.Items[value];
-            return Expression.Constant(value);
-        }
-
-        public static ConstantExpression GetConstantExpression(long value)
-        {
-            if (value < 0)
-            {
-                if (value > -BoxingExtensions.CacheSize)
-                    return ExpressionCache<long>.NegativeItems[-value];
-            }
-            else if (value < BoxingExtensions.CacheSize)
-                return ExpressionCache<long>.Items[value];
+                return IntCache.Positive[value];
 
             return Expression.Constant(value);
         }
@@ -130,29 +95,26 @@ namespace MugenMvvm.Extensions
             #endregion
         }
 
-        internal static class ExpressionCache<T>
+        internal static class IntCache
         {
+            #region Fields
+
+            public static readonly ConstantExpression[] Positive = GenerateItems(BoxingExtensions.IntCache.Positive);
+            public static readonly ConstantExpression[] Negative = GenerateItems(BoxingExtensions.IntCache.Negative);
+
+            #endregion
+
             #region Methods
 
-            private static ConstantExpression[] GenerateItems(bool negative)
+            private static ConstantExpression[] GenerateItems(object[] values)
             {
-                var cache = negative ? BoxingExtensions.Cache<T>.NegativeItems : BoxingExtensions.Cache<T>.Items;
-                if (cache.Length == 0)
-                    return Default.Array<ConstantExpression>();
-
-                var items = new ConstantExpression[cache.Length];
+                var items = new ConstantExpression[values.Length];
                 for (var i = 0; i < items.Length; i++)
-                    items[i] = Expression.Constant(cache[i]);
+                    items[i] = Expression.Constant(values[i]);
                 return items;
             }
 
             #endregion
-
-            // ReSharper disable StaticMemberInGenericType
-            public static readonly ConstantExpression[] Items = GenerateItems(false);
-
-            public static readonly ConstantExpression[] NegativeItems = GenerateItems(true);
-            // ReSharper restore StaticMemberInGenericType
         }
 
         #endregion

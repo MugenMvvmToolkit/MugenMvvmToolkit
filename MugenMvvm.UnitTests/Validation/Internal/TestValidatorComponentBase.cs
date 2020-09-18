@@ -11,8 +11,8 @@ namespace MugenMvvm.UnitTests.Validation.Internal
     {
         #region Constructors
 
-        public TestValidatorComponentBase(T target, bool hasAsyncValidation)
-            : base(target, hasAsyncValidation)
+        public TestValidatorComponentBase(T target)
+            : base(target)
         {
         }
 

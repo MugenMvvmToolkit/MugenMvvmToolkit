@@ -146,7 +146,7 @@ namespace MugenMvvm.UnitTests.Validation
                         ++count;
                         v.ShouldEqual(validator);
                         metadata.ShouldEqual(DefaultMetadata);
-                        return new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>
+                        return new Dictionary<string, object>
                         {
                             {s, new[] {s}}
                         };
@@ -158,7 +158,7 @@ namespace MugenMvvm.UnitTests.Validation
             var errors = validator.GetErrors(DefaultMetadata);
             errors.Count.ShouldEqual(componentCount);
             for (var i = 0; i < componentCount; i++)
-                errors[i.ToString()].AsList().Single().ShouldEqual(i.ToString());
+                errors[i.ToString()].AsItemOrList().AsList().Single().ShouldEqual(i.ToString());
         }
 
         [Theory]

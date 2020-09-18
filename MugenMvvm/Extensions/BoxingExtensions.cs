@@ -33,78 +33,15 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(byte value) => Cache<byte>.Items[value];
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(sbyte value)
-        {
-            if (value < 0)
-                return Cache<sbyte>.NegativeItems[~value];
-            return Cache<sbyte>.Items[value];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(ushort value)
-        {
-            if (value < CacheSize)
-                return Cache<ushort>.Items[value];
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(short value)
-        {
-            if (value < 0)
-            {
-                if (value >= -CacheSize)
-                    return Cache<short>.NegativeItems[~value];
-            }
-            else if (value < CacheSize)
-                return Cache<short>.Items[value];
-
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(uint value)
-        {
-            if (value < CacheSize)
-                return Cache<uint>.Items[value];
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(int value)
         {
             if (value < 0)
             {
                 if (value >= -CacheSize)
-                    return Cache<int>.NegativeItems[~value];
+                    return IntCache.Negative[~value];
             }
             else if (value < CacheSize)
-                return Cache<int>.Items[value];
-
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(ulong value)
-        {
-            if (value < CacheSize)
-                return Cache<ulong>.Items[value];
-            return value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Box(long value)
-        {
-            if (value < 0)
-            {
-                if (value >= -CacheSize)
-                    return Cache<long>.NegativeItems[~value];
-            }
-            else if (value < CacheSize)
-                return Cache<long>.Items[value];
+                return IntCache.Positive[value];
 
             return value;
         }
@@ -122,70 +59,7 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
-        public static object? Box(byte? value)
-        {
-            if (value == null)
-                return null;
-            return Cache<byte>.Items[value.Value];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNullIfNotNull("value")]
-        public static object? Box(sbyte? value)
-        {
-            if (value == null)
-                return null;
-            return Box(value.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNullIfNotNull("value")]
-        public static object? Box(ushort? value)
-        {
-            if (value == null)
-                return null;
-            return Box(value.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNullIfNotNull("value")]
-        public static object? Box(short? value)
-        {
-            if (value == null)
-                return null;
-            return Box(value.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNullIfNotNull("value")]
-        public static object? Box(uint? value)
-        {
-            if (value == null)
-                return null;
-            return Box(value.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNullIfNotNull("value")]
         public static object? Box(int? value)
-        {
-            if (value == null)
-                return null;
-            return Box(value.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNullIfNotNull("value")]
-        public static object? Box(ulong? value)
-        {
-            if (value == null)
-                return null;
-            return Box(value.Value);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: NotNullIfNotNull("value")]
-        public static object? Box(long? value)
         {
             if (value == null)
                 return null;
@@ -224,34 +98,18 @@ namespace MugenMvvm.Extensions
             return value();
         }
 
-        public static void RegisterBoxHandler<T>(BoxingDelegate<T> handler)
+        public static void RegisterBoxHandler<T>(BoxingDelegate<T> handler, MethodInfo? methodInfo = null)
         {
             Should.NotBeNull(handler, nameof(handler));
             BoxingType<T>.BoxDelegate = handler;
+            if (methodInfo != null)
+                GetBoxMethods()[typeof(T)] = methodInfo;
         }
 
         public static MethodInfo GetBoxMethodInfo(Type type)
         {
             Should.NotBeNull(type, nameof(type));
-            if (_boxMethods == null)
-            {
-                var boxMethods = new Dictionary<Type, MethodInfo>(19, InternalEqualityComparer.Type);
-                var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static);
-                for (var i = 0; i < methods.Length; i++)
-                {
-                    var method = methods[i];
-                    if (method.Name == nameof(Box) && method.IsGenericMethod)
-                    {
-                        var parameters = method.GetParameters();
-                        if (parameters.Length == 1)
-                            boxMethods[parameters[0].ParameterType] = method;
-                    }
-                }
-
-                _boxMethods = boxMethods;
-            }
-
-            if (_boxMethods.TryGetValue(type, out var m))
+            if (GetBoxMethods().TryGetValue(type, out var m))
                 return m;
             return GenericBoxMethodInfo.MakeGenericMethod(type);
         }
@@ -259,23 +117,9 @@ namespace MugenMvvm.Extensions
         private static MethodInfo Initialize(out MethodInfo canBoxMethodInfo)
         {
             RegisterBoxHandler<bool>(Box);
-            RegisterBoxHandler<byte>(Box);
-            RegisterBoxHandler<sbyte>(Box);
-            RegisterBoxHandler<ushort>(Box);
-            RegisterBoxHandler<short>(Box);
-            RegisterBoxHandler<uint>(Box);
             RegisterBoxHandler<int>(Box);
-            RegisterBoxHandler<ulong>(Box);
-            RegisterBoxHandler<long>(Box);
             RegisterBoxHandler<bool?>(Box);
-            RegisterBoxHandler<byte?>(Box);
-            RegisterBoxHandler<sbyte?>(Box);
-            RegisterBoxHandler<ushort?>(Box);
-            RegisterBoxHandler<short?>(Box);
-            RegisterBoxHandler<uint?>(Box);
             RegisterBoxHandler<int?>(Box);
-            RegisterBoxHandler<ulong?>(Box);
-            RegisterBoxHandler<long?>(Box);
 
             canBoxMethodInfo = null!;
             MethodInfo? boxMethodInfo = null;
@@ -298,6 +142,29 @@ namespace MugenMvvm.Extensions
             return null!;
         }
 
+        private static Dictionary<Type, MethodInfo> GetBoxMethods()
+        {
+            if (_boxMethods == null)
+            {
+                var boxMethods = new Dictionary<Type, MethodInfo>(19, InternalEqualityComparer.Type);
+                var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static);
+                for (var i = 0; i < methods.Length; i++)
+                {
+                    var method = methods[i];
+                    if (method.Name == nameof(Box) && !method.IsGenericMethod)
+                    {
+                        var parameters = method.GetParameters();
+                        if (parameters.Length == 1)
+                            boxMethods[parameters[0].ParameterType] = method;
+                    }
+                }
+
+                _boxMethods = boxMethods;
+            }
+
+            return _boxMethods;
+        }
+
         #endregion
 
         #region Nested types
@@ -311,12 +178,12 @@ namespace MugenMvvm.Extensions
             #endregion
         }
 
-        internal static class Cache<T>
+        internal static class IntCache
         {
             #region Fields
 
-            public static readonly object[] Items = GenerateItems(false);
-            public static readonly object[] NegativeItems = GenerateItems(true);
+            public static readonly object[] Positive = GenerateItems(false);
+            public static readonly object[] Negative = GenerateItems(true);
 
             #endregion
 
@@ -324,49 +191,19 @@ namespace MugenMvvm.Extensions
 
             private static object[] GenerateItems(bool negative)
             {
-                var cacheSize = GetCacheSize(negative);
-                if (cacheSize == 0)
-                    return Default.Array<object>();
-
-                var items = new object[cacheSize];
+                var items = new object[CacheSize];
                 if (negative)
                 {
                     for (var i = -items.Length; i < 0; i++)
-                        items[~i] = Convert.ChangeType(i, typeof(T));
+                        items[~i] = i;
                 }
                 else
                 {
                     for (var i = 0; i < items.Length; i++)
-                        items[i] = Convert.ChangeType(i, typeof(T));
+                        items[i] = i;
                 }
 
                 return items;
-            }
-
-            private static int GetCacheSize(bool negative)
-            {
-                if (negative)
-                {
-                    if (typeof(T) == typeof(sbyte))
-                        return -sbyte.MinValue;
-                    if (typeof(T) == typeof(short) || typeof(T) == typeof(int) || typeof(T) == typeof(long))
-                        return CacheSize;
-                    return 0;
-                }
-
-                if (typeof(T) == typeof(byte))
-                    return byte.MaxValue + 1;
-                if (typeof(T) == typeof(sbyte))
-                    return sbyte.MaxValue + 1;
-
-                if (typeof(T) == typeof(short) ||
-                    typeof(T) == typeof(int) ||
-                    typeof(T) == typeof(long) ||
-                    typeof(T) == typeof(ushort) ||
-                    typeof(T) == typeof(uint) ||
-                    typeof(T) == typeof(ulong))
-                    return CacheSize;
-                return 0;
             }
 
             #endregion

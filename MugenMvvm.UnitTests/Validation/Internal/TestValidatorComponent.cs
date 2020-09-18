@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 
         public Func<IValidator, string?, IReadOnlyMetadataContext?, ItemOrList<object, IReadOnlyList<object>>>? GetErrors { get; set; }
 
-        public Func<IValidator, IReadOnlyMetadataContext?, IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>>? GetAllErrors { get; set; }
+        public Func<IValidator, IReadOnlyMetadataContext?, IReadOnlyDictionary<string, object>>? GetAllErrors { get; set; }
 
         public Func<IValidator, string?, CancellationToken, IReadOnlyMetadataContext?, Task>? ValidateAsync { get; set; }
 
@@ -39,11 +39,11 @@ namespace MugenMvvm.UnitTests.Validation.Internal
         ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) =>
             GetErrors?.Invoke(validator, memberName, metadata) ?? default;
 
-        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> IValidatorComponent.TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata) =>
-            GetAllErrors?.Invoke(validator, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+        IReadOnlyDictionary<string, object> IValidatorComponent.TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata) =>
+            GetAllErrors?.Invoke(validator, metadata) ?? Default.ReadOnlyDictionary<string, object>();
 
         Task? IValidatorComponent.TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-            ValidateAsync?.Invoke(validator, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
+            ValidateAsync?.Invoke(validator, memberName, cancellationToken, metadata) ?? Default.CompletedTask;
 
         void IValidatorComponent.ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => ClearErrors?.Invoke(validator, memberName, metadata);
 
