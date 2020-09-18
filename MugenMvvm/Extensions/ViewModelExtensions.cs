@@ -32,7 +32,7 @@ namespace MugenMvvm.Extensions
             where TViewModel : class, IViewModelBase
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            return (TViewModel)viewModelManager.GetViewModel(typeof(TViewModel), metadata);
+            return (TViewModel) viewModelManager.GetViewModel(typeof(TViewModel), metadata);
         }
 
         public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
@@ -67,7 +67,7 @@ namespace MugenMvvm.Extensions
                     {
                         if (viewModel.IsDisposed())
                             ExceptionManager.ThrowObjectDisposed(viewModel);
-                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, request ?? typeof(T), metadata);
+                        service = (T) viewModelManager.DefaultIfNull().GetService(viewModel, request ?? typeof(T), metadata);
                         callback?.Invoke(viewModel, service);
                     }
                 }
@@ -136,7 +136,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(token, nameof(token));
-            viewModel.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable)o!).Dispose(), token));
+            viewModel.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable) o!).Dispose(), token));
         }
 
         #endregion

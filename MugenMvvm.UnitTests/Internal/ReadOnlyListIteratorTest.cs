@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Internal
             var itemOrList = ItemOrList.FromList(objects);
 
             var iterator = new ReadOnlyListIterator<object, List<object>>(count, itemOrList.Item, itemOrList.List);
-            iterator.AsList(() => new List<object>(), o => new List<object> { o }).SequenceEqual(objects).ShouldBeTrue();
+            iterator.AsList(() => new List<object>(), o => new List<object> {o}).SequenceEqual(objects).ShouldBeTrue();
         }
 
         #endregion

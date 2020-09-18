@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<Task> execute = () => tcs.Task;
             var cmd = new CompositeCommand();
 
-            var listener = new TestConditionEventCommandComponent { RaiseCanExecuteChanged = c => { ++executed; } };
+            var listener = new TestConditionEventCommandComponent {RaiseCanExecuteChanged = c => { ++executed; }};
             cmd.AddComponent(listener);
 
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, value);

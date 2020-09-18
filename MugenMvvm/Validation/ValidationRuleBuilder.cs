@@ -37,7 +37,8 @@ namespace MugenMvvm.Validation
         }
 
         public ValidationRuleBuilder<T> AddAsyncValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
-            Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
+            Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
+            ICollection<string>? dependencyMembers = null)
         {
             _rules.Add(new Rule<TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
             return this;
@@ -105,7 +106,7 @@ namespace MugenMvvm.Validation
                     return null;
                 }
 
-                return ((Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>)_validator)
+                return ((Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>) _validator)
                     .Invoke(target, _memberAccessor(target), _state, cancellationToken, metadata)
                     .ContinueWith(_addErrorDelegate!, errors, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             }
@@ -114,7 +115,7 @@ namespace MugenMvvm.Validation
 
             #region Methods
 
-            private void AddError(Task<object?> task, object? state) => AddError((IDictionary<string, object?>)state!, task.Result);
+            private void AddError(Task<object?> task, object? state) => AddError((IDictionary<string, object?>) state!, task.Result);
 
             private void AddError(IDictionary<string, object?> errors, object? error)
             {
@@ -129,7 +130,7 @@ namespace MugenMvvm.Validation
                     {
                         if (!(errorOrList is List<object> list))
                         {
-                            list = new List<object>(2) { errorOrList };
+                            list = new List<object>(2) {errorOrList};
                             errors[_memberName] = list;
                         }
 

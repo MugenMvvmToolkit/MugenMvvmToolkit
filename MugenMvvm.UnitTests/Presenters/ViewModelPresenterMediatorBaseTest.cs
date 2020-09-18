@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     viewMapping.ShouldEqual(mapping);
                     if (includeView)
                     {
-                        var request = (ViewModelViewRequest)r;
+                        var request = (ViewModelViewRequest) r;
                         request.ViewModel.ShouldEqual(vm);
                         request.View.ShouldEqual(view.Target);
                     }
@@ -404,7 +404,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 return Default.TrueTask;
             };
 
-            int cleanupViewCount = 0;
+            var cleanupViewCount = 0;
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
             {
@@ -687,7 +687,7 @@ namespace MugenMvvm.UnitTests.Presenters
             mediator.TryShow(null, default, DefaultMetadata);
 
             canClose = false;
-            var cancelEventArgs = new CancelableRequest(null);
+            var cancelEventArgs = new CancelableRequest();
             mediator.OnViewClosing(cancelEventArgs, DefaultMetadata);
             cancelEventArgs.Cancel!.Value.ShouldBeTrue();
             tcs.SetResult(true);

@@ -248,7 +248,7 @@ namespace MugenMvvm.Presenters
                 }
 
                 var newView = await ViewManager.InitializeAsync(Mapping, GetViewRequest(view, context), cancellationToken, context.GetMetadataOrDefault()).ConfigureAwait(false);
-                bool isShowRequest = context.NavigationMode.IsNew || view == null;
+                var isShowRequest = context.NavigationMode.IsNew || view == null;
                 if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
                 {
                     ShowViewCallback(newView, context, isShowRequest);
@@ -257,7 +257,7 @@ namespace MugenMvvm.Presenters
 
                 ThreadDispatcher.Execute(ExecutionMode, s =>
                 {
-                    var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, IView, INavigationContext, bool>)s!;
+                    var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, IView, INavigationContext, bool>) s!;
                     tuple.Item1.ShowViewCallback(tuple.Item2, tuple.Item3, tuple.Item4);
                 }, Tuple.Create(this, newView, context, isShowRequest));
             }
@@ -383,7 +383,7 @@ namespace MugenMvvm.Presenters
 
         private async void RefreshCallback(object? state)
         {
-            var ctx = (INavigationContext)state!;
+            var ctx = (INavigationContext) state!;
             try
             {
                 if (CurrentView == null || !await ActivateViewAsync(CurrentView, ctx).ConfigureAwait(false))
@@ -397,7 +397,7 @@ namespace MugenMvvm.Presenters
 
         private async void CloseViewCallback(object? state)
         {
-            var ctx = (INavigationContext)state!;
+            var ctx = (INavigationContext) state!;
             try
             {
                 if (ClosingCancelArgs != null)

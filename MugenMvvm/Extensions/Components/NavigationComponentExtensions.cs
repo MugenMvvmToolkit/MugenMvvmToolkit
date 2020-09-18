@@ -166,8 +166,8 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            bool result = true;
-            for (int i = 0; i < components.Length; i++)
+            var result = true;
+            for (var i = 0; i < components.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var task = components[i].CanNavigateAsync(navigationDispatcher, navigationContext, cancellationToken);

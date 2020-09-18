@@ -73,7 +73,7 @@ namespace MugenMvvm.Android.Presenters
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext)
         {
-            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
+            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
             StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), flags, null, navigationContext);
         }
 
@@ -84,14 +84,14 @@ namespace MugenMvvm.Android.Presenters
             if (metadata.Get(NavigationMetadata.ClearBackStack))
             {
                 await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
-                flags = (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 
             var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
             if (Equals(topActivity, view))
                 return;
 
-            flags |= (int)ActivityFlags.ReorderToFront;
+            flags |= (int) ActivityFlags.ReorderToFront;
             var bundle = new Bundle(1);
             bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.Metadata.Get(ViewModelMetadata.Id)!);
             StartActivity(mediator, topActivity, flags, bundle, navigationContext);

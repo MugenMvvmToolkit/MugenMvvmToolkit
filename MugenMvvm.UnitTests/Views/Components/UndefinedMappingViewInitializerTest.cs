@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return new[] { new ViewMapping("1", typeof(object), typeof(IViewModelBase)), new ViewMapping("1", typeof(object), typeof(IViewModelBase)) };
+                    return new[] {new ViewMapping("1", typeof(object), typeof(IViewModelBase)), new ViewMapping("1", typeof(object), typeof(IViewModelBase))};
                 }
             });
             viewManager.AddComponent(new TestViewManagerComponent

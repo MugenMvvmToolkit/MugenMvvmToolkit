@@ -14,11 +14,11 @@ namespace MugenMvvm.Ios.Collections
 
         private readonly List<object?> _beforeResetList;
         private readonly HashSet<int> _reloadIndexes;
-        private List<(int position, int count)>? _pendingReloads;
-        private int _pendingReloadCount;
         private Closure? _closure;
         private DiffUtil.DiffResult _diffResult;
         private bool _isInitialized;
+        private int _pendingReloadCount;
+        private List<(int position, int count)>? _pendingReloads;
 
         #endregion
 
@@ -247,11 +247,11 @@ namespace MugenMvvm.Ios.Collections
                 if (pendingReloads != null && pendingReloads.Count != 0)
                 {
                     var indexPaths = new NSIndexPath[_adapter._pendingReloadCount];
-                    int index = 0;
-                    for (int i = 0; i < pendingReloads.Count; i++)
+                    var index = 0;
+                    for (var i = 0; i < pendingReloads.Count; i++)
                     {
                         var pendingReload = pendingReloads[i];
-                        for (int j = 0; j < pendingReload.count; j++)
+                        for (var j = 0; j < pendingReload.count; j++)
                             indexPaths[index++] = _adapter.GetIndexPath(pendingReload.position + j);
                     }
 
@@ -259,6 +259,7 @@ namespace MugenMvvm.Ios.Collections
                     DisposeIndexPaths(indexPaths);
                     pendingReloads.Clear();
                 }
+
                 _adapter._beforeResetList.Clear();
                 _adapter._reloadIndexes.Clear();
                 _adapter._diffResult = default;

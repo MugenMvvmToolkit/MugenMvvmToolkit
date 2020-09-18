@@ -33,11 +33,11 @@ namespace MugenMvvm.UnitTests.Binding.Members
             var getValueCount = 0;
             var setValueCount = 0;
             var declaringType = typeof(object);
-            var inputArgs = isLastParameterMetadata ? new object?[] { "1", 2, null } : new object[] { "1", 2 };
+            var inputArgs = isLastParameterMetadata ? new object?[] {"1", 2, null} : new object[] {"1", 2};
             var checkGetterArgs = inputArgs.ToArray();
             if (isLastParameterMetadata)
                 checkGetterArgs[checkGetterArgs.Length - 1] = DefaultMetadata;
-            var checkSetterArgs = inputArgs.Concat(new object[] { setValue }).ToArray();
+            var checkSetterArgs = inputArgs.Concat(new object[] {setValue}).ToArray();
             if (isLastParameterMetadata)
                 checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Binding.Members
                         metadata.ShouldEqual(DefaultMetadata);
                         return null;
                     },
-                    GetParameters = () => new[] { new TestParameterInfo { ParameterType = type } }
+                    GetParameters = () => new[] {new TestParameterInfo {ParameterType = type}}
                 };
             }
 

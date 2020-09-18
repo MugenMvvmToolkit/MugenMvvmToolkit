@@ -63,7 +63,7 @@ namespace MugenMvvm.Binding.Extensions
                 var validator = hasValidator.ServiceOptional;
                 if (validator != null)
                 {
-                    for (int i = 0; i < members.Length; i++)
+                    for (var i = 0; i < members.Length; i++)
                     {
                         if (validator.HasErrors(members[i]))
                             return true;
@@ -72,7 +72,7 @@ namespace MugenMvvm.Binding.Extensions
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)
             {
-                for (int i = 0; i < members.Length; i++)
+                for (var i = 0; i < members.Length; i++)
                 {
                     if (dataErrorInfo.GetErrors(members[i]).Any())
                         return true;
@@ -91,7 +91,7 @@ namespace MugenMvvm.Binding.Extensions
                 var validator = hasValidator.ServiceOptional;
                 if (validator != null)
                 {
-                    for (int i = 0; i < members.Length; i++)
+                    for (var i = 0; i < members.Length; i++)
                     {
                         var error = validator.GetErrors(members[i]).FirstOrDefault();
                         if (error != null)
@@ -101,7 +101,7 @@ namespace MugenMvvm.Binding.Extensions
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)
             {
-                for (int i = 0; i < members.Length; i++)
+                for (var i = 0; i < members.Length; i++)
                 {
                     var error = dataErrorInfo.GetErrors(members[i]).FirstOrDefault();
                     if (error != null)
@@ -121,19 +121,18 @@ namespace MugenMvvm.Binding.Extensions
                 if (validator != null)
                 {
                     var editor = ItemOrListEditor.Get<object>();
-                    for (int i = 0; i < members.Length; i++)
+                    for (var i = 0; i < members.Length; i++)
                         editor.AddRange(validator.GetErrors(members[i]));
 
                     if (editor.Count != 0)
                         return editor.ToItemOrList().Iterator().ToArray();
                 }
-
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)
             {
                 IReadOnlyList<object>? errors = null;
-                bool isList = false;
-                for (int i = 0; i < members.Length; i++)
+                var isList = false;
+                for (var i = 0; i < members.Length; i++)
                 {
                     var list = dataErrorInfo.GetErrors(members[i]).ToReadOnlyList();
                     if (list == null || list.Count == 0)
@@ -148,7 +147,7 @@ namespace MugenMvvm.Binding.Extensions
                             errors = new List<object>(errors);
                         }
 
-                        ((List<object>)errors).AddRange(list);
+                        ((List<object>) errors).AddRange(list);
                     }
                 }
 

@@ -7,6 +7,12 @@ namespace MugenMvvm.UnitTests.Internal.Components
     {
         #region Methods
 
+        protected override object GetSupportedItem() => typeof(StaticTypeAttachedValueStorageTest);
+
+        protected override IAttachedValueStorageProviderComponent GetComponent() => new StaticTypeAttachedValueStorage();
+
+        #endregion
+
 #if !DEBUG
         public override void ShouldBeEphemeron1()
         {
@@ -16,11 +22,5 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
         }
 #endif
-
-        protected override object GetSupportedItem() => typeof(StaticTypeAttachedValueStorageTest);
-
-        protected override IAttachedValueStorageProviderComponent GetComponent() => new StaticTypeAttachedValueStorage();
-
-        #endregion
     }
 }

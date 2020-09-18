@@ -221,18 +221,18 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             component.HasErrors(validator, null, null).ShouldBeFalse();
             component.TryValidateAsync(validator, "test");
-            component.TryGetErrors(validator, errors.First().Key).AsList().SequenceEqual((IEnumerable<object>)errors.First().Value!).ShouldBeTrue();
+            component.TryGetErrors(validator, errors.First().Key).AsList().SequenceEqual((IEnumerable<object>) errors.First().Value!).ShouldBeTrue();
             var pair = component.TryGetErrors(validator).Single();
             pair.Key.ShouldEqual(errors.First().Key);
-            pair.Value.AsItemOrList().AsList().SequenceEqual((IEnumerable<object>)errors.First().Value!).ShouldBeTrue();
+            pair.Value.AsItemOrList().AsList().SequenceEqual((IEnumerable<object>) errors.First().Value!).ShouldBeTrue();
             component.HasErrors(validator, null, null).ShouldBeTrue();
             component.HasErrors(validator, errors.First().Key, null).ShouldBeTrue();
 
             component.TryValidateAsync(validator, string.Empty);
-            component.TryGetErrors(validator, emptyStringErrors.First().Key).AsList().SequenceEqual((IEnumerable<object>)emptyStringErrors.First().Value!).ShouldBeTrue();
+            component.TryGetErrors(validator, emptyStringErrors.First().Key).AsList().SequenceEqual((IEnumerable<object>) emptyStringErrors.First().Value!).ShouldBeTrue();
             pair = component.TryGetErrors(validator).Single();
             pair.Key.ShouldEqual(emptyStringErrors.First().Key);
-            pair.Value.AsItemOrList().AsList().SequenceEqual((IEnumerable<object>)emptyStringErrors.First().Value!).ShouldBeTrue();
+            pair.Value.AsItemOrList().AsList().SequenceEqual((IEnumerable<object>) emptyStringErrors.First().Value!).ShouldBeTrue();
             component.HasErrors(validator, null, null).ShouldBeTrue();
             component.HasErrors(validator, emptyStringErrors.First().Key, null).ShouldBeTrue();
         }

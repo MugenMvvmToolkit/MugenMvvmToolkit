@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Views;
@@ -142,25 +140,19 @@ namespace MugenMvvm.UnitTests.Presenters
             var vm = new TestViewModel();
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
-            int navigatingCount = 0;
-            int navigatedCount = 0;
+            var navigatingCount = 0;
+            var navigatedCount = 0;
 
             var viewPresenter = new TestViewPresenter();
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
             {
-                OnNavigating = context =>
-                {
-                    ++navigatingCount;
-                }
+                OnNavigating = context => { ++navigatingCount; }
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
             {
-                OnNavigated = context =>
-                {
-                    ++navigatedCount;
-                }
+                OnNavigated = context => { ++navigatedCount; }
             });
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
@@ -240,7 +232,7 @@ namespace MugenMvvm.UnitTests.Presenters
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
 
-            int navigatedCount = 0;
+            var navigatedCount = 0;
             var viewPresenter = new TestViewPresenter();
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new NavigationContextProvider());
@@ -249,7 +241,7 @@ namespace MugenMvvm.UnitTests.Presenters
             {
                 TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
             });
-            bool shown = false;
+            var shown = false;
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
             {
                 OnNavigated = context =>
@@ -261,6 +253,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     }
                     else
                         context.NavigationMode.ShouldEqual(NavigationMode.Close);
+
                     ++navigatedCount;
                 }
             });
@@ -286,7 +279,7 @@ namespace MugenMvvm.UnitTests.Presenters
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
 
-            int navigatedCount = 0;
+            var navigatedCount = 0;
             var viewPresenter = new TestViewPresenter();
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new NavigationContextProvider());
@@ -295,8 +288,8 @@ namespace MugenMvvm.UnitTests.Presenters
             {
                 TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
             });
-            bool shown = false;
-            bool canceled = false;
+            var shown = false;
+            var canceled = false;
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
             {
                 OnNavigated = context =>
@@ -308,6 +301,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     }
                     else
                         context.NavigationMode.ShouldEqual(NavigationMode.Close);
+
                     ++navigatedCount;
                 }
             });

@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
             };
 
             var exp = new ConstantExpressionNode("-");
-            var result = new IExpressionNode[] { exp };
+            var result = new IExpressionNode[] {exp};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
@@ -107,8 +107,8 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
         [Fact]
         public void GetShouldUseCacheBool()
         {
-            ConstantExpressionNode.Get((object)true).ShouldEqual(ConstantExpressionNode.True);
-            ConstantExpressionNode.Get((object)false).ShouldEqual(ConstantExpressionNode.False);
+            ConstantExpressionNode.Get((object) true).ShouldEqual(ConstantExpressionNode.True);
+            ConstantExpressionNode.Get((object) false).ShouldEqual(ConstantExpressionNode.False);
         }
 
         [Fact]

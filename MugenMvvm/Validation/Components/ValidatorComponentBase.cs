@@ -18,8 +18,9 @@ namespace MugenMvvm.Validation.Components
     {
         #region Fields
 
-        private readonly Dictionary<string, object> _errors;
         private readonly CancellationTokenSource _disposeToken;
+
+        private readonly Dictionary<string, object> _errors;
         private int _state;
 
         private const int DisposedState = 1;

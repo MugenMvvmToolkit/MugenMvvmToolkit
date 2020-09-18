@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Components;
 using MugenMvvm.UnitTests.Validation.Internal;

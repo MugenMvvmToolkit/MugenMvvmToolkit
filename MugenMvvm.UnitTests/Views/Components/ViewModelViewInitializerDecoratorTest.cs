@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     ++initializeCount;
                     viewManager.ShouldEqual(viewManager);
-                    var request = (ViewModelViewRequest)r;
+                    var request = (ViewModelViewRequest) r;
                     if (viewMapping == ViewMapping.Undefined)
                     {
                         request.ViewModel.ShouldBeNull();

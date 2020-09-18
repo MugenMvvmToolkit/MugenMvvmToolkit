@@ -20,7 +20,7 @@ namespace MugenMvvm.Extensions
                 return Default.CompletedTask;
             if (itemOrList.Count == 1)
                 return itemOrList[0];
-            return Task.WhenAll((IList<Task>)itemOrList.GetRawValue()!);
+            return Task.WhenAll((IList<Task>) itemOrList.GetRawValue()!);
         }
 
         public static TTask WithBusyIndicator<TTask>(this TTask task, IHasService<IBusyManager> busyManager,
@@ -41,7 +41,7 @@ namespace MugenMvvm.Extensions
             if (millisecondsDelay == 0 && message is IHasBusyDelayMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
             var token = busyManager.BeginBusy(millisecondsDelay > 0 ? new DelayBusyRequest(message, millisecondsDelay) : message, metadata);
-            task.ContinueWith((t, o) => ((IDisposable)o!).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
+            task.ContinueWith((t, o) => ((IDisposable) o!).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
             return task;
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Serialization
                 var isLast = i == count - 1;
                 var component = new TestSerializerComponent(serializer)
                 {
-                    TryDeserialize = (context) =>
+                    TryDeserialize = context =>
                     {
                         ++executeCount;
                         context.ShouldEqual(ctx);

@@ -39,10 +39,10 @@ namespace MugenMvvm.UnitTests.Views.Components
             });
 
 
-            var viewModel = new TestCleanableViewModel { ServiceOptional = new Messenger() };
+            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
             var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner { ClearDataContext = true });
+            viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
             view.Target.BindableMembers().SetDataContext(viewModel);
             view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public void ShouldUnsubscribeViewModel()
         {
             var invokeCount = 0;
-            var viewModel = new TestCleanableViewModel { ServiceOptional = new Messenger() };
+            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
             viewModel.ServiceOptional.AddComponent(new TestMessengerSubscriberComponent
             {
                 TryUnsubscribe = (o, arg3) =>

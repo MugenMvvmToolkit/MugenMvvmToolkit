@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Views
                     {
                         r.ShouldEqual(viewModel);
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] { view };
+                        return new[] {view};
                     },
                     Priority = -i
                 };
@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTests.Views
                     {
                         r.ShouldEqual(view);
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] { mapping };
+                        return new[] {mapping};
                     },
                     Priority = -i
                 };

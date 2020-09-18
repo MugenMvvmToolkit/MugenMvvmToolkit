@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <!--https://github.com/novotnyllc/MSBuildSdkExtras/issues/235-->
+    <!-- <TargetFrameworks>xamarin.ios10;monoandroid10.0</TargetFrameworks> -->
     <TargetFrameworks>xamarin.ios10</TargetFrameworks>
     <!-- <TargetFrameworks>monoandroid10.0</TargetFrameworks> -->
   </PropertyGroup>
@@ -61,7 +62,8 @@
     <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />
   </ItemGroup>
 
-  <Target Name="BuildAndroidNative" BeforeTargets="PrepareForBuild" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <Target Name="BuildAndroidNative" BeforeTargets="PrepareForBuild"
+          Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Exec Command="..\MugenMvvm.Android.Native\build.bat" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
 </Project>

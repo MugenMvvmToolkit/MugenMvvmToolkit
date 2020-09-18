@@ -34,7 +34,7 @@ namespace MugenMvvm.Extensions
                 if (navigationEntry.NavigationType != navigationType || navigationEntry.Target == null || Equals(navigationEntry.Target, navigationTarget))
                     continue;
 
-                closeMetadata ??= new MetadataContext(metadata) { { NavigationMetadata.ForceClose, true }, { NavigationMetadata.NavigationType, navigationType } };
+                closeMetadata ??= new MetadataContext(metadata) {{NavigationMetadata.ForceClose, true}, {NavigationMetadata.NavigationType, navigationType}};
                 foreach (var result in presenter.DefaultIfNull().TryClose(navigationEntry.Target, default, closeMetadata).Iterator())
                 {
                     foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata).Iterator())

@@ -153,7 +153,7 @@ namespace MugenMvvm.Extensions
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service, IReadOnlyMetadataContext? metadata = null)
             where TService : class
         {
-            MugenService.Configuration.InitializeInstance((TService)service);
+            MugenService.Configuration.InitializeInstance((TService) service);
             return configuration.ServiceConfiguration<TService>();
         }
 

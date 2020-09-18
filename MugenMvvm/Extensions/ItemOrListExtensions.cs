@@ -15,7 +15,7 @@ namespace MugenMvvm.Extensions
         public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
             where TList : class, IEnumerable<TItem> =>
-            (object?)itemOrList.Item ?? itemOrList.List;
+            (object?) itemOrList.Item ?? itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrListEditor<TItem, TList> itemOrList)

@@ -140,7 +140,7 @@ namespace MugenMvvm.Extensions
 
             var context = metadata;
             Interlocked.CompareExchange(ref metadata, new MetadataContext(metadata), context);
-            return (IMetadataContext)metadata!;
+            return (IMetadataContext) metadata!;
         }
 
         #endregion

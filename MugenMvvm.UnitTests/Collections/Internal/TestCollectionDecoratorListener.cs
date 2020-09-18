@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
         void ICollectionDecoratorListener.OnItemChanged(ICollection collection, object? item, int index, object? args)
         {
             _collection.ShouldEqual(collection);
-            OnItemChanged?.Invoke((T)item!, index, args);
+            OnItemChanged?.Invoke((T) item!, index, args);
         }
 
         void ICollectionDecoratorListener.OnAdded(ICollection collection, object? item, int index)
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnAdded == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnAdded?.Invoke((T)item!, index);
+            OnAdded?.Invoke((T) item!, index);
         }
 
         void ICollectionDecoratorListener.OnReplaced(ICollection collection, object? oldItem, object? newItem, int index)
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnReplaced == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnReplaced?.Invoke((T)oldItem!, (T)newItem!, index);
+            OnReplaced?.Invoke((T) oldItem!, (T) newItem!, index);
         }
 
         void ICollectionDecoratorListener.OnMoved(ICollection collection, object? item, int oldIndex, int newIndex)
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnMoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnMoved?.Invoke((T)item!, oldIndex, newIndex);
+            OnMoved?.Invoke((T) item!, oldIndex, newIndex);
         }
 
         void ICollectionDecoratorListener.OnRemoved(ICollection collection, object? item, int index)
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnRemoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnRemoved?.Invoke((T)item!, index);
+            OnRemoved?.Invoke((T) item!, index);
         }
 
         void ICollectionDecoratorListener.OnReset(ICollection collection, IEnumerable<object?>? items)

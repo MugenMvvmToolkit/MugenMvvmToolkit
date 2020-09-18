@@ -7,7 +7,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Collections.Internal
 {
-   public class TestConditionCollectionComponent<T> : IConditionCollectionComponent<T>, IHasPriority
+    public class TestConditionCollectionComponent<T> : IConditionCollectionComponent<T>, IHasPriority
     {
         #region Fields
 

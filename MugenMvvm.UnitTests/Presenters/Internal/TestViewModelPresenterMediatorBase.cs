@@ -25,7 +25,8 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         #region Constructors
 
-        public TestViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
+        public TestViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null,
+            INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
             : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher)
         {
         }

@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Navigation
                     TryGetNavigationEntries = ctx =>
                     {
                         ctx.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
+                        return new[] {info};
                     }
                 };
                 dispatcher.AddComponent(component);
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Navigation
                     {
                         entry.ShouldEqual(navEntry);
                         ctx.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
+                        return new[] {info};
                     }
                 };
                 dispatcher.AddComponent(component);

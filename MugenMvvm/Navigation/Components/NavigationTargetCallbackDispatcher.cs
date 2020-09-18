@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -25,8 +24,10 @@ namespace MugenMvvm.Navigation.Components
             var prevTarget = GetPrevNavigationTarget(navigationDispatcher, navigationContext);
             var target = navigationContext.Target;
             if (navigationContext.NavigationMode.IsClose)
+            {
                 return await CanNavigateFromAsync(target, prevTarget, navigationContext, cancellationToken).ConfigureAwait(false) &&
                        await CanNavigateToAsync(prevTarget, target, navigationContext, cancellationToken).ConfigureAwait(false);
+            }
 
             return await CanNavigateFromAsync(prevTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
                    await CanNavigateToAsync(target, prevTarget, navigationContext, cancellationToken).ConfigureAwait(false);

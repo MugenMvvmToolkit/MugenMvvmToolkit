@@ -90,7 +90,7 @@ namespace MugenMvvm.Extensions
             #region Fields
 
             public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
-            public static readonly ParameterExpression[] Parameters = { Parameter };
+            public static readonly ParameterExpression[] Parameters = {Parameter};
 
             #endregion
         }

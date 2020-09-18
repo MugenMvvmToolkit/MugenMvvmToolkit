@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             presenter.AddComponent(c2);
             presenter.AddComponent(c1);
 
-            var list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            var list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             presenter.RemoveComponent(c2);
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             presenter.RemoveComponent(c1);
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(0);
             list.Count.ShouldEqual(0);
             showCount.ShouldEqual(0);
@@ -138,7 +138,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             }, (type, o, arg4) => null!));
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object)request, cancellationToken, DefaultMetadata).AsList();
+            list = viewModelPresenter.TryShow(presenter, isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             showCount.ShouldEqual(1);

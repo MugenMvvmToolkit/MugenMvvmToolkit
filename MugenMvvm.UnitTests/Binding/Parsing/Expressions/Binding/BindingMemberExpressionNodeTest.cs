@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions.Binding
             {
                 TryGetMemberPathObserver = (target, req, arg4) =>
                 {
-                    ((IWeakReference)target).Target.ShouldEqual(expectedTarget);
+                    ((IWeakReference) target).Target.ShouldEqual(expectedTarget);
                     var request = (MemberPathObserverRequest) req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);

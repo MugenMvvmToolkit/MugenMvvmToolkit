@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Observation
 
         void ActionToken.IHandler.Invoke(object? target, object? state)
         {
-            var propertyName = (string)state!;
+            var propertyName = (string) state!;
             var listeners = _listeners;
             var size = _size;
             for (var i = 0; i < size; i++)

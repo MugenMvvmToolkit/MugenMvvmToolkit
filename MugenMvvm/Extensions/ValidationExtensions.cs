@@ -82,27 +82,27 @@ namespace MugenMvvm.Extensions
         public static ValidationRuleMemberBuilder<T, TMember> NotNull<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, object error,
             Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
             where T : class =>
-             builder.Must((t, v, m) => v != null, error, condition, dependencyMembers);
+            builder.Must((t, v, m) => v != null, error, condition, dependencyMembers);
 
         public static ValidationRuleMemberBuilder<T, TMember> Null<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, object error,
             Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
             where T : class =>
-             builder.Must((t, v, m) => v == null, error, condition, dependencyMembers);
+            builder.Must((t, v, m) => v == null, error, condition, dependencyMembers);
 
         public static ValidationRuleMemberBuilder<T, TMember> NotEmpty<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, object error,
             Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
             where T : class =>
-             builder.Must((t, v, m) => !IsEmpty(v), error, condition, dependencyMembers);
+            builder.Must((t, v, m) => !IsEmpty(v), error, condition, dependencyMembers);
 
         public static ValidationRuleMemberBuilder<T, TMember> Empty<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, object error,
             Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
             where T : class =>
-             builder.Must((t, v, m) => IsEmpty(v), error, condition, dependencyMembers);
+            builder.Must((t, v, m) => IsEmpty(v), error, condition, dependencyMembers);
 
         public static ValidationRuleMemberBuilder<T, string?> Length<T>(this ValidationRuleMemberBuilder<T, string?> builder, int min, int max,
             object error, Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
             where T : class =>
-             builder.Must((t, v, m) => Length(v, min, max), error, condition, dependencyMembers);
+            builder.Must((t, v, m) => Length(v, min, max), error, condition, dependencyMembers);
 
         private static bool Length(string? value, int min, int max)
         {
@@ -172,7 +172,7 @@ namespace MugenMvvm.Extensions
                         return s.error;
                     },
                     condition == null
-                        ? (Func<T, (Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>? condition), IReadOnlyMetadataContext?, bool>?)null
+                        ? (Func<T, (Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>? condition), IReadOnlyMetadataContext?, bool>?) null
                         : (t, s, m) => s.condition!(t, m), dependencyMembers);
                 return this;
             }
@@ -194,7 +194,7 @@ namespace MugenMvvm.Extensions
                         }, s.error, c, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current),
                     condition == null
                         ? (Func<T, (Func<T, TMember, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>? condition), IReadOnlyMetadataContext?,
-                            bool>?)null
+                            bool>?) null
                         : (t, s, m) => s.condition!(t, m), dependencyMembers);
                 return this;
             }

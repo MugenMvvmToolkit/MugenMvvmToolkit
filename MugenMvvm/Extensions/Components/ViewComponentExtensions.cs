@@ -59,7 +59,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(mapping, nameof(mapping));
             Should.NotBeNull(request, nameof(request));
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var view = await components[i].TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata).ConfigureAwait(false);
@@ -70,19 +70,20 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static async Task<bool>? TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static async Task<bool>? TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
             var editor = ItemOrListEditor.Get<Task<bool>>();
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
                 editor.Add(components[i].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata));
             if (editor.Count == 0)
                 return false;
             if (editor.Count == 1)
                 return await editor[0].ConfigureAwait(false);
-            var result = await Task.WhenAll((List<Task<bool>>)editor.GetRawValue()!).ConfigureAwait(false);
+            var result = await Task.WhenAll((List<Task<bool>>) editor.GetRawValue()!).ConfigureAwait(false);
             return result.WhenAny();
         }
 

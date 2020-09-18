@@ -21,8 +21,8 @@ namespace MugenMvvm.Binding.Extensions
     {
         #region Fields
 
-        private static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> { ',', ';', ' ' };
-        private static readonly HashSet<char> BindingDelimiters = new HashSet<char> { ',', ';' };
+        private static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> {',', ';', ' '};
+        private static readonly HashSet<char> BindingDelimiters = new HashSet<char> {',', ';'};
 
         #endregion
 

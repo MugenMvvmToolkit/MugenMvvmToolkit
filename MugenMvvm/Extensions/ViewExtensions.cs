@@ -31,14 +31,14 @@ namespace MugenMvvm.Extensions
 
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class =>
-            (TView?)view.TryWrap(typeof(TView), metadata, wrapperManager);
+            (TView?) view.TryWrap(typeof(TView), metadata, wrapperManager);
 
         public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
             wrapperManager.DefaultIfNull().TryWrap(wrapperType, view, metadata);
 
         public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class =>
-            (TView)view.Wrap(typeof(TView), metadata, wrapperManager);
+            (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
 
         public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) => wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
 

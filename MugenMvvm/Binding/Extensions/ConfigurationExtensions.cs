@@ -164,7 +164,7 @@ namespace MugenMvvm.Binding.Extensions
                 .RawMethod
                 .GetBuilder(false)
                 .WithParameters(AttachedMemberBuilder.Parameter<string>().Build(), AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build())
-                .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string)args[0]!, (int)args[1]!, metadata))
+                .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string) args[0]!, (int) args[1]!, metadata))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
@@ -191,7 +191,7 @@ namespace MugenMvvm.Binding.Extensions
             attachedMemberProvider.Register(AttachedMemberBuilder
                 .Method<IObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
                 .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
-                .InvokeHandler((member, target, args, metadata) => CollectionAdapter.GetOrAdd(target)[(int)args[0]!])
+                .InvokeHandler((member, target, args, metadata) => CollectionAdapter.GetOrAdd(target)[(int) args[0]!])
                 .Build());
         }
 
@@ -213,8 +213,8 @@ namespace MugenMvvm.Binding.Extensions
                     target.Service.AddComponent(component);
                     return new ActionToken((t, c) =>
                     {
-                        var hasService = (IHasService<IValidator>?)((IWeakReference)t!).Target;
-                        hasService?.Service.RemoveComponent((IComponent<IValidator>)c!);
+                        var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
+                        hasService?.Service.RemoveComponent((IComponent<IValidator>) c!);
                     }, target.ToWeakReference(), component);
                 })
                 .Build();
@@ -226,34 +226,34 @@ namespace MugenMvvm.Binding.Extensions
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
                 .HasErrorsMethod()
                 .GetBuilder()
-                .InvokeHandler((member, target, args, metadata) => HasErrors(target, (string[])args[0]!))
+                .InvokeHandler((member, target, args, metadata) => HasErrors(target, (string[]) args[0]!))
                 .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
                 .HasErrorsMethod()
                 .GetBuilder()
-                .InvokeHandler((member, target, args, metadata) => HasErrors(target, (string[])args[0]!))
+                .InvokeHandler((member, target, args, metadata) => HasErrors(target, (string[]) args[0]!))
                 .Build());
 
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
                 .GetErrorMethod()
                 .GetBuilder()
-                .InvokeHandler((member, target, args, metadata) => GetError(target, (string[])args[0]!))
+                .InvokeHandler((member, target, args, metadata) => GetError(target, (string[]) args[0]!))
                 .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
                 .GetErrorMethod()
                 .GetBuilder()
-                .InvokeHandler((member, target, args, metadata) => GetError(target, (string[])args[0]!))
+                .InvokeHandler((member, target, args, metadata) => GetError(target, (string[]) args[0]!))
                 .Build());
 
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
                 .GetErrorsMethod()
                 .GetBuilder()
-                .InvokeHandler((member, target, args, metadata) => GetErrors(target, (string[])args[0]!))
+                .InvokeHandler((member, target, args, metadata) => GetErrors(target, (string[]) args[0]!))
                 .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
                 .GetErrorsMethod()
                 .GetBuilder()
-                .InvokeHandler((member, target, args, metadata) => GetErrors(target, (string[])args[0]!))
+                .InvokeHandler((member, target, args, metadata) => GetErrors(target, (string[]) args[0]!))
                 .Build());
         }
 
@@ -281,7 +281,7 @@ namespace MugenMvvm.Binding.Extensions
             #region Methods
 
             public static CollectionAdapter GetOrAdd(IComponentOwner<ICollection> collection)
-                => collection.GetOrAddComponent(collection, (owner, context) => new CollectionAdapter { Collection = (IEnumerable)owner });
+                => collection.GetOrAddComponent(collection, (owner, context) => new CollectionAdapter {Collection = (IEnumerable) owner});
 
             protected override void BatchUpdate(List<CollectionChangedEvent> events, int version)
             {

@@ -23,8 +23,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var prevTarget = new HasNavigatingCallback();
             var target = new HasNavigatingCallback();
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.Close);
-            int targetInvokeCount = 0;
-            int prevTargetInvokeCount = 0;
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
 
             prevTarget.OnNavigatingFrom = (o, navigationContext) => throw new NotSupportedException();
             prevTarget.OnNavigatingTo = (o, navigationContext) =>
@@ -60,8 +60,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var prevTarget = new HasNavigatingCallback();
             var target = new HasNavigatingCallback();
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.New);
-            int targetInvokeCount = 0;
-            int prevTargetInvokeCount = 0;
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
 
             prevTarget.OnNavigatingFrom = (o, navigationContext) =>
             {
@@ -97,8 +97,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var prevTarget = new HasNavigatedCallback();
             var target = new HasNavigatedCallback();
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.Close);
-            int targetInvokeCount = 0;
-            int prevTargetInvokeCount = 0;
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
 
             prevTarget.OnNavigatedFrom = (o, navigationContext) => throw new NotSupportedException();
             prevTarget.OnNavigatedTo = (o, navigationContext) =>
@@ -134,8 +134,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var prevTarget = new HasNavigatedCallback();
             var target = new HasNavigatedCallback();
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.New);
-            int targetInvokeCount = 0;
-            int prevTargetInvokeCount = 0;
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
 
             prevTarget.OnNavigatedFrom = (o, navigationContext) =>
             {
@@ -177,8 +177,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var prevTarget = new HasNavigationCondition();
             var target = new HasNavigationCondition();
             var context = new NavigationContext(includeTarget ? target : new object(), Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.Close);
-            int targetInvokeCount = 0;
-            int prevTargetInvokeCount = 0;
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
 
             prevTarget.CanNavigateFromAsync = (o, navigationContext, c) => throw new NotSupportedException();
             prevTarget.CanNavigateToAsync = (o, navigationContext, c) =>
@@ -247,8 +247,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var prevTarget = new HasNavigationCondition();
             var target = new HasNavigationCondition();
             var context = new NavigationContext(includeTarget ? target : new object(), Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.New);
-            int targetInvokeCount = 0;
-            int prevTargetInvokeCount = 0;
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
 
             prevTarget.CanNavigateFromAsync = (o, navigationContext, c) =>
             {

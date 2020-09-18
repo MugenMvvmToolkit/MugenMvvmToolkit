@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
 
-            int invokeCount = 0;
+            var invokeCount = 0;
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     ++invokeCount;
                     o.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return new[] { ViewMapping.Undefined, ViewMapping.Undefined };
+                    return new[] {ViewMapping.Undefined, ViewMapping.Undefined};
                 }
             });
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
 
-            int invokeCount = 0;
+            var invokeCount = 0;
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewProviderComponent
             {
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     ++invokeCount;
                     o.ShouldEqual(view);
                     context.ShouldEqual(DefaultMetadata);
-                    return new[] { new View(ViewMapping.Undefined, view, new TestViewModel()), new View(ViewMapping.Undefined, view, new TestViewModel()) };
+                    return new[] {new View(ViewMapping.Undefined, view, new TestViewModel()), new View(ViewMapping.Undefined, view, new TestViewModel())};
                 }
             });
 
@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         {
             var disposeCount = 0;
             var view = new object();
-            var viewModel = new TestViewModel { Dispose = () => ++disposeCount };
+            var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
             var mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
             var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
@@ -154,12 +154,12 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 }
             });
             var presenter = new Presenter();
-            presenter.AddComponent(new ViewPresenterDecorator(viewManager, viewModelManager, dispatcher) { DisposeViewModelOnClose = disposeViewModel });
+            presenter.AddComponent(new ViewPresenterDecorator(viewManager, viewModelManager, dispatcher) {DisposeViewModelOnClose = disposeViewModel});
             presenter.AddComponent(new TestPresenterComponent(presenter)
             {
                 TryShow = (o, arg4, arg5) =>
                 {
-                    var viewRequest = (ViewModelViewRequest)o;
+                    var viewRequest = (ViewModelViewRequest) o;
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -180,7 +180,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         {
             var disposeCount = 0;
             var view = new object();
-            var viewModel = new TestViewModel { Dispose = () => ++disposeCount };
+            var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
             var mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
             var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
@@ -209,12 +209,12 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 }
             });
             var presenter = new Presenter();
-            presenter.AddComponent(new ViewPresenterDecorator(viewManager, null, dispatcher) { DisposeViewModelOnClose = disposeViewModel });
+            presenter.AddComponent(new ViewPresenterDecorator(viewManager, null, dispatcher) {DisposeViewModelOnClose = disposeViewModel});
             presenter.AddComponent(new TestPresenterComponent(presenter)
             {
                 TryShow = (o, arg4, arg5) =>
                 {
-                    var viewRequest = (ViewModelViewRequest)o;
+                    var viewRequest = (ViewModelViewRequest) o;
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -236,7 +236,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var v2 = new View(ViewMapping.Undefined, view, new TestViewModel());
             var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
 
-            int invokeCount = 0;
+            var invokeCount = 0;
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewProviderComponent
             {
@@ -245,7 +245,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     ++invokeCount;
                     o.ShouldEqual(view);
                     context.ShouldEqual(DefaultMetadata);
-                    return new[] { v1, v2 };
+                    return new[] {v1, v2};
                 }
             });
 
@@ -261,7 +261,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     return presenterResult;
                 }
             });
-            presenter.TryClose(view, default, DefaultMetadata).AsList().ShouldEqual(new[] { presenterResult, presenterResult });
+            presenter.TryClose(view, default, DefaultMetadata).AsList().ShouldEqual(new[] {presenterResult, presenterResult});
             invokeCount.ShouldEqual(1);
             closedVms.Count.ShouldEqual(2);
             closedVms.Contains(v1.ViewModel).ShouldBeTrue();

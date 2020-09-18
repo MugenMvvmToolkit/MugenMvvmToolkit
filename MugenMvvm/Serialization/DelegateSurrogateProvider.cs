@@ -36,9 +36,9 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public object? GetObjectToSerialize(object? instance, ISerializationContext serializationContext) => _getObjectToSerialize((TFrom?)instance, serializationContext);
+        public object? GetObjectToSerialize(object? instance, ISerializationContext serializationContext) => _getObjectToSerialize((TFrom?) instance, serializationContext);
 
-        public object? GetDeserializedObject(object? surrogate, ISerializationContext serializationContext) => _getDeserializedObject((TSurrogate?)surrogate, serializationContext);
+        public object? GetDeserializedObject(object? surrogate, ISerializationContext serializationContext) => _getDeserializedObject((TSurrogate?) surrogate, serializationContext);
 
         #endregion
 

@@ -152,7 +152,7 @@ namespace MugenMvvm.Extensions
             Func<Type, TWrapRequest, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) {Priority = priority};
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
         }
@@ -190,8 +190,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo)(object)value!;
+                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo) (object) value!;
         }
 
         [StringFormatMethod("format")]
@@ -229,7 +229,7 @@ namespace MugenMvvm.Extensions
 
         internal static bool WhenAny(this bool[] values)
         {
-            for (int i = 0; i < values.Length; i++)
+            for (var i = 0; i < values.Length; i++)
             {
                 if (values[i])
                     return true;

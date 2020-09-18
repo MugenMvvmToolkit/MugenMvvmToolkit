@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.GetComponents<RuleValidatorComponent>().Length.ShouldEqual(0);
 
 
-            validationManager.TryGetValidator(new object[] { target1, target2 }).ShouldEqual(validator);
+            validationManager.TryGetValidator(new object[] {target1, target2}).ShouldEqual(validator);
             var components = validator.GetComponents<RuleValidatorComponent>();
             components.Length.ShouldEqual(2);
 

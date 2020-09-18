@@ -742,7 +742,7 @@ namespace MugenMvvm.Internal
             public void OnInserted(int position, int finalPosition, int count)
             {
                 if (_lastEventType == TypeAdd && position >= _lastEventPosition && position <= _lastEventPosition + _lastEventCount
-                                              && _lastEventFinalPosition >= finalPosition && _lastEventFinalPosition <= finalPosition + count)
+                    && _lastEventFinalPosition >= finalPosition && _lastEventFinalPosition <= finalPosition + count)
                 {
                     _lastEventCount += count;
                     _lastEventPosition = Math.Min(position, _lastEventPosition);
@@ -783,7 +783,7 @@ namespace MugenMvvm.Internal
             public void OnChanged(int position, int finalPosition, int count, bool moved)
             {
                 if (_lastEventType == TypeChange && _lastMoved == moved && !(position > _lastEventPosition + _lastEventCount || position + count < _lastEventPosition)
-                                                                        && !(finalPosition > _lastEventFinalPosition + _lastEventCount || finalPosition + count < _lastEventFinalPosition))
+                    && !(finalPosition > _lastEventFinalPosition + _lastEventCount || finalPosition + count < _lastEventFinalPosition))
                 {
                     var previousEnd = _lastEventPosition + _lastEventCount;
                     _lastEventPosition = Math.Min(position, _lastEventPosition);

@@ -194,7 +194,6 @@ namespace MugenMvvm.Binding.Build
             where TTarget : class
             where TSource : class
         {
-
             Should.NotBeNullOrEmpty(tag, nameof(tag));
             return builder.BindingParameter(BindingParameterNameConstant.Trace, ConstantExpressionNode.Get(tag));
         }
