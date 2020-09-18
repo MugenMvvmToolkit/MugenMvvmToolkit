@@ -4,12 +4,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvm.Commands;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
+using MugenMvvm.Interfaces.Busy;
+using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Entities;
@@ -17,21 +21,37 @@ using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
-using MugenMvvm.Interfaces.Validation;
-using MugenMvvm.Interfaces.Validation.Components;
-using MugenMvvm.Internal;
+using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Interfaces.Wrapping.Components;
 using MugenMvvm.Metadata;
-using MugenMvvm.Validation.Components;
+using MugenMvvm.Wrapping.Components;
 
 namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IBusyToken BeginBusy(this IBusyManager busyManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(busyManager, nameof(busyManager));
+            var token = busyManager.TryBeginBusy(request, metadata);
+            if (token == null)
+                ExceptionManager.ThrowRequestNotSupported<IBusyManagerComponent>(busyManager, request, metadata);
+            return token;
+        }
+
+        public static void ClearBusy(this IBusyManager busyManager)
+        {
+            Should.NotBeNull(busyManager, nameof(busyManager));
+            foreach (var t in busyManager.GetTokens().Iterator())
+                t.Dispose();
+        }
 
         public static IEntityTrackingCollection GetTrackingCollection(this IEntityManager entityManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -66,15 +86,6 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IValidator GetValidator(this IValidationManager validatorProvider, object request, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
-            var result = validatorProvider.TryGetValidator(request, metadata);
-            if (result == null)
-                ExceptionManager.ThrowRequestNotSupported<IValidatorProviderComponent>(validatorProvider, request, metadata);
-            return result;
-        }
-
         public static IWeakReference GetWeakReference(this IWeakReferenceManager weakReferenceManager, object? item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(weakReferenceManager, nameof(weakReferenceManager));
@@ -82,31 +93,6 @@ namespace MugenMvvm.Extensions
             if (result == null)
                 ExceptionManager.ThrowRequestNotSupported<IWeakReferenceProviderComponent>(weakReferenceManager, item, metadata);
             return result;
-        }
-
-        public static void SetErrors(this IValidator validator, object target, string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(validator, nameof(validator));
-            Should.NotBeNull(target, nameof(target));
-            Should.NotBeNull(memberName, nameof(memberName));
-            InlineValidatorComponent? component = null;
-            var components = validator.GetComponents<InlineValidatorComponent>();
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].Target == target)
-                {
-                    component = components[i];
-                    break;
-                }
-            }
-
-            if (component == null)
-            {
-                component = new InlineValidatorComponent(target);
-                validator.AddComponent(component);
-            }
-
-            component.SetErrors(memberName, errors, metadata);
         }
 
         public static void ExecuteRaw(IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
@@ -153,14 +139,53 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
+        public static object Wrap(this IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            var wrapper = wrapperManager.TryWrap(wrapperType, request, metadata);
+            if (wrapper == null)
+                ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
+            return wrapper;
+        }
+
+        public static IWrapperManagerComponent AddWrapper<TConditionRequest, TWrapRequest>(this IWrapperManager wrapperManager, Func<Type, TConditionRequest, IReadOnlyMetadataContext?, bool> condition,
+            Func<Type, TWrapRequest, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
+            wrapperManager.Components.Add(wrapper, metadata);
+            return wrapper;
+        }
+
         public static bool IsInBackground(this IMugenApplication application, bool defaultValue = false)
         {
             Should.NotBeNull(application, nameof(application));
             return application.GetMetadataOrDefault().Get(ApplicationMetadata.IsInBackground, defaultValue);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BindingFlags value, BindingFlags flag) => (value & flag) == flag;
+        public static T? TryGetUnderlyingItem<T>(object target) where T : class
+        {
+            while (true)
+            {
+                if (target is T r)
+                    return r;
+
+                if (!(target is IWrapper<object> t))
+                    return null;
+
+                target = t.Target;
+            }
+        }
+
+        public static object GetUnderlyingItem(object target)
+        {
+            while (true)
+            {
+                if (!(target is IWrapper<object> t))
+                    return target;
+                target = t.Target;
+            }
+        }
 
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
@@ -169,139 +194,25 @@ namespace MugenMvvm.Extensions
             return (TTo)(object)value!;
         }
 
-        public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
-        {
-            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
-                return true;
-            if (string.IsNullOrEmpty(listenedMember))
-                return emptyListenedMemberResult;
-
-            if (listenedMember[0] == '[')
-            {
-                if (Default.IndexerName.Equals(changedMember))
-                    return true;
-                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
-                {
-                    int i = 4, j = 0;
-                    while (i < changedMember.Length)
-                    {
-                        if (j >= listenedMember.Length)
-                            return false;
-                        var c1 = changedMember[i];
-                        var c2 = listenedMember[j];
-                        if (c1 == c2)
-                        {
-                            ++i;
-                            ++j;
-                        }
-                        else if (c1 == '"')
-                            ++i;
-                        else if (c2 == '"')
-                            ++j;
-                        else
-                            return false;
-                    }
-
-                    return j == listenedMember.Length;
-                }
-            }
-
-            return false;
-        }
-
         [StringFormatMethod("format")]
         public static string Format(this string format, params object?[] args) => string.Format(format, args);
 
-        public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task, TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
-        {
-            Should.NotBeNull(tcs, nameof(tcs));
-            Should.NotBeNull(task, nameof(task));
-            if (task.IsCompleted)
-            {
-                switch (task.Status)
-                {
-                    case TaskStatus.Canceled:
-                        tcs.TrySetCanceled();
-                        break;
-                    case TaskStatus.Faulted:
-                        tcs.TrySetException(task.Exception!.InnerExceptions);
-                        break;
-                    case TaskStatus.RanToCompletion:
-                        var t = task as Task<TResult>;
-                        tcs.TrySetResult(t == null ? default! : t.Result);
-                        break;
-                }
-            }
-            else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
-        }
+        [Pure]
+        public static string Flatten(this Exception exception, bool includeStackTrace = false) => exception.Flatten(string.Empty, includeStackTrace);
 
-        public static ValueTask<T> AsValueTask<T>(this Task<T>? task)
+        [Pure]
+        public static string Flatten(this Exception exception, string message, bool includeStackTrace = false)
         {
-            if (task == null)
-                return default;
-            return new ValueTask<T>(task);
-        }
-
-        internal static Task<bool> AsTaskEx(this ValueTask<bool> task)
-        {
-            if (task.IsCompletedSuccessfully)
-                return task.Result ? Default.TrueTask : Default.FalseTask;
-            return task.AsTask();
+            Should.NotBeNull(exception, nameof(exception));
+            var sb = new StringBuilder(message);
+            FlattenInternal(exception, sb, includeStackTrace);
+            return sb.ToString();
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item) => MugenService.WeakReferenceManager.GetWeakReference(item);
-
-        internal static Task ContinueWithEx<TState>(this Task task, TState state, Action<Task, TState> execute)
-        {
-            Should.NotBeNull(task, nameof(task));
-            Should.NotBeNull(execute, nameof(execute));
-            if (task.IsCompleted)
-            {
-                try
-                {
-                    execute(task, state);
-                    return task;
-                }
-                catch (Exception e)
-                {
-                    return Task.FromException(e);
-                }
-            }
-
-            return task.ContinueWith((t, o) =>
-            {
-                var tuple = (Tuple<TState, Action<Task, TState>>)o!;
-                tuple.Item2(t, tuple.Item1);
-            }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        internal static Task ContinueWithEx<T, TState>(this Task<T> task, TState state, Action<Task<T>, TState> execute)
-        {
-            Should.NotBeNull(task, nameof(task));
-            Should.NotBeNull(execute, nameof(execute));
-            if (task.IsCompleted)
-            {
-                try
-                {
-                    execute(task, state);
-                    return task;
-                }
-                catch (Exception e)
-                {
-                    return Task.FromException(e);
-                }
-            }
-
-            return task.ContinueWith((t, o) =>
-            {
-                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o!;
-                tuple.Item2(t, tuple.Item1);
-            }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
-        }
 
         internal static bool LazyInitialize<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class => Interlocked.CompareExchange(ref item, value, null) == null;
 
@@ -316,98 +227,58 @@ namespace MugenMvvm.Extensions
             return true;
         }
 
-        internal static void Merge(ref Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>? dict, IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>? value)
+        internal static bool WhenAny(this bool[] values)
         {
-            if (value == null || value.Count == 0)
-                return;
-
-            foreach (var keyValuePair in value)
+            for (int i = 0; i < values.Length; i++)
             {
-                if (keyValuePair.Value.IsNullOrEmpty())
-                    continue;
-
-                dict ??= new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
-                dict.TryGetValue(keyValuePair.Key, out var list);
-                var editableList = list.Cast<List<object>>().Editor();
-                editableList.AddRange(keyValuePair.Value);
-                dict[keyValuePair.Key] = editableList.ToItemOrList<IReadOnlyList<object>>();
+                if (values[i])
+                    return true;
             }
+
+            return false;
         }
 
-#if SPAN_API
-        //https://github.com/dotnet/runtime/pull/295
-        internal static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, char separator)
-            => new SpanSplitEnumerator<char>(span, separator);
-#endif
+        private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
+        {
+            if (exception == null)
+                return;
+            if (exception is AggregateException aggregateException)
+            {
+                sb.AppendLine(aggregateException.Message);
+                if (includeStackTrace)
+                {
+                    sb.Append(exception.StackTrace);
+                    sb.AppendLine();
+                }
+
+                for (var index = 0; index < aggregateException.InnerExceptions.Count; index++)
+                    FlattenInternal(aggregateException.InnerExceptions[index], sb, includeStackTrace);
+                return;
+            }
+
+            while (exception != null)
+            {
+                sb.AppendLine(exception.Message);
+                if (includeStackTrace)
+                    sb.Append(exception.StackTrace);
+
+                if (exception is ReflectionTypeLoadException loadException && loadException.LoaderExceptions != null)
+                {
+                    if (includeStackTrace)
+                        sb.AppendLine();
+                    for (var index = 0; index < loadException.LoaderExceptions.Length; index++)
+                        FlattenInternal(loadException.LoaderExceptions[index], sb, includeStackTrace);
+                }
+
+                exception = exception.InnerException;
+                if (exception != null && includeStackTrace)
+                    sb.AppendLine();
+            }
+        }
 
         #endregion
 
         #region Nested types
-
-#if SPAN_API
-        public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
-        {
-            private readonly ReadOnlySpan<T> _buffer;
-
-            private readonly ReadOnlySpan<T> _separators;
-            private readonly T _separator;
-
-            private readonly int _separatorLength;
-            private readonly bool _splitOnSingleToken;
-
-            private readonly bool _isInitialized;
-
-            private int _startCurrent;
-            private int _endCurrent;
-            private int _startNext;
-
-            public SpanSplitEnumerator<T> GetEnumerator() => this;
-
-            public Range Current => new Range(_startCurrent, _endCurrent);
-
-            internal SpanSplitEnumerator(ReadOnlySpan<T> span, ReadOnlySpan<T> separators)
-            {
-                _isInitialized = true;
-                _buffer = span;
-                _separators = separators;
-                _separator = default!;
-                _splitOnSingleToken = false;
-                _separatorLength = _separators.Length != 0 ? _separators.Length : 1;
-                _startCurrent = 0;
-                _endCurrent = 0;
-                _startNext = 0;
-            }
-
-            internal SpanSplitEnumerator(ReadOnlySpan<T> span, T separator)
-            {
-                _isInitialized = true;
-                _buffer = span;
-                _separator = separator;
-                _separators = default;
-                _splitOnSingleToken = true;
-                _separatorLength = 1;
-                _startCurrent = 0;
-                _endCurrent = 0;
-                _startNext = 0;
-            }
-
-            public bool MoveNext()
-            {
-                if (!_isInitialized || _startNext > _buffer.Length)
-                    return false;
-
-                var slice = _buffer.Slice(_startNext);
-                _startCurrent = _startNext;
-
-                var separatorIndex = _splitOnSingleToken ? slice.IndexOf(_separator) : slice.IndexOf(_separators);
-                var elementLength = separatorIndex != -1 ? separatorIndex : slice.Length;
-
-                _endCurrent = _startCurrent + elementLength;
-                _startNext = _endCurrent + _separatorLength;
-                return true;
-            }
-        }
-#endif
 
         private static class GenericCaster<T>
         {

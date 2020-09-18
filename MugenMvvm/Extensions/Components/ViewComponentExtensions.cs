@@ -52,35 +52,38 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IViewMapping>>();
         }
 
-        public static Task<IView>? TryInitializeAsync(this IViewManagerComponent[] components, IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
+        public static async ValueTask<IView?> TryInitializeAsync(this IViewManagerComponent[] components, IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(mapping, nameof(mapping));
             Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < components.Length; i++)
+            for (int i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
-                if (result != null)
-                    return result;
+                cancellationToken.ThrowIfCancellationRequested();
+                var view = await components[i].TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata).ConfigureAwait(false);
+                if (view != null)
+                    return view;
             }
 
             return null;
         }
 
-        public static Task? TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static async Task<bool>? TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
-            if (components.Length == 0)
-                return components[0].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
-
-            var result = ItemOrListEditor.Get<Task>();
-            for (var i = 0; i < components.Length; i++)
-                result.Add(components[i].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata));
-            return result.ToItemOrList().WhenAll();
+            var editor = ItemOrListEditor.Get<Task<bool>>();
+            for (int i = 0; i < components.Length; i++)
+                editor.Add(components[i].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata));
+            if (editor.Count == 0)
+                return false;
+            if (editor.Count == 1)
+                return await editor[0].ConfigureAwait(false);
+            var result = await Task.WhenAll((List<Task<bool>>)editor.GetRawValue()!).ConfigureAwait(false);
+            return result.WhenAny();
         }
 
         #endregion

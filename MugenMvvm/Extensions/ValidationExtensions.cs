@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
@@ -16,6 +17,40 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IValidator GetValidator(this IValidationManager validatorProvider, object request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
+            var result = validatorProvider.TryGetValidator(request, metadata);
+            if (result == null)
+                ExceptionManager.ThrowRequestNotSupported<IValidatorProviderComponent>(validatorProvider, request, metadata);
+            return result;
+        }
+
+        public static void SetErrors(this IValidator validator, object target, string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(validator, nameof(validator));
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(memberName, nameof(memberName));
+            InlineValidatorComponent? component = null;
+            var components = validator.GetComponents<InlineValidatorComponent>();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].Target == target)
+                {
+                    component = components[i];
+                    break;
+                }
+            }
+
+            if (component == null)
+            {
+                component = new InlineValidatorComponent(target);
+                validator.AddComponent(component);
+            }
+
+            component.SetErrors(memberName, errors, metadata);
+        }
 
         public static ValidationRuleMemberBuilder<T, TMember> For<T, TMember>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TMember>> member) where T : class
         {
@@ -156,7 +191,7 @@ namespace MugenMvvm.Extensions
                             if (o is Func<object> func)
                                 return func();
                             return o;
-                        }, s.error, c),
+                        }, s.error, c, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current),
                     condition == null
                         ? (Func<T, (Func<T, TMember, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>? condition), IReadOnlyMetadataContext?,
                             bool>?)null

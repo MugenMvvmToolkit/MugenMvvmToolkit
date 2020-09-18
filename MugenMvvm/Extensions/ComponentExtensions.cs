@@ -136,20 +136,39 @@ namespace MugenMvvm.Extensions
             return 0;
         }
 
-        public static ValueTask<TResult> InvokeAsync<TComponent, TState, TResult>(this TComponent[] components, TState state, Func<TComponent, TState, CancellationToken, ValueTask<TResult>> getResult,
-            Func<TResult, TState, bool> isValidResult, CancellationToken cancellationToken = default, TResult defaultResult = default, Action<TResult, TState>? setResultCallback = null)
+        public static Task? InvokeAllAsync<TComponent, TState>(this TComponent[] components, TState state, Func<TComponent, TState, CancellationToken, Task?> getResult, CancellationToken cancellationToken)
             where TComponent : class, IComponent
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(getResult, nameof(getResult));
-            Should.NotBeNull(isValidResult, nameof(isValidResult));
-            if (components.Length == 0)
+
+            Task? GetResult(TComponent component)
             {
-                setResultCallback?.Invoke(defaultResult, state);
-                return new ValueTask<TResult>(defaultResult);
+                try
+                {
+                    return getResult(component, state, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    return e.ToTask();
+                }
             }
 
-            return new TaskComponentResult<TComponent, TState, TResult>(components, getResult, isValidResult, state, cancellationToken, defaultResult, setResultCallback).GetTask();
+            if (components.Length == 0)
+                return null;
+            if (components.Length == 1)
+                return GetResult(components[0]);
+
+            var tasks = ItemOrListEditor.Get<Task>();
+            for (var i = 0; i < components.Length; i++)
+            {
+                var result = GetResult(components[i]);
+                if (result != null && (!result.IsCompleted || result.IsFaulted || result.IsCanceled))
+                    tasks.Add(result);
+            }
+
+            if (tasks.Count == 0)
+                return null;
+            return tasks.WhenAll();
         }
 
         private static TComponent? GetComponent<TComponent>(this IComponentOwner owner, bool optional, IReadOnlyMetadataContext? metadata)

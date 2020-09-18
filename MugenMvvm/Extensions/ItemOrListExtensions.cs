@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -29,15 +28,6 @@ namespace MugenMvvm.Extensions
             where TItem : class?
             where TList : class, IEnumerable<TItem> =>
             itemOrList.Item == null && itemOrList.List == null;
-
-        public static Task WhenAll<TList>(this ItemOrList<Task, TList> itemOrList) where TList : class, IEnumerable<Task>
-        {
-            if (itemOrList.Item != null)
-                return itemOrList.Item;
-            if (itemOrList.List != null)
-                return Task.WhenAll(itemOrList.List);
-            return Default.CompletedTask;
-        }
 
         [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -129,7 +129,7 @@ namespace MugenMvvm.Internal
 
         //note because of slow cast for covariant\contravariant types (value is IReadonlyList<T> list), we should use this method, fixed in net5.0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromRawValueReadonly<TItem>(object? value, bool @unchecked = false)
+        internal static ItemOrList<TItem, IReadOnlyList<TItem>> FromRawValueReadonly<TItem>(object? value, bool @unchecked = false)
         {
             if (value is TItem item)
                 return new ItemOrList<TItem, IReadOnlyList<TItem>>(item);

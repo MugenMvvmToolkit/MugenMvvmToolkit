@@ -66,7 +66,7 @@ namespace MugenMvvm.ViewModels.Components
                 DisposeCommands(viewModel);
             var viewManager = _viewManager.DefaultIfNull();
             foreach (var v in viewManager.GetViews(viewModel, metadata).Iterator())
-                viewManager.CleanupAsync(v, state, default, metadata);
+                viewManager.TryCleanupAsync(v, state, default, metadata);
 
             var busyManager = viewModel.TryGetService<IBusyManager>(true);
             if (busyManager != null)

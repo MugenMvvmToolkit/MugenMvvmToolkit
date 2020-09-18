@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var targetMember = ((IBinding) owner).Target.GetLastMember(metadata);
+            var targetMember = ((IBinding)owner).Target.GetLastMember(metadata);
             if (!(targetMember.Member is IObservableMemberInfo eventInfo) || eventInfo.MemberType != MemberType.Event)
                 return false;
 
@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var binding = (IBinding) owner;
+            var binding = (IBinding)owner;
             binding.UpdateTarget();
             if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
                 binding.Components.Add(OneTimeBindingMode.NonDisposeInstance);
@@ -163,7 +163,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         {
             if (target == null)
                 return false;
-            if (command is ICompositeCommand m && !m.HasCanExecute)
+            if (command is ICompositeCommand m && !m.HasCanExecute(_currentMetadata))
                 return false;
 
             _enabledMember = BindableMembers.For<object>().Enabled().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, _currentMetadata);
@@ -171,17 +171,11 @@ namespace MugenMvvm.Binding.Core.Components.Binding
                 return false;
 
             _targetRef = target.ToWeakReference();
-            if (_canExecuteHandler == null)
-            {
-                _canExecuteHandler = MugenExtensions
-                    .CreateWeakEventHandler<EventHandlerBindingComponent, EventArgs>(this, (closure, _, __) => closure.OnCanExecuteChanged())
-                    .Handle;
-            }
-
+            _canExecuteHandler ??= this.ToWeakReference().EventHandlerWeakCanExecuteHandler;
             return true;
         }
 
-        private void OnCanExecuteChanged()
+        internal void OnCanExecuteChanged()
         {
             if (!(_currentValue is ICommand cmd))
                 return;

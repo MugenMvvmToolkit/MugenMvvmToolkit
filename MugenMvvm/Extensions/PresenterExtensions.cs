@@ -51,34 +51,22 @@ namespace MugenMvvm.Extensions
                 foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata).Iterator())
                 {
                     if (callback.CallbackType == NavigationCallbackType.Closing)
-                        tasks.Add(callback.AsTask(isSerializable).CancelToFalse());
+                        tasks.Add(callback.ToTask(isSerializable).CancelToFalse());
                 }
             }
 
-            var taskList = tasks.ToItemOrList();
-            if (taskList.Item != null)
-                return taskList.Item;
-            if (taskList.List == null)
+            if (tasks.Count == 0)
                 return Default.FalseTask;
-
-            return Task.WhenAll(taskList.List).ContinueWith(task =>
-            {
-                var result = task.Result;
-                for (var i = 0; i < result.Length; i++)
-                {
-                    if (!result[i])
-                        return false;
-                }
-
-                return true;
-            }, TaskContinuationOptions.ExecuteSynchronously);
+            if (tasks.Count == 1)
+                return tasks[0];
+            return Task.WhenAll((List<Task<bool>>)tasks.GetRawValue()!).ContinueWith(task => task.Result.WhenAny(), TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult, bool isSerializable = true) => ((Task)showResult.CloseCallback.AsTask(isSerializable)).GetAwaiter();
+        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult, bool isSerializable = true) => ((Task)showResult.CloseCallback.ToTask(isSerializable)).GetAwaiter();
 
         public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult, bool isSerializable = true) =>
             showResult.CloseCallback
-                .AsTask(isSerializable)
+                .ToTask(isSerializable)
                 .ContinueWith(task => (task.Result.Target is IHasNavigationResult<T> navigationResult ? navigationResult.Result : default)!, TaskContinuationOptions.ExecuteSynchronously)
                 .GetAwaiter()!;
 

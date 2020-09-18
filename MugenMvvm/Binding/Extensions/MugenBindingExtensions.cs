@@ -10,6 +10,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core;
+using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Convert;
@@ -37,8 +38,8 @@ namespace MugenMvvm.Binding.Extensions
         internal const char CommaChar = ',';
         internal const char DotChar = '.';
 
-        public static readonly char[] CommaSeparator = {CommaChar};
-        public static readonly char[] DotSeparator = {DotChar};
+        public static readonly char[] CommaSeparator = { CommaChar };
+        public static readonly char[] DotSeparator = { DotChar };
         private static readonly int[] ArraySize = new int[1];
 
         #endregion
@@ -431,52 +432,52 @@ namespace MugenMvvm.Binding.Extensions
                 switch (target)
                 {
                     case IMemberExpressionNode memberExpressionNode:
-                    {
-                        var memberName = memberExpressionNode.Member.Trim();
-                        builder.Insert(0, memberName);
-                        if (memberExpressionNode.Target != null)
-                            builder.Insert(0, '.');
-                        target = memberExpressionNode.Target;
-                        break;
-                    }
+                        {
+                            var memberName = memberExpressionNode.Member.Trim();
+                            builder.Insert(0, memberName);
+                            if (memberExpressionNode.Target != null)
+                                builder.Insert(0, '.');
+                            target = memberExpressionNode.Target;
+                            break;
+                        }
                     case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
-                    {
-                        var args = indexExpressionNode.Arguments;
-                        builder.Insert(0, ']');
-                        if (args.Count > 0)
                         {
-                            args.Last().ToStringValue(builder);
-                            for (var i = args.Count - 2; i >= 0; i--)
+                            var args = indexExpressionNode.Arguments;
+                            builder.Insert(0, ']');
+                            if (args.Count > 0)
                             {
-                                builder.Insert(0, ',');
-                                args[i].ToStringValue(builder);
+                                args.Last().ToStringValue(builder);
+                                for (var i = args.Count - 2; i >= 0; i--)
+                                {
+                                    builder.Insert(0, ',');
+                                    args[i].ToStringValue(builder);
+                                }
                             }
-                        }
 
-                        builder.Insert(0, '[');
-                        target = indexExpressionNode.Target;
-                        break;
-                    }
+                            builder.Insert(0, '[');
+                            target = indexExpressionNode.Target;
+                            break;
+                        }
                     case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
-                    {
-                        var args = methodCallExpression.Arguments;
-                        builder.Insert(0, ')');
-                        if (args.Count > 0)
                         {
-                            args.Last().ToStringValue(builder);
-                            for (var i = args.Count - 2; i >= 0; i--)
+                            var args = methodCallExpression.Arguments;
+                            builder.Insert(0, ')');
+                            if (args.Count > 0)
                             {
-                                builder.Insert(0, ',');
-                                args[i].ToStringValue(builder);
+                                args.Last().ToStringValue(builder);
+                                for (var i = args.Count - 2; i >= 0; i--)
+                                {
+                                    builder.Insert(0, ',');
+                                    args[i].ToStringValue(builder);
+                                }
                             }
-                        }
 
-                        builder.Insert(0, '(');
-                        builder.Insert(0, methodCallExpression.Method);
-                        builder.Insert(0, '.');
-                        target = methodCallExpression.Target;
-                        break;
-                    }
+                            builder.Insert(0, '(');
+                            builder.Insert(0, methodCallExpression.Method);
+                            builder.Insert(0, '.');
+                            target = methodCallExpression.Target;
+                            break;
+                        }
                     default:
                         return false;
                 }
@@ -620,10 +621,10 @@ namespace MugenMvvm.Binding.Extensions
             return memberNameBuilder.ToString();
         }
 
-        internal static T[] InsertFirstArg<T>(this T[] args, T firstArg)
+        internal static T[] InsertFirstArg<T>(this T[]? args, T firstArg)
         {
             if (args == null || args.Length == 0)
-                return new[] {firstArg};
+                return new[] { firstArg };
             var objects = new T[args.Length + 1];
             objects[0] = firstArg;
             Array.Copy(args, 0, objects, 1, args.Length);
@@ -665,6 +666,8 @@ namespace MugenMvvm.Binding.Extensions
                 unsubscriber = ActionToken.NoDoToken;
         }
 
+        internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args) => ((EventHandlerBindingComponent?)weakReference.Target)?.OnCanExecuteChanged();
+
         private static ParameterValue GetParameterValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {
             if (sourceRaw == null)
@@ -683,7 +686,7 @@ namespace MugenMvvm.Binding.Extensions
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var member = (IAccessorMemberInfo?) memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
+            var member = (IAccessorMemberInfo?)memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
             if (member == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(type, path);
             return member.GetValue(target, metadata);
@@ -740,7 +743,7 @@ namespace MugenMvvm.Binding.Extensions
 
         private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)
         {
-            var constantExpressionNode = (IConstantExpressionNode) expression;
+            var constantExpressionNode = (IConstantExpressionNode)expression;
             var value = constantExpressionNode.Value;
 
             if (value == null)

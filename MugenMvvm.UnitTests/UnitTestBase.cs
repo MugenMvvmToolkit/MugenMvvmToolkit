@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using MugenMvvm.Binding.Convert;
 using MugenMvvm.Binding.Convert.Components;
 using MugenMvvm.Binding.Core;
@@ -90,6 +91,8 @@ namespace MugenMvvm.UnitTests
         #endregion
 
         #region Methods
+
+        protected static void WaitCompletion() => Thread.Sleep(10);
 
         protected virtual void InitializeThreadDispatcher()
         {

@@ -40,12 +40,12 @@ namespace MugenMvvm.Extensions
                     foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata).Iterator())
                     {
                         if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
-                            callbacks.Add(navigationCallback.AsTask(false));
+                            callbacks.Add(navigationCallback.ToTask(false));
                     }
                 }
             }
 
-            return callbacks.ToItemOrList().WhenAll();
+            return callbacks.WhenAll();
         }
 
         public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
@@ -145,14 +145,14 @@ namespace MugenMvvm.Extensions
                 foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata).Iterator())
                 {
                     if (filter(callback, state))
-                        tasks.Add(callback.AsTask(isSerializable));
+                        tasks.Add(callback.ToTask(isSerializable));
                 }
             }
 
-            return tasks.ToItemOrList().WhenAll();
+            return tasks.WhenAll();
         }
 
-        public static Task<INavigationContext> AsTask(this INavigationCallback callback, bool isSerializable)
+        public static Task<INavigationContext> ToTask(this INavigationCallback callback, bool isSerializable)
         {
             Should.NotBeNull(callback, nameof(callback));
             var result = new NavigationCallbackTaskListener(isSerializable);

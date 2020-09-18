@@ -39,7 +39,7 @@ namespace MugenMvvm.Extensions
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             if (component == null)
                 return collection as IEnumerable<object?> ?? collection.Cast<object?>();
-            return component.DecorateItems((ICollection)collection);
+            return component.DecorateItems((ICollection) collection);
         }
 
         public static MonitorLocker TryLock(this ICollection? collection)
@@ -178,6 +178,81 @@ namespace MugenMvvm.Extensions
             enumerator.MoveNext();
             return enumerator.Current;
         }
+
+#if SPAN_API
+        //https://github.com/dotnet/runtime/pull/295
+        internal static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, char separator)
+            => new SpanSplitEnumerator<char>(span, separator);
+#endif
+
+        #endregion
+
+        #region Nested types
+
+#if SPAN_API
+        public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
+        {
+            private readonly ReadOnlySpan<T> _buffer;
+
+            private readonly ReadOnlySpan<T> _separators;
+            private readonly T _separator;
+
+            private readonly int _separatorLength;
+            private readonly bool _splitOnSingleToken;
+
+            private readonly bool _isInitialized;
+
+            private int _startCurrent;
+            private int _endCurrent;
+            private int _startNext;
+
+            public SpanSplitEnumerator<T> GetEnumerator() => this;
+
+            public Range Current => new Range(_startCurrent, _endCurrent);
+
+            internal SpanSplitEnumerator(ReadOnlySpan<T> span, ReadOnlySpan<T> separators)
+            {
+                _isInitialized = true;
+                _buffer = span;
+                _separators = separators;
+                _separator = default!;
+                _splitOnSingleToken = false;
+                _separatorLength = _separators.Length != 0 ? _separators.Length : 1;
+                _startCurrent = 0;
+                _endCurrent = 0;
+                _startNext = 0;
+            }
+
+            internal SpanSplitEnumerator(ReadOnlySpan<T> span, T separator)
+            {
+                _isInitialized = true;
+                _buffer = span;
+                _separator = separator;
+                _separators = default;
+                _splitOnSingleToken = true;
+                _separatorLength = 1;
+                _startCurrent = 0;
+                _endCurrent = 0;
+                _startNext = 0;
+            }
+
+            public bool MoveNext()
+            {
+                if (!_isInitialized || _startNext > _buffer.Length)
+                    return false;
+
+                var slice = _buffer.Slice(_startNext);
+                _startCurrent = _startNext;
+
+                var separatorIndex = _splitOnSingleToken ? slice.IndexOf(_separator) : slice.IndexOf(_separators);
+                var elementLength = separatorIndex != -1 ? separatorIndex : slice.Length;
+
+                _endCurrent = _startCurrent + elementLength;
+                _startNext = _endCurrent + _separatorLength;
+                return true;
+            }
+        }
+#endif
 
         #endregion
     }

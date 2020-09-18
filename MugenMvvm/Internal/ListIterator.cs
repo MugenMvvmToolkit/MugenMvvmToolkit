@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly ref struct ListIterator<TItem, TList>
+    public readonly struct ListIterator<TItem, TList>
         where TList : class, IList<TItem>
     {
         #region Fields
@@ -87,7 +87,7 @@ namespace MugenMvvm.Internal
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        public ref struct Enumerator
+        public struct Enumerator
         {
             #region Fields
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -39,7 +38,7 @@ namespace MugenMvvm.Binding.Observation
 
         void ActionToken.IHandler.Invoke(object? target, object? state)
         {
-            var propertyName = (string) state!;
+            var propertyName = (string)state!;
             var listeners = _listeners;
             var size = _size;
             for (var i = 0; i < size; i++)
@@ -72,7 +71,7 @@ namespace MugenMvvm.Binding.Observation
                 for (var i = 0; i < size; i++)
                 {
                     var listener = listeners[i];
-                    if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(memberName, listener.State, true) && !listener.TryHandle(sender, message, metadata) && RemoveAt(listeners, i))
+                    if (!listener.IsEmpty && MemberNameEqual(memberName, listener.State) && !listener.TryHandle(sender, message, metadata) && RemoveAt(listeners, i))
                         hasDeadRef = true;
                 }
 
@@ -228,6 +227,46 @@ namespace MugenMvvm.Binding.Observation
                 if (size != capacity)
                     Array.Resize(ref _listeners, capacity);
             }
+        }
+
+        private static bool MemberNameEqual(string changedMember, string listenedMember)
+        {
+            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
+                return true;
+            if (string.IsNullOrEmpty(listenedMember))
+                return true;
+
+            if (listenedMember[0] == '[')
+            {
+                if (Default.IndexerName.Equals(changedMember))
+                    return true;
+                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
+                {
+                    int i = 4, j = 0;
+                    while (i < changedMember.Length)
+                    {
+                        if (j >= listenedMember.Length)
+                            return false;
+                        var c1 = changedMember[i];
+                        var c2 = listenedMember[j];
+                        if (c1 == c2)
+                        {
+                            ++i;
+                            ++j;
+                        }
+                        else if (c1 == '"')
+                            ++i;
+                        else if (c2 == '"')
+                            ++j;
+                        else
+                            return false;
+                    }
+
+                    return j == listenedMember.Length;
+                }
+            }
+
+            return false;
         }
 
         #endregion

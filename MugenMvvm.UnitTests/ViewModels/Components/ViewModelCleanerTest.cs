@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                     ++cleanupCount;
                     v.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return Task.CompletedTask;
+                    return Default.TrueTask;
                 }
             });
             var manager = new ViewModelManager();

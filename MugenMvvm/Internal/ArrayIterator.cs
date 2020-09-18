@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly ref struct ArrayIterator<TItem>
+    public readonly struct ArrayIterator<TItem>
     {
         #region Fields
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.Internal
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if ((uint) index >= (uint) Count)
+                if ((uint)index >= (uint)Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 return _list == null ? _item : _list[index];
@@ -62,7 +62,7 @@ namespace MugenMvvm.Internal
                 return _list;
             if (Count == 0)
                 return Default.Array<TItem>();
-            return new[] {_item};
+            return new[] { _item };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -73,7 +73,7 @@ namespace MugenMvvm.Internal
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        public ref struct Enumerator
+        public struct Enumerator
         {
             #region Fields
 

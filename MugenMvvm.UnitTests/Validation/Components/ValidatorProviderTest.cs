@@ -17,7 +17,10 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var component = new ValidatorProviderComponent();
             component.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
-            component.TryGetValidator(null!, this, DefaultMetadata).ShouldBeType<Validator>();
+            var validator = component.TryGetValidator(null!, this, DefaultMetadata);
+            validator.ShouldBeType<Validator>();
+            validator.Components.Count.ShouldEqual(1);
+            validator.Components.Get<CycleHandlerValidatorComponent>().Length.ShouldEqual(1);
         }
 
         [Fact]
