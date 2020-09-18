@@ -19,24 +19,16 @@ namespace MugenMvvm.Validation.Components
         #region Constructors
 
         public RuleValidatorComponent(object target, ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> rules)
-            : base(target, false)
+            : base(target)
         {
             Rules = rules;
-            foreach (var rule in rules.Iterator())
-            {
-                if (rule.IsAsync)
-                {
-                    HasAsyncValidation = true;
-                    break;
-                }
-            }
         }
 
         #endregion
 
         #region Methods
 
-        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected override async ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var errors = new Dictionary<string, object?>(3);
             var tasks = ItemOrListEditor.Get<Task>();
@@ -48,14 +40,10 @@ namespace MugenMvvm.Validation.Components
             }
 
             if (tasks.Count == 0)
-                return new ValueTask<ValidationResult>(ValidationResult.Get(errors));
+                return ValidationResult.Get(errors);
 
-            var result = tasks.ToItemOrList().WhenAll().ContinueWith((task, e) =>
-            {
-                task.Wait(); //rethrow if error
-                return ValidationResult.Get((IReadOnlyDictionary<string, object?>)e!);
-            }, errors, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
-            return new ValueTask<ValidationResult>(result);
+            await tasks.WhenAll().ConfigureAwait(false);
+            return ValidationResult.Get(errors);
         }
 
         #endregion

@@ -76,11 +76,11 @@ namespace MugenMvvm.Validation
 
         public ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, memberName, metadata);
 
-        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrors(IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+        public IReadOnlyDictionary<string, object> GetErrors(IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, metadata) ?? Default.ReadOnlyDictionary<string, object>();
 
         public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<IValidatorComponent>(metadata).TryValidateAsync(this, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
+            GetComponents<IValidatorComponent>(metadata).TryValidateAsync(this, memberName, cancellationToken, metadata) ?? Default.CompletedTask;
 
         public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).ClearErrors(this, memberName, metadata);
 

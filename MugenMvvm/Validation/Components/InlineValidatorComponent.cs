@@ -11,7 +11,7 @@ namespace MugenMvvm.Validation.Components
     {
         #region Constructors
 
-        public InlineValidatorComponent(object target) : base(target, false)
+        public InlineValidatorComponent(object target) : base(target)
         {
         }
 

@@ -75,16 +75,41 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<object>>();
         }
 
-        public static IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>? TryGetErrors(this IValidatorComponent[] components, IValidator validator, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyDictionary<string, object>? TryGetErrors(this IValidatorComponent[] components, IValidator validator, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(validator, nameof(validator));
             if (components.Length == 1)
                 return components[0].TryGetErrors(validator, metadata);
 
-            Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>? errors = null;
+            Dictionary<string, object>? errors = null;
             for (var i = 0; i < components.Length; i++)
-                MugenExtensions.Merge(ref errors, components[i].TryGetErrors(validator, metadata));
+            {
+                var dictionary = components[i].TryGetErrors(validator, metadata);
+                if (dictionary == null || dictionary.Count == 0)
+                    continue;
+
+                errors ??= new Dictionary<string, object>();
+                foreach (var error in dictionary)
+                {
+                    if (!errors.TryGetValue(error.Key, out var currentError))
+                    {
+                        errors[error.Key] = error.Value;
+                        continue;
+                    }
+
+                    if (currentError is ErrorList list)
+                        list.AddError(error.Value);
+                    else
+                    {
+                        list = new ErrorList();
+                        list.AddError(currentError);
+                        list.AddError(error.Value);
+                        errors[error.Key] = list;
+                    }
+                }
+            }
+
             return errors;
         }
 
@@ -92,14 +117,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(validator, nameof(validator));
-            if (components.Length == 0)
-                return null;
-            if (components.Length == 1)
-                return components[0].TryValidateAsync(validator, memberName, cancellationToken, metadata);
-            var tasks = ItemOrListEditor.Get<Task>();
-            for (var i = 0; i < components.Length; i++)
-                tasks.Add(components[i].TryValidateAsync(validator, memberName, cancellationToken, metadata));
-            return tasks.ToItemOrList().WhenAll();
+            return components.InvokeAllAsync((validator, memberName, metadata), (component, s, c) => component.TryValidateAsync(s.validator, s.memberName, c, s.metadata), cancellationToken);
         }
 
         public static void ClearErrors(this IValidatorComponent[] components, IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
@@ -119,6 +137,33 @@ namespace MugenMvvm.Extensions.Components
             }
 
             return false;
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class ErrorList : List<object>
+        {
+            #region Constructors
+
+            public ErrorList() : base(2)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            public void AddError(object error)
+            {
+                if (error is IEnumerable<object> errors)
+                    AddRange(errors);
+                else
+                    Add(error);
+            }
+
+            #endregion
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -38,7 +39,9 @@ namespace MugenMvvm.Validation.Components
         {
             if (request is IHasTarget<IValidator> hasTarget)
                 return hasTarget.Target;
-            return new Validator(metadata, _componentCollectionManager);
+            var validator = new Validator(metadata, _componentCollectionManager);
+            validator.AddComponent(new CycleHandlerValidatorComponent());
+            return validator;
         }
 
         #endregion

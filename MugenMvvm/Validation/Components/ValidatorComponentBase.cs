@@ -19,11 +19,8 @@ namespace MugenMvvm.Validation.Components
         #region Fields
 
         private readonly Dictionary<string, object> _errors;
-        private readonly HashSet<string> _validatingMembers;
-
-        private CancellationTokenSource? _disposeCancellationTokenSource;
+        private readonly CancellationTokenSource _disposeToken;
         private int _state;
-        private Dictionary<string, CancellationTokenSource>? _validatingTasks;
 
         private const int DisposedState = 1;
 
@@ -31,12 +28,10 @@ namespace MugenMvvm.Validation.Components
 
         #region Constructors
 
-        protected ValidatorComponentBase(TTarget target, bool hasAsyncValidation)
+        protected ValidatorComponentBase(TTarget target)
         {
-            HasAsyncValidation = hasAsyncValidation;
             _errors = new Dictionary<string, object>(StringComparer.Ordinal);
-            _validatingMembers = new HashSet<string>(StringComparer.Ordinal);
-            _disposeCancellationTokenSource = new CancellationTokenSource();
+            _disposeToken = new CancellationTokenSource();
             Target = target;
         }
 
@@ -48,8 +43,6 @@ namespace MugenMvvm.Validation.Components
 
         public TTarget Target { get; }
 
-        protected internal bool HasAsyncValidation { get; set; }
-
         public int Priority { get; set; }
 
         #endregion
@@ -58,16 +51,15 @@ namespace MugenMvvm.Validation.Components
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
-                return;
-            OnDispose();
-            _disposeCancellationTokenSource?.Cancel();
+            if (Interlocked.Exchange(ref _state, DisposedState) != DisposedState)
+            {
+                OnDispose();
+                _disposeToken.Cancel();
+            }
         }
 
-        public bool HasErrors(IValidator validator, string? memberName = null, IReadOnlyMetadataContext? metadata = null)
+        public bool HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
         {
-            if (_validatingTasks != null && _validatingTasks.Count != 0)
-                return true;
             lock (_errors)
             {
                 if (string.IsNullOrEmpty(memberName))
@@ -98,48 +90,23 @@ namespace MugenMvvm.Validation.Components
             return default;
         }
 
-        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyDictionary<string, object> TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata = null)
         {
             lock (_errors)
             {
                 if (_errors.Count == 0)
-                    return Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
-                var errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
-                foreach (var error in _errors)
-                    errors[error.Key] = ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value);
-                return errors;
+                    return Default.ReadOnlyDictionary<string, object>();
+                return new Dictionary<string, object>(_errors);
             }
         }
 
-        public Task? TryValidateAsync(IValidator validator, string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public Task TryValidateAsync(IValidator validator, string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            if (IsDisposed)
-                return null;
-
-            var member = memberName ?? "";
-            lock (_validatingMembers)
-            {
-                if (!_validatingMembers.Add(member))
-                    return null;
-            }
-
-            try
-            {
-                if (HasAsyncValidation)
-                    return ValidateAsyncImplAsync(member, cancellationToken, metadata);
-                return ValidateInternalAsync(member, cancellationToken, metadata);
-            }
-            catch (Exception e)
-            {
-                return e.TaskFromException<object>();
-            }
-            finally
-            {
-                lock (_validatingMembers)
-                {
-                    _validatingMembers.Remove(member);
-                }
-            }
+            memberName ??= "";
+            var task = ValidateAsync(memberName, cancellationToken, metadata);
+            if (!task.IsCompleted)
+                OnAsyncValidation(memberName, task, metadata);
+            return task;
         }
 
         public void ClearErrors(IValidator validator, string? memberName = null, IReadOnlyMetadataContext? metadata = null)
@@ -169,7 +136,8 @@ namespace MugenMvvm.Validation.Components
 
         protected abstract ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
-        protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata) => OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, Target, memberName, metadata);
+        protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata) =>
+            OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, Target, memberName, metadata);
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata) =>
             OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnAsyncValidation(Owner, Target, memberName, validationTask, metadata);
@@ -193,26 +161,13 @@ namespace MugenMvvm.Validation.Components
                 OnErrorsChanged(memberName, metadata);
         }
 
-        private Task ValidateInternalAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        private async Task ValidateAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            var task = GetErrorsAsync(memberName, cancellationToken, metadata);
-            if (task.IsCompletedSuccessfully)
-            {
-                OnValidationCompleted(memberName, task.Result);
-                return Default.CompletedTask;
-            }
-
-            return task
-                .AsTask()
-                .ContinueWith((t, state) =>
-                {
-                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>)state!;
-                    tuple.Item1.OnValidationCompleted(tuple.Item2, t.Result);
-                }, Tuple.Create(this, memberName), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
-        }
-
-        private void OnValidationCompleted(string memberName, ValidationResult result)
-        {
+            if (IsDisposed)
+                ExceptionManager.ThrowObjectDisposed(this);
+            var token = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeToken.Token);
+            var result = await GetErrorsAsync(memberName, token.Token, metadata).ConfigureAwait(false);
+            token.Dispose();
             if (!result.HasResult)
                 return;
 
@@ -254,58 +209,6 @@ namespace MugenMvvm.Validation.Components
 
             foreach (var pair in errors)
                 UpdateErrors(pair.Key, pair.Value, true, result.Metadata);
-        }
-
-        private Task ValidateAsyncImplAsync(string member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            if (_disposeCancellationTokenSource == null)
-                MugenExtensions.LazyInitializeDisposable(ref _disposeCancellationTokenSource, new CancellationTokenSource());
-
-            var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCancellationTokenSource.Token);
-            if (_validatingTasks != null)
-            {
-                CancellationTokenSource? oldValue;
-                lock (_validatingTasks)
-                {
-                    if (_validatingTasks.TryGetValue(member, out oldValue))
-                        _validatingTasks.Remove(member);
-                }
-
-                oldValue?.Cancel();
-            }
-
-            var task = ValidateInternalAsync(member, source.Token, metadata);
-            if (task.IsCompleted)
-                source.Dispose();
-            else
-            {
-                if (_validatingTasks == null)
-                    MugenExtensions.LazyInitialize(ref _validatingTasks, new Dictionary<string, CancellationTokenSource>(StringComparer.Ordinal));
-                CancellationTokenSource? oldValue;
-                lock (_validatingTasks)
-                {
-                    _validatingTasks.TryGetValue(member, out oldValue);
-                    _validatingTasks[member] = source;
-                }
-
-                oldValue?.Cancel();
-                OnAsyncValidation(member, task, metadata);
-                task.ContinueWithEx((this, member, source, metadata), (t, state) => state.Item1.OnAsyncValidationCompleted(state.member, state.source, state.metadata));
-            }
-
-            return task;
-        }
-
-        private void OnAsyncValidationCompleted(string member, CancellationTokenSource cts, IReadOnlyMetadataContext? metadata)
-        {
-            bool notify;
-            lock (_validatingTasks!)
-            {
-                notify = _validatingTasks.TryGetValue(member, out var value) && cts == value && _validatingTasks.Remove(member);
-            }
-
-            if (notify)
-                OnErrorsChanged(member, metadata);
         }
 
         #endregion

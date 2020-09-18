@@ -14,7 +14,7 @@ namespace MugenMvvm.Interfaces.Validation
 
         ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrors(IReadOnlyMetadataContext? metadata = null);
+        IReadOnlyDictionary<string, object> GetErrors(IReadOnlyMetadataContext? metadata = null);
 
         Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
