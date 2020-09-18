@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -49,7 +48,8 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
 
             component.InterceptSourceValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
-            Task.Delay(wait).Wait();
+            WaitCompletion();
+            WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
             sourceUpdateCount.ShouldEqual(0);
             invokeAction!();
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
             component.InterceptSourceValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             component.InterceptSourceValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
-            Task.Delay(wait).Wait();
+            WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
             sourceUpdateCount.ShouldEqual(0);
             invokeAction!();
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
             component.InterceptSourceValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             ((IDetachableComponent) component).OnDetached(testBinding, DefaultMetadata);
             invokeAction.ShouldBeNull();
-            Task.Delay(wait).Wait();
+            WaitCompletion(wait);
             invokeAction.ShouldBeNull();
         }
 
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
 
             component.InterceptTargetValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
-            Task.Delay(wait).Wait();
+            WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
             sourceUpdateCount.ShouldEqual(0);
             invokeAction!();
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
             component.InterceptTargetValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             component.InterceptTargetValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
-            Task.Delay(wait).Wait();
+            WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
             sourceUpdateCount.ShouldEqual(0);
             invokeAction!();
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
             component.InterceptTargetValue(testBinding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             ((IDetachableComponent) component).OnDetached(testBinding, DefaultMetadata);
             invokeAction.ShouldBeNull();
-            Task.Delay(wait).Wait();
+            WaitCompletion(wait);
             invokeAction.ShouldBeNull();
         }
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Extensions;
@@ -141,7 +140,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             }
 
             count.ShouldEqual(0);
-            Task.Delay(delay + 100).Wait();
+            WaitCompletion(delay + 100);
             beginBusy.ShouldEqual(busyToken);
             count.ShouldEqual(1);
         }
@@ -184,7 +183,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             }
 
             count.ShouldEqual(0);
-            Task.Delay(delay + 100).Wait();
+            WaitCompletion(delay + 100);
             beginBusy.ShouldEqual(busyToken);
             count.ShouldEqual(1);
         }
@@ -203,7 +202,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             beginBusy.Dispose();
 
             count.ShouldEqual(0);
-            Task.Delay(delay + 100).Wait();
+            WaitCompletion(delay + 100);
             count.ShouldEqual(0);
         }
 
@@ -222,7 +221,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             beginBusy.Dispose();
 
             count.ShouldEqual(0);
-            Task.Delay(delay + 100).Wait();
+            WaitCompletion(delay + 100);
             count.ShouldEqual(0);
         }
 

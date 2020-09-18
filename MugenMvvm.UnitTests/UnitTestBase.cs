@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests
 
         #region Methods
 
-        protected static void WaitCompletion() => Thread.Sleep(10);
+        protected static void WaitCompletion(int milliseconds = 10) => Thread.Sleep(milliseconds);
 
         protected virtual void InitializeThreadDispatcher()
         {
