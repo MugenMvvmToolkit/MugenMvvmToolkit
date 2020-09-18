@@ -16,8 +16,8 @@ namespace MugenMvvm.Interfaces.Views
 
         ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> GetMappings(object request, IReadOnlyMetadataContext? metadata = null);
 
-        Task<IView>? TryInitializeAsync(IViewMapping mapping, object request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
+        ValueTask<IView?> TryInitializeAsync(IViewMapping mapping, object request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
-        Task? TryCleanupAsync(IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
+        Task<bool> TryCleanupAsync(IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
     }
 }

@@ -26,9 +26,9 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (mapping == ViewMapping.Undefined && request is AndroidViewRequest viewRequest && viewRequest.ViewModel != null && viewRequest.Container is Object container)
+            if (mapping.IsUndefined() && request is AndroidViewRequest viewRequest && viewRequest.ViewModel != null && viewRequest.Container is Object container)
             {
                 IAndroidViewMapping? viewMapping = null;
                 foreach (var t in viewManager.GetMappings(viewRequest.ViewModel, metadata).Iterator())
@@ -46,19 +46,20 @@ namespace MugenMvvm.Android.Views
                     foreach (var v in viewManager.GetViews(viewRequest.ViewModel, metadata).Iterator())
                     {
                         if (v.Mapping is IAndroidViewMapping m && m.ResourceId == resourceId)
-                            return Task.FromResult(v);
+                            return new ValueTask<IView?>(v);
                     }
 
                     var view = ViewExtensions.GetView(container, resourceId, true);
-                    mapping ??= new AndroidViewMapping(resourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
+                    viewMapping ??= new AndroidViewMapping(resourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
                     viewRequest.View = view;
+                    mapping = viewMapping;
                 }
             }
 
             return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
         }
 
-        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+        public Task<bool>? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
 
         #endregion

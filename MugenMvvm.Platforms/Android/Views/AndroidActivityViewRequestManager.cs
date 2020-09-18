@@ -19,39 +19,26 @@ namespace MugenMvvm.Android.Views
     {
         #region Properties
 
-        public int Priority { get; set; } = ViewComponentPriority.ViewModelViewProviderDecorator + 1;
+        public int Priority { get; set; } = ViewComponentPriority.ExecutionModeDecorator + 1;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (!(request is AndroidActivityViewRequest activityRequest))
-                return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
+                return await Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata).ConfigureAwait(false);
             var handler = new PendingActivityHandler(activityRequest.Mapping, cancellationToken);
             viewManager.AddComponent(handler);
             activityRequest.StartActivity();
 
-            var tcs = new TaskCompletionSource<IView>();
-            handler.Task.ContinueWithEx((tcs, Components, viewManager, mapping, activityRequest, metadata), (task, tuple) =>
-            {
-                if (task.IsFaulted || task.IsCanceled)
-                {
-                    tuple.tcs.TrySetFromTask(task);
-                    return;
-                }
-
-                tuple.activityRequest.View = task.Result;
-                var result = tuple.Components.TryInitializeAsync(tuple.viewManager, tuple.mapping, tuple.activityRequest, default, tuple.metadata);
-                if (result == null)
-                    ExceptionManager.ThrowObjectNotInitialized(tuple.Components);
-                tuple.tcs.TrySetFromTask(result);
-            }).ContinueWith((task, o) => ((TaskCompletionSource<IView>) o).TrySetFromTask(task), tcs, TaskContinuationOptions.NotOnRanToCompletion);
-            return tcs.Task;
+            var task = await handler.Task.ConfigureAwait(false);
+            activityRequest.View = task;
+            return await Components.TryInitializeAsync(viewManager, mapping, activityRequest, default, metadata).ConfigureAwait(false);
         }
 
-        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<bool>? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             => Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
 
         #endregion
@@ -63,7 +50,6 @@ namespace MugenMvvm.Android.Views
             #region Fields
 
             private readonly CancellationToken _cancellationToken;
-
             private readonly IViewMapping _mapping;
 
             #endregion

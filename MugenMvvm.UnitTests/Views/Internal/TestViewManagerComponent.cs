@@ -28,9 +28,9 @@ namespace MugenMvvm.UnitTests.Views.Internal
 
         #region Properties
 
-        public Func<IViewMapping, object, IReadOnlyMetadataContext?, CancellationToken, Task<IView>?>? TryInitializeAsync { get; set; }
+        public Func<IViewMapping, object, IReadOnlyMetadataContext?, CancellationToken, ValueTask<IView?>>? TryInitializeAsync { get; set; }
 
-        public Func<IView, object?, IReadOnlyMetadataContext?, CancellationToken, Task?>? TryCleanupAsync { get; set; }
+        public Func<IView, object?, IReadOnlyMetadataContext?, CancellationToken, Task<bool>?>? TryCleanupAsync { get; set; }
 
         public int Priority { get; set; }
 
@@ -38,13 +38,13 @@ namespace MugenMvvm.UnitTests.Views.Internal
 
         #region Implementation of interfaces
 
-        Task<IView>? IViewManagerComponent.TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        ValueTask<IView?> IViewManagerComponent.TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _viewManager?.ShouldEqual(viewManager);
-            return TryInitializeAsync?.Invoke(mapping, request!, metadata, cancellationToken);
+            return TryInitializeAsync?.Invoke(mapping, request!, metadata, cancellationToken) ?? default;
         }
 
-        Task? IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task<bool>? IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _viewManager?.ShouldEqual(viewManager);
             return TryCleanupAsync?.Invoke(view, state, metadata, cancellationToken);

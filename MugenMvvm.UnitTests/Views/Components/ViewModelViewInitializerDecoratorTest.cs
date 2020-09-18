@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 using MugenMvvm.Requests;
 using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
@@ -25,7 +26,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var viewModelType = typeof(TestViewModel);
             var view = new object();
             var viewModel = new TestViewModel();
-            var result = Task.FromResult<IView>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
+            var result = new ValueTask<IView?>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var initializeCount = 0;
             var mapping = new ViewMapping("id", viewType, viewModelType, DefaultMetadata);
             var cancellationToken = new CancellationTokenSource().Token;
@@ -37,7 +38,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     ++initializeCount;
                     viewManager.ShouldEqual(viewManager);
-                    var request = (ViewModelViewRequest) r;
+                    var request = (ViewModelViewRequest)r;
                     if (viewMapping == ViewMapping.Undefined)
                     {
                         request.ViewModel.ShouldBeNull();
@@ -75,19 +76,19 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ViewModelViewInitializerDecorator(viewModelManager, testServiceProvider);
             viewManager.AddComponent(component);
 
-            viewManager.InitializeAsync(mapping, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result);
+            viewManager.InitializeAsync(mapping, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result!);
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
-            viewManager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            viewManager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result!);
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
-            viewManager.InitializeAsync(mapping, view, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            viewManager.InitializeAsync(mapping, view, cancellationToken, DefaultMetadata).ShouldEqual(result!);
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
-            viewManager.InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result);
+            viewManager.InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result!);
             initializeCount.ShouldEqual(1);
         }
 
@@ -99,7 +100,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var mapping = new ViewMapping("id", viewType, viewModelType, DefaultMetadata);
             var view = new View(mapping, new object(), new TestViewModel());
             var viewModel = new TestViewModel();
-            var result = Task.FromResult(this);
+            var result = Default.TrueTask;
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -120,7 +121,9 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ViewModelViewInitializerDecorator();
             viewManager.AddComponent(component);
 
-            viewManager.CleanupAsync(view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            var task = viewManager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
+            task.IsCompleted.ShouldBeTrue();
+            result.Result.ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 

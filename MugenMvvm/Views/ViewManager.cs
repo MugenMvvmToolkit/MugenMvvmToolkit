@@ -35,12 +35,12 @@ namespace MugenMvvm.Views
         public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> GetMappings(object request, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IViewMappingProviderComponent>(metadata).TryGetMappings(this, request, metadata);
 
-        public Task<IView>? TryInitializeAsync(IViewMapping mapping, object request, CancellationToken cancellationToken = default,
+        public ValueTask<IView?> TryInitializeAsync(IViewMapping mapping, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IViewManagerComponent>(metadata).TryInitializeAsync(this, mapping, request, cancellationToken, metadata);
 
-        public Task? TryCleanupAsync(IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<IViewManagerComponent>(metadata).TryCleanupAsync(this, view, state, cancellationToken, metadata);
+        public Task<bool> TryCleanupAsync(IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IViewManagerComponent>(metadata).TryCleanupAsync(this, view, state, cancellationToken, metadata) ?? Default.FalseTask;
 
         #endregion
     }

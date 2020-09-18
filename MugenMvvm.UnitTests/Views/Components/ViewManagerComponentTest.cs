@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var component = new ViewManagerComponent();
-            component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldBeNull();
+            component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldEqual(default);
         }
 
         [Theory]
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             {
                 var view = new object();
                 var mapping = new ViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                var result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+                var result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata).Result!;
                 results.Add(result);
 
                 result.Mapping.ShouldEqual(mapping);
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             {
                 var view = new object();
                 var mapping = new ViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                results.Add(manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result);
+                results.Add(manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata).Result!);
             }
 
             var states = new Dictionary<ViewLifecycleState, List<ViewLifecycleState>>();
@@ -164,7 +164,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 manager.AddComponent(listener);
             }
 
-            var result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+            var result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata).Result!;
             result.Mapping.ShouldEqual(mapping);
             result.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
@@ -173,14 +173,14 @@ namespace MugenMvvm.UnitTests.Views.Components
             states[ViewLifecycleState.Initialized].Count.ShouldEqual(count);
 
             states.Clear();
-            result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+            result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata).Result!;
             result.Mapping.ShouldEqual(mapping);
             result.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
             states.Count.ShouldEqual(0);
 
             view = new object();
-            result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+            result = manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata).Result!;
             result.Mapping.ShouldEqual(mapping);
             result.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);

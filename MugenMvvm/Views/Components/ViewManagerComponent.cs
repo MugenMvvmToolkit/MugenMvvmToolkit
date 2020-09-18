@@ -48,51 +48,37 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            try
-            {
-                var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
-                if (viewModel == null || view == null)
-                    return null;
+            var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
+            if (viewModel == null || view == null)
+                return default;
 
-                if (viewModel is IComponentOwner componentOwner)
-                {
-                    var collection = componentOwner.Components;
-                    return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, v, m) => c.Add(v, m), (c, v, m) => c.Remove(v, m), metadata));
-                }
-
-                var list = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (context, o) => new List<IView>(2));
-                return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
-            }
-            catch (Exception e)
+            if (viewModel is IComponentOwner componentOwner)
             {
-                return Task.FromException<IView>(e);
+                var collection = componentOwner.Components;
+                return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, v, m) => c.Add(v, m), (c, v, m) => c.Remove(v, m), metadata));
             }
+
+            var list = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, o) => new List<IView>(2));
+            return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
         }
 
-        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<bool>? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            try
-            {
-                if (!_attachedValueManager.DefaultIfNull().TryGetAttachedValues(view.Target).TryGet(InternalConstant.ViewsValueKey, out var v)
-                    || !(v is List<IView> value) || !value.Contains(view))
-                    return null;
+            if (!_attachedValueManager.DefaultIfNull().TryGetAttachedValues(view.Target).TryGet(InternalConstant.ViewsValueKey, out var v)
+                || !(v is List<IView> value) || !value.Contains(view))
+                return null;
 
-                CleanupAsync(viewManager, view, state, value, (list, item, m) =>
-                {
-                    list.Remove(item);
-                    if (item.ViewModel is IComponentOwner componentOwner)
-                        componentOwner.Components.Remove(item, m);
-                    else
-                        item.ViewModel.Metadata.Get(ViewsMetadataKey)?.Remove(item);
-                }, metadata);
-                return Task.CompletedTask;
-            }
-            catch (Exception e)
+            Cleanup(viewManager, view, state, value, (list, item, m) =>
             {
-                return Task.FromException(e);
-            }
+                list.Remove(item);
+                if (item.ViewModel is IComponentOwner componentOwner)
+                    componentOwner.Components.Remove(item, m);
+                else
+                    item.ViewModel.Metadata.Get(ViewsMetadataKey)?.Remove(item);
+            }, metadata);
+            return Default.TrueTask;
         }
 
         public ItemOrList<IView, IReadOnlyList<IView>> TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
@@ -108,7 +94,7 @@ namespace MugenMvvm.Views.Components
             }
 
             if (view != null && _attachedValueManager.DefaultIfNull().TryGetAttachedValues(view, metadata).TryGet(InternalConstant.ViewsValueKey, out var value))
-                return GetViews((List<IView>?) value);
+                return GetViews((List<IView>?)value);
             return default;
         }
 
@@ -137,7 +123,7 @@ namespace MugenMvvm.Views.Components
                 {
                     if (oldView.Target == rawView)
                         return oldView;
-                    CleanupAsync(viewManager, oldView, null, collection, removeAction, metadata);
+                    Cleanup(viewManager, oldView, null, collection, removeAction, metadata);
                 }
             }
 
@@ -149,7 +135,7 @@ namespace MugenMvvm.Views.Components
             return view;
         }
 
-        private void CleanupAsync<TList>(IViewManager viewManager, IView view, object? state, TList collection, Action<TList, IView, IReadOnlyMetadataContext?> removeAction, IReadOnlyMetadataContext? metadata)
+        private void Cleanup<TList>(IViewManager viewManager, IView view, object? state, TList collection, Action<TList, IView, IReadOnlyMetadataContext?> removeAction, IReadOnlyMetadataContext? metadata)
         {
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, state, metadata);
             removeAction(collection, view, metadata);

@@ -7,6 +7,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Components;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.UnitTests.Views.Internal;
@@ -69,7 +70,7 @@ namespace MugenMvvm.UnitTests.Views
                     {
                         r.ShouldEqual(viewModel);
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] {view};
+                        return new[] { view };
                     },
                     Priority = -i
                 };
@@ -97,7 +98,7 @@ namespace MugenMvvm.UnitTests.Views
                     {
                         r.ShouldEqual(view);
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] {mapping};
+                        return new[] { mapping };
                     },
                     Priority = -i
                 };
@@ -111,7 +112,10 @@ namespace MugenMvvm.UnitTests.Views
         public void InitializeAsyncShouldThrowNoComponents()
         {
             var viewManager = new ViewManager();
-            ShouldThrow<InvalidOperationException>(() => viewManager.InitializeAsync(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this));
+            ShouldThrow<InvalidOperationException>(() =>
+            {
+                var result = viewManager.InitializeAsync(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this).Result;
+            });
         }
 
         [Theory]
@@ -120,7 +124,7 @@ namespace MugenMvvm.UnitTests.Views
         public void InitializeAsyncShouldBeHandledByComponents(int componentCount)
         {
             var manager = new ViewManager();
-            var result = Task.FromResult<IView>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
+            var result = new ValueTask<IView?>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var cancellationToken = new CancellationTokenSource().Token;
             var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var viewModel = new TestViewModel();
@@ -139,14 +143,14 @@ namespace MugenMvvm.UnitTests.Views
                         token.ShouldEqual(cancellationToken);
                         if (isLast)
                             return result;
-                        return null;
+                        return default;
                     },
                     Priority = -i
                 };
                 manager.AddComponent(component);
             }
 
-            manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result!);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -156,9 +160,8 @@ namespace MugenMvvm.UnitTests.Views
         public void CleanupAsyncShouldBeHandledByComponents(int componentCount)
         {
             var manager = new ViewManager();
-            var result = Task.FromResult(this);
+            var result = Default.TrueTask;
             var cancellationToken = new CancellationTokenSource().Token;
-            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
             var invokeCount = 0;
@@ -183,7 +186,9 @@ namespace MugenMvvm.UnitTests.Views
                 manager.AddComponent(component);
             }
 
-            manager.CleanupAsync(view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            var task = manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
+            task.IsCompleted.ShouldBeTrue();
+            task.Result.ShouldEqual(result.Result);
             invokeCount.ShouldEqual(componentCount);
         }
 
