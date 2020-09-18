@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Constants;
+﻿using System.Threading.Tasks;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -62,18 +63,18 @@ namespace MugenMvvm.Presenters
         protected override object GetViewRequest(object? view, INavigationContext navigationContext)
             => ViewPresenter.TryGetViewRequest(this, view, navigationContext) ?? base.GetViewRequest(view, navigationContext);
 
-        protected override void ShowView(TView view, INavigationContext navigationContext)
+        protected override async Task ShowViewAsync(TView view, INavigationContext navigationContext)
         {
             var isAppeared = IsAppeared;
-            ViewPresenter.Show(this, view, navigationContext);
+            await ViewPresenter.ShowAsync(this, view, navigationContext).ConfigureAwait(false);
             if (IsAppeared && isAppeared)
                 OnViewShown(null);
         }
 
-        protected override bool ActivateView(TView view, INavigationContext navigationContext)
+        protected override async Task<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
         {
             var isAppeared = IsAppeared;
-            ViewPresenter.Activate(this, view, navigationContext);
+            await ViewPresenter.ActivateAsync(this, view, navigationContext).ConfigureAwait(false);
             if (IsAppeared && isAppeared)
                 OnViewActivated(null);
             return true;
@@ -90,7 +91,7 @@ namespace MugenMvvm.Presenters
             ViewPresenter.Initialize(this, view, navigationContext);
         }
 
-        protected override void CloseView(TView view, INavigationContext navigationContext) => ViewPresenter.Close(this, view, navigationContext);
+        protected override Task CloseViewAsync(TView view, INavigationContext navigationContext) => ViewPresenter.CloseAsync(this, view, navigationContext);
 
         protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenter.Cleanup(this, view, navigationContext);
 

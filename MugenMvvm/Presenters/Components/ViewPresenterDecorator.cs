@@ -81,10 +81,7 @@ namespace MugenMvvm.Presenters.Components
                 var views = _viewManager.DefaultIfNull().GetViews(request, metadata).Iterator();
                 var result = ItemOrListEditor.Get<IPresenterResult>();
                 foreach (var v in views)
-                {
-                    var list = Components.TryClose(presenter, v.ViewModel, cancellationToken, metadata);
-                    result.AddRange(list);
-                }
+                    result.AddRange(Components.TryClose(presenter, v.ViewModel, cancellationToken, metadata));
 
                 if (views.Count != 0)
                     return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();

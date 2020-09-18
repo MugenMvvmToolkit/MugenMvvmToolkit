@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Android.Native.Interfaces.Views;
+﻿using System.Threading.Tasks;
+using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -36,20 +37,24 @@ namespace MugenMvvm.Android.Presenters
 
         #region Methods
 
-        protected override void Activate(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
-        {
-        }
+        protected override Task? ActivateAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext) => null;
 
-        protected override void Show(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
+        protected override Task? ShowAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode == NavigationMode.New)
             {
                 view.Cancelable = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.NonModal);
                 FragmentExtensions.Show(view, NavigationDispatcher.GetTopView<IActivityView>()!, null!);
             }
+
+            return null;
         }
 
-        protected override void Close(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext) => view.DismissAllowingStateLoss();
+        protected override Task? CloseAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
+        {
+            view.DismissAllowingStateLoss();
+            return null;
+        }
 
         #endregion
     }

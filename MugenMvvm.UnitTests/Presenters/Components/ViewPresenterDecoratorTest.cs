@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Collections.Generic;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
@@ -224,6 +225,47 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             disposeCount.ShouldEqual(0);
             callback.SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(0);
+        }
+
+
+        [Fact]
+        public void ShouldCloseMultiViews()
+        {
+            var view = new object();
+            var v1 = new View(ViewMapping.Undefined, view, new TestViewModel());
+            var v2 = new View(ViewMapping.Undefined, view, new TestViewModel());
+            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+
+            int invokeCount = 0;
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new TestViewProviderComponent
+            {
+                TryGetViews = (o, context) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(view);
+                    context.ShouldEqual(DefaultMetadata);
+                    return new[] { v1, v2 };
+                }
+            });
+
+            var closedVms = new HashSet<object>();
+            var presenter = new Presenter();
+            presenter.AddComponent(new ViewPresenterDecorator(viewManager));
+            presenter.AddComponent(new TestPresenterComponent(presenter)
+            {
+                TryClose = (o, arg4, arg5) =>
+                {
+                    closedVms.Add(o);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return presenterResult;
+                }
+            });
+            presenter.TryClose(view, default, DefaultMetadata).AsList().ShouldEqual(new[] { presenterResult, presenterResult });
+            invokeCount.ShouldEqual(1);
+            closedVms.Count.ShouldEqual(2);
+            closedVms.Contains(v1.ViewModel).ShouldBeTrue();
+            closedVms.Contains(v2.ViewModel).ShouldBeTrue();
         }
 
         #endregion

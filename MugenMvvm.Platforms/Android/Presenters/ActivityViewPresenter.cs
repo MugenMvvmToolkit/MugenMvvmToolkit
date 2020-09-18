@@ -1,4 +1,5 @@
-﻿using Android.Content;
+﻿using System.Threading.Tasks;
+using Android.Content;
 using Android.OS;
 using Java.Lang;
 using MugenMvvm.Android.Constants;
@@ -54,46 +55,43 @@ namespace MugenMvvm.Android.Presenters
             return base.TryGetViewRequest(mediator, view, navigationContext);
         }
 
-        protected override void Activate(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected override Task? ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
             var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
-            if (!Equals(topActivityView, view))
-                RefreshActivity(mediator, view, navigationContext);
+            if (Equals(topActivityView, view))
+                return null;
+            return RefreshActivityAsync(mediator, view, navigationContext);
         }
 
-        protected override void Show(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => null;
+
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
+            view.Finish();
+            return null;
         }
-
-        protected override void Close(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => view.Finish();
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext)
         {
-            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
+            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
             StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), flags, null, navigationContext);
         }
 
-        protected virtual void RefreshActivity(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected virtual async Task RefreshActivityAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
             var flags = 0;
             var metadata = navigationContext.GetMetadataOrDefault();
             if (metadata.Get(NavigationMetadata.ClearBackStack))
             {
-                var task = NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
-                if (!task.IsCompleted)
-                {
-                    task.ContinueWithEx((this, mediator, view, navigationContext), (_, state) => state.Item1.RefreshActivity(state.mediator, state.view, state.navigationContext));
-                    return;
-                }
-
-                flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
+                flags = (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 
             var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
             if (Equals(topActivity, view))
                 return;
 
-            flags |= (int) ActivityFlags.ReorderToFront;
+            flags |= (int)ActivityFlags.ReorderToFront;
             var bundle = new Bundle(1);
             bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.Metadata.Get(ViewModelMetadata.Id)!);
             StartActivity(mediator, topActivity, flags, bundle, navigationContext);

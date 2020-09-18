@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Navigation;
 
 namespace MugenMvvm.Interfaces.Presenters
@@ -13,10 +14,10 @@ namespace MugenMvvm.Interfaces.Presenters
 
         void Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
 
-        void Activate(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
+        Task ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
 
-        void Show(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
+        Task ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
 
-        void Close(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
+        Task CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
     }
 }

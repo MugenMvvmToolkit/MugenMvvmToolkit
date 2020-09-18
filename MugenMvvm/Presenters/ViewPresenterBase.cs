@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -6,6 +7,7 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters
 {
@@ -22,17 +24,17 @@ namespace MugenMvvm.Presenters
         #region Implementation of interfaces
 
         object? IViewPresenter.TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext)
-            => TryGetViewRequest(mediator, (TView?) view, navigationContext);
+            => TryGetViewRequest(mediator, (TView?)view, navigationContext);
 
-        void IViewPresenter.Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Initialize(mediator, (TView) view, navigationContext);
+        void IViewPresenter.Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Initialize(mediator, (TView)view, navigationContext);
 
-        void IViewPresenter.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Cleanup(mediator, (TView) view, navigationContext);
+        void IViewPresenter.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Cleanup(mediator, (TView)view, navigationContext);
 
-        void IViewPresenter.Activate(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Activate(mediator, (TView) view, navigationContext);
+        Task IViewPresenter.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ActivateAsync(mediator, (TView)view, navigationContext) ?? Default.CompletedTask;
 
-        void IViewPresenter.Show(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Show(mediator, (TView) view, navigationContext);
+        Task IViewPresenter.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ShowAsync(mediator, (TView)view, navigationContext) ?? Default.CompletedTask;
 
-        void IViewPresenter.Close(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Close(mediator, (TView) view, navigationContext);
+        Task IViewPresenter.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => CloseAsync(mediator, (TView)view, navigationContext) ?? Default.CompletedTask;
 
         IViewPresenter? IViewPresenterProviderComponent.TryGetViewPresenter(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             CanPresent(presenter, viewModel, mapping, metadata) ? this : null;
@@ -53,11 +55,11 @@ namespace MugenMvvm.Presenters
         {
         }
 
-        protected abstract void Activate(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task? ActivateAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
 
-        protected abstract void Show(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task? ShowAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
 
-        protected abstract void Close(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task? CloseAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
 
         #endregion
     }

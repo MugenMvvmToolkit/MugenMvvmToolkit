@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -8,6 +9,7 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Internal;
 using MugenMvvm.Presenters;
 
 namespace MugenMvvm.UnitTests.Presenters.Internal
@@ -38,7 +40,7 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         protected override ThreadExecutionMode ExecutionMode => ExecutionModeField ?? base.ExecutionMode;
 
-        public Func<INavigationContext, bool>? ActivateViewHandler { get; set; }
+        public Func<INavigationContext, Task<bool>>? ActivateViewHandler { get; set; }
 
         public Func<NavigationMode, IReadOnlyMetadataContext?, INavigationContext>? GetNavigationContextHandler { get; set; }
 
@@ -53,11 +55,11 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         public Func<INavigationContext, Exception, bool>? OnNavigationFailedHandler { get; set; }
 
-        public Action<INavigationContext>? ShowViewHandler { get; set; }
+        public Func<INavigationContext, Task?>? ShowViewHandler { get; set; }
 
         public Action<INavigationContext>? InitializeViewHandler { get; set; }
 
-        public Action<INavigationContext>? CloseViewHandler { get; set; }
+        public Func<INavigationContext, Task?>? CloseViewHandler { get; set; }
 
         public Action<INavigationContext>? CleanupViewHandler { get; set; }
 
@@ -65,7 +67,7 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         #region Methods
 
-        protected override bool ActivateView(T view, INavigationContext context) => ActivateViewHandler?.Invoke(context) ?? base.ActivateView(view, context);
+        protected override Task<bool> ActivateViewAsync(T view, INavigationContext context) => ActivateViewHandler?.Invoke(context) ?? base.ActivateViewAsync(view, context);
 
         protected override INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata) =>
             GetNavigationContextHandler?.Invoke(mode, metadata) ?? base.GetNavigationContext(mode, metadata);
@@ -92,11 +94,11 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
                 base.OnNavigationFailed(navigationContext, exception);
         }
 
-        protected override void ShowView(T view, INavigationContext context) => ShowViewHandler?.Invoke(context);
+        protected override Task ShowViewAsync(T view, INavigationContext context) => ShowViewHandler?.Invoke(context) ?? Default.CompletedTask;
 
         protected override void InitializeView(T view, INavigationContext context) => InitializeViewHandler?.Invoke(context);
 
-        protected override void CloseView(T view, INavigationContext context) => CloseViewHandler?.Invoke(context);
+        protected override Task CloseViewAsync(T view, INavigationContext context) => CloseViewHandler?.Invoke(context) ?? Default.CompletedTask;
 
         protected override void CleanupView(T view, INavigationContext context) => CleanupViewHandler?.Invoke(context);
 

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -53,11 +54,9 @@ namespace MugenMvvm.Ios.Presenters
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
             => base.CanPresent(presenter, viewModel, mapping, metadata) && typeof(IModalView).IsAssignableFrom(mapping.ViewType);
 
-        protected override void Activate(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
-        {
-        }
+        protected override Task? ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => null;
 
-        protected override void Show(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
+        protected override Task? ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
             {
@@ -66,15 +65,16 @@ namespace MugenMvvm.Ios.Presenters
             }
 
             if (navigationContext.NavigationMode != NavigationMode.New)
-                return;
+                return null;
 
             var topView = NavigationDispatcher.GetTopView<UIViewController>(includePending: false, metadata: navigationContext.GetMetadataOrDefault());
             if (topView == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(UIViewController), nameof(topView));
             topView.PresentViewController(view, navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.Animated, Animated), null);
+            return null;
         }
 
-        protected override void Close(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
+        protected override Task? CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
         {
             var request = new CancelableRequest();
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, request, navigationContext.GetMetadataOrDefault());
@@ -89,6 +89,8 @@ namespace MugenMvvm.Ios.Presenters
                         ViewManager.OnLifecycleChanged(childViewController, ViewLifecycleState.Closed, null, navigationContext.GetMetadataOrDefault());
                 });
             }
+
+            return null;
         }
 
         #endregion
