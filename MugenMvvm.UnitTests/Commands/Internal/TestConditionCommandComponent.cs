@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTests.Commands.Internal
 {
@@ -16,9 +17,9 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Implementation of interfaces
 
-        bool IConditionCommandComponent.HasCanExecute(ICompositeCommand command) => HasCanExecute?.Invoke(command) ?? false;
+        bool IConditionCommandComponent.HasCanExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => HasCanExecute?.Invoke(command) ?? false;
 
-        bool IConditionCommandComponent.CanExecute(ICompositeCommand command, object? parameter) => CanExecute?.Invoke(command, parameter) ?? true;
+        bool IConditionCommandComponent.CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => CanExecute?.Invoke(command, parameter) ?? true;
 
         #endregion
     }

@@ -1,14 +1,15 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface IConditionEventCommandComponent : IComponent<ICompositeCommand>
     {
-        void AddCanExecuteChanged(ICompositeCommand command, EventHandler handler);
+        void AddCanExecuteChanged(ICompositeCommand command, EventHandler handler, IReadOnlyMetadataContext? metadata);
 
-        void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler);
+        void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler, IReadOnlyMetadataContext? metadata);
 
-        void RaiseCanExecuteChanged(ICompositeCommand command);
+        void RaiseCanExecuteChanged(ICompositeCommand command, IReadOnlyMetadataContext? metadata);
     }
 }

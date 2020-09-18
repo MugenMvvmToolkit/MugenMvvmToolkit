@@ -51,11 +51,11 @@ namespace MugenMvvm.UnitTests.Commands.Components
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateExecutorCommandComponent<object>>();
-            component.ExecuteAsync(command, null);
+            component.ExecuteAsync(command, null, null);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
             {
-                component.CanExecute(command, null).ShouldEqual(canExecuteValue);
+                component.CanExecute(command, null, null).ShouldEqual(canExecuteValue);
                 canExecuteValue = false;
                 command.CanExecute(null).ShouldEqual(canExecuteValue);
                 if (notifiers != null)

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTests.Commands.Internal
@@ -16,7 +17,7 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Implementation of interfaces
 
-        Task IExecutorCommandComponent.ExecuteAsync(ICompositeCommand command, object? parameter) => ExecuteAsync?.Invoke(command, parameter) ?? Default.CompletedTask;
+        Task IExecutorCommandComponent.ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => ExecuteAsync?.Invoke(command, parameter) ?? Default.CompletedTask;
 
         #endregion
     }

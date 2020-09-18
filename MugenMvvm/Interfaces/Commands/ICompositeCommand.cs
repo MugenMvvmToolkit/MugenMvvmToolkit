@@ -8,8 +8,8 @@ namespace MugenMvvm.Interfaces.Commands
 {
     public interface ICompositeCommand : IComponentOwner<ICompositeCommand>, IMetadataOwner<IMetadataContext>, ICommand, IDisposable, ISuspendable
     {
-        bool HasCanExecute { get; }
+        bool HasCanExecute(IReadOnlyMetadataContext? metadata = null);
 
-        void RaiseCanExecuteChanged();
+        void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null);
     }
 }

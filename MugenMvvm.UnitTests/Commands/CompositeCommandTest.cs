@@ -5,6 +5,7 @@ using MugenMvvm.Commands;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Commands.Internal;
 using MugenMvvm.UnitTests.Internal;
@@ -28,7 +29,7 @@ namespace MugenMvvm.UnitTests.Commands
             var count = 0;
             var canExecute = false;
             var compositeCommand = GetComponentOwner();
-            compositeCommand.HasCanExecute.ShouldBeFalse();
+            compositeCommand.HasCanExecute().ShouldBeFalse();
             for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestConditionCommandComponent
@@ -43,12 +44,12 @@ namespace MugenMvvm.UnitTests.Commands
                 compositeCommand.AddComponent(component);
             }
 
-            compositeCommand.HasCanExecute.ShouldBeFalse();
+            compositeCommand.HasCanExecute().ShouldBeFalse();
             count.ShouldEqual(componentCount);
 
             count = 0;
             canExecute = true;
-            compositeCommand.HasCanExecute.ShouldBeTrue();
+            compositeCommand.HasCanExecute().ShouldBeTrue();
             count.ShouldEqual(1);
         }
 
@@ -413,7 +414,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
             CommandExecutionMode? executionMode, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
-            Func<Task> execute = () => Task.CompletedTask;
+            Func<Task> execute = () => Default.CompletedTask;
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -452,7 +453,7 @@ namespace MugenMvvm.UnitTests.Commands
         [InlineData(true)]
         public void CreateFromTaskShouldGenerateValidRequest2(bool addNotifiers)
         {
-            Func<Task> execute = () => Task.CompletedTask;
+            Func<Task> execute = () => Default.CompletedTask;
             var canExecute = GetCanExecuteNoObject(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
 
@@ -478,7 +479,7 @@ namespace MugenMvvm.UnitTests.Commands
         [InlineData(true, true)]
         public void CreateFromTaskShouldGenerateValidRequest3(bool allowMultipleExecution, bool addNotifiers)
         {
-            Func<Task> execute = () => Task.CompletedTask;
+            Func<Task> execute = () => Default.CompletedTask;
             var canExecute = GetCanExecuteNoObject(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
 
@@ -506,7 +507,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void CreateFromTaskShouldGenerateValidRequest4(bool hasCanExecute, bool? allowMultipleExecution,
             CommandExecutionMode? executionMode, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
-            Func<object?, Task> execute = item => Task.CompletedTask;
+            Func<object?, Task> execute = item => Default.CompletedTask;
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -545,7 +546,7 @@ namespace MugenMvvm.UnitTests.Commands
         [InlineData(true)]
         public void CreateFromTaskShouldGenerateValidRequest5(bool addNotifiers)
         {
-            Func<object?, Task> execute = item => Task.CompletedTask;
+            Func<object?, Task> execute = item => Default.CompletedTask;
             var canExecute = GetCanExecute(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
 
@@ -571,7 +572,7 @@ namespace MugenMvvm.UnitTests.Commands
         [InlineData(true, true)]
         public void CreateFromTaskShouldGenerateValidRequest6(bool allowMultipleExecution, bool addNotifiers)
         {
-            Func<object?, Task> execute = item => Task.CompletedTask;
+            Func<object?, Task> execute = item => Default.CompletedTask;
             var canExecute = GetCanExecute(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
 

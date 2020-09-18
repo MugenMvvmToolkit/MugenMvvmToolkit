@@ -45,8 +45,6 @@ namespace MugenMvvm.Commands
 
         public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
 
-        public bool HasCanExecute => GetComponents<IConditionCommandComponent>().HasCanExecute(this);
-
         public bool IsDisposed => _state == DisposedState;
 
         public bool CanDispose { get; set; }
@@ -57,17 +55,17 @@ namespace MugenMvvm.Commands
 
         public event EventHandler CanExecuteChanged
         {
-            add => GetComponents<IConditionEventCommandComponent>().AddCanExecuteChanged(this, value);
-            remove => GetComponents<IConditionEventCommandComponent>().RemoveCanExecuteChanged(this, value);
+            add => GetComponents<IConditionEventCommandComponent>().AddCanExecuteChanged(this, value, null);
+            remove => GetComponents<IConditionEventCommandComponent>().RemoveCanExecuteChanged(this, value, null);
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public bool CanExecute(object parameter) => GetComponents<IConditionCommandComponent>().CanExecute(this, parameter);
+        public bool CanExecute(object parameter) => GetComponents<IConditionCommandComponent>().CanExecute(this, parameter, null);
 
-        public void Execute(object parameter) => GetComponents<IExecutorCommandComponent>().ExecuteAsync(this, parameter);
+        public void Execute(object parameter) => GetComponents<IExecutorCommandComponent>().ExecuteAsync(this, parameter, null);
 
         public void Dispose()
         {
@@ -80,7 +78,9 @@ namespace MugenMvvm.Commands
 
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<ISuspendable>().Suspend(state, metadata);
 
-        public void RaiseCanExecuteChanged() => GetComponents<IConditionEventCommandComponent>().RaiseCanExecuteChanged(this);
+        public bool HasCanExecute(IReadOnlyMetadataContext? metadata = null) => GetComponents<IConditionCommandComponent>().HasCanExecute(this, metadata);
+
+        public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<IConditionEventCommandComponent>().RaiseCanExecuteChanged(this, metadata);
 
         void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {

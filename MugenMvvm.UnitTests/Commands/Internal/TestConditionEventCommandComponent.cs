@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTests.Commands.Internal
 {
@@ -18,11 +19,11 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Implementation of interfaces
 
-        void IConditionEventCommandComponent.AddCanExecuteChanged(ICompositeCommand command, EventHandler handler) => AddCanExecuteChanged?.Invoke(command, handler);
+        void IConditionEventCommandComponent.AddCanExecuteChanged(ICompositeCommand command, EventHandler handler, IReadOnlyMetadataContext? metadata) => AddCanExecuteChanged?.Invoke(command, handler);
 
-        void IConditionEventCommandComponent.RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler) => RemoveCanExecuteChanged?.Invoke(command, handler);
+        void IConditionEventCommandComponent.RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler, IReadOnlyMetadataContext? metadata) => RemoveCanExecuteChanged?.Invoke(command, handler);
 
-        void IConditionEventCommandComponent.RaiseCanExecuteChanged(ICompositeCommand command) => RaiseCanExecuteChanged?.Invoke(command);
+        void IConditionEventCommandComponent.RaiseCanExecuteChanged(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => RaiseCanExecuteChanged?.Invoke(command);
 
         #endregion
     }
