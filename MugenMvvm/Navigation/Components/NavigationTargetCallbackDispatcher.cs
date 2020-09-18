@@ -20,23 +20,16 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public Task<bool>? CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public async Task<bool>? CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var prevTarget = GetPrevNavigationTarget(navigationDispatcher, navigationContext);
             var target = navigationContext.Target;
-            if (prevTarget is IHasNavigationCondition c1 && target is IHasNavigationCondition c2)
-                return new CanNavigateResult(c1, c2, navigationContext, cancellationToken).Task;
-
             if (navigationContext.NavigationMode.IsClose)
-            {
-                if (navigationContext.Target is IHasNavigationCondition condition)
-                    return condition.CanNavigateFromAsync(prevTarget, navigationContext, cancellationToken);
-                return (prevTarget as IHasNavigationCondition)?.CanNavigateToAsync(navigationContext.Target, navigationContext, cancellationToken);
-            }
+                return await CanNavigateFromAsync(target, prevTarget, navigationContext, cancellationToken).ConfigureAwait(false) &&
+                       await CanNavigateToAsync(prevTarget, target, navigationContext, cancellationToken).ConfigureAwait(false);
 
-            if (prevTarget is IHasNavigationCondition c)
-                return c.CanNavigateFromAsync(navigationContext.Target, navigationContext, cancellationToken);
-            return (navigationContext.Target as IHasNavigationCondition)?.CanNavigateToAsync(prevTarget, navigationContext, cancellationToken);
+            return await CanNavigateFromAsync(prevTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
+                   await CanNavigateToAsync(target, prevTarget, navigationContext, cancellationToken).ConfigureAwait(false);
         }
 
         public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -86,104 +79,18 @@ namespace MugenMvvm.Navigation.Components
                 return null;
             });
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class CanNavigateResult : TaskCompletionSource<bool>
+        private static Task<bool> CanNavigateFromAsync(object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            #region Fields
+            if (target is IHasNavigationCondition condition)
+                return condition.CanNavigateFromAsync(toTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
+            return Default.TrueTask;
+        }
 
-            private readonly CancellationToken _cancellationToken;
-            private readonly INavigationContext _navigationContext;
-
-            private readonly IHasNavigationCondition _prevTarget;
-            private readonly IHasNavigationCondition _target;
-            private int _state;
-
-            #endregion
-
-            #region Constructors
-
-            public CanNavigateResult(IHasNavigationCondition prevTarget, IHasNavigationCondition target, INavigationContext navigationContext, CancellationToken cancellationToken)
-            {
-                _prevTarget = prevTarget;
-                _target = target;
-                _navigationContext = navigationContext;
-                _cancellationToken = cancellationToken;
-                OnExecuted(Default.TrueTask);
-            }
-
-            #endregion
-
-            #region Methods
-
-            private void OnExecuted(Task<bool> task)
-            {
-                try
-                {
-                    if (task.IsCanceled)
-                    {
-                        SetResult(false, null, true);
-                        return;
-                    }
-
-                    if (!task.Result)
-                    {
-                        SetResult(false, null, false);
-                        return;
-                    }
-
-                    if (_state == 2)
-                    {
-                        SetResult(true, null, false);
-                        return;
-                    }
-
-                    if (_cancellationToken.IsCancellationRequested)
-                    {
-                        SetResult(false, null, true);
-                        return;
-                    }
-
-                    ++_state;
-                    var resultTask = CanNavigateAsync();
-                    if (resultTask == null)
-                        OnExecuted(Default.TrueTask);
-                    else
-                        resultTask.ContinueWith((t, state) => ((CanNavigateResult)state!).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
-                }
-                catch (Exception e)
-                {
-                    SetResult(false, e, false);
-                }
-            }
-
-            private Task<bool>? CanNavigateAsync()
-            {
-                if (_navigationContext.NavigationMode.IsClose)
-                {
-                    if (_state == 1)
-                        return _target.CanNavigateFromAsync(_prevTarget, _navigationContext, _cancellationToken);
-                    return _prevTarget.CanNavigateToAsync(_target, _navigationContext, _cancellationToken);
-                }
-
-                if (_state == 1)
-                    return _prevTarget.CanNavigateFromAsync(_target, _navigationContext, _cancellationToken);
-                return _target.CanNavigateToAsync(_prevTarget, _navigationContext, _cancellationToken);
-            }
-
-            private void SetResult(bool result, Exception? exception, bool canceled)
-            {
-                if (exception != null)
-                    this.TrySetExceptionEx(exception);
-                else if (canceled)
-                    TrySetCanceled();
-                else
-                    TrySetResult(result);
-            }
-
-            #endregion
+        private static Task<bool> CanNavigateToAsync(object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
+        {
+            if (target is IHasNavigationCondition condition)
+                return condition.CanNavigateToAsync(fromTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
+            return Default.TrueTask;
         }
 
         #endregion

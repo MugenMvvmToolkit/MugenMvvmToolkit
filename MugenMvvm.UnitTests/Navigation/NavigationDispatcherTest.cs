@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Navigation
                     TryGetNavigationEntries = ctx =>
                     {
                         ctx.ShouldEqual(DefaultMetadata);
-                        return new[] {info};
+                        return new[] { info };
                     }
                 };
                 dispatcher.AddComponent(component);
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Navigation
                     {
                         entry.ShouldEqual(navEntry);
                         ctx.ShouldEqual(DefaultMetadata);
-                        return new[] {info};
+                        return new[] { info };
                     }
                 };
                 dispatcher.AddComponent(component);
@@ -162,7 +162,7 @@ namespace MugenMvvm.UnitTests.Navigation
                 callbacks.Add(new TaskCompletionSource<bool>());
             for (var i = 0; i < count; i++)
             {
-                var source = callbacks.ElementAt(i);
+                var source = callbacks[i];
                 var component = new TestConditionNavigationDispatcherComponent(dispatcher)
                 {
                     Priority = -i,
@@ -197,6 +197,7 @@ namespace MugenMvvm.UnitTests.Navigation
             if (state == 0 || state == 1)
             {
                 callbacks.Last().TrySetResult(state == 0);
+                result.WaitEx();
                 result.IsCompleted.ShouldBeTrue();
                 result.Result.ShouldEqual(state == 0);
                 navigatingCount.ShouldEqual(state == 0 ? count : 0);
@@ -207,6 +208,7 @@ namespace MugenMvvm.UnitTests.Navigation
             {
                 if (state == 2)
                     callbacks.Last().TrySetCanceled(token);
+                result.WaitEx();
                 result.IsCompleted.ShouldBeTrue();
                 result.IsCanceled.ShouldBeTrue();
                 navigatingCount.ShouldEqual(0);
@@ -215,6 +217,7 @@ namespace MugenMvvm.UnitTests.Navigation
 
             var ex = new Exception();
             callbacks.Last().TrySetException(ex);
+            result.WaitEx();
             result.IsCompleted.ShouldBeTrue();
             result.IsFaulted.ShouldBeTrue();
             result.Exception!.InnerExceptions.Contains(ex).ShouldBeTrue();

@@ -160,18 +160,29 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
         }
 
-        public static Task<bool> OnNavigatingAsync(this IConditionNavigationDispatcherComponent[] components, INavigationDispatcherNavigatingListener[] listeners,
+        public static async Task<bool> OnNavigatingAsync(this IConditionNavigationDispatcherComponent[] components, INavigationDispatcherNavigatingListener[] listeners,
             INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            return components.InvokeAsync((navigationDispatcher, listeners, navigationContext),
-                (component, s, c) => component.CanNavigateAsync(s.navigationDispatcher, s.navigationContext, c).AsValueTask(), (r, s) => !r, cancellationToken, true, (r, s) =>
+            bool result = true;
+            for (int i = 0; i < components.Length; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var task = components[i].CanNavigateAsync(navigationDispatcher, navigationContext, cancellationToken);
+                if (task == null)
+                    continue;
+                if (!await task.ConfigureAwait(false))
                 {
-                    if (r)
-                        s.listeners.OnNavigating(s.navigationDispatcher, s.navigationContext);
-                }).AsTaskEx();
+                    result = false;
+                    break;
+                }
+            }
+
+            if (result)
+                listeners.OnNavigating(navigationDispatcher, navigationContext);
+            return result;
         }
 
         public static void OnNavigating(this INavigationDispatcherNavigatingListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)

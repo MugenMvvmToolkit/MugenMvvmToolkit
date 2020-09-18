@@ -225,10 +225,12 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             if (includePrevTarget)
             {
                 task.IsCompleted.ShouldBeFalse();
+                WaitCompletion();
                 prevTargetInvokeCount.ShouldEqual(1);
                 tcsPrevTarget.SetResult(true);
             }
 
+            task.WaitEx();
             task.IsCompleted.ShouldBeTrue();
             task.Result.ShouldBeTrue();
         }
@@ -293,10 +295,12 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             if (includeTarget)
             {
                 task.IsCompleted.ShouldBeFalse();
+                WaitCompletion();
                 targetInvokeCount.ShouldEqual(1);
                 tcsTarget.SetResult(true);
             }
 
+            task.WaitEx();
             task.IsCompleted.ShouldBeTrue();
             task.Result.ShouldBeTrue();
         }
