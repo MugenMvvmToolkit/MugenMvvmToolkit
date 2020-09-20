@@ -54,11 +54,11 @@ namespace MugenMvvm.Ios.Extensions
 
             configuration
                 .ServiceConfiguration<INavigationDispatcher>()
-                .WithComponent(new IosConditionNavigationDispatcher());
+                .WithComponent(new ConditionNavigationDispatcher());
 
             if (shouldSaveAppState)
             {
-                var applicationStateDispatcher = new IosApplicationStateDispatcher();
+                var applicationStateDispatcher = new ApplicationStateDispatcher();
                 configuration.Application.AddComponent(applicationStateDispatcher);
                 configuration
                     .ServiceConfiguration<IViewManager>()
@@ -67,11 +67,11 @@ namespace MugenMvvm.Ios.Extensions
 
             configuration
                 .ServiceConfiguration<IViewManager>()
-                .WithComponent(new IosViewLifecycleDispatcher());
+                .WithComponent(new NativeViewLifecycleDispatcher());
 
             configuration
                 .ServiceConfiguration<IPresenter>()
-                .WithComponent(new IosModalViewPresenter());
+                .WithComponent(new ModalViewPresenter());
 
             return configuration;
         }
@@ -80,7 +80,7 @@ namespace MugenMvvm.Ios.Extensions
         {
             configuration
                 .ServiceConfiguration<IPresenter>()
-                .WithComponent(new IosApplicationPresenter(rootViewModelType, wrapToNavigationController));
+                .WithComponent(new ApplicationPresenter(rootViewModelType, wrapToNavigationController));
             return configuration;
         }
 
@@ -94,7 +94,7 @@ namespace MugenMvvm.Ios.Extensions
                 .For<NSObject>()
                 .CollectionViewManager()
                 .GetBuilder()
-                .DefaultValue((info, view) => new IosCollectionViewManager())
+                .DefaultValue((info, view) => new CollectionViewManager())
                 .NonObservable()
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<UIView>()
@@ -169,13 +169,13 @@ namespace MugenMvvm.Ios.Extensions
                 .CustomImplementation((member, target, listener, metadata) =>
                 {
                     var closure = new ClickClosure(listener.ToWeak());
-                    var recognizer = new UITapGestureRecognizer(closure, ClickClosure.OnClickSelector) {NumberOfTapsRequired = 1};
+                    var recognizer = new UITapGestureRecognizer(closure, ClickClosure.OnClickSelector) { NumberOfTapsRequired = 1 };
                     target.UserInteractionEnabled = true;
                     target.AddGestureRecognizer(recognizer);
                     return new ActionToken((t, r) =>
                     {
-                        var v = (UIView?) ((IWeakReference) t!).Target;
-                        var g = (UITapGestureRecognizer?) ((IWeakReference) r!).Target;
+                        var v = (UIView?)((IWeakReference)t!).Target;
+                        var g = (UITapGestureRecognizer?)((IWeakReference)r!).Target;
                         if (v != null && g != null)
                             v.RemoveGestureRecognizer(g);
                     }, target.ToWeakReference(), recognizer.ToWeakReference());
@@ -189,7 +189,7 @@ namespace MugenMvvm.Ios.Extensions
                 .Build());
 
             //UIControl
-            var clickEvent = (IObservableMemberInfo?) memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.TouchUpInside));
+            var clickEvent = (IObservableMemberInfo?)memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.TouchUpInside));
             if (clickEvent != null)
             {
                 attachedMemberProvider.Register(BindableMembers
@@ -200,7 +200,7 @@ namespace MugenMvvm.Ios.Extensions
                     .Build());
             }
 
-            var valueChangedEvent = (IObservableMemberInfo?) memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.ValueChanged));
+            var valueChangedEvent = (IObservableMemberInfo?)memberManager.TryGetMember(typeof(UIControl), MemberType.Event, MemberFlags.All, nameof(UIControl.ValueChanged));
             if (valueChangedEvent != null)
             {
                 attachedMemberProvider.Register(valueChangedEvent, nameof(UISwitch.On) + BindingInternalConstant.ChangedEventPostfix);
@@ -234,7 +234,7 @@ namespace MugenMvvm.Ios.Extensions
 
         private static void OnContentChanged(IAccessorMemberInfo member, UIView target, object? oldValue, object? newValue, IReadOnlyMetadataContext? metadata)
         {
-            var attachedValues = MugenService.AttachedValueManager.TryGetAttachedValues(target, metadata);
+            var attachedValues = target.AttachedValues(metadata);
             if (attachedValues.Remove(IosInternalConstants.ContentViewControllerPath, out var v) && v is UIViewController controller)
                 controller.RemoveFromParentViewController();
 

@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using Foundation;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal.Components;
 
 namespace MugenMvvm.Ios.Internal
 {
-    public class IosAttachedValueStorageProvider : AttachedValueStorageProviderBase, IHasPriority
+    public class IosAttachedValueStorageProvider : AttachedValueStorageProviderBase<NSObject>, IHasPriority
     {
         #region Properties
 
@@ -18,13 +16,11 @@ namespace MugenMvvm.Ios.Internal
 
         #region Methods
 
-        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is NSObject;
+        protected override IDictionary<string, object?>? GetAttachedDictionary(NSObject item, bool optional) => IosAttachedValueHolder.Get(item, optional)?.GetValues(optional);
 
-        protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional) => IosAttachedValueHolder.Get((NSObject) item, optional)?.GetValues(optional);
-
-        protected override bool ClearInternal(object item)
+        protected override bool ClearInternal(NSObject item)
         {
-            var dictionary = GetAttachedDictionary(item, true);
+            var dictionary = IosAttachedValueHolder.Get(item, true)?.GetValues(true);
             if (dictionary == null)
                 return false;
             dictionary.Clear();

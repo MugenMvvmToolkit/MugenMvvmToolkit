@@ -8,7 +8,7 @@ using MugenMvvm.Ios.Interfaces;
 
 namespace MugenMvvm.Ios.Collections
 {
-    public class IosBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
+    public class ItemsSourceBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
     {
         #region Fields
 
@@ -24,7 +24,7 @@ namespace MugenMvvm.Ios.Collections
 
         #region Constructors
 
-        public IosBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter, IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
+        public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter, IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
             Should.NotBeNull(collectionViewAdapter, nameof(collectionViewAdapter));
@@ -198,7 +198,7 @@ namespace MugenMvvm.Ios.Collections
         {
             #region Fields
 
-            private readonly IosBindableCollectionAdapter _adapter;
+            private readonly ItemsSourceBindableCollectionAdapter _adapter;
             private readonly int _version;
 
             private Action? _endBatchUpdate;
@@ -209,7 +209,7 @@ namespace MugenMvvm.Ios.Collections
 
             #region Constructors
 
-            private Closure(IosBindableCollectionAdapter adapter, int version)
+            private Closure(ItemsSourceBindableCollectionAdapter adapter, int version)
             {
                 _adapter = adapter;
                 _version = version;
@@ -229,7 +229,7 @@ namespace MugenMvvm.Ios.Collections
 
             #region Methods
 
-            public static Closure GetClosure(IosBindableCollectionAdapter adapter, int version)
+            public static Closure GetClosure(ItemsSourceBindableCollectionAdapter adapter, int version)
             {
                 var closure = adapter._closure;
                 if (closure == null || closure._version != version)

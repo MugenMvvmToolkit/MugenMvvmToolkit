@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Ios.Navigation
 {
-    public sealed class IosConditionNavigationDispatcher : IConditionNavigationDispatcherComponent, IHasPriority
+    public sealed class ConditionNavigationDispatcher : IConditionNavigationDispatcherComponent, IHasPriority
     {
         #region Properties
 

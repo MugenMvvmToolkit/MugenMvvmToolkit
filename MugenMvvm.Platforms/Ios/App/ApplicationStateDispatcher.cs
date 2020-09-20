@@ -24,7 +24,7 @@ using UIKit;
 
 namespace MugenMvvm.Ios.App
 {
-    public sealed class IosApplicationStateDispatcher : IApplicationLifecycleDispatcherComponent, IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class ApplicationStateDispatcher : IApplicationLifecycleDispatcherComponent, IViewLifecycleDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -37,7 +37,7 @@ namespace MugenMvvm.Ios.App
 
         #region Constructors
 
-        public IosApplicationStateDispatcher(IPresenter? presenter = null, ISerializer? serializer = null, IViewManager? viewManager = null, IServiceProvider? serviceProvider = null)
+        public ApplicationStateDispatcher(IPresenter? presenter = null, ISerializer? serializer = null, IViewManager? viewManager = null, IServiceProvider? serviceProvider = null)
         {
             _presenter = presenter;
             _serializer = serializer;

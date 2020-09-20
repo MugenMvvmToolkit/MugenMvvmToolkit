@@ -14,7 +14,7 @@ using UIKit;
 
 namespace MugenMvvm.Ios.Presenters
 {
-    public class IosModalViewPresenter : ViewPresenterBase<UIViewController>
+    public class ModalViewPresenter : ViewPresenterBase<UIViewController>
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Ios.Presenters
 
         #region Constructors
 
-        public IosModalViewPresenter(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
+        public ModalViewPresenter(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
         {
             _viewManager = viewManager;
             _navigationDispatcher = navigationDispatcher;
@@ -65,7 +65,7 @@ namespace MugenMvvm.Ios.Presenters
             }
 
             if (navigationContext.NavigationMode != NavigationMode.New)
-                return null;
+                return null; //todo track state
 
             var topView = NavigationDispatcher.GetTopView<UIViewController>(includePending: false, metadata: navigationContext.GetMetadataOrDefault());
             if (topView == null)
@@ -101,13 +101,13 @@ namespace MugenMvvm.Ios.Presenters
         {
             #region Fields
 
-            private readonly IosModalViewPresenter _presenter;
+            private readonly ModalViewPresenter _presenter;
 
             #endregion
 
             #region Constructors
 
-            public MugenAdaptivePresentationControllerDelegate(IosModalViewPresenter presenter)
+            public MugenAdaptivePresentationControllerDelegate(ModalViewPresenter presenter)
             {
                 _presenter = presenter;
             }

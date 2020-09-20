@@ -19,8 +19,8 @@ namespace MugenMvvm.Ios.Presenters
         #region Fields
 
         private readonly INavigationDispatcher? _navigationDispatcher;
-        private readonly IPresenter? _presenter;
         private readonly IViewManager? _viewManager;
+        private readonly IPresenter? _presenter;
 
         #endregion
 
@@ -47,11 +47,11 @@ namespace MugenMvvm.Ios.Presenters
 
         public Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, bool>? CanPresentHandler { get; set; }
 
-        protected IViewManager ViewManager => _viewManager.DefaultIfNull();
-
         protected IPresenter Presenter => _presenter.DefaultIfNull();
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
+
+        protected IViewManager ViewManager => _viewManager.DefaultIfNull();
 
         #endregion
 

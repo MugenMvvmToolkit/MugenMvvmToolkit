@@ -19,7 +19,7 @@ using UIKit;
 
 namespace MugenMvvm.Ios.Presenters
 {
-    public sealed class IosApplicationPresenter : IPresenterComponent, IHasPriority
+    public sealed class ApplicationPresenter : IPresenterComponent, IHasPriority
     {
         #region Fields
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.Ios.Presenters
 
         #region Constructors
 
-        public IosApplicationPresenter(Type rootViewModelType, bool wrapToNavigationController, IViewModelManager? viewModelManager = null,
+        public ApplicationPresenter(Type rootViewModelType, bool wrapToNavigationController, IViewModelManager? viewModelManager = null,
             IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
         {
             Should.NotBeNull(rootViewModelType, nameof(rootViewModelType));

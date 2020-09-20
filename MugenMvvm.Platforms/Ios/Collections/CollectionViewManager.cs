@@ -8,7 +8,7 @@ using UIKit;
 
 namespace MugenMvvm.Ios.Collections
 {
-    public class IosCollectionViewManager : ICollectionViewManager
+    public class CollectionViewManager : ICollectionViewManager
     {
         #region Implementation of interfaces
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.Ios.Collections
 
         #region Methods
 
-        protected static IosBindableCollectionAdapter? GetCollectionAdapter(object collectionView, bool throwIfNotSupported)
+        protected static ItemsSourceBindableCollectionAdapter? GetCollectionAdapter(object collectionView, bool throwIfNotSupported)
         {
             if (collectionView is UITableView tableView)
                 return ((MugenTableViewSource) tableView.Source)?.CollectionAdapter;

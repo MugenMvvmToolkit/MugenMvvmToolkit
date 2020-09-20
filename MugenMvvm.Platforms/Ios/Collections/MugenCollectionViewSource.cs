@@ -18,11 +18,11 @@ namespace MugenMvvm.Ios.Collections
         #region Constructors
 
         public MugenCollectionViewSource(UICollectionView collectionView, ICellTemplateSelector itemTemplateSelector)
-            : this(new IosBindableCollectionAdapter(new CollectionViewAdapter(collectionView), itemTemplateSelector as IItemsSourceEqualityComparer), itemTemplateSelector)
+            : this(new ItemsSourceBindableCollectionAdapter(new CollectionViewAdapter(collectionView), itemTemplateSelector as IItemsSourceEqualityComparer), itemTemplateSelector)
         {
         }
 
-        public MugenCollectionViewSource(IosBindableCollectionAdapter collectionAdapter, ICellTemplateSelector itemTemplateSelector)
+        public MugenCollectionViewSource(ItemsSourceBindableCollectionAdapter collectionAdapter, ICellTemplateSelector itemTemplateSelector)
         {
             Should.NotBeNull(collectionAdapter, nameof(collectionAdapter));
             Should.NotBeNull(itemTemplateSelector, nameof(itemTemplateSelector));
@@ -34,7 +34,7 @@ namespace MugenMvvm.Ios.Collections
 
         #region Properties
 
-        public IosBindableCollectionAdapter CollectionAdapter { get; }
+        public ItemsSourceBindableCollectionAdapter CollectionAdapter { get; }
 
         public ICellTemplateSelector ItemTemplateSelector { get; }
 
