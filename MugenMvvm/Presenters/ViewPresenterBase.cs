@@ -24,17 +24,17 @@ namespace MugenMvvm.Presenters
         #region Implementation of interfaces
 
         object? IViewPresenter.TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext)
-            => TryGetViewRequest(mediator, (TView?) view, navigationContext);
+            => TryGetViewRequest(mediator, (TView?)view, navigationContext);
 
-        void IViewPresenter.Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Initialize(mediator, (TView) view, navigationContext);
+        void IViewPresenter.Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Initialize(mediator, (TView)view, navigationContext);
 
-        void IViewPresenter.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Cleanup(mediator, (TView) view, navigationContext);
+        void IViewPresenter.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Cleanup(mediator, (TView)view, navigationContext);
 
-        Task IViewPresenter.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ActivateAsync(mediator, (TView) view, navigationContext) ?? Default.CompletedTask;
+        Task IViewPresenter.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ActivateAsync(mediator, (TView)view, navigationContext) ?? Default.CompletedTask;
 
-        Task IViewPresenter.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ShowAsync(mediator, (TView) view, navigationContext) ?? Default.CompletedTask;
+        Task IViewPresenter.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ShowAsync(mediator, (TView)view, navigationContext) ?? Default.CompletedTask;
 
-        Task IViewPresenter.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => CloseAsync(mediator, (TView) view, navigationContext) ?? Default.CompletedTask;
+        Task IViewPresenter.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => CloseAsync(mediator, (TView)view, navigationContext) ?? Default.CompletedTask;
 
         IViewPresenter? IViewPresenterProviderComponent.TryGetViewPresenter(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             CanPresent(presenter, viewModel, mapping, metadata) ? this : null;

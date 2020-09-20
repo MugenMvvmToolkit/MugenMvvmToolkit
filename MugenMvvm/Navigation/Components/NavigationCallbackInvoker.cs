@@ -34,11 +34,8 @@ namespace MugenMvvm.Navigation.Components
             else
             {
                 InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, true, cancellationToken);
-                if (navigationContext.NavigationMode.IsNew)
-                {
-                    InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
-                    InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, null, true, cancellationToken);
-                }
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, null, true, cancellationToken);
             }
         }
 

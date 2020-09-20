@@ -32,6 +32,7 @@ namespace MugenMvvm.Presenters
         private string _id;
         private string? _navigationId;
 
+        protected bool IsShown;
         protected ICancelableRequest? ClosingCancelArgs;
         protected INavigationContext? ClosingContext;
         protected CancellationTokenSource? ShowingCancellationTokenSource;
@@ -149,6 +150,30 @@ namespace MugenMvvm.Presenters
 
         protected virtual IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) => new PresenterResult(ViewModel, NavigationId, this, NavigationType, metadata);
 
+        protected virtual INavigationContext GetShowNavigationContext(object? view, IReadOnlyMetadataContext? metadata)
+        {
+            NavigationMode? mode = null;
+            if (IsShown)
+                mode = NavigationMode.Refresh;
+            else
+            {
+                var hashSet = ViewModel.GetMetadataOrDefault().Get(NavigationMetadata.OpenedNavigationProviders);
+                if (hashSet != null)
+                {
+                    lock (hashSet)
+                    {
+                        if (hashSet.Contains(Id))
+                            mode = NavigationMode.Restore;
+                    }
+                }
+            }
+
+            var context = GetNavigationContext(mode ?? NavigationMode.New, metadata);
+            if (view != null)
+                context.Metadata.Set(InternalMetadata.View, view);
+            return context;
+        }
+
         protected virtual INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata) =>
             NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationId, NavigationType, mode, metadata);
 
@@ -158,24 +183,6 @@ namespace MugenMvvm.Presenters
             => CheckNavigationType(metadata) && View != null && (view == null || Equals(View.Target, view));
 
         protected virtual object GetViewRequest(object? view, INavigationContext navigationContext) => ViewModelViewRequest.GetRequestOrRaw(ViewModel, view);
-
-        protected virtual NavigationMode GetShowNavigationMode(object? view, IReadOnlyMetadataContext? metadata)
-        {
-            if (View != null)
-                return NavigationMode.Refresh;
-
-            var hashSet = ViewModel.GetMetadataOrDefault().Get(NavigationMetadata.OpenedNavigationProviders);
-            if (hashSet != null)
-            {
-                lock (hashSet)
-                {
-                    if (hashSet.Contains(Id))
-                        return NavigationMode.Restore;
-                }
-            }
-
-            return NavigationMode.New;
-        }
 
         protected virtual void OnNavigating(INavigationContext navigationContext) => NavigationDispatcher.OnNavigating(navigationContext);
 
@@ -220,7 +227,7 @@ namespace MugenMvvm.Presenters
             INavigationContext? context = null;
             try
             {
-                context = GetNavigationContext(GetShowNavigationMode(view, metadata), metadata);
+                context = GetShowNavigationContext(view, metadata);
                 ShowingContext = context;
                 if (!EnsureValidState(context, cancellationToken))
                     return;
@@ -257,7 +264,7 @@ namespace MugenMvvm.Presenters
 
                 ThreadDispatcher.Execute(ExecutionMode, s =>
                 {
-                    var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, IView, INavigationContext, bool>) s!;
+                    var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, IView, INavigationContext, bool>)s!;
                     tuple.Item1.ShowViewCallback(tuple.Item2, tuple.Item3, tuple.Item4);
                 }, Tuple.Create(this, newView, context, isShowRequest));
             }
@@ -306,13 +313,19 @@ namespace MugenMvvm.Presenters
         protected internal virtual void OnViewShown(IReadOnlyMetadataContext? metadata)
         {
             if (View != null)
-                OnNavigated(ShowingContext ?? GetNavigationContext(GetShowNavigationMode(CurrentView, null), metadata));
+            {
+                ShowingContext ??= GetShowNavigationContext(null, metadata);
+                OnNavigated(ShowingContext);
+            }
         }
 
         protected internal virtual void OnViewActivated(IReadOnlyMetadataContext? metadata)
         {
             if (View != null)
-                OnNavigated(ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+            {
+                ShowingContext ??= GetShowNavigationContext(null, metadata);
+                OnNavigated(ShowingContext);
+            }
         }
 
         protected internal virtual void OnViewClosing(ICancelableRequest e, IReadOnlyMetadataContext? metadata)
@@ -374,6 +387,7 @@ namespace MugenMvvm.Presenters
                     await ShowViewAsync(view, navigationContext).ConfigureAwait(false);
                 else
                     RefreshCallback(navigationContext);
+                IsShown = true;
             }
             catch (Exception e)
             {
@@ -383,7 +397,7 @@ namespace MugenMvvm.Presenters
 
         private async void RefreshCallback(object? state)
         {
-            var ctx = (INavigationContext) state!;
+            var ctx = (INavigationContext)state!;
             try
             {
                 if (CurrentView == null || !await ActivateViewAsync(CurrentView, ctx).ConfigureAwait(false))
@@ -397,7 +411,7 @@ namespace MugenMvvm.Presenters
 
         private async void CloseViewCallback(object? state)
         {
-            var ctx = (INavigationContext) state!;
+            var ctx = (INavigationContext)state!;
             try
             {
                 if (ClosingCancelArgs != null)
@@ -413,12 +427,14 @@ namespace MugenMvvm.Presenters
 
         private void ClearFields(INavigationContext navigationContext, CancellationToken? cancellationToken, Exception? error)
         {
-            if (navigationContext.NavigationMode.IsNew && (cancellationToken != null || error != null))
+            if (View != null && (cancellationToken != null || error != null) &&
+                (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRestore || Equals(navigationContext.GetMetadataOrDefault().Get(InternalMetadata.View), View.Target)))
                 UpdateView(null, navigationContext);
             ShowingCancellationTokenSource?.Dispose();
             ShowingCancellationTokenSource = null;
             if (navigationContext.NavigationMode.IsClose)
             {
+                IsShown = false;
                 ClosingContext = null;
                 ClosingCancelArgs = null;
             }
@@ -442,7 +458,7 @@ namespace MugenMvvm.Presenters
 
         private bool EnsureValidState(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            if (ViewModel.IsDisposed())
+            if (ViewModel.IsInState(ViewModelLifecycleState.Disposed))
             {
                 OnNavigationFailed(navigationContext, new ObjectDisposedException(ViewModel.GetType().FullName));
                 return false;

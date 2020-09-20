@@ -1,10 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
-    public ref struct MonitorLocker
+    public struct MonitorLocker : IDisposable
     {
         #region Fields
 
@@ -27,6 +28,19 @@ namespace MugenMvvm.Internal
 
         #endregion
 
+        #region Implementation of interfaces
+
+        public void Dispose()
+        {
+            if (_locker != null)
+            {
+                Monitor.Exit(_locker);
+                _locker = null;
+            }
+        }
+
+        #endregion
+
         #region Methods
 
         public static MonitorLocker Lock(object locker)
@@ -37,15 +51,6 @@ namespace MugenMvvm.Internal
             if (lockTaken)
                 return new MonitorLocker(locker);
             return default;
-        }
-
-        public void Dispose()
-        {
-            if (_locker != null)
-            {
-                Monitor.Exit(_locker);
-                _locker = null;
-            }
         }
 
         #endregion

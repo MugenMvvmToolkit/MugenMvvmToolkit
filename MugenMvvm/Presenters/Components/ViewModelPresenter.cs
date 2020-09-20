@@ -22,9 +22,6 @@ namespace MugenMvvm.Presenters.Components
         private readonly object _locker;
         private readonly IViewManager? _viewManager;
 
-        private static readonly IMetadataContextKey<Dictionary<string, IViewModelPresenterMediator>, Dictionary<string, IViewModelPresenterMediator>> Mediators
-            = MetadataContextKey.FromMember<Dictionary<string, IViewModelPresenterMediator>, Dictionary<string, IViewModelPresenterMediator>>(typeof(ViewModelPresenter), nameof(Mediators));
-
         #endregion
 
         #region Constructors
@@ -68,7 +65,7 @@ namespace MugenMvvm.Presenters.Components
             var result = ItemOrListEditor.Get<IPresenterResult>();
             lock (_locker)
             {
-                var dictionary = viewModel.GetMetadataOrDefault().Get(Mediators);
+                var dictionary = viewModel.GetMetadataOrDefault().Get(InternalMetadata.Mediators);
                 if (dictionary == null)
                     return default;
 
@@ -84,9 +81,6 @@ namespace MugenMvvm.Presenters.Components
 
         private ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> TryGetMediators(IPresenter presenter, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (viewModel == null)
-                return default;
-
             var result = ItemOrListEditor.Get<IViewModelPresenterMediator>();
             lock (_locker)
             {
@@ -94,7 +88,7 @@ namespace MugenMvvm.Presenters.Components
                 if (components.Length == 0)
                     return default;
 
-                var dictionary = viewModel.Metadata.Get(Mediators);
+                var dictionary = viewModel.Metadata.Get(InternalMetadata.Mediators);
                 foreach (var mapping in _viewManager.DefaultIfNull().GetMappings(request, metadata).Iterator())
                 {
                     if (dictionary == null || !dictionary.TryGetValue(mapping.Id, out var mediator))
@@ -106,7 +100,7 @@ namespace MugenMvvm.Presenters.Components
                         if (dictionary == null)
                         {
                             dictionary = new Dictionary<string, IViewModelPresenterMediator>();
-                            viewModel.Metadata.Set(Mediators, dictionary, out _);
+                            viewModel.Metadata.Set(InternalMetadata.Mediators, dictionary, out _);
                         }
 
                         dictionary[mapping.Id] = mediator;
