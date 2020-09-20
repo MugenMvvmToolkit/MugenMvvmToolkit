@@ -65,7 +65,7 @@ namespace MugenMvvm.Ios.Presenters
             }
 
             if (navigationContext.NavigationMode != NavigationMode.New)
-                return null; //todo track state
+                return null;
 
             var topView = NavigationDispatcher.GetTopView<UIViewController>(includePending: false, metadata: navigationContext.GetMetadataOrDefault());
             if (topView == null)
