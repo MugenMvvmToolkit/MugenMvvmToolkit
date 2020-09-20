@@ -1,6 +1,7 @@
 package com.mugen.mvvm.views;
 
 import android.content.Context;
+
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
 
@@ -19,6 +20,11 @@ public class ActivityWrapper implements IActivityView {
     @Override
     public boolean isFinishing() {
         return Target.isFinishing();
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return Target.isDestroyed();
     }
 
     @Override

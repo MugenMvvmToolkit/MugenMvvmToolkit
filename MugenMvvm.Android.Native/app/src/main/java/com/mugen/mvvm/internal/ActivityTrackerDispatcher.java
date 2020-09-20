@@ -12,7 +12,7 @@ public class ActivityTrackerDispatcher implements ILifecycleDispatcher {
     public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
         if ((lifecycle == LifecycleState.Create || lifecycle == LifecycleState.Resume) && target instanceof Activity)
             ActivityExtensions.setCurrentActivity((Activity) target);
-        else if ((lifecycle == LifecycleState.Finish || lifecycle == LifecycleState.Destroy))
+        else if ((lifecycle == LifecycleState.Finish || lifecycle == LifecycleState.Destroy) && target instanceof Activity)
             ActivityExtensions.clearCurrentActivity((Activity) target);
         return true;
     }

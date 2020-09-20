@@ -7,5 +7,7 @@ public interface IActivityView extends IResourceView, IHasStateView, IHasLifecyc
 
     boolean isFinishing();
 
+    boolean isDestroyed();
+
     void finish();
 }

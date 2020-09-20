@@ -3,8 +3,10 @@ package com.mugen.mvvm.views;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.*;
+
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
@@ -17,6 +19,14 @@ public final class FragmentExtensions {
 
     public static boolean isSupported(Object fragment) {
         return MugenNativeService.isCompatSupported() && fragment instanceof IFragmentView;
+    }
+
+    public static boolean isDestroyed(IFragmentView fragment) {
+        Fragment f = (Fragment) fragment.getFragment();
+        FragmentActivity activity = f.getActivity();
+        if (activity == null)
+            return false;
+        return activity.isDestroyed();
     }
 
     public static Context getActivity(IFragmentView fragment) {
