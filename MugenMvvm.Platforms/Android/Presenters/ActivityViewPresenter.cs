@@ -50,7 +50,8 @@ namespace MugenMvvm.Android.Presenters
         protected override object? TryGetViewRequest(IViewModelPresenterMediator mediator, IActivityView? view, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode == NavigationMode.New && view == null)
-                return new ActivityViewRequest(mediator.ViewModel, mediator.Mapping, () => NewActivity(mediator, navigationContext));
+                return new ActivityViewRequest<(ActivityViewPresenter, IViewModelPresenterMediator, INavigationContext)>(mediator.ViewModel, mediator.Mapping,
+                    state => state.Item1.NewActivity(state.Item2, state.Item3), (this, mediator, navigationContext));
             return null;
         }
 
