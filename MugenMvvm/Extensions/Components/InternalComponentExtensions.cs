@@ -12,6 +12,22 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
+        public static bool IsInState<T>(this ILifecycleTrackerComponent<T>[] components, object owner, object target, T state, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(target, nameof(target));
+            if (state == null)
+                Should.NotBeNull(state, nameof(state));
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i].IsInState(owner, target, state, metadata))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static AttachedValueStorage TryGetAttachedValues(this IAttachedValueStorageProviderComponent[] components, IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));

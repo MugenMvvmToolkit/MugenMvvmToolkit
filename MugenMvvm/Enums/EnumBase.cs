@@ -4,12 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
-    public abstract class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
+    public abstract class EnumBase<TEnumeration, TValue> : IHasId<TValue>, IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>
     {
@@ -34,7 +35,7 @@ namespace MugenMvvm.Enums
             Value = value;
             _name = name;
             if (!_enumerations.ContainsKey(value))
-                _enumerations[value] = (TEnumeration) this;
+                _enumerations[value] = (TEnumeration)this;
         }
 
         protected EnumBase(TValue value)
@@ -45,6 +46,8 @@ namespace MugenMvvm.Enums
         #endregion
 
         #region Properties
+
+        TValue IHasId<TValue>.Id => Value;
 
         [DataMember(Name = "_d")]
         public string Name

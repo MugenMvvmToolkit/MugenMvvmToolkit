@@ -1,5 +1,7 @@
 ﻿using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -8,7 +10,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class ViewModelLifecycleTracker : IViewModelLifecycleDispatcherComponent, IHasPriority
+    public sealed class ViewModelLifecycleTracker : IViewModelLifecycleDispatcherComponent, ILifecycleTrackerComponent<ViewModelLifecycleState>, IHasPriority
     {
         #region Properties
 
@@ -18,8 +20,25 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>
-            viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState, out _);
+        public bool IsInState(object owner, object target, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state == ViewModelLifecycleState.Created)
+                return true;
+            if (state == ViewModelLifecycleState.Disposed)
+            {
+                if (target is ViewModelBase vm)
+                    return vm.IsDisposed;
+                return ((IViewModelBase)target).Metadata.TryGet(InternalMetadata.IsDisposed, out var v) && v;
+            }
+
+            return false;
+        }
+
+        public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (lifecycleState == ViewModelLifecycleState.Disposed && !(viewModel is ViewModelBase))
+                viewModel.Metadata.Set(InternalMetadata.IsDisposed, true, out _);
+        }
 
         #endregion
     }

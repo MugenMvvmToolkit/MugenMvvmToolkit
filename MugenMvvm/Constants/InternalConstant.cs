@@ -7,6 +7,7 @@
         public const string ViewsValueKey = "!~@V";
         public const string CallbackMetadataKey = "!~@C";
         public const string BackgroundNavigationId = "!b!";
+        public const string LifecycleListKey = "!ll!";
 
         #endregion
     }

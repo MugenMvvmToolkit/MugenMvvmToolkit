@@ -1,23 +1,26 @@
-﻿using MugenMvvm.Constants;
+﻿using System.Collections.Generic;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Components;
+using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Internal;
-using MugenMvvm.Metadata;
+using MugenMvvm.Internal.Components;
 using MugenMvvm.Navigation;
 
 namespace MugenMvvm.App.Components
 {
-    public sealed class AppBackgroundDispatcher : IApplicationLifecycleDispatcherComponent, IHasPriority
+    public sealed class AppLifecycleTracker : LifecycleTrackerBase<ApplicationLifecycleState, IMugenApplication>, IApplicationLifecycleDispatcherComponent, IHasPriority
     {
         #region Fields
 
+        private readonly IMessenger? _messenger;
         private readonly INavigationDispatcher? _navigationDispatcher;
         private INavigationContext? _backgroundCloseContext;
         private INavigationContext? _backgroundNewContext;
@@ -26,9 +29,11 @@ namespace MugenMvvm.App.Components
 
         #region Constructors
 
-        public AppBackgroundDispatcher(INavigationDispatcher? navigationDispatcher = null)
+        public AppLifecycleTracker(INavigationDispatcher? navigationDispatcher = null, IMessenger? messenger = null)
         {
             _navigationDispatcher = navigationDispatcher;
+            _messenger = messenger;
+            Trackers.Add(TrackAppState);
         }
 
         #endregion
@@ -43,12 +48,12 @@ namespace MugenMvvm.App.Components
 
         public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
+            OnLifecycleChanged(application, lifecycleState, metadata);
             var dispatcher = _navigationDispatcher.DefaultIfNull();
             if (lifecycleState == ApplicationLifecycleState.Activating)
                 dispatcher.OnNavigating(BackgroundCloseContext(application));
             else if (lifecycleState == ApplicationLifecycleState.Activated)
             {
-                application.Metadata.Set(ApplicationMetadata.IsInBackground, false);
                 var closeContext = BackgroundCloseContext(application);
                 dispatcher
                     .GetComponents<INavigationCallbackManagerComponent>()
@@ -60,7 +65,6 @@ namespace MugenMvvm.App.Components
                 dispatcher.OnNavigating(BackgroundNewContext(application));
             else if (lifecycleState == ApplicationLifecycleState.Deactivated)
             {
-                application.Metadata.Set(ApplicationMetadata.IsInBackground, true);
                 var newContext = BackgroundNewContext(application);
                 dispatcher
                     .GetComponents<INavigationCallbackManagerComponent>()
@@ -68,11 +72,29 @@ namespace MugenMvvm.App.Components
                 dispatcher.OnNavigated(newContext);
                 newContext.ClearMetadata(true);
             }
+
+            _messenger.DefaultIfNull().Publish(application, lifecycleState, metadata);
         }
 
         #endregion
 
         #region Methods
+
+        private static void TrackAppState(IMugenApplication app, HashSet<ApplicationLifecycleState> states, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state == ApplicationLifecycleState.Activating || state == ApplicationLifecycleState.Activated ||
+                state == ApplicationLifecycleState.Deactivating || state == ApplicationLifecycleState.Deactivated)
+            {
+                states.Remove(ApplicationLifecycleState.Deactivating);
+                states.Remove(ApplicationLifecycleState.Deactivated);
+                states.Remove(ApplicationLifecycleState.Activating);
+                states.Remove(ApplicationLifecycleState.Activated);
+            }
+            else if (state == ApplicationLifecycleState.Initialized)
+                states.Remove(ApplicationLifecycleState.Initializing);
+
+            states.Add(state);
+        }
 
         private INavigationContext BackgroundNewContext(IMugenApplication application) =>
             _backgroundNewContext ??= new NavigationContext(application, Default.NavigationProvider, InternalConstant.BackgroundNavigationId, NavigationType.Background, NavigationMode.New);

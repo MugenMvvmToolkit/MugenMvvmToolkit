@@ -1,5 +1,7 @@
 ﻿using System;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions.Components;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -7,7 +9,6 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal;
-using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
 using MugenMvvm.ViewModels;
 using MugenMvvm.Views;
@@ -17,6 +18,12 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static bool IsInState(this IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
+            return viewModelManager.GetComponents<ILifecycleTrackerComponent<ViewModelLifecycleState>>().IsInState(viewModelManager, viewModel, state, metadata);
+        }
 
         public static IViewModelBase GetViewModel(this IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata = null)
         {
@@ -32,7 +39,7 @@ namespace MugenMvvm.Extensions
             where TViewModel : class, IViewModelBase
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            return (TViewModel) viewModelManager.GetViewModel(typeof(TViewModel), metadata);
+            return (TViewModel)viewModelManager.GetViewModel(typeof(TViewModel), metadata);
         }
 
         public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
@@ -65,9 +72,9 @@ namespace MugenMvvm.Extensions
                 {
                     if (service == null)
                     {
-                        if (viewModel.IsDisposed())
+                        if (viewModel.IsInState(ViewModelLifecycleState.Disposed))
                             ExceptionManager.ThrowObjectDisposed(viewModel);
-                        service = (T) viewModelManager.DefaultIfNull().GetService(viewModel, request ?? typeof(T), metadata);
+                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, request ?? typeof(T), metadata);
                         callback?.Invoke(viewModel, service);
                     }
                 }
@@ -75,6 +82,9 @@ namespace MugenMvvm.Extensions
 
             return service;
         }
+
+        public static bool IsInState(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null, IViewModelManager? viewModelManager = null)
+            => viewModelManager.DefaultIfNull().IsInState(viewModel, state, metadata);
 
         public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -100,13 +110,6 @@ namespace MugenMvvm.Extensions
         public static void NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state = null,
             IReadOnlyMetadataContext? metadata = null, IViewModelManager? manager = null) =>
             manager.DefaultIfNull().OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
-
-        public static bool IsDisposed(this IViewModelBase viewModel)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var lifecycleState = viewModel.GetMetadataOrDefault().Get(ViewModelMetadata.LifecycleState, ViewModelLifecycleState.Created);
-            return lifecycleState == ViewModelLifecycleState.Disposed || lifecycleState == ViewModelLifecycleState.Finalized;
-        }
 
         public static IViewModelBase? TryGetViewModelView<TView>(object request, out TView? view) where TView : class
         {
@@ -136,7 +139,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(token, nameof(token));
-            viewModel.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable) o!).Dispose(), token));
+            viewModel.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable)o!).Dispose(), token));
         }
 
         #endregion

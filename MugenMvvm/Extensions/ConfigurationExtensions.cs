@@ -50,7 +50,7 @@ namespace MugenMvvm.Extensions
 
             configuration.WithAppService(new ComponentCollectionManager());
 
-            configuration.Application.AddComponent(new AppBackgroundDispatcher());
+            configuration.Application.AddComponent(new AppLifecycleTracker());
 
             configuration.WithAppService(new CommandManager())
                 .WithComponent(new DelegateCommandProvider());

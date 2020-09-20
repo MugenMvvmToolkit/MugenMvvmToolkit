@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
@@ -12,7 +10,6 @@ namespace MugenMvvm.Metadata
         #region Fields
 
         private static IMetadataContextKey<string, string>? _id;
-        private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
         private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _viewModel;
 
         #endregion
@@ -22,15 +19,8 @@ namespace MugenMvvm.Metadata
         [AllowNull]
         public static IMetadataContextKey<string, string> Id
         {
-            get => _id ??= GetBuilder(_id, nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
+            get => _id ??= GetBuilder(_id, nameof(Id)).DefaultValue(GetId).Serializable().Build();
             set => _id = value;
-        }
-
-        [AllowNull]
-        public static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState> LifecycleState
-        {
-            get => _lifecycleState ??= GetBuilder(_lifecycleState, nameof(LifecycleState)).NotNull().Build();
-            set => _lifecycleState = value;
         }
 
         [AllowNull]
@@ -44,7 +34,7 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static string GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, IMetadataContextKey<string, string> key, string? value)
+        private static string GetId(IReadOnlyMetadataContext ctx, IMetadataContextKey<string, string> key, string? value)
         {
             if (value == null && ctx is IMetadataContext context)
                 return context.GetOrAdd(key, key, (metadataContext, contextKey) => Guid.NewGuid().ToString("n"));

@@ -20,7 +20,6 @@ namespace MugenMvvm.ViewModels
 
         private IBusyManager? _busyManager;
         private List<ActionToken>? _disposeTokens;
-        private bool _isDisposed;
         private IMetadataContext? _metadata;
 
         #endregion
@@ -46,6 +45,8 @@ namespace MugenMvvm.ViewModels
 
         public IBusyManager BusyManager => this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm));
 
+        public bool IsDisposed { get; private set; }
+
         IBusyManager IHasService<IBusyManager>.Service => BusyManager;
 
         IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
@@ -60,13 +61,13 @@ namespace MugenMvvm.ViewModels
 
         public void Dispose()
         {
-            if (_isDisposed)
+            if (IsDisposed)
                 return;
             lock (this)
             {
-                if (_isDisposed)
+                if (IsDisposed)
                     return;
-                _isDisposed = true;
+                IsDisposed = true;
             }
 
             OnDispose(true);
@@ -78,7 +79,7 @@ namespace MugenMvvm.ViewModels
 
         public void RegisterDisposeToken(ActionToken token)
         {
-            if (_isDisposed)
+            if (IsDisposed)
             {
                 token.Dispose();
                 return;
@@ -87,7 +88,7 @@ namespace MugenMvvm.ViewModels
             var inline = false;
             lock (this)
             {
-                if (_isDisposed)
+                if (IsDisposed)
                     inline = true;
                 else
                 {

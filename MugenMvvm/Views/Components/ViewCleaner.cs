@@ -57,6 +57,7 @@ namespace MugenMvvm.Views.Components
             view.Components.RemoveComponent(this);
             view.Components.Clear(metadata);
             view.Components.ClearComponents(metadata);
+            view.Target.AttachedValues().Clear();
             if (ClearDataContext)
                 view.Target.BindableMembers().SetDataContext(null);
         }

@@ -2,6 +2,9 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Enums;
+using MugenMvvm.Extensions.Components;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
@@ -14,11 +17,11 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsUndefined(this IViewMapping? mapping) => ReferenceEquals(mapping, ViewMapping.Undefined);
-
-        public static object GetUnderlyingView(object view) => view is IView v ? v.Target : view;
-
+        public static bool IsInState(this IViewManager viewManager, object view, ViewLifecycleState state, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            return viewManager.GetComponents<ILifecycleTrackerComponent<ViewLifecycleState>>().IsInState(viewManager, view, state, metadata);
+        }
         public static async ValueTask<IView> InitializeAsync(this IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
@@ -31,14 +34,14 @@ namespace MugenMvvm.Extensions
 
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class =>
-            (TView?) view.TryWrap(typeof(TView), metadata, wrapperManager);
+            (TView?)view.TryWrap(typeof(TView), metadata, wrapperManager);
 
         public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
             wrapperManager.DefaultIfNull().TryWrap(wrapperType, view, metadata);
 
         public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class =>
-            (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
+            (TView)view.Wrap(typeof(TView), metadata, wrapperManager);
 
         public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) => wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
 
@@ -46,6 +49,11 @@ namespace MugenMvvm.Extensions
 
         public static bool CanWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
             wrapperManager.DefaultIfNull().CanWrap(wrapperType, view, metadata);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsUndefined(this IViewMapping? mapping) => ReferenceEquals(mapping, ViewMapping.Undefined);
+
+        public static object GetUnderlyingView(object view) => view is IView v ? v.Target : view;
 
         #endregion
     }
