@@ -11,7 +11,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Members
 {
-    public static class AndroidViewBindableMembers
+    public static class ViewBindableMembers
     {
         #region Methods
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Android.Members
 
         public static BindableEventDescriptor<T> SelectedItemChanged<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(SelectedItemChanged);
 
-        public static BindableEventDescriptor<T> ActionBarHomeButtonClick<T>(this BindableMembersDescriptor<T> _) where T : Object => AndroidViewMemberChangedListener.HomeButtonClick;
+        public static BindableEventDescriptor<T> ActionBarHomeButtonClick<T>(this BindableMembersDescriptor<T> _) where T : Object => ViewMemberChangedListener.HomeButtonClick;
 
 
         [BindingMember(nameof(CollectionViewManager))]

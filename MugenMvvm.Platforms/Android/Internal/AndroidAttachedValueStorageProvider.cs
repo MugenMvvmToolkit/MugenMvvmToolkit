@@ -11,7 +11,7 @@ using Object = Java.Lang.Object;
 
 namespace MugenMvvm.Android.Internal
 {
-    public sealed class AndroidAttachedValueStorageProvider : AttachedValueStorageProviderBase, IHasPriority
+    public sealed class AndroidAttachedValueStorageProvider : AttachedValueStorageProviderBase<Object>, IHasPriority
     {
         #region Properties
 
@@ -23,19 +23,19 @@ namespace MugenMvvm.Android.Internal
 
         protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is Object v && ViewExtensions.IsSupportAttachedValues(v);
 
-        protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
+        protected override IDictionary<string, object?>? GetAttachedDictionary(Object item, bool optional)
         {
-            var attachedValues = (AttachedValueHolder?) ViewExtensions.GetAttachedValues((Object) item);
+            var attachedValues = (AttachedValueHolder?) ViewExtensions.GetAttachedValues(item);
             if (optional || attachedValues != null)
                 return attachedValues?.Values;
             attachedValues = new AttachedValueHolder();
-            ViewExtensions.SetAttachedValues((Object) item, attachedValues);
+            ViewExtensions.SetAttachedValues(item, attachedValues);
             return attachedValues.Values;
         }
 
-        protected override bool ClearInternal(object item)
+        protected override bool ClearInternal(Object item)
         {
-            var attachedValues = (AttachedValueHolder?) ViewExtensions.GetAttachedValues((Object) item);
+            var attachedValues = (AttachedValueHolder?) ViewExtensions.GetAttachedValues(item);
             if (attachedValues != null)
             {
                 attachedValues.Values.Clear();

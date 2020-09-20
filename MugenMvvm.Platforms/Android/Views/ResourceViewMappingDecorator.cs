@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidViewMappingDecorator : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent, IHasPriority
+    public sealed class ResourceViewMappingDecorator : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent, IHasPriority
     {
         #region Properties
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Android.Views
             {
                 if (!mapping.ViewType.IsInterface && mapping.ViewType.IsInstanceOfType(view))
                     result.Add(mapping);
-                else if (mapping is IAndroidViewMapping map && map.ResourceId == viewId)
+                else if (mapping is IResourceViewMapping map && map.ResourceId == viewId)
                     result.Add(mapping);
             }
 

@@ -8,7 +8,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
+    public class ItemsSourceBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        public AndroidBindableCollectionAdapter(IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
+        public ItemsSourceBindableCollectionAdapter(IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
             EqualityComparer = equalityComparer;

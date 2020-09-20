@@ -12,7 +12,7 @@ using String = Java.Lang.String;
 
 namespace MugenMvvm.Android.Observation
 {
-    public sealed class AndroidViewMemberChangedListener : Object, IAndroidNativeMemberChangedListener
+    public sealed class ViewMemberChangedListener : Object, INativeMemberChangedListener
     {
         #region Fields
 
@@ -47,7 +47,7 @@ namespace MugenMvvm.Android.Observation
 
         #region Constructors
 
-        private AndroidViewMemberChangedListener(Object view)
+        private ViewMemberChangedListener(Object view)
         {
             _listeners = new AndroidViewMemberListenerCollection(view);
         }
@@ -64,9 +64,9 @@ namespace MugenMvvm.Android.Observation
 
         public static ActionToken Add(Object target, IEventListener listener, string memberName)
         {
-            if (!(ViewExtensions.GetMemberChangedListener(target) is AndroidViewMemberChangedListener memberObserver))
+            if (!(ViewExtensions.GetMemberChangedListener(target) is ViewMemberChangedListener memberObserver))
             {
-                memberObserver = new AndroidViewMemberChangedListener(target);
+                memberObserver = new ViewMemberChangedListener(target);
                 ViewExtensions.SetMemberChangedListener(target, memberObserver);
             }
 

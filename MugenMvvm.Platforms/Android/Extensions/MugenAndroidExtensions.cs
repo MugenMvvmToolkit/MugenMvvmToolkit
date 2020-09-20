@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Android.App;
 using Android.Content;
@@ -6,6 +7,7 @@ using Android.Views;
 using MugenMvvm.Android.Binding;
 using MugenMvvm.Android.Collections;
 using MugenMvvm.Android.Constants;
+using MugenMvvm.Android.Enums;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Internal;
 using MugenMvvm.Android.Members;
@@ -33,6 +35,7 @@ using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Binding.Parsing.Components.Parsers;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -44,6 +47,7 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Threading.Components;
 using MugenMvvm.Views;
+using MugenMvvm.Views.Components;
 using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
 using Object = Java.Lang.Object;
 using View = Android.Views.View;
@@ -55,13 +59,13 @@ namespace MugenMvvm.Android.Extensions
         #region Methods
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
-            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new AndroidViewRequest(viewModel, container, resourceId), default, metadata).Result;
+            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).Result;
 
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null,
             bool shouldSaveAppState = true, bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
         {
-            MugenAndroidNativeService.Initialize(context ?? Application.Context, new AndroidBindViewCallback(), rawViewTagMode);
-            LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeMode);
+            MugenAndroidNativeService.Initialize(context ?? Application.Context, new BindViewCallback(), rawViewTagMode);
+            LifecycleExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), nativeMode);
 
             if (nativeMode)
                 MugenAndroidNativeService.SetNativeMode();
@@ -74,15 +78,18 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new AndroidAttachedValueStorageProvider());
 
             configuration.ServiceConfiguration<INavigationDispatcher>()
-                .WithComponent(new AndroidConditionNavigationDispatcher());
+                .WithComponent(new ConditionNavigationDispatcher());
 
             configuration.ServiceConfiguration<IViewManager>()
-                .WithComponent(new AndroidViewStateDispatcher {SaveState = shouldSaveAppState})
-                .WithComponent(new AndroidViewInitializer())
-                .WithComponent(new AndroidViewRequestManager())
-                .WithComponent(new AndroidViewStateMapperDispatcher())
-                .WithComponent(new AndroidActivityViewRequestManager())
-                .WithComponent(new AndroidViewMappingDecorator());
+                .WithComponent(new ViewStateDispatcher { SaveState = shouldSaveAppState })
+                .WithComponent(new ViewLifecycleDispatcher())
+                .WithComponent(new ResourceViewRequestManager())
+                .WithComponent(new ViewStateMapperDispatcher())
+                .WithComponent(new ActivityViewRequestManager())
+                .WithComponent(new ResourceViewMappingDecorator())
+                .Service()
+                .GetOrAddComponent(ctx => new ViewLifecycleTracker())
+                .Trackers.Add(TrackViewState);
 
             configuration.ServiceConfiguration<IPresenter>()
                 .WithComponent(new ActivityViewPresenter())
@@ -115,7 +122,7 @@ namespace MugenMvvm.Android.Extensions
                 .ServiceConfiguration<IBindingManager>()
                 .Service()
                 .GetOrAddComponent(context => new MacrosBindingInitializer());
-            var resourceVisitor = new AndroidResourceExpressionVisitor();
+            var resourceVisitor = new ResourceExpressionVisitor();
             macrosBindingInitializer.TargetVisitors.Add(resourceVisitor);
             macrosBindingInitializer.SourceVisitors.Add(resourceVisitor);
             macrosBindingInitializer.ParameterVisitors.Add(resourceVisitor);
@@ -136,7 +143,7 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<Object>()
                 .CollectionViewManager()
                 .GetBuilder()
-                .DefaultValue((info, view) => new AndroidCollectionViewManager())
+                .DefaultValue((info, view) => new CollectionViewManager())
                 .NonObservable()
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -208,8 +215,8 @@ namespace MugenMvvm.Android.Extensions
                 .Parent()
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => ViewExtensions.GetParent(target))
-                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object) value!))
-                .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ParentMemberName))
+                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object)value!))
+                .ObservableHandler((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentMemberName))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Visible()
@@ -228,22 +235,22 @@ namespace MugenMvvm.Android.Extensions
                 .RawMethod
                 .GetBuilder()
                 .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build())
-                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
+                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string)args[0]!, (int)args[1]!))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .ParentChanged()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ParentEventName))
+                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentEventName))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Click()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ClickEventName))
+                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ClickEventName))
                 .Build());
 
             //textview
-            attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>(AndroidViewMemberChangedListener.TextMemberName)
+            attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>(ViewMemberChangedListener.TextMemberName)
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => TextViewExtensions.GetText(target))
                 .CustomSetter((member, target, value, metadata) => TextViewExtensions.SetText(target, value))
@@ -251,21 +258,21 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .TextChanged()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.TextEventName))
+                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.TextEventName))
                 .Build());
 
             //swiperefreshlayout
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Refreshed()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.RefreshedEventName))
+                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.RefreshedEventName))
                 .Build());
 
             //actionbar
             attachedMemberProvider.Register(BindableMembers.For<Object>()
                 .ActionBarHomeButtonClick()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.HomeButtonClick))
+                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.HomeButtonClick))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<Object>()
                 .Enabled()
@@ -363,7 +370,7 @@ namespace MugenMvvm.Android.Extensions
                     if (contentTemplateSelector == null)
                         ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                    var newValue = (Object?) contentTemplateSelector.SelectTemplate(target, value)!;
+                    var newValue = (Object?)contentTemplateSelector.SelectTemplate(target, value)!;
                     if (newValue != null)
                     {
                         newValue.BindableMembers().SetDataContext(value);
@@ -376,7 +383,7 @@ namespace MugenMvvm.Android.Extensions
                 .Build());
 
             //tablayout.tab
-            attachedMemberProvider.Register(new BindablePropertyDescriptor<Object, string>(AndroidViewMemberChangedListener.TextMemberName)
+            attachedMemberProvider.Register(new BindablePropertyDescriptor<Object, string>(ViewMemberChangedListener.TextMemberName)
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) =>
                 {
@@ -438,14 +445,20 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .SelectedIndexChanged()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.SelectedIndexEventName))
+                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .SelectedItemChanged()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.SelectedIndexEventName))
+                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
                 .Build());
             return configuration;
+        }
+
+        private static void TrackViewState(object view, HashSet<ViewLifecycleState> states, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state == AndroidViewLifecycleState.PendingInitialization)
+                states.Add(AndroidViewLifecycleState.PendingInitialization);
         }
 
         private static IExpressionNode? ConvertAndroidDigits(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider)
@@ -473,7 +486,7 @@ namespace MugenMvvm.Android.Extensions
             }
 
             if (integer)
-                return ConstantExpressionNode.Get((int) floatValue);
+                return ConstantExpressionNode.Get((int)floatValue);
             return ConstantExpressionNode.Get(floatValue);
         }
 

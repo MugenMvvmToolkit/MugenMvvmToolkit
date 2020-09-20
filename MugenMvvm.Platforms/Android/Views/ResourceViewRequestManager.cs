@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
+    public sealed class ResourceViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
     {
         #region Properties
 
@@ -27,12 +27,12 @@ namespace MugenMvvm.Android.Views
 
         public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (mapping.IsUndefined() && request is AndroidViewRequest viewRequest && viewRequest.ViewModel != null && viewRequest.Container is Object container)
+            if (mapping.IsUndefined() && request is ResourceViewRequest viewRequest && viewRequest.ViewModel != null && viewRequest.Container is Object container)
             {
-                IAndroidViewMapping? viewMapping = null;
+                IResourceViewMapping? viewMapping = null;
                 foreach (var t in viewManager.GetMappings(viewRequest.ViewModel, metadata).Iterator())
                 {
-                    if (t is IAndroidViewMapping m && (viewRequest.ResourceId == 0 || m.ResourceId == viewRequest.ResourceId))
+                    if (t is IResourceViewMapping m && (viewRequest.ResourceId == 0 || m.ResourceId == viewRequest.ResourceId))
                     {
                         viewMapping = m;
                         break;
@@ -44,12 +44,12 @@ namespace MugenMvvm.Android.Views
                     var resourceId = viewMapping?.ResourceId ?? viewRequest.ResourceId;
                     foreach (var v in viewManager.GetViews(viewRequest.ViewModel, metadata).Iterator())
                     {
-                        if (v.Mapping is IAndroidViewMapping m && m.ResourceId == resourceId)
+                        if (v.Mapping is IResourceViewMapping m && m.ResourceId == resourceId)
                             return new ValueTask<IView?>(v);
                     }
 
                     var view = ViewExtensions.GetView(container, resourceId, true);
-                    viewMapping ??= new AndroidViewMapping(resourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
+                    viewMapping ??= new ResourceViewMapping(resourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
                     viewRequest.View = view;
                     mapping = viewMapping;
                 }

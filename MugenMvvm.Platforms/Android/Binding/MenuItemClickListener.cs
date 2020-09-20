@@ -4,6 +4,7 @@ using Android.Views;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using Object = Java.Lang.Object;
 
@@ -49,16 +50,12 @@ namespace MugenMvvm.Android.Binding
         #region Methods
 
         public static ActionToken AddListener(IMenuItem menuItem, IEventListener listener) =>
-            MugenService
-                .AttachedValueManager
-                .TryGetAttachedValues(menuItem)
-                .GetOrAdd(AndroidInternalConstant.MenuClickListener, menuItem, (key, item) =>
-                {
-                    var l = new MenuItemClickListener(item);
-                    item.SetOnMenuItemClickListener(l);
-                    return l;
-                })
-                .AddListener(listener);
+            menuItem.AttachedValues().GetOrAdd(AndroidInternalConstant.MenuClickListener, menuItem, (key, item) =>
+            {
+                var l = new MenuItemClickListener(item);
+                item.SetOnMenuItemClickListener(l);
+                return l;
+            }).AddListener(listener);
 
         private ActionToken AddListener(IEventListener listener)
         {

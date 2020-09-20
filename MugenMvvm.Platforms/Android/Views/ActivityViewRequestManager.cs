@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidActivityViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
+    public sealed class ActivityViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
     {
         #region Properties
 
@@ -27,14 +27,18 @@ namespace MugenMvvm.Android.Views
 
         public async ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is AndroidActivityViewRequest activityRequest))
+            if (!(request is ActivityViewRequest activityRequest))
+            {
+                if (MugenExtensions.TryGetViewModelView(request, out IActivityView? activityView) != null && activityView != null)
+                    viewManager.OnLifecycleChanged(activityView, AndroidViewLifecycleState.PendingInitialization, request, metadata);
+
                 return await Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata).ConfigureAwait(false);
+            }
             var handler = new PendingActivityHandler(activityRequest.Mapping, cancellationToken);
             viewManager.AddComponent(handler);
             activityRequest.StartActivity();
 
-            var task = await handler.Task.ConfigureAwait(false);
-            activityRequest.View = task;
+            activityRequest.View = await handler.Task.ConfigureAwait(false);
             return await Components.TryInitializeAsync(viewManager, mapping, activityRequest, default, metadata).ConfigureAwait(false);
         }
 
@@ -88,7 +92,10 @@ namespace MugenMvvm.Android.Views
                     TrySetCanceled(_cancellationToken);
                 }
                 else
+                {
+                    viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
                     TrySetResult(view);
+                }
             }
 
             #endregion

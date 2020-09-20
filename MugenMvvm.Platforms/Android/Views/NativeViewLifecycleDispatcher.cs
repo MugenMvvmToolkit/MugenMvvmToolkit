@@ -8,7 +8,7 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidNativeViewLifecycleDispatcher : Object, IAndroidNativeLifecycleDispatcher
+    public sealed class NativeViewLifecycleDispatcher : Object, INativeLifecycleDispatcher
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Android.Views
 
         #region Constructors
 
-        public AndroidNativeViewLifecycleDispatcher(IViewManager? viewManager = null)
+        public NativeViewLifecycleDispatcher(IViewManager? viewManager = null)
         {
             _viewManager = viewManager;
         }

@@ -3,11 +3,11 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Requests
 {
-    public class AndroidViewRequest : ViewModelViewRequest
+    public class ResourceViewRequest : ViewModelViewRequest
     {
         #region Constructors
 
-        public AndroidViewRequest(IViewModelBase viewModel, object container, int resourceId)
+        public ResourceViewRequest(IViewModelBase viewModel, object container, int resourceId)
             : base(viewModel, null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));

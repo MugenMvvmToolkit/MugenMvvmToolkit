@@ -5,11 +5,16 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Requests
 {
-    public class AndroidActivityViewRequest : ViewModelViewRequest
+    public interface IAndroidActivityViewRequest
+    {
+
+    }
+
+    public class ActivityViewRequest : ViewModelViewRequest
     {
         #region Constructors
 
-        public AndroidActivityViewRequest(IViewModelBase viewModel, IViewMapping mapping, Action startActivity)
+        public ActivityViewRequest(IViewModelBase viewModel, IViewMapping mapping, Action startActivity)
             : base(viewModel, null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));

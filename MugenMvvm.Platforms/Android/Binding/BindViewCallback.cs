@@ -7,7 +7,7 @@ using MugenMvvm.Binding.Members.Descriptors;
 
 namespace MugenMvvm.Android.Binding
 {
-    public sealed class AndroidBindViewCallback : Object, IBindViewCallback
+    public sealed class BindViewCallback : Object, IBindViewCallback
     {
         #region Fields
 

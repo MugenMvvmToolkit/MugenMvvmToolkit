@@ -10,28 +10,28 @@ using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidCollectionViewManager : ICollectionViewManager
+    public class CollectionViewManager : ICollectionViewManager
     {
         #region Implementation of interfaces
 
         public virtual IEnumerable? GetItemsSource(object collectionView)
         {
             if (collectionView is IMenu menu)
-                return AndroidMenuItemsSourceGenerator.TryGet(menu)?.Collection;
+                return MenuItemsSourceGenerator.TryGet(menu)?.Collection;
 
             var itemsSourceProvider = GetItemsSourceProvider((View) collectionView);
             if (itemsSourceProvider == null)
                 return null;
             if (itemsSourceProvider is BindableCollectionAdapter adapter)
                 return adapter.Collection;
-            return ((IAndroidItemsSourceProvider) itemsSourceProvider).ItemsSource;
+            return ((IItemsSourceProvider) itemsSourceProvider).ItemsSource;
         }
 
         public virtual void SetItemsSource(object collectionView, IEnumerable? value)
         {
             if (collectionView is IMenu menu)
             {
-                AndroidMenuItemsSourceGenerator.GetOrAdd(menu).Collection = value;
+                MenuItemsSourceGenerator.GetOrAdd(menu).Collection = value;
                 return;
             }
 
@@ -46,13 +46,13 @@ namespace MugenMvvm.Android.Collections
             var itemsSourceProvider = ViewGroupExtensions.GetItemsSourceProvider(target);
             var hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
             if (providerType == ViewGroupExtensions.ContentRawProviderType)
-                AndroidContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector) itemTemplateSelector).Collection = value;
+                ContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector) itemTemplateSelector).Collection = value;
             else if (providerType == ViewGroupExtensions.ContentProviderType || providerType == ViewGroupExtensions.ResourceOrContentProviderType && hasFragments)
             {
-                if (!(itemsSourceProvider is AndroidContentItemsSourceProvider provider))
+                if (!(itemsSourceProvider is ContentItemsSourceProvider provider))
                 {
                     ViewExtensions.RemoveParentObserver(target);
-                    provider = new AndroidContentItemsSourceProvider(target, (IContentTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
+                    provider = new ContentItemsSourceProvider(target, (IContentTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
                     ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                 }
 
@@ -60,10 +60,10 @@ namespace MugenMvvm.Android.Collections
             }
             else
             {
-                if (!(itemsSourceProvider is AndroidResourceItemsSourceProvider provider))
+                if (!(itemsSourceProvider is ResourceItemsSourceProvider provider))
                 {
                     ViewExtensions.RemoveParentObserver(target);
-                    provider = new AndroidResourceItemsSourceProvider(target, (IResourceTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
+                    provider = new ResourceItemsSourceProvider(target, (IResourceTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
                     ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                 }
 
@@ -85,7 +85,7 @@ namespace MugenMvvm.Android.Collections
             var itemsSourceProvider = GetItemsSourceProvider(target);
             if (itemsSourceProvider == null)
                 return null;
-            if (itemsSourceProvider is IAndroidItemsSourceProvider p)
+            if (itemsSourceProvider is IItemsSourceProvider p)
                 return p.GetItemAt(index);
             return ((BindableCollectionAdapter) itemsSourceProvider)[index];
         }
@@ -99,7 +99,7 @@ namespace MugenMvvm.Android.Collections
                 index = -1;
             else
             {
-                if (itemsSourceProvider is IAndroidItemsSourceProvider p)
+                if (itemsSourceProvider is IItemsSourceProvider p)
                     index = p.IndexOf(value);
                 else
                     index = ((BindableCollectionAdapter) itemsSourceProvider).IndexOf(value);
@@ -122,7 +122,7 @@ namespace MugenMvvm.Android.Collections
             var itemsSourceProvider = ViewGroupExtensions.GetItemsSourceProvider(target);
             if (itemsSourceProvider != null)
                 return itemsSourceProvider;
-            return AndroidContentItemsSourceGenerator.TryGet(target);
+            return ContentItemsSourceGenerator.TryGet(target);
         }
 
         #endregion

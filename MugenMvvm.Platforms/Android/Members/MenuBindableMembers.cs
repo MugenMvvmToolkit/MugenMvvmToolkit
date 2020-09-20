@@ -9,7 +9,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Members
 {
-    public static class AndroidMenuBindableMembers
+    public static class MenuBindableMembers
     {
         #region Methods
 

@@ -22,7 +22,7 @@ using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidViewStateDispatcher : IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class ViewStateDispatcher : IViewLifecycleDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.Android.Views
 
         #region Constructors
 
-        public AndroidViewStateDispatcher(IViewModelManager? viewModelManager = null, IPresenter? presenter = null, ISerializer? serializer = null)
+        public ViewStateDispatcher(IViewModelManager? viewModelManager = null, IPresenter? presenter = null, ISerializer? serializer = null)
         {
             _viewModelManager = viewModelManager;
             _presenter = presenter;
@@ -69,12 +69,15 @@ namespace MugenMvvm.Android.Views
                     else if (view is IFragmentView f)
                         FragmentExtensions.Remove(f);
                 }
-                else
+                else if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsNullOrEmpty())
                 {
-                    viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
-                    if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsNullOrEmpty() && view is IActivityView activity)
+                    if (view is IActivityView activity)
                         activity.Finish();
+                    else
+                        viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
                 }
+                else
+                    viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
             }
         }
 

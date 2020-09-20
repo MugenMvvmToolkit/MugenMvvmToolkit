@@ -8,15 +8,16 @@ using MugenMvvm.Android.Native.Views.Support;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class AndroidContentItemsSourceGenerator : BindableCollectionAdapter
+    public sealed class ContentItemsSourceGenerator : BindableCollectionAdapter
     {
         #region Constructors
 
-        private AndroidContentItemsSourceGenerator(View view, IContentTemplateSelector contentTemplateSelector)
+        private ContentItemsSourceGenerator(View view, IContentTemplateSelector contentTemplateSelector)
         {
             View = view;
             ContentTemplateSelector = contentTemplateSelector;
@@ -36,23 +37,17 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        public static AndroidContentItemsSourceGenerator? TryGet(View view)
+        public static ContentItemsSourceGenerator? TryGet(View view)
         {
-            MugenService
-                .AttachedValueManager
-                .TryGetAttachedValues(view)
-                .TryGet(AndroidInternalConstant.ItemsSourceGenerator, out var provider);
-            return provider as AndroidContentItemsSourceGenerator;
+            view.AttachedValues().TryGet(AndroidInternalConstant.ItemsSourceGenerator, out var provider);
+            return provider as ContentItemsSourceGenerator;
         }
 
-        public static AndroidContentItemsSourceGenerator GetOrAdd(View owner, IContentTemplateSelector selector)
+        public static ContentItemsSourceGenerator GetOrAdd(View view, IContentTemplateSelector selector)
         {
-            Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(selector, nameof(selector));
-            return MugenService
-                .AttachedValueManager
-                .TryGetAttachedValues(owner)
-                .GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector, (o, templateSelector) => new AndroidContentItemsSourceGenerator((View) o, templateSelector));
+            return view.AttachedValues().GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector, (o, templateSelector) => new ContentItemsSourceGenerator((View)o, templateSelector));
         }
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
@@ -101,7 +96,7 @@ namespace MugenMvvm.Android.Collections
 
         private Object? GetItem(object? item)
         {
-            var template = (Object?) ContentTemplateSelector.SelectTemplate(View, item);
+            var template = (Object?)ContentTemplateSelector.SelectTemplate(View, item);
             if (template != null)
             {
                 template.BindableMembers().SetDataContext(item);

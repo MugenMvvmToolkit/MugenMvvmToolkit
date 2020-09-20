@@ -6,14 +6,15 @@ using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Members;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class AndroidMenuItemsSourceGenerator : BindableCollectionAdapter
+    public sealed class MenuItemsSourceGenerator : BindableCollectionAdapter
     {
         #region Constructors
 
-        private AndroidMenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate itemTemplate)
+        private MenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate itemTemplate)
         {
             Should.NotBeNull(itemTemplate, nameof(itemTemplate));
             Menu = menu;
@@ -34,22 +35,16 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        public static AndroidMenuItemsSourceGenerator? TryGet(IMenu view)
+        public static MenuItemsSourceGenerator? TryGet(IMenu menu)
         {
-            MugenService
-                .AttachedValueManager
-                .TryGetAttachedValues(view)
-                .TryGet(AndroidInternalConstant.MenuItemsSource, out var provider);
-            return provider as AndroidMenuItemsSourceGenerator;
+            menu.AttachedValues().TryGet(AndroidInternalConstant.MenuItemsSource, out var provider);
+            return provider as MenuItemsSourceGenerator;
         }
 
-        public static AndroidMenuItemsSourceGenerator GetOrAdd(IMenu menu)
+        public static MenuItemsSourceGenerator GetOrAdd(IMenu menu)
         {
             Should.NotBeNull(menu, nameof(menu));
-            return MugenService
-                .AttachedValueManager
-                .TryGetAttachedValues(menu)
-                .GetOrAdd(AndroidInternalConstant.MenuItemsSource, menu, (_, m) => new AndroidMenuItemsSourceGenerator(m, m.BindableMembers().ItemTemplate()!));
+            return menu.AttachedValues().GetOrAdd(AndroidInternalConstant.MenuItemsSource, menu, (_, m) => new MenuItemsSourceGenerator(m, m.BindableMembers().ItemTemplate()!));
         }
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)

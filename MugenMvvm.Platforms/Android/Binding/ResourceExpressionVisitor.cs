@@ -13,11 +13,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Android.Binding
 {
-    public sealed class AndroidResourceExpressionVisitor : IExpressionVisitor
+    public sealed class ResourceExpressionVisitor : IExpressionVisitor
     {
         #region Constructors
 
-        public AndroidResourceExpressionVisitor()
+        public ResourceExpressionVisitor()
         {
             Resources = new Dictionary<string, (Func<string, object?> resolver, Delegate genericResolver)>(StringComparer.Ordinal);
             var stringResolver = new Func<string, string>(MugenNativeUtils.GetResourceString);

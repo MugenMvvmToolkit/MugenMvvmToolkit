@@ -21,7 +21,6 @@ namespace MugenMvvm.Android.Presenters
         #region Fields
 
         private readonly INavigationDispatcher? _navigationDispatcher;
-
         private readonly IPresenter? _presenter;
 
         #endregion
@@ -51,8 +50,8 @@ namespace MugenMvvm.Android.Presenters
         protected override object? TryGetViewRequest(IViewModelPresenterMediator mediator, IActivityView? view, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode == NavigationMode.New && view == null)
-                return new AndroidActivityViewRequest(mediator.ViewModel, mediator.Mapping, () => NewActivity(mediator, navigationContext));
-            return base.TryGetViewRequest(mediator, view, navigationContext);
+                return new ActivityViewRequest(mediator.ViewModel, mediator.Mapping, () => NewActivity(mediator, navigationContext));
+            return null;
         }
 
         protected override Task? ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
@@ -63,9 +62,9 @@ namespace MugenMvvm.Android.Presenters
             return RefreshActivityAsync(mediator, view, navigationContext);
         }
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => null;
+        protected override Task? ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => null;
 
-        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected override Task? CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
             view.Finish();
             return null;
@@ -73,7 +72,7 @@ namespace MugenMvvm.Android.Presenters
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext)
         {
-            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
+            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
             StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), flags, null, navigationContext);
         }
 
@@ -84,14 +83,14 @@ namespace MugenMvvm.Android.Presenters
             if (metadata.Get(NavigationMetadata.ClearBackStack))
             {
                 await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
-                flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                flags = (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 
             var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
             if (Equals(topActivity, view))
                 return;
 
-            flags |= (int) ActivityFlags.ReorderToFront;
+            flags |= (int)ActivityFlags.ReorderToFront;
             var bundle = new Bundle(1);
             bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.Metadata.Get(ViewModelMetadata.Id)!);
             StartActivity(mediator, topActivity, flags, bundle, navigationContext);
@@ -104,7 +103,7 @@ namespace MugenMvvm.Android.Presenters
             var resourceId = 0;
             if (!mapping.ViewType.IsInterface && typeof(Object).IsAssignableFrom(mapping.ViewType))
                 activityType = Class.FromType(mapping.ViewType);
-            if (mapping is IAndroidViewMapping m)
+            if (mapping is IResourceViewMapping m)
                 resourceId = m.ResourceId;
 
             if (!ActivityExtensions.StartActivity(topActivity!, activityType!, resourceId, flags, bundle!))

@@ -5,18 +5,18 @@ using MugenMvvm.Android.Native.Interfaces;
 
 namespace MugenMvvm.Android.Collections
 {
-    public abstract class AndroidItemsSourceProviderBase<TSelector> : Object, IAndroidItemsSourceProvider where TSelector : class
+    public abstract class ItemsSourceProviderBase<TSelector> : Object, IItemsSourceProvider where TSelector : class
     {
         #region Constructors
 
-        protected AndroidItemsSourceProviderBase(object owner, TSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter)
+        protected ItemsSourceProviderBase(object owner, TSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, ItemsSourceBindableCollectionAdapter? collectionAdapter)
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(itemTemplateSelector, nameof(itemTemplateSelector));
             Owner = owner;
             ItemTemplateSelector = itemTemplateSelector;
             StableIdProvider = stableIdProvider ?? itemTemplateSelector as IStableIdProvider;
-            CollectionAdapter = collectionAdapter ?? new AndroidBindableCollectionAdapter(itemTemplateSelector as IItemsSourceEqualityComparer ?? stableIdProvider as IItemsSourceEqualityComparer);
+            CollectionAdapter = collectionAdapter ?? new ItemsSourceBindableCollectionAdapter(itemTemplateSelector as IItemsSourceEqualityComparer ?? stableIdProvider as IItemsSourceEqualityComparer);
         }
 
         #endregion
@@ -25,7 +25,7 @@ namespace MugenMvvm.Android.Collections
 
         public object Owner { get; }
 
-        public AndroidBindableCollectionAdapter CollectionAdapter { get; }
+        public ItemsSourceBindableCollectionAdapter CollectionAdapter { get; }
 
         public TSelector ItemTemplateSelector { get; }
 

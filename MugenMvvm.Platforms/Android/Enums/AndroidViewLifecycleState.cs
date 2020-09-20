@@ -39,13 +39,13 @@ namespace MugenMvvm.Android.Enums
         public static readonly ViewLifecycleState CreatedOptionsMenu = new ViewLifecycleState(nameof(CreatedOptionsMenu));
         public static readonly ViewLifecycleState OptionsItemSelecting = new ViewLifecycleState(nameof(OptionsItemSelecting));
         public static readonly ViewLifecycleState OptionsItemSelected = new ViewLifecycleState(nameof(OptionsItemSelected));
-        public static readonly ViewLifecycleState ClearBackStack = new ViewLifecycleState(nameof(ClearBackStack));
         public static readonly ViewLifecycleState Dismissing = new ViewLifecycleState(nameof(Dismissing));
         public static readonly ViewLifecycleState Dismissed = new ViewLifecycleState(nameof(Dismissed));
         public static readonly ViewLifecycleState DismissingAllowingStateLoss = new ViewLifecycleState(nameof(DismissingAllowingStateLoss));
         public static readonly ViewLifecycleState DismissedAllowingStateLoss = new ViewLifecycleState(nameof(DismissedAllowingStateLoss));
         public static readonly ViewLifecycleState Canceling = new ViewLifecycleState(nameof(Canceling));
         public static readonly ViewLifecycleState Canceled = new ViewLifecycleState(nameof(Canceled));
+        public static readonly ViewLifecycleState PendingInitialization = new ViewLifecycleState(nameof(PendingInitialization));
 
         #endregion
 

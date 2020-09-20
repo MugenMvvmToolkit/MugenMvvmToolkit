@@ -6,11 +6,11 @@ using MugenMvvm.Binding.Members;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidContentItemsSourceProvider : AndroidItemsSourceProviderBase<IContentTemplateSelector>, IContentItemsSourceProvider
+    public class ContentItemsSourceProvider : ItemsSourceProviderBase<IContentTemplateSelector>, IContentItemsSourceProvider
     {
         #region Constructors
 
-        public AndroidContentItemsSourceProvider(object owner, IContentTemplateSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter = null)
+        public ContentItemsSourceProvider(object owner, IContentTemplateSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, ItemsSourceBindableCollectionAdapter? collectionAdapter = null)
             : base(owner, itemTemplateSelector, stableIdProvider, collectionAdapter)
         {
         }
@@ -31,10 +31,10 @@ namespace MugenMvvm.Android.Collections
         public virtual int GetContentPosition(Object? content)
         {
             if (Count == 0)
-                return ContentItemsSourceProvider.PositionNone;
+                return Native.Interfaces.ContentItemsSourceProvider.PositionNone;
             var index = IndexOf(content?.BindableMembers().DataContext());
             if (index < 0)
-                return ContentItemsSourceProvider.PositionNone;
+                return Native.Interfaces.ContentItemsSourceProvider.PositionNone;
             return index;
         }
 

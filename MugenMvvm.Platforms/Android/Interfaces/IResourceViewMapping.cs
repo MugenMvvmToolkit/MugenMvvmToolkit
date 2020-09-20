@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Android.Interfaces
 {
-    public interface IAndroidViewMapping : IViewMapping
+    public interface IResourceViewMapping : IViewMapping
     {
         int ResourceId { get; }
     }

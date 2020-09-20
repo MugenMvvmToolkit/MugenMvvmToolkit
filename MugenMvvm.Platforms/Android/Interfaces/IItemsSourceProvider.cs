@@ -3,7 +3,7 @@ using MugenMvvm.Android.Native.Interfaces;
 
 namespace MugenMvvm.Android.Interfaces
 {
-    public interface IAndroidItemsSourceProvider : IItemsSourceProviderBase
+    public interface IItemsSourceProvider : IItemsSourceProviderBase
     {
         IEnumerable? ItemsSource { get; set; }
 
