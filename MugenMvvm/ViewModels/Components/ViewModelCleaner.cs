@@ -83,7 +83,7 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             viewModel.ClearMetadata(true);
-            _attachedValueManager.DefaultIfNull().TryGetAttachedValues(viewModel, metadata).Clear();
+            viewModel.AttachedValues(metadata, _attachedValueManager).Clear();
             (viewModel as IValueHolder<IWeakReference>)?.ReleaseWeakReference();
         }
 

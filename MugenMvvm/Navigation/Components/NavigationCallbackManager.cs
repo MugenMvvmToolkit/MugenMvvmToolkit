@@ -20,10 +20,6 @@ namespace MugenMvvm.Navigation.Components
 
         private readonly IAttachedValueManager? _attachedValueManager;
 
-        private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> ShowingCallbacks = GetKey(nameof(ShowingCallbacks));
-        private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> ClosingCallbacks = GetKey(nameof(ClosingCallbacks));
-        private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> CloseCallbacks = GetKey(nameof(CloseCallbacks));
-
         #endregion
 
         #region Constructors
@@ -50,7 +46,7 @@ namespace MugenMvvm.Navigation.Components
             if (key == null)
                 return null;
 
-            var targetMetadata = (IMetadataContext?) GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, false);
+            var targetMetadata = (IMetadataContext?)GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, false);
             if (targetMetadata != null)
             {
                 var callback = TryFindCallback(callbackType, navigationId, navigationType, key, targetMetadata);
@@ -156,20 +152,15 @@ namespace MugenMvvm.Navigation.Components
             return null;
         }
 
-        private static IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> GetKey(string name) =>
-            MetadataContextKey.Create<List<NavigationCallback?>, List<NavigationCallback?>>(typeof(NavigationCallbackManager), name)
-                .Serializable()
-                .Build();
-
         private ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext? metadata, object target)
         {
             var canMoveNext = true;
             var list = ItemOrListEditor.Get<INavigationCallback>();
             while (true)
             {
-                AddCallbacks(ShowingCallbacks, metadata, ref list);
-                AddCallbacks(ClosingCallbacks, metadata, ref list);
-                AddCallbacks(CloseCallbacks, metadata, ref list);
+                AddCallbacks(InternalMetadata.ShowingCallbacks, metadata, ref list);
+                AddCallbacks(InternalMetadata.ClosingCallbacks, metadata, ref list);
+                AddCallbacks(InternalMetadata.CloseCallbacks, metadata, ref list);
 
                 if (!list.IsNullOrEmpty || !canMoveNext)
                     break;
@@ -197,11 +188,11 @@ namespace MugenMvvm.Navigation.Components
         private static IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>>? GetKeyByCallback(NavigationCallbackType callbackType)
         {
             if (callbackType == NavigationCallbackType.Showing)
-                return ShowingCallbacks;
+                return InternalMetadata.ShowingCallbacks;
             if (callbackType == NavigationCallbackType.Closing)
-                return ClosingCallbacks;
+                return InternalMetadata.ClosingCallbacks;
             if (callbackType == NavigationCallbackType.Close)
-                return CloseCallbacks;
+                return InternalMetadata.CloseCallbacks;
             return null;
         }
 
@@ -218,11 +209,11 @@ namespace MugenMvvm.Navigation.Components
                     return ctx;
             }
 
-            var attachedValues = _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target);
+            var attachedValues = target.AttachedValues(attachedValueManager: _attachedValueManager);
             if (isReadonly)
             {
                 attachedValues.TryGet(InternalConstant.CallbackMetadataKey, out var m);
-                return (IReadOnlyMetadataContext?) m;
+                return (IReadOnlyMetadataContext?)m;
             }
 
             return attachedValues.GetOrAdd(InternalConstant.CallbackMetadataKey, this, (o, manager) => new MetadataContext());

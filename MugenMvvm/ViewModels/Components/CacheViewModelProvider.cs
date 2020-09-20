@@ -19,8 +19,6 @@ namespace MugenMvvm.ViewModels.Components
         private readonly bool _isWeakCache;
         private readonly Dictionary<string, object> _viewModelsCache;
 
-        private static readonly IMetadataContextKey<string, string> CreatedIdKey = MetadataContextKey.FromMember(CreatedIdKey, typeof(CacheViewModelProvider), nameof(CreatedIdKey));
-
         #endregion
 
         #region Constructors
@@ -55,13 +53,13 @@ namespace MugenMvvm.ViewModels.Components
                 if (id != null)
                 {
                     Add(id, viewModel);
-                    viewModel.Metadata.Set(CreatedIdKey, id, out _);
+                    viewModel.Metadata.Set(InternalMetadata.CreatedId, id, out _);
                 }
             }
             else if (lifecycleState == ViewModelLifecycleState.Restored)
             {
                 var id = viewModel.Metadata.Get(ViewModelMetadata.Id);
-                var createdId = viewModel.Metadata.Get(CreatedIdKey);
+                var createdId = viewModel.Metadata.Get(InternalMetadata.CreatedId);
                 if (createdId != id)
                 {
                     Remove(createdId);

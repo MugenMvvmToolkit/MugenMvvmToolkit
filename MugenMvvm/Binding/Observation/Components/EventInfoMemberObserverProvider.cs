@@ -62,14 +62,11 @@ namespace MugenMvvm.Binding.Observation.Components
 
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            var tuple = (Tuple<EventInfo, string>) member;
+            var tuple = (Tuple<EventInfo, string>)member;
             if (target == null && !tuple.Item1.IsStatic())
                 return default;
 
-            var listenerInternal = _attachedValueManager
-                .DefaultIfNull()
-                .TryGetAttachedValues(target ?? tuple.Item1.DeclaringType!)
-                .GetOrAdd(tuple.Item2, tuple.Item1, _createWeakListenerDelegate);
+            var listenerInternal = (target ?? tuple.Item1.DeclaringType!).AttachedValues(metadata, _attachedValueManager).GetOrAdd(tuple.Item2, tuple.Item1, _createWeakListenerDelegate);
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);

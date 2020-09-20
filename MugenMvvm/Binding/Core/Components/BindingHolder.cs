@@ -45,19 +45,19 @@ namespace MugenMvvm.Binding.Core.Components
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
-                ? _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata).GetValues<object?>(null, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
-                : _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata).GetValues(path,
+                ? target.AttachedValues(metadata, _attachedValueManager).GetValues<object?>(null, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
+                : target.AttachedValues(metadata, _attachedValueManager).GetValues(path,
                     (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
 
             var iterator = values.Iterator(pair => pair.Key == null);
             if (iterator.Count == 0)
                 return default;
             if (iterator.Count == 1)
-                return ItemOrList.FromItem((IBinding) values.Item.Value!);
+                return ItemOrList.FromItem((IBinding)values.Item.Value!);
 
             var bindings = new IBinding[iterator.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding) iterator[i].Value!;
+                bindings[i] = (IBinding)iterator[i].Value!;
             return ItemOrList.FromListToReadOnly(bindings);
         }
 
@@ -67,10 +67,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (target == null)
                 return false;
 
-            _attachedValueManager
-                .DefaultIfNull()
-                .TryGetAttachedValues(target, metadata)
-                .AddOrUpdate(GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
+            target.AttachedValues(metadata, _attachedValueManager).AddOrUpdate(GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
             return true;
         }
 
@@ -79,7 +76,7 @@ namespace MugenMvvm.Binding.Core.Components
             Should.NotBeNull(binding, nameof(binding));
             if (target == null)
                 return false;
-            return _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata).Remove(GetPath(binding.Target.Path), out _);
+            return target.AttachedValues(metadata, _attachedValueManager).Remove(GetPath(binding.Target.Path), out _);
         }
 
         #endregion

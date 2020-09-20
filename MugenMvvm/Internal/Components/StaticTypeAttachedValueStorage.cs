@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class StaticTypeAttachedValueStorage : AttachedValueStorageProviderBase, IHasPriority
+    public sealed class StaticTypeAttachedValueStorage : AttachedValueStorageProviderBase<Type>, IHasPriority
     {
         #region Fields
 
@@ -32,27 +30,24 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is Type;
-
-        protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
+        protected override IDictionary<string, object?>? GetAttachedDictionary(Type item, bool optional)
         {
-            var type = (Type) item;
             lock (_attachedValues)
             {
-                if (_attachedValues.TryGetValue(type, out var result) || optional)
+                if (_attachedValues.TryGetValue(item, out var result) || optional)
                     return result;
 
                 result = new SortedList<string, object?>(3, StringComparer.Ordinal);
-                _attachedValues[type] = result;
+                _attachedValues[item] = result;
                 return result;
             }
         }
 
-        protected override bool ClearInternal(object item)
+        protected override bool ClearInternal(Type item)
         {
             lock (_attachedValues)
             {
-                return _attachedValues.Remove((Type) item);
+                return _attachedValues.Remove(item);
             }
         }
 

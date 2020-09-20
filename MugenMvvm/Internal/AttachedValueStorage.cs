@@ -135,7 +135,7 @@ namespace MugenMvvm.Internal
 
         #region Nested Types
 
-        public delegate AttachedValueStorage DecorateDelegate<TState>(object item, IAttachedValueStorageManager storageManager, object? internalState, TState state);
+        public delegate AttachedValueStorage DecorateDelegate<in TState>(object item, IAttachedValueStorageManager storageManager, object? internalState, TState state);
 
         #endregion
     }

@@ -25,8 +25,6 @@ namespace MugenMvvm.Views.Components
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly IComponentCollectionManager? _componentCollectionManager;
 
-        private static readonly IMetadataContextKey<List<IView>, List<IView>> ViewsMetadataKey = MetadataContextKey.FromMember(ViewsMetadataKey, typeof(ViewManagerComponent), nameof(ViewsMetadataKey));
-
         #endregion
 
         #region Constructors
@@ -60,13 +58,13 @@ namespace MugenMvvm.Views.Components
                 return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, v, m) => c.Add(v, m), (c, v, m) => c.Remove(v, m), metadata));
             }
 
-            var list = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (context, o) => new List<IView>(2));
+            var list = viewModel.Metadata.GetOrAdd(InternalMetadata.Views, (object?)null, (context, o) => new List<IView>(2));
             return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
         }
 
         public Task<bool>? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (!_attachedValueManager.DefaultIfNull().TryGetAttachedValues(view.Target).TryGet(InternalConstant.ViewsValueKey, out var v)
+            if (!view.Target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var v)
                 || !(v is List<IView> value) || !value.Contains(view))
                 return null;
 
@@ -76,7 +74,7 @@ namespace MugenMvvm.Views.Components
                 if (item.ViewModel is IComponentOwner componentOwner)
                     componentOwner.Components.Remove(item, m);
                 else
-                    item.ViewModel.Metadata.Get(ViewsMetadataKey)?.Remove(item);
+                    item.ViewModel.Metadata.Get(InternalMetadata.Views)?.Remove(item);
             }, metadata);
             return Default.TrueTask;
         }
@@ -84,17 +82,16 @@ namespace MugenMvvm.Views.Components
         public ItemOrList<IView, IReadOnlyList<IView>> TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
-
             if (viewModel != null)
             {
                 if (viewModel is IComponentOwner componentOwner)
                     return ItemOrList.FromListToReadOnly(componentOwner.GetComponents<IView>());
 
-                return GetViews(viewModel.GetMetadataOrDefault().Get(ViewsMetadataKey));
+                return GetViews(viewModel.GetMetadataOrDefault().Get(InternalMetadata.Views));
             }
 
-            if (view != null && _attachedValueManager.DefaultIfNull().TryGetAttachedValues(view, metadata).TryGet(InternalConstant.ViewsValueKey, out var value))
-                return GetViews((List<IView>?) value);
+            if (view != null && view.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var value))
+                return GetViews((List<IView>?)value);
             return default;
         }
 
@@ -130,7 +127,7 @@ namespace MugenMvvm.Views.Components
             var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
             addAction(collection, view, metadata);
-            _attachedValueManager.DefaultIfNull().TryGetAttachedValues(rawView, metadata).GetOrAdd(InternalConstant.ViewsValueKey, rawView, (_, __) => new List<IView>()).Add(view);
+            rawView.AttachedValues(metadata, _attachedValueManager).GetOrAdd(InternalConstant.ViewsValueKey, rawView, (_, __) => new List<IView>()).Add(view);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, viewModel, metadata);
             return view;
         }
@@ -139,7 +136,7 @@ namespace MugenMvvm.Views.Components
         {
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, state, metadata);
             removeAction(collection, view, metadata);
-            if (_attachedValueManager.DefaultIfNull().TryGetAttachedValues(view.Target, metadata).TryGet(InternalConstant.ViewsValueKey, out var value))
+            if (view.Target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var value))
                 (value as List<IView>)?.Remove(view);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, state, metadata);
         }

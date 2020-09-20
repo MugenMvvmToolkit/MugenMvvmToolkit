@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using MugenMvvm.Commands;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
@@ -28,7 +29,7 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
-using MugenMvvm.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Wrapping.Components;
 
 namespace MugenMvvm.Extensions
@@ -36,6 +37,13 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static bool IsInState(this IMugenApplication application, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(application, nameof(application));
+            Should.NotBeNull(state, nameof(state));
+            return application.GetComponents<ILifecycleTrackerComponent<ApplicationLifecycleState>>().IsInState(application, application, state, metadata);
+        }
 
         public static IBusyToken BeginBusy(this IBusyManager busyManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -95,6 +103,10 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AttachedValueStorage AttachedValues<T>(this T target, IReadOnlyMetadataContext? metadata = null, IAttachedValueManager? attachedValueManager = null) where T : class
+            => attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata);
+
         public static void ExecuteRaw(IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (!threadDispatcher.DefaultIfNull().TryExecute(executionMode, handler, state, metadata))
@@ -152,15 +164,9 @@ namespace MugenMvvm.Extensions
             Func<Type, TWrapRequest, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) {Priority = priority};
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
-        }
-
-        public static bool IsInBackground(this IMugenApplication application, bool defaultValue = false)
-        {
-            Should.NotBeNull(application, nameof(application));
-            return application.GetMetadataOrDefault().Get(ApplicationMetadata.IsInBackground, defaultValue);
         }
 
         public static T? TryGetUnderlyingItem<T>(object target) where T : class
@@ -190,8 +196,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo) (object) value!;
+                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo)(object)value!;
         }
 
         [StringFormatMethod("format")]

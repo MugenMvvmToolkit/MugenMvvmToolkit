@@ -74,6 +74,9 @@ namespace MugenMvvm
         [DoesNotReturn]
         public static void ThrowMementoRequiredContextKey() => throw new NotSupportedException(MultiplePresenterResultNotSupported);
 
+        [DoesNotReturn]
+        public static void ThrowCanceledException() => throw new OperationCanceledException();
+
         #endregion
     }
 }

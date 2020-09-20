@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderAttachedValueStorage : AttachedValueStorageProviderBase, IHasPriority
+    public sealed class ValueHolderAttachedValueStorage : AttachedValueStorageProviderBase<IValueHolder<IDictionary<string, object?>>>, IHasPriority
     {
         #region Properties
 
@@ -17,26 +16,22 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is IValueHolder<IDictionary<string, object?>>;
-
-        protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
+        protected override IDictionary<string, object?>? GetAttachedDictionary(IValueHolder<IDictionary<string, object?>> item, bool optional)
         {
-            var holder = (IValueHolder<IDictionary<string, object?>>) item;
-            if (optional || holder.Value != null)
-                return holder.Value;
+            if (optional || item.Value != null)
+                return item.Value;
 
-            lock (holder)
+            lock (item)
             {
-                if (holder.Value == null)
-                    holder.Value = new SortedList<string, object?>(3, StringComparer.Ordinal);
+                item.Value ??= new SortedList<string, object?>(3, StringComparer.Ordinal);
             }
 
-            return holder.Value;
+            return item.Value;
         }
 
-        protected override bool ClearInternal(object item)
+        protected override bool ClearInternal(IValueHolder<IDictionary<string, object?>> item)
         {
-            ((IValueHolder<IDictionary<string, object?>>) item).Value = null;
+            item.Value = null;
             return true;
         }
 

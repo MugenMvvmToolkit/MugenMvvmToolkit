@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ConditionalWeakTableAttachedValueStorage : AttachedValueStorageProviderBase, IHasPriority
+    public sealed class ConditionalWeakTableAttachedValueStorage : AttachedValueStorageProviderBase<object>, IHasPriority
     {
         #region Fields
 
@@ -34,8 +32,6 @@ namespace MugenMvvm.Internal.Components
         #endregion
 
         #region Methods
-
-        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => true;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {

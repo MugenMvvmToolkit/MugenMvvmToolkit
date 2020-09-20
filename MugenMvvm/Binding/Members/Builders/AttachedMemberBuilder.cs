@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members.Descriptors;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members.Builders
@@ -78,13 +79,13 @@ namespace MugenMvvm.Binding.Members.Builders
         {
             Should.NotBeNull(member, nameof(member));
             Should.NotBeNull(handler, nameof(handler));
-            var attachedValues = MugenService.AttachedValueManager.TryGetAttachedValues(member.GetTarget(target), metadata);
+            var attachedValues = member.GetTarget(target).AttachedValues(metadata);
             if (!attachedValues.Contains(id))
             {
                 attachedValues.GetOrAdd(id, (member, handler, metadata), (t, s) =>
                 {
-                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget) t, s.metadata);
-                    return (object?) null;
+                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, s.metadata);
+                    return (object?)null;
                 });
             }
         }

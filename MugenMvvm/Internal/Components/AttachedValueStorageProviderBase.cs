@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal.Components
 {
-    public abstract class AttachedValueStorageProviderBase : IAttachedValueStorageProviderComponent, IAttachedValueStorageManager
+    public abstract class AttachedValueStorageProviderBase<T> : IAttachedValueStorageProviderComponent, IAttachedValueStorageManager where T : class
     {
         #region Implementation of interfaces
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Internal.Components
         {
             if (internalState == null)
                 return 0;
-            return ((IDictionary<string, object?>) internalState).Count;
+            return ((IDictionary<string, object?>)internalState).Count;
         }
 
         public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, ref object? internalState, TState state = default,
@@ -26,7 +26,7 @@ namespace MugenMvvm.Internal.Components
         {
             if (internalState == null)
                 return default;
-            var dictionary = (IDictionary<string, object?>) internalState;
+            var dictionary = (IDictionary<string, object?>)internalState;
             lock (dictionary)
             {
                 if (dictionary.Count == 0)
@@ -56,7 +56,7 @@ namespace MugenMvvm.Internal.Components
                 return false;
             lock (internalState)
             {
-                return ((IDictionary<string, object?>) internalState).ContainsKey(path);
+                return ((IDictionary<string, object?>)internalState).ContainsKey(path);
             }
         }
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.Internal.Components
 
             lock (internalState)
             {
-                return ((IDictionary<string, object?>) internalState).TryGetValue(path, out value);
+                return ((IDictionary<string, object?>)internalState).TryGetValue(path, out value);
             }
         }
 
@@ -81,9 +81,9 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValue, (TValue) value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, addValue, (TValue)value!, state));
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 dictionary.Add(path, addValue);
@@ -99,14 +99,14 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValueFactory, (TValue) value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, addValueFactory, (TValue)value!, state));
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 value = BoxingExtensions.Box(addValueFactory(item, state));
                 dictionary.Add(path, value);
-                return (TValue) value!;
+                return (TValue)value!;
             }
         }
 
@@ -116,10 +116,10 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 oldValue = BoxingExtensions.Box(valueFactory(item, state));
                 dictionary.Add(path, oldValue);
-                return (TValue) oldValue!;
+                return (TValue)oldValue!;
             }
         }
 
@@ -129,7 +129,7 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 dictionary.Add(path, BoxingExtensions.Box(value));
                 return value;
             }
@@ -153,7 +153,7 @@ namespace MugenMvvm.Internal.Components
                 return false;
             }
 
-            var dictionary = (IDictionary<string, object?>) internalState;
+            var dictionary = (IDictionary<string, object?>)internalState;
             lock (dictionary)
             {
                 return dictionary.TryGetValue(path, out oldValue) && dictionary.Remove(path);
@@ -165,13 +165,13 @@ namespace MugenMvvm.Internal.Components
             if (internalState == null)
                 return false;
             internalState = null;
-            return ClearInternal(item);
+            return ClearInternal((T) item);
         }
 
         public AttachedValueStorage TryGetAttachedValues(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             if (IsSupported(attachedValueManager, item, metadata))
-                return new AttachedValueStorage(item, this, GetAttachedDictionary(item, true));
+                return new AttachedValueStorage(item, this, GetAttachedDictionary((T)item, true));
             return default;
         }
 
@@ -182,15 +182,15 @@ namespace MugenMvvm.Internal.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IDictionary<string, object?> GetDictionary(object item, ref object? internalState)
         {
-            internalState ??= GetAttachedDictionary(item, false)!;
-            return (IDictionary<string, object?>) internalState;
+            internalState ??= GetAttachedDictionary((T) item, false)!;
+            return (IDictionary<string, object?>)internalState;
         }
 
-        protected abstract bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata);
+        protected abstract IDictionary<string, object?>? GetAttachedDictionary(T item, bool optional);
 
-        protected abstract IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional);
+        protected abstract bool ClearInternal(T item);
 
-        protected abstract bool ClearInternal(object item);
+        protected virtual bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is T;
 
         #endregion
     }
