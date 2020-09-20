@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
@@ -23,11 +22,34 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ViewLifecycleTracker();
             manager.AddComponent(component);
 
-            manager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this);
-            view.Metadata.Get(ViewMetadata.LifecycleState).ShouldEqual(ViewLifecycleState.Initialized);
+            manager.IsInState(view, ViewLifecycleState.Appeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Closed).ShouldBeFalse();
 
-            manager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this);
-            view.Metadata.Get(ViewMetadata.LifecycleState).ShouldEqual(ViewLifecycleState.Initializing);
+            manager.OnLifecycleChanged(view, ViewLifecycleState.Appeared, this);
+            manager.IsInState(view, ViewLifecycleState.Appeared).ShouldBeTrue();
+            manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Closed).ShouldBeFalse();
+
+            manager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared, this);
+            manager.IsInState(view, ViewLifecycleState.Appeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeTrue();
+            manager.IsInState(view, ViewLifecycleState.Closed).ShouldBeFalse();
+
+            manager.OnLifecycleChanged(view, ViewLifecycleState.Closed, this);
+            manager.IsInState(view, ViewLifecycleState.Appeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeTrue();
+            manager.IsInState(view, ViewLifecycleState.Closed).ShouldBeTrue();
+
+            manager.OnLifecycleChanged(view, ViewLifecycleState.Appeared, this);
+            manager.IsInState(view, ViewLifecycleState.Appeared).ShouldBeTrue();
+            manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Closed).ShouldBeFalse();
+
+            manager.OnLifecycleChanged(view, ViewLifecycleState.Closed, this);
+            manager.IsInState(view, ViewLifecycleState.Appeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeFalse();
+            manager.IsInState(view, ViewLifecycleState.Closed).ShouldBeTrue();
         }
 
         #endregion

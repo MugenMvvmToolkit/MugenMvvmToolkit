@@ -47,8 +47,6 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         public Func<bool, IReadOnlyMetadataContext?, IPresenterResult>? GetPresenterResultHandler { get; set; }
 
-        public Func<object?, IReadOnlyMetadataContext?, NavigationMode>? GetShowNavigationModeHandler { get; set; }
-
 
         public Func<INavigationContext, bool>? OnNavigatedHandler { get; set; }
 
@@ -74,8 +72,6 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
             GetNavigationContextHandler?.Invoke(mode, metadata) ?? base.GetNavigationContext(mode, metadata);
 
         protected override IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) => GetPresenterResultHandler?.Invoke(show, metadata) ?? base.GetPresenterResult(show, metadata);
-
-        protected override NavigationMode GetShowNavigationMode(object? view, IReadOnlyMetadataContext? metadata) => GetShowNavigationModeHandler?.Invoke(view, metadata) ?? base.GetShowNavigationMode(view, metadata);
 
         protected override void OnNavigated(INavigationContext navigationContext)
         {

@@ -79,9 +79,9 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             var manager = new ViewModelManager();
             manager.AddComponent(new ViewModelCleaner(new ViewManager()));
             var viewModel = new TestCleanerViewModel();
-            viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, ViewModelLifecycleState.Created);
+            viewModel.Metadata.Set(ViewModelMetadata.ViewModel, viewModel);
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            viewModel.Metadata.TryGet(ViewModelMetadata.LifecycleState, out _).ShouldBeFalse();
+            viewModel.Metadata.TryGet(ViewModelMetadata.ViewModel, out _).ShouldBeFalse();
         }
 
         [Fact]
@@ -101,11 +101,11 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         public void ShouldDisposeViewModels(bool dispose)
         {
             var manager = new ViewModelManager();
-            manager.AddComponent(new ViewModelCleaner(new ViewManager()) {CleanupCommands = dispose});
-            var viewModel = new TestCleanerViewModel {Command1 = new CompositeCommand(), Command2 = new CompositeCommand()};
+            manager.AddComponent(new ViewModelCleaner(new ViewManager()) { CleanupCommands = dispose });
+            var viewModel = new TestCleanerViewModel { Command1 = new CompositeCommand(), Command2 = new CompositeCommand() };
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            ((CompositeCommand) viewModel.Command1).IsDisposed.ShouldEqual(dispose);
-            ((CompositeCommand) viewModel.Command2).IsDisposed.ShouldEqual(dispose);
+            ((CompositeCommand)viewModel.Command1).IsDisposed.ShouldEqual(dispose);
+            ((CompositeCommand)viewModel.Command2).IsDisposed.ShouldEqual(dispose);
         }
 
         [Fact]

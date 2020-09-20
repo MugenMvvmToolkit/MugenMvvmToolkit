@@ -1,6 +1,7 @@
-﻿using MugenMvvm.Enums;
+﻿using System;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.ViewModels;
 using MugenMvvm.ViewModels.Components;
@@ -13,19 +14,24 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
     {
         #region Methods
 
-        [Fact]
-        public void ShouldTrackLifecycle()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldTrackLifecycle(bool viewModelBase)
         {
-            var viewModel = new TestViewModel();
+            var viewModel = viewModelBase ? new TestViewModelBase() : (IViewModelBase)new TestViewModel();
             var manager = new ViewModelManager();
             var component = new ViewModelLifecycleTracker();
             manager.AddComponent(component);
 
-            manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Created, this);
-            viewModel.Metadata.Get(ViewModelMetadata.LifecycleState).ShouldEqual(ViewModelLifecycleState.Created);
+            viewModel.IsInState(ViewModelLifecycleState.Created, null, manager).ShouldBeTrue();
+            viewModel.IsInState(ViewModelLifecycleState.Disposed, null, manager).ShouldBeFalse();
 
-            manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            viewModel.Metadata.Get(ViewModelMetadata.LifecycleState).ShouldEqual(ViewModelLifecycleState.Disposed);
+            if (viewModelBase)
+                ((IDisposable)viewModel).Dispose();
+            else
+                manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed);
+            viewModel.IsInState(ViewModelLifecycleState.Disposed, null, manager).ShouldBeTrue();
         }
 
         #endregion

@@ -19,11 +19,13 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
+using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Threading.Internal;
@@ -86,6 +88,9 @@ namespace MugenMvvm.UnitTests
 
             IViewModelManager viewModelManager = new ViewModelManager();
             MugenService.Configuration.InitializeInstance(viewModelManager);
+
+            IMessenger messenger = new Messenger();
+            MugenService.Configuration.InitializeInstance(messenger);
         }
 
         #endregion

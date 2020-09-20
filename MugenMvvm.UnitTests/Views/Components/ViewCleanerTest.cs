@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner());
-            view.Metadata.Set(ViewMetadata.LifecycleState, ViewLifecycleState.Clearing);
+            view.Metadata.Set(ViewModelMetadata.Id, "");
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
             view.Metadata.Count.ShouldEqual(0);
         }

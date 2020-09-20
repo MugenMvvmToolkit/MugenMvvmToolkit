@@ -8,6 +8,7 @@ using MugenMvvm.Navigation.Components;
 using MugenMvvm.Presenters;
 using MugenMvvm.Requests;
 using MugenMvvm.Threading;
+using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Navigation.Internal;
 using MugenMvvm.UnitTests.Presenters.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
@@ -132,6 +133,80 @@ namespace MugenMvvm.UnitTests.Presenters
             activateCount.ShouldEqual(1);
             closeCount.ShouldEqual(1);
             cleanupCount.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(nameof(ViewLifecycleState.Initialized))]
+        [InlineData(nameof(ViewLifecycleState.Closed))]
+        [InlineData(nameof(ViewLifecycleState.Appeared))]
+        [InlineData(nameof(ViewLifecycleState.Disappeared))]
+        public void ShouldUseViewState(string stateString)
+        {
+            var state = ViewLifecycleState.Parse(stateString);
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var navigatingCount = 0;
+            var navigateCanceledCount = 0;
+            var navigatedCount = 0;
+
+            var viewPresenter = new TestViewPresenter();
+            var navigationDispatcher = new NavigationDispatcher();
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+            {
+                OnNavigating = context => ++navigatingCount
+            });
+            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
+            {
+                OnNavigated = context => ++navigatedCount
+            });
+            navigationDispatcher.AddComponent(new TestNavigationDispatcherErrorListener
+            {
+                OnNavigationCanceled = (context, token) => ++navigateCanceledCount
+            });
+            var viewManager = new ViewManager();
+            viewManager.Components.Add(new TestLifecycleTrackerComponent<ViewLifecycleState>
+            {
+                IsInState = (o, v, s, m) =>
+                {
+                    v.ShouldEqual(view.Target);
+                    return s == state;
+                }
+            });
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
+            });
+            var threadDispatcher = new ThreadDispatcher();
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
+            mediator.TryShow(null, default, DefaultMetadata);
+
+            if (state != ViewLifecycleState.Closed)
+                mediator.View.ShouldEqual(view);
+
+            navigatingCount.ShouldEqual(1);
+            if (state == ViewLifecycleState.Appeared)
+            {
+                navigatedCount.ShouldEqual(1);
+                navigateCanceledCount.ShouldEqual(0);
+            }
+            else if (state == ViewLifecycleState.Closed)
+            {
+                navigatedCount.ShouldEqual(0);
+                navigateCanceledCount.ShouldEqual(1);
+            }
+            else if (state == ViewLifecycleState.Initialized || state == ViewLifecycleState.Disappeared)
+            {
+                navigatedCount.ShouldEqual(0);
+                navigateCanceledCount.ShouldEqual(0);
+
+                viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
+                navigateCanceledCount.ShouldEqual(0);
+                navigatingCount.ShouldEqual(1);
+                navigatedCount.ShouldEqual(1);
+            }
         }
 
         [Fact]

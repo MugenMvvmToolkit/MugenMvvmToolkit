@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     viewMapping.ShouldEqual(mapping);
                     if (includeView)
                     {
-                        var request = (ViewModelViewRequest) r;
+                        var request = (ViewModelViewRequest)r;
                         request.ViewModel.ShouldEqual(vm);
                         request.View.ShouldEqual(view.Target);
                     }
@@ -556,6 +556,46 @@ namespace MugenMvvm.UnitTests.Presenters
             clearCount.ShouldEqual(0);
 
             mediator.TryClose(null, default, DefaultMetadata);
+            initCount.ShouldEqual(1);
+            clearMediatorCount.ShouldEqual(1);
+            clearCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryShowShouldClearViewFailed()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource();
+            var initCount = 0;
+            var clearCount = 0;
+            var clearMediatorCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            var viewManager = new ViewManager();
+            var threadDispatcher = new ThreadDispatcher();
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
+            mediator.InitializeViewHandler = context => { ++initCount; };
+            mediator.CleanupViewHandler = context =>
+            {
+                ++clearMediatorCount;
+                mediator.CurrentView.ShouldEqual(view.Target);
+            };
+            mediator.ShowViewHandler = context => throw new Exception();
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, m, token) => new ValueTask<IView?>(view),
+                TryCleanupAsync = (v, o, arg3, arg5) =>
+                {
+                    ++clearCount;
+                    v.ShouldEqual(view);
+                    return Default.TrueTask;
+                }
+            });
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            mediator.TryShow(null, cts.Token, DefaultMetadata);
             initCount.ShouldEqual(1);
             clearMediatorCount.ShouldEqual(1);
             clearCount.ShouldEqual(1);
