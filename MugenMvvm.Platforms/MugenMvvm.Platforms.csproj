@@ -3,8 +3,8 @@
   <PropertyGroup>
     <!--https://github.com/novotnyllc/MSBuildSdkExtras/issues/235-->
     <!-- <TargetFrameworks>xamarin.ios10;monoandroid10.0</TargetFrameworks> -->
-    <TargetFrameworks>xamarin.ios10</TargetFrameworks>
-    <!-- <TargetFrameworks>monoandroid10.0</TargetFrameworks> -->
+    <!-- <TargetFrameworks>xamarin.ios10</TargetFrameworks> -->
+    <TargetFrameworks>monoandroid10.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
