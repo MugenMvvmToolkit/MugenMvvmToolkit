@@ -191,8 +191,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             if (enabledMember == null)
                 return;
 
-            if (target == null)
-                target = _targetRef?.Target;
+            target ??= _targetRef?.Target;
             if (target == null)
                 return;
 

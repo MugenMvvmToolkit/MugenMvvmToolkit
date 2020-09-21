@@ -187,8 +187,7 @@ namespace MugenMvvm.Binding.Extensions
                 }
                 else
                 {
-                    if (converter == null)
-                        converter = MugenBindingService.GlobalValueConverter;
+                    converter ??= MugenBindingService.GlobalValueConverter;
                     result[i] = converter.Convert(value, parameterInfo.ParameterType, parameterInfo);
                 }
             }

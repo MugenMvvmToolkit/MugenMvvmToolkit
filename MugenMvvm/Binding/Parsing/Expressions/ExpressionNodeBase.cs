@@ -70,8 +70,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 var node = VisitWithCheck(visitor, nodes[i], true, ref itemsChanged, metadata);
                 if (!itemsChanged)
                     continue;
-                if (newArgs == null)
-                    newArgs = nodes.ToArray();
+                newArgs ??= nodes.ToArray();
                 newArgs[i] = node;
             }
 

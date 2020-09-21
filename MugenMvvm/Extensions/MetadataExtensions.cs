@@ -97,12 +97,8 @@ namespace MugenMvvm.Extensions
         }
 
         public static MetadataContextKey.Builder<TGet, TSet> NotNull<TGet, TSet>(this MetadataContextKey.Builder<TGet, TSet> builder)
-            where TSet : class
-        {
-            if (_notNullValidateAction == null)
-                _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
-            return builder.WithValidation(_notNullValidateAction);
-        }
+            where TSet : class =>
+            builder.WithValidation(_notNullValidateAction ??= (ctx, k, value) => Should.NotBeNull(value, nameof(value)));
 
         public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext
         {

@@ -71,8 +71,7 @@ namespace MugenMvvm.Binding.Members.Components
         public void Register(IMemberInfo member, string? name = null)
         {
             Should.NotBeNull(member, nameof(member));
-            if (name == null)
-                name = member.Name;
+            name ??= member.Name;
             if (!_registeredMembers.TryGetValue(name, out var list))
             {
                 list = new List<IMemberInfo>();

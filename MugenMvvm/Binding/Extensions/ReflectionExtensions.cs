@@ -312,8 +312,7 @@ namespace MugenMvvm.Binding.Extensions
 
             if (checkExtension && method.IsDefined(typeof(ExtensionAttribute), false))
             {
-                if (extensionParameters == null)
-                    extensionParameters = method.GetParameters();
+                extensionParameters ??= method.GetParameters();
                 if (extensionParameters.Length != 0)
                     return method.IsPublic ? MemberFlags.Extension | MemberFlags.Public : MemberFlags.Extension | MemberFlags.NonPublic;
             }
@@ -348,8 +347,7 @@ namespace MugenMvvm.Binding.Extensions
 
         internal static HashSet<Type> SelfAndBaseTypes(Type type, bool addClasses = true, bool addInterfaces = true, HashSet<Type>? types = null)
         {
-            if (types == null)
-                types = new HashSet<Type>();
+            types ??= new HashSet<Type>();
             types.Add(type);
             if (addClasses)
                 AddSelfAndBaseClasses(types, type);

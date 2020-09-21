@@ -54,8 +54,7 @@ namespace MugenMvvm.Binding.Members
                 }
             }
 
-            if (parameterInfos == null)
-                parameterInfos = _method.GetParameters();
+            parameterInfos ??= _method.GetParameters();
             AccessModifiers = _method.GetAccessModifiers(isExtensionMethodSupported, ref parameterInfos);
             DeclaringType = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType ?? typeof(object);
             if (parameterInfos.Length == 0)
