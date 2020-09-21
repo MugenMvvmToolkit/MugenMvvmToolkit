@@ -39,10 +39,12 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        public AttachedValueStorage Decorate<TState>(TState state, DecorateDelegate<TState> decorator)
+        public void GetInternalState(out IAttachedValueStorageManager storageManager, out object item, out object? state)
         {
             EnsureInitialized();
-            return decorator(_item, _storageManager, _state, state);
+            storageManager = _storageManager;
+            item = _item;
+            state = _state;
         }
 
         public int GetCount()
@@ -55,21 +57,21 @@ namespace MugenMvvm.Internal
             Func<object, KeyValuePair<string, object?>, TState, bool>? predicate = null)
         {
             EnsureInitialized();
-            return _storageManager.GetValues(_item, ref _state, state, predicate);
+            return _storageManager.GetValues(_item, state, predicate, ref _state);
         }
 
         public bool Contains(string path)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager != null && _storageManager.Contains(_item, ref _state, path);
+            return _storageManager.Contains(_item, path, ref _state);
         }
 
         public bool TryGet(string path, out object? value)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager.TryGet(_item, ref _state, path, out value);
+            return _storageManager.TryGet(_item, path, ref _state, out value);
         }
 
         public TValue AddOrUpdate<TValue, TState>(string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory)
@@ -77,7 +79,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             EnsureInitialized();
-            return _storageManager.AddOrUpdate(_item, ref _state, path, addValue, state, updateValueFactory);
+            return _storageManager.AddOrUpdate(_item, path, addValue, state, updateValueFactory, ref _state);
         }
 
         public TValue AddOrUpdate<TValue, TState>(string path, TState state, Func<object, TState, TValue> addValueFactory, UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory)
@@ -86,7 +88,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(addValueFactory, nameof(addValueFactory));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             EnsureInitialized();
-            return _storageManager.AddOrUpdate(_item, ref _state, path, state, addValueFactory, updateValueFactory);
+            return _storageManager.AddOrUpdate(_item, path, state, addValueFactory, updateValueFactory, ref _state);
         }
 
         public TValue GetOrAdd<TValue, TState>(string path, TState state, Func<object, TState, TValue> valueFactory)
@@ -94,28 +96,28 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
             EnsureInitialized();
-            return _storageManager.GetOrAdd(_item, ref _state, path, state, valueFactory);
+            return _storageManager.GetOrAdd(_item, path, state, valueFactory, ref _state);
         }
 
         public TValue GetOrAdd<TValue>(string path, TValue value)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager.GetOrAdd(_item, ref _state, path, value);
+            return _storageManager.GetOrAdd(_item, path, value, ref _state);
         }
 
         public void Set(string path, object? value, out object? oldValue)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            _storageManager.Set(_item, ref _state, path, value, out oldValue);
+            _storageManager.Set(_item, path, value, ref _state, out oldValue);
         }
 
         public bool Remove(string path, out object? oldValue)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager.Remove(_item, ref _state, path, out oldValue);
+            return _storageManager.Remove(_item, path, ref _state, out oldValue);
         }
 
         public bool Clear()
@@ -130,12 +132,6 @@ namespace MugenMvvm.Internal
             if (_storageManager == null)
                 ExceptionManager.ThrowObjectNotInitialized(nameof(AttachedValueStorage));
         }
-
-        #endregion
-
-        #region Nested Types
-
-        public delegate AttachedValueStorage DecorateDelegate<in TState>(object item, IAttachedValueStorageManager storageManager, object? internalState, TState state);
 
         #endregion
     }

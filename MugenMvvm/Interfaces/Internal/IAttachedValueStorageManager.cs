@@ -9,25 +9,25 @@ namespace MugenMvvm.Interfaces.Internal
     {
         int GetCount(object item, ref object? internalState);
 
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, ref object? internalState,
-            TState state = default, Func<object, KeyValuePair<string, object?>, TState, bool>? predicate = null);
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, TState state,
+            Func<object, KeyValuePair<string, object?>, TState, bool>? predicate, ref object? internalState);
 
-        bool Contains(object item, ref object? internalState, string path);
+        bool Contains(object item, string path, ref object? internalState);
 
-        bool TryGet(object item, ref object? internalState, string path, out object? value);
+        bool TryGet(object item, string path, ref object? internalState, out object? value);
 
-        TValue AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory);
+        TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory, ref object? internalState);
 
-        TValue AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> addValueFactory,
-            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory);
+        TValue AddOrUpdate<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> addValueFactory,
+            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory, ref object? internalState);
 
-        TValue GetOrAdd<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> valueFactory);
+        TValue GetOrAdd<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> valueFactory, ref object? internalState);
 
-        TValue GetOrAdd<TValue>(object item, ref object? internalState, string path, TValue value);
+        TValue GetOrAdd<TValue>(object item, string path, TValue value, ref object? internalState);
 
-        void Set(object item, ref object? internalState, string path, object? value, out object? oldValue);
+        void Set(object item, string path, object? value, ref object? internalState, out object? oldValue);
 
-        bool Remove(object item, ref object? internalState, string path, out object? oldValue);
+        bool Remove(object item, string path, ref object? internalState, out object? oldValue);
 
         bool Clear(object item, ref object? internalState);
     }

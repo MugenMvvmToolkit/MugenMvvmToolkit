@@ -21,8 +21,8 @@ namespace MugenMvvm.Internal.Components
             return ((IDictionary<string, object?>)internalState).Count;
         }
 
-        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, ref object? internalState, TState state = default,
-            Func<object, KeyValuePair<string, object?>, TState, bool>? predicate = null)
+        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, TState state,
+            Func<object, KeyValuePair<string, object?>, TState, bool>? predicate, ref object? internalState)
         {
             if (internalState == null)
                 return default;
@@ -50,7 +50,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public bool Contains(object item, ref object? internalState, string path)
+        public bool Contains(object item, string path, ref object? internalState)
         {
             if (internalState == null)
                 return false;
@@ -60,7 +60,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public bool TryGet(object item, ref object? internalState, string path, out object? value)
+        public bool TryGet(object item, string path, ref object? internalState, out object? value)
         {
             if (internalState == null)
             {
@@ -74,7 +74,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public TValue AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory)
+        public TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory, ref object? internalState)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
@@ -91,8 +91,8 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public TValue AddOrUpdate<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> addValueFactory,
-            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory)
+        public TValue AddOrUpdate<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> addValueFactory,
+            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory, ref object? internalState)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
@@ -110,7 +110,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public TValue GetOrAdd<TValue, TState>(object item, ref object? internalState, string path, TState state, Func<object, TState, TValue> valueFactory)
+        public TValue GetOrAdd<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> valueFactory, ref object? internalState)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
@@ -123,7 +123,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public TValue GetOrAdd<TValue>(object item, ref object? internalState, string path, TValue value)
+        public TValue GetOrAdd<TValue>(object item, string path, TValue value, ref object? internalState)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
@@ -135,7 +135,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public void Set(object item, ref object? internalState, string path, object? value, out object? oldValue)
+        public void Set(object item, string path, object? value, ref object? internalState, out object? oldValue)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
@@ -145,7 +145,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public bool Remove(object item, ref object? internalState, string path, out object? oldValue)
+        public bool Remove(object item, string path, ref object? internalState, out object? oldValue)
         {
             if (internalState == null)
             {
@@ -165,7 +165,7 @@ namespace MugenMvvm.Internal.Components
             if (internalState == null)
                 return false;
             internalState = null;
-            return ClearInternal((T) item);
+            return ClearInternal((T)item);
         }
 
         public AttachedValueStorage TryGetAttachedValues(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
@@ -182,7 +182,7 @@ namespace MugenMvvm.Internal.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IDictionary<string, object?> GetDictionary(object item, ref object? internalState)
         {
-            internalState ??= GetAttachedDictionary((T) item, false)!;
+            internalState ??= GetAttachedDictionary((T)item, false)!;
             return (IDictionary<string, object?>)internalState;
         }
 

@@ -25,39 +25,21 @@ namespace MugenMvvm.UnitTests.Internal
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetOrAdd("", ""));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetOrAdd("", "", (o, s) => ""));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Clear());
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Decorate("", (item, manager, state, s) => default));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetInternalState(out _, out _, out _));
         }
 
         [Fact]
-        public void DecorateShouldUseDelegate()
+        public void GetInternalStateShouldReturnInternalState()
         {
             var item = new object();
-            var state = 1;
-            var internalState = "";
+            var state = "";
             var manager = new TestAttachedValueStorageManager();
-            var attachedValueStorage = new AttachedValueStorage(item, manager, internalState);
+            var attachedValueStorage = new AttachedValueStorage(item, manager, state);
 
-            var newManager = new TestAttachedValueStorageManager
-            {
-                GetCount = (o, o1) =>
-                {
-                    o.ShouldEqual(item);
-                    o1.ShouldEqual(internalState);
-                    return int.MaxValue;
-                }
-            };
-            var invokeCount = 0;
-            attachedValueStorage = attachedValueStorage.Decorate(state, (o, storageManager, state1, i) =>
-            {
-                ++invokeCount;
-                o.ShouldEqual(item);
-                storageManager.ShouldEqual(manager);
-                state1.ShouldEqual(internalState);
-                i.ShouldEqual(state);
-                return new AttachedValueStorage(item, newManager, internalState);
-            });
-            attachedValueStorage.GetCount().ShouldEqual(int.MaxValue);
-            invokeCount.ShouldEqual(1);
+            attachedValueStorage.GetInternalState(out var internalManager, out var internalItem, out var internalState);
+            internalManager.ShouldEqual(manager);
+            internalItem.ShouldEqual(item);
+            internalState.ShouldEqual(state);
         }
 
         #endregion
