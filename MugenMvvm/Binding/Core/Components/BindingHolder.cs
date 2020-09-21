@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,7 +18,7 @@ namespace MugenMvvm.Binding.Core.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?, IBinding> UpdateBindingDelegate = UpdateBinding;
+        private static readonly Func<object, string, IBinding?, IBinding, IBinding> UpdateBindingDelegate = UpdateBinding;
 
         #endregion
 
@@ -45,9 +44,9 @@ namespace MugenMvvm.Binding.Core.Components
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
-                ? target.AttachedValues(metadata, _attachedValueManager).GetValues<object?>(null, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
+                ? target.AttachedValues(metadata, _attachedValueManager).GetValues<object?>(null, (_, key, __, ___) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
                 : target.AttachedValues(metadata, _attachedValueManager).GetValues(path,
-                    (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
+                    (_, key, __, state) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && key.EndsWith(state, StringComparison.Ordinal));
 
             var iterator = values.Iterator(pair => pair.Key == null);
             if (iterator.Count == 0)
@@ -67,7 +66,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (target == null)
                 return false;
 
-            target.AttachedValues(metadata, _attachedValueManager).AddOrUpdate(GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
+            target.AttachedValues(metadata, _attachedValueManager).AddOrUpdate(GetPath(binding.Target.Path), binding, binding, UpdateBindingDelegate);
             return true;
         }
 
@@ -95,7 +94,7 @@ namespace MugenMvvm.Binding.Core.Components
             return BindingInternalConstant.BindPrefix + memberPath.Path;
         }
 
-        private static IBinding UpdateBinding(object item, IBinding addValue, IBinding? currentValue, object? _)
+        private static IBinding UpdateBinding(object item, string path, IBinding? currentValue, IBinding addValue)
         {
             currentValue?.Dispose();
             return addValue;

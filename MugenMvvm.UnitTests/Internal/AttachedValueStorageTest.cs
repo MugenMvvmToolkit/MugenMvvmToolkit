@@ -17,8 +17,11 @@ namespace MugenMvvm.UnitTests.Internal
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetCount());
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Contains(""));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().TryGet("", out _));
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetValues(""));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetValues());
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetValues("", (o, s, arg3, arg4) => true));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Set("", null));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Set("", null, out _));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Remove(""));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Remove("", out _));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().AddOrUpdate("", "", "", (item, value, currentValue, state) => ""));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().AddOrUpdate("", "", (o, s) => "", (item, value, currentValue, state) => ""));

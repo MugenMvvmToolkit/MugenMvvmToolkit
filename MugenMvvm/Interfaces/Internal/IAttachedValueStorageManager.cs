@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Delegates;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal
@@ -10,16 +9,16 @@ namespace MugenMvvm.Interfaces.Internal
         int GetCount(object item, ref object? internalState);
 
         ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, TState state,
-            Func<object, KeyValuePair<string, object?>, TState, bool>? predicate, ref object? internalState);
+            Func<object, string, object?, TState, bool>? predicate, ref object? internalState);
 
         bool Contains(object item, string path, ref object? internalState);
 
         bool TryGet(object item, string path, ref object? internalState, out object? value);
 
-        TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory, ref object? internalState);
+        TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, Func<object, string, TValue, TState, TValue> updateValueFactory, ref object? internalState);
 
         TValue AddOrUpdate<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> addValueFactory,
-            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory, ref object? internalState);
+            Func<object, string, TValue, TState, TValue> updateValueFactory, ref object? internalState);
 
         TValue GetOrAdd<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> valueFactory, ref object? internalState);
 

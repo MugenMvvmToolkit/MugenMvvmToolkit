@@ -62,15 +62,15 @@ namespace MugenMvvm.UnitTests.Internal.Components
                 values.Add(pair);
             }
 
-            attachedValues.GetValues(this, (o, pair, arg3) =>
+            attachedValues.GetValues(this, (o, key, value, arg3) =>
             {
                 o.ShouldEqual(item);
                 arg3.ShouldEqual(this);
-                hashSet.Remove(pair);
+                hashSet.Remove(new KeyValuePair<string, object?>(key, value));
                 return false;
             }).AsList().ShouldBeEmpty();
             hashSet.Count.ShouldEqual(0);
-            attachedValues.GetValues(this).AsList().SequenceEqual(values).ShouldBeTrue();
+            attachedValues.GetValues().AsList().SequenceEqual(values).ShouldBeTrue();
         }
 
         [Fact]
@@ -119,11 +119,11 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
 
             attachedValues.Set(TestPath, oldValue, out _);
-            attachedValues.AddOrUpdate(TestPath, newValue, this, (o, value, currentValue, state) =>
+            attachedValues.AddOrUpdate(TestPath, newValue, this, (o, key, currentValue, state) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(item);
-                value.ShouldEqual(newValue);
+                key.ShouldEqual(TestPath);
                 currentValue.ShouldEqual(oldValue);
                 state.ShouldEqual(this);
                 return newValue;
@@ -150,14 +150,14 @@ namespace MugenMvvm.UnitTests.Internal.Components
                 it.ShouldEqual(item);
                 state.ShouldEqual(this);
                 return newValue;
-            }, (o, value, currentValue, state) =>
+            }, (o, key, currentValue, state) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(item);
-                value(o, state).ShouldEqual(newValue);
+                key.ShouldEqual(TestPath);
                 currentValue.ShouldEqual(oldValue);
                 state.ShouldEqual(this);
-                return value(o, state);
+                return newValue;
             }).ShouldEqual(newValue);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
             v.ShouldEqual(newValue);

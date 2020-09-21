@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -22,7 +21,7 @@ namespace MugenMvvm.Internal.Components
         }
 
         public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, TState state,
-            Func<object, KeyValuePair<string, object?>, TState, bool>? predicate, ref object? internalState)
+            Func<object, string, object?, TState, bool>? predicate, ref object? internalState)
         {
             if (internalState == null)
                 return default;
@@ -42,7 +41,7 @@ namespace MugenMvvm.Internal.Components
                 var result = ItemOrListEditor.Get<KeyValuePair<string, object?>>(pair => pair.Key == null);
                 foreach (var keyValue in dictionary)
                 {
-                    if (predicate(item, keyValue, state))
+                    if (predicate(item, keyValue.Key, keyValue.Value, state))
                         result.Add(keyValue);
                 }
 
@@ -74,14 +73,14 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, UpdateValueDelegate<object, TValue, TValue, TState, TValue> updateValueFactory, ref object? internalState)
+        public TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, Func<object, string, TValue, TState, TValue> updateValueFactory, ref object? internalState)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValue, (TValue)value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, path, (TValue)value!, state));
                     dictionary[path] = value;
                     return (TValue)value!;
                 }
@@ -92,14 +91,14 @@ namespace MugenMvvm.Internal.Components
         }
 
         public TValue AddOrUpdate<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> addValueFactory,
-            UpdateValueDelegate<object, TValue, TState, TValue> updateValueFactory, ref object? internalState)
+            Func<object, string, TValue, TState, TValue> updateValueFactory, ref object? internalState)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValueFactory, (TValue)value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, path, (TValue)value!, state));
                     dictionary[path] = value;
                     return (TValue)value!;
                 }
