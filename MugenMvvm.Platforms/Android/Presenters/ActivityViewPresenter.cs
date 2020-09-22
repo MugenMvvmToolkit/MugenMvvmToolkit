@@ -93,7 +93,7 @@ namespace MugenMvvm.Android.Presenters
 
             flags |= (int)ActivityFlags.ReorderToFront;
             var bundle = new Bundle(1);
-            bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.Metadata.Get(ViewModelMetadata.Id)!);
+            bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.GetId());
             StartActivity(mediator, topActivity, flags, bundle, navigationContext);
         }
 

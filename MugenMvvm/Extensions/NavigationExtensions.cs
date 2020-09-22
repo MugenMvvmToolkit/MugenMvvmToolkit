@@ -108,7 +108,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(viewModel, nameof(viewModel));
-            return $"{navigationProvider.Id}/{viewModel.Metadata.Get(ViewModelMetadata.Id)}";
+            return $"{navigationProvider.Id}/{viewModel.GetId()}";
         }
 
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType,

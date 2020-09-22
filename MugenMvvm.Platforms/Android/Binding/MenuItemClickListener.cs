@@ -36,7 +36,7 @@ namespace MugenMvvm.Android.Binding
 
         #region Implementation of interfaces
 
-        public bool OnMenuItemClick(IMenuItem item)
+        public bool OnMenuItemClick(IMenuItem? item)
         {
             var menuItem = _menuItem;
             if (menuItem == null || _listeners == null)

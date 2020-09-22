@@ -87,8 +87,7 @@ namespace MugenMvvm.Android.Views
 
         private void PreserveState(IView view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
-            var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id)!;
-            bundle.PutString(AndroidInternalConstant.BundleVmId, id);
+            bundle.PutString(AndroidInternalConstant.BundleVmId, view.ViewModel.GetId());
             if (!SaveState)
                 return;
 
@@ -106,7 +105,7 @@ namespace MugenMvvm.Android.Views
             if (string.IsNullOrEmpty(id))
                 return null;
 
-            var viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id, metadata);
+            var viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id!, metadata);
             if (viewModel == null)
             {
                 if (!SaveState)

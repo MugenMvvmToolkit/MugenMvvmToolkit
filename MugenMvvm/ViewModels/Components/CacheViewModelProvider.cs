@@ -49,16 +49,13 @@ namespace MugenMvvm.ViewModels.Components
 
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
-                var id = viewModel.Metadata.Get(ViewModelMetadata.Id);
-                if (id != null)
-                {
-                    Add(id, viewModel);
-                    viewModel.Metadata.Set(InternalMetadata.CreatedId, id, out _);
-                }
+                var id = viewModel.GetId();
+                Add(id, viewModel);
+                viewModel.Metadata.Set(InternalMetadata.CreatedId, id, out _);
             }
             else if (lifecycleState == ViewModelLifecycleState.Restored)
             {
-                var id = viewModel.Metadata.Get(ViewModelMetadata.Id);
+                var id = viewModel.GetId();
                 var createdId = viewModel.Metadata.Get(InternalMetadata.CreatedId);
                 if (createdId != id)
                 {
@@ -67,7 +64,7 @@ namespace MugenMvvm.ViewModels.Components
                 }
             }
             else if (lifecycleState == ViewModelLifecycleState.Disposed)
-                Remove(viewModel.Metadata.Get(ViewModelMetadata.Id));
+                Remove(viewModel.GetId());
         }
 
         public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)

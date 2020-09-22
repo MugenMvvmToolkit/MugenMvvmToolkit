@@ -35,7 +35,7 @@ namespace MugenMvvm.Android.Binding
             var bindInfo = Bind?.Invoke(menu, item) ?? default;
             if (bindInfo.IsSubMenu)
             {
-                var subMenu = menu.AddSubMenu(0, id, order, EmptyString);
+                var subMenu = menu.AddSubMenu(0, id, order, EmptyString)!;
                 subMenu.BindableMembers().SetDataContext(item);
                 subMenu.BindableMembers().SetParent(menu);
                 if (bindInfo.ItemTemplate != null)
@@ -44,17 +44,17 @@ namespace MugenMvvm.Android.Binding
                     subMenu.Bind(bindInfo.SubMenuBind, includeResult: false);
                 if (bindInfo.ItemBind != null)
                 {
-                    var menuItem = subMenu.Item;
+                    var menuItem = subMenu.Item!;
                     menuItem.BindableMembers().SetDataContext(item);
                     menuItem.BindableMembers().SetParent(menu);
                     menuItem.Bind(bindInfo.ItemBind, includeResult: false);
                 }
 
-                ApplyHandler?.Invoke(subMenu.Item);
+                ApplyHandler?.Invoke(subMenu.Item!);
             }
             else
             {
-                var menuItem = menu.Add(0, id, order, EmptyString);
+                var menuItem = menu.Add(0, id, order, EmptyString)!;
                 menuItem.BindableMembers().SetDataContext(item);
                 menuItem.BindableMembers().SetParent(menu);
                 if (bindInfo.ItemBind != null)

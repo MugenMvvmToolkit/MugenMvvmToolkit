@@ -86,7 +86,7 @@ namespace MugenMvvm.Android.Collections
 
         private void RemoveMenuItem(int id)
         {
-            var menuItem = Menu.FindItem(id);
+            var menuItem = Menu.FindItem(id)!;
             ItemTemplate.Clear(menuItem);
             Menu.RemoveItem(id);
         }
@@ -95,7 +95,7 @@ namespace MugenMvvm.Android.Collections
         {
             var size = Menu.Size();
             for (var i = 0; i < size; i++)
-                ItemTemplate.Clear(Menu.GetItem(i));
+                ItemTemplate.Clear(Menu.GetItem(i)!);
             Menu.Clear();
 
             for (var i = 0; i < Items.Count; i++)
