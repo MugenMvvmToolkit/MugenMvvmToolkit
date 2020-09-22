@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IMetadataContext : IReadOnlyMetadataContext, IComponentOwner<IMetadataContext>
     {
-        TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TSet addValue, TState state, UpdateValueDelegate<IMetadataContext, TSet, TGet, TState, TSet> updateValueFactory);
+        T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory);
 
-        TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory,
-            UpdateValueDelegate<IMetadataContext, TGet, TState, TSet> updateValueFactory);
+        T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, IMetadataContextKey<T>, TState, T> valueFactory,
+            Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory);
 
-        TGet GetOrAdd<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value);
+        T GetOrAdd<T>(IMetadataContextKey<T> contextKey, T value);
 
-        TGet GetOrAdd<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory);
+        T GetOrAdd<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, IMetadataContextKey<T>, TState, T> valueFactory);
 
-        void Set<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value, out object? oldValue);
+        bool Set<T>(IMetadataContextKey<T> contextKey, T value, out object? oldValue);
 
         void Merge(IEnumerable<KeyValuePair<IMetadataContextKey, object?>> items);
 

@@ -20,9 +20,9 @@ namespace MugenMvvm.Extensions
 
         #region Methods
 
-        public static IReadOnlyMetadataContext ToContext<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value) => new SingleValueMetadataContext(key.ToValue(value));
+        public static IReadOnlyMetadataContext ToContext<T>(this IMetadataContextKey<T> key, T value) => new SingleValueMetadataContext(key.ToValue(value));
 
-        public static KeyValuePair<IMetadataContextKey, object?> ToValue<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
+        public static KeyValuePair<IMetadataContextKey, object?> ToValue<T>(this IMetadataContextKey<T> key, T value)
         {
             Should.NotBeNull(key, nameof(key));
             return new KeyValuePair<IMetadataContextKey, object?>(key, key.SetValue(Default.Metadata, null, value));
@@ -46,6 +46,70 @@ namespace MugenMvvm.Extensions
 
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata) => metadata ?? Default.Metadata;
 
+        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder)
+            where T : class =>
+            builder.WithValidation(_notNullValidateAction ??= (ctx, k, value) => Should.NotBeNull(value, nameof(value)));
+
+        public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext
+        {
+            Should.NotBeNull(metadataOwner, nameof(metadataOwner));
+            if (metadataOwner.HasMetadata)
+            {
+                metadataOwner.Metadata.Clear();
+                if (clearComponents)
+                    metadataOwner.Metadata.ClearComponents();
+            }
+        }
+
+        [return: MaybeNull]
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key) => metadataContext.Get(key, default);
+
+        [return: MaybeNull]
+        [return: NotNullIfNotNull("defaultValue")]
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            metadataContext.TryGet(key, out var value, defaultValue);
+            return value;
+        }
+
+        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.TryGet(contextKey, out value, default);
+        }
+
+        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, IMetadataContextKey<T>, T> valueFactory,
+            Func<IMetadataContext, IMetadataContextKey<T>, object?, T> updateValueFactory)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.AddOrUpdate(contextKey, (valueFactory, updateValueFactory), (context, key, s) => s.valueFactory(context, key), (context, key, old, s) => s.updateValueFactory(context, key, old));
+        }
+
+        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue, Func<IMetadataContext, IMetadataContextKey<T>, object?, T> updateValueFactory)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.AddOrUpdate(contextKey, addValue, updateValueFactory, (context, key, old, s) => s(context, key, old));
+        }
+
+        public static T GetOrAdd<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, IMetadataContextKey<T>, T> valueFactory)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.GetOrAdd(contextKey, valueFactory, (ctx, k, s) => s(ctx, k));
+        }
+
+        public static void Set<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T value)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            metadataContext.Set(contextKey, value, out _);
+        }
+
+        public static bool Remove(this IMetadataContext metadataContext, IMetadataContextKey contextKey)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.Remove(contextKey, out _);
+        }
+
         public static string Dump(this IReadOnlyMetadataContext? metadata)
         {
             if (metadata == null)
@@ -64,69 +128,17 @@ namespace MugenMvvm.Extensions
             return builder.ToString();
         }
 
-        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
+        internal static bool TryGetFromRaw<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, bool hasValue, object? rawValue, out T value, [AllowNull] T defaultValue)
         {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.TryGet(contextKey, out value, default);
-        }
-
-        [return: MaybeNull]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key) => metadataContext.Get(key, default);
-
-        [return: MaybeNull]
-        [return: NotNullIfNotNull("defaultValue")]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            metadataContext.TryGet(key, out var value, defaultValue);
-            return value;
-        }
-
-        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
-            out T value, [AllowNull] T defaultValue)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            if (metadataContext.TryGetRaw(contextKey, out var obj))
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            if (hasValue)
             {
-                value = contextKey.GetValue(metadataContext, obj);
+                value = contextKey.GetValue(metadataContext, rawValue);
                 return true;
             }
 
             value = contextKey.GetDefaultValue(metadataContext, defaultValue);
             return false;
-        }
-
-        public static MetadataContextKey.Builder<TGet, TSet> NotNull<TGet, TSet>(this MetadataContextKey.Builder<TGet, TSet> builder)
-            where TSet : class =>
-            builder.WithValidation(_notNullValidateAction ??= (ctx, k, value) => Should.NotBeNull(value, nameof(value)));
-
-        public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext
-        {
-            Should.NotBeNull(metadataOwner, nameof(metadataOwner));
-            if (metadataOwner.HasMetadata)
-            {
-                metadataOwner.Metadata.Clear();
-                if (clearComponents)
-                    metadataOwner.Metadata.ClearComponents();
-            }
-        }
-
-        public static TGet GetOrAdd<TGet, TSet>(this IMetadataContext metadataContext, IMetadataContextKey<TGet, TSet> contextKey, Func<IMetadataContext, TSet> valueFactory)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.GetOrAdd(contextKey, valueFactory, (ctx, s) => s(ctx));
-        }
-
-        public static void Set<TGet, TSet>(this IMetadataContext metadataContext, IMetadataContextKey<TGet, TSet> contextKey, TSet value)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            metadataContext.Set(contextKey, value, out _);
-        }
-
-        public static bool Remove(this IMetadataContext metadataContext, IMetadataContextKey contextKey)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.Remove(contextKey, out _);
         }
 
         internal static IMetadataContext LazyInitialize(ref IReadOnlyMetadataContext? metadata)
@@ -136,7 +148,7 @@ namespace MugenMvvm.Extensions
 
             var context = metadata;
             Interlocked.CompareExchange(ref metadata, new MetadataContext(metadata), context);
-            return (IMetadataContext) metadata!;
+            return (IMetadataContext)metadata!;
         }
 
         #endregion

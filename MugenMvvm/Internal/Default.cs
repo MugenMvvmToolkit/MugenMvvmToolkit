@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -71,7 +73,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = {typeof(T1)};
+            public static readonly Type[] Types = { typeof(T1) };
 
             #endregion
         }
@@ -80,7 +82,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly Type[] Types = {typeof(T1), typeof(T2)};
+            public static readonly Type[] Types = { typeof(T1), typeof(T2) };
 
             #endregion
         }
@@ -123,13 +125,9 @@ namespace MugenMvvm.Internal
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-            public bool TryGetRaw(IMetadataContextKey contextKey, out object? value)
-            {
-                value = null;
-                return false;
-            }
-
             public bool Contains(IMetadataContextKey contextKey) => false;
+
+            public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue) => this.TryGetFromRaw(contextKey, false, null, out value, defaultValue);
 
             void IWeakReference.Release()
             {

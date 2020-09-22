@@ -177,7 +177,7 @@ namespace MugenMvvm.UnitTests.Commands
             }
 
             compositeCommand.IsDisposed.ShouldBeFalse();
-            compositeCommand.Metadata.Set(MetadataContextKey.FromKey<object?, object?>("t"), "");
+            compositeCommand.Metadata.Set(MetadataContextKey.FromKey<object?>("t"), "");
             compositeCommand.Dispose();
             if (canDispose)
             {

@@ -196,8 +196,8 @@ namespace MugenMvvm.Binding.Core
             else
             {
                 _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                    ? new[] {_components, component}
-                    : new[] {component, _components};
+                    ? new[] { _components, component }
+                    : new[] { component, _components };
             }
 
             OnComponentAdded(component, metadata);
@@ -271,9 +271,10 @@ namespace MugenMvvm.Binding.Core
 
         IEnumerator IEnumerable.GetEnumerator() => GetMetadataEnumerator();
 
-        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, out object? value) => TryGetMetadata(contextKey, out value);
-
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
+
+        bool IReadOnlyMetadataContext.TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+            => this.TryGetFromRaw(contextKey, TryGetMetadata(contextKey, out var rawValue), rawValue, out value, defaultValue);
 
         #endregion
 

@@ -2,11 +2,13 @@
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IReadOnlyMetadataContextKey<TGet> : IMetadataContextKey
+    public interface IReadOnlyMetadataContextKey<T> : IMetadataContextKey
     {
-        TGet GetValue(IReadOnlyMetadataContext metadataContext, object? value);
+        T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue);
+
+        T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue, T value);
 
         [return: NotNullIfNotNull("defaultValue")]
-        TGet GetDefaultValue(IReadOnlyMetadataContext metadataContext, [AllowNull] TGet defaultValue);
+        T GetDefaultValue(IReadOnlyMetadataContext metadataContext, [AllowNull] T defaultValue);
     }
 }

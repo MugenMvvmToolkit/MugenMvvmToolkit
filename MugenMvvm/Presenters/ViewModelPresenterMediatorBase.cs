@@ -157,7 +157,7 @@ namespace MugenMvvm.Presenters
                 mode = NavigationMode.Refresh;
             else
             {
-                var hashSet = ViewModel.GetMetadataOrDefault().Get(NavigationMetadata.OpenedNavigationProviders);
+                var hashSet = ViewModel.GetMetadataOrDefault().Get(InternalMetadata.OpenedNavigationProviders);
                 if (hashSet != null)
                 {
                     lock (hashSet)
@@ -188,7 +188,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual void OnNavigated(INavigationContext navigationContext)
         {
-            var hashSet = ViewModel.Metadata.GetOrAdd(NavigationMetadata.OpenedNavigationProviders, this, (_, __) => new HashSet<string>(StringComparer.Ordinal));
+            var hashSet = ViewModel.Metadata.GetOrAdd(InternalMetadata.OpenedNavigationProviders, this, (_, __, ___) => new HashSet<string>(StringComparer.Ordinal));
             lock (hashSet)
             {
                 if (navigationContext.NavigationMode.IsClose)

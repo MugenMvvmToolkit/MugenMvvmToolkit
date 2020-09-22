@@ -30,9 +30,9 @@ namespace MugenMvvm.UnitTests.Internal
             Default.ResetCollectionEventArgs.Action.ShouldEqual(NotifyCollectionChangedAction.Reset);
 
             Default.Metadata.Count.ShouldEqual(0);
-            Default.Metadata.Contains(MetadataContextKey.FromKey<object, object>("test")).ShouldBeFalse();
+            Default.Metadata.Contains(MetadataContextKey.FromKey<object>("test")).ShouldBeFalse();
             Default.Metadata.ToArray().ShouldBeEmpty();
-            Default.Metadata.TryGet(MetadataContextKey.FromKey<object, object>("test"), out _, null).ShouldBeFalse();
+            Default.Metadata.TryGet(MetadataContextKey.FromKey<object>("test"), out _, null).ShouldBeFalse();
             Default.Disposable.ShouldNotBeNull();
             Default.WeakReference.Target.ShouldBeNull();
             Default.WeakReference.IsAlive.ShouldBeFalse();

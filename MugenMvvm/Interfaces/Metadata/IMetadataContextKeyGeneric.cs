@@ -1,7 +1,7 @@
 ﻿namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IMetadataContextKey<TGet, in TSet> : IReadOnlyMetadataContextKey<TGet>
+    public interface IMetadataContextKey<T> : IReadOnlyMetadataContextKey<T>
     {
-        object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, TSet newValue);
+        object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, T newValue);
     }
 }

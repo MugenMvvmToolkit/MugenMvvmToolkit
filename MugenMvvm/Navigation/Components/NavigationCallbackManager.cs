@@ -122,9 +122,9 @@ namespace MugenMvvm.Navigation.Components
             return true;
         }
 
-        private static void AddCallback(IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> key, NavigationCallback callback, IMetadataContext? metadata)
+        private static void AddCallback(IMetadataContextKey<List<NavigationCallback?>> key, NavigationCallback callback, IMetadataContext? metadata)
         {
-            var callbacks = metadata?.GetOrAdd(key, key, (context, _) => new List<NavigationCallback?>());
+            var callbacks = metadata?.GetOrAdd(key, key, (_, __, ___) => new List<NavigationCallback?>());
             if (callbacks == null)
                 return;
             lock (callbacks)
@@ -185,7 +185,7 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        private static IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>>? GetKeyByCallback(NavigationCallbackType callbackType)
+        private static IMetadataContextKey<List<NavigationCallback?>>? GetKeyByCallback(NavigationCallbackType callbackType)
         {
             if (callbackType == NavigationCallbackType.Showing)
                 return InternalMetadata.ShowingCallbacks;

@@ -21,7 +21,7 @@ namespace MugenMvvm.Internal.Components
         protected override IDictionary<string, object?>? GetAttachedDictionary(IMetadataOwner<IMetadataContext> item, bool optional)
         {
             if (!optional)
-                return item.Metadata.GetOrAdd(InternalMetadata.AttachedValuesKey, this, (context, provider) => new SortedList<string, object?>(3, StringComparer.Ordinal));
+                return item.Metadata.GetOrAdd(InternalMetadata.AttachedValuesKey, this, (context, key, provider) => new SortedList<string, object?>(3, StringComparer.Ordinal));
             if (item.HasMetadata)
                 return item.Metadata.Get(InternalMetadata.AttachedValuesKey);
             return null;

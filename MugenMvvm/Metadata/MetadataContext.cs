@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -85,7 +85,7 @@ namespace MugenMvvm.Metadata
             lock (_dictionary)
             {
                 if (components.Length == 0)
-                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>) _dictionary.ToArray()).GetEnumerator();
+                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>)_dictionary.ToArray()).GetEnumerator();
 
                 var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(value => value.Key == null);
                 foreach (var keyValuePair in _dictionary)
@@ -103,16 +103,6 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool TryGetRaw(IMetadataContextKey contextKey, out object? value)
-        {
-            Should.NotBeNull(contextKey, nameof(contextKey));
-            var components = GetComponents();
-            lock (_dictionary)
-            {
-                return TryGet(components, contextKey, out value);
-            }
-        }
-
         public bool Contains(IMetadataContextKey contextKey)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
@@ -123,135 +113,164 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TSet addValue, TState state, UpdateValueDelegate<IMetadataContext, TSet, TGet, TState, TSet> updateValueFactory)
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            object? newValue, oldValue;
-            bool added;
             var components = GetComponents();
-            lock (_dictionary)
-            {
-                TSet result;
-                if (TryGet(components, contextKey, out oldValue))
-                {
-                    result = updateValueFactory(this, addValue, contextKey.GetValue(this, oldValue), state);
-                    added = false;
-                }
-                else
-                {
-                    result = addValue;
-                    added = true;
-                }
-
-                newValue = contextKey.SetValue(this, oldValue, result);
-                Set(components, contextKey, newValue);
-            }
-
-            if (added)
-                GetListeners().OnAdded(this, contextKey, newValue);
-            else
-                GetListeners().OnChanged(this, contextKey, oldValue, newValue);
-            return contextKey.GetValue(this, newValue);
-        }
-
-        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory,
-            UpdateValueDelegate<IMetadataContext, TGet, TState, TSet> updateValueFactory)
-        {
-            Should.NotBeNull(contextKey, nameof(contextKey));
-            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            object? newValue, oldValue;
-            bool added;
-            var components = GetComponents();
-            lock (_dictionary)
-            {
-                TSet result;
-                if (TryGet(components, contextKey, out oldValue))
-                {
-                    result = updateValueFactory(this, valueFactory, contextKey.GetValue(this, oldValue), state);
-                    added = false;
-                }
-                else
-                {
-                    result = valueFactory(this, state);
-                    added = true;
-                }
-
-                newValue = contextKey.SetValue(this, oldValue, result);
-                Set(components, contextKey, newValue);
-            }
-
-            if (added)
-                GetListeners().OnAdded(this, contextKey, newValue);
-            else
-                GetListeners().OnChanged(this, contextKey, oldValue, newValue);
-            return contextKey.GetValue(this, newValue);
-        }
-
-        public TGet GetOrAdd<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
-        {
-            Should.NotBeNull(contextKey, nameof(contextKey));
             object? rawValue;
+            bool hasValue;
+            lock (_dictionary)
+            {
+                hasValue = TryGet(components, contextKey, out rawValue);
+            }
+
+            return this.TryGetFromRaw(contextKey, hasValue, rawValue, out value, defaultValue);
+        }
+
+        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
+            object? newValue, oldValue;
             bool added;
             var components = GetComponents();
             lock (_dictionary)
             {
-                if (TryGet(components, contextKey, out rawValue))
+                if (TryGet(components, contextKey, out oldValue))
+                {
+                    addValue = updateValueFactory(this, contextKey, oldValue, state);
                     added = false;
+                }
+                else
+                    added = true;
+
+                newValue = contextKey.SetValue(this, oldValue, addValue);
+                Set(components, contextKey, newValue);
+            }
+
+            if (added)
+                GetListeners().OnAdded(this, contextKey, newValue);
+            else
+                GetListeners().OnChanged(this, contextKey, oldValue, newValue);
+            return contextKey.GetValue(this, newValue, addValue);
+        }
+
+        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, IMetadataContextKey<T>, TState, T> valueFactory,
+            Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
+            object? newValueRaw, oldValue;
+            bool added;
+            T newValue;
+            var components = GetComponents();
+            lock (_dictionary)
+            {
+                if (TryGet(components, contextKey, out oldValue))
+                {
+                    newValue = updateValueFactory(this, contextKey, oldValue, state);
+                    added = false;
+                }
                 else
                 {
-                    rawValue = contextKey.SetValue(this, null, value);
-                    Set(components, contextKey, rawValue);
+                    newValue = valueFactory(this, contextKey, state);
+                    added = true;
+                }
+
+                newValueRaw = contextKey.SetValue(this, oldValue, newValue);
+                Set(components, contextKey, newValueRaw);
+            }
+
+            if (added)
+                GetListeners().OnAdded(this, contextKey, newValueRaw);
+            else
+                GetListeners().OnChanged(this, contextKey, oldValue, newValueRaw);
+            return contextKey.GetValue(this, newValueRaw, newValue);
+        }
+
+        public T GetOrAdd<T>(IMetadataContextKey<T> contextKey, T value)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            bool added;
+            var components = GetComponents();
+            object? newValueRaw;
+            lock (_dictionary)
+            {
+                if (TryGet(components, contextKey, out var oldValue))
+                {
+                    added = false;
+                    newValueRaw = null;
+                    value = contextKey.GetValue(this, oldValue);
+                }
+                else
+                {
+                    newValueRaw = contextKey.SetValue(this, null, value);
+                    Set(components, contextKey, newValueRaw);
                     added = true;
                 }
             }
 
             if (added)
-                GetListeners().OnAdded(this, contextKey, rawValue);
-            return contextKey.GetValue(this, rawValue);
+            {
+                GetListeners().OnAdded(this, contextKey, newValueRaw);
+                return contextKey.GetValue(this, newValueRaw, value);
+            }
+
+            return value;
         }
 
-        public TGet GetOrAdd<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory)
+        public T GetOrAdd<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, IMetadataContextKey<T>, TState, T> valueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
-            object? value;
+            T value;
+            object? valueRaw;
             bool added;
             var components = GetComponents();
             lock (_dictionary)
             {
-                if (TryGet(components, contextKey, out value))
+                if (TryGet(components, contextKey, out var oldValue))
+                {
                     added = false;
+                    value = contextKey.GetValue(this, oldValue);
+                    valueRaw = null;
+                }
                 else
                 {
-                    value = contextKey.SetValue(this, null, valueFactory(this, state));
-                    Set(components, contextKey, value);
+                    value = valueFactory(this, contextKey, state);
+                    valueRaw = contextKey.SetValue(this, null, value);
+                    Set(components, contextKey, valueRaw);
                     added = true;
                 }
             }
 
             if (added)
-                GetListeners().OnAdded(this, contextKey, value);
-            return contextKey.GetValue(this, value);
+            {
+                GetListeners().OnAdded(this, contextKey, valueRaw);
+                return contextKey.GetValue(this, valueRaw, value);
+            }
+
+            return value;
         }
 
-        public void Set<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value, out object? oldValue)
+        public bool Set<T>(IMetadataContextKey<T> contextKey, T value, out object? oldValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            object? newValue;
             bool hasOldValue;
+            object? valueRaw;
             var components = GetComponents();
             lock (_dictionary)
             {
                 hasOldValue = TryGet(components, contextKey, out oldValue);
-                newValue = contextKey.SetValue(this, oldValue, value);
-                Set(components, contextKey, newValue);
+                valueRaw = contextKey.SetValue(this, oldValue, value);
+                Set(components, contextKey, valueRaw);
             }
 
             if (hasOldValue)
-                GetListeners().OnChanged(this, contextKey, oldValue, newValue);
+                GetListeners().OnChanged(this, contextKey, oldValue, valueRaw);
             else
-                GetListeners().OnAdded(this, contextKey, newValue);
+                GetListeners().OnAdded(this, contextKey, valueRaw);
+            return hasOldValue;
         }
 
         public void Merge(IEnumerable<KeyValuePair<IMetadataContextKey, object?>> items)
@@ -297,15 +316,15 @@ namespace MugenMvvm.Metadata
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             var components = GetComponents();
-            bool changed;
+            bool removed;
             lock (_dictionary)
             {
-                changed = TryGet(components, contextKey, out oldValue) && Remove(components, contextKey);
+                removed = TryGet(components, contextKey, out oldValue) && Remove(components, contextKey);
             }
 
-            if (changed)
+            if (removed)
                 GetListeners().OnRemoved(this, contextKey, oldValue);
-            return changed;
+            return removed;
         }
 
         public void Clear()
@@ -349,7 +368,7 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        public void Add<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value) => Set(contextKey, value, out _);
+        public void Add<T>(IMetadataContextKey<T> contextKey, T value) => Set(contextKey, value, out _);
 
         private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue) =>
             components.TryGetValue(this, contextKey, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);

@@ -258,8 +258,8 @@ namespace MugenMvvm.UnitTests.Binding.Compiling
         public void InvokeShouldClearMetadata()
         {
             var compileCount = 0;
-            var key1 = MetadataContextKey.FromKey<int, int>("i1");
-            var key2 = MetadataContextKey.FromKey<string?, string>("i2");
+            var key1 = MetadataContextKey.FromKey<int>("i1");
+            var key2 = MetadataContextKey.FromKey<string?>("i2");
             var value1 = 1;
             var value2 = "test";
             var inputMetadata = key1.ToContext(value1);

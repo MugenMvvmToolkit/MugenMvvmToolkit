@@ -58,7 +58,7 @@ namespace MugenMvvm.Views.Components
                 return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, v, m) => c.Add(v, m), (c, v, m) => c.Remove(v, m), metadata));
             }
 
-            var list = viewModel.Metadata.GetOrAdd(InternalMetadata.Views, (object?)null, (context, o) => new List<IView>(2));
+            var list = viewModel.Metadata.GetOrAdd(InternalMetadata.Views, (object?) null, (_, __, ___) => new List<IView>(2));
             return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
         }
 

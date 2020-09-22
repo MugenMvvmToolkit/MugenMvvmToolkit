@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
@@ -6,6 +7,6 @@ namespace MugenMvvm.Interfaces.Metadata
     {
         bool Contains(IMetadataContextKey contextKey);
 
-        bool TryGetRaw(IMetadataContextKey contextKey, out object? value);
+        bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)][NotNullIfNotNull("defaultValue")] out T value, [AllowNull] T defaultValue);
     }
 }

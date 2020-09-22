@@ -30,10 +30,10 @@ namespace MugenMvvm.UnitTests.Metadata
         public void ConstructorShouldInitializeContext(int count)
         {
             var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
-            var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
+            var keyValues = new List<(IMetadataContextKey<int>, int)>();
             for (var i = 0; i < count; i++)
             {
-                var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
+                var contextKey = MetadataContextKey.FromKey<int>(i.ToString());
                 var value = contextKey.ToValue(i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));

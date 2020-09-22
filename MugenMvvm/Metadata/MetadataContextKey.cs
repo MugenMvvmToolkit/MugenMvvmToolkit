@@ -12,7 +12,7 @@ using MugenMvvm.Serialization;
 
 namespace MugenMvvm.Metadata
 {
-    public abstract class MetadataContextKey : IMetadataContextKey, IHasId<string>
+    public abstract class MetadataContextKey : IMetadataContextKey
     {
         #region Constructors
 
@@ -43,41 +43,41 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, IReadOnlyDictionary<string, object?>? metadata = null) => FromKey<TGet, TSet>(key, metadata);
+        public static IMetadataContextKey<T> FromKey<T>(IMetadataContextKey<T>? _, string key, IReadOnlyDictionary<string, object?>? metadata = null) => FromKey<T>(key, metadata);
 
-        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(string key, IReadOnlyDictionary<string, object?>? metadata = null)
+        public static IMetadataContextKey<T> FromKey<T>(string key, IReadOnlyDictionary<string, object?>? metadata = null)
         {
             Should.NotBeNullOrEmpty(key, nameof(key));
-            return new MetadataContextKeyInternal<TGet, TSet>(key, false, metadata, null, null);
+            return new MetadataContextKeyInternal<T>(key, false, metadata, null, null);
         }
 
-        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, bool serializable = false,
-            IReadOnlyDictionary<string, object?>? metadata = null) => FromMember<TGet, TSet>(declaredType, fieldOrPropertyName, serializable, metadata);
+        public static IMetadataContextKey<T> FromMember<T>(IMetadataContextKey<T>? _, Type declaredType, string fieldOrPropertyName, bool serializable = false,
+            IReadOnlyDictionary<string, object?>? metadata = null) => FromMember<T>(declaredType, fieldOrPropertyName, serializable, metadata);
 
-        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(Type declaredType, string fieldOrPropertyName, bool serializable = false, IReadOnlyDictionary<string, object?>? metadata = null)
+        public static IMetadataContextKey<T> FromMember<T>(Type declaredType, string fieldOrPropertyName, bool serializable = false, IReadOnlyDictionary<string, object?>? metadata = null)
         {
             Should.NotBeNull(declaredType, nameof(declaredType));
             Should.NotBeNullOrEmpty(fieldOrPropertyName, nameof(fieldOrPropertyName));
-            return new MetadataContextKeyInternal<TGet, TSet>(GenerateKey(declaredType, fieldOrPropertyName), serializable, metadata, declaredType, fieldOrPropertyName);
+            return new MetadataContextKeyInternal<T>(GenerateKey(declaredType, fieldOrPropertyName), serializable, metadata, declaredType, fieldOrPropertyName);
         }
 
-        public static Builder<TGet, TSet> Create<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, string? key = null) =>
-            Create<TGet, TSet>(declaredType, fieldOrPropertyName, key);
+        public static Builder<T> Create<T>(IMetadataContextKey<T>? _, Type declaredType, string fieldOrPropertyName, string? key = null) =>
+            Create<T>(declaredType, fieldOrPropertyName, key);
 
-        public static Builder<TGet, TSet> Create<TGet, TSet>(Type declaredType, string fieldOrPropertyName, string? key = null)
+        public static Builder<T> Create<T>(Type declaredType, string fieldOrPropertyName, string? key = null)
         {
             Should.NotBeNull(declaredType, nameof(declaredType));
             Should.NotBeNull(fieldOrPropertyName, nameof(fieldOrPropertyName));
-            return Create<TGet, TSet>(string.IsNullOrEmpty(key) ? GenerateKey(declaredType, fieldOrPropertyName) : key!, declaredType, fieldOrPropertyName);
+            return Create<T>(string.IsNullOrEmpty(key) ? GenerateKey(declaredType, fieldOrPropertyName) : key!, declaredType, fieldOrPropertyName);
         }
 
-        public static Builder<TGet, TSet> Create<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, Type? declaredType = null, string? fieldOrPropertyName = null) =>
-            Create<TGet, TSet>(key, declaredType, fieldOrPropertyName);
+        public static Builder<T> Create<T>(IMetadataContextKey<T>? _, string key, Type? declaredType = null, string? fieldOrPropertyName = null) =>
+            Create<T>(key, declaredType, fieldOrPropertyName);
 
-        public static Builder<TGet, TSet> Create<TGet, TSet>(string key, Type? declaredType = null, string? fieldOrPropertyName = null)
+        public static Builder<T> Create<T>(string key, Type? declaredType = null, string? fieldOrPropertyName = null)
         {
             Should.NotBeNullOrEmpty(key, nameof(key));
-            return new Builder<TGet, TSet>(key, declaredType, fieldOrPropertyName);
+            return new Builder<T>(key, declaredType, fieldOrPropertyName);
         }
 
         public sealed override bool Equals(object? obj)
@@ -107,7 +107,7 @@ namespace MugenMvvm.Metadata
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        public ref struct Builder<TGet, TSet>
+        public ref struct Builder<T>
         {
             #region Fields
 
@@ -116,13 +116,13 @@ namespace MugenMvvm.Metadata
             private readonly string? _fieldOrPropertyName;
 
             private Dictionary<string, object?>? _metadata;
-            private Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet>? _validateAction;
-            private Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet>? _getDefaultValueFunc;
-            private Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TGet>? _getValueFunc;
-            private Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TSet, object?>? _setValueFunc;
-            private Func<IMetadataContextKey<TGet, TSet>, IMemento?>? _getMementoFunc;
+            private Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T>? _validateAction;
+            private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? _getDefaultValueFunc;
+            private Delegate? _getValueFunc;
+            private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? _setValueFunc;
+            private Func<IMetadataContextKey<T>, IMemento?>? _getMementoFunc;
             private bool _hasDefaultValue;
-            private TGet _defaultValue;
+            private T _defaultValue;
             private bool _isSerializable;
 
             #endregion
@@ -150,29 +150,25 @@ namespace MugenMvvm.Metadata
 
             #region Methods
 
-            public Builder<TGet, TSet> WithMetadata(string key, object? value)
+            public Builder<T> WithMetadata(string key, object? value)
             {
                 _metadata ??= new Dictionary<string, object?>();
                 _metadata[key] = value;
                 return this;
             }
 
-            public Builder<TGet, TSet> WithValidation(Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet> validateAction)
+            public Builder<T> WithValidation(Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T> validateAction)
             {
                 Should.BeValid(nameof(validateAction), _validateAction == null);
                 _validateAction = validateAction;
                 return this;
             }
 
-            public Builder<TGet, TSet> Getter(Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TGet> getter)
-            {
-                Should.NotBeNull(getter, nameof(getter));
-                Should.BeValid(nameof(getter), _getValueFunc == null);
-                _getValueFunc = getter;
-                return this;
-            }
+            public Builder<T> Getter(Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, T> getter) => GetterInternal(getter);
 
-            public Builder<TGet, TSet> Setter(Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TSet, object?> setter)
+            public Builder<T> Getter(Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T> getter) => GetterInternal(getter);
+
+            public Builder<T> Setter(Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?> setter)
             {
                 Should.NotBeNull(setter, nameof(setter));
                 Should.BeValid(nameof(setter), _setValueFunc == null);
@@ -180,7 +176,7 @@ namespace MugenMvvm.Metadata
                 return this;
             }
 
-            public Builder<TGet, TSet> DefaultValue(TGet defaultValue)
+            public Builder<T> DefaultValue(T defaultValue)
             {
                 Should.BeValid(nameof(defaultValue), !_hasDefaultValue);
                 _hasDefaultValue = true;
@@ -188,7 +184,7 @@ namespace MugenMvvm.Metadata
                 return this;
             }
 
-            public Builder<TGet, TSet> DefaultValue(Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet> getDefaultValue)
+            public Builder<T> DefaultValue(Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T> getDefaultValue)
             {
                 Should.NotBeNull(getDefaultValue, nameof(getDefaultValue));
                 Should.BeValid(nameof(getDefaultValue), _getDefaultValueFunc == null);
@@ -196,24 +192,24 @@ namespace MugenMvvm.Metadata
                 return this;
             }
 
-            public Builder<TGet, TSet> Serializable()
+            public Builder<T> Serializable()
             {
                 _isSerializable = true;
                 return this;
             }
 
-            public Builder<TGet, TSet> WithMemento(Func<IMetadataContextKey<TGet, TSet>, IMemento?> getMemento)
+            public Builder<T> WithMemento(Func<IMetadataContextKey<T>, IMemento?> getMemento)
             {
                 Should.NotBeNull(getMemento, nameof(getMemento));
                 _getMementoFunc = getMemento;
                 return this;
             }
 
-            public IMetadataContextKey<TGet, TSet> Build()
+            public IMetadataContextKey<T> Build()
             {
                 if (_isSerializable && _getMementoFunc == null && (_declaredType == null || _fieldOrPropertyName == null))
                     ExceptionManager.ThrowMementoRequiredContextKey();
-                return new MetadataContextKeyInternal<TGet, TSet>(_key, _isSerializable, _metadata, _declaredType, _fieldOrPropertyName)
+                return new MetadataContextKeyInternal<T>(_key, _isSerializable, _metadata, _declaredType, _fieldOrPropertyName)
                 {
                     SetValueFunc = _setValueFunc,
                     ValidateAction = _validateAction,
@@ -225,10 +221,18 @@ namespace MugenMvvm.Metadata
                 };
             }
 
+            private Builder<T> GetterInternal(Delegate getter)
+            {
+                Should.NotBeNull(getter, nameof(getter));
+                Should.BeValid(nameof(getter), _getValueFunc == null);
+                _getValueFunc = getter;
+                return this;
+            }
+
             #endregion
         }
 
-        private class MetadataContextKeyInternal<TGet, TSet> : MetadataContextKey, IMetadataContextKey<TGet, TSet>, IHasMemento
+        private class MetadataContextKeyInternal<T> : MetadataContextKey, IMetadataContextKey<T>, IHasMemento
         {
             #region Fields
 
@@ -236,13 +240,13 @@ namespace MugenMvvm.Metadata
             private readonly string? _fieldOrPropertyName;
             private IMemento? _memento;
 
-            public TGet DefaultValue;
-            public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet>? GetDefaultValueFunc;
-            public Func<IMetadataContextKey<TGet, TSet>, IMemento?>? GetMementoFunc;
-            public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TGet>? GetValueFunc;
+            public T DefaultValue;
+            public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? GetDefaultValueFunc;
+            public Func<IMetadataContextKey<T>, IMemento?>? GetMementoFunc;
+            public Delegate? GetValueFunc;
             public bool HasDefaultValue;
-            public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TSet, object?>? SetValueFunc;
-            public Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet>? ValidateAction;
+            public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? SetValueFunc;
+            public Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T>? ValidateAction;
 
             #endregion
 
@@ -267,19 +271,11 @@ namespace MugenMvvm.Metadata
                 return null;
             }
 
-            public TGet GetValue(IReadOnlyMetadataContext metadataContext, object? value)
-            {
-                if (GetValueFunc == null)
-                {
-                    if (value == null)
-                        return default!;
-                    return (TGet) value!;
-                }
+            public T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue) => GetValueInternal(metadataContext, rawValue, default!, false);
 
-                return GetValueFunc(metadataContext, this, value);
-            }
+            public T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue, T value) => GetValueInternal(metadataContext, rawValue, value, true);
 
-            public object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, TSet newValue)
+            public object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, T newValue)
             {
                 ValidateAction?.Invoke(metadataContext, this, newValue);
                 if (SetValueFunc == null)
@@ -287,7 +283,7 @@ namespace MugenMvvm.Metadata
                 return SetValueFunc(metadataContext, this, oldValue, newValue);
             }
 
-            public TGet GetDefaultValue(IReadOnlyMetadataContext metadataContext, [AllowNull] TGet defaultValue)
+            public T GetDefaultValue(IReadOnlyMetadataContext metadataContext, [AllowNull] T defaultValue)
             {
                 if (GetDefaultValueFunc == null)
                     return HasDefaultValue ? DefaultValue : defaultValue!;
@@ -297,6 +293,23 @@ namespace MugenMvvm.Metadata
             #endregion
 
             #region Methods
+
+            private T GetValueInternal(IReadOnlyMetadataContext metadataContext, object? rawValue, T value, bool hasValue)
+            {
+                if (GetValueFunc == null)
+                {
+                    if (hasValue && SetValueFunc == null)
+                        return value;
+
+                    if (rawValue == null)
+                        return default!;
+                    return (T)rawValue!;
+                }
+
+                if (GetValueFunc is Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, T> f)
+                    return f(metadataContext, this, rawValue, value!);
+                return ((Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>)GetValueFunc).Invoke(metadataContext, this, rawValue);
+            }
 
             private IMemento? GetMementoInternal()
             {

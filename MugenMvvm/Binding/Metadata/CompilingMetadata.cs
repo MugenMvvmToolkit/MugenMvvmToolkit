@@ -10,22 +10,22 @@ namespace MugenMvvm.Binding.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<List<string>, List<string>>? _compilingErrors;
-        private static IMetadataContextKey<IParameterInfo, IParameterInfo>? _lambdaParameter;
+        private static IMetadataContextKey<List<string>>? _compilingErrors;
+        private static IMetadataContextKey<IParameterInfo>? _lambdaParameter;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<List<string>, List<string>> CompilingErrors
+        public static IMetadataContextKey<List<string>> CompilingErrors
         {
             get => _compilingErrors ??= GetBuilder(_compilingErrors, nameof(CompilingErrors)).Build();
             set => _compilingErrors = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<IParameterInfo, IParameterInfo> LambdaParameter
+        public static IMetadataContextKey<IParameterInfo> LambdaParameter
         {
             get => _lambdaParameter ??= GetBuilder(_lambdaParameter, nameof(LambdaParameter)).Build();
             set => _lambdaParameter = value;
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Metadata
 
         #region Methods
 
-        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name) => MetadataContextKey.Create<TGet, TSet>(typeof(CompilingMetadata), name);
+        private static MetadataContextKey.Builder<T> GetBuilder<T>(IMetadataContextKey<T>? _, string name) => MetadataContextKey.Create<T>(typeof(CompilingMetadata), name);
 
         #endregion
     }

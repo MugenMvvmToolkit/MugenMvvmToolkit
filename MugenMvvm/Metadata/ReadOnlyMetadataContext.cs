@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -37,9 +39,10 @@ namespace MugenMvvm.Metadata
 
         public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator() => _dictionary.GetEnumerator();
 
-        public bool TryGetRaw(IMetadataContextKey contextKey, out object? value) => _dictionary.TryGetValue(contextKey, out value);
-
         public bool Contains(IMetadataContextKey contextKey) => _dictionary.ContainsKey(contextKey);
+
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+            => this.TryGetFromRaw(contextKey, _dictionary.TryGetValue(contextKey, out var rawValue), rawValue, out value, defaultValue);
 
         #endregion
     }

@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Validation
             }
 
             validator.IsDisposed.ShouldBeFalse();
-            validator.Metadata.Set(MetadataContextKey.FromKey<object?, object?>("t"), "");
+            validator.Metadata.Set(MetadataContextKey.FromKey<object?>("t"), "");
             validator.Dispose();
             validator.IsDisposed.ShouldBeTrue();
             invokeCount.ShouldEqual(count);
