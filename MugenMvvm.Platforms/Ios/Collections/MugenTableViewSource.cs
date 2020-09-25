@@ -2,6 +2,7 @@
 using Foundation;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Ios.Interfaces;
 using UIKit;
 
@@ -18,7 +19,7 @@ namespace MugenMvvm.Ios.Collections
         #region Constructors
 
         public MugenTableViewSource(UITableView tableView, ICellTemplateSelector itemTemplateSelector)
-            : this(new ItemsSourceBindableCollectionAdapter(new TableViewCollectionAdapter(tableView), itemTemplateSelector as IItemsSourceEqualityComparer), itemTemplateSelector)
+            : this(new ItemsSourceBindableCollectionAdapter(new TableViewCollectionAdapter(tableView), itemTemplateSelector as IDiffableEqualityComparer), itemTemplateSelector)
         {
         }
 

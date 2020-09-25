@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using Foundation;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Internal;
 using MugenMvvm.Ios.Interfaces;
 
 namespace MugenMvvm.Ios.Collections
@@ -24,11 +24,12 @@ namespace MugenMvvm.Ios.Collections
 
         #region Constructors
 
-        public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter, IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
+        public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter, 
+            IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
             Should.NotBeNull(collectionViewAdapter, nameof(collectionViewAdapter));
-            EqualityComparer = equalityComparer;
+            DiffableComparer = diffableComparer;
             CollectionViewAdapter = collectionViewAdapter;
             BatchSize = 2;
             _beforeResetList = new List<object?>();
@@ -41,7 +42,7 @@ namespace MugenMvvm.Ios.Collections
 
         public ICollectionViewAdapter CollectionViewAdapter { get; }
 
-        public IItemsSourceEqualityComparer? EqualityComparer { get; }
+        public IDiffableEqualityComparer? DiffableComparer { get; }
 
         protected override bool IsAlive => CollectionViewAdapter.IsAlive;
 
@@ -55,9 +56,9 @@ namespace MugenMvvm.Ios.Collections
 
         bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
         {
-            if (EqualityComparer == null)
+            if (DiffableComparer == null)
                 return Equals(_beforeResetList[oldItemPosition], this[newItemPosition]);
-            return EqualityComparer.AreItemsTheSame(_beforeResetList[oldItemPosition], this[newItemPosition]);
+            return DiffableComparer.AreItemsTheSame(_beforeResetList[oldItemPosition], this[newItemPosition]);
         }
 
         bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => !_reloadIndexes.Contains(oldItemPosition);
