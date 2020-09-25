@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Collections
 {
@@ -22,10 +21,10 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        public ItemsSourceBindableCollectionAdapter(IItemsSourceEqualityComparer? equalityComparer = null, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
+        public ItemsSourceBindableCollectionAdapter(IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
-            EqualityComparer = equalityComparer;
+            DiffableComparer = diffableComparer;
             Observers = new List<IItemsSourceObserver>();
             _isAlive = true;
         }
@@ -34,7 +33,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Properties
 
-        public IItemsSourceEqualityComparer? EqualityComparer { get; }
+        public IDiffableEqualityComparer? DiffableComparer { get; }
 
         protected override bool IsAlive => _isAlive;
 
@@ -48,9 +47,9 @@ namespace MugenMvvm.Android.Collections
 
         bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
         {
-            if (EqualityComparer == null)
+            if (DiffableComparer == null)
                 return Equals(_beforeResetList![oldItemPosition], this[newItemPosition]);
-            return EqualityComparer.AreItemsTheSame(_beforeResetList![oldItemPosition], this[newItemPosition]);
+            return DiffableComparer.AreItemsTheSame(_beforeResetList![oldItemPosition], this[newItemPosition]);
         }
 
         bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => true;
@@ -136,12 +135,13 @@ namespace MugenMvvm.Android.Collections
                 base.OnReset(items, batchUpdate, version);
                 DiffUtil.CalculateDiff(this).DispatchUpdatesTo(this);
                 _beforeResetList.Clear();
-                return;
             }
-
-            base.OnReset(items, batchUpdate, version);
-            for (var i = 0; i < Observers.Count; i++)
-                GetObserver(i)?.OnReset();
+            else
+            {
+                base.OnReset(items, batchUpdate, version);
+                for (var i = 0; i < Observers.Count; i++)
+                    GetObserver(i)?.OnReset();
+            }
         }
 
         protected IItemsSourceObserver? GetObserver(int index)

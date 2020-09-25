@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.Views;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Interfaces;
@@ -9,11 +8,12 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class ContentItemsSourceGenerator : BindableCollectionAdapter
+    public sealed class ContentItemsSourceGenerator : DiffableBindableCollectionAdapter
     {
         #region Constructors
 
@@ -21,6 +21,7 @@ namespace MugenMvvm.Android.Collections
         {
             View = view;
             ContentTemplateSelector = contentTemplateSelector;
+            DiffableComparer = contentTemplateSelector as IDiffableEqualityComparer;
         }
 
         #endregion
@@ -47,7 +48,7 @@ namespace MugenMvvm.Android.Collections
         {
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(selector, nameof(selector));
-            return view.AttachedValues().GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector, (o, templateSelector) => new ContentItemsSourceGenerator((View)o, templateSelector));
+            return view.AttachedValues().GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector, (o, templateSelector) => new ContentItemsSourceGenerator((View) o, templateSelector));
         }
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
@@ -86,17 +87,15 @@ namespace MugenMvvm.Android.Collections
             ViewGroupExtensions.Add(View, GetItem(newItem)!, index, false);
         }
 
-        protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+        protected override void OnClear(bool batchUpdate, int version)
         {
-            base.OnReset(items, batchUpdate, version);
+            base.OnClear(batchUpdate, version);
             ViewGroupExtensions.Clear(View);
-            for (var i = 0; i < Count; i++)
-                ViewGroupExtensions.Add(View, GetItem(this[i])!, i, i == 0);
         }
 
         private Object? GetItem(object? item)
         {
-            var template = (Object?)ContentTemplateSelector.SelectTemplate(View, item);
+            var template = (Object?) ContentTemplateSelector.SelectTemplate(View, item);
             if (template != null)
             {
                 template.BindableMembers().SetDataContext(item);

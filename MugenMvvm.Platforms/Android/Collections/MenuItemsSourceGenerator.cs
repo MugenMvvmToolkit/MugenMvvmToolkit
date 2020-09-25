@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.Views;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Interfaces;
@@ -7,10 +6,11 @@ using MugenMvvm.Android.Members;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class MenuItemsSourceGenerator : BindableCollectionAdapter
+    public sealed class MenuItemsSourceGenerator : DiffableBindableCollectionAdapter
     {
         #region Constructors
 
@@ -19,6 +19,7 @@ namespace MugenMvvm.Android.Collections
             Should.NotBeNull(itemTemplate, nameof(itemTemplate));
             Menu = menu;
             ItemTemplate = itemTemplate;
+            DiffableComparer = itemTemplate as IDiffableEqualityComparer;
         }
 
         #endregion
@@ -78,10 +79,10 @@ namespace MugenMvvm.Android.Collections
             ItemTemplate.Apply(Menu, index, index, newItem);
         }
 
-        protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+        protected override void OnClear(bool batchUpdate, int version)
         {
-            base.OnReset(items, batchUpdate, version);
-            Reload();
+            base.OnClear(batchUpdate, version);
+            Clear();
         }
 
         private void RemoveMenuItem(int id)
@@ -93,13 +94,17 @@ namespace MugenMvvm.Android.Collections
 
         private void Reload()
         {
+            Clear();
+            for (var i = 0; i < Items.Count; i++)
+                ItemTemplate.Apply(Menu, i, i, Items[i]);
+        }
+
+        private void Clear()
+        {
             var size = Menu.Size();
             for (var i = 0; i < size; i++)
                 ItemTemplate.Clear(Menu.GetItem(i)!);
             Menu.Clear();
-
-            for (var i = 0; i < Items.Count; i++)
-                ItemTemplate.Apply(Menu, i, i, Items[i]);
         }
 
         #endregion

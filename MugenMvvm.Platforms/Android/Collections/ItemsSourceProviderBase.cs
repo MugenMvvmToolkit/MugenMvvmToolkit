@@ -2,6 +2,7 @@
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces;
+using MugenMvvm.Interfaces.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
@@ -16,7 +17,7 @@ namespace MugenMvvm.Android.Collections
             Owner = owner;
             ItemTemplateSelector = itemTemplateSelector;
             StableIdProvider = stableIdProvider ?? itemTemplateSelector as IStableIdProvider;
-            CollectionAdapter = collectionAdapter ?? new ItemsSourceBindableCollectionAdapter(itemTemplateSelector as IItemsSourceEqualityComparer ?? stableIdProvider as IItemsSourceEqualityComparer);
+            CollectionAdapter = collectionAdapter ?? new ItemsSourceBindableCollectionAdapter(itemTemplateSelector as IDiffableEqualityComparer ?? stableIdProvider as IDiffableEqualityComparer);
         }
 
         #endregion
