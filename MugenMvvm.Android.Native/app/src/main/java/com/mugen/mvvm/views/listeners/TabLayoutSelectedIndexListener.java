@@ -2,14 +2,13 @@ package com.mugen.mvvm.views.listeners;
 
 import com.google.android.material.tabs.TabLayout;
 import com.mugen.mvvm.views.ViewExtensions;
-import com.mugen.mvvm.views.ViewGroupExtensions;
 
 public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedListener, ViewExtensions.IMemberListener {
     private final TabLayout _tabLayout;
     private short _selectedIndexChangedCount;
 
-    public TabLayoutSelectedIndexListener(TabLayout tabLayout) {
-        _tabLayout = tabLayout;
+    public TabLayoutSelectedIndexListener(Object tabLayout) {
+        _tabLayout = (TabLayout) tabLayout;
     }
 
     @Override

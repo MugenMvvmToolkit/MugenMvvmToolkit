@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toolbar;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.views.activities.MainMugenActivity;
@@ -23,6 +25,13 @@ public final class ActivityExtensions {
     private static Activity _currentActivity;
 
     private ActivityExtensions() {
+    }
+
+    public static boolean isTaskRoot(IActivityView activityView) {
+        Activity activity = (Activity) activityView.getActivity();
+        if (activity.isTaskRoot())
+            return true;
+        return false;
     }
 
     public static Bundle getExtras(IActivityView activityView) {

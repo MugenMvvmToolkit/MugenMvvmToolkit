@@ -2,10 +2,7 @@ package com.mugen.mvvm.views.listeners;
 
 import android.view.View;
 import android.widget.TextView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.ViewPager;
-import androidx.viewpager2.widget.ViewPager2;
-import com.google.android.material.tabs.TabLayout;
+
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.support.SwipeRefreshLayoutExtensions;
@@ -33,18 +30,17 @@ public class ViewMemberListenerManager implements ViewExtensions.IMemberListener
             }
 
             if (ViewExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutExtensions.isSupported(view))
-                return new SwipeRefreshLayoutRefreshedListener((SwipeRefreshLayout) target);
+                return ViewMemberListenerUtils.getSwipeRefreshLayoutRefreshedListener(view);
 
             if (ViewExtensions.SelectedIndexEventName.equals(memberName) || ViewExtensions.SelectedIndexName.equals(memberName)) {
                 if (ViewPagerExtensions.isSupported(view))
-                    return new ViewPagerSelectedIndexListener((ViewPager) target);
+                    return ViewMemberListenerUtils.getViewPagerSelectedIndexListener(target);
                 if (ViewPager2Extensions.isSupported(view))
-                    return new ViewPager2SelectedIndexListener((ViewPager2) target);
+                    return ViewMemberListenerUtils.getViewPager2SelectedIndexListener(target);
                 if (TabLayoutExtensions.isSupported(view))
-                    return new TabLayoutSelectedIndexListener((TabLayout) target);
+                    return ViewMemberListenerUtils.getTabLayoutSelectedIndexListener(target);
             }
         }
-
 
         return null;
     }

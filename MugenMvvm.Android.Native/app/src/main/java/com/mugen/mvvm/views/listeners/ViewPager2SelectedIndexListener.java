@@ -1,14 +1,15 @@
 package com.mugen.mvvm.views.listeners;
 
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.mugen.mvvm.views.ViewExtensions;
 
 public class ViewPager2SelectedIndexListener extends ViewPager2.OnPageChangeCallback implements ViewExtensions.IMemberListener {
     private final ViewPager2 _viewPager;
     private short _selectedIndexChangedCount;
 
-    public ViewPager2SelectedIndexListener(ViewPager2 viewPager) {
-        _viewPager = viewPager;
+    public ViewPager2SelectedIndexListener(Object viewPager) {
+        _viewPager = (ViewPager2) viewPager;
     }
 
     @Override
