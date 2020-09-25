@@ -32,7 +32,7 @@ namespace MugenMvvm.Collections
         private IEnumerable? _collection;
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
-        private List<object?>? _resetCache;
+        internal List<object?>? ResetCache;
         private int _suspendCount;
         protected WeakListener? Listener;
 
@@ -159,25 +159,22 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
         {
-            Items.RemoveAt(oldIndex);
-            Items.Insert(newIndex, item);
+            if (Items is ObservableCollection<object?> observableCollection)
+                observableCollection.Move(oldIndex, newIndex);
+            else
+            {
+                Items.RemoveAt(oldIndex);
+                Items.Insert(newIndex, item);
+            }
         }
 
         protected virtual void OnRemoved(object? item, int index, bool batchUpdate, int version) => Items.RemoveAt(index);
 
         protected virtual void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
-            ActionToken suspendToken;
-            if (Items is ISuspendable suspendable)
-                suspendToken = suspendable.Suspend();
-            else
-                suspendToken = default;
-            using (suspendToken)
-            {
-                Items.Clear();
-                if (items != null)
-                    Items.AddRange(items);
-            }
+            Items.Clear();
+            if (items != null)
+                Items.AddRange(items);
         }
 
         protected virtual void BatchUpdate(List<CollectionChangedEvent> events, int version)
@@ -189,14 +186,18 @@ namespace MugenMvvm.Collections
                 return;
             }
 
-            _resetCache ??= new List<object?>();
-            _resetCache.Clear();
-            _resetCache.AddRange(Items);
-
+            ResetCache ??= new List<object?>();
+            ResetCache.Clear();
+            ResetCache.AddRange(Items);
             for (var i = 0; i < events.Count; i++)
-                events[i].ApplyToSource(_resetCache);
-            OnReset(_resetCache, true, version);
-            _resetCache.Clear();
+                events[i].ApplyToSource(ResetCache);
+
+            using (SuspendSource())
+            {
+                OnReset(ResetCache, true, version);
+            }
+
+            ResetCache.Clear();
         }
 
         protected virtual bool AddPendingEvent(List<CollectionChangedEvent> pendingEvents, in CollectionChangedEvent e)
@@ -351,6 +352,13 @@ namespace MugenMvvm.Collections
                 BatchUpdate(events, version);
                 _eventsCache?.Clear();
             }
+        }
+
+        private ActionToken SuspendSource()
+        {
+            if (Items is ISuspendable suspendable)
+                return suspendable.Suspend(this);
+            return default;
         }
 
         #endregion

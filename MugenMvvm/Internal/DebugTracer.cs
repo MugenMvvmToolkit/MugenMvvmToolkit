@@ -80,7 +80,7 @@ namespace MugenMvvm.Internal
         {
             var iterator = results.Iterator();
             if (iterator.Count == 0)
-                return "empty";
+                return " result=empty";
 
             var builder = new StringBuilder();
             var count = 0;

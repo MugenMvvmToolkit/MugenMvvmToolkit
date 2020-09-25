@@ -178,20 +178,20 @@ namespace MugenMvvm.Binding.Extensions
         {
             attachedMemberProvider.Register(AttachedMemberBuilder
                 .Event<IComponentOwner<ICollection>>(nameof(ICollection.Count) + BindingInternalConstant.ChangedEventPostfix)
-                .CustomImplementation((member, target, listener, metadata) => CollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
+                .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
                 .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
                 .Event<IComponentOwner<ICollection>>(BindingInternalConstant.IndexerGetterName + BindingInternalConstant.ChangedEventPostfix)
-                .CustomImplementation((member, target, listener, metadata) => CollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
+                .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
                 .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
                 .Property<IObservableCollection, int>(nameof(IObservableCollection.Count))
-                .CustomGetter((member, target, metadata) => CollectionAdapter.GetOrAdd(target).Count)
+                .CustomGetter((member, target, metadata) => BindingCollectionAdapter.GetOrAdd(target).Count)
                 .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
                 .Method<IObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
                 .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
-                .InvokeHandler((member, target, args, metadata) => CollectionAdapter.GetOrAdd(target)[(int) args[0]!])
+                .InvokeHandler((member, target, args, metadata) => BindingCollectionAdapter.GetOrAdd(target)[(int) args[0]!])
                 .Build());
         }
 
@@ -261,11 +261,11 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Nested types
 
-        private sealed class CollectionAdapter : BindableCollectionAdapter, IComponent<ICollection>
+        private sealed class BindingCollectionAdapter : BindableCollectionAdapter, IComponent<ICollection>
         {
             #region Constructors
 
-            private CollectionAdapter()
+            private BindingCollectionAdapter()
             {
                 Listeners = new EventListenerCollection();
             }
@@ -280,8 +280,8 @@ namespace MugenMvvm.Binding.Extensions
 
             #region Methods
 
-            public static CollectionAdapter GetOrAdd(IComponentOwner<ICollection> collection)
-                => collection.GetOrAddComponent(collection, (owner, context) => new CollectionAdapter {Collection = (IEnumerable) owner});
+            public static BindingCollectionAdapter GetOrAdd(IComponentOwner<ICollection> collection)
+                => collection.GetOrAddComponent(collection, (owner, context) => new BindingCollectionAdapter {Collection = (IEnumerable) owner});
 
             protected override void BatchUpdate(List<CollectionChangedEvent> events, int version)
             {

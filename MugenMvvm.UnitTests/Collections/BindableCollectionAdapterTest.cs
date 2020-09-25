@@ -25,11 +25,7 @@ namespace MugenMvvm.UnitTests.Collections
     {
         #region Methods
 
-        protected override void InitializeThreadDispatcher()
-        {
-            var threadDispatcher = new ThreadDispatcher();
-            MugenService.Configuration.InitializeInstance<IThreadDispatcher>(threadDispatcher);
-        }
+        protected override void InitializeThreadDispatcher() => MugenService.Configuration.InitializeInstance<IThreadDispatcher>(new ThreadDispatcher());
 
         [Fact]
         public void ShouldTrackChanges1()

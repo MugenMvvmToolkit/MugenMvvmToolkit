@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTests
         protected virtual void InitializeThreadDispatcher()
         {
             var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent {Priority = int.MinValue});
             MugenService.Configuration.InitializeInstance<IThreadDispatcher>(threadDispatcher);
         }
 
