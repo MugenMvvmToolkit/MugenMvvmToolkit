@@ -65,7 +65,7 @@ namespace MugenMvvm.Android.Views
                 {
                     FragmentExtensions.ClearFragmentState(b);
                     if (view is IActivityView av)
-                        av.Finish();
+                        Finish(av);
                     else if (view is IFragmentView f)
                         FragmentExtensions.Remove(f);
                 }
@@ -84,6 +84,12 @@ namespace MugenMvvm.Android.Views
         #endregion
 
         #region Methods
+
+        private void Finish(IActivityView activityView)
+        {
+            if (!ActivityExtensions.IsTaskRoot(activityView) || _presenter.DefaultIfNull().Show(activityView).IsNullOrEmpty())
+                activityView.Finish();
+        }
 
         private void PreserveState(IView view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
