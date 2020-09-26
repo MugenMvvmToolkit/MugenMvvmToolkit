@@ -35,7 +35,7 @@ namespace MugenMvvm.Enums
             Value = value;
             _name = name;
             if (!_enumerations.ContainsKey(value))
-                _enumerations[value] = (TEnumeration)this;
+                _enumerations[value] = (TEnumeration) this;
         }
 
         protected EnumBase(TValue value)

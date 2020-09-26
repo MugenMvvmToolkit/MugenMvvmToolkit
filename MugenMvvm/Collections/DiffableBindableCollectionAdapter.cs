@@ -15,7 +15,7 @@ namespace MugenMvvm.Collections
 
         #region Constructors
 
-        public DiffableBindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null) 
+        public DiffableBindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
         }

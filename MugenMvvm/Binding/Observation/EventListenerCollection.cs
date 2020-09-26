@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Observation
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
             if (target.AttachedValues(metadata, attachedValueManager).TryGet(path, out var collection))
-                ((EventListenerCollection)collection!).Raise(target, message, metadata);
+                ((EventListenerCollection) collection!).Raise(target, message, metadata);
         }
 
         public void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding.Observation
                 }
                 else
                 {
-                    _listeners = new[] { _listeners, target, null };
+                    _listeners = new[] {_listeners, target, null};
                     _size = 2;
                     _removedSize = 0;
                 }
@@ -127,7 +127,7 @@ namespace MugenMvvm.Binding.Observation
 
             if (_size - _removedSize == 1)
                 OnListenersAdded();
-            return new ActionToken((@this, t) => ((EventListenerCollection)@this!).Unsubscribe(t), this, target);
+            return new ActionToken((@this, t) => ((EventListenerCollection) @this!).Unsubscribe(t), this, target);
         }
 
         public bool Remove(IEventListener? listener)
@@ -293,7 +293,7 @@ namespace MugenMvvm.Binding.Observation
                 ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
             if (size < 6)
                 return size + 2;
-            return Math.Min((int)(size * 1.43f), ushort.MaxValue);
+            return Math.Min((int) (size * 1.43f), ushort.MaxValue);
         }
 
         #endregion

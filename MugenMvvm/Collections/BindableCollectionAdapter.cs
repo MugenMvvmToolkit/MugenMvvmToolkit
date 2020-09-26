@@ -32,9 +32,9 @@ namespace MugenMvvm.Collections
         private IEnumerable? _collection;
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
-        internal List<object?>? ResetCache;
         private int _suspendCount;
         protected WeakListener? Listener;
+        internal List<object?>? ResetCache;
 
         #endregion
 

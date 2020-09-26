@@ -91,7 +91,7 @@ namespace MugenMvvm.Views.Components
             }
 
             if (view != null && view.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var value))
-                return GetViews((List<IView>?)value);
+                return GetViews((List<IView>?) value);
             return default;
         }
 

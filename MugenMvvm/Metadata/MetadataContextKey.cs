@@ -303,12 +303,12 @@ namespace MugenMvvm.Metadata
 
                     if (rawValue == null)
                         return default!;
-                    return (T)rawValue!;
+                    return (T) rawValue!;
                 }
 
                 if (GetValueFunc is Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, T> f)
                     return f(metadataContext, this, rawValue, value!);
-                return ((Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>)GetValueFunc).Invoke(metadataContext, this, rawValue);
+                return ((Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>) GetValueFunc).Invoke(metadataContext, this, rawValue);
             }
 
             private IMemento? GetMementoInternal()

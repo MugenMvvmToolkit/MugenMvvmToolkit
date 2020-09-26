@@ -85,7 +85,7 @@ namespace MugenMvvm.Metadata
             lock (_dictionary)
             {
                 if (components.Length == 0)
-                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>)_dictionary.ToArray()).GetEnumerator();
+                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>) _dictionary.ToArray()).GetEnumerator();
 
                 var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(value => value.Key == null);
                 foreach (var keyValuePair in _dictionary)

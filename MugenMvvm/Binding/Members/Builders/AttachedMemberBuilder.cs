@@ -84,8 +84,8 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 attachedValues.GetOrAdd(id, (member, handler, metadata), (t, s) =>
                 {
-                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, s.metadata);
-                    return (object?)null;
+                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget) t, s.metadata);
+                    return (object?) null;
                 });
             }
         }

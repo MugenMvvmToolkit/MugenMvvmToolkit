@@ -103,6 +103,7 @@ namespace MugenMvvm.Presenters
                 ExceptionManager.ThrowCanceledException();
                 return;
             }
+
             ViewPresenter.Initialize(this, view, navigationContext);
             if (ViewManager.IsInState(view, ViewLifecycleState.Appeared, meta))
                 IsAppeared = true;

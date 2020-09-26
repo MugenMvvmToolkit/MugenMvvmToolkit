@@ -46,7 +46,7 @@ namespace MugenMvvm.Navigation.Components
             if (key == null)
                 return null;
 
-            var targetMetadata = (IMetadataContext?)GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, false);
+            var targetMetadata = (IMetadataContext?) GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, false);
             if (targetMetadata != null)
             {
                 var callback = TryFindCallback(callbackType, navigationId, navigationType, key, targetMetadata);
@@ -213,7 +213,7 @@ namespace MugenMvvm.Navigation.Components
             if (isReadonly)
             {
                 attachedValues.TryGet(InternalConstant.CallbackMetadataKey, out var m);
-                return (IReadOnlyMetadataContext?)m;
+                return (IReadOnlyMetadataContext?) m;
             }
 
             return attachedValues.GetOrAdd(InternalConstant.CallbackMetadataKey, this, (o, manager) => new MetadataContext());

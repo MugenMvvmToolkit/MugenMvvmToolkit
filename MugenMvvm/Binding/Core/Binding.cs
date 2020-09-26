@@ -196,8 +196,8 @@ namespace MugenMvvm.Binding.Core
             else
             {
                 _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                    ? new[] { _components, component }
-                    : new[] { component, _components };
+                    ? new[] {_components, component}
+                    : new[] {component, _components};
             }
 
             OnComponentAdded(component, metadata);

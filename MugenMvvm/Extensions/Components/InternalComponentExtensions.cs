@@ -19,7 +19,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(target, nameof(target));
             if (state == null)
                 Should.NotBeNull(state, nameof(state));
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].IsInState(owner, target, state, metadata))
                     return true;

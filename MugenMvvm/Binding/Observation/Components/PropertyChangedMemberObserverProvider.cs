@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Observation.Components
                 return default;
             return target.AttachedValues(metadata, _attachedValueManager)
                 .GetOrAdd(BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string)member);
+                .Add(listener, (string) member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)
@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Observation.Components
         private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
         {
             var listener = new MemberListenerCollection();
-            ((INotifyPropertyChanged)item).PropertyChanged += listener.RaisePropertyChanged;
+            ((INotifyPropertyChanged) item).PropertyChanged += listener.RaisePropertyChanged;
             return listener;
         }
 

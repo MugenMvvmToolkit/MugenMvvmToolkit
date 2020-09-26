@@ -28,7 +28,7 @@ namespace MugenMvvm.ViewModels.Components
             {
                 if (target is ViewModelBase vm)
                     return vm.IsDisposed;
-                return ((IViewModelBase)target).Metadata.TryGet(InternalMetadata.IsDisposed, out var v) && v;
+                return ((IViewModelBase) target).Metadata.TryGet(InternalMetadata.IsDisposed, out var v) && v;
             }
 
             return false;

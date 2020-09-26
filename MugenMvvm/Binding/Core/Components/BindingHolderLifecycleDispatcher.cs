@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Components;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;

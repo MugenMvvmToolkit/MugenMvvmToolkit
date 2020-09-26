@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            var tuple = (Tuple<EventInfo, string>)member;
+            var tuple = (Tuple<EventInfo, string>) member;
             if (target == null && !tuple.Item1.IsStatic())
                 return default;
 

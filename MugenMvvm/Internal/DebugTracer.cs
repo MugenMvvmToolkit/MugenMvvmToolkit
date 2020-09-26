@@ -34,6 +34,8 @@ namespace MugenMvvm.Internal
 {
     public static class DebugTracer
     {
+        #region Fields
+
         private const string NavigationTag = "Navigation: ";
         private const string BindingTag = "Binding: ";
         private const string ViewTag = "View: ";
@@ -41,6 +43,8 @@ namespace MugenMvvm.Internal
         private const string PresentationTag = "Presentation: ";
         private const string ApplicationTag = "Application: ";
         private const string MessagingTag = "Messaging: ";
+
+        #endregion
 
         #region Methods
 
