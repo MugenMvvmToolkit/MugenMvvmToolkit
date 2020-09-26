@@ -81,7 +81,7 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new ConditionNavigationDispatcher());
 
             configuration.ServiceConfiguration<IViewManager>()
-                .WithComponent(new ViewStateDispatcher { SaveState = shouldSaveAppState })
+                .WithComponent(new ViewStateDispatcher {SaveState = shouldSaveAppState})
                 .WithComponent(new ViewLifecycleDispatcher())
                 .WithComponent(new ResourceViewRequestManager())
                 .WithComponent(new ViewStateMapperDispatcher())
@@ -215,7 +215,7 @@ namespace MugenMvvm.Android.Extensions
                 .Parent()
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => ViewExtensions.GetParent(target))
-                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object)value!))
+                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object) value!))
                 .ObservableHandler((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentMemberName))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -235,7 +235,7 @@ namespace MugenMvvm.Android.Extensions
                 .RawMethod
                 .GetBuilder()
                 .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build())
-                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string)args[0]!, (int)args[1]!))
+                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -370,7 +370,7 @@ namespace MugenMvvm.Android.Extensions
                     if (contentTemplateSelector == null)
                         ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                    var newValue = (Object?)contentTemplateSelector.SelectTemplate(target, value)!;
+                    var newValue = (Object?) contentTemplateSelector.SelectTemplate(target, value)!;
                     if (newValue != null)
                     {
                         newValue.BindableMembers().SetDataContext(value);
@@ -486,7 +486,7 @@ namespace MugenMvvm.Android.Extensions
             }
 
             if (integer)
-                return ConstantExpressionNode.Get((int)floatValue);
+                return ConstantExpressionNode.Get((int) floatValue);
             return ConstantExpressionNode.Get(floatValue);
         }
 

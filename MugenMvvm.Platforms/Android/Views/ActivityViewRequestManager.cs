@@ -34,6 +34,7 @@ namespace MugenMvvm.Android.Views
 
                 return await Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata).ConfigureAwait(false);
             }
+
             var handler = new PendingActivityHandler(activityRequest.Mapping, cancellationToken);
             viewManager.AddComponent(handler);
             activityRequest.StartActivity();

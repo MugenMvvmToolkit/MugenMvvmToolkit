@@ -50,8 +50,11 @@ namespace MugenMvvm.Android.Presenters
         protected override object? TryGetViewRequest(IViewModelPresenterMediator mediator, IActivityView? view, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode == NavigationMode.New && view == null)
+            {
                 return new ActivityViewRequest<(ActivityViewPresenter, IViewModelPresenterMediator, INavigationContext)>(mediator.ViewModel, mediator.Mapping,
                     state => state.Item1.NewActivity(state.Item2, state.Item3), (this, mediator, navigationContext));
+            }
+
             return null;
         }
 
@@ -73,7 +76,7 @@ namespace MugenMvvm.Android.Presenters
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext)
         {
-            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
+            var flags = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.ClearBackStack) ? (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
             StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), flags, null, navigationContext);
         }
 
@@ -84,14 +87,14 @@ namespace MugenMvvm.Android.Presenters
             if (metadata.Get(NavigationMetadata.ClearBackStack))
             {
                 await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
-                flags = (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 
             var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
             if (Equals(topActivity, view))
                 return;
 
-            flags |= (int)ActivityFlags.ReorderToFront;
+            flags |= (int) ActivityFlags.ReorderToFront;
             var bundle = new Bundle(1);
             bundle.PutString(AndroidInternalConstant.BundleVmId, mediator.ViewModel.GetId());
             StartActivity(mediator, topActivity, flags, bundle, navigationContext);
