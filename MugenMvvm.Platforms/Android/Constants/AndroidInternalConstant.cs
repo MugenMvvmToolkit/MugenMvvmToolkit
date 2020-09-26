@@ -19,6 +19,7 @@
 
         public const string ColorResource = "color";
         public const string DimenResource = "dimen";
+        public const string LayoutResource = "layout";
         public const string BoolResource = "bool";
         public const string IdResource = "id";
         public const string IntegerResource = "integer";

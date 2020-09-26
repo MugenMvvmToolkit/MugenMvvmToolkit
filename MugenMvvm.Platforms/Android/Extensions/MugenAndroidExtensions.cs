@@ -56,6 +56,14 @@ namespace MugenMvvm.Android.Extensions
 {
     public static class MugenAndroidExtensions
     {
+        #region Fields
+
+        private static float _density = float.MinValue;
+        private static float _scaledDensity = float.MinValue;
+        private static float _xdpi = float.MinValue;
+
+        #endregion
+
         #region Methods
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
@@ -469,25 +477,46 @@ namespace MugenMvvm.Android.Extensions
             {
                 case AndroidInternalConstant.DpMetric:
                 case AndroidInternalConstant.DipMetric:
-                    floatValue = MugenNativeUtils.DpToPx(floatValue);
+                    floatValue *= GetDensity();
                     break;
                 case AndroidInternalConstant.SpMetric:
-                    floatValue = MugenNativeUtils.SpToPx(floatValue);
-                    break;
-                case AndroidInternalConstant.MmMetric:
-                    floatValue = MugenNativeUtils.MmToPx(floatValue);
-                    break;
-                case AndroidInternalConstant.InMetric:
-                    floatValue = MugenNativeUtils.InToPx(floatValue);
+                    floatValue *= GetScaledDensity();
                     break;
                 case AndroidInternalConstant.PtMetric:
-                    floatValue = MugenNativeUtils.PtToPx(floatValue);
+                    floatValue = floatValue * GetXdpi() * (1.0f / 72);
+                    break;
+                case AndroidInternalConstant.InMetric:
+                    floatValue *= GetXdpi();
+                    break;
+                case AndroidInternalConstant.MmMetric:
+                    floatValue = floatValue * GetXdpi() * (1.0f / 25.4f);
                     break;
             }
 
             if (integer)
                 return ConstantExpressionNode.Get((int) floatValue);
             return ConstantExpressionNode.Get(floatValue);
+        }
+
+        private static float GetDensity()
+        {
+            if (_density == float.MinValue)
+                _density = MugenNativeUtils.Density;
+            return _density;
+        }
+
+        private static float GetScaledDensity()
+        {
+            if (_scaledDensity == float.MinValue)
+                _scaledDensity = MugenNativeUtils.ScaledDensity;
+            return _scaledDensity;
+        }
+
+        private static float GetXdpi()
+        {
+            if (_xdpi == float.MinValue)
+                _xdpi = MugenNativeUtils.Xdpi;
+            return _xdpi;
         }
 
         #endregion

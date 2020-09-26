@@ -25,6 +25,7 @@ namespace MugenMvvm.Android.Binding
             Resources[AndroidInternalConstant.BoolResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceBool(s)), new Func<string, bool>(MugenNativeUtils.GetResourceBool));
             Resources[AndroidInternalConstant.DimenResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceDimen(s)), new Func<string, float>(MugenNativeUtils.GetResourceDimen));
             Resources[AndroidInternalConstant.IdResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceId(s)), new Func<string, int>(MugenNativeUtils.GetResourceId));
+            Resources[AndroidInternalConstant.LayoutResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceLayout(s)), new Func<string, int>(MugenNativeUtils.GetResourceLayout));
             Resources[AndroidInternalConstant.IntegerResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceInteger(s)), new Func<string, int>(MugenNativeUtils.GetResourceInteger));
             Resources[AndroidInternalConstant.StringResource] = (stringResolver, stringResolver);
         }

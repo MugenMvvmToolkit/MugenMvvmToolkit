@@ -3,10 +3,22 @@ package com.mugen.mvvm;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
-import android.util.TypedValue;
+
 import com.mugen.mvvm.views.ActivityExtensions;
 
 public class MugenNativeUtils {
+    public static float getDensity() {
+        return MugenNativeService.getAppContext().getResources().getDisplayMetrics().density;
+    }
+
+    public static float getScaledDensity() {
+        return MugenNativeService.getAppContext().getResources().getDisplayMetrics().scaledDensity;
+    }
+
+    public static float getXdpi() {
+        return MugenNativeService.getAppContext().getResources().getDisplayMetrics().xdpi;
+    }
+
     @SuppressWarnings("deprecation")
     public static int getResourceColor(String name) {
         Context context = getCurrentContext();
@@ -26,6 +38,10 @@ public class MugenNativeUtils {
         return context.getResources().getBoolean(getResourceId(context, name, "bool"));
     }
 
+    public static int getResourceLayout(String name) {
+        return getResourceId(getCurrentContext(), name, "layout");
+    }
+
     public static int getResourceId(String name) {
         return getResourceId(getCurrentContext(), name, "id");
     }
@@ -38,26 +54,6 @@ public class MugenNativeUtils {
     public static String getResourceString(String name) {
         Context context = getCurrentContext();
         return context.getResources().getString(getResourceId(context, name, "string"));
-    }
-
-    public static float dpToPx(float value) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, MugenNativeService.getAppContext().getResources().getDisplayMetrics());
-    }
-
-    public static float spToPx(float value) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, MugenNativeService.getAppContext().getResources().getDisplayMetrics());
-    }
-
-    public static float ptToPx(float value) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PT, value, MugenNativeService.getAppContext().getResources().getDisplayMetrics());
-    }
-
-    public static float inToPx(float value) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_IN, value, MugenNativeService.getAppContext().getResources().getDisplayMetrics());
-    }
-
-    public static float mmToPx(float value) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, value, MugenNativeService.getAppContext().getResources().getDisplayMetrics());
     }
 
     private static int getResourceId(Context context, String name, String type) {
