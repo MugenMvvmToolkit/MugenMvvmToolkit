@@ -7,9 +7,12 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.views.ViewExtensions;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import java.lang.reflect.Field;

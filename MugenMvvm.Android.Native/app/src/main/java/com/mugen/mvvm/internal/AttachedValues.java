@@ -1,6 +1,7 @@
 package com.mugen.mvvm.internal;
 
 import android.util.SparseArray;
+
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
 
 public class AttachedValues {
@@ -14,18 +15,18 @@ public class AttachedValues {
         return _memberListener.getListener();
     }
 
-    public MemberChangedListenerWrapper getMemberListenerWrapper(boolean required) {
-        if (_memberListener == null && required)
-            _memberListener = new MemberChangedListenerWrapper();
-        return _memberListener;
-    }
-
     public void setMemberListener(IMemberChangedListener listener) {
         if (listener == null && _memberListener == null)
             return;
         if (_memberListener == null)
             _memberListener = new MemberChangedListenerWrapper();
         _memberListener.setListener(listener);
+    }
+
+    public MemberChangedListenerWrapper getMemberListenerWrapper(boolean required) {
+        if (_memberListener == null && required)
+            _memberListener = new MemberChangedListenerWrapper();
+        return _memberListener;
     }
 
     public Object getAttachedValues() {

@@ -6,14 +6,28 @@ import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.View;
+
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.IHasPriority;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
+import com.mugen.mvvm.interfaces.views.IActivityView;
+import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
+import com.mugen.mvvm.interfaces.views.IFragmentView;
+import com.mugen.mvvm.interfaces.views.IHasStateView;
+import com.mugen.mvvm.interfaces.views.INativeActivityView;
+import com.mugen.mvvm.interfaces.views.INativeFragmentView;
+import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.interfaces.views.IViewFactory;
-import com.mugen.mvvm.interfaces.views.*;
-import com.mugen.mvvm.internal.*;
+import com.mugen.mvvm.internal.ActivityAttachedValues;
+import com.mugen.mvvm.internal.AttachedValues;
+import com.mugen.mvvm.internal.FragmentAttachedValues;
+import com.mugen.mvvm.internal.HasPriorityComparator;
+import com.mugen.mvvm.internal.MemberChangedListenerWrapper;
+import com.mugen.mvvm.internal.ViewAttachedValues;
+import com.mugen.mvvm.internal.ViewFactory;
+import com.mugen.mvvm.internal.ViewParentObserver;
 import com.mugen.mvvm.views.support.TabLayoutTabExtensions;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,14 +46,12 @@ public final class ViewExtensions {
     public static final CharSequence RefreshedEventName = "Refreshed";
     public final static CharSequence SelectedIndexName = "SelectedIndex";
     public final static CharSequence SelectedIndexEventName = "SelectedIndexChanged";
-
-    private static IViewFactory _viewFactory;
-
+    protected final static Object NullParent = "";
     private final static SparseArray<Class> _resourceViewMapping = new SparseArray<>();
     private final static HashMap<Class, Integer> _viewResourceMapping = new HashMap<>();
     private final static ArrayList<IViewDispatcher> _viewDispatchers = new ArrayList<>();
     private final static ArrayList<IMemberListenerManager> ListenerManagers = new ArrayList<>();
-    protected final static Object NullParent = "";
+    private static IViewFactory _viewFactory;
 
     private ViewExtensions() {
     }

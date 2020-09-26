@@ -10,6 +10,10 @@ import android.view.View;
 public class MugenContextWrapper extends ContextWrapper {
     private MugenLayoutInflater mInflater;
 
+    MugenContextWrapper(Context base) {
+        super(base);
+    }
+
     public static ContextWrapper wrap(Context base) {
         return new MugenContextWrapper(base);
     }
@@ -23,10 +27,6 @@ public class MugenContextWrapper extends ContextWrapper {
             throw new RuntimeException("This activity does not wrap the Base Context! See MugenContextWrapper.wrap(Context)");
         }
         return (MugenLayoutInflater) activity.getLayoutInflater();
-    }
-
-    MugenContextWrapper(Context base) {
-        super(base);
     }
 
     @Override

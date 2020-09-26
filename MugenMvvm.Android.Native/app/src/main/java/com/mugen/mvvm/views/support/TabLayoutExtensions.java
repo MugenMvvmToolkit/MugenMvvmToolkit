@@ -1,9 +1,11 @@
 package com.mugen.mvvm.views.support;
 
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.mugen.mvvm.MugenNativeService;

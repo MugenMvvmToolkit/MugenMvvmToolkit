@@ -4,6 +4,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.TextView;
+
 import com.mugen.mvvm.views.ViewExtensions;
 
 public class ViewMemberListener implements ViewExtensions.IMemberListener, View.OnClickListener, TextWatcher, android.view.View.OnLongClickListener {

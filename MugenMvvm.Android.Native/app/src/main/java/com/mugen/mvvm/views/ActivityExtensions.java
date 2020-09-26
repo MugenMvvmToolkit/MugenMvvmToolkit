@@ -14,8 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.views.activities.MainMugenActivity;
-import com.mugen.mvvm.views.activities.MugenActivity;
 import com.mugen.mvvm.views.activities.MainMugenAppCompatActivity;
+import com.mugen.mvvm.views.activities.MugenActivity;
 import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
 public final class ActivityExtensions {

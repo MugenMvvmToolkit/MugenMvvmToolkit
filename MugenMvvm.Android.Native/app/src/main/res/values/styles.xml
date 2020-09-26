@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="Bind">
-        <attr name="bind" format="string"/>
-        <attr name="itemTemplate" format="integer"/>
+        <attr name="bind" format="string" />
+        <attr name="itemTemplate" format="integer" />
     </declare-styleable>
 </resources>

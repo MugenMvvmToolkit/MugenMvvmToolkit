@@ -10,9 +10,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
-import com.mugen.mvvm.interfaces.views.INativeActivityView;
+
 import com.mugen.mvvm.constants.LifecycleState;
+import com.mugen.mvvm.interfaces.views.INativeActivityView;
 import com.mugen.mvvm.internal.MugenContextWrapper;
 import com.mugen.mvvm.views.LifecycleExtensions;
 import com.mugen.mvvm.views.ViewExtensions;

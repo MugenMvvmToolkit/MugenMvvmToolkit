@@ -3,6 +3,7 @@ package com.mugen.mvvm.views;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;

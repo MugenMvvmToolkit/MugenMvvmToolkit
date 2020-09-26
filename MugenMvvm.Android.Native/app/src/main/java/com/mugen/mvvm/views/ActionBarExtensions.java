@@ -2,6 +2,7 @@ package com.mugen.mvvm.views;
 
 import android.app.ActionBar;
 import android.content.Context;
+
 import com.mugen.mvvm.MugenNativeService;
 
 public final class ActionBarExtensions {

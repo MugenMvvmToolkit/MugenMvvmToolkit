@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ViewMemberListenerManager implements ViewExtensions.IMemberListenerManager {
+    private static boolean isTextViewMember(View view, String memberName) {
+        return view instanceof TextView && (ViewExtensions.TextEventName.equals(memberName) || ViewExtensions.TextMemberName.equals(memberName));
+    }
+
     @Override
     public ViewExtensions.IMemberListener tryGetListener(HashMap<String, ViewExtensions.IMemberListener> listeners, Object target, String memberName) {
         if (target instanceof View) {
@@ -48,9 +52,5 @@ public class ViewMemberListenerManager implements ViewExtensions.IMemberListener
     @Override
     public int getPriority() {
         return PriorityConstants.Default;
-    }
-
-    private static boolean isTextViewMember(View view, String memberName) {
-        return view instanceof TextView && (ViewExtensions.TextEventName.equals(memberName) || ViewExtensions.TextMemberName.equals(memberName));
     }
 }

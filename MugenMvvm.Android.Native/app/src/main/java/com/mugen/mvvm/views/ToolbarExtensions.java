@@ -6,6 +6,7 @@ import android.os.Build;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toolbar;
+
 import com.mugen.mvvm.MugenNativeService;
 
 @SuppressLint("NewApi")

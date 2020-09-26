@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
+
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;

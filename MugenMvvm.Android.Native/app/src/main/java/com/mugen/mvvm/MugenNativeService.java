@@ -1,12 +1,20 @@
 package com.mugen.mvvm;
 
 import android.content.Context;
-import com.mugen.mvvm.interfaces.views.*;
-import com.mugen.mvvm.internal.*;
+
+import com.mugen.mvvm.interfaces.views.IBindViewCallback;
+import com.mugen.mvvm.internal.ActionBarHomeClickListener;
+import com.mugen.mvvm.internal.ActivityTrackerDispatcher;
+import com.mugen.mvvm.internal.BindViewDispatcher;
+import com.mugen.mvvm.internal.FragmentDispatcher;
+import com.mugen.mvvm.internal.ViewCleaner;
 import com.mugen.mvvm.views.LifecycleExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.listeners.ViewMemberListenerManager;
-import com.mugen.mvvm.views.support.*;
+import com.mugen.mvvm.views.support.RecyclerViewExtensions;
+import com.mugen.mvvm.views.support.SwipeRefreshLayoutExtensions;
+import com.mugen.mvvm.views.support.ViewPager2Extensions;
+import com.mugen.mvvm.views.support.ViewPagerExtensions;
 
 public final class MugenNativeService {
     private static Context _context;

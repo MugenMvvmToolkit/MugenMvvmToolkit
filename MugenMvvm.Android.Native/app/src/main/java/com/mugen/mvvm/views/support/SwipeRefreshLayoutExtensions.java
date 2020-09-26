@@ -1,6 +1,7 @@
 package com.mugen.mvvm.views.support;
 
 import android.view.View;
+
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public final class SwipeRefreshLayoutExtensions {

@@ -1,7 +1,9 @@
 package com.mugen.mvvm.views.support;
 
 import android.view.View;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;

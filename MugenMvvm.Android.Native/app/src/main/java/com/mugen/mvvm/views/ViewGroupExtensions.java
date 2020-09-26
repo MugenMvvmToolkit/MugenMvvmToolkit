@@ -2,7 +2,9 @@ package com.mugen.mvvm.views;
 
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.fragment.app.Fragment;
+
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;

@@ -1,6 +1,7 @@
 package com.mugen.mvvm.internal;
 
 import android.content.res.TypedArray;
+
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.views.IViewAttributeAccessor;
 

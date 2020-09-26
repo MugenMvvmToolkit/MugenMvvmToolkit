@@ -3,6 +3,7 @@ package com.mugen.mvvm.interfaces.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
+
 import com.mugen.mvvm.interfaces.IHasPriority;
 
 public interface IViewDispatcher extends IHasPriority {

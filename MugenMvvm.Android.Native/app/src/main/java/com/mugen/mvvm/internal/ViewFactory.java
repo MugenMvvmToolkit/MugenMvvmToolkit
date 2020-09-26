@@ -3,16 +3,15 @@ package com.mugen.mvvm.internal;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import com.mugen.mvvm.MugenNativeService;
+
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
-import com.mugen.mvvm.interfaces.views.IFragmentView;
-import com.mugen.mvvm.interfaces.views.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IActivityView;
+import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.interfaces.views.IHasStateView;
+import com.mugen.mvvm.interfaces.views.IViewFactory;
 import com.mugen.mvvm.views.ActivityExtensions;
-import com.mugen.mvvm.views.FragmentExtensions;
 import com.mugen.mvvm.views.LifecycleExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
 

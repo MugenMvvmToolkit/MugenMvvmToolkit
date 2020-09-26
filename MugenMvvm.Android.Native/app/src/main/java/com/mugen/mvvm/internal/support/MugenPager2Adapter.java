@@ -1,9 +1,11 @@
 package com.mugen.mvvm.internal.support;
 
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.interfaces.views.IHasLifecycleView;

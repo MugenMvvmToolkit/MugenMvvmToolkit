@@ -1,6 +1,7 @@
 package com.mugen.mvvm.internal;
 
 import android.view.MenuItem;
+
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
