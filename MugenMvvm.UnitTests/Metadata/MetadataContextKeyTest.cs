@@ -229,7 +229,7 @@ namespace MugenMvvm.UnitTests.Metadata
 
             ShouldThrow<NotSupportedException>(() => contextKey.SetValue(DefaultMetadata, oldValue, int.MaxValue));
         }
-        
+
         [Fact]
         public void FromBuilderShouldSetGetterSetterValidation2()
         {

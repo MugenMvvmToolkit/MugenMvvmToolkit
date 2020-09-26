@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTests.App.Components
             var dispatcher = new AppLifecycleTracker(navigationDispatcher);
             app.AddComponent(dispatcher);
             var state = ApplicationLifecycleState.Initialized;
-            int invokeCount = 0;
+            var invokeCount = 0;
             using var c = TestComponentSubscriber.Subscribe(new TestMessagePublisherComponent(null)
             {
                 TryPublish = context =>

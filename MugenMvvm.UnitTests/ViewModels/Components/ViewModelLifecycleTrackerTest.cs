@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [InlineData(false)]
         public void ShouldTrackLifecycle(bool viewModelBase)
         {
-            var viewModel = viewModelBase ? new TestViewModelBase() : (IViewModelBase)new TestViewModel();
+            var viewModel = viewModelBase ? new TestViewModelBase() : (IViewModelBase) new TestViewModel();
             var manager = new ViewModelManager();
             var component = new ViewModelLifecycleTracker();
             manager.AddComponent(component);
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             viewModel.IsInState(ViewModelLifecycleState.Disposed, null, manager).ShouldBeFalse();
 
             if (viewModelBase)
-                ((IDisposable)viewModel).Dispose();
+                ((IDisposable) viewModel).Dispose();
             else
                 manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed);
             viewModel.IsInState(ViewModelLifecycleState.Disposed, null, manager).ShouldBeTrue();

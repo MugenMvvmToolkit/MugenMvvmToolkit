@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using Should;

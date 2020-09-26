@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     viewMapping.ShouldEqual(mapping);
                     if (includeView)
                     {
-                        var request = (ViewModelViewRequest)r;
+                        var request = (ViewModelViewRequest) r;
                         request.ViewModel.ShouldEqual(vm);
                         request.View.ShouldEqual(view.Target);
                     }
