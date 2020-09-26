@@ -24,7 +24,7 @@ namespace MugenMvvm.Ios.Collections
 
         #region Constructors
 
-        public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter, 
+        public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter,
             IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
