@@ -5,8 +5,8 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface IHasNavigationCondition
     {
-        Task<bool> CanNavigateFromAsync(object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken);
+        Task<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget, CancellationToken cancellationToken);
 
-        Task<bool> CanNavigateToAsync(object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken);
+        Task<bool> CanNavigateToAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget, CancellationToken cancellationToken);
     }
 }

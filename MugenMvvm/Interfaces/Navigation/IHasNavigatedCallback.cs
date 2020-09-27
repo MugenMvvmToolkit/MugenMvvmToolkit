@@ -2,8 +2,8 @@
 {
     public interface IHasNavigatedCallback
     {
-        void OnNavigatedFrom(object? toTarget, INavigationContext navigationContext);
+        void OnNavigatedFrom(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget);
 
-        void OnNavigatedTo(object? fromTarget, INavigationContext navigationContext);
+        void OnNavigatedTo(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget);
     }
 }

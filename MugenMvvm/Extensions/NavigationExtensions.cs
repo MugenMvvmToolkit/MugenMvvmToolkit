@@ -18,6 +18,19 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static object? GetNextNavigationTarget(this INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
+            navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
+            {
+                if (entry.NavigationType == context.NavigationType && entry.Target != null && !Equals(entry.Target, context.Target))
+                    return entry.Target;
+                return null;
+            }) ?? navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
+            {
+                if (entry.Target != null && !Equals(entry.Target, context.Target))
+                    return entry.Target;
+                return null;
+            });
+
         public static Task ClearBackStackAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, object navigationTarget,
             bool includePending = false, IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null)
         {

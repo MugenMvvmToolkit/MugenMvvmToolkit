@@ -21,45 +21,45 @@ namespace MugenMvvm.Navigation.Components
 
         public async Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            var prevTarget = GetPrevNavigationTarget(navigationDispatcher, navigationContext);
+            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
             var target = navigationContext.Target;
             if (navigationContext.NavigationMode.IsClose)
             {
-                return await CanNavigateFromAsync(target, prevTarget, navigationContext, cancellationToken).ConfigureAwait(false) &&
-                       await CanNavigateToAsync(prevTarget, target, navigationContext, cancellationToken).ConfigureAwait(false);
+                return await CanNavigateFromAsync(navigationDispatcher, target, nextTarget, navigationContext, cancellationToken).ConfigureAwait(false) &&
+                       await CanNavigateToAsync(navigationDispatcher, nextTarget, target, navigationContext, cancellationToken).ConfigureAwait(false);
             }
 
-            return await CanNavigateFromAsync(prevTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
-                   await CanNavigateToAsync(target, prevTarget, navigationContext, cancellationToken).ConfigureAwait(false);
+            return await CanNavigateFromAsync(navigationDispatcher, nextTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
+                   await CanNavigateToAsync(navigationDispatcher, target, nextTarget, navigationContext, cancellationToken).ConfigureAwait(false);
         }
 
         public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            var prevTarget = GetPrevNavigationTarget(navigationDispatcher, navigationContext);
+            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
             if (navigationContext.NavigationMode.IsClose)
             {
-                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedFrom(prevTarget, navigationContext);
-                (prevTarget as IHasNavigatedCallback)?.OnNavigatedTo(navigationContext.Target, navigationContext);
+                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedFrom(navigationDispatcher, navigationContext, nextTarget);
+                (nextTarget as IHasNavigatedCallback)?.OnNavigatedTo(navigationDispatcher, navigationContext, navigationContext.Target);
             }
             else
             {
-                (prevTarget as IHasNavigatedCallback)?.OnNavigatedFrom(navigationContext.Target, navigationContext);
-                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedTo(prevTarget, navigationContext);
+                (nextTarget as IHasNavigatedCallback)?.OnNavigatedFrom(navigationDispatcher, navigationContext, navigationContext.Target);
+                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedTo(navigationDispatcher, navigationContext, nextTarget);
             }
         }
 
         public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            var prevTarget = GetPrevNavigationTarget(navigationDispatcher, navigationContext);
+            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
             if (navigationContext.NavigationMode.IsClose)
             {
-                (navigationContext.Target as IHasNavigatingCallback)?.OnNavigatingFrom(prevTarget, navigationContext);
-                (prevTarget as IHasNavigatingCallback)?.OnNavigatingTo(navigationContext.Target, navigationContext);
+                (navigationContext.Target as IHasNavigatingCallback)?.OnNavigatingFrom(navigationDispatcher, navigationContext, nextTarget);
+                (nextTarget as IHasNavigatingCallback)?.OnNavigatingTo(navigationDispatcher, navigationContext, navigationContext.Target);
             }
             else
             {
-                (prevTarget as IHasNavigatingCallback)?.OnNavigatingFrom(navigationContext.Target, navigationContext);
-                (navigationContext.Target as IHasNavigatingCallback)?.OnNavigatingTo(prevTarget, navigationContext);
+                (nextTarget as IHasNavigatingCallback)?.OnNavigatingFrom(navigationDispatcher, navigationContext, navigationContext.Target);
+                (navigationContext.Target as IHasNavigatingCallback)?.OnNavigatingTo(navigationDispatcher, navigationContext, nextTarget);
             }
         }
 
@@ -67,32 +67,11 @@ namespace MugenMvvm.Navigation.Components
 
         #region Methods
 
-        private static object? GetPrevNavigationTarget(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
-            navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
-            {
-                if (entry.NavigationType == context.NavigationType && entry.Target != null && !Equals(entry.Target, context.Target))
-                    return entry.Target;
-                return null;
-            }) ?? navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
-            {
-                if (entry.Target != null && !Equals(entry.Target, context.Target))
-                    return entry.Target;
-                return null;
-            });
+        private static Task<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => (target as IHasNavigationCondition)?.CanNavigateFromAsync(navigationDispatcher, navigationContext, toTarget, cancellationToken) ?? Default.TrueTask;
 
-        private static Task<bool> CanNavigateFromAsync(object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-        {
-            if (target is IHasNavigationCondition condition)
-                return condition.CanNavigateFromAsync(toTarget, navigationContext, cancellationToken);
-            return Default.TrueTask;
-        }
-
-        private static Task<bool> CanNavigateToAsync(object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-        {
-            if (target is IHasNavigationCondition condition)
-                return condition.CanNavigateToAsync(fromTarget, navigationContext, cancellationToken);
-            return Default.TrueTask;
-        }
+        private static Task<bool> CanNavigateToAsync(INavigationDispatcher navigationDispatcher, object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => (target as IHasNavigationCondition)?.CanNavigateToAsync(navigationDispatcher, navigationContext, fromTarget, cancellationToken) ?? Default.TrueTask;
 
         #endregion
     }

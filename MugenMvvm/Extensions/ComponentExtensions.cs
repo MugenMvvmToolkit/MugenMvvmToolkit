@@ -75,7 +75,7 @@ namespace MugenMvvm.Extensions
             {
                 var components = componentOwner.Components.Get<T>();
                 for (var i = 0; i < components.Length; i++)
-                    componentOwner.Components.Remove(components[i]);
+                    componentOwner.Components.Remove(components[i], metadata);
             }
         }
 
