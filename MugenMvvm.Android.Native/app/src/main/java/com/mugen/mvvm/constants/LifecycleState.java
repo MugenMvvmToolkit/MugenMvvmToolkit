@@ -20,7 +20,7 @@ public abstract class LifecycleState {
     public static final int Dismiss = 17;
     public static final int DismissAllowingStateLoss = 18;
     public static final int Cancel = 19;
-    
+
     private LifecycleState() {
     }
 }
