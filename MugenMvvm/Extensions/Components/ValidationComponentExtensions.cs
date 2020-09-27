@@ -113,7 +113,7 @@ namespace MugenMvvm.Extensions.Components
             return errors;
         }
 
-        public static Task? TryValidateAsync(this IValidatorComponent[] components, IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task TryValidateAsync(this IValidatorComponent[] components, IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(validator, nameof(validator));

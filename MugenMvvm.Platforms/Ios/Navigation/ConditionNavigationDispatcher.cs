@@ -19,7 +19,7 @@ namespace MugenMvvm.Ios.Navigation
 
         #region Implementation of interfaces
 
-        public Task<bool>? CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (navigationContext.Target != null && (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRefresh
                                                                                             || navigationContext.NavigationMode.IsRestore || navigationContext.NavigationMode.IsClose))
@@ -30,7 +30,7 @@ namespace MugenMvvm.Ios.Navigation
                     .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
             }
 
-            return null;
+            return Default.TrueTask;
         }
 
         #endregion

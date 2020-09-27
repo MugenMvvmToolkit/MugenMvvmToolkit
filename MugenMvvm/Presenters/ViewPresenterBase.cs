@@ -7,7 +7,6 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters
 {
@@ -30,11 +29,11 @@ namespace MugenMvvm.Presenters
 
         void IViewPresenter.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Cleanup(mediator, (TView) view, navigationContext);
 
-        Task IViewPresenter.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ActivateAsync(mediator, (TView) view, navigationContext) ?? Default.CompletedTask;
+        Task IViewPresenter.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ActivateAsync(mediator, (TView) view, navigationContext);
 
-        Task IViewPresenter.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ShowAsync(mediator, (TView) view, navigationContext) ?? Default.CompletedTask;
+        Task IViewPresenter.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => ShowAsync(mediator, (TView) view, navigationContext);
 
-        Task IViewPresenter.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => CloseAsync(mediator, (TView) view, navigationContext) ?? Default.CompletedTask;
+        Task IViewPresenter.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => CloseAsync(mediator, (TView) view, navigationContext);
 
         IViewPresenter? IViewPresenterProviderComponent.TryGetViewPresenter(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             CanPresent(presenter, viewModel, mapping, metadata) ? this : null;
@@ -55,11 +54,11 @@ namespace MugenMvvm.Presenters
         {
         }
 
-        protected abstract Task? ActivateAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task ActivateAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
 
-        protected abstract Task? ShowAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task ShowAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
 
-        protected abstract Task? CloseAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task CloseAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
 
         #endregion
     }

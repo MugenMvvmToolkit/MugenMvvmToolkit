@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTests.Views.Internal
@@ -44,10 +45,10 @@ namespace MugenMvvm.UnitTests.Views.Internal
             return TryInitializeAsync?.Invoke(mapping, request!, metadata, cancellationToken) ?? default;
         }
 
-        Task<bool>? IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task<bool> IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _viewManager?.ShouldEqual(viewManager);
-            return TryCleanupAsync?.Invoke(view, state, metadata, cancellationToken);
+            return TryCleanupAsync?.Invoke(view, state, metadata, cancellationToken) ?? Default.FalseTask;
         }
 
         #endregion

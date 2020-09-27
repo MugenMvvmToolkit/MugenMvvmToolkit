@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.Validation;
 using Should;
 using Xunit;
@@ -35,19 +36,19 @@ namespace MugenMvvm.UnitTests.Validation
             rule.IsAsync.ShouldBeFalse();
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(1);
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
 
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(2);
             errors.Count.ShouldEqual(1);
             ((IEnumerable<object>) errors[memberName]!).SequenceEqual(new[] {error, error}).ShouldBeTrue();
 
             error = null;
             errors.Clear();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(3);
             errors.Count.ShouldEqual(0);
         }
@@ -128,25 +129,25 @@ namespace MugenMvvm.UnitTests.Validation
             }, null, new[] {dMember}).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(1);
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
 
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, dMember, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, dMember, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(2);
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
 
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, "", errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, "", errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(3);
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
 
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, "e", errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, "e", errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(3);
             errors.Count.ShouldEqual(0);
         }
@@ -178,14 +179,14 @@ namespace MugenMvvm.UnitTests.Validation
             }).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(1);
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
 
             canValidate = false;
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(1);
             errors.Count.ShouldEqual(0);
         }
@@ -219,13 +220,13 @@ namespace MugenMvvm.UnitTests.Validation
             var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => model.Property).NotNull(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             validationModel.Property = "test";
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -239,13 +240,13 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = "test";
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             validationModel.Property = null;
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -259,13 +260,13 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = "";
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             validationModel.Property = "test";
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -279,13 +280,13 @@ namespace MugenMvvm.UnitTests.Validation
             var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).NotEmpty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             value = 1;
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -299,13 +300,13 @@ namespace MugenMvvm.UnitTests.Validation
             var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).NotEmpty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             value = new[] {""};
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -319,13 +320,13 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = "test";
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             validationModel.Property = "";
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -339,13 +340,13 @@ namespace MugenMvvm.UnitTests.Validation
             var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).Empty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             value = 0;
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -359,13 +360,13 @@ namespace MugenMvvm.UnitTests.Validation
             var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).Empty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             value = new string[0];
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -378,19 +379,19 @@ namespace MugenMvvm.UnitTests.Validation
             var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => model.Property).Length(1, 5, error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             validationModel.Property = "testtest";
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             validationModel.Property = "test";
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -415,24 +416,24 @@ namespace MugenMvvm.UnitTests.Validation
                 }, new[] {dpMember}).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, dpMember, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(validationModel, dpMember, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
 
             canValidate = false;
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
 
             canValidate = true;
             validationModel.Property = "test";
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
         }
 
@@ -483,7 +484,7 @@ namespace MugenMvvm.UnitTests.Validation
             canValidate = false;
             tcs = new TaskCompletionSource<bool>();
             errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, cts.Token, DefaultMetadata).ShouldBeNull();
+            rule.ValidateAsync(validationModel, propertyName, errors, cts.Token, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             errors.Count.ShouldEqual(0);
 
             canValidate = true;

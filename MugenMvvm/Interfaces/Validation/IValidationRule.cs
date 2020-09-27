@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Validation
     {
         bool IsAsync { get; }
 
-        Task? ValidateAsync(object target, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        Task ValidateAsync(object target, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
     }
 }

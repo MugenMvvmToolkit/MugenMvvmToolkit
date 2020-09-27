@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
@@ -62,7 +63,7 @@ namespace MugenMvvm.Commands.Components
             _execute = null;
         }
 
-        public Task? ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+        public Task ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -70,10 +71,10 @@ namespace MugenMvvm.Commands.Components
                     return ExecuteInternalAsync(command, parameter);
 
                 if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
-                    return null;
+                    return Default.CompletedTask;
 
                 var executionTask = ExecuteInternalAsync(command, parameter);
-                if (executionTask == null || executionTask.IsCompleted)
+                if (executionTask.IsCompleted)
                 {
                     _executingCommand = null;
                     return executionTask;
@@ -100,14 +101,14 @@ namespace MugenMvvm.Commands.Components
 
         #region Methods
 
-        private Task? ExecuteInternalAsync(ICompositeCommand command, object? parameter)
+        private Task ExecuteInternalAsync(ICompositeCommand command, object? parameter)
         {
             if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecute)
             {
                 if (!command.CanExecute(parameter))
                 {
                     command.RaiseCanExecuteChanged();
-                    return null;
+                    return Default.CompletedTask;
                 }
             }
             else if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecuteException)
@@ -118,18 +119,18 @@ namespace MugenMvvm.Commands.Components
 
             var executeAction = _execute;
             if (executeAction == null)
-                return null;
+                return Default.CompletedTask;
 
             if (executeAction is Action execute)
             {
                 execute();
-                return null;
+                return Default.CompletedTask;
             }
 
             if (executeAction is Action<T> genericExecute)
             {
                 genericExecute((T) parameter!);
-                return null;
+                return Default.CompletedTask;
             }
 
             if (executeAction is Func<Task> executeTask)

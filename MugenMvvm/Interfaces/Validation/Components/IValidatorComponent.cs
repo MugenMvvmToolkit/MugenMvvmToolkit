@@ -15,7 +15,7 @@ namespace MugenMvvm.Interfaces.Validation.Components
 
         IReadOnlyDictionary<string, object>? TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata);
 
-        Task? TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        Task TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
         void ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata);
     }

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTests.Validation.Internal
 {
@@ -19,8 +20,8 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 
         #region Implementation of interfaces
 
-        Task? IValidationRule.ValidateAsync(object target, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-            => ValidateAsync?.Invoke(target, memberName, errors, cancellationToken, metadata);
+        Task IValidationRule.ValidateAsync(object target, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            => ValidateAsync?.Invoke(target, memberName, errors, cancellationToken, metadata) ?? Default.CompletedTask;
 
         #endregion
     }

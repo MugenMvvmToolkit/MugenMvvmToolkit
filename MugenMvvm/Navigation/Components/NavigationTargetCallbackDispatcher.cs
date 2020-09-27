@@ -19,7 +19,7 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public async Task<bool>? CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public async Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var prevTarget = GetPrevNavigationTarget(navigationDispatcher, navigationContext);
             var target = navigationContext.Target;
@@ -83,14 +83,14 @@ namespace MugenMvvm.Navigation.Components
         private static Task<bool> CanNavigateFromAsync(object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (target is IHasNavigationCondition condition)
-                return condition.CanNavigateFromAsync(toTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
+                return condition.CanNavigateFromAsync(toTarget, navigationContext, cancellationToken);
             return Default.TrueTask;
         }
 
         private static Task<bool> CanNavigateToAsync(object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (target is IHasNavigationCondition condition)
-                return condition.CanNavigateToAsync(fromTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
+                return condition.CanNavigateToAsync(fromTarget, navigationContext, cancellationToken);
             return Default.TrueTask;
         }
 

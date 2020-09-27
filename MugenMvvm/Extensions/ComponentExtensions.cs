@@ -136,12 +136,12 @@ namespace MugenMvvm.Extensions
             return 0;
         }
 
-        public static Task? InvokeAllAsync<TComponent, TState>(this TComponent[] components, TState state, Func<TComponent, TState, CancellationToken, Task?> getResult, CancellationToken cancellationToken)
+        public static Task InvokeAllAsync<TComponent, TState>(this TComponent[] components, TState state, Func<TComponent, TState, CancellationToken, Task> getResult, CancellationToken cancellationToken)
             where TComponent : class, IComponent
         {
             Should.NotBeNull(getResult, nameof(getResult));
 
-            Task? GetResult(TComponent component)
+            Task GetResult(TComponent component)
             {
                 try
                 {
@@ -154,7 +154,7 @@ namespace MugenMvvm.Extensions
             }
 
             if (components.Length == 0)
-                return null;
+                return Default.CompletedTask;
             if (components.Length == 1)
                 return GetResult(components[0]);
 
@@ -162,12 +162,12 @@ namespace MugenMvvm.Extensions
             for (var i = 0; i < components.Length; i++)
             {
                 var result = GetResult(components[i]);
-                if (result != null && (!result.IsCompleted || result.IsFaulted || result.IsCanceled))
+                if (!result.IsCompleted || result.IsFaulted || result.IsCanceled)
                     tasks.Add(result);
             }
 
             if (tasks.Count == 0)
-                return null;
+                return Default.CompletedTask;
             return tasks.WhenAll();
         }
 

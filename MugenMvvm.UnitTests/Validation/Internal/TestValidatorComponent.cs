@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Validation.Internal
         IReadOnlyDictionary<string, object> IValidatorComponent.TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata) =>
             GetAllErrors?.Invoke(validator, metadata) ?? Default.ReadOnlyDictionary<string, object>();
 
-        Task? IValidatorComponent.TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+        Task IValidatorComponent.TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             ValidateAsync?.Invoke(validator, memberName, cancellationToken, metadata) ?? Default.CompletedTask;
 
         void IValidatorComponent.ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => ClearErrors?.Invoke(validator, memberName, metadata);

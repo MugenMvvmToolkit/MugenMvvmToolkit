@@ -321,11 +321,11 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             #region Implementation of interfaces
 
-            Task<bool>? IHasNavigationCondition.CanNavigateFromAsync(object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-                => CanNavigateFromAsync?.Invoke(toTarget, navigationContext, cancellationToken);
+            Task<bool> IHasNavigationCondition.CanNavigateFromAsync(object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
+                => CanNavigateFromAsync?.Invoke(toTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
 
-            Task<bool>? IHasNavigationCondition.CanNavigateToAsync(object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-                => CanNavigateToAsync?.Invoke(fromTarget, navigationContext, cancellationToken);
+            Task<bool> IHasNavigationCondition.CanNavigateToAsync(object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
+                => CanNavigateToAsync?.Invoke(fromTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
 
             #endregion
         }

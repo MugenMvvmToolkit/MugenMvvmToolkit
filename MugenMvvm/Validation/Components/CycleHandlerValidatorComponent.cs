@@ -52,7 +52,7 @@ namespace MugenMvvm.Validation.Components
 
         public IReadOnlyDictionary<string, object>? TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata) => Components.TryGetErrors(validator, metadata);
 
-        public Task? TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var member = memberName ?? "";
             try
@@ -61,7 +61,7 @@ namespace MugenMvvm.Validation.Components
                 lock (_validatingMembers)
                 {
                     if (!_validatingMembers.Add(member))
-                        return null;
+                        return Default.CompletedTask;
                 }
 
                 CancellationTokenSource? oldValue;
@@ -74,7 +74,7 @@ namespace MugenMvvm.Validation.Components
                 oldValue?.Cancel();
 
                 var task = Components.TryValidateAsync(validator, memberName, source.Token, metadata);
-                if (task != null && !task.IsCompleted)
+                if (!task.IsCompleted)
                 {
                     lock (_validatingTasks)
                     {

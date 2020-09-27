@@ -70,7 +70,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static async Task<bool>? TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken,
+        public static async Task<bool> TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

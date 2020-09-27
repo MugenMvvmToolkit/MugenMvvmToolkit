@@ -80,7 +80,7 @@ namespace MugenMvvm.Validation
             GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, metadata) ?? Default.ReadOnlyDictionary<string, object>();
 
         public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<IValidatorComponent>(metadata).TryValidateAsync(this, memberName, cancellationToken, metadata) ?? Default.CompletedTask;
+            GetComponents<IValidatorComponent>(metadata).TryValidateAsync(this, memberName, cancellationToken, metadata);
 
         public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).ClearErrors(this, memberName, metadata);
 

@@ -5,6 +5,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presenters;
 
@@ -37,9 +38,9 @@ namespace MugenMvvm.Android.Presenters
 
         #region Methods
 
-        protected override Task? ActivateAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext) => null;
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext) => Default.CompletedTask;
 
-        protected override Task? ShowAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode == NavigationMode.New)
             {
@@ -47,13 +48,13 @@ namespace MugenMvvm.Android.Presenters
                 FragmentExtensions.Show(view, NavigationDispatcher.GetTopView<IActivityView>()!, null!);
             }
 
-            return null;
+            return Default.CompletedTask;
         }
 
-        protected override Task? CloseAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
         {
             view.DismissAllowingStateLoss();
-            return null;
+            return Default.CompletedTask;
         }
 
         #endregion

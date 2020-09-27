@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presenters;
 using MugenMvvm.Requests;
@@ -60,37 +61,37 @@ namespace MugenMvvm.Ios.Presenters
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             base.CanPresent(presenter, viewModel, mapping, metadata) && (CanPresentHandler == null || CanPresentHandler(presenter, viewModel, mapping, metadata));
 
-        protected override Task? ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => ShowInternalAsync(true, mediator, view, navigationContext);
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => ShowInternalAsync(true, mediator, view, navigationContext);
 
-        protected override Task? ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => ShowInternalAsync(false, mediator, view, navigationContext);
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => ShowInternalAsync(false, mediator, view, navigationContext);
 
-        protected override Task? CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
         {
             var controllers = NavigationController.ViewControllers;
             if (controllers == null)
-                return null;
+                return Default.CompletedTask;
 
             var animated = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.Animated, Animated);
             if (controllers.Length != 1 && Equals(NavigationController.TopViewController, view))
             {
                 NavigationController.PopViewController(animated);
-                return null;
+                return Default.CompletedTask;
             }
 
             var index = Array.IndexOf(controllers, view);
             if (index < 0)
-                return null;
+                return Default.CompletedTask;
 
             var cancelableRequest = new CancelableRequest(state: this);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, cancelableRequest, navigationContext.GetMetadataOrDefault());
             if (cancelableRequest.Cancel.GetValueOrDefault())
-                return null;
+                return Default.CompletedTask;
 
             Array.Copy(controllers, index + 1, controllers, index, controllers.Length - index - 1);
             Array.Resize(ref controllers, controllers.Length - 1);
             NavigationController.SetViewControllers(controllers, animated);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closed, null, navigationContext.GetMetadataOrDefault());
-            return null;
+            return Default.CompletedTask;
         }
 
         private async Task ShowInternalAsync(bool bringToFront, IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)

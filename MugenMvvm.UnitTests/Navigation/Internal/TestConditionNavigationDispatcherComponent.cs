@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTests.Navigation.Internal
@@ -35,10 +36,10 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Implementation of interfaces
 
-        Task<bool>? IConditionNavigationDispatcherComponent.CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        Task<bool> IConditionNavigationDispatcherComponent.CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
-            return CanNavigateAsync?.Invoke(navigationContext, cancellationToken);
+            return CanNavigateAsync?.Invoke(navigationContext, cancellationToken) ?? Default.TrueTask;
         }
 
         #endregion

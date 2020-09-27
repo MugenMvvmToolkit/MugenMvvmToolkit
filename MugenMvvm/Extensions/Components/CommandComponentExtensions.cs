@@ -86,7 +86,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].RaiseCanExecuteChanged(command, metadata);
         }
 
-        public static Task? ExecuteAsync(this IExecutorCommandComponent[] components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+        public static Task ExecuteAsync(this IExecutorCommandComponent[] components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));

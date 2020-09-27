@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface IConditionNavigationDispatcherComponent : IComponent<INavigationDispatcher>
     {
-        Task<bool>? CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken);
+        Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken);
     }
 }

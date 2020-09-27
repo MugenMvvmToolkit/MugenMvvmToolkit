@@ -11,6 +11,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presenters;
 
@@ -58,20 +59,20 @@ namespace MugenMvvm.Android.Presenters
             return null;
         }
 
-        protected override Task? ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
             var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
             if (Equals(topActivityView, view))
-                return null;
+                return Default.CompletedTask;
             return RefreshActivityAsync(mediator, view, navigationContext);
         }
 
-        protected override Task? ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => null;
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => Default.CompletedTask;
 
-        protected override Task? CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
             view.Finish();
-            return null;
+            return Default.CompletedTask;
         }
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext)

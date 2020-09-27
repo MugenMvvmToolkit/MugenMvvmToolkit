@@ -92,18 +92,18 @@ namespace MugenMvvm.Validation
 
             #region Implementation of interfaces
 
-            public Task? ValidateAsync(object t, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public Task ValidateAsync(object t, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 if (!(t is T target) || _condition != null && !_condition(target, _state, metadata))
-                    return null;
+                    return Default.CompletedTask;
 
                 if (!string.IsNullOrEmpty(memberName) && !string.Equals(_memberName, memberName) && (_dependencyMembers == null || !_dependencyMembers.Contains(memberName)))
-                    return null;
+                    return Default.CompletedTask;
 
                 if (_validator is Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator)
                 {
                     AddError(errors, validator(target, _memberAccessor(target), _state, metadata));
-                    return null;
+                    return Default.CompletedTask;
                 }
 
                 return ((Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>) _validator)

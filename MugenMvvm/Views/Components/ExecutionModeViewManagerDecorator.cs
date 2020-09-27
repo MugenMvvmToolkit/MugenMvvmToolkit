@@ -69,7 +69,7 @@ namespace MugenMvvm.Views.Components
             return tcs.Task.AsValueTask();
         }
 
-        public Task<bool>? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
             if (dispatcher.CanExecuteInline(CleanupExecutionMode, metadata))

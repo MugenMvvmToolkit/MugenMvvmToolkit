@@ -170,10 +170,7 @@ namespace MugenMvvm.Extensions.Components
             for (var i = 0; i < components.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var task = components[i].CanNavigateAsync(navigationDispatcher, navigationContext, cancellationToken);
-                if (task == null)
-                    continue;
-                if (!await task.ConfigureAwait(false))
+                if (!await components[i].CanNavigateAsync(navigationDispatcher, navigationContext, cancellationToken).ConfigureAwait(false))
                 {
                     result = false;
                     break;

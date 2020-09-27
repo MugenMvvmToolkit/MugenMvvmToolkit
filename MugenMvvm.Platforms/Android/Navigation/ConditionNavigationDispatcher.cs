@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Navigation
 {
@@ -19,10 +20,10 @@ namespace MugenMvvm.Android.Navigation
 
         #region Implementation of interfaces
 
-        public Task<bool>? CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (navigationContext.Target == null)
-                return null;
+                return Default.TrueTask;
 
             if (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsRestore)
             {
@@ -43,7 +44,7 @@ namespace MugenMvvm.Android.Navigation
                     .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
             }
 
-            return null;
+            return Default.TrueTask;
         }
 
         #endregion

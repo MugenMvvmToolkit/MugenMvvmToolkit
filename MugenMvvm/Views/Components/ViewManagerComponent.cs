@@ -62,11 +62,11 @@ namespace MugenMvvm.Views.Components
             return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
         }
 
-        public Task<bool>? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (!view.Target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var v)
                 || !(v is List<IView> value) || !value.Contains(view))
-                return null;
+                return Default.FalseTask;
 
             Cleanup(viewManager, view, state, value, (list, item, m) =>
             {
