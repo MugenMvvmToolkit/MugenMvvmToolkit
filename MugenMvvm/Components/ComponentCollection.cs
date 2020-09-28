@@ -9,7 +9,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IComparer<IComponentCollectionDecorator>
+    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasComponentAddedHandler, IHasComponentRemovedHandler, IComparer<IComponentCollectionDecorator>
     {
         #region Fields
 
@@ -143,7 +143,7 @@ namespace MugenMvvm.Components
             return AddNewTracker<TComponent>(componentTrackers, metadata);
         }
 
-        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IComponentCollectionDecorator decorator)
             {
@@ -152,7 +152,7 @@ namespace MugenMvvm.Components
             }
         }
 
-        void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IComponentCollectionDecorator decorator)
             {

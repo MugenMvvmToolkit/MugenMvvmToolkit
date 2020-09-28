@@ -235,7 +235,7 @@ namespace MugenMvvm.Extensions.Components
             if (component is IAttachableComponent attachable)
                 attachable.OnAttached(collection.Owner, metadata);
 
-            (collection.Owner as IHasAddedCallbackComponentOwner)?.OnComponentAdded(collection, component, metadata);
+            (collection.Owner as IHasComponentAddedHandler)?.OnComponentAdded(collection, component, metadata);
         }
 
         public static void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
@@ -245,14 +245,14 @@ namespace MugenMvvm.Extensions.Components
             if (component is IDetachableComponent detachable)
                 detachable.OnDetached(collection.Owner, metadata);
 
-            (collection.Owner as IHasRemovedCallbackComponentOwner)?.OnComponentRemoved(collection, component, metadata);
+            (collection.Owner as IHasComponentRemovedHandler)?.OnComponentRemoved(collection, component, metadata);
         }
 
         public static bool OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            if (collection.Owner is IHasAddingCallbackComponentOwner callback && !callback.OnComponentAdding(collection, component, metadata))
+            if (collection.Owner is IHasComponentAddingHandler callback && !callback.OnComponentAdding(collection, component, metadata))
                 return false;
 
             if (component is IAttachableComponent attachable)
@@ -264,7 +264,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            if (collection.Owner is IHasRemovingCallbackComponentOwner callback && !callback.OnComponentRemoving(collection, component, metadata))
+            if (collection.Owner is IHasComponentRemovingHandler callback && !callback.OnComponentRemoving(collection, component, metadata))
                 return false;
 
             if (component is IDetachableComponent detachable)

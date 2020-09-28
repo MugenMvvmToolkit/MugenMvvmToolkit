@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IHasRemovingCallbackComponentOwner : IComponentOwner
+    public interface IHasComponentRemovingHandler : IComponentOwner
     {
         bool OnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
     }

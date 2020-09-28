@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation
 {
-    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IHasAddingCallbackComponentOwner
+    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator, IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentAddingHandler
     {
         #region Fields
 
@@ -48,15 +48,15 @@ namespace MugenMvvm.Validation
 
         #region Implementation of interfaces
 
-        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IValidatorComponent)
                 GetComponents<IValidatorListener>().OnErrorsChanged(this, null, string.Empty, metadata);
         }
 
-        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
+        bool IHasComponentAddingHandler.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
-        void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IValidatorComponent)
                 GetComponents<IValidatorListener>().OnErrorsChanged(this, null, string.Empty, metadata);
