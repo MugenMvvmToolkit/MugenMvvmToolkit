@@ -7,7 +7,7 @@
         IComponentCollection Components { get; }
     }
 
-    public interface IComponentOwner<T> : IComponentOwner where T : class
+    public interface IComponentOwner<out T> : IComponentOwner where T : class
     {
     }
 }
