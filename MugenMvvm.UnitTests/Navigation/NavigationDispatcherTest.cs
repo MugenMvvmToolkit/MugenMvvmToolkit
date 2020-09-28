@@ -163,7 +163,7 @@ namespace MugenMvvm.UnitTests.Navigation
             for (var i = 0; i < count; i++)
             {
                 var source = callbacks[i];
-                var component = new TestConditionNavigationDispatcherComponent(dispatcher)
+                var component = new TestNavigationConditionComponent(dispatcher)
                 {
                     Priority = -i,
                     CanNavigateAsync = (context, arg3) =>
@@ -174,7 +174,7 @@ namespace MugenMvvm.UnitTests.Navigation
                     }
                 };
                 dispatcher.AddComponent(component);
-                dispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener(dispatcher)
+                dispatcher.AddComponent(new TestNavigationListener(dispatcher)
                 {
                     OnNavigating = context =>
                     {
@@ -234,7 +234,7 @@ namespace MugenMvvm.UnitTests.Navigation
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestNavigationDispatcherNavigatingListener(dispatcher)
+                var component = new TestNavigationListener(dispatcher)
                 {
                     Priority = -i,
                     OnNavigating = ctx =>
@@ -260,7 +260,7 @@ namespace MugenMvvm.UnitTests.Navigation
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestNavigationDispatcherNavigatedListener(dispatcher)
+                var component = new TestNavigationListener(dispatcher)
                 {
                     Priority = -i,
                     OnNavigated = ctx =>
@@ -287,7 +287,7 @@ namespace MugenMvvm.UnitTests.Navigation
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestNavigationDispatcherErrorListener(dispatcher)
+                var component = new TestNavigationErrorListener(dispatcher)
                 {
                     OnNavigationFailed = (ctx, e) =>
                     {
@@ -314,7 +314,7 @@ namespace MugenMvvm.UnitTests.Navigation
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestNavigationDispatcherErrorListener(dispatcher)
+                var component = new TestNavigationErrorListener(dispatcher)
                 {
                     OnNavigationCanceled = (ctx, token) =>
                     {

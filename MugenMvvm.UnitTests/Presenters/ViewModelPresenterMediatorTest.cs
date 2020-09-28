@@ -153,15 +153,12 @@ namespace MugenMvvm.UnitTests.Presenters
             var viewPresenter = new TestViewPresenter();
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new NavigationContextProvider());
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+            navigationDispatcher.AddComponent(new TestNavigationListener
             {
-                OnNavigating = context => ++navigatingCount
-            });
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
-            {
+                OnNavigating = context => ++navigatingCount,
                 OnNavigated = context => ++navigatedCount
             });
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherErrorListener
+            navigationDispatcher.AddComponent(new TestNavigationErrorListener
             {
                 OnNavigationCanceled = (context, token) => ++navigateCanceledCount
             });
@@ -221,12 +218,9 @@ namespace MugenMvvm.UnitTests.Presenters
             var viewPresenter = new TestViewPresenter();
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new NavigationContextProvider());
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+            navigationDispatcher.AddComponent(new TestNavigationListener
             {
-                OnNavigating = context => { ++navigatingCount; }
-            });
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
-            {
+                OnNavigating = context => { ++navigatingCount; },
                 OnNavigated = context => { ++navigatedCount; }
             });
             var viewManager = new ViewManager();
@@ -317,7 +311,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
             });
             var shown = false;
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
+            navigationDispatcher.AddComponent(new TestNavigationListener
             {
                 OnNavigated = context =>
                 {
@@ -365,7 +359,7 @@ namespace MugenMvvm.UnitTests.Presenters
             });
             var shown = false;
             var canceled = false;
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
+            navigationDispatcher.AddComponent(new TestNavigationListener
             {
                 OnNavigated = context =>
                 {
@@ -380,7 +374,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     ++navigatedCount;
                 }
             });
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherErrorListener
+            navigationDispatcher.AddComponent(new TestNavigationErrorListener
             {
                 OnNavigationCanceled = (context, token) =>
                 {

@@ -10,7 +10,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Navigation
 {
-    public sealed class ConditionNavigationDispatcher : IConditionNavigationDispatcherComponent, IHasPriority
+    public sealed class ViewNavigationConditionDispatcher : INavigationConditionComponent, IHasPriority//todo ios
     {
         #region Properties
 

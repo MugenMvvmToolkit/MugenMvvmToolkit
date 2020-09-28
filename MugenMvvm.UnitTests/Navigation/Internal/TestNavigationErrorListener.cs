@@ -6,7 +6,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Navigation.Internal
 {
-    public class TestNavigationDispatcherErrorListener : INavigationDispatcherErrorListener
+    public class TestNavigationErrorListener : INavigationErrorListener
     {
         #region Fields
 
@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Constructors
 
-        public TestNavigationDispatcherErrorListener(INavigationDispatcher? navigationDispatcher = null)
+        public TestNavigationErrorListener(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
         }
@@ -33,13 +33,13 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Implementation of interfaces
 
-        void INavigationDispatcherErrorListener.OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
+        void INavigationErrorListener.OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
             OnNavigationFailed?.Invoke(navigationContext, exception);
         }
 
-        void INavigationDispatcherErrorListener.OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        void INavigationErrorListener.OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
             OnNavigationCanceled?.Invoke(navigationContext, cancellationToken);

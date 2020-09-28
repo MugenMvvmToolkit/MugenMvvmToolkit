@@ -6,7 +6,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Navigation.Internal
 {
-    public class TestNavigationDispatcherNavigatingListener : INavigationDispatcherNavigatingListener, IHasPriority
+    public class TestNavigationListener : INavigationListener, IHasPriority
     {
         #region Fields
 
@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Constructors
 
-        public TestNavigationDispatcherNavigatingListener(INavigationDispatcher? navigationDispatcher = null)
+        public TestNavigationListener(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
         }
@@ -27,16 +27,25 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         public Action<INavigationContext>? OnNavigating { get; set; }
 
+        public Action<INavigationContext>? OnNavigated { get; set; }
+
         public int Priority { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void INavigationDispatcherNavigatingListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        
+        void INavigationListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
             OnNavigating?.Invoke(navigationContext);
+        }
+
+        void INavigationListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        {
+            _navigationDispatcher?.ShouldEqual(navigationDispatcher);
+            OnNavigated?.Invoke(navigationContext);
         }
 
         #endregion

@@ -58,7 +58,6 @@ namespace MugenMvvm.Internal
         public static void TraceNavigation(INavigationDispatcher navigationDispatcher)
         {
             navigationDispatcher.AddComponent(new NavigatingErrorListener());
-            navigationDispatcher.AddComponent(new NavigatingTracer());
             navigationDispatcher.AddComponent(new NavigatedTracer());
         }
 
@@ -232,7 +231,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class NavigatingErrorListener : ComponentDecoratorBase<INavigationDispatcher, INavigationDispatcherErrorListener>, IHasPriority, INavigationDispatcherErrorListener
+        private sealed class NavigatingErrorListener : ComponentDecoratorBase<INavigationDispatcher, INavigationErrorListener>, IHasPriority, INavigationErrorListener
         {
             #region Properties
 
@@ -259,7 +258,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class NavigatingTracer : ComponentDecoratorBase<INavigationDispatcher, INavigationDispatcherNavigatingListener>, IHasPriority, INavigationDispatcherNavigatingListener
+        private sealed class NavigatedTracer : ComponentDecoratorBase<INavigationDispatcher, INavigationListener>, IHasPriority, INavigationListener
         {
             #region Properties
 
@@ -275,19 +274,6 @@ namespace MugenMvvm.Internal
                 Components.OnNavigating(navigationDispatcher, navigationContext);
                 Tracer.Info()?.Trace($"{NavigationTag}after navigating {Dump(navigationDispatcher, navigationContext)}");
             }
-
-            #endregion
-        }
-
-        private sealed class NavigatedTracer : ComponentDecoratorBase<INavigationDispatcher, INavigationDispatcherNavigatedListener>, IHasPriority, INavigationDispatcherNavigatedListener
-        {
-            #region Properties
-
-            public int Priority => ComponentPriority.Max;
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
             {

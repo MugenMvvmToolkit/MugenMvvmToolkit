@@ -2,8 +2,10 @@
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
-    public interface INavigationDispatcherNavigatedListener : IComponent<INavigationDispatcher>
+    public interface INavigationListener : IComponent<INavigationDispatcher>
     {
+        void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext);
+
         void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext);
     }
 }

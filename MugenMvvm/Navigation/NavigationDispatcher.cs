@@ -39,21 +39,21 @@ namespace MugenMvvm.Navigation
         public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks(object request, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(this, request, metadata);
 
-        public void OnNavigating(INavigationContext navigationContext) => GetComponents<INavigationDispatcherNavigatingListener>(navigationContext.GetMetadataOrDefault()).OnNavigating(this, navigationContext);
+        public void OnNavigating(INavigationContext navigationContext) => GetComponents<INavigationListener>(navigationContext.GetMetadataOrDefault()).OnNavigating(this, navigationContext);
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
         {
             var meta = navigationContext.GetMetadataOrDefault();
-            return GetComponents<IConditionNavigationDispatcherComponent>(meta).OnNavigatingAsync(GetComponents<INavigationDispatcherNavigatingListener>(meta), this, navigationContext, cancellationToken);
+            return GetComponents<INavigationConditionComponent>(meta).OnNavigatingAsync(GetComponents<INavigationListener>(meta), this, navigationContext, cancellationToken);
         }
 
-        public void OnNavigated(INavigationContext navigationContext) => GetComponents<INavigationDispatcherNavigatedListener>(navigationContext.GetMetadataOrDefault()).OnNavigated(this, navigationContext);
+        public void OnNavigated(INavigationContext navigationContext) => GetComponents<INavigationListener>(navigationContext.GetMetadataOrDefault()).OnNavigated(this, navigationContext);
 
         public void OnNavigationFailed(INavigationContext navigationContext, Exception exception) =>
-            GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationFailed(this, navigationContext, exception);
+            GetComponents<INavigationErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationFailed(this, navigationContext, exception);
 
         public void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken = default) =>
-            GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationCanceled(this, navigationContext, cancellationToken);
+            GetComponents<INavigationErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationCanceled(this, navigationContext, cancellationToken);
 
         #endregion
     }

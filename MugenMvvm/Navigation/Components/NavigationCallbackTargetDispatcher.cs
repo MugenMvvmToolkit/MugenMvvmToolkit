@@ -9,7 +9,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationTargetCallbackDispatcher : IConditionNavigationDispatcherComponent, INavigationDispatcherNavigatingListener, INavigationDispatcherNavigatedListener, IHasPriority
+    public sealed class NavigationCallbackTargetDispatcher : INavigationConditionComponent, INavigationListener, IHasPriority
     {
         #region Properties
 
@@ -33,21 +33,6 @@ namespace MugenMvvm.Navigation.Components
                    await CanNavigateToAsync(navigationDispatcher, target, nextTarget, navigationContext, cancellationToken).ConfigureAwait(false);
         }
 
-        public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
-        {
-            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
-            if (navigationContext.NavigationMode.IsClose)
-            {
-                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedFrom(navigationDispatcher, navigationContext, nextTarget);
-                (nextTarget as IHasNavigatedCallback)?.OnNavigatedTo(navigationDispatcher, navigationContext, navigationContext.Target);
-            }
-            else
-            {
-                (nextTarget as IHasNavigatedCallback)?.OnNavigatedFrom(navigationDispatcher, navigationContext, navigationContext.Target);
-                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedTo(navigationDispatcher, navigationContext, nextTarget);
-            }
-        }
-
         public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
@@ -63,15 +48,30 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
+        public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        {
+            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
+            if (navigationContext.NavigationMode.IsClose)
+            {
+                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedFrom(navigationDispatcher, navigationContext, nextTarget);
+                (nextTarget as IHasNavigatedCallback)?.OnNavigatedTo(navigationDispatcher, navigationContext, navigationContext.Target);
+            }
+            else
+            {
+                (nextTarget as IHasNavigatedCallback)?.OnNavigatedFrom(navigationDispatcher, navigationContext, navigationContext.Target);
+                (navigationContext.Target as IHasNavigatedCallback)?.OnNavigatedTo(navigationDispatcher, navigationContext, nextTarget);
+            }
+        }
+
         #endregion
 
         #region Methods
 
         private static Task<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-            => (target as IHasNavigationCondition)?.CanNavigateFromAsync(navigationDispatcher, navigationContext, toTarget, cancellationToken) ?? Default.TrueTask;
+            => (target as IHasNavigationConditionCallback)?.CanNavigateFromAsync(navigationDispatcher, navigationContext, toTarget, cancellationToken) ?? Default.TrueTask;
 
         private static Task<bool> CanNavigateToAsync(INavigationDispatcher navigationDispatcher, object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-            => (target as IHasNavigationCondition)?.CanNavigateToAsync(navigationDispatcher, navigationContext, fromTarget, cancellationToken) ?? Default.TrueTask;
+            => (target as IHasNavigationConditionCallback)?.CanNavigateToAsync(navigationDispatcher, navigationContext, fromTarget, cancellationToken) ?? Default.TrueTask;
 
         #endregion
     }

@@ -14,7 +14,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnNavigationEntryAdded(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
+        public static void OnNavigationEntryAdded(this INavigationEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -24,7 +24,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationInfo);
         }
 
-        public static void OnNavigationEntryUpdated(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
+        public static void OnNavigationEntryUpdated(this INavigationEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
             IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -34,7 +34,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationInfo);
         }
 
-        public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
+        public static void OnNavigationEntryRemoved(this INavigationEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
             IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -160,7 +160,7 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
         }
 
-        public static async Task<bool> OnNavigatingAsync(this IConditionNavigationDispatcherComponent[] components, INavigationDispatcherNavigatingListener[] listeners,
+        public static async Task<bool> OnNavigatingAsync(this INavigationConditionComponent[] components, INavigationListener[] listeners,
             INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
@@ -182,7 +182,7 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        public static void OnNavigating(this INavigationDispatcherNavigatingListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        public static void OnNavigating(this INavigationListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -191,7 +191,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigating(navigationDispatcher, navigationContext);
         }
 
-        public static void OnNavigated(this INavigationDispatcherNavigatedListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        public static void OnNavigated(this INavigationListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -200,7 +200,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigated(navigationDispatcher, navigationContext);
         }
 
-        public static void OnNavigationFailed(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
+        public static void OnNavigationFailed(this INavigationErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -210,7 +210,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationFailed(navigationDispatcher, navigationContext, exception);
         }
 
-        public static void OnNavigationCanceled(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public static void OnNavigationCanceled(this INavigationErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));

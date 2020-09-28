@@ -18,7 +18,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationEntryManager : ComponentDecoratorBase<IPresenter, IPresenterComponent>, INavigationEntryProviderComponent,
-        INavigationDispatcherNavigatingListener, INavigationDispatcherNavigatedListener, INavigationDispatcherErrorListener, IPresenterComponent, IHasPriority
+        INavigationListener, INavigationErrorListener, IPresenterComponent, IHasPriority
     {
         #region Fields
 
@@ -51,21 +51,21 @@ namespace MugenMvvm.Navigation.Components
 
         public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
             => UpdateEntries(navigationDispatcher, true, navigationContext, false);
+        
+        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        {
+            if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
+            {
+                UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
+                    navigationContext.GetMetadataOrDefault());
+            }
+        }
 
         public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsClose || navigationContext.NavigationMode.IsNew)
             {
                 UpdateEntries(navigationDispatcher, false, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
-                    navigationContext.GetMetadataOrDefault());
-            }
-        }
-
-        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
-        {
-            if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
-            {
-                UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
                     navigationContext.GetMetadataOrDefault());
             }
         }
@@ -140,20 +140,20 @@ namespace MugenMvvm.Navigation.Components
             if (addedEntry != null)
             {
                 navigationDispatcher
-                    .GetComponents<INavigationDispatcherEntryListener>(metadata)
+                    .GetComponents<INavigationEntryListener>(metadata)
                     .OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationInfo);
             }
             else if (updatedEntry != null && !isPending)
             {
                 ((NavigationEntry) updatedEntry).IsPending = false;
                 navigationDispatcher
-                    .GetComponents<INavigationDispatcherEntryListener>(metadata)
+                    .GetComponents<INavigationEntryListener>(metadata)
                     .OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationInfo);
             }
             else if (removedEntry != null)
             {
                 navigationDispatcher
-                    .GetComponents<INavigationDispatcherEntryListener>(metadata)
+                    .GetComponents<INavigationEntryListener>(metadata)
                     .OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationInfo);
             }
         }

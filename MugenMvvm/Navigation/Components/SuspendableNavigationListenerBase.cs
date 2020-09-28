@@ -10,11 +10,11 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public abstract class SuspendableNavigationListenerBase : AttachableComponentBase<INavigationDispatcher>, INavigationDispatcherNavigatedListener, INavigationDispatcherErrorListener, ISuspendable
+    public abstract class SuspendableNavigationListenerBase : AttachableComponentBase<INavigationDispatcher>, INavigationListener, INavigationErrorListener, ISuspendable
     {
         #region Fields
 
-        private readonly List<(INavigationDispatcher, INavigationContext, Exception?, CancellationToken?)> _suspendedEvents;
+        private readonly List<(INavigationDispatcher, INavigationContext, object?, CancellationToken?)> _suspendedEvents;
         private int _suspendCount;
 
         #endregion
@@ -23,7 +23,7 @@ namespace MugenMvvm.Navigation.Components
 
         protected SuspendableNavigationListenerBase()
         {
-            _suspendedEvents = new List<(INavigationDispatcher, INavigationContext, Exception?, CancellationToken?)>();
+            _suspendedEvents = new List<(INavigationDispatcher, INavigationContext, object?, CancellationToken?)>();
         }
 
         #endregion
@@ -45,47 +45,15 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        void INavigationDispatcherErrorListener.OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
-        {
-            lock (_suspendedEvents)
-            {
-                if (_suspendCount != 0)
-                {
-                    _suspendedEvents.Add((navigationDispatcher, navigationContext, exception, null));
-                    return;
-                }
-            }
+        void INavigationErrorListener.OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception) =>
+            AddEvent((navigationDispatcher, navigationContext, exception, null));
 
-            OnNavigationFailed(navigationDispatcher, navigationContext, exception);
-        }
+        void INavigationErrorListener.OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken) =>
+            AddEvent((navigationDispatcher, navigationContext, null, cancellationToken));
 
-        void INavigationDispatcherErrorListener.OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
-        {
-            lock (_suspendedEvents)
-            {
-                if (_suspendCount != 0)
-                {
-                    _suspendedEvents.Add((navigationDispatcher, navigationContext, null, cancellationToken));
-                    return;
-                }
-            }
+        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) => AddEvent((navigationDispatcher, navigationContext, this, null));
 
-            OnNavigationCanceled(navigationDispatcher, navigationContext, cancellationToken);
-        }
-
-        void INavigationDispatcherNavigatedListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
-        {
-            lock (_suspendedEvents)
-            {
-                if (_suspendCount != 0)
-                {
-                    _suspendedEvents.Add((navigationDispatcher, navigationContext, null, null));
-                    return;
-                }
-            }
-
-            OnNavigated(navigationDispatcher, navigationContext);
-        }
+        void INavigationListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) => AddEvent((navigationDispatcher, navigationContext, null, null));
 
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -104,6 +72,32 @@ namespace MugenMvvm.Navigation.Components
 
         #region Methods
 
+        private void AddEvent(in (INavigationDispatcher, INavigationContext, object?, CancellationToken?) e)
+        {
+            lock (_suspendedEvents)
+            {
+                if (_suspendCount != 0)
+                {
+                    _suspendedEvents.Add(e);
+                    return;
+                }
+            }
+
+            InvokeEvent(e);
+        }
+
+        private void InvokeEvent(in (INavigationDispatcher dispatcher, INavigationContext context, object? exceptionOrNavigatingFlag, CancellationToken? cancellationToken) eventInfo)
+        {
+            if (eventInfo.exceptionOrNavigatingFlag is Exception e)
+                OnNavigationFailed(eventInfo.dispatcher, eventInfo.context, e);
+            else if (eventInfo.cancellationToken != null)
+                OnNavigationCanceled(eventInfo.dispatcher, eventInfo.context, eventInfo.cancellationToken.Value);
+            else if (eventInfo.exceptionOrNavigatingFlag != null)
+                OnNavigating(eventInfo.dispatcher, eventInfo.context);
+            else
+                OnNavigated(eventInfo.dispatcher, eventInfo.context);
+        }
+
         protected abstract void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception);
 
         protected abstract void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken);
@@ -120,7 +114,7 @@ namespace MugenMvvm.Navigation.Components
 
         private void EndSuspend()
         {
-            (INavigationDispatcher dispatcher, INavigationContext context, Exception? exception, CancellationToken? cancellationToken)[] events;
+            (INavigationDispatcher dispatcher, INavigationContext context, object? exceptionOrNavigatingFlag, CancellationToken? cancellationToken)[] events;
             lock (_suspendedEvents)
             {
                 if (--_suspendCount != 0)
@@ -132,15 +126,7 @@ namespace MugenMvvm.Navigation.Components
             OnEndSuspend();
 
             for (var i = 0; i < events.Length; i++)
-            {
-                var eventInfo = events[i];
-                if (eventInfo.exception != null)
-                    OnNavigationFailed(eventInfo.dispatcher, eventInfo.context, eventInfo.exception);
-                else if (eventInfo.cancellationToken != null)
-                    OnNavigationCanceled(eventInfo.dispatcher, eventInfo.context, eventInfo.cancellationToken.Value);
-                else
-                    OnNavigated(eventInfo.dispatcher, eventInfo.context);
-            }
+                InvokeEvent(events[i]);
         }
 
         #endregion

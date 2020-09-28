@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface IHasNavigationCondition
+    public interface IHasNavigationConditionCallback
     {
         Task<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget, CancellationToken cancellationToken);
 

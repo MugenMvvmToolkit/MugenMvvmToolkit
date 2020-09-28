@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
-    public interface INavigationDispatcherErrorListener : IComponent<INavigationDispatcher>
+    public interface INavigationErrorListener : IComponent<INavigationDispatcher>
     {
         void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception);
 

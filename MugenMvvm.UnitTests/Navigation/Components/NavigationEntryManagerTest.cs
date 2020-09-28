@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             for (var i = 0; i < count; i++)
             {
-                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
+                var listener = new TestNavigationEntryListener(dispatcher)
                 {
                     OnNavigationEntryAdded = (entry, arg3) =>
                     {
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             for (var i = 0; i < count; i++)
             {
-                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
+                var listener = new TestNavigationEntryListener(dispatcher)
                 {
                     OnNavigationEntryAdded = (entry, arg3) =>
                     {
@@ -155,7 +155,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             for (var i = 0; i < count; i++)
             {
-                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
+                var listener = new TestNavigationEntryListener(dispatcher)
                 {
                     OnNavigationEntryAdded = (entry, arg3) => throw new NotSupportedException(),
                     OnNavigationEntryRemoved = (entry, arg3) => throw new NotSupportedException(),
@@ -214,7 +214,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
                 for (var i = 0; i < count; i++)
                 {
-                    var listener = new TestNavigationDispatcherEntryListener(dispatcher)
+                    var listener = new TestNavigationEntryListener(dispatcher)
                     {
                         OnNavigationEntryAdded = (entry, arg3) => throw new NotSupportedException(),
                         OnNavigationEntryRemoved = (entry, arg3) =>
@@ -265,7 +265,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             for (var i = 0; i < count; i++)
             {
-                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
+                var listener = new TestNavigationEntryListener(dispatcher)
                 {
                     OnNavigationEntryAdded = (entry, arg3) =>
                     {

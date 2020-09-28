@@ -158,7 +158,8 @@ namespace MugenMvvm.Ios.Views
         [Export("navigationBar:shouldPopItem:")]
         protected virtual bool ShouldPopItem(UINavigationBar navigationBar, UINavigationItem item)
         {
-            if (ViewControllers.Length < navigationBar.Items.Length)
+            var viewControllers = ViewControllers;
+            if (viewControllers != null && viewControllers.Length < navigationBar.Items.Length)
                 return true;
             PopViewController(true);
             return false;

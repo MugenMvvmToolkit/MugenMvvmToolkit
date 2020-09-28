@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTests.Navigation.Internal
 {
-    public class TestNavigationDispatcherNavigatedListener : INavigationDispatcherNavigatedListener, IHasPriority
+    public class TestNavigationConditionComponent : INavigationConditionComponent, IHasPriority
     {
         #region Fields
 
@@ -16,7 +19,7 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Constructors
 
-        public TestNavigationDispatcherNavigatedListener(INavigationDispatcher? navigationDispatcher = null)
+        public TestNavigationConditionComponent(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
         }
@@ -25,7 +28,7 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Properties
 
-        public Action<INavigationContext>? OnNavigated { get; set; }
+        public Func<INavigationContext, CancellationToken, Task<bool>?>? CanNavigateAsync { get; set; }
 
         public int Priority { get; set; }
 
@@ -33,10 +36,10 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Implementation of interfaces
 
-        void INavigationDispatcherNavigatedListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        Task<bool> INavigationConditionComponent.CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
-            OnNavigated?.Invoke(navigationContext);
+            return CanNavigateAsync?.Invoke(navigationContext, cancellationToken) ?? Default.TrueTask;
         }
 
         #endregion

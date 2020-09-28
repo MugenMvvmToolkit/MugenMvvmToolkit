@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.App.Components
             INavigationContext? ctx = null;
             var app = new MugenApplication();
             var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener(navigationDispatcher)
+            navigationDispatcher.AddComponent(new TestNavigationListener(navigationDispatcher)
             {
                 OnNavigating = context =>
                 {
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests.App.Components
             INavigationContext? ctx = null;
             var app = new MugenApplication();
             var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener(navigationDispatcher)
+            navigationDispatcher.AddComponent(new TestNavigationListener(navigationDispatcher)
             {
                 OnNavigated = context =>
                 {

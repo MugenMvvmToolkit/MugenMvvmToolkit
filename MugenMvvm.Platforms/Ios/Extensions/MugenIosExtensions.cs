@@ -54,7 +54,7 @@ namespace MugenMvvm.Ios.Extensions
 
             configuration
                 .ServiceConfiguration<INavigationDispatcher>()
-                .WithComponent(new ConditionNavigationDispatcher());
+                .WithComponent(new ViewNavigationConditionDispatcher());
 
             if (shouldSaveAppState)
             {

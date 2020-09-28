@@ -6,10 +6,11 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Ios.Navigation
 {
-    public sealed class ConditionNavigationDispatcher : IConditionNavigationDispatcherComponent, IHasPriority
+    public sealed class ViewNavigationConditionDispatcher : INavigationConditionComponent, IHasPriority
     {
         #region Properties
 

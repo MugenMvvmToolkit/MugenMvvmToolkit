@@ -86,7 +86,7 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new AndroidAttachedValueStorageProvider());
 
             configuration.ServiceConfiguration<INavigationDispatcher>()
-                .WithComponent(new ConditionNavigationDispatcher());
+                .WithComponent(new ViewNavigationConditionDispatcher());
 
             configuration.ServiceConfiguration<IViewManager>()
                 .WithComponent(new ViewStateDispatcher {SaveState = shouldSaveAppState})
