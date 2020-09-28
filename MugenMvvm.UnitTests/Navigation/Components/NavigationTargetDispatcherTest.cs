@@ -13,7 +13,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Navigation.Components
 {
-    public class NavigationCallbackTargetDispatcherTest : UnitTestBase
+    public class NavigationTargetDispatcherTest : UnitTestBase
     {
         #region Methods
 
@@ -21,8 +21,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         public void OnNavigatingShouldInvokeCallbackClose()
         {
             var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatingCallback(dispatcher);
-            var target = new HasNavigatingCallback(dispatcher);
+            var prevTarget = new HasNavigatingHandler(dispatcher);
+            var target = new HasNavigatingHandler(dispatcher);
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.Close);
             var targetInvokeCount = 0;
             var prevTargetInvokeCount = 0;
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             target.OnNavigatingTo = (o, navigationContext) => throw new NotSupportedException();
 
             var prevEntry = new NavigationEntry(prevTarget, Default.NavigationProvider, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationCallbackTargetDispatcher());
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
                 TryGetNavigationEntries = m => prevEntry
@@ -58,8 +58,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         public void OnNavigatingShouldInvokeCallbackNew()
         {
             var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatingCallback(dispatcher);
-            var target = new HasNavigatingCallback(dispatcher);
+            var prevTarget = new HasNavigatingHandler(dispatcher);
+            var target = new HasNavigatingHandler(dispatcher);
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.New);
             var targetInvokeCount = 0;
             var prevTargetInvokeCount = 0;
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             };
 
             var prevEntry = new NavigationEntry(prevTarget, Default.NavigationProvider, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationCallbackTargetDispatcher());
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
                 TryGetNavigationEntries = m => prevEntry
@@ -95,8 +95,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         public void OnNavigatedShouldInvokeCallbackClose()
         {
             var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatedCallback(dispatcher);
-            var target = new HasNavigatedCallback(dispatcher);
+            var prevTarget = new HasNavigatedHandler(dispatcher);
+            var target = new HasNavigatedHandler(dispatcher);
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.Close);
             var targetInvokeCount = 0;
             var prevTargetInvokeCount = 0;
@@ -117,7 +117,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             target.OnNavigatedTo = (o, navigationContext) => throw new NotSupportedException();
 
             var prevEntry = new NavigationEntry(prevTarget, Default.NavigationProvider, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationCallbackTargetDispatcher());
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
                 TryGetNavigationEntries = m => prevEntry
@@ -132,8 +132,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         public void OnNavigatedShouldInvokeCallbackNew()
         {
             var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatedCallback(dispatcher);
-            var target = new HasNavigatedCallback(dispatcher);
+            var prevTarget = new HasNavigatedHandler(dispatcher);
+            var target = new HasNavigatedHandler(dispatcher);
             var context = new NavigationContext(target, Default.NavigationProvider, "-", NavigationType.Page, NavigationMode.New);
             var targetInvokeCount = 0;
             var prevTargetInvokeCount = 0;
@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             };
 
             var prevEntry = new NavigationEntry(prevTarget, Default.NavigationProvider, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationCallbackTargetDispatcher());
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
                 TryGetNavigationEntries = m => prevEntry
@@ -202,7 +202,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             target.CanNavigateToAsync = (o, navigationContext, c) => throw new NotSupportedException();
 
             var prevEntry = new NavigationEntry(prevTarget, Default.NavigationProvider, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationCallbackTargetDispatcher());
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
                 TryGetNavigationEntries = m =>
@@ -272,7 +272,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             };
 
             var prevEntry = new NavigationEntry(prevTarget, Default.NavigationProvider, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationCallbackTargetDispatcher());
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
                 TryGetNavigationEntries = m =>
@@ -305,11 +305,148 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             task.Result.ShouldBeTrue();
         }
 
+        [Fact]
+        public void NavigationShouldInvokeCallbacks()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var target = new HasCloseNavigationHandler(dispatcher);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            var closeCtx = new NavigationContext(target, Default.NavigationProvider, "0", NavigationType.Popup, NavigationMode.Close);
+            var newCtx = new NavigationContext(target, Default.NavigationProvider, "0", NavigationType.Popup, NavigationMode.New);
+            var closingCount = 0;
+            var closeCount = 0;
+            target.OnClosing = context =>
+            {
+                context.ShouldEqual(closeCtx);
+                closingCount++;
+            };
+            target.OnClosed = context =>
+            {
+                context.ShouldEqual(closeCtx);
+                ++closeCount;
+            };
+
+            dispatcher.OnNavigating(closeCtx);
+            closingCount.ShouldEqual(1);
+            closeCount.ShouldEqual(0);
+
+            dispatcher.OnNavigated(closeCtx);
+            closingCount.ShouldEqual(1);
+            closeCount.ShouldEqual(1);
+
+            dispatcher.OnNavigating(newCtx);
+            dispatcher.OnNavigated(newCtx);
+            closingCount.ShouldEqual(1);
+            closeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void NavigationConditionShouldInvokeCallback()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var target = new HasCloseNavigationCondition(dispatcher);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            var cts = new CancellationTokenSource().Token;
+            var closeCtx = new NavigationContext(target, Default.NavigationProvider, "0", NavigationType.Popup, NavigationMode.Close);
+            var newCtx = new NavigationContext(target, Default.NavigationProvider, "0", NavigationType.Popup, NavigationMode.New);
+            var closeCount = 0;
+            var result = Task.FromResult(false);
+            target.CanCloseAsync = (context, token) =>
+            {
+                context.ShouldEqual(closeCtx);
+                token.ShouldEqual(cts);
+                ++closeCount;
+                return result;
+            };
+
+            dispatcher.OnNavigatingAsync(closeCtx, cts).Result.ShouldBeFalse();
+            closeCount.ShouldEqual(1);
+
+            dispatcher.OnNavigatingAsync(newCtx, cts).Result.ShouldBeTrue();
+            closeCount.ShouldEqual(1);
+        }
+
         #endregion
 
         #region Nested types
 
-        private sealed class HasNavigationCondition : IHasNavigationConditionCallback
+        private sealed class HasCloseNavigationCondition : IHasCloseNavigationCondition
+        {
+            #region Fields
+
+            private readonly INavigationDispatcher _navigationDispatcher;
+
+            #endregion
+
+            #region Constructors
+
+            public HasCloseNavigationCondition(INavigationDispatcher navigationDispatcher)
+            {
+                _navigationDispatcher = navigationDispatcher;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public Func<INavigationContext, CancellationToken, Task<bool>>? CanCloseAsync { get; set; }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            Task<bool> IHasCloseNavigationCondition.CanCloseAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+            {
+                _navigationDispatcher.ShouldEqual(navigationDispatcher);
+                return CanCloseAsync?.Invoke(navigationContext, cancellationToken) ?? Default.TrueTask;
+            }
+
+            #endregion
+        }
+
+        private sealed class HasCloseNavigationHandler : IHasCloseNavigationHandler
+        {
+            #region Fields
+
+            private readonly INavigationDispatcher _navigationDispatcher;
+
+            #endregion
+
+            #region Constructors
+
+            public HasCloseNavigationHandler(INavigationDispatcher navigationDispatcher)
+            {
+                _navigationDispatcher = navigationDispatcher;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public Action<INavigationContext>? OnClosing { get; set; }
+
+            public Action<INavigationContext>? OnClosed { get; set; }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            void IHasCloseNavigationHandler.OnClosing(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                _navigationDispatcher.ShouldEqual(navigationDispatcher);
+                OnClosing?.Invoke(navigationContext);
+            }
+
+            void IHasCloseNavigationHandler.OnClosed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                _navigationDispatcher.ShouldEqual(navigationDispatcher);
+                OnClosed?.Invoke(navigationContext);
+            }
+
+            #endregion
+        }
+
+        private sealed class HasNavigationCondition : IHasNavigationCondition
         {
             #region Fields
 
@@ -336,13 +473,13 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             #region Implementation of interfaces
 
-            Task<bool> IHasNavigationConditionCallback.CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget, CancellationToken cancellationToken)
+            Task<bool> IHasNavigationCondition.CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget, CancellationToken cancellationToken)
             {
                 _navigationDispatcher.ShouldEqual(navigationDispatcher);
                 return CanNavigateFromAsync?.Invoke(toTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
             }
 
-            Task<bool> IHasNavigationConditionCallback.CanNavigateToAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget, CancellationToken cancellationToken)
+            Task<bool> IHasNavigationCondition.CanNavigateToAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget, CancellationToken cancellationToken)
             {
                 _navigationDispatcher.ShouldEqual(navigationDispatcher);
                 return CanNavigateToAsync?.Invoke(fromTarget, navigationContext, cancellationToken) ?? Default.TrueTask;
@@ -351,7 +488,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             #endregion
         }
 
-        private sealed class HasNavigatingCallback : IHasNavigatingCallback
+        private sealed class HasNavigatingHandler : IHasNavigatingHandler
         {
             #region Fields
 
@@ -361,7 +498,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             #region Constructors
 
-            public HasNavigatingCallback(INavigationDispatcher navigationDispatcher)
+            public HasNavigatingHandler(INavigationDispatcher navigationDispatcher)
             {
                 _navigationDispatcher = navigationDispatcher;
             }
@@ -378,13 +515,13 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             #region Implementation of interfaces
 
-            void IHasNavigatingCallback.OnNavigatingFrom(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget)
+            void IHasNavigatingHandler.OnNavigatingFrom(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget)
             {
                 _navigationDispatcher.ShouldEqual(navigationDispatcher);
                 OnNavigatingFrom?.Invoke(toTarget, navigationContext);
             }
 
-            void IHasNavigatingCallback.OnNavigatingTo(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget)
+            void IHasNavigatingHandler.OnNavigatingTo(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget)
             {
                 _navigationDispatcher.ShouldEqual(navigationDispatcher);
                 OnNavigatingTo?.Invoke(fromTarget, navigationContext);
@@ -393,7 +530,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             #endregion
         }
 
-        private sealed class HasNavigatedCallback : IHasNavigatedCallback
+        private sealed class HasNavigatedHandler : IHasNavigatedHandler
         {
             #region Fields
 
@@ -403,7 +540,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             #region Constructors
 
-            public HasNavigatedCallback(INavigationDispatcher navigationDispatcher)
+            public HasNavigatedHandler(INavigationDispatcher navigationDispatcher)
             {
                 _navigationDispatcher = navigationDispatcher;
             }
@@ -420,13 +557,13 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             #region Implementation of interfaces
 
-            void IHasNavigatedCallback.OnNavigatedFrom(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget)
+            void IHasNavigatedHandler.OnNavigatedFrom(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget)
             {
                 _navigationDispatcher.ShouldEqual(navigationDispatcher);
                 OnNavigatedFrom?.Invoke(toTarget, navigationContext);
             }
 
-            void IHasNavigatedCallback.OnNavigatedTo(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget)
+            void IHasNavigatedHandler.OnNavigatedTo(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? fromTarget)
             {
                 _navigationDispatcher.ShouldEqual(navigationDispatcher);
                 OnNavigatedTo?.Invoke(fromTarget, navigationContext);

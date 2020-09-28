@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface IHasNavigatingCallback
+    public interface IHasNavigatingHandler
     {
         void OnNavigatingFrom(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, object? toTarget);
 
