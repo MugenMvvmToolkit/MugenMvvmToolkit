@@ -58,8 +58,8 @@ public class MugenFragment extends Fragment implements INativeFragmentView {
         else
             view = inflater.inflate(viewId, container, false);
         if (view != null) {
-            ViewExtensions.onSettingView(this, view);
-            ViewExtensions.onSetView(this, view);
+            ViewExtensions.onInitializingView(this, view);
+            ViewExtensions.onInitializedView(this, view);
         }
         return view;
     }

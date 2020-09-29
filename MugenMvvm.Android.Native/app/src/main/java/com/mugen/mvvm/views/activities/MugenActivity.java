@@ -112,16 +112,16 @@ public class MugenActivity extends Activity implements INativeActivityView {
 
     @Override
     public void setContentView(View view) {
-        ViewExtensions.onSettingView(this, view);
+        ViewExtensions.onInitializingView(this, view);
         super.setContentView(view);
-        ViewExtensions.onSetView(this, view);
+        ViewExtensions.onInitializedView(this, view);
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        ViewExtensions.onSettingView(this, view);
+        ViewExtensions.onInitializingView(this, view);
         super.setContentView(view, params);
-        ViewExtensions.onSetView(this, view);
+        ViewExtensions.onInitializedView(this, view);
     }
 
     @Override

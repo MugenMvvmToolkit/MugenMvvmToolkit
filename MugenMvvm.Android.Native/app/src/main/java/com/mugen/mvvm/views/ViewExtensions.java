@@ -313,13 +313,13 @@ public final class ViewExtensions {
         }
     }
 
-    public static void onSettingView(Object owner, View view) {
+    public static void onInitializingView(Object owner, View view) {
         for (int i = 0; i < _viewDispatchers.size(); i++) {
             _viewDispatchers.get(i).onInitializing(owner, view);
         }
     }
 
-    public static void onSetView(Object owner, View view) {
+    public static void onInitializedView(Object owner, View view) {
         for (int i = 0; i < _viewDispatchers.size(); i++) {
             _viewDispatchers.get(i).onInitialized(owner, view);
         }
@@ -337,7 +337,7 @@ public final class ViewExtensions {
         }
     }
 
-    public static View onViewCreated(View view, Context context, AttributeSet attrs) {
+    public static View onCreatedView(View view, Context context, AttributeSet attrs) {
         if (view == null)
             return null;
         for (int i = 0; i < _viewDispatchers.size(); i++) {
