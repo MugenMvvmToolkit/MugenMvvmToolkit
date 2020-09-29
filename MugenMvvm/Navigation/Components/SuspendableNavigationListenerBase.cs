@@ -51,7 +51,7 @@ namespace MugenMvvm.Navigation.Components
         void INavigationErrorListener.OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken) =>
             AddEvent((navigationDispatcher, navigationContext, null, cancellationToken));
 
-        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) => AddEvent((navigationDispatcher, navigationContext, this, null));
+        void INavigationListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) => AddEvent((navigationDispatcher, navigationContext, this, null));
 
         void INavigationListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) => AddEvent((navigationDispatcher, navigationContext, null, null));
 
@@ -101,6 +101,8 @@ namespace MugenMvvm.Navigation.Components
         protected abstract void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception);
 
         protected abstract void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken);
+
+        protected abstract void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext);
 
         protected abstract void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext);
 

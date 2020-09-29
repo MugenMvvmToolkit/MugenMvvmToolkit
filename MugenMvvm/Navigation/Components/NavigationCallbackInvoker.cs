@@ -39,6 +39,10 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
+        protected override void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        {
+        }
+
         protected override void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode.IsClose)
