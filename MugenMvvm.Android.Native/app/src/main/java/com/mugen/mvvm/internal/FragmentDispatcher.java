@@ -35,13 +35,13 @@ public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher
     }
 
     @Override
-    public void onSetting(Object owner, View view) {
+    public void onInitializing(Object owner, View view) {
         if (FragmentExtensions.isSupported(owner))
             ViewExtensions.getNativeAttachedValues(view, true).setFragment(owner);
     }
 
     @Override
-    public void onSet(Object owner, View view) {
+    public void onInitialized(Object owner, View view) {
     }
 
     @Override

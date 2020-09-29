@@ -9,9 +9,9 @@ import com.mugen.mvvm.interfaces.IHasPriority;
 public interface IViewDispatcher extends IHasPriority {
     void onParentChanged(View view);
 
-    void onSetting(Object owner, View view);
+    void onInitializing(Object owner, View view);
 
-    void onSet(Object owner, View view);
+    void onInitialized(Object owner, View view);
 
     void onInflating(int resourceId, Context context);
 

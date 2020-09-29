@@ -61,11 +61,11 @@ public class ViewCleaner implements ILifecycleDispatcher, IViewDispatcher {
     }
 
     @Override
-    public void onSetting(Object owner, View view) {
+    public void onInitializing(Object owner, View view) {
     }
 
     @Override
-    public void onSet(Object owner, View view) {
+    public void onInitialized(Object owner, View view) {
     }
 
     @Override

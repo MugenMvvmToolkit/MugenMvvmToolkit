@@ -7,5 +7,7 @@ public interface IViewAttributeAccessor {
 
     String getBind();
 
+    String getBindStyle();
+
     int getItemTemplate();
 }

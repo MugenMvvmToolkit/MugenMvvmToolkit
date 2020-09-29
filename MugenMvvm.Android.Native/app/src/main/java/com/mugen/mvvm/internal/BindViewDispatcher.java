@@ -17,6 +17,7 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     public BindViewDispatcher(IBindViewCallback viewBindCallback) {
         _viewBindCallback = viewBindCallback;
+        viewBindCallback.setViewAccessor(_accessor);
     }
 
     @Override
@@ -26,12 +27,12 @@ public class BindViewDispatcher implements IViewDispatcher {
     }
 
     @Override
-    public void onSetting(Object owner, View view) {
+    public void onInitializing(Object owner, View view) {
         _viewBindCallback.onSetView(ViewExtensions.tryWrap(owner), view);
     }
 
     @Override
-    public void onSet(Object owner, View view) {
+    public void onInitialized(Object owner, View view) {
     }
 
     @Override
@@ -53,7 +54,7 @@ public class BindViewDispatcher implements IViewDispatcher {
         try {
             if (typedArray.getIndexCount() != 0) {
                 _accessor.setTypedArray(typedArray);
-                _viewBindCallback.bind(view, _accessor);
+                _viewBindCallback.bind(view);
             }
         } finally {
             _accessor.setTypedArray(null);

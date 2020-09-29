@@ -28,6 +28,11 @@ public final class ViewAttributeAccessor implements IViewAttributeAccessor {
     }
 
     @Override
+    public String getBindStyle() {
+        return getString(R.styleable.Bind_bindStyle);
+    }
+
+    @Override
     public int getItemTemplate() {
         return getResourceId(R.styleable.Bind_itemTemplate);
     }

@@ -315,13 +315,13 @@ public final class ViewExtensions {
 
     public static void onSettingView(Object owner, View view) {
         for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onSetting(owner, view);
+            _viewDispatchers.get(i).onInitializing(owner, view);
         }
     }
 
     public static void onSetView(Object owner, View view) {
         for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onSet(owner, view);
+            _viewDispatchers.get(i).onInitialized(owner, view);
         }
     }
 
