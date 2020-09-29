@@ -15,9 +15,11 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class UndefinedMappingViewInitializer : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = ViewComponentPriority.ViewModelViewProviderDecorator + 1;
+        public UndefinedMappingViewInitializer(int priority = ViewComponentPriority.ViewModelViewProviderDecorator + 1) : base(priority)
+        {
+        }
 
         #endregion
 

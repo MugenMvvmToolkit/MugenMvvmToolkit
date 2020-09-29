@@ -4,18 +4,19 @@ using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 
 namespace MugenMvvm.Wrapping.Components
 {
-    public sealed class ViewWrapperManagerDecorator : ComponentDecoratorBase<IWrapperManager, IWrapperManagerComponent>, IWrapperManagerComponent, IHasPriority
+    public sealed class ViewWrapperManagerDecorator : ComponentDecoratorBase<IWrapperManager, IWrapperManagerComponent>, IWrapperManagerComponent
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = WrappingComponentPriority.ViewDecorator;
+        public ViewWrapperManagerDecorator(int priority = WrappingComponentPriority.ViewDecorator) : base(priority)
+        {
+        }
 
         #endregion
 

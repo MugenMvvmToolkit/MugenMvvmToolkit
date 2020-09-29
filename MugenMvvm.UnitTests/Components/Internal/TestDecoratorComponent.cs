@@ -11,9 +11,21 @@ namespace MugenMvvm.UnitTests.Components.Internal
         where T : class, IComponentOwner<T>
         where TComponent : class
     {
+        #region Constructors
+
+        public TestComponentDecorator() : base(0)
+        {
+        }
+
+        #endregion
+
         #region Properties
 
-        public int Priority { get; set; }
+        public new int Priority
+        {
+            get => base.Priority;
+            set => base.Priority = value;
+        }
 
         public new TComponent[] Components => base.Components;
 

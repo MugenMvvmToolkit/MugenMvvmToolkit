@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -8,6 +9,14 @@ namespace MugenMvvm.Components
         where TComponent : class
         where T : class, IComponentOwner<T>
     {
+        #region Constructors
+
+        protected ComponentCacheBase(int priority = ComponentPriority.Cache) : base(priority)
+        {
+        }
+
+        #endregion
+
         #region Implementation of interfaces
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentAdded(collection, component, metadata);

@@ -7,12 +7,11 @@ using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionParserCache : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent, IHasPriority
+    public sealed class BindingExpressionParserCache : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
     {
         #region Fields
 
@@ -22,16 +21,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingExpressionParserCache()
+        public BindingExpressionParserCache(int priority = ComponentPriority.Cache)
+            : base(priority)
         {
             _cache = new Dictionary<string, object?>(59, StringComparer.Ordinal);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ComponentPriority.Cache;
 
         #endregion
 

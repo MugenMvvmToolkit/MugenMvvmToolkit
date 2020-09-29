@@ -5,18 +5,19 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ConditionPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IHasPriority, IPresenterComponent
+    public sealed class ConditionPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent//todo remove
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = PresenterComponentPriority.ConditionDecorator;
+        public ConditionPresenterDecorator(int priority = PresenterComponentPriority.ConditionDecorator) : base(priority)
+        {
+        }
 
         #endregion
 

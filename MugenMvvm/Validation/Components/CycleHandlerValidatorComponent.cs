@@ -7,14 +7,13 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class CycleHandlerValidatorComponent : ComponentDecoratorBase<IValidator, IValidatorComponent>, IValidatorComponent, IHasPriority
+    public sealed class CycleHandlerValidatorComponent : ComponentDecoratorBase<IValidator, IValidatorComponent>, IValidatorComponent
     {
         #region Fields
 
@@ -25,17 +24,11 @@ namespace MugenMvvm.Validation.Components
 
         #region Constructors
 
-        public CycleHandlerValidatorComponent()
+        public CycleHandlerValidatorComponent(int priority = ComponentPriority.Decorator) : base(priority)
         {
             _validatingTasks = new Dictionary<string, CancellationTokenSource>(3, StringComparer.Ordinal);
             _validatingMembers = new HashSet<string>(StringComparer.Ordinal);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ComponentPriority.Decorator;
 
         #endregion
 

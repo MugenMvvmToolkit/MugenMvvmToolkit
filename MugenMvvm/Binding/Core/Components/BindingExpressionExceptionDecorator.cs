@@ -11,11 +11,13 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionExceptionDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent, IHasPriority
+    public sealed class BindingExpressionExceptionDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = ComponentPriority.Decorator;
+        public BindingExpressionExceptionDecorator(int priority = ComponentPriority.Decorator) : base(priority)
+        {
+        }
 
         #endregion
 

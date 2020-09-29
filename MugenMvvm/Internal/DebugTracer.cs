@@ -18,7 +18,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
@@ -211,11 +210,13 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class ApplicationTracer : ComponentDecoratorBase<IMugenApplication, IApplicationLifecycleDispatcherComponent>, IApplicationLifecycleDispatcherComponent, IHasPriority
+        private sealed class ApplicationTracer : ComponentDecoratorBase<IMugenApplication, IApplicationLifecycleDispatcherComponent>, IApplicationLifecycleDispatcherComponent
         {
-            #region Properties
+            #region Constructors
 
-            public int Priority => ComponentPriority.Max;
+            public ApplicationTracer() : base(ComponentPriority.Max)
+            {
+            }
 
             #endregion
 
@@ -231,11 +232,13 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class NavigatingErrorListener : ComponentDecoratorBase<INavigationDispatcher, INavigationErrorListener>, IHasPriority, INavigationErrorListener
+        private sealed class NavigatingErrorListener : ComponentDecoratorBase<INavigationDispatcher, INavigationErrorListener>, INavigationErrorListener
         {
-            #region Properties
+            #region Constructors
 
-            public int Priority => ComponentPriority.Max;
+            public NavigatingErrorListener() : base(ComponentPriority.Max)
+            {
+            }
 
             #endregion
 
@@ -258,11 +261,13 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class NavigatedTracer : ComponentDecoratorBase<INavigationDispatcher, INavigationListener>, IHasPriority, INavigationListener
+        private sealed class NavigatedTracer : ComponentDecoratorBase<INavigationDispatcher, INavigationListener>, INavigationListener
         {
-            #region Properties
+            #region Constructors
 
-            public int Priority => ComponentPriority.Max;
+            public NavigatedTracer() : base(ComponentPriority.Max)
+            {
+            }
 
             #endregion
 
@@ -285,11 +290,13 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class MessengerTracer : ComponentDecoratorBase<IMessenger, IMessengerSubscriberComponent>, IMessengerSubscriberComponent, IHasPriority
+        private sealed class MessengerTracer : ComponentDecoratorBase<IMessenger, IMessengerSubscriberComponent>, IMessengerSubscriberComponent
         {
-            #region Properties
+            #region Constructors
 
-            public int Priority => ComponentPriority.Max;
+            public MessengerTracer() : base(ComponentPriority.Max)
+            {
+            }
 
             #endregion
 
@@ -329,11 +336,13 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class PresenterTracer : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IHasPriority, IPresenterComponent
+        private sealed class PresenterTracer : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent
         {
-            #region Properties
+            #region Constructors
 
-            public int Priority => ComponentPriority.Max;
+            public PresenterTracer() : base(ComponentPriority.Max)
+            {
+            }
 
             #endregion
 
@@ -358,7 +367,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class ViewModelTracer : ComponentDecoratorBase<IViewModelManager, IViewModelLifecycleDispatcherComponent>, IHasPriority, IViewModelLifecycleDispatcherComponent
+        private sealed class ViewModelTracer : ComponentDecoratorBase<IViewModelManager, IViewModelLifecycleDispatcherComponent>, IViewModelLifecycleDispatcherComponent
         {
             #region Fields
 
@@ -368,9 +377,11 @@ namespace MugenMvvm.Internal
 
             #endregion
 
-            #region Properties
+            #region Constructors
 
-            public int Priority => ComponentPriority.Max;
+            public ViewModelTracer() : base(ComponentPriority.Max)
+            {
+            }
 
             #endregion
 
@@ -393,11 +404,13 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class ViewTracer : ComponentDecoratorBase<IViewManager, IViewLifecycleDispatcherComponent>, IHasPriority, IViewLifecycleDispatcherComponent
+        private sealed class ViewTracer : ComponentDecoratorBase<IViewManager, IViewLifecycleDispatcherComponent>, IViewLifecycleDispatcherComponent
         {
-            #region Properties
+            #region Constructors
 
-            public int Priority => ComponentPriority.Max;
+            public ViewTracer() : base(ComponentPriority.Max)
+            {
+            }
 
             #endregion
 

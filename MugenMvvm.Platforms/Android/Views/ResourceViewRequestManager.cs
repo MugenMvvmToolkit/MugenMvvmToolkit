@@ -9,17 +9,18 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ResourceViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
+    public sealed class ResourceViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = ViewComponentPriority.ViewModelViewProviderDecorator + 1;
+        public ResourceViewRequestManager(int priority = ViewComponentPriority.ViewModelViewProviderDecorator + 1) : base(priority)
+        {
+        }
 
         #endregion
 

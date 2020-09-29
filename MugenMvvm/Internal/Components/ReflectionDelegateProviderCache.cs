@@ -9,13 +9,12 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
     public sealed class ReflectionDelegateProviderCache : ComponentCacheBase<IReflectionManager, IActivatorReflectionDelegateProviderComponent>,
         IActivatorReflectionDelegateProviderComponent, IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent,
-        IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>, IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>, IHasPriority
+        IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>, IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>
     {
         #region Fields
 
@@ -34,7 +33,7 @@ namespace MugenMvvm.Internal.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionDelegateProviderCache()
+        public ReflectionDelegateProviderCache(int priority = ComponentPriority.Cache) : base(priority)
         {
             _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
             _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();
@@ -45,12 +44,6 @@ namespace MugenMvvm.Internal.Components
             _memberGetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
             _memberSetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ComponentPriority.Cache;
 
         #endregion
 

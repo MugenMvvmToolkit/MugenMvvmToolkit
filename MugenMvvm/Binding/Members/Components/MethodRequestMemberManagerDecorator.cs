@@ -9,12 +9,11 @@ using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MethodRequestMemberManagerDecorator : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority
+    public sealed class MethodRequestMemberManagerDecorator : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent
     {
         #region Fields
 
@@ -25,16 +24,11 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MethodRequestMemberManagerDecorator()
+        public MethodRequestMemberManagerDecorator(int priority = MemberComponentPriority.RequestHandler)
+            : base(priority)
         {
             _members = new List<IMemberInfo>();
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = MemberComponentPriority.RequestHandler;
 
         #endregion
 

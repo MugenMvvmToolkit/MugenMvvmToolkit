@@ -6,18 +6,19 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ResourceViewMappingDecorator : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent, IHasPriority
+    public sealed class ResourceViewMappingDecorator : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = ViewComponentPriority.MappingProvider + 1;
+        public ResourceViewMappingDecorator(int priority = ViewComponentPriority.MappingProvider + 1) : base(priority)
+        {
+        }
 
         #endregion
 

@@ -8,7 +8,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
@@ -18,7 +17,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationEntryManager : ComponentDecoratorBase<IPresenter, IPresenterComponent>, INavigationEntryProviderComponent,
-        INavigationListener, INavigationErrorListener, IPresenterComponent, IHasPriority
+        INavigationListener, INavigationErrorListener, IPresenterComponent
     {
         #region Fields
 
@@ -30,7 +29,8 @@ namespace MugenMvvm.Navigation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationEntryManager(INavigationDispatcher? navigationDispatcher = null)
+        public NavigationEntryManager(INavigationDispatcher? navigationDispatcher = null, int priority = ComponentPriority.Max)
+            : base(priority)
         {
             _navigationDispatcher = navigationDispatcher;
             _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
@@ -38,20 +38,26 @@ namespace MugenMvvm.Navigation.Components
 
         #endregion
 
-        #region Properties
-
-        public int Priority { get; set; } = ComponentPriority.Max;
-
-        #endregion
-
         #region Implementation of interfaces
+
+        public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
+        {
+            var result = ItemOrListEditor.Get<INavigationEntry>();
+            lock (_navigationEntries)
+            {
+                foreach (var t in _navigationEntries)
+                    result.AddRange(ItemOrList.FromList(t.Value));
+            }
+
+            return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
+        }
 
         public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
             => UpdateEntries(navigationDispatcher, true, navigationContext, false);
 
         public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
             => UpdateEntries(navigationDispatcher, true, navigationContext, false);
-        
+
         public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
@@ -68,18 +74,6 @@ namespace MugenMvvm.Navigation.Components
                 UpdateEntries(navigationDispatcher, false, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
                     navigationContext.GetMetadataOrDefault());
             }
-        }
-
-        public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
-        {
-            var result = ItemOrListEditor.Get<INavigationEntry>();
-            lock (_navigationEntries)
-            {
-                foreach (var t in _navigationEntries)
-                    result.AddRange(ItemOrList.FromList(t.Value));
-            }
-
-            return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
         }
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)

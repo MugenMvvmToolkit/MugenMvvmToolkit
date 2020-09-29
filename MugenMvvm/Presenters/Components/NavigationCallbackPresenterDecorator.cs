@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class NavigationCallbackPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent, IHasPriority
+    public sealed class NavigationCallbackPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent
     {
         #region Fields
 
@@ -27,16 +27,11 @@ namespace MugenMvvm.Presenters.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationCallbackPresenterDecorator(INavigationDispatcher? navigationDispatcher = null)
+        public NavigationCallbackPresenterDecorator(INavigationDispatcher? navigationDispatcher = null, int priority = PresenterComponentPriority.CallbackDecorator)
+            : base(priority)
         {
             _navigationDispatcher = navigationDispatcher;
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = PresenterComponentPriority.CallbackDecorator;
 
         #endregion
 

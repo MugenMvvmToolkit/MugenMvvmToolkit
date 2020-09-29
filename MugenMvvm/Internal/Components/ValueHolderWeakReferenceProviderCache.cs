@@ -4,15 +4,16 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderWeakReferenceProviderCache : ComponentDecoratorBase<IWeakReferenceManager, IWeakReferenceProviderComponent>, IWeakReferenceProviderComponent, IHasPriority
+    public sealed class ValueHolderWeakReferenceProviderCache : ComponentDecoratorBase<IWeakReferenceManager, IWeakReferenceProviderComponent>, IWeakReferenceProviderComponent
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = ComponentPriority.Cache;
+        public ValueHolderWeakReferenceProviderCache(int priority = ComponentPriority.Cache) : base(priority)
+        {
+        }
 
         #endregion
 

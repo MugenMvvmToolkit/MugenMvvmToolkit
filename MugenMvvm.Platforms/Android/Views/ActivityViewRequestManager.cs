@@ -15,11 +15,13 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ActivityViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
+    public sealed class ActivityViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
-        #region Properties
+        #region Constructors
 
-        public int Priority { get; set; } = ViewComponentPriority.ExecutionModeDecorator + 1;
+        public ActivityViewRequestManager(int priority = ViewComponentPriority.ExecutionModeDecorator + 1) : base(priority)
+        {
+        }
 
         #endregion
 

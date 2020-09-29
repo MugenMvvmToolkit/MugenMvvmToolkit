@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
-    public abstract class ComponentDecoratorBase<T, TComponent> : AttachableComponentBase<T>, IComponentCollectionDecorator<TComponent>
+    public abstract class ComponentDecoratorBase<T, TComponent> : AttachableComponentBase<T>, IComponentCollectionDecorator<TComponent>, IHasPriority
         where TComponent : class
         where T : class, IComponentOwner<T>
     {
@@ -19,10 +21,17 @@ namespace MugenMvvm.Components
 
         #region Constructors
 
-        protected ComponentDecoratorBase()
+        protected ComponentDecoratorBase(int priority = ComponentPriority.Decorator)
         {
             Components = Default.Array<TComponent>();
+            Priority = priority;
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; protected set; }
 
         #endregion
 

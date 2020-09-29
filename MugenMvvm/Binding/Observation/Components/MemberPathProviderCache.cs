@@ -7,11 +7,10 @@ using MugenMvvm.Binding.Interfaces.Observation.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observation.Components
 {
-    public sealed class MemberPathProviderCache : ComponentCacheBase<IObservationManager, IMemberPathProviderComponent>, IMemberPathProviderComponent, IHasPriority
+    public sealed class MemberPathProviderCache : ComponentCacheBase<IObservationManager, IMemberPathProviderComponent>, IMemberPathProviderComponent
     {
         #region Fields
 
@@ -22,16 +21,11 @@ namespace MugenMvvm.Binding.Observation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MemberPathProviderCache()
+        public MemberPathProviderCache(int priority = ComponentPriority.Cache)
+            : base(priority)
         {
             _cache = new Dictionary<string, IMemberPath?>(59, StringComparer.Ordinal);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ComponentPriority.Cache;
 
         #endregion
 

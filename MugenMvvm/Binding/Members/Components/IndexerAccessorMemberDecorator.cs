@@ -14,13 +14,11 @@ using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class IndexerAccessorMemberDecorator : ComponentDecoratorBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority,
-        IEqualityComparer<IndexerAccessorMemberDecorator.MemberKey>
+    public sealed class IndexerAccessorMemberDecorator : ComponentDecoratorBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent, IEqualityComparer<IndexerAccessorMemberDecorator.MemberKey>
     {
         #region Fields
 
@@ -34,19 +32,14 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null)
+        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null, int priority = ComponentPriority.Decorator)
+            : base(priority)
         {
             _globalValueConverter = globalValueConverter;
             _observationManager = observationManager;
             _members = new List<IMemberInfo>();
             _membersDictionary = new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, ArgumentFlags flags)>(this);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ComponentPriority.Decorator;
 
         #endregion
 

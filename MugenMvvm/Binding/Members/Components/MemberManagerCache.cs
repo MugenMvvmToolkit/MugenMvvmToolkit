@@ -11,12 +11,11 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MemberManagerCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority, IEqualityComparer<MemberManagerCache.CacheKey>
+    public sealed class MemberManagerCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IEqualityComparer<MemberManagerCache.CacheKey>
     {
         #region Fields
 
@@ -27,16 +26,11 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MemberManagerCache()
+        public MemberManagerCache(int priority = ComponentPriority.Cache)
+            : base(priority)
         {
             _cache = new Dictionary<CacheKey, object?>(59, this);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ComponentPriority.Cache;
 
         #endregion
 

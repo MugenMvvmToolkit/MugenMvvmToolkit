@@ -18,12 +18,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionPriorityDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent, IComparer<IBindingBuilder>, IHasPriority
+    public sealed class BindingExpressionPriorityDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent, IComparer<IBindingBuilder>
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingExpressionPriorityDecorator()
+        public BindingExpressionPriorityDecorator(int priority = BindingComponentPriority.ExpressionPriorityDecorator) : base(priority)
         {
             BindingMemberPriorities = new Dictionary<string, int>
             {
@@ -45,8 +45,6 @@ namespace MugenMvvm.Binding.Core.Components
         public Dictionary<string, int> BindingMemberPriorities { get; }
 
         public int FakeMemberPriority { get; set; } = BindableMemberPriority.Fake;
-
-        public int Priority { get; set; } = BindingComponentPriority.ExpressionPriorityDecorator;
 
         #endregion
 

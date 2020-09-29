@@ -6,7 +6,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
@@ -18,7 +17,7 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent, IHasPriority
+    public sealed class ViewPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent
     {
         #region Fields
 
@@ -30,7 +29,9 @@ namespace MugenMvvm.Presenters.Components
 
         #region Constructors
 
-        public ViewPresenterDecorator(IViewManager? viewManager = null, IViewModelManager? viewModelManager = null, INavigationDispatcher? navigationDispatcher = null)
+        public ViewPresenterDecorator(IViewManager? viewManager = null, IViewModelManager? viewModelManager = null, INavigationDispatcher? navigationDispatcher = null,
+            int priority = PresenterComponentPriority.ViewModelProviderDecorator)
+            : base(priority)
         {
             _viewManager = viewManager;
             _viewModelManager = viewModelManager;
@@ -40,8 +41,6 @@ namespace MugenMvvm.Presenters.Components
         #endregion
 
         #region Properties
-
-        public int Priority { get; set; } = PresenterComponentPriority.ViewModelProviderDecorator;
 
         public bool DisposeViewModelOnClose { get; set; } = true;
 

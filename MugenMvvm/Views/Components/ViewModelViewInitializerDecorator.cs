@@ -7,7 +7,6 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
@@ -15,7 +14,7 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewModelViewInitializerDecorator : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
+    public sealed class ViewModelViewInitializerDecorator : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
         #region Fields
 
@@ -27,17 +26,12 @@ namespace MugenMvvm.Views.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelViewInitializerDecorator(IViewModelManager? viewModelManager = null, IServiceProvider? serviceProvider = null)
+        public ViewModelViewInitializerDecorator(IViewModelManager? viewModelManager = null, IServiceProvider? serviceProvider = null, int priority = ViewComponentPriority.ViewModelViewProviderDecorator)
+            : base(priority)
         {
             _viewModelManager = viewModelManager;
             _serviceProvider = serviceProvider;
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ViewComponentPriority.ViewModelViewProviderDecorator;
 
         #endregion
 
