@@ -89,7 +89,6 @@ namespace MugenMvvm.Extensions
                 .WithComponent(entryManager);
 
             configuration.WithAppService(new Presenter())
-                .WithComponent(new ConditionPresenterDecorator())
                 .WithComponent(new NavigationCallbackPresenterDecorator())
                 .WithComponent(new ViewModelPresenter())
                 .WithComponent(new ViewPresenterDecorator())

@@ -13,38 +13,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanShow(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
-            object request, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(request, nameof(request));
-            Should.NotBeNull(presenterComponent, nameof(presenterComponent));
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (!components[i].CanShow(presenter, presenterComponent, results, request, metadata))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool CanClose(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
-            object request, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(request, nameof(request));
-            Should.NotBeNull(presenterComponent, nameof(presenterComponent));
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (!components[i].CanClose(presenter, presenterComponent, results, request, metadata))
-                    return false;
-            }
-
-            return true;
-        }
-
         public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(this IPresenterComponent[] components, IPresenter presenter, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
