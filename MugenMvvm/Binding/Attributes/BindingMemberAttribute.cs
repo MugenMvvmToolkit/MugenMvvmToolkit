@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Attributes
 
         public BindingMemberAttribute(int memberNameIndex)
         {
-            Should.BeValid(nameof(memberNameIndex), memberNameIndex >= 0);
+            Should.BeValid(memberNameIndex >= 0, nameof(memberNameIndex));
             MemberNameIndex = memberNameIndex;
         }
 

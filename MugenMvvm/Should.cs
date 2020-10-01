@@ -45,28 +45,35 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
-            bool validation)
+        public static void BeValid([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
+            bool validation, string paramName)
         {
             if (!validation)
                 ExceptionManager.ThrowNotValidArgument(paramName);
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType([NotNull] object? instance, string paramName, [NotNull] Type? requiredType)
+        public static void BeOfType([NotNull] object? instance, [NotNull] Type? requiredType, string paramName)
         {
             NotBeNull(instance, paramName);
-            BeOfType(instance.GetType(), paramName, requiredType);
+            NotBeNull(requiredType, nameof(requiredType));
+            if (!requiredType.IsInstanceOfType(instance))
+                ExceptionManager.ThrowArgumentShouldBeOfType(paramName, instance.GetType(), requiredType);
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>([NotNull] object? instance, string paramName) => BeOfType(instance, paramName, typeof(T));
+        public static void BeOfType<T>([NotNull] object? instance, string paramName)
+        {
+            NotBeNull(instance, paramName);
+            if (!(instance is T))
+                ExceptionManager.ThrowArgumentShouldBeOfType(paramName, instance.GetType(), typeof(T));
+        }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>([NotNull] Type? type, string paramName) => BeOfType(type, paramName, typeof(T));
+        public static void BeOfType<T>([NotNull] Type? type, string paramName) => BeOfType(type, typeof(T), paramName);
 
         [DebuggerStepThrough]
-        public static void BeOfType([NotNull] Type? type, string paramName, [NotNull] Type? requiredType)
+        public static void BeOfType([NotNull] Type? type, [NotNull] Type? requiredType, string paramName)
         {
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));

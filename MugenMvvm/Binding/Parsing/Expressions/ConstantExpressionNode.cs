@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (type == null)
                 type = value == null ? typeof(object) : value.GetType();
             else if (value != null)
-                Should.BeOfType(value, nameof(value), type);
+                Should.BeOfType(value, type, nameof(value));
             Value = value;
             Type = type;
             ConstantExpression = constantExpression;

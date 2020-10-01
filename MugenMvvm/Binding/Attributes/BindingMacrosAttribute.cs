@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Attributes
 
         public BindingMacrosAttribute(int resourceNameIndex, bool isStatic = false)
         {
-            Should.BeValid(nameof(resourceNameIndex), resourceNameIndex >= 0);
+            Should.BeValid(resourceNameIndex >= 0, nameof(resourceNameIndex));
             ResourceNameIndex = resourceNameIndex;
             IsStatic = isStatic;
         }

@@ -159,7 +159,7 @@ namespace MugenMvvm.Metadata
 
             public Builder<T> WithValidation(Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T> validateAction)
             {
-                Should.BeValid(nameof(validateAction), _validateAction == null);
+                Should.BeValid(_validateAction == null, nameof(validateAction));
                 _validateAction = validateAction;
                 return this;
             }
@@ -171,14 +171,14 @@ namespace MugenMvvm.Metadata
             public Builder<T> Setter(Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?> setter)
             {
                 Should.NotBeNull(setter, nameof(setter));
-                Should.BeValid(nameof(setter), _setValueFunc == null);
+                Should.BeValid(_setValueFunc == null, nameof(setter));
                 _setValueFunc = setter;
                 return this;
             }
 
             public Builder<T> DefaultValue(T defaultValue)
             {
-                Should.BeValid(nameof(defaultValue), !_hasDefaultValue);
+                Should.BeValid(!_hasDefaultValue, nameof(defaultValue));
                 _hasDefaultValue = true;
                 _defaultValue = defaultValue;
                 return this;
@@ -187,7 +187,7 @@ namespace MugenMvvm.Metadata
             public Builder<T> DefaultValue(Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T> getDefaultValue)
             {
                 Should.NotBeNull(getDefaultValue, nameof(getDefaultValue));
-                Should.BeValid(nameof(getDefaultValue), _getDefaultValueFunc == null);
+                Should.BeValid(_getDefaultValueFunc == null, nameof(getDefaultValue));
                 _getDefaultValueFunc = getDefaultValue;
                 return this;
             }
@@ -224,7 +224,7 @@ namespace MugenMvvm.Metadata
             private Builder<T> GetterInternal(Delegate getter)
             {
                 Should.NotBeNull(getter, nameof(getter));
-                Should.BeValid(nameof(getter), _getValueFunc == null);
+                Should.BeValid(_getValueFunc == null, nameof(getter));
                 _getValueFunc = getter;
                 return this;
             }

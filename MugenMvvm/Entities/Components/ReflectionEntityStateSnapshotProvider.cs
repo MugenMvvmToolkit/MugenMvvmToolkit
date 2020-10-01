@@ -158,7 +158,7 @@ namespace MugenMvvm.Entities.Components
 
             public bool HasChanges(object entity, object? member = null, IReadOnlyMetadataContext? metadata = null)
             {
-                Should.BeOfType(entity, nameof(entity), EntityType);
+                Should.BeOfType(entity, EntityType, nameof(entity));
                 if (member != null)
                     return TryGetValue(member, out var value) && !Equals(value.GetValue(entity), value.Value);
 
@@ -173,14 +173,14 @@ namespace MugenMvvm.Entities.Components
 
             public void Restore(object entity, IReadOnlyMetadataContext? metadata = null)
             {
-                Should.BeOfType(entity, nameof(entity), EntityType);
+                Should.BeOfType(entity, EntityType, nameof(entity));
                 foreach (var pair in this)
                     pair.Value.SetValue(entity, pair.Value.Value);
             }
 
             public IReadOnlyList<EntityStateValue> Dump(object entity, IReadOnlyMetadataContext? metadata = null)
             {
-                Should.BeOfType(entity, nameof(entity), EntityType);
+                Should.BeOfType(entity, EntityType, nameof(entity));
                 var values = new EntityStateValue[Count];
                 var index = 0;
                 foreach (var pair in this)

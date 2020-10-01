@@ -87,7 +87,7 @@ namespace MugenMvvm.Views.Components
 
         public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.BeOfType(viewModelType, nameof(viewModelType), typeof(IViewModelBase));
+            Should.BeOfType(viewModelType, typeof(IViewModelBase), nameof(viewModelType));
             Should.NotBeNull(viewType, nameof(viewType));
             var mapping = new ViewMapping(id ?? $"{viewModelType.FullName}{viewType.FullName}{name}", viewType, viewModelType, metadata);
             AddMapping(mapping, exactlyEqual, name);
