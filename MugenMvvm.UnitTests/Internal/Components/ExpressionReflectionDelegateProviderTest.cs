@@ -267,7 +267,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
             var args = new object[] {1, "test"};
             invoker.Invoke(target, args).ShouldEqual(args[1]);
-            target.Args.SequenceEqual(args).ShouldBeTrue();
+            target.Args.ShouldEqual(args);
         }
 
         [Fact]
@@ -279,7 +279,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
             var args = new object[] {1, "test"};
             invoker.Invoke(null, args).ShouldEqual(args[1]);
-            TestMethodClass.ArgsStatic.SequenceEqual(args).ShouldBeTrue();
+            TestMethodClass.ArgsStatic.ShouldEqual(args);
         }
 
         [Fact]
@@ -292,7 +292,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
             var args = new object[] {1, "test"};
             invoker.Invoke(target, (int) args[0], (string) args[1]).ShouldEqual(args[1]);
-            target.Args.SequenceEqual(args).ShouldBeTrue();
+            target.Args.ShouldEqual(args);
         }
 
         [Fact]
@@ -304,7 +304,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
             var args = new object[] {1, "test"};
             invoker.Invoke((int) args[0], (string) args[1]).ShouldEqual(args[1]);
-            TestMethodClass.ArgsStatic.SequenceEqual(args).ShouldBeTrue();
+            TestMethodClass.ArgsStatic.ShouldEqual(args);
         }
 
         [Fact]

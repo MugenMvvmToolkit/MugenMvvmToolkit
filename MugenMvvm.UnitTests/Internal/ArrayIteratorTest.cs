@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.Internal
             var enumResult = new List<object>();
             foreach (var item in iterator)
                 enumResult.Add(item);
-            enumResult.SequenceEqual(objects).ShouldBeTrue();
+            enumResult.ShouldEqual(objects);
         }
 
         [Theory]
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Internal
             var itemOrList = ItemOrList.FromList(objects.ToArray());
 
             var iterator = new ArrayIterator<object>(count, itemOrList.Item, itemOrList.List);
-            iterator.ToArray().SequenceEqual(objects).ShouldBeTrue();
+            iterator.ToArray().ShouldEqual(objects);
         }
 
         [Theory]
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Internal
             var itemOrList = ItemOrList.FromList(objects.ToArray());
 
             var iterator = new ArrayIterator<object>(count, itemOrList.Item, itemOrList.List);
-            iterator.AsList().SequenceEqual(objects).ShouldBeTrue();
+            iterator.AsList().ShouldEqual(objects);
         }
 
         #endregion

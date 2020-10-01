@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Internal
         public void ValuesShouldBeValid()
         {
             Default.Array<string>().ShouldBeEmpty();
-            new TestEnumerable().SequenceEqual(new[] {1}).ShouldBeTrue();
+            new TestEnumerable().ShouldEqual(new[] {1});
             Default.ReadOnlyDictionary<object, object>().ShouldBeEmpty();
             (Default.NextCounter() + 1).ShouldEqual(Default.NextCounter());
             Default.GetOrCreatePropertyChangedArgs("").PropertyName.ShouldEqual("");

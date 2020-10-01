@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Components
                 .Where(info => info.Name == nameof(Enumerable.FirstOrDefault))
                 .Select(info => info.MakeGenericMethod(typeof(char)))
                 .ToList();
-            methodInfos.SequenceEqual(members.AsList().Select(info => info.UnderlyingMember)).ShouldBeTrue();
+            methodInfos.ShouldEqual(members.AsList().Select(info => info.UnderlyingMember));
         }
 
         #endregion

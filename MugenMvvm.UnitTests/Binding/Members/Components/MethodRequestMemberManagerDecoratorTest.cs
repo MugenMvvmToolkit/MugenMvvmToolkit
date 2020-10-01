@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Components
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++selectorCount;
-                    ((IEnumerable<IMemberInfo>) r).SequenceEqual(members).ShouldBeTrue();
+                    ((IEnumerable<IMemberInfo>) r).ShouldEqual(members);
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Components
             manager.AddComponent(component);
 
             var list = manager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList();
-            list.SequenceEqual(expectedResult).ShouldBeTrue();
+            list.ShouldEqual(expectedResult);
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }

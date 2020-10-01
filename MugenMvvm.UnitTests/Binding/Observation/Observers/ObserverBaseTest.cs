@@ -86,20 +86,20 @@ namespace MugenMvvm.UnitTests.Binding.Observation.Observers
             for (var i = 0; i < count; i++)
             {
                 observer.AddListener(listeners[i]);
-                observer.GetListeners().AsList().SequenceEqual(listeners.Take(i + 1)).ShouldBeTrue();
+                observer.GetListeners().AsList().ShouldEqual(listeners.Take(i + 1));
             }
 
             var removeCount = Math.Min(count, 100);
             for (var index = 0; index < removeCount; index++)
             {
                 observer.RemoveListener(listeners[index]);
-                observer.GetListeners().AsList().SequenceEqual(listeners.Skip(index + 1)).ShouldBeTrue();
+                observer.GetListeners().AsList().ShouldEqual(listeners.Skip(index + 1));
             }
 
             for (var i = 0; i < removeCount; i++)
             {
                 observer.AddListener(listeners[i]);
-                observer.GetListeners().AsList().SequenceEqual(listeners.Skip(removeCount).Concat(listeners.Take(i + 1))).ShouldBeTrue();
+                observer.GetListeners().AsList().ShouldEqual(listeners.Skip(removeCount).Concat(listeners.Take(i + 1)));
             }
 
             observer.Dispose();

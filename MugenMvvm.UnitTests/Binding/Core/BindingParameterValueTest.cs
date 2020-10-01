@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.Binding.Core
                 Dispose = () => dispose = true,
                 Invoke = (list, context) =>
                 {
-                    list.AsList().SequenceEqual(values.Select(o => new ParameterValue(o.GetType(), o))).ShouldBeTrue();
+                    list.AsList().ShouldEqual(values.Select(o => new ParameterValue(o.GetType(), o)));
                     context.ShouldEqual(DefaultMetadata);
                     return result;
                 }
@@ -126,12 +126,12 @@ namespace MugenMvvm.UnitTests.Binding.Core
                 Invoke = (list, context) =>
                 {
                     ++invokeCount;
-                    list.AsList().SequenceEqual(values.Select(o =>
+                    list.AsList().ShouldEqual(values.Select(o =>
                     {
                         if (o is IMemberPathObserver ob)
                             o = ob.GetLastMember(DefaultMetadata).GetValueOrThrow(DefaultMetadata)!;
                         return new ParameterValue(o.GetType(), o);
-                    })).ShouldBeTrue();
+                    }));
                     context.ShouldEqual(DefaultMetadata);
                     return result;
                 }

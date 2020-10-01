@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Components
             }
 
             invalidateCount.ShouldEqual(count);
-            component.TryGetMembers(null!, requestType, name, memberType, DefaultMetadata).AsList().SequenceEqual(list).ShouldBeTrue();
+            component.TryGetMembers(null!, requestType, name, memberType, DefaultMetadata).AsList().ShouldEqual(list);
             list.Count.ShouldEqual(count);
 
             invalidateCount = 0;

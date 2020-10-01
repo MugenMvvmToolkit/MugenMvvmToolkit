@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Binding.Observation.Paths
             var strings = new[] {"Test", "Test1", "Test2", "Test3"};
             string path = string.Join(".", strings);
             var memberPath = new MultiMemberPath(path);
-            memberPath.Members.SequenceEqual(strings).ShouldBeTrue();
+            memberPath.Members.ShouldEqual(strings);
             memberPath.Path.ShouldEqual(path);
         }
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Binding.Observation.Paths
             var items = new[] {"[test]", "Test1", "Test2", "[test]", "Test3"};
             string path = string.Join(".", strings);
             var memberPath = new MultiMemberPath(path);
-            memberPath.Members.SequenceEqual(items).ShouldBeTrue();
+            memberPath.Members.ShouldEqual(items);
             memberPath.Path.ShouldEqual(path);
         }
 
@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Binding.Observation.Paths
             var items = new[] {"[test, test2]", "Test1", "Test2", "[test , 10]", "Test3"};
             string path = string.Join(".", strings);
             var memberPath = new MultiMemberPath(path);
-            memberPath.Members.SequenceEqual(items).ShouldBeTrue();
+            memberPath.Members.ShouldEqual(items);
         }
 
         #endregion

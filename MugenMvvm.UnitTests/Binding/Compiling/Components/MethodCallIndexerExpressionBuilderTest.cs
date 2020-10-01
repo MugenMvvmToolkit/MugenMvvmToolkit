@@ -760,7 +760,7 @@ namespace MugenMvvm.UnitTests.Binding.Compiling.Components
             {
                 var m = GetMethodInfo(expression);
                 LastMethod.ShouldEqual(m);
-                args.SequenceEqual(Args).ShouldBeTrue();
+                args.ShouldEqual(Args);
             }
 
             public object This() => this;
@@ -833,7 +833,7 @@ namespace MugenMvvm.UnitTests.Binding.Compiling.Components
             {
                 var m = GetMethodInfo(expression);
                 LastMethod.ShouldEqual(m);
-                args.SequenceEqual(Args).ShouldBeTrue();
+                args.ShouldEqual(Args);
             }
 
             private static void SetMethod(Expression<Action> expression, params object?[] args)

@@ -337,7 +337,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components
                 expression.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{count}"));
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
-                binding.Source.AsList().SequenceEqual(new[] {sourceObserver1, sourceObserver2}).ShouldBeTrue();
+                binding.Source.AsList().ShouldEqual(new[] {sourceObserver1, sourceObserver2});
                 binding.State.ShouldEqual(BindingState.Valid);
                 binding.GetComponents().AsList().ShouldContain(components);
 
@@ -345,7 +345,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components
                 binding.Expression.ShouldEqual(exp);
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
-                binding.Source.AsList().SequenceEqual(new[] {sourceObserver1, sourceObserver2}).ShouldBeTrue();
+                binding.Source.AsList().ShouldEqual(new[] {sourceObserver1, sourceObserver2});
                 binding.State.ShouldEqual(BindingState.Valid);
                 binding.GetComponents().AsList().ShouldContain(components);
             }

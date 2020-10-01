@@ -53,14 +53,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var items = observableCollection.OrderBy(i => i, this);
 
             decorator.Reorder();
-            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems().Cast<int>()).ShouldBeTrue();
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection.DecorateItems().Cast<int>());
+            tracker.ChangedItems.ShouldEqual(items);
 
             DefaultComparer = !defaultComparer;
 
             decorator.Reorder();
-            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems().Cast<int>()).ShouldBeTrue();
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection.DecorateItems().Cast<int>());
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         [Theory]
@@ -81,14 +81,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 100; i++)
             {
                 observableCollection.Add(i);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
 
 
             for (var i = 0; i < 10; i++)
             {
                 observableCollection.Insert(i, i);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 var id = Guid.NewGuid().GetHashCode();
                 observableCollection.Add(id);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
 
 
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 var id = Guid.NewGuid().GetHashCode();
                 observableCollection.Insert(i, id);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -140,12 +140,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 observableCollection.Add(i);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             for (var i = 0; i < 10; i++)
             {
                 observableCollection[i] = i + Guid.NewGuid().GetHashCode();
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -166,14 +166,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 observableCollection.Add(i);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             for (var i = 0; i < 10; i++)
             {
                 for (var j = 10; j < 20; j++)
                 {
                     observableCollection[i] = observableCollection[j];
-                    tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                    tracker.ChangedItems.ShouldEqual(items);
                 }
             }
         }
@@ -195,12 +195,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 observableCollection.Add(i);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             for (var i = 0; i < 10; i++)
             {
                 observableCollection.Move(i, i + 1);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -225,13 +225,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 20; i++)
             {
                 observableCollection.Remove(i);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
 
             for (var i = 0; i < 10; i++)
             {
                 observableCollection.RemoveAt(i);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -257,7 +257,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 100; i++)
             {
                 observableCollection.RemoveAt(0);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -278,10 +278,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 observableCollection.Add(i);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Reset(new[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         [Theory]
@@ -301,10 +301,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 observableCollection.Add(i);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Clear();
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         [Theory]
@@ -335,7 +335,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 observableCollection[i].Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
                 observableCollection.RaiseItemChanged(observableCollection[i], null);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -355,28 +355,28 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var items = observableCollection.OrderBy(i => i, this);
 
             observableCollection.Add(1);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Insert(1, 2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Remove(2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.RemoveAt(0);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Reset(new[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection[0] = 200;
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Move(1, 2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Clear();
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         [Theory]
@@ -395,28 +395,28 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var items = observableCollection.OrderBy(i => i, this);
 
             observableCollection.Add(Guid.NewGuid().GetHashCode());
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Insert(1, 2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Remove(2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.RemoveAt(0);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Reset(new[] {Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5});
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection[0] = 200;
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Move(1, 2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             observableCollection.Clear();
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         #endregion

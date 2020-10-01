@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Components
                     ++executed;
                     s.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
-                    expectedComponents.SequenceEqual(components).ShouldBeTrue();
+                    expectedComponents.ShouldEqual(components);
                 }, this);
             }
 
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Components
                     s.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
                     components.Length.ShouldEqual(expectedCount);
-                    componentCollection.Get<IComponent>().SequenceEqual(components).ShouldBeTrue();
+                    componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
             }
 
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Components
                     s.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
                     components.Length.ShouldEqual(expectedCount);
-                    componentCollection.Get<IComponent>().SequenceEqual(components).ShouldBeTrue();
+                    componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
             }
 

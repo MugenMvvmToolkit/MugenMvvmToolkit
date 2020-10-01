@@ -87,8 +87,8 @@ namespace MugenMvvm.UnitTests.Binding.Core
             }
 
             var result = bindingManager.GetBindings(target, path, DefaultMetadata);
-            list1.SequenceEqual(result.AsList()).ShouldBeTrue();
-            list1.SequenceEqual(list2).ShouldBeTrue();
+            list1.ShouldEqual(result.AsList());
+            list1.ShouldEqual(list2);
         }
 
         [Theory]

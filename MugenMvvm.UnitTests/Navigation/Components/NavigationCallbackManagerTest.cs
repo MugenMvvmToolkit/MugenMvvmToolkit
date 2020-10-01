@@ -60,15 +60,15 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     var callback = component.TryAddNavigationCallback(null!, NavigationCallbackType.Showing, result.NavigationId, result.NavigationType, result, DefaultMetadata)!;
                     callback.ShouldNotBeNull();
                     addedCallbacks.Add(callback);
-                    component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
-                    component.TryGetNavigationCallbacks(null!, result, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
+                    component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
+                    component.TryGetNavigationCallbacks(null!, result, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
                 }
                 else
                 {
                     var callback = component.TryAddNavigationCallback(null!, NavigationCallbackType.Showing, "t", NavigationType.Popup, target, DefaultMetadata)!;
                     callback.ShouldNotBeNull();
                     addedCallbacks.Add(callback);
-                    component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
+                    component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
                 }
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Parsing.Internal;
 using Should;
+using Should.Core.Assertions;
 
 namespace MugenMvvm.UnitTests
 {
@@ -53,6 +55,17 @@ namespace MugenMvvm.UnitTests
         public static void ShouldEqual(this IExpressionNode? x1, IExpressionNode? x2) => x1!.ShouldEqual(x2!, ExpressionNodeEqualityComparer.Instance);
 
         public static void ShouldEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second) => first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance).ShouldBeTrue();
+
+        public static void ShouldEqual<T>([AllowNull] this IEnumerable<T> enumerable, [AllowNull] IEnumerable<T> value) => enumerable.ShouldEqual(value, EqualityComparer<T>.Default);
+
+        public static void ShouldEqual<T>([AllowNull] this IEnumerable<T> enumerable, [AllowNull] IEnumerable<T> value, IEqualityComparer<T> comparer)
+        {
+            if (EqualityComparer<IEnumerable<T>?>.Default.Equals(enumerable, value))
+                return;
+            enumerable!.ShouldNotBeNull(nameof(enumerable));
+            value!.ShouldNotBeNull(nameof(value));
+            enumerable!.SequenceEqual(value!, comparer).ShouldBeTrue();
+        }
 
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
         {

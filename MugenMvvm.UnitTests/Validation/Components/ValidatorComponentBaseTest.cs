@@ -135,7 +135,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 component.HasErrors(validator, member, null).ShouldBeTrue();
             }
 
-            component.TryGetErrors(validator, string.Empty).AsList().SequenceEqual(members).ShouldBeTrue();
+            component.TryGetErrors(validator, string.Empty).AsList().ShouldEqual(members);
             var errors = component.TryGetErrors(validator);
             errors.Count.ShouldEqual(count);
             foreach (var member in members)
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             {
                 component.ClearErrors(validator, members[0]);
                 members.RemoveAt(0);
-                component.TryGetErrors(validator, string.Empty).AsList().SequenceEqual(members).ShouldBeTrue();
+                component.TryGetErrors(validator, string.Empty).AsList().ShouldEqual(members);
             }
 
             component.HasErrors(validator, null, null).ShouldBeFalse();
@@ -221,18 +221,18 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             component.HasErrors(validator, null, null).ShouldBeFalse();
             component.TryValidateAsync(validator, "test");
-            component.TryGetErrors(validator, errors.First().Key).AsList().SequenceEqual((IEnumerable<object>) errors.First().Value!).ShouldBeTrue();
+            component.TryGetErrors(validator, errors.First().Key).AsList().ShouldEqual((IEnumerable<object>) errors.First().Value!);
             var pair = component.TryGetErrors(validator).Single();
             pair.Key.ShouldEqual(errors.First().Key);
-            pair.Value.AsItemOrList().AsList().SequenceEqual((IEnumerable<object>) errors.First().Value!).ShouldBeTrue();
+            pair.Value.AsItemOrList().AsList().ShouldEqual((IEnumerable<object>) errors.First().Value!);
             component.HasErrors(validator, null, null).ShouldBeTrue();
             component.HasErrors(validator, errors.First().Key, null).ShouldBeTrue();
 
             component.TryValidateAsync(validator, string.Empty);
-            component.TryGetErrors(validator, emptyStringErrors.First().Key).AsList().SequenceEqual((IEnumerable<object>) emptyStringErrors.First().Value!).ShouldBeTrue();
+            component.TryGetErrors(validator, emptyStringErrors.First().Key).AsList().ShouldEqual((IEnumerable<object>) emptyStringErrors.First().Value!);
             pair = component.TryGetErrors(validator).Single();
             pair.Key.ShouldEqual(emptyStringErrors.First().Key);
-            pair.Value.AsItemOrList().AsList().SequenceEqual((IEnumerable<object>) emptyStringErrors.First().Value!).ShouldBeTrue();
+            pair.Value.AsItemOrList().AsList().ShouldEqual((IEnumerable<object>) emptyStringErrors.First().Value!);
             component.HasErrors(validator, null, null).ShouldBeTrue();
             component.HasErrors(validator, emptyStringErrors.First().Key, null).ShouldBeTrue();
         }

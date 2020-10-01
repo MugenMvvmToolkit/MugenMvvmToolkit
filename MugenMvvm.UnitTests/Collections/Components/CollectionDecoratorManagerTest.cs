@@ -29,12 +29,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 DecorateItems = items =>
                 {
-                    items.SequenceEqual(new[] {item1, item2}).ShouldBeTrue();
+                    items.ShouldEqual(new[] {item1, item2});
                     return decoratedItems;
                 }
             };
             collection.AddComponent(decorator);
-            collection.DecorateItems().SequenceEqual(decoratedItems).ShouldBeTrue();
+            collection.DecorateItems().ShouldEqual(decoratedItems);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 DecorateItems = items =>
                 {
-                    items.SequenceEqual(original).ShouldBeTrue();
+                    items.ShouldEqual(original);
                     return decoratedItems1;
                 }
             };
@@ -62,14 +62,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 DecorateItems = items =>
                 {
-                    items.SequenceEqual(decoratedItems1).ShouldBeTrue();
+                    items.ShouldEqual(decoratedItems1);
                     return items.Concat(decoratedItems2);
                 },
                 Priority = -1
             };
             collection.AddComponent(decorator2);
 
-            collection.DecorateItems().SequenceEqual(decoratedItems1.Concat(decoratedItems2)).ShouldBeTrue();
+            collection.DecorateItems().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
         }
 
         [Theory]
@@ -96,55 +96,55 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
             collection.Add(1);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             collection.Insert(1, 2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             collection.Remove(2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             collection.RemoveAt(0);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             collection.Reset(new[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             collection[0] = 200;
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             collection.Move(1, 2);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             collection.Clear();
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
 
             for (var i = 0; i < 100; i++)
             {
                 collection.Add(Guid.NewGuid().GetHashCode());
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
 
             for (var i = 0; i < 10; i++)
             {
                 collection.Move(i, i + 1);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
 
             for (var i = 0; i < 10; i++)
             {
                 collection[i] = i + Guid.NewGuid().GetHashCode();
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
 
             for (var i = 0; i < 100; i++)
             {
                 collection.RemoveAt(0);
-                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items);
             }
 
             collection.Clear();
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         [Theory]
@@ -178,67 +178,67 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
             collection.Add(new TestCollectionItem {Id = 1});
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             var item2 = new TestCollectionItem {Id = 2};
             collection.Insert(1, item2);
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             collection.Remove(item2);
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             collection.RemoveAt(0);
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             collection.Reset(new[]
             {
                 new TestCollectionItem {Id = 1}, new TestCollectionItem {Id = 2}, new TestCollectionItem {Id = 3},
                 new TestCollectionItem {Id = 4}, new TestCollectionItem {Id = 5}
             });
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             collection[0] = new TestCollectionItem {Id = 200};
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             collection.Move(1, 2);
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             collection.Clear();
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             for (var i = 0; i < 100; i++)
             {
                 collection.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
-                tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
             for (var i = 0; i < 10; i++)
             {
                 collection.Move(i, i + 1);
-                tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
             for (var i = 0; i < 10; i++)
             {
                 collection[i] = new TestCollectionItem {Id = i + Guid.NewGuid().GetHashCode()};
-                tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
             for (var i = 0; i < 100; i++)
             {
                 collection[i].Id = Guid.NewGuid().GetHashCode();
                 collection.RaiseItemChanged(collection[i], null);
-                tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
             for (var i = 0; i < 100; i++)
             {
                 collection.RemoveAt(0);
-                tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
             collection.Clear();
-            tracker.ChangedItems.SequenceEqual(items, TestCollectionItem.IdComparer).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
         }
 
         [Theory]
@@ -507,7 +507,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnReset = enumerable =>
                     {
-                        expectedItem.SequenceEqual(enumerable).ShouldBeTrue();
+                        expectedItem.ShouldEqual(enumerable);
                         ++reset;
                     }
                 };

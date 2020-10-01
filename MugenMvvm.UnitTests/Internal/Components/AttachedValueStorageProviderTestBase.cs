@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
                 return false;
             }).AsList().ShouldBeEmpty();
             hashSet.Count.ShouldEqual(0);
-            attachedValues.GetValues().AsList().SequenceEqual(values).ShouldBeTrue();
+            attachedValues.GetValues().AsList().ShouldEqual(values);
         }
 
         [Fact]

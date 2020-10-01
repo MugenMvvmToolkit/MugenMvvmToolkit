@@ -230,14 +230,14 @@ namespace MugenMvvm.UnitTests.Binding.Members.Components
                 {
                     ++getter;
                     i1.ShouldEqual(index1);
-                    i2.SequenceEqual(args).ShouldBeTrue();
+                    i2.ShouldEqual(args);
                     return index1;
                 },
                 SetIndexParams = (i1, i2, value) =>
                 {
                     ++setter;
                     i1.ShouldEqual(index1);
-                    i2.SequenceEqual(args).ShouldBeTrue();
+                    i2.ShouldEqual(args);
                     indexValue.ShouldEqual(value);
                 }
             };

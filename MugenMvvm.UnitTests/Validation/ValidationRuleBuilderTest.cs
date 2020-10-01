@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Validation
             rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(2);
             errors.Count.ShouldEqual(1);
-            ((IEnumerable<object>) errors[memberName]!).SequenceEqual(new[] {error, error}).ShouldBeTrue();
+            ((IEnumerable<object>) errors[memberName]!).ShouldEqual(new[] {error, error});
 
             error = null;
             errors.Clear();
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTests.Validation
             WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
-            ((IEnumerable<object>) errors[memberName]!).SequenceEqual(new[] {error, error}).ShouldBeTrue();
+            ((IEnumerable<object>) errors[memberName]!).ShouldEqual(new[] {error, error});
 
             errorTcs = new TaskCompletionSource<object?>();
             error = null;

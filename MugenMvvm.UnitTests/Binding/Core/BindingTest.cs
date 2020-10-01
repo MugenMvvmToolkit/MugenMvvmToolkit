@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Binding.Core
 
             componentCollection.Count.ShouldEqual(components.Count);
             componentCollection.Owner.ShouldEqual(binding);
-            binding.GetComponents().AsList().SequenceEqual(components).ShouldBeTrue();
+            binding.GetComponents().AsList().ShouldEqual(components);
         }
 
         [Theory]
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Binding.Core
                 componentCollection.Remove(component).ShouldBeTrue();
 
                 componentCollection.Count.ShouldEqual(components.Count);
-                binding.GetComponents().AsList().SequenceEqual(components).ShouldBeTrue();
+                binding.GetComponents().AsList().ShouldEqual(components);
             }
         }
 
@@ -1235,7 +1235,7 @@ namespace MugenMvvm.UnitTests.Binding.Core
             }
 
             binding.Initialize(components, DefaultMetadata);
-            binding.GetComponents().AsList().SequenceEqual(addedComponents).ShouldBeTrue();
+            binding.GetComponents().AsList().ShouldEqual(addedComponents);
             attachedCount.ShouldEqual(addedComponents.Count);
 
             ShouldThrow<InvalidOperationException>(() => binding.Initialize(components, DefaultMetadata));

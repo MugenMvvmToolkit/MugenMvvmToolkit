@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Collections
                 collection.Add(items[i]);
             }
 
-            collection.SequenceEqual(items).ShouldBeTrue();
+            collection.ShouldEqual(items);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Collections
                 collection.Add(items[i]);
             }
 
-            collection.OfType<TestCollectionItem>().SequenceEqual(items).ShouldBeTrue();
+            collection.OfType<TestCollectionItem>().ShouldEqual(items);
         }
 
         [Fact]
@@ -891,7 +891,7 @@ namespace MugenMvvm.UnitTests.Collections
                 {
                     CanReset = enumerable =>
                     {
-                        expectedItem.SequenceEqual(enumerable).ShouldBeTrue();
+                        expectedItem.ShouldEqual(enumerable);
                         ++condition;
                         return canReset;
                     },
@@ -904,7 +904,7 @@ namespace MugenMvvm.UnitTests.Collections
                     ThrowErrorNullDelegate = true,
                     OnResetting = enumerable =>
                     {
-                        expectedItem.SequenceEqual(enumerable).ShouldBeTrue();
+                        expectedItem.ShouldEqual(enumerable);
                         ++resetting;
                     }
                 };
@@ -915,7 +915,7 @@ namespace MugenMvvm.UnitTests.Collections
                     ThrowErrorNullDelegate = true,
                     OnReset = enumerable =>
                     {
-                        expectedItem.SequenceEqual(enumerable).ShouldBeTrue();
+                        expectedItem.ShouldEqual(enumerable);
                         ++reset;
                     }
                 };

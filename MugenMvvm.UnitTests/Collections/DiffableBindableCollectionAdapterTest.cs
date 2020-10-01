@@ -54,8 +54,8 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.Collection = observableCollection;
 
             observableCollection.Reset(resetItems);
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(items).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(items);
+            collectionAdapter.ShouldEqual(items);
         }
 
         [Theory]
@@ -90,8 +90,8 @@ namespace MugenMvvm.UnitTests.Collections
 
                 observableCollection.Reset(models);
 
-                tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-                collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+                tracker.ChangedItems.ShouldEqual(observableCollection);
+                collectionAdapter.ShouldEqual(observableCollection);
             }
         }
 

@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTests.Binding.Core
             var parameterExpression = new BindingParameterExpression(value, exp);
             var bindingParameterValue = parameterExpression.ToBindingParameter(target, source, DefaultMetadata);
             bindingParameterValue.Expression.ShouldEqual(exp);
-            ((object[]) bindingParameterValue.Parameter!).SequenceEqual(new[] {result1, result2}).ShouldBeTrue();
+            ((object[]) bindingParameterValue.Parameter!).ShouldEqual(new[] {result1, result2});
         }
 
         #endregion

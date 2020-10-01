@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 presenter.AddComponent(component);
             }
 
-            presenter.Show(request, cancellationToken, DefaultMetadata).AsList().SequenceEqual(results).ShouldBeTrue();
+            presenter.Show(request, cancellationToken, DefaultMetadata).AsList().ShouldEqual(results);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 presenter.AddComponent(component);
             }
 
-            presenter.TryClose(request, cancellationToken, DefaultMetadata).AsList().SequenceEqual(results).ShouldBeTrue();
+            presenter.TryClose(request, cancellationToken, DefaultMetadata).AsList().ShouldEqual(results);
             invokeCount.ShouldEqual(componentCount);
         }
 

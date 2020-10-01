@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Metadata
         protected void EnumeratorCountTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             metadataContext.Count.ShouldEqual(values.Count);
-            metadataContext.SequenceEqual(values).ShouldBeTrue();
+            metadataContext.ShouldEqual(values);
         }
 
         public void ContainsTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)

@@ -41,36 +41,36 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.Collection = observableCollection;
 
             observableCollection.Add(1);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Insert(1, 2);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Remove(2);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.RemoveAt(0);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Reset(new object[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection[0] = 200;
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Move(1, 2);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Clear();
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             collectionAdapter.Collection = null;
             collectionAdapter.ShouldBeEmpty();
@@ -92,37 +92,37 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.Collection = observableCollection;
 
             observableCollection.Add(1);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Insert(1, 2);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Remove(2);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.RemoveAt(0);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Clear();
             observableCollection.AddRange(new object[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection[0] = 200;
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Move(1, 2);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Clear();
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
 
             collectionAdapter.Collection = null;
             collectionAdapter.ShouldBeEmpty();
@@ -164,8 +164,8 @@ namespace MugenMvvm.UnitTests.Collections
 
             action.ShouldNotBeNull();
             action!();
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
         }
 
         [Fact]
@@ -203,8 +203,8 @@ namespace MugenMvvm.UnitTests.Collections
 
             action.ShouldNotBeNull();
             action!();
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
         }
 
         [Fact]
@@ -233,8 +233,8 @@ namespace MugenMvvm.UnitTests.Collections
                 collectionAdapter.Count.ShouldEqual(0);
             }
 
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
         }
 
         [Fact]
@@ -265,8 +265,8 @@ namespace MugenMvvm.UnitTests.Collections
                 collectionAdapter.Count.ShouldEqual(0);
             }
 
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
         }
 
         [Fact]
@@ -312,8 +312,8 @@ namespace MugenMvvm.UnitTests.Collections
             };
             action!();
             invokeCount.ShouldEqual(1);
-            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
-            collectionAdapter.SequenceEqual(observableCollection).ShouldBeTrue();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
         }
 
         protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new BindableCollectionAdapter(source);

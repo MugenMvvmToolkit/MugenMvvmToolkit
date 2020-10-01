@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Internal
             var list = ints.ToList();
             list.Sort(comparer);
 
-            list.SequenceEqual(ints.OrderBy(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0)).ShouldBeTrue();
+            list.ShouldEqual(ints.OrderBy(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0));
         }
 
         [Theory]
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Internal
             var list = ints.ToList();
             list.Sort(comparer);
 
-            list.SequenceEqual(ints.OrderByDescending(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0)).ShouldBeTrue();
+            list.ShouldEqual(ints.OrderByDescending(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0));
         }
 
         #endregion

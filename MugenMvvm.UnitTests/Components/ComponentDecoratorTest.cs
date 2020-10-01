@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Components
 
             components.Single().ShouldEqual(decorator1);
             decorator1.Components.Single().ShouldEqual(decorator2);
-            decorator2.Components.SequenceEqual(new[] {component1, component2});
+            decorator2.Components.ShouldEqual(new[] {component1, component2});
         }
 
         #endregion

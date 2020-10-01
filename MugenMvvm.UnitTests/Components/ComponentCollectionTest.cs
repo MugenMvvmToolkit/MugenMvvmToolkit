@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Components
 
             componentCollection.Count.ShouldEqual(components.Count);
             componentCollection.Owner.ShouldEqual(this);
-            componentCollection.Get<TestComponentCollectionProviderComponent>().SequenceEqual(components).ShouldBeTrue();
+            componentCollection.Get<TestComponentCollectionProviderComponent>().ShouldEqual(components);
         }
 
         [Theory]
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Components
                 componentCollection.Remove(component).ShouldBeTrue();
 
                 componentCollection.Count.ShouldEqual(components.Count);
-                componentCollection.Get<TestComponentCollectionProviderComponent>().SequenceEqual(components).ShouldBeTrue();
+                componentCollection.Get<TestComponentCollectionProviderComponent>().ShouldEqual(components);
             }
         }
 
@@ -345,43 +345,43 @@ namespace MugenMvvm.UnitTests.Components
             var component = new TestThreadDispatcherComponent();
             componentCollection.Add(component);
 
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component});
             decoratorComponent1.DecorateHandler = (c, list, context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
-                list.SequenceEqual(new[] {component}).ShouldBeTrue();
+                list.ShouldEqual(new[] {component});
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated1);
             };
             componentCollection.AddComponent(decoratorComponent1);
 
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
             executed.ShouldEqual(1);
 
             decoratorComponent2.DecorateHandler = (c, list, context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
-                list.SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
+                list.ShouldEqual(new[] {component, componentDecorated1});
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated2);
             };
             componentCollection.AddComponent(decoratorComponent2);
 
             executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1, componentDecorated2}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1, componentDecorated2});
             executed.ShouldEqual(2);
 
             componentCollection.RemoveComponent(decoratorComponent2);
             executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
             executed.ShouldEqual(1);
 
             executed = 0;
             componentCollection.RemoveComponent(decoratorComponent1);
             var components = componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata);
-            components.SequenceEqual(new[] {component}).ShouldBeTrue();
+            components.ShouldEqual(new[] {component});
             executed.ShouldEqual(0);
         }
 

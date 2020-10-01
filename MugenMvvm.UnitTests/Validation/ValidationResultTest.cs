@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Validation
             singleResult.Metadata.ShouldEqual(DefaultMetadata);
             singleResult.Errors.ShouldBeNull();
             singleResult.SingleMemberName.ShouldEqual(memberName);
-            singleResult.SingleMemberErrors.AsList().SequenceEqual(result).ShouldBeTrue();
+            singleResult.SingleMemberErrors.AsList().ShouldEqual(result);
             singleResult.HasResult.ShouldBeTrue();
         }
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Validation
             });
             v = ValidationResult.Get(readonlyDict);
             errors = v.GetErrors();
-            errors.SequenceEqual(readonlyDict).ShouldBeTrue();
+            errors.ShouldEqual(readonlyDict);
             errors.IsReadOnly.ShouldBeFalse();
         }
 
