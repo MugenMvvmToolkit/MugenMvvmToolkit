@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions.Binding
             var exp = GetExpression();
             var result = new IExpressionNode[] {exp};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
-            result.SequenceEqual(nodes).ShouldBeTrue();
+            result.ShouldEqual(nodes);
         }
 
         [Fact]

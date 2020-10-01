@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components
 
                         context.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{index}"));
                         context.SourceExpression.ShouldEqual(new TestBindingMemberExpressionNode(index + "_"));
-                        context.Parameters.AsList().SequenceEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get)).ShouldBeTrue();
+                        context.Parameters.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {
@@ -270,7 +270,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components
 
                         context.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{index}"));
                         context.SourceExpression.ShouldEqual(GetBindingSourceExpression(index, out _, out _));
-                        context.Parameters.AsList().SequenceEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get)).ShouldBeTrue();
+                        context.Parameters.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {

@@ -27,12 +27,12 @@ namespace MugenMvvm.UnitTests.Binding.Build
             request = builder.BindingParameter(param1, param1);
             request.Target.ShouldEqual(from);
             request.Source.ShouldEqual(to);
-            request.Parameters.AsList().SequenceEqual(new[] {new KeyValuePair<string?, object>(param1, param1)}).ShouldBeTrue();
+            request.Parameters.AsList().ShouldEqual(new[] {new KeyValuePair<string?, object>(param1, param1)});
 
             request = builder.BindingParameter(param2, param2);
             request.Target.ShouldEqual(from);
             request.Source.ShouldEqual(to);
-            request.Parameters.AsList().SequenceEqual(new[] {new KeyValuePair<string?, object>(param1, param1), new KeyValuePair<string?, object>(param2, param2)}).ShouldBeTrue();
+            request.Parameters.AsList().ShouldEqual(new[] {new KeyValuePair<string?, object>(param1, param1), new KeyValuePair<string?, object>(param2, param2)});
         }
 
         #endregion

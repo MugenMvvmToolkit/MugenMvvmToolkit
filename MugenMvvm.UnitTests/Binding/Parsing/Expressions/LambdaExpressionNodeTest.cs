@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
 
             var result = isPostOrder ? new IExpressionNode[] {target, arg1, arg2, exp} : new IExpressionNode[] {exp, target, arg1, arg2};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
-            result.SequenceEqual(nodes).ShouldBeTrue();
+            result.ShouldEqual(nodes);
         }
 
 
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
             var expressionNode = (LambdaExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Body.ShouldEqual(targetChanged);
-            expressionNode.Parameters.SequenceEqual(new[] {arg1Changed, arg2Changed}).ShouldBeTrue();
+            expressionNode.Parameters.ShouldEqual(new[] {arg1Changed, arg2Changed});
         }
 
         [Fact]

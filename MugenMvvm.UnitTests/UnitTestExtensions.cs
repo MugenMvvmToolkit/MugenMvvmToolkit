@@ -61,8 +61,6 @@ namespace MugenMvvm.UnitTests
             return false;
         }
 
-        public static bool SequenceEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second) => first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance);
-
         private static bool EqualsInternal(this IExpressionNode? x1, IExpressionNode? x2)
         {
             if (x1 == null || x2 == null)

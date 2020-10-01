@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
 
             var result = isPostOrder ? new IExpressionNode[] {left, right, exp} : new IExpressionNode[] {exp, left, right};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
-            result.SequenceEqual(nodes).ShouldBeTrue();
+            result.ShouldEqual(nodes);
         }
 
         [Theory]

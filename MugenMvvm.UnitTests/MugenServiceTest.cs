@@ -5,7 +5,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests
 {
-    public class MugenServiceTest : UnitTestBase
+    public class MugenServiceTest : UnitTestBase//todo sequencyequals
     {
         #region Methods
 

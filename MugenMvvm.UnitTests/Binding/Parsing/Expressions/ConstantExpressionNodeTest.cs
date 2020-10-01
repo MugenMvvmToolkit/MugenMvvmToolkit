@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
             var exp = new ConstantExpressionNode("-");
             var result = new IExpressionNode[] {exp};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
-            result.SequenceEqual(nodes).ShouldBeTrue();
+            result.ShouldEqual(nodes);
         }
 
         [Fact]

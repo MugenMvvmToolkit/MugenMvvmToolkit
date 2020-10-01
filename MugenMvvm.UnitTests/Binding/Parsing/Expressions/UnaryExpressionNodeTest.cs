@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions
 
             var result = isPostOrder ? new IExpressionNode[] {target, exp} : new IExpressionNode[] {exp, target};
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
-            result.SequenceEqual(nodes).ShouldBeTrue();
+            result.ShouldEqual(nodes);
         }
 
 
