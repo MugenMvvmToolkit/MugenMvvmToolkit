@@ -1,16 +1,14 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <!--https://github.com/novotnyllc/MSBuildSdkExtras/issues/235-->
-    <!-- <TargetFrameworks>xamarin.ios10;monoandroid10.0</TargetFrameworks> -->
-    <!-- <TargetFrameworks>xamarin.ios10</TargetFrameworks> -->
-    <TargetFrameworks>monoandroid10.0</TargetFrameworks>
+    <TargetFrameworks>xamarin.ios10;monoandroid10.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
     <RootNamespace>MugenMvvm</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
+    <PackageId>MugenMvvm.Platforms</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
