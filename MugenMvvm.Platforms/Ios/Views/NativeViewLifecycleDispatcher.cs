@@ -28,12 +28,12 @@ namespace MugenMvvm.Ios.Views
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if ((lifecycleState == IosViewLifecycleState.WillAppearing || lifecycleState == IosViewLifecycleState.DidMovedToParentViewController || lifecycleState == IosViewLifecycleState.RemovedFromParentViewController)
-                && MugenExtensions.GetUnderlyingView(view) is UIViewController controller)
+                && MugenExtensions.Unwrap(view) is UIViewController controller)
             {
                 controller.ViewIfLoaded?.RaiseParentChanged();
                 BindableMembers.For<object>().ParentNative().TryRaise(controller);
             }
-            else if (lifecycleState == ViewLifecycleState.Cleared && MugenExtensions.GetUnderlyingView(view) is UIViewController c)
+            else if (lifecycleState == ViewLifecycleState.Cleared && MugenExtensions.Unwrap(view) is UIViewController c)
                 c.ViewIfLoaded?.ClearBindings(true, DisposeView);
         }
 

@@ -27,15 +27,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Internal
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
-        public IComponentCollection Components
-        {
-            get
-            {
-                if (_components == null)
-                    MugenService.ComponentCollectionManager.LazyInitialize(ref _components, this);
-                return _components;
-            }
-        }
+        public IComponentCollection Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
 
         #endregion
     }

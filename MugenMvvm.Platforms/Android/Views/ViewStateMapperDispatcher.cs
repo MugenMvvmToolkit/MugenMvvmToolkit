@@ -32,7 +32,7 @@ namespace MugenMvvm.Android.Views
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared, state, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Finished || lifecycleState == AndroidViewLifecycleState.Dismissed ||
                      lifecycleState == AndroidViewLifecycleState.DismissedAllowingStateLoss || lifecycleState == AndroidViewLifecycleState.Canceled ||
-                     lifecycleState == AndroidViewLifecycleState.Destroyed && MugenExtensions.GetUnderlyingView(view) is IActivityView activity && activity.IsFinishing)
+                     lifecycleState == AndroidViewLifecycleState.Destroyed && MugenExtensions.Unwrap(view) is IActivityView activity && activity.IsFinishing)
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closed, state, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Finishing || lifecycleState == AndroidViewLifecycleState.FinishingAfterTransition ||
                      lifecycleState == AndroidViewLifecycleState.Dismissing || lifecycleState == AndroidViewLifecycleState.DismissingAllowingStateLoss)

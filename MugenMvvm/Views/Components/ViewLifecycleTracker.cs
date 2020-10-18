@@ -51,7 +51,7 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        protected override object GetTarget(object target) => MugenExtensions.GetUnderlyingView(target);
+        protected override object GetTarget(object target) => MugenExtensions.Unwrap(target);
 
         #endregion
     }

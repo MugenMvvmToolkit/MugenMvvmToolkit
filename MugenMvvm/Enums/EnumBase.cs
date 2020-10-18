@@ -10,7 +10,7 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
-    public abstract class EnumBase<TEnumeration, TValue> : IHasId<TValue>, IComparable<TEnumeration?>, IEquatable<TEnumeration?>
+    public abstract class EnumBase<TEnumeration, TValue> : IEnum, IHasId<TValue>, IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>
     {
@@ -48,6 +48,8 @@ namespace MugenMvvm.Enums
         #region Properties
 
         TValue IHasId<TValue>.Id => Value;
+
+        object IEnum.Value => Value;
 
         [DataMember(Name = "_d")]
         public string Name

@@ -27,15 +27,7 @@ namespace MugenMvvm.Components
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
-        public IComponentCollection Components
-        {
-            get
-            {
-                if (_components == null)
-                    this.LazyInitialize(ref _components, this);
-                return _components;
-            }
-        }
+        public IComponentCollection Components => _components ?? this.EnsureInitialized(ref _components, this);
 
         #endregion
 

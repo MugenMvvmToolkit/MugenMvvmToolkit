@@ -30,6 +30,7 @@ namespace MugenMvvm.Views.Components
             }
 
             var hasView = false;
+            view = MugenExtensions.Unwrap(view);
             foreach (var v in Owner.GetViews(view, metadata).Iterator())
             {
                 hasView = true;

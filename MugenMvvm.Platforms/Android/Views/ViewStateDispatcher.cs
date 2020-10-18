@@ -59,7 +59,7 @@ namespace MugenMvvm.Android.Views
                 PreserveState(v, bundle, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(view, state, true, out var b))
             {
-                view = MugenExtensions.GetUnderlyingView(view);
+                view = MugenExtensions.Unwrap(view);
                 var request = TryRestoreState(view, b, metadata);
                 if (request == null)
                 {
@@ -155,7 +155,7 @@ namespace MugenMvvm.Android.Views
                     continue;
                 }
 
-                if (extrasAsFallback && MugenExtensions.GetUnderlyingView(view) is IActivityView activityView)
+                if (extrasAsFallback && MugenExtensions.Unwrap(view) is IActivityView activityView)
                 {
                     bundle = ActivityExtensions.GetExtras(activityView);
                     return bundle != null;

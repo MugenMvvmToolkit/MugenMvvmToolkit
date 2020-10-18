@@ -169,7 +169,7 @@ namespace MugenMvvm.Extensions
             return wrapper;
         }
 
-        public static T? TryGetUnderlyingItem<T>(object target) where T : class
+        public static T? TryUnwrap<T>(object target) where T : class
         {
             while (true)
             {
@@ -183,12 +183,14 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        public static object GetUnderlyingItem(object target)
+        public static object Unwrap(object target) => Unwrap<object>(target)!;
+
+        public static T? Unwrap<T>(object? target) where T : class
         {
             while (true)
             {
-                if (!(target is IWrapper<object> t))
-                    return target;
+                if (!(target is IWrapper<T> t))
+                    return target as T;
                 target = t.Target;
             }
         }
@@ -215,23 +217,14 @@ namespace MugenMvvm.Extensions
             return sb.ToString();
         }
 
+        [return: NotNullIfNotNull("value")]
+        public static T EnsureInitialized<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
+            => Volatile.Read(ref item) ?? Interlocked.CompareExchange(ref item, value, null) ?? item;
+
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item) => MugenService.WeakReferenceManager.GetWeakReference(item);
-
-        internal static bool LazyInitialize<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class => Interlocked.CompareExchange(ref item, value, null) == null;
-
-        internal static bool LazyInitializeDisposable<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class, IDisposable
-        {
-            if (!LazyInitialize(ref item, value))
-            {
-                value.Dispose();
-                return false;
-            }
-
-            return true;
-        }
 
         internal static bool WhenAny(this bool[] values)
         {

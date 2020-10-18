@@ -83,7 +83,7 @@ namespace MugenMvvm.Android.Views
             {
                 if (lifecycleState != AndroidViewLifecycleState.Created)
                     return;
-                view = MugenExtensions.GetUnderlyingView(view);
+                view = MugenExtensions.Unwrap(view);
                 if (!_mapping.ViewType.IsInstanceOfType(view))
                     return;
 

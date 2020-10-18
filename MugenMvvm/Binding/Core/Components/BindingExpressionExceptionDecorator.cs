@@ -73,7 +73,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             #region Properties
 
-            IBindingBuilder IWrapper<IBindingBuilder>.Target => _bindingExpression;
+            IBindingBuilder IHasTarget<IBindingBuilder>.Target => _bindingExpression;
 
             #endregion
 

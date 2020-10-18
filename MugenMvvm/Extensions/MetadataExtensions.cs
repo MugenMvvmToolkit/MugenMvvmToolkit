@@ -141,13 +141,13 @@ namespace MugenMvvm.Extensions
             return false;
         }
 
-        internal static IMetadataContext LazyInitialize(ref IReadOnlyMetadataContext? metadata)
+        internal static IMetadataContext EnsureInitialized(ref IReadOnlyMetadataContext? metadata)
         {
             if (metadata is IMetadataContext m)
                 return m;
 
             var context = metadata;
-            Interlocked.CompareExchange(ref metadata, new MetadataContext(metadata), context);
+            Interlocked.CompareExchange(ref metadata, new MetadataContext(context), context);
             return (IMetadataContext) metadata!;
         }
 

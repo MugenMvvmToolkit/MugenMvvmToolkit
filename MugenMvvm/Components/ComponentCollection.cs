@@ -40,15 +40,7 @@ namespace MugenMvvm.Components
 
         bool IComponentOwner.HasComponents => _components != null && _components.Count != 0;
 
-        IComponentCollection IComponentOwner.Components
-        {
-            get
-            {
-                if (_components == null)
-                    MugenService.ComponentCollectionManager.LazyInitialize(ref _components, this);
-                return _components;
-            }
-        }
+        IComponentCollection IComponentOwner.Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
 
         #endregion
 

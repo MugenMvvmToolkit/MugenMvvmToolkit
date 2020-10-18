@@ -36,15 +36,7 @@ namespace MugenMvvm.App
 
         public IMetadataContext Metadata { get; }
 
-        public IComponentCollection Components
-        {
-            get
-            {
-                if (_components == null)
-                    MugenService.ComponentCollectionManager.LazyInitialize(ref _components, this);
-                return _components;
-            }
-        }
+        public IComponentCollection Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
 
         public IPlatformInfo PlatformInfo
         {

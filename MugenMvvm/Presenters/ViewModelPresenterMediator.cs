@@ -56,7 +56,7 @@ namespace MugenMvvm.Presenters
                     Equals(v.ViewModel, ViewModel) && v.Mapping.Id == Mapping.Id && !viewManager.IsInState(v.Target, ViewLifecycleState.Closed, metadata))
                     UpdateView(v, ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
 
-                if (View != null && Equals(View.Target, MugenExtensions.GetUnderlyingView(view)))
+                if (View != null && Equals(View.Target, MugenExtensions.Unwrap(view)))
                     OnViewLifecycleChanged(lifecycleState, state, metadata);
             }
             catch (Exception e)

@@ -54,8 +54,6 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsUndefined(this IViewMapping? mapping) => ReferenceEquals(mapping, ViewMapping.Undefined);
 
-        public static object GetUnderlyingView(object view) => view is IView v ? v.Target : view;
-
         #endregion
     }
 }

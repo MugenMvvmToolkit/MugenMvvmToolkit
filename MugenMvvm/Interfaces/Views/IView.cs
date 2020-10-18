@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Views
 {
-    public interface IView : IComponentOwner<IView>, IMetadataOwner<IMetadataContext>, IHasTarget<object>
+    public interface IView : IComponentOwner<IView>, IMetadataOwner<IMetadataContext>, IWrapper<object>
     {
         IViewMapping Mapping { get; }
 

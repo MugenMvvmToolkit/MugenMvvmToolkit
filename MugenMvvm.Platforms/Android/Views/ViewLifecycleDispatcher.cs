@@ -79,7 +79,7 @@ namespace MugenMvvm.Android.Views
             if (lifecycleState == AndroidViewLifecycleState.Destroyed && view is IView v)
                 viewManager.TryCleanupAsync(v, state, default, metadata);
 
-            view = MugenExtensions.GetUnderlyingView(view);
+            view = MugenExtensions.Unwrap(view);
             if (lifecycleState == AndroidViewLifecycleState.Starting && view is IActivityView && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activating, state, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Started && view is IActivityView && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
