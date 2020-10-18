@@ -7,7 +7,7 @@ using static MugenMvvm.Constants.MessageConstant;
 
 namespace MugenMvvm
 {
-    internal static class ExceptionManager//todo unwrap
+    internal static class ExceptionManager
     {
         #region Methods
 
