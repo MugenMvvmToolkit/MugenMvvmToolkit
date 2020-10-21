@@ -20,6 +20,16 @@ namespace MugenMvvm.Extensions
 
         #region Methods
 
+        public static IMetadataContext EnsureInitialized(ref IReadOnlyMetadataContext? metadata)
+        {
+            if (metadata is IMetadataContext m)
+                return m;
+
+            var context = metadata;
+            Interlocked.CompareExchange(ref metadata, new MetadataContext(context), context);
+            return (IMetadataContext)metadata!;
+        }
+
         public static IReadOnlyMetadataContext ToContext<T>(this IMetadataContextKey<T> key, T value) => new SingleValueMetadataContext(key.ToValue(value));
 
         public static KeyValuePair<IMetadataContextKey, object?> ToValue<T>(this IMetadataContextKey<T> key, T value)
@@ -139,16 +149,6 @@ namespace MugenMvvm.Extensions
 
             value = contextKey.GetDefaultValue(metadataContext, defaultValue);
             return false;
-        }
-
-        internal static IMetadataContext EnsureInitialized(ref IReadOnlyMetadataContext? metadata)
-        {
-            if (metadata is IMetadataContext m)
-                return m;
-
-            var context = metadata;
-            Interlocked.CompareExchange(ref metadata, new MetadataContext(context), context);
-            return (IMetadataContext) metadata!;
         }
 
         #endregion
