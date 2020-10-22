@@ -1,12 +1,10 @@
 ﻿using System;
-using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
 using MugenMvvm.Threading;
-using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Messaging.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using Should;

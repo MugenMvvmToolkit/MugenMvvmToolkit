@@ -1,5 +1,4 @@
 ﻿using MugenMvvm.Binding.Members;
-using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Binding.Members

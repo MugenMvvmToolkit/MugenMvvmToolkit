@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Commands;
-using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -10,7 +9,6 @@ using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Commands.Internal;
 using MugenMvvm.UnitTests.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;

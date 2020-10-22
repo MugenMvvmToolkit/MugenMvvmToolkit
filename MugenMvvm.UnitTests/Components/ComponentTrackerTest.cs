@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using MugenMvvm.Components;
+﻿using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Components.Internal;

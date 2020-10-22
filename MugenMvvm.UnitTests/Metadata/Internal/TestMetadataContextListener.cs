@@ -2,7 +2,6 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Interfaces.Models;
-using Should;
 
 namespace MugenMvvm.UnitTests.Metadata.Internal
 {

@@ -1,10 +1,8 @@
 ﻿using System;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Binding.Core.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Internal;
-using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Internal

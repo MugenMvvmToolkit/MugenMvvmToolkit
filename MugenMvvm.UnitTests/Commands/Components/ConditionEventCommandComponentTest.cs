@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
-using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;

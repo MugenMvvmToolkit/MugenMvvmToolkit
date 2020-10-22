@@ -8,7 +8,6 @@ using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Binding.Observation.Observers;
-using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -17,7 +16,6 @@ using MugenMvvm.UnitTests.Binding.Compiling.Internal;
 using MugenMvvm.UnitTests.Binding.Core.Internal;
 using MugenMvvm.UnitTests.Binding.Members.Internal;
 using MugenMvvm.UnitTests.Binding.Observation.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 

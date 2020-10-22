@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using MugenMvvm.Collections;
-using MugenMvvm.Components;
 using MugenMvvm.UnitTests.Collections.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
-using Should;
 using Xunit;
 using Xunit.Abstractions;
 

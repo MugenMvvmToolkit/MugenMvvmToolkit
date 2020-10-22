@@ -6,7 +6,6 @@ using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Collections.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
-using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Collections.Components

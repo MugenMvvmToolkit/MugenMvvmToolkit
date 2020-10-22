@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using MugenMvvm.Components;
 using MugenMvvm.Enums;
-using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using Should;

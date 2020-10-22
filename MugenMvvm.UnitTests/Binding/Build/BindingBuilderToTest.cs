@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Binding.Build;
 using MugenMvvm.Binding.Parsing;
 using Should;

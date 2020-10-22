@@ -11,7 +11,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Parsing.Internal;
 using Should;
-using Should.Core.Assertions;
 
 namespace MugenMvvm.UnitTests
 {

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using MugenMvvm.Binding.Observation.Paths;
-using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Binding.Observation.Paths
