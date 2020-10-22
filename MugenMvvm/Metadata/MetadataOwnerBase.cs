@@ -24,7 +24,7 @@ namespace MugenMvvm.Metadata
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => MugenExtensions.EnsureInitialized(ref _metadata);
+        public IMetadataContext Metadata => _metadata as IMetadataContext ?? MugenExtensions.EnsureInitialized(ref _metadata);
 
         protected IMetadataContext? MetadataRaw => _metadata as IMetadataContext;
 

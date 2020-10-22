@@ -16,6 +16,15 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static ActionToken AddComponentWithToken<T>(this T componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner
+        {
+            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            Should.NotBeNull(component, nameof(component));
+            if (componentOwner.Components.Add(component, metadata))
+                return new ActionToken((owner, comp) => ((T) owner!).Components.Remove(comp!), componentOwner, component);
+            return default;
+        }
+
         public static IComponentCollection GetComponentCollection(this IComponentCollectionManager provider, object owner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(provider, nameof(provider));

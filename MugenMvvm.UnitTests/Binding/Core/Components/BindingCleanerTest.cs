@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Binding.Compiling.Internal;
@@ -83,7 +84,8 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components
                     m.ShouldBeNull();
                 }
             };
-            using var subscribe = TestComponentSubscriber.Subscribe(testLifecycleListener, new BindingCleaner());
+            using var t1 = MugenService.AddComponent(testLifecycleListener);
+            using var t2 = MugenService.AddComponent(new BindingCleaner());
 
             binding.Dispose();
             disposeComponentCount.ShouldEqual(count);
@@ -155,7 +157,8 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components
                     m.ShouldBeNull();
                 }
             };
-            using var subscribe = TestComponentSubscriber.Subscribe(testLifecycleListener, new BindingCleaner());
+            using var t1 = MugenService.AddComponent(testLifecycleListener);
+            using var t2 = MugenService.AddComponent(new BindingCleaner());
 
             binding.Dispose();
             binding.State.ShouldEqual(BindingState.Disposed);

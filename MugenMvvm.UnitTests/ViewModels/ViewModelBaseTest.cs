@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
@@ -48,7 +49,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             var disposingState = 0;
             var disposedState = 0;
             IViewModelBase? viewModel = null;
-            TestComponentSubscriber.Subscribe(new TestViewModelLifecycleDispatcherComponent
+            using var t = MugenService.AddComponent(new TestViewModelLifecycleDispatcherComponent
             {
                 OnLifecycleChanged = (vm, state, arg3, arg4) =>
                 {
@@ -125,7 +126,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             };
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyToken.ShouldBeNull();
-            TestComponentSubscriber.Subscribe(new TestViewModelServiceResolverComponent
+            using var t = MugenService.AddComponent(new TestViewModelServiceResolverComponent
             {
                 TryGetService = (vm, o, arg3) =>
                 {

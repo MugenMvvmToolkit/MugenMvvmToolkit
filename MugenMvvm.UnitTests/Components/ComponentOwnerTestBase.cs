@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Components
                     return collection;
                 }
             };
-            using var subscriber = globalValue ? TestComponentSubscriber.Subscribe(testComponentCollectionProviderComponent) : default;
+            using var t = globalValue ? MugenService.AddComponent(testComponentCollectionProviderComponent) : default;
             if (globalValue)
                 componentOwner = GetComponentOwner();
             else

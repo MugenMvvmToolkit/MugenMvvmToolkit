@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
@@ -67,7 +68,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var executionMode = ThreadExecutionMode.Parse(mode);
             Action? invoke = null;
             var threadDispatcherComponent = new TestThreadDispatcherComponent();
-            using var subscriber = TestComponentSubscriber.Subscribe(threadDispatcherComponent);
+            using var t = MugenService.AddComponent(threadDispatcherComponent);
             threadDispatcherComponent.Execute = (action, mode, arg3, _) =>
             {
                 mode.ShouldEqual(executionMode);

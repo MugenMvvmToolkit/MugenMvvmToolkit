@@ -1,10 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
@@ -14,6 +16,7 @@ using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm
 {
@@ -68,6 +71,8 @@ namespace MugenMvvm
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TService? Optional<TService>() where TService : class => Configuration<TService>.Optional;
+
+        public static ActionToken AddComponent<T>(IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner => Instance<T>().AddComponentWithToken(component, metadata);
 
         #endregion
 

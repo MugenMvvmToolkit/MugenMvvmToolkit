@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.App;
 using MugenMvvm.App.Components;
+using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -95,7 +96,7 @@ namespace MugenMvvm.UnitTests.App.Components
             app.AddComponent(dispatcher);
             var state = ApplicationLifecycleState.Initialized;
             var invokeCount = 0;
-            using var c = TestComponentSubscriber.Subscribe(new TestMessagePublisherComponent(null)
+            using var t = MugenService.AddComponent(new TestMessagePublisherComponent(null)
             {
                 TryPublish = context =>
                 {

@@ -8,6 +8,7 @@ using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -82,7 +83,7 @@ namespace MugenMvvm.UnitTests.Binding.Core
                     m.ShouldBeNull();
                 }
             };
-            using var subscribe = TestComponentSubscriber.Subscribe(testLifecycleListener);
+            using var t = MugenService.AddComponent(testLifecycleListener);
 
             binding.Dispose();
             binding.State.ShouldEqual(BindingState.Disposed);

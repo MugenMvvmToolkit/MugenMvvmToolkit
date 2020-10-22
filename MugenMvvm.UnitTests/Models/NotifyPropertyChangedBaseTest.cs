@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
@@ -143,7 +144,7 @@ namespace MugenMvvm.UnitTests.Models
         {
             Action<object?>? invokeAction = null;
             object? state = null;
-            TestComponentSubscriber.Subscribe(new TestThreadDispatcherComponent
+            using var t = MugenService.AddComponent(new TestThreadDispatcherComponent
             {
                 CanExecuteInline = (mode, context) => false,
                 Execute = (action, mode, arg3, arg4) =>

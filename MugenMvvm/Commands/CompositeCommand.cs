@@ -41,7 +41,7 @@ namespace MugenMvvm.Commands
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => MugenExtensions.EnsureInitialized(ref _metadata);
+        public IMetadataContext Metadata => _metadata as IMetadataContext ?? MugenExtensions.EnsureInitialized(ref _metadata);
 
         public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
 

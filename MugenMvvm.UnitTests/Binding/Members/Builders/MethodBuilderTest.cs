@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Members.Internal;
 using MugenMvvm.UnitTests.Binding.Observation.Internal;
@@ -165,7 +166,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Builders
             if (!observable)
                 b.NonObservable();
             var memberInfo = b.Build();
-            using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3) =>
                 {

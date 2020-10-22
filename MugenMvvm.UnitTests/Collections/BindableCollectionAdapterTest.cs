@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
+using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -31,7 +32,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldTrackChanges1()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
@@ -82,7 +83,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldTrackChanges2()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new ObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
@@ -143,7 +144,7 @@ namespace MugenMvvm.UnitTests.Collections
                     return true;
                 }
             };
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
@@ -181,7 +182,7 @@ namespace MugenMvvm.UnitTests.Collections
                     return true;
                 }
             };
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new ObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
@@ -211,7 +212,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldTrackChangesBatchUpdate1()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
@@ -241,7 +242,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldTrackChangesBatchUpdate2()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
@@ -282,7 +283,7 @@ namespace MugenMvvm.UnitTests.Collections
                     return true;
                 }
             };
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
             var adapterCollection = new SuspendableObservableCollection<object?>();

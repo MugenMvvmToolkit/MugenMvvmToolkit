@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Binding.Core.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
@@ -33,7 +34,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
 
             var component = (DelayBindingComponent.Source) DelayBindingComponent.GetSource(delay);
             var sourceUpdateCount = 0;
-            using var subscriber = TestComponentSubscriber.Subscribe(testDispatcher);
+            using var t = MugenService.AddComponent(testDispatcher);
             var testBinding = new TestBinding
             {
                 UpdateTarget = () => throw new NotSupportedException(),
@@ -94,7 +95,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
 
             var component = (DelayBindingComponent.Target) DelayBindingComponent.GetTarget(delay);
             var sourceUpdateCount = 0;
-            using var subscriber = TestComponentSubscriber.Subscribe(testDispatcher);
+            using var t = MugenService.AddComponent(testDispatcher);
             var testBinding = new TestBinding
             {
                 UpdateSource = () => throw new NotSupportedException(),

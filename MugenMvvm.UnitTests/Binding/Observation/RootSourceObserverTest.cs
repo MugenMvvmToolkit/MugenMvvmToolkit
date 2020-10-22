@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Members.Internal;
 using MugenMvvm.UnitTests.Binding.Observation.Internal;
@@ -23,7 +24,7 @@ namespace MugenMvvm.UnitTests.Binding.Observation
                 GetValue = (o, context) => null,
                 TryObserve = (o, listener, arg3) => default
             };
-            using var m = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            using var t = MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
@@ -69,7 +70,7 @@ namespace MugenMvvm.UnitTests.Binding.Observation
                     return default;
                 }
             };
-            using var m = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            using var t = MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {

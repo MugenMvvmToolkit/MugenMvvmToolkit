@@ -9,6 +9,7 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Core.Internal;
@@ -137,7 +138,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
             var components = new List<IDisposable>();
             for (var i = 0; i < count; i++)
             {
-                var subscribe = TestComponentSubscriber.Subscribe(new TestBindingEventHandlerComponent(MugenBindingService.BindingManager)
+                var subscribe = MugenService.AddComponent(new TestBindingEventHandlerComponent(MugenBindingService.BindingManager)
                 {
                     OnBeginEvent = (s, msg, metadata) =>
                     {
@@ -280,7 +281,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
                     enabledValue = (bool) o1!;
                 }
             };
-            using var _ = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            using var _ = MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -357,7 +358,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
                 SetValue = (o, o1, arg3) => { }
             };
 
-            using var _ = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            using var _ = MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => enabledMember
             });

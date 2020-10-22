@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Members.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
@@ -55,7 +56,7 @@ namespace MugenMvvm.UnitTests.Binding.Observation.Observers
                     return accessorInfo;
                 }
             };
-            using var _ = TestComponentSubscriber.Subscribe(component);
+            using var _ = MugenService.AddComponent(component);
 
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull());

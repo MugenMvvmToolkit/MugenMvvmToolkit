@@ -4,6 +4,7 @@ using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Observation.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
@@ -41,7 +42,7 @@ namespace MugenMvvm.UnitTests.Binding.Members
             }, this);
 
             var observerRequestCount = 0;
-            using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {

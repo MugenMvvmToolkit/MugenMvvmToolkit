@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Binding.Members.Internal;
 using MugenMvvm.UnitTests.Binding.Observation.Internal;
@@ -379,7 +380,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Builders
             if (!observable)
                 b.NonObservable();
             var memberInfo = b.Build();
-            using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3) =>
                 {
@@ -409,7 +410,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Builders
         {
             var invokeCount = 0;
             var memberInfo = new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler)).NonObservable().Build();
-            using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3) =>
                 {
@@ -568,7 +569,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Builders
 
             var wrappedMember = wrappedBuilder.Build();
             var invokeCount = 0;
-            TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            using var t = MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
                 {
@@ -643,7 +644,7 @@ namespace MugenMvvm.UnitTests.Binding.Members.Builders
                     return default;
                 }
             };
-            using var m = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            using var m = MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
                 {

@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
@@ -33,7 +34,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public void ShouldClearDataContext()
         {
             var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
-            TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            using var t = MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(accessorMemberInfo)
             });

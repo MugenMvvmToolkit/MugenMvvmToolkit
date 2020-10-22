@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Threading;
@@ -100,7 +101,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                     return true;
                 }
             };
-            using var subscriber = TestComponentSubscriber.Subscribe(threadDispatcher, testThreadDispatcherComponent);
+            using var t = threadDispatcher.AddComponentWithToken(testThreadDispatcherComponent);
             var messenger = new Messenger();
             var subscriberComponent = new TestMessengerSubscriberComponent(messenger);
             messenger.AddComponent(component);

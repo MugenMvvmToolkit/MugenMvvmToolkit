@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using MugenMvvm.Collections;
+using MugenMvvm.Components;
 using MugenMvvm.UnitTests.Collections.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
@@ -35,7 +36,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldUseDiffableComparer()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var comparer = new TestDiffableEqualityComparer
             {
@@ -64,7 +65,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldUseCorrectIndexes(int iterationCount, bool detectMoves)
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
