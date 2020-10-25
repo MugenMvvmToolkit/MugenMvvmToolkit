@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     return null;
                 }
             });
-            navigationDispatcher.AddComponent(new TestNavigationListener()
+            navigationDispatcher.AddComponent(new TestNavigationListener
             {
                 OnNavigating = context =>
                 {

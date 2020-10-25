@@ -110,7 +110,7 @@ namespace MugenMvvm.UnitTests.Metadata
         public void FromBuilderTest1()
         {
             object? callbackKey = null;
-            int invokeCount = 0;
+            var invokeCount = 0;
             var metaKey1 = "k1";
             var metaKey2 = "k2";
             var metaKey3 = metaKey1;

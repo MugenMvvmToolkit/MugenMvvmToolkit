@@ -1,14 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
 {
     //https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/index
-#pragma warning disable 660,661
     public class BinaryTokenType : EnumBase<BinaryTokenType, string>
-#pragma warning restore 660,661
     {
         #region Fields
 
@@ -64,25 +61,6 @@ namespace MugenMvvm.Binding.Enums
 
         [DataMember(Name = "A")]
         public string[]? Aliases { get; set; }
-
-        #endregion
-
-        #region Methods
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(BinaryTokenType? left, BinaryTokenType? right)
-        {
-            if (ReferenceEquals(left, right))
-                return true;
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-                return false;
-            return left.Value == right.Value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(BinaryTokenType? left, BinaryTokenType? right) => !(left == right);
-
-        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }

@@ -3,7 +3,7 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Android.Enums
 {
-    public abstract class AndroidViewLifecycleState : ViewLifecycleState
+    public sealed class AndroidViewLifecycleState : ViewLifecycleState
     {
         #region Fields
 

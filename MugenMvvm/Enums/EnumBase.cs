@@ -18,6 +18,7 @@ namespace MugenMvvm.Enums
 
         private string? _name;
         private static Dictionary<TValue, TEnumeration> _enumerations = new Dictionary<TValue, TEnumeration>();
+        private static Func<TValue, TValue, bool>? _equals;
 
         #endregion
 
@@ -54,7 +55,7 @@ namespace MugenMvvm.Enums
         [DataMember(Name = "_d")]
         public string Name
         {
-            get => _name ??= Value?.ToString() ?? string.Empty;
+            get => _name ??= Value?.ToString() ?? "";
             internal set => _name = value;
         }
 
@@ -75,41 +76,39 @@ namespace MugenMvvm.Enums
 
         #region Implementation of interfaces
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(TEnumeration? other)
         {
+            if (ReferenceEquals(other, this))
+                return 0;
             if (ReferenceEquals(other, null))
                 return 1;
-            return Value.CompareTo(other.Value);
+            return Comparer<TValue>.Default.Compare(Value, other.Value);
         }
 
-        public bool Equals(TEnumeration? other) => !ReferenceEquals(other, null) && Equals(other.Value);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(TEnumeration? other) => ReferenceEquals(this, other) || !ReferenceEquals(other, null) && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
         #endregion
 
         #region Methods
 
-        protected abstract bool Equals(TValue value);
-
-        public sealed override bool Equals(object? obj) => Equals(obj as TEnumeration);
-
-        public sealed override int GetHashCode() =>
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
-            HashCode.Combine(Value);
-
-        public sealed override string ToString() => Name;
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
         {
             if (ReferenceEquals(left, right))
                 return true;
             if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
                 return false;
-            return left.Equals(right);
+            return EqualityComparer<TValue>.Default.Equals(left.Value, right.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right) => !(left == right);
 
         public static explicit operator EnumBase<TEnumeration, TValue>(TValue value) => Parse(value);
+
+        public static explicit operator TValue(EnumBase<TEnumeration, TValue> value) => value.Value;
 
         public static ICollection<TEnumeration> GetAll() => Enumerations.Values;
 
@@ -146,6 +145,13 @@ namespace MugenMvvm.Enums
         }
 
         public static void SetEnum(TValue value, TEnumeration enumeration) => _enumerations[value] = enumeration;
+
+        public sealed override bool Equals(object? obj) => obj is TEnumeration e && Equals(e);
+
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        public sealed override int GetHashCode() => HashCode.Combine(Value);
+
+        public sealed override string ToString() => Name;
 
         #endregion
     }

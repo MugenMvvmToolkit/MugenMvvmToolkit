@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
@@ -9,9 +8,7 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
-#pragma warning disable 660,661
     public class NavigationType : EnumBase<NavigationType, string>
-#pragma warning restore 660,661
     {
         #region Fields
 
@@ -52,25 +49,6 @@ namespace MugenMvvm.Enums
 
         [DataMember(Name = "n")]
         public bool IsNestedNavigation { get; protected set; }
-
-        #endregion
-
-        #region Methods
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(NavigationType? left, NavigationType? right)
-        {
-            if (ReferenceEquals(left, right))
-                return true;
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-                return false;
-            return left.Value == right.Value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(NavigationType? left, NavigationType? right) => !(left == right);
-
-        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }

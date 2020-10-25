@@ -35,7 +35,6 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Implementation of interfaces
 
-        
         void INavigationListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);

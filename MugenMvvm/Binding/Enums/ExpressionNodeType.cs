@@ -1,12 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
 {
-#pragma warning disable 660,661
     public class ExpressionNodeType : EnumBase<ExpressionNodeType, int>
-#pragma warning restore 660,661
     {
         #region Fields
 
@@ -37,25 +34,6 @@ namespace MugenMvvm.Binding.Enums
         public ExpressionNodeType(int value, string name) : base(value, name)
         {
         }
-
-        #endregion
-
-        #region Methods
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(ExpressionNodeType? left, ExpressionNodeType? right)
-        {
-            if (ReferenceEquals(left, right))
-                return true;
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-                return false;
-            return left.Value == right.Value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(ExpressionNodeType? left, ExpressionNodeType? right) => !(left == right);
-
-        protected override bool Equals(int value) => Value == value;
 
         #endregion
     }

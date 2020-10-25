@@ -27,7 +27,7 @@ namespace MugenMvvm.Extensions
 
             var context = metadata;
             Interlocked.CompareExchange(ref metadata, new MetadataContext(context), context);
-            return (IMetadataContext)metadata!;
+            return (IMetadataContext) metadata!;
         }
 
         public static IReadOnlyMetadataContext ToContext<T>(this IMetadataContextKey<T> key, T value) => new SingleValueMetadataContext(key.ToValue(value));

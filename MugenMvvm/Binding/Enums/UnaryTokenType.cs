@@ -1,12 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
 {
-#pragma warning disable 660,661
     public class UnaryTokenType : EnumBase<UnaryTokenType, string>
-#pragma warning restore 660,661
     {
         #region Fields
 
@@ -36,25 +33,6 @@ namespace MugenMvvm.Binding.Enums
         #region Properties
 
         public bool IsSingleExpression { get; protected internal set; }
-
-        #endregion
-
-        #region Methods
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(UnaryTokenType? left, UnaryTokenType? right)
-        {
-            if (ReferenceEquals(left, right))
-                return true;
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-                return false;
-            return left.Value == right.Value;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(UnaryTokenType? left, UnaryTokenType? right) => !(left == right);
-
-        protected override bool Equals(string value) => Value.Equals(value);
 
         #endregion
     }
