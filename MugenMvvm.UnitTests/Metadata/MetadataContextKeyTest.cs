@@ -109,6 +109,8 @@ namespace MugenMvvm.UnitTests.Metadata
         [Fact]
         public void FromBuilderTest1()
         {
+            object? callbackKey = null;
+            int invokeCount = 0;
             var metaKey1 = "k1";
             var metaKey2 = "k2";
             var metaKey3 = metaKey1;
@@ -120,6 +122,11 @@ namespace MugenMvvm.UnitTests.Metadata
                 .WithMetadata(metaKey1, metaValue1)
                 .WithMetadata(metaKey2, metaValue2)
                 .WithMetadata(metaKey3, metaValue3)
+                .WithBuildCallback(contextKey =>
+                {
+                    callbackKey = contextKey;
+                    invokeCount++;
+                })
                 .Build();
             key.Metadata.Count.ShouldEqual(2);
             key.Metadata[metaKey1].ShouldEqual(metaValue3);
@@ -128,6 +135,8 @@ namespace MugenMvvm.UnitTests.Metadata
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldBeFalse();
+            callbackKey.ShouldEqual(key);
+            invokeCount.ShouldEqual(1);
         }
 
         [Theory]

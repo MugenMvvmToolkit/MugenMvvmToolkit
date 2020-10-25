@@ -86,10 +86,10 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        public void AddRange<T>(ItemOrList<TItem, T> value) where T : class, IEnumerable<TItem>
+        public ItemOrListEditor<TItem, TList> AddRange<T>(ItemOrList<TItem, T> value) where T : class, IEnumerable<TItem>
         {
             if (_isEmpty(value.Item!) && value.List == null)
-                return;
+                return this;
 
             if (_list == null)
             {
@@ -103,7 +103,7 @@ namespace MugenMvvm.Internal
                         _list.AddRange(value.List);
                     }
 
-                    return;
+                    return this;
                 }
 
                 _list = _getNewList();
@@ -115,13 +115,13 @@ namespace MugenMvvm.Internal
                 _list.Add(value.Item!);
             else
                 _list.AddRange(value.List);
+            return this;
         }
 
-
-        public void Add([AllowNull] TItem item)
+        public ItemOrListEditor<TItem, TList> Add([AllowNull] TItem item)
         {
             if (_isEmpty(item!))
-                return;
+                return this;
             if (_list != null)
                 _list.Add(item!);
             else if (_isEmpty(_item))
@@ -133,6 +133,8 @@ namespace MugenMvvm.Internal
                 _list.Add(item!);
                 _item = default!;
             }
+
+            return this;
         }
 
         public bool Remove(TItem item)

@@ -115,6 +115,7 @@ namespace MugenMvvm.Metadata
             private readonly Type? _declaredType;
             private readonly string? _fieldOrPropertyName;
 
+            private object? _buildCallbacks;
             private Dictionary<string, object?>? _metadata;
             private Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T>? _validateAction;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? _getDefaultValueFunc;
@@ -141,6 +142,7 @@ namespace MugenMvvm.Metadata
                 _getValueFunc = null;
                 _setValueFunc = null;
                 _getMementoFunc = null;
+                _buildCallbacks = null;
                 _isSerializable = false;
                 _hasDefaultValue = false;
                 _defaultValue = default!;
@@ -149,6 +151,16 @@ namespace MugenMvvm.Metadata
             #endregion
 
             #region Methods
+
+            public Builder<T> WithBuildCallback(Action<IMetadataContextKey<T>> callback)
+            {
+                Should.NotBeNull(callback, nameof(callback));
+                _buildCallbacks = ItemOrList.FromRawValue<Action<IMetadataContextKey<T>>, List<Action<IMetadataContextKey<T>>>>(_buildCallbacks)
+                    .Editor()
+                    .Add(callback)
+                    .GetRawValueInternal();
+                return this;
+            }
 
             public Builder<T> WithMetadata(string key, object? value)
             {
@@ -209,7 +221,7 @@ namespace MugenMvvm.Metadata
             {
                 if (_isSerializable && _getMementoFunc == null && (_declaredType == null || _fieldOrPropertyName == null))
                     ExceptionManager.ThrowMementoRequiredContextKey();
-                return new MetadataContextKeyInternal<T>(_key, _isSerializable, _metadata, _declaredType, _fieldOrPropertyName)
+                var key = new MetadataContextKeyInternal<T>(_key, _isSerializable, _metadata, _declaredType, _fieldOrPropertyName)
                 {
                     SetValueFunc = _setValueFunc,
                     ValidateAction = _validateAction,
@@ -219,6 +231,13 @@ namespace MugenMvvm.Metadata
                     HasDefaultValue = _hasDefaultValue,
                     GetMementoFunc = _getMementoFunc
                 };
+                if (_buildCallbacks != null)
+                {
+                    foreach (var action in ItemOrList.FromRawValue<Action<IMetadataContextKey<T>>, List<Action<IMetadataContextKey<T>>>>(_buildCallbacks).Iterator())
+                        action(key);
+                }
+
+                return key;
             }
 
             private Builder<T> GetterInternal(Delegate getter)
@@ -232,7 +251,7 @@ namespace MugenMvvm.Metadata
             #endregion
         }
 
-        private class MetadataContextKeyInternal<T> : MetadataContextKey, IMetadataContextKey<T>, IHasMemento
+        private sealed class MetadataContextKeyInternal<T> : MetadataContextKey, IMetadataContextKey<T>, IHasMemento
         {
             #region Fields
 
