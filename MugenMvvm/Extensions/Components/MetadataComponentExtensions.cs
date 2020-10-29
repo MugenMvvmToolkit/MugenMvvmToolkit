@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 
 namespace MugenMvvm.Extensions.Components
@@ -58,14 +59,15 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool TryGetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey, out object? rawValue)
+        public static bool TryGetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
+            Should.NotBeNull(operationType, nameof(operationType));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetValue(context, contextKey, out rawValue))
+                if (components[i].TryGetValue(context, contextKey, operationType, out rawValue))
                     return true;
             }
 

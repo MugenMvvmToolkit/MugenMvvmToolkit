@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -113,7 +114,7 @@ namespace MugenMvvm.Metadata
             bool hasValue;
             lock (_dictionary)
             {
-                hasValue = TryGet(components, contextKey, out rawValue);
+                hasValue = TryGet(components, contextKey, MetadataOperationType.Get, out rawValue);
             }
 
             return this.TryGetFromRaw(contextKey, hasValue, rawValue, out value, defaultValue);
@@ -128,7 +129,7 @@ namespace MugenMvvm.Metadata
             var components = GetComponents();
             lock (_dictionary)
             {
-                if (TryGet(components, contextKey, out oldValue))
+                if (TryGet(components, contextKey, MetadataOperationType.Get, out oldValue))
                 {
                     addValue = updateValueFactory(this, contextKey, oldValue, state);
                     added = false;
@@ -158,7 +159,7 @@ namespace MugenMvvm.Metadata
             var components = GetComponents();
             lock (_dictionary)
             {
-                if (TryGet(components, contextKey, out oldValue))
+                if (TryGet(components, contextKey, MetadataOperationType.Get, out oldValue))
                 {
                     newValue = updateValueFactory(this, contextKey, oldValue, state);
                     added = false;
@@ -188,7 +189,7 @@ namespace MugenMvvm.Metadata
             object? newValueRaw;
             lock (_dictionary)
             {
-                if (TryGet(components, contextKey, out var oldValue))
+                if (TryGet(components, contextKey, MetadataOperationType.Get, out var oldValue))
                 {
                     added = false;
                     newValueRaw = null;
@@ -221,7 +222,7 @@ namespace MugenMvvm.Metadata
             var components = GetComponents();
             lock (_dictionary)
             {
-                if (TryGet(components, contextKey, out var oldValue))
+                if (TryGet(components, contextKey, MetadataOperationType.Get, out var oldValue))
                 {
                     added = false;
                     value = contextKey.GetValue(this, oldValue);
@@ -253,7 +254,7 @@ namespace MugenMvvm.Metadata
             var components = GetComponents();
             lock (_dictionary)
             {
-                hasOldValue = TryGet(components, contextKey, out oldValue);
+                hasOldValue = TryGet(components, contextKey, MetadataOperationType.Set, out oldValue);
                 valueRaw = contextKey.SetValue(this, oldValue, value);
                 Set(components, contextKey, valueRaw);
             }
@@ -285,7 +286,7 @@ namespace MugenMvvm.Metadata
                 {
                     foreach (var item in items)
                     {
-                        var value = TryGet(components, item.Key, out var oldValue)
+                        var value = TryGet(components, item.Key, MetadataOperationType.Set, out var oldValue)
                             ? new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, oldValue)
                             : new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, this);
                         values.Add(value);
@@ -311,7 +312,7 @@ namespace MugenMvvm.Metadata
             bool removed;
             lock (_dictionary)
             {
-                removed = TryGet(components, contextKey, out oldValue) && Remove(components, contextKey);
+                removed = TryGet(components, contextKey, MetadataOperationType.Remove, out oldValue) && Remove(components, contextKey);
             }
 
             if (removed)
@@ -362,8 +363,8 @@ namespace MugenMvvm.Metadata
 
         public void Add<T>(IMetadataContextKey<T> contextKey, T value) => Set(contextKey, value, out _);
 
-        private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue) =>
-            components.TryGetValue(this, contextKey, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
+        private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue) =>
+            components.TryGetValue(this, contextKey, operationType, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
 
         private void Set(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, object? rawValue)
         {

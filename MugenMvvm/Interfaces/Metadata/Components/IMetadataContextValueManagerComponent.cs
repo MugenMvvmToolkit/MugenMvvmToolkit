@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Metadata.Components
@@ -11,7 +12,7 @@ namespace MugenMvvm.Interfaces.Metadata.Components
 
         bool Contains(IMetadataContext context, IMetadataContextKey contextKey);
 
-        bool TryGetValue(IMetadataContext context, IMetadataContextKey contextKey, out object? rawValue);
+        bool TryGetValue(IMetadataContext context, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue);
 
         bool TrySetValue(IMetadataContext context, IMetadataContextKey contextKey, object? rawValue);
 

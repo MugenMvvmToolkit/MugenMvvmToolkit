@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Interfaces.Models;
@@ -35,7 +36,7 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
 
         public Func<IMetadataContextKey, bool>? Contains { get; set; }
 
-        public Func<IMetadataContextKey, (bool, object?)>? TryGetValue { get; set; }
+        public Func<IMetadataContextKey, MetadataOperationType, (bool, object?)>? TryGetValue { get; set; }
 
         public Func<IMetadataContextKey, object?, bool>? TrySetValue { get; set; }
 
@@ -65,10 +66,10 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
             return Contains?.Invoke(contextKey) ?? false;
         }
 
-        bool IMetadataContextValueManagerComponent.TryGetValue(IMetadataContext context, IMetadataContextKey contextKey, out object? rawValue)
+        bool IMetadataContextValueManagerComponent.TryGetValue(IMetadataContext context, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
-            var tuple = TryGetValue?.Invoke(contextKey);
+            var tuple = TryGetValue?.Invoke(contextKey, operationType);
             if (tuple == null)
             {
                 rawValue = null;

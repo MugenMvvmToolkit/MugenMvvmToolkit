@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Metadata
                 Contains = key => dict.ContainsKey(key),
                 Clear = () => dict.Clear(),
                 TryClear = key => dict.Remove(key),
-                TryGetValue = key =>
+                TryGetValue = (key, type) =>
                 {
                     var r = dict.TryGetValue(key, out var value);
                     return (r, value);
