@@ -1,12 +1,12 @@
-﻿using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observation.Observers;
+﻿using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Observers
+namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class EmptyPathObserverTest : UnitTestBase
     {

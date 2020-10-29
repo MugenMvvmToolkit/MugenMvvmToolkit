@@ -1,18 +1,18 @@
 ﻿using System;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Observers;
-using MugenMvvm.Binding.Observation.Paths;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation
+namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class ObservationManagerTest : ComponentOwnerTestBase<IObservationManager>
     {

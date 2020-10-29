@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Observation
+namespace MugenMvvm.Bindings.Observation
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct MemberObserver

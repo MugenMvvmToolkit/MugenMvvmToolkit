@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Parsing
+namespace MugenMvvm.Bindings.Parsing
 {
     public sealed class ExpressionParser : ComponentOwnerBase<IExpressionParser>, IExpressionParser
     {

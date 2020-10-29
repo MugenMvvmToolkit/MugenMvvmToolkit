@@ -2,16 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Components;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Components
+namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class MemberSelectorTest : UnitTestBase
     {

@@ -1,12 +1,12 @@
 ﻿using System;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Resources;
-using MugenMvvm.Binding.Interfaces.Resources.Components;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Resources;
+using MugenMvvm.Bindings.Interfaces.Resources.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Resources
+namespace MugenMvvm.Bindings.Resources
 {
     public sealed class ResourceResolver : ComponentOwnerBase<IResourceResolver>, IResourceResolver
     {

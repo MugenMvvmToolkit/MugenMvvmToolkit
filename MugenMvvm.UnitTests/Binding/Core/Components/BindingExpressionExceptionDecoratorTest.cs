@@ -1,13 +1,13 @@
 ﻿using System;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components;
-using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionExceptionDecoratorTest : UnitTestBase
     {

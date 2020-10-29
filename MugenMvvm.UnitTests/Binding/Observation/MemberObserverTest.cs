@@ -1,10 +1,10 @@
-﻿using MugenMvvm.Binding.Observation;
+﻿using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation
+namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberObserverTest : UnitTestBase
     {

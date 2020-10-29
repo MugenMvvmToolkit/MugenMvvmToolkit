@@ -1,15 +1,15 @@
 ﻿using System;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Core.Components.Binding
+namespace MugenMvvm.Bindings.Core.Components.Binding
 {
     public sealed class OneWayToSourceBindingMode : IAttachableComponent, IBindingTargetObserverListener, IHasPriority
     {

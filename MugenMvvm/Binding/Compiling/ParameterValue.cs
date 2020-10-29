@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace MugenMvvm.Binding.Compiling
+namespace MugenMvvm.Bindings.Compiling
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ParameterValue

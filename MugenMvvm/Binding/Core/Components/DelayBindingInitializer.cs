@@ -1,10 +1,10 @@
-﻿using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
+﻿using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Core.Components
+namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class DelayBindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {

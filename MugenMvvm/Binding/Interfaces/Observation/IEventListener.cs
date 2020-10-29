@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Observation
+namespace MugenMvvm.Bindings.Interfaces.Observation
 {
     public interface IEventListener
     {

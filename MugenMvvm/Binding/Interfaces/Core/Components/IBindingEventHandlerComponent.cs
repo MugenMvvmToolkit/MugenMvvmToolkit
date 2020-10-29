@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Core.Components
+namespace MugenMvvm.Bindings.Interfaces.Core.Components
 {
     public interface IBindingEventHandlerComponent : IComponent<IBindingManager>
     {

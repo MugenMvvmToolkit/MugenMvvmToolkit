@@ -1,13 +1,13 @@
-﻿using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components.Parsers
+namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class ConditionTokenParser : ITokenParserComponent, IHasPriority
     {

@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Binding.Interfaces.Core.Components
+namespace MugenMvvm.Bindings.Interfaces.Core.Components
 {
     public interface IBindingExpressionInitializerComponent : IComponent<IBindingManager>
     {

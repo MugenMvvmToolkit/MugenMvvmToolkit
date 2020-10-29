@@ -1,13 +1,13 @@
 ﻿using System;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Interfaces.Observation.Components;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Observation
+namespace MugenMvvm.Bindings.Observation
 {
     public sealed class ObservationManager : ComponentOwnerBase<IObservationManager>, IObservationManager
     {

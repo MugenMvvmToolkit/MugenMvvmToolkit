@@ -1,9 +1,9 @@
 ﻿using System;
-using MugenMvvm.Binding.Compiling;
+using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Compiling
+namespace MugenMvvm.Bindings.Interfaces.Compiling
 {
     public interface ICompiledExpression : IDisposable
     {

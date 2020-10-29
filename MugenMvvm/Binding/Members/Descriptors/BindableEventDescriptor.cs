@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
-namespace MugenMvvm.Binding.Members.Descriptors
+namespace MugenMvvm.Bindings.Members.Descriptors
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindableEventDescriptor<TTarget> where TTarget : class

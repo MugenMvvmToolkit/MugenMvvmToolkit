@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using MugenMvvm.Binding;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Members;
+using MugenMvvm.Bindings;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Ios.Interfaces;
 using MugenMvvm.Ios.Members;
 using UIKit;

@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Convert.Components
+namespace MugenMvvm.Bindings.Interfaces.Convert.Components
 {
     public interface IGlobalValueConverterComponent : IComponent<IGlobalValueConverter>
     {

@@ -1,11 +1,11 @@
-﻿using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+﻿using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core
+namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingParameterExpressionTest : UnitTestBase
     {

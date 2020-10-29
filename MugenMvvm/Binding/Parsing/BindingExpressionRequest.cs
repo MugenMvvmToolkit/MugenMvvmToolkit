@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Parsing
+namespace MugenMvvm.Bindings.Parsing
 {
     public class BindingExpressionRequest
     {

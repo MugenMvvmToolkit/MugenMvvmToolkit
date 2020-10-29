@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Builders;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Builders;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Builders
+namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     public class PropertyBuilderTest : UnitTestBase
     {

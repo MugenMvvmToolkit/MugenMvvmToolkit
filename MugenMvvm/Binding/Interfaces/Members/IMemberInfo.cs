@@ -1,7 +1,7 @@
 ﻿using System;
-using MugenMvvm.Binding.Enums;
+using MugenMvvm.Bindings.Enums;
 
-namespace MugenMvvm.Binding.Interfaces.Members
+namespace MugenMvvm.Bindings.Interfaces.Members
 {
     public interface IMemberInfo
     {

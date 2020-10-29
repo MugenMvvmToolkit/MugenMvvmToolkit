@@ -1,11 +1,11 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions.Binding;
-using MugenMvvm.Binding.Parsing.Visitors;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions.Binding;
+using MugenMvvm.Bindings.Parsing.Visitors;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Visitors
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 {
     public class BindingMemberExpressionCollectorVisitorTest : UnitTestBase
     {

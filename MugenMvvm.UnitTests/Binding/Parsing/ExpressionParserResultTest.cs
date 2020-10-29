@@ -1,11 +1,11 @@
-﻿using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTests.Metadata.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing
+namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class ExpressionParserResultTest : UnitTestBase
     {

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Observation
+namespace MugenMvvm.Bindings.Interfaces.Observation
 {
     public interface IMemberPathObserver : IWeakItem, IDisposable
     {

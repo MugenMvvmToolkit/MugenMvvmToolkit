@@ -2,13 +2,13 @@
 using Android.Runtime;
 using Android.Views;
 using MugenMvvm.Android.Constants;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvm.Android.Binding
+namespace MugenMvvm.Android.Bindings
 {
     public sealed class MenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
     {

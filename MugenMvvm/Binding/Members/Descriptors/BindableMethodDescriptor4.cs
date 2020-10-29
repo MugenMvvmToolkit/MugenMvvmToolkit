@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
-namespace MugenMvvm.Binding.Members.Descriptors
+namespace MugenMvvm.Bindings.Members.Descriptors
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn> where TTarget : class

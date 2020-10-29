@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
+namespace MugenMvvm.UnitTests.Bindings.Core.Components.Binding
 {
     public class OneTimeBindingModeTest : UnitTestBase
     {

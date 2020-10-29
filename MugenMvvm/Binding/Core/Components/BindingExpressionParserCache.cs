@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Core.Components
+namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingExpressionParserCache : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
     {

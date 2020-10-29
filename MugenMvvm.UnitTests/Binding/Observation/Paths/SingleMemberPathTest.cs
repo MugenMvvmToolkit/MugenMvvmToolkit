@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Binding.Observation.Paths;
+using MugenMvvm.Bindings.Observation.Paths;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Paths
+namespace MugenMvvm.UnitTests.Bindings.Observation.Paths
 {
     public class SingleMemberPathTest : UnitTestBase
     {

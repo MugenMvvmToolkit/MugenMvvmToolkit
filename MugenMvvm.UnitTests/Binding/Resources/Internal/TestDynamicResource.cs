@@ -1,6 +1,6 @@
-﻿using MugenMvvm.Binding.Interfaces.Resources;
+﻿using MugenMvvm.Bindings.Interfaces.Resources;
 
-namespace MugenMvvm.UnitTests.Binding.Resources.Internal
+namespace MugenMvvm.UnitTests.Bindings.Resources.Internal
 {
     public class TestDynamicResource : IDynamicResource
     {

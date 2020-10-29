@@ -1,13 +1,13 @@
 ﻿using System;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Builders;
-using MugenMvvm.Binding.Members.Descriptors;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Builders;
+using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Builders
+namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     public class AttachedMemberBuilderTest : UnitTestBase
     {

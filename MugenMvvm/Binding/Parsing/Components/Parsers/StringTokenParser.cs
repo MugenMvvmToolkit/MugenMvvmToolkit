@@ -2,17 +2,17 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Parsing.Components.Parsers
+namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     //https://devblogs.microsoft.com/csharpfaq/what-character-escape-sequences-are-available/
     //note doesn't support unicode escape sequence

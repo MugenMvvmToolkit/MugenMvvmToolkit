@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members
+namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MethodAccessorMemberInfoTest : UnitTestBase
     {

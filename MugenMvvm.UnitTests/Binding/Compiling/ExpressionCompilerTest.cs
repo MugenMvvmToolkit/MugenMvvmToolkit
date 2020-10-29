@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Binding.Compiling;
-using MugenMvvm.Binding.Compiling.Components;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Components;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Compiling.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling
+namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class ExpressionCompilerTest : ComponentOwnerTestBase<ExpressionCompiler>
     {

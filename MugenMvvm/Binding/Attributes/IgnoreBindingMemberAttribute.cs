@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.Binding.Attributes
+namespace MugenMvvm.Bindings.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class IgnoreBindingMemberAttribute : BindingSyntaxExtensionAttributeBase

@@ -1,11 +1,11 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Components;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Extensions;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Components
+namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class FakeMemberProviderTest : UnitTestBase
     {

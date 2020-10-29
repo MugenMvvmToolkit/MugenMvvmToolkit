@@ -1,12 +1,12 @@
 ﻿using System;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members
+namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class DelegateAccessorMemberInfoTest : DelegateObservableMemberInfoTest
     {

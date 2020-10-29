@@ -3,7 +3,7 @@ using MugenMvvm.Android.Extensions;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Interfaces.ViewModels;
 
-namespace MugenMvvm.Android.Binding
+namespace MugenMvvm.Android.Bindings
 {
     public sealed class DefaultContentTemplateSelector : IContentTemplateSelector, IFragmentTemplateSelector
     {

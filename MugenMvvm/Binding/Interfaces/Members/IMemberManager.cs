@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Members
+namespace MugenMvvm.Bindings.Interfaces.Members
 {
     public interface IMemberManager : IComponentOwner<IMemberManager>
     {

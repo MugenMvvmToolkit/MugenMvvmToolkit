@@ -3,22 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Core
+namespace MugenMvvm.Bindings.Core
 {
     public class Binding : IBinding, IComponentCollection, IMemberPathObserverListener, IReadOnlyMetadataContext, IComparer<object>
     {

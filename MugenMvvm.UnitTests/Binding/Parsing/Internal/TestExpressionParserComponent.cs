@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using Should;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Internal
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public class TestExpressionParserComponent : IExpressionParserComponent, IHasPriority
     {

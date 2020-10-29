@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Extensions
+namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class MugenBindingExtensions
     {

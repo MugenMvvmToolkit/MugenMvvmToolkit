@@ -1,7 +1,7 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Observation;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
 
-namespace MugenMvvm.Binding.Observation
+namespace MugenMvvm.Bindings.Observation
 {
     public class MemberPathObserverRequest
     {

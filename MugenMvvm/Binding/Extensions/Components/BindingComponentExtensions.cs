@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Extensions.Components
+namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class BindingComponentExtensions
     {

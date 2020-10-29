@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Parsing
+namespace MugenMvvm.Bindings.Parsing
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ExpressionParserResult

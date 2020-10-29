@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace MugenMvvm.Binding.Resources
+namespace MugenMvvm.Bindings.Resources
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ResourceResolverResult

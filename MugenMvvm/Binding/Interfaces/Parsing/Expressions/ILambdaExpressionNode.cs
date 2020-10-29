@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
+namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
     public interface ILambdaExpressionNode : IExpressionNode
     {

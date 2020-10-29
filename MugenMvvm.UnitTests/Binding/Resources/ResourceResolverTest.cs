@@ -1,12 +1,12 @@
-﻿using MugenMvvm.Binding.Resources;
+﻿using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Binding.Resources.Internal;
+using MugenMvvm.UnitTests.Bindings.Resources.Internal;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Resources
+namespace MugenMvvm.UnitTests.Bindings.Resources
 {
     public class ResourceResolverTest : ComponentOwnerTestBase<ResourceResolver>
     {

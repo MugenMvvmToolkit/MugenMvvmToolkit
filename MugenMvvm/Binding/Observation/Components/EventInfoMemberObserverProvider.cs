@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Reflection;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Interfaces.Observation.Components;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Observation.Components
+namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class EventInfoMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {

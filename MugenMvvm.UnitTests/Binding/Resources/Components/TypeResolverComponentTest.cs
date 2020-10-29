@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Resources.Components;
+﻿using MugenMvvm.Bindings.Resources.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Resources.Components
+namespace MugenMvvm.UnitTests.Bindings.Resources.Components
 {
     public class TypeResolverComponentTest : UnitTestBase
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Internal
+namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 {
     public class TestMemberPathObserverListener : IMemberPathObserverListener
     {

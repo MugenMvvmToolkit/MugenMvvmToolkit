@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Attributes;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Core;
+﻿using MugenMvvm.Bindings.Attributes;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Interfaces.Core;
 
-namespace MugenMvvm.Binding.Interfaces.Build
+namespace MugenMvvm.Bindings.Interfaces.Build
 {
     public interface IBindingBuilderContext
     {

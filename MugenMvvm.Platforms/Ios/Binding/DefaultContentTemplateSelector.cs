@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Ios.Interfaces;
 
-namespace MugenMvvm.Ios.Binding
+namespace MugenMvvm.Ios.Bindings
 {
     public sealed class DefaultContentTemplateSelector : IContentTemplateSelector
     {

@@ -1,6 +1,6 @@
-﻿using MugenMvvm.Binding.Attributes;
+﻿using MugenMvvm.Bindings.Attributes;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Internal
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     [BindingMacros(ClassResource)]
     public class TestResourceExtensionClass

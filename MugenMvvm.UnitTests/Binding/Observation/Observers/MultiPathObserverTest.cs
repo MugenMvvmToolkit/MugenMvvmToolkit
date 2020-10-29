@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Observation.Observers;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Observation.Observers;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Observers
+namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class MultiPathObserverTest : MultiPathObserverTestBase<MultiPathObserver>
     {

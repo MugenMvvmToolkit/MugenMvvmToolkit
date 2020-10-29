@@ -4,7 +4,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 
-namespace MugenMvvm.Binding.Enums
+namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]

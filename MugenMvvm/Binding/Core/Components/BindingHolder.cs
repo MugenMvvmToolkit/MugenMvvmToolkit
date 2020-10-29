@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Core.Components
+namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingHolder : IBindingHolderComponent, IHasPriority
     {

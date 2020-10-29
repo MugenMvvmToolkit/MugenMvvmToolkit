@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Attributes;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Attributes;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Attributes
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
 {
     [BindingMacros(Name, true)]
     public class BindingMacrosAttributeTest : UnitTestBase

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Compiling.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Compiling.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling.Internal
+namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
 {
     public class TestExpressionBuilderComponent : IExpressionBuilderComponent
     {

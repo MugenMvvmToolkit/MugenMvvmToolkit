@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Interfaces.Observation;
+﻿using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Members
+namespace MugenMvvm.Bindings.Interfaces.Members
 {
     public interface IObservableMemberInfo : IMemberInfo
     {

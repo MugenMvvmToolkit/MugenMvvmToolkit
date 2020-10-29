@@ -1,11 +1,11 @@
 ﻿using System;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Core
+namespace MugenMvvm.Bindings.Interfaces.Core
 {
     public interface IBinding : IDisposable, IComponentOwner<IBinding>, IMetadataOwner<IReadOnlyMetadataContext>
     {

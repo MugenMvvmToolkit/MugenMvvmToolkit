@@ -1,10 +1,10 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Delegates
+namespace MugenMvvm.Bindings.Delegates
 {
     public delegate ActionToken TryObserveDelegate<in TMember, in TTarget>(TMember member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         where TMember : class, IMemberInfo;

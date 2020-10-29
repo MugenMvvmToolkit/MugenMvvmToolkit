@@ -1,10 +1,10 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members.Builders;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members.Builders;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Builders
+namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     public class ParameterBuilderTest
     {

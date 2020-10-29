@@ -1,11 +1,11 @@
 ﻿using System;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Members
+namespace MugenMvvm.Bindings.Members
 {
     public sealed class DelegateAccessorMemberInfo<TTarget, TValue, TState> : DelegateObservableMemberInfo<TTarget, TState>, IAccessorMemberInfo where TTarget : class?
     {

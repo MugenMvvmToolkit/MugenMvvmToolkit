@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Internal
+namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 {
     public class TestMethodMemberInfo : TestMemberInfoBase, IMethodMemberInfo
     {

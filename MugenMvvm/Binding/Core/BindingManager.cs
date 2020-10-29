@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Core
+namespace MugenMvvm.Bindings.Core
 {
     public sealed class BindingManager : ComponentOwnerBase<IBindingManager>, IBindingManager
     {

@@ -4,25 +4,25 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Components;
-using MugenMvvm.Binding.Parsing.Components.Converters;
-using MugenMvvm.Binding.Parsing.Components.Parsers;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Components;
+using MugenMvvm.Bindings.Parsing.Components.Converters;
+using MugenMvvm.Bindings.Parsing.Components.Parsers;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing
+namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class ExpressionParserTest : ComponentOwnerTestBase<ExpressionParser>
     {

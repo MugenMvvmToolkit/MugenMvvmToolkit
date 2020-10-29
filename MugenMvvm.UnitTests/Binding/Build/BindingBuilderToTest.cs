@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Build;
-using MugenMvvm.Binding.Parsing;
+using MugenMvvm.Bindings.Build;
+using MugenMvvm.Bindings.Parsing;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Build
+namespace MugenMvvm.UnitTests.Bindings.Build
 {
     public class BindingBuilderToTest : UnitTestBase
     {

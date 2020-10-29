@@ -1,12 +1,12 @@
-﻿using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Convert;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Resources;
+﻿using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Resources;
 
-namespace MugenMvvm.Binding
+namespace MugenMvvm.Bindings
 {
     public static class MugenBindingService
     {

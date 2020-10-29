@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Binding.Compiling;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core
+namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingParameterValueTest : UnitTestBase
     {

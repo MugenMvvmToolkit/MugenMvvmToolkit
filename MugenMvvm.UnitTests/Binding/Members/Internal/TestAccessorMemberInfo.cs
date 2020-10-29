@@ -1,8 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Internal
+namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 {
     public class TestAccessorMemberInfo : TestMemberInfoBase, IAccessorMemberInfo
     {

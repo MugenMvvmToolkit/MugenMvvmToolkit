@@ -1,7 +1,7 @@
-﻿using MugenMvvm.Binding.Build;
-using MugenMvvm.Binding.Parsing;
+﻿using MugenMvvm.Bindings.Build;
+using MugenMvvm.Bindings.Parsing;
 
-namespace MugenMvvm.Binding.Delegates
+namespace MugenMvvm.Bindings.Delegates
 {
     public delegate BindingExpressionRequest BindingBuilderDelegate<TTarget, TSource>(BindingBuilderTarget<TTarget, TSource> target)
         where TTarget : class

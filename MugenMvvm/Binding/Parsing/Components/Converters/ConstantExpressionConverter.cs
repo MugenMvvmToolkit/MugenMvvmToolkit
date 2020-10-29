@@ -1,12 +1,12 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components.Converters
+namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class ConstantExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {

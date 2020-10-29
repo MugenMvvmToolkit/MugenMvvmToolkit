@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Members;
+﻿using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;

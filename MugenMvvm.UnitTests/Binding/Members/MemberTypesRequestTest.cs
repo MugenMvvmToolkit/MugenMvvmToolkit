@@ -1,7 +1,7 @@
-﻿using MugenMvvm.Binding.Members;
+﻿using MugenMvvm.Bindings.Members;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members
+namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MemberTypesRequestTest : UnitTestBase
     {

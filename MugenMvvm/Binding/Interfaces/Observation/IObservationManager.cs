@@ -1,9 +1,9 @@
 ﻿using System;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Observation
+namespace MugenMvvm.Bindings.Interfaces.Observation
 {
     public interface IObservationManager : IComponentOwner<IObservationManager>
     {

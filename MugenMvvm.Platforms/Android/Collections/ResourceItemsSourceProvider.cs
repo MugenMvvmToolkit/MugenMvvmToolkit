@@ -1,8 +1,8 @@
 ﻿using Android.Views;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Members;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
 
 namespace MugenMvvm.Android.Collections
 {

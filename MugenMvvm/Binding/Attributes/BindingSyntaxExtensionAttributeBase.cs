@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Attributes
+namespace MugenMvvm.Bindings.Attributes
 {
     [AttributeUsage(AttributeTargets.All)]
     public abstract class BindingSyntaxExtensionAttributeBase : Attribute

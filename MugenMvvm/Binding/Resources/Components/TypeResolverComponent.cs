@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Resources;
-using MugenMvvm.Binding.Interfaces.Resources.Components;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Interfaces.Resources;
+using MugenMvvm.Bindings.Interfaces.Resources.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Resources.Components
+namespace MugenMvvm.Bindings.Resources.Components
 {
     public sealed class TypeResolverComponent : ITypeResolverComponent, IHasPriority
     {

@@ -1,19 +1,19 @@
 ﻿using System.Linq;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingCleanerTest : UnitTestBase
     {
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Binding.Core.Components
                 .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
                 .ToArray();
 
-            var binding = new MugenMvvm.Binding.Core.Binding(target, source);
+            var binding = new MugenMvvm.Bindings.Core.Binding(target, source);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);

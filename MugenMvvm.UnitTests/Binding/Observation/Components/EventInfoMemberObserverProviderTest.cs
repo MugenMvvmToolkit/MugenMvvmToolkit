@@ -1,15 +1,15 @@
 ﻿using System;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Components;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Components
+namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class EventInfoMemberObserverProviderTest : UnitTestBase
     {

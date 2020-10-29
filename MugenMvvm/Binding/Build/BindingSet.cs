@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Build
+namespace MugenMvvm.Bindings.Build
 {
     [StructLayout(LayoutKind.Auto)]
     public struct BindingSet<TSource> : IDisposable

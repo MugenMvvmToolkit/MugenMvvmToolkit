@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MugenMvvm.Binding.Interfaces.Observation
+namespace MugenMvvm.Bindings.Interfaces.Observation
 {
     public interface IMemberPath
     {

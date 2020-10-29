@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Binding.Metadata
+namespace MugenMvvm.Bindings.Metadata
 {
     public static class CompilingMetadata
     {

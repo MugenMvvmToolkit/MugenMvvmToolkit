@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Build;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Build;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Build;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Build;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Convert.Internal;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Convert.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Build
+namespace MugenMvvm.UnitTests.Bindings.Build
 {
     public class BindingBuilderTest : UnitTestBase
     {

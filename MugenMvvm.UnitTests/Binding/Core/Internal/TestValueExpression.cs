@@ -1,8 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Internal
+namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestValueExpression : IValueExpression
     {

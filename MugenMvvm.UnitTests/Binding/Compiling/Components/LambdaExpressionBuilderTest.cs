@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Compiling.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Compiling.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling.Components
+namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class LambdaExpressionBuilderTest : UnitTestBase
     {

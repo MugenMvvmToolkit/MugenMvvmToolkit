@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Observation.Paths
+namespace MugenMvvm.Bindings.Observation.Paths
 {
     public sealed class SingleMemberPath : IMemberPath, IValueHolder<string>, IReadOnlyList<string>
     {

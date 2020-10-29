@@ -1,10 +1,10 @@
 ﻿using System;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Observation
+namespace MugenMvvm.Bindings.Observation
 {
     public class MemberListenerCollection : ActionToken.IHandler
     {

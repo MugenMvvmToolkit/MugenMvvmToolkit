@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Parsing;
+using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Build
+namespace MugenMvvm.Bindings.Build
 {
     [StructLayout(LayoutKind.Auto)]
     public ref struct BindingBuilderTo<TTarget, TSource>

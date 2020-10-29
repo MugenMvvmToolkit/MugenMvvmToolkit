@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
-using MugenMvvm.Binding.Observation.Components;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.Bindings.Observation.Components;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Components
+namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class PropertyChangedMemberObserverProviderTest : UnitTestBase
     {

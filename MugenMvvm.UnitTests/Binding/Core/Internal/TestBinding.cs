@@ -1,13 +1,13 @@
 ﻿using System;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Internal
+namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestBinding : ComponentOwnerBase<IValidator>, IBinding
     {

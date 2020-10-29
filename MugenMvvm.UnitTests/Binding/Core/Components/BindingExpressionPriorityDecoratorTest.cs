@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members.Components;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionPriorityDecoratorTest : UnitTestBase
     {

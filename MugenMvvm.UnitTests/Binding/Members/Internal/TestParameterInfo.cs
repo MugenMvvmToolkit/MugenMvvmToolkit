@@ -1,7 +1,7 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Members;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Internal
+namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 {
     public class TestParameterInfo : IParameterInfo
     {

@@ -1,14 +1,14 @@
 ﻿using System;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTests.Metadata;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core
+namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingExpressionInitializerContextTest : MetadataOwnerTestBase
     {

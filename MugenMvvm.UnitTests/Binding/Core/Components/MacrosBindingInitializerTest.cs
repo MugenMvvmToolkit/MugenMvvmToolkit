@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class MacrosBindingInitializerTest : UnitTestBase
     {

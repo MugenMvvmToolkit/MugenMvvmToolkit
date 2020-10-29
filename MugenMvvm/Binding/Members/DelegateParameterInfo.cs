@@ -1,7 +1,7 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Members;
 
-namespace MugenMvvm.Binding.Members
+namespace MugenMvvm.Bindings.Members
 {
     public sealed class DelegateParameterInfo<TState> : IParameterInfo
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Interfaces.Build;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Build;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.Binding.Build
+namespace MugenMvvm.Bindings.Build
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly ref struct BindingBuilderFrom<TTarget, TSource>

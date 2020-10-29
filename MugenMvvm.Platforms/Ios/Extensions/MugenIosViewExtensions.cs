@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Foundation;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Members;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
 using ObjCRuntime;
 using UIKit;
 

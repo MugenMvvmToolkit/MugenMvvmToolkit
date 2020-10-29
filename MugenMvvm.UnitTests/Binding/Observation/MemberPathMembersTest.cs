@@ -1,12 +1,12 @@
 ﻿using System;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation
+namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberPathMembersTest : UnitTestBase
     {

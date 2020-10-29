@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.UnitTests.Binding.Parsing.Internal
+﻿namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public static class TestConverterStaticClass
     {

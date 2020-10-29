@@ -1,6 +1,6 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Bindings.Enums;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Internal
+namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 {
     public class TestEventInfo : TestMemberInfoBase
     {

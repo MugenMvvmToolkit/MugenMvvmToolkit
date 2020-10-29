@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Components;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Parsing.Visitors
+namespace MugenMvvm.Bindings.Parsing.Visitors
 {
     public sealed class MacrosExpressionVisitor : IExpressionVisitor
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Binding.Members
+namespace MugenMvvm.Bindings.Members
 {
     public class MemberTypesRequest
     {

@@ -4,12 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Extensions
+namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class MugenBindingExtensions
     {

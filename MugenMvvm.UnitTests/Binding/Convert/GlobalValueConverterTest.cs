@@ -1,15 +1,15 @@
 ﻿using System;
-using MugenMvvm.Binding.Convert;
-using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Bindings.Convert;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.UnitTests.Binding.Convert.Internal;
+using MugenMvvm.UnitTests.Bindings.Convert.Internal;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Convert
+namespace MugenMvvm.UnitTests.Bindings.Convert
 {
     public class GlobalValueConverterTest : ComponentOwnerTestBase<GlobalValueConverter>
     {

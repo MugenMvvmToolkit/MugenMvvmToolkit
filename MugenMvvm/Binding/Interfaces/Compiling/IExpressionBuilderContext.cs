@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Compiling
+namespace MugenMvvm.Bindings.Interfaces.Compiling
 {
     public interface IExpressionBuilderContext : IMetadataOwner<IMetadataContext>
     {

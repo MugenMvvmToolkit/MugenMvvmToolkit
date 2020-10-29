@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling.Internal
+namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
 {
     public class TestExpressionBuilderContext : MetadataOwnerBase, IExpressionBuilderContext
     {

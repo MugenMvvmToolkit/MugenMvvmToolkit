@@ -1,14 +1,14 @@
-﻿using MugenMvvm.Binding.Build;
-using MugenMvvm.Binding.Build.Components;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Parsing;
+﻿using MugenMvvm.Bindings.Build;
+using MugenMvvm.Bindings.Build.Components;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Build.Components
+namespace MugenMvvm.UnitTests.Bindings.Build.Components
 {
     public class BindingBuilderDelegateExpressionParserTest : UnitTestBase
     {

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Attributes;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Components.Converters;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Attributes;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Components.Converters;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Attributes
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
 {
     public static class IgnoreBindingMemberAttributeTestExt
     {

@@ -1,11 +1,11 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Paths;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Paths;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation
+namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberPathObserverRequestTest : UnitTestBase
     {

@@ -1,10 +1,10 @@
-﻿using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
+﻿using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core
+namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class DelegateBindingComponentProviderTest : UnitTestBase
     {

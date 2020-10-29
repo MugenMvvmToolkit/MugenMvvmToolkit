@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members.Descriptors;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Members.Builders
+namespace MugenMvvm.Bindings.Members.Builders
 {
     public static class AttachedMemberBuilder
     {

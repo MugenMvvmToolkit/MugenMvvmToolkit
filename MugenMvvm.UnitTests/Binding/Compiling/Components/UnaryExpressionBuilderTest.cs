@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Compiling.Components;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
+using MugenMvvm.Bindings.Compiling.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling.Components
+namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class UnaryExpressionBuilderTest : UnitTestBase
     {

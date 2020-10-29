@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Observation;
 
-namespace MugenMvvm.Binding.Members.Builders
+namespace MugenMvvm.Bindings.Members.Builders
 {
     [StructLayout(LayoutKind.Auto)]
     public ref struct MethodBuilder<TTarget, TReturn> where TTarget : class?

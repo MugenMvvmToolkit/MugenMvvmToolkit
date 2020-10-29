@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Compiling.Components
+namespace MugenMvvm.Bindings.Interfaces.Compiling.Components
 {
     public interface IExpressionCompilerComponent : IComponent<IExpressionCompiler>
     {

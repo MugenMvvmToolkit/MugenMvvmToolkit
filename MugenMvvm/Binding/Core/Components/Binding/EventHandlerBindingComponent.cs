@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Windows.Input;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
@@ -19,7 +19,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Core.Components.Binding
+namespace MugenMvvm.Bindings.Core.Components.Binding
 {
     public class EventHandlerBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent, IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority
     {

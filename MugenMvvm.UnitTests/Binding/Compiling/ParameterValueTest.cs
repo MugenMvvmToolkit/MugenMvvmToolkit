@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Compiling;
+﻿using MugenMvvm.Bindings.Compiling;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling
+namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class ParameterValueTest : UnitTestBase
     {

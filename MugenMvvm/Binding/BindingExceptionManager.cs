@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using static MugenMvvm.Binding.Constants.BindingMessageConstant;
+using static MugenMvvm.Bindings.Constants.BindingMessageConstant;
 
-namespace MugenMvvm.Binding
+namespace MugenMvvm.Bindings
 {
     internal static class BindingExceptionManager
     {

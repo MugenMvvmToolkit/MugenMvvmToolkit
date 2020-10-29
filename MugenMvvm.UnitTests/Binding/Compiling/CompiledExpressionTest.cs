@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Compiling;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Compiling.Components;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions.Binding;
+using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Compiling.Components;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling
+namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class CompiledExpressionTest : UnitTestBase
     {

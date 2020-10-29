@@ -1,9 +1,9 @@
-﻿using MugenMvvm.Binding.Observation.Paths;
+﻿using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Interfaces.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Paths
+namespace MugenMvvm.UnitTests.Bindings.Observation.Paths
 {
     public class EmptyMemberPathTest : UnitTestBase
     {

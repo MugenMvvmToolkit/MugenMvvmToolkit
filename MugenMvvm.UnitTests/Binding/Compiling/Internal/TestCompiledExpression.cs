@@ -1,10 +1,10 @@
 ﻿using System;
-using MugenMvvm.Binding.Compiling;
-using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling.Internal
+namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
 {
     public class TestCompiledExpression : ICompiledExpression
     {

@@ -1,12 +1,12 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Components;
-using MugenMvvm.Binding.Observation.Observers;
-using MugenMvvm.Binding.Observation.Paths;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Components;
+using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Bindings.Observation.Paths;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Components
+namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class MemberPathObserverProviderTest : UnitTestBase
     {

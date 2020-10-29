@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Observation.Components
+namespace MugenMvvm.Bindings.Interfaces.Observation.Components
 {
     public interface IMemberPathProviderComponent : IComponent<IObservationManager>
     {

@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Resources
+﻿namespace MugenMvvm.Bindings.Interfaces.Resources
 {
     public interface IDynamicResource
     {

@@ -2,11 +2,11 @@
 using Android.Views;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Members;
-using MugenMvvm.Binding.Build;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Members;
+using MugenMvvm.Bindings.Build;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
 
-namespace MugenMvvm.Android.Binding
+namespace MugenMvvm.Android.Bindings
 {
     public sealed class MenuTemplate : IMenuTemplate
     {

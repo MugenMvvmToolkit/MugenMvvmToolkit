@@ -1,24 +1,24 @@
 ﻿using System;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Paths;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions.Binding;
-using MugenMvvm.Binding.Parsing.Visitors;
-using MugenMvvm.Binding.Resources;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions.Binding;
+using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
-using MugenMvvm.UnitTests.Binding.Resources.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Resources.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Visitors
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 {
     public class BindingMemberExpressionVisitorTest : UnitTestBase
     {

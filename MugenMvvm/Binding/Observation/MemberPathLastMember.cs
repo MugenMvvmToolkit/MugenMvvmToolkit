@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Observation
+namespace MugenMvvm.Bindings.Observation
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly ref struct MemberPathLastMember

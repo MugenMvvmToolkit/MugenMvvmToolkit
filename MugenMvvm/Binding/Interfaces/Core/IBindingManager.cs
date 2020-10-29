@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Core
+namespace MugenMvvm.Bindings.Interfaces.Core
 {
     public interface IBindingManager : IComponentOwner<IBindingManager>
     {

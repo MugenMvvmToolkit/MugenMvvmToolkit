@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Parsing;
+using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing.Components
+namespace MugenMvvm.Bindings.Interfaces.Parsing.Components
 {
     public interface IExpressionParserComponent : IComponent<IExpressionParser>
     {

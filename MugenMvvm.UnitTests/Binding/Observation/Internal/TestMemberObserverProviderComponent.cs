@@ -1,12 +1,12 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Interfaces.Observation.Components;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using Should;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Internal
+namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 {
     public class TestMemberObserverProviderComponent : IMemberObserverProviderComponent, IHasPriority
     {

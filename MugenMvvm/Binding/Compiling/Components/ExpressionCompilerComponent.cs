@@ -1,12 +1,12 @@
-﻿using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Compiling.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Compiling.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Compiling.Components
+namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class ExpressionCompilerComponent : IExpressionCompilerComponent, IHasPriority
     {

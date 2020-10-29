@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Members.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using Should;
 
-namespace MugenMvvm.UnitTests.Binding.Members.Internal
+namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 {
     public class TestMemberManagerComponent : IMemberManagerComponent, IHasPriority
     {

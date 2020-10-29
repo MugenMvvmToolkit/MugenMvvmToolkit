@@ -1,6 +1,6 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.Binding.Interfaces.Core
+namespace MugenMvvm.Bindings.Interfaces.Core
 {
     public interface IHasTargetExpressionBindingBuilder : IBindingBuilder
     {

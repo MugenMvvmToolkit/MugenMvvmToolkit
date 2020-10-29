@@ -4,12 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions.Binding;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTests

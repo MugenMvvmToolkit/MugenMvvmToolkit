@@ -1,14 +1,14 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members
+namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MemberManagerTest : ComponentOwnerTestBase<IMemberManager>
     {

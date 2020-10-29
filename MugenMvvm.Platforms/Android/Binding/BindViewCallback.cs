@@ -1,11 +1,11 @@
 ﻿using Java.Lang;
 using MugenMvvm.Android.Native.Interfaces.Views;
-using MugenMvvm.Binding.Build;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Descriptors;
+using MugenMvvm.Bindings.Build;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Descriptors;
 
-namespace MugenMvvm.Android.Binding
+namespace MugenMvvm.Android.Bindings
 {
     public sealed class BindViewCallback : Object, IBindViewCallback
     {

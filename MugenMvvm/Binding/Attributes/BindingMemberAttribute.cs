@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 
-namespace MugenMvvm.Binding.Attributes
+namespace MugenMvvm.Bindings.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class BindingMemberAttribute : BindingSyntaxExtensionAttributeBase

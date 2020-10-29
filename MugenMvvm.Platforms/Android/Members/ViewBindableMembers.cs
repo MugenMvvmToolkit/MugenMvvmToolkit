@@ -3,10 +3,10 @@ using Android.Views;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Observation;
-using MugenMvvm.Binding.Attributes;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Members.Descriptors;
+using MugenMvvm.Bindings.Attributes;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Members

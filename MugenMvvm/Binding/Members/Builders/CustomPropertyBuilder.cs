@@ -1,9 +1,9 @@
-﻿using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Observation;
+﻿using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Observation;
 
-namespace MugenMvvm.Binding.Members.Builders
+namespace MugenMvvm.Bindings.Members.Builders
 {
     public ref struct CustomPropertyBuilder<TTarget, TValue> where TTarget : class?
     {

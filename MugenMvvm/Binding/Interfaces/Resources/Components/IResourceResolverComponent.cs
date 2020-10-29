@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Resources;
+﻿using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Resources.Components
+namespace MugenMvvm.Bindings.Interfaces.Resources.Components
 {
     public interface IResourceResolverComponent : IComponent<IResourceResolver>
     {

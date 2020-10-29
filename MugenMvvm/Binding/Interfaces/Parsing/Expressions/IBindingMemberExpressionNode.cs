@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Observation;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
+namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
     public interface IBindingMemberExpressionNode : IExpressionNode
     {

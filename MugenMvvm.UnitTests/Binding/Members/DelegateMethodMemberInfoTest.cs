@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Delegates;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
+using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members
+namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class DelegateMethodMemberInfoTest : DelegateObservableMemberInfoTest
     {

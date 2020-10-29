@@ -1,23 +1,23 @@
 ﻿using System;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Parsing.Visitors;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Core.Components
+namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingExpressionInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {

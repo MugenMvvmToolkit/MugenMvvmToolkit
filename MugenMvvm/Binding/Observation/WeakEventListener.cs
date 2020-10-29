@@ -1,10 +1,10 @@
 ﻿using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Observation
+namespace MugenMvvm.Bindings.Observation
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct WeakEventListener

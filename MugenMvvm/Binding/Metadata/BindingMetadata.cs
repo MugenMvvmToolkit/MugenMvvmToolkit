@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Binding.Metadata
+namespace MugenMvvm.Bindings.Metadata
 {
     public static class BindingMetadata
     {

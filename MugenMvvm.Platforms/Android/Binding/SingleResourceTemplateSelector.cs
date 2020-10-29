@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Android.Interfaces;
 
-namespace MugenMvvm.Android.Binding
+namespace MugenMvvm.Android.Bindings
 {
     public sealed class SingleResourceTemplateSelector : IResourceTemplateSelector
     {

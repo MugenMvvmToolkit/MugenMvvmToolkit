@@ -1,13 +1,13 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Components.Converters;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Components.Converters;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Components.Converters
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class LambdaExpressionConverterTest : UnitTestBase
     {

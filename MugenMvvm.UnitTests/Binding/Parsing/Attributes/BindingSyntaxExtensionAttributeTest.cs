@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Attributes;
+﻿using MugenMvvm.Bindings.Attributes;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Attributes
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
 {
     [BindingMacros(Name, true)]
     public class BindingSyntaxExtensionAttributeTest : UnitTestBase

@@ -1,14 +1,14 @@
 ﻿using System;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingModeInitializerTest : UnitTestBase
     {

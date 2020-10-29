@@ -1,12 +1,12 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observation;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members
+namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class FieldAccessorMemberInfoTest : UnitTestBase
     {

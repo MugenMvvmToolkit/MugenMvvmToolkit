@@ -1,11 +1,11 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Resources;
-using MugenMvvm.Binding.Interfaces.Resources.Components;
+using MugenMvvm.Bindings.Interfaces.Resources;
+using MugenMvvm.Bindings.Interfaces.Resources.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using Should;
 
-namespace MugenMvvm.UnitTests.Binding.Resources.Internal
+namespace MugenMvvm.UnitTests.Bindings.Resources.Internal
 {
     public class TestTypeResolverComponent : ITypeResolverComponent, IHasPriority
     {

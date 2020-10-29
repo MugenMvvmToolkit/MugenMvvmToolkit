@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Interfaces.Core.Components
+namespace MugenMvvm.Bindings.Interfaces.Core.Components
 {
     public interface IBindingHolderComponent : IComponent<IBindingManager>
     {

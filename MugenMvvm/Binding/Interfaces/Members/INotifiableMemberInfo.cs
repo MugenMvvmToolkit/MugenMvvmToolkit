@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Members
+namespace MugenMvvm.Bindings.Interfaces.Members
 {
     public interface INotifiableMemberInfo : IObservableMemberInfo
     {

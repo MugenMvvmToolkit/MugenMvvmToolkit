@@ -1,14 +1,14 @@
-﻿using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members.Components;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Visitors;
+﻿using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Visitors
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 {
     public class MacrosExpressionVisitorTest : UnitTestBase
     {

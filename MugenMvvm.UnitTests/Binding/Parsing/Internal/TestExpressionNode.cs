@@ -1,11 +1,11 @@
 ﻿using System;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Internal
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public class TestExpressionNode : ExpressionNodeBase
     {

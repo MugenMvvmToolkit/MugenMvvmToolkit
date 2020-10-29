@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Enums
@@ -18,7 +19,6 @@ namespace MugenMvvm.Enums
 
         private string? _name;
         private static Dictionary<TValue, TEnumeration> _enumerations = new Dictionary<TValue, TEnumeration>();
-        private static Func<TValue, TValue, bool>? _equals;
 
         #endregion
 
@@ -50,7 +50,7 @@ namespace MugenMvvm.Enums
 
         TValue IHasId<TValue>.Id => Value;
 
-        object IEnum.Value => Value;
+        object IEnum.Value => BoxingExtensions.Box(Value);
 
         [DataMember(Name = "_d")]
         public string Name

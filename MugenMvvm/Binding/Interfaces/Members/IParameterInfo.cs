@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Binding.Interfaces.Members
+namespace MugenMvvm.Bindings.Interfaces.Members
 {
     public interface IParameterInfo
     {

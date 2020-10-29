@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Compiling.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Compiling.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Compiling.Components
+namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class LambdaExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {

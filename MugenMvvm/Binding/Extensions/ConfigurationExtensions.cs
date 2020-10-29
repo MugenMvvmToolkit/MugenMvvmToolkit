@@ -4,29 +4,29 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using MugenMvvm.App.Configuration;
-using MugenMvvm.Binding.Build.Components;
-using MugenMvvm.Binding.Compiling;
-using MugenMvvm.Binding.Compiling.Components;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Convert;
-using MugenMvvm.Binding.Convert.Components;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Builders;
-using MugenMvvm.Binding.Members.Components;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Components;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Components;
-using MugenMvvm.Binding.Parsing.Components.Converters;
-using MugenMvvm.Binding.Parsing.Components.Parsers;
-using MugenMvvm.Binding.Parsing.Visitors;
-using MugenMvvm.Binding.Resources;
-using MugenMvvm.Binding.Resources.Components;
+using MugenMvvm.Bindings.Build.Components;
+using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Compiling.Components;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Convert;
+using MugenMvvm.Bindings.Convert.Components;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Members.Builders;
+using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Components;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Components;
+using MugenMvvm.Bindings.Parsing.Components.Converters;
+using MugenMvvm.Bindings.Parsing.Components.Parsers;
+using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Bindings.Resources;
+using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
@@ -38,7 +38,7 @@ using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Extensions
+namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class MugenBindingExtensions
     {

@@ -1,9 +1,9 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Internal
+namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestBindingBuilder : IHasTargetExpressionBindingBuilder
     {

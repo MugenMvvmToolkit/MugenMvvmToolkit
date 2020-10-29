@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Binding.Metadata
+namespace MugenMvvm.Bindings.Metadata
 {
     public static class ParsingMetadata
     {

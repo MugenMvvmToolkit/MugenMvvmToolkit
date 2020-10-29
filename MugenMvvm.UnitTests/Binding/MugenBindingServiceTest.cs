@@ -1,10 +1,10 @@
 ﻿using System;
-using MugenMvvm.Binding;
+using MugenMvvm.Bindings;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding
+namespace MugenMvvm.UnitTests.Bindings
 {
     public class MugenBindingServiceTest
     {

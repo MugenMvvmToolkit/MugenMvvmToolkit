@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation
+namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberListenerCollectionTest : UnitTestBase
     {

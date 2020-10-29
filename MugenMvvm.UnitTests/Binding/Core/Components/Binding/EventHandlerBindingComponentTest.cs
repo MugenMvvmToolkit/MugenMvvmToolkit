@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Binding;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Commands.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
+namespace MugenMvvm.UnitTests.Bindings.Core.Components.Binding
 {
     public class EventHandlerBindingComponentTest : UnitTestBase
     {

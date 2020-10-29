@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Binding.Parsing.Expressions.Binding;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing.Expressions.Binding;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions.Binding
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
     public abstract class BindingMemberExpressionNodeBaseTest : UnitTestBase
     {

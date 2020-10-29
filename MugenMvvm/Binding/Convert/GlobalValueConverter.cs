@@ -1,13 +1,13 @@
 ﻿using System;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Convert;
-using MugenMvvm.Binding.Interfaces.Convert.Components;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Convert.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Convert
+namespace MugenMvvm.Bindings.Convert
 {
     public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter
     {

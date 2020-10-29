@@ -2,7 +2,7 @@
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 
-namespace MugenMvvm.Binding.Enums
+namespace MugenMvvm.Bindings.Enums
 {
     //https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/index
     public class BinaryTokenType : EnumBase<BinaryTokenType, string>

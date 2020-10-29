@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Extensions.Components;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Extensions.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Binding.Parsing
+namespace MugenMvvm.Bindings.Parsing
 {
     public sealed class ExpressionConverterContext<TExpression> : MetadataOwnerBase, IExpressionConverterContext<TExpression> where TExpression : class
     {

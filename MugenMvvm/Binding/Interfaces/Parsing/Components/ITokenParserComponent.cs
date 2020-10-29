@@ -1,7 +1,7 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing.Components
+namespace MugenMvvm.Bindings.Interfaces.Parsing.Components
 {
     public interface ITokenParserComponent : IComponent<IExpressionParser>
     {

@@ -1,11 +1,11 @@
 ﻿using System;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Components.Parsers;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Components.Parsers;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Components.Parsers
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class DigitTokenParserTest : UnitTestBase
     {

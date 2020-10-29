@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Members
+namespace MugenMvvm.Bindings.Interfaces.Members
 {
     public interface IMethodMemberInfo : IObservableMemberInfo
     {

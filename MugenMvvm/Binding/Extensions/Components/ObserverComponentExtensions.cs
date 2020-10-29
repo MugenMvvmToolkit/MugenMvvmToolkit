@@ -1,10 +1,10 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Interfaces.Observation.Components;
-using MugenMvvm.Binding.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Extensions.Components
+namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class ObserverComponentExtensions
     {

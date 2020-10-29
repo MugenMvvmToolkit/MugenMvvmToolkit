@@ -1,9 +1,9 @@
 ﻿#pragma warning disable CS1718
-using MugenMvvm.Binding.Enums;
+using MugenMvvm.Bindings.Enums;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Enums
+namespace MugenMvvm.UnitTests.Bindings.Enums
 {
     public class BinaryTokenTypeTest
     {

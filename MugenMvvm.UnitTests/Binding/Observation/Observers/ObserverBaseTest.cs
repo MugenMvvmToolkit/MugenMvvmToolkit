@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Observers
+namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public abstract class ObserverBaseTest<TObserver> : UnitTestBase where TObserver : IMemberPathObserver
     {

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Binding.Core
+namespace MugenMvvm.Bindings.Core
 {
     public class BindingExpressionInitializerContext : MetadataOwnerBase, IBindingExpressionInitializerContext
     {

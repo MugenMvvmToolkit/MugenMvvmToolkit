@@ -1,12 +1,12 @@
 ﻿using System;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Observers
+namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class RootMultiPathObserverTest : MultiPathObserverTestBase<RootMultiPathObserver>
     {

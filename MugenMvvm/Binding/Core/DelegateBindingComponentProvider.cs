@@ -1,9 +1,9 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Core
+namespace MugenMvvm.Bindings.Core
 {
     public sealed class DelegateBindingComponentProvider<TState> : IBindingComponentProvider
     {

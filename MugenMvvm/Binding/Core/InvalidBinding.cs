@@ -1,9 +1,9 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Core
+namespace MugenMvvm.Bindings.Core
 {
     public sealed class InvalidBinding : Binding, IBindingBuilder
     {

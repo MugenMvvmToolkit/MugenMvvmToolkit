@@ -1,17 +1,17 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Resources;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Observers;
-using MugenMvvm.Binding.Observation.Paths;
-using MugenMvvm.Binding.Parsing.Expressions.Binding;
-using MugenMvvm.Binding.Resources;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Resources;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Bindings.Parsing.Expressions.Binding;
+using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
-using MugenMvvm.UnitTests.Binding.Resources.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.UnitTests.Bindings.Resources.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing.Expressions.Binding
+namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
     public class BindingResourceMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest
     {

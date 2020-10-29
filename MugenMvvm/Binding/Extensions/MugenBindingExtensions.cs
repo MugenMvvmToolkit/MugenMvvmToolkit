@@ -7,29 +7,29 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Compiling;
-using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Compiling;
-using MugenMvvm.Binding.Interfaces.Convert;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Interfaces.Observation.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Interfaces.Resources;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Binding.Observation.Observers;
-using MugenMvvm.Binding.Parsing.Visitors;
+using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Resources;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Extensions
+namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class MugenBindingExtensions
     {

@@ -1,16 +1,16 @@
-﻿using MugenMvvm.Binding.Compiling.Components;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Compiling.Components;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling.Components
+namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class MemberExpressionBuilderTest : UnitTestBase
     {

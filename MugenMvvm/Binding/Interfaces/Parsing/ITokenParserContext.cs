@@ -1,8 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing
+namespace MugenMvvm.Bindings.Interfaces.Parsing
 {
     public interface ITokenParserContext : IParserContext
     {

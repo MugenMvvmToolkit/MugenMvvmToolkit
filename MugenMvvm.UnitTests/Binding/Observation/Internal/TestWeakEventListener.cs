@@ -1,8 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Internal
+namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 {
     public class TestWeakEventListener : IWeakEventListener
     {

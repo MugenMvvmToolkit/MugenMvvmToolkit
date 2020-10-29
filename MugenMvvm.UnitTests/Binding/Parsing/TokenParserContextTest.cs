@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.UnitTests.Binding.Parsing.Internal;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Metadata;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing
+namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class TokenParserContextTest : MetadataOwnerTestBase
     {

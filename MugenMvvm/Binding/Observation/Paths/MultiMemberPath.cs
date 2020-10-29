@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Binding.Observation.Paths
+namespace MugenMvvm.Bindings.Observation.Paths
 {
     public sealed class MultiMemberPath : IMemberPath, IValueHolder<string>
     {

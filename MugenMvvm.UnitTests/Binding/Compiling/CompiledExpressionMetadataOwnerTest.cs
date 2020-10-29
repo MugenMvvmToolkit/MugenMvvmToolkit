@@ -1,9 +1,9 @@
-﻿using MugenMvvm.Binding.Compiling;
-using MugenMvvm.Binding.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTests.Metadata;
 
-namespace MugenMvvm.UnitTests.Binding.Compiling
+namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class CompiledExpressionMetadataOwnerTest : MetadataOwnerTestBase
     {

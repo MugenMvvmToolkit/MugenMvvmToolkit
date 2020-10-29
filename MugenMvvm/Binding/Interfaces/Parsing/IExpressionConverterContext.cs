@@ -1,6 +1,6 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing
+namespace MugenMvvm.Bindings.Interfaces.Parsing
 {
     public interface IExpressionConverterContext<in TExpression> : IParserContext where TExpression : class
     {

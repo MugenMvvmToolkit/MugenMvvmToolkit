@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Binding.Constants
+﻿namespace MugenMvvm.Bindings.Constants
 {
     internal static class BindingInternalConstant
     {

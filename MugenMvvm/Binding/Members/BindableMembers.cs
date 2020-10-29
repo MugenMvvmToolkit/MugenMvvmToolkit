@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Attributes;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Members.Descriptors;
+using MugenMvvm.Bindings.Attributes;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Members
+namespace MugenMvvm.Bindings.Members
 {
     public static class BindableMembers
     {

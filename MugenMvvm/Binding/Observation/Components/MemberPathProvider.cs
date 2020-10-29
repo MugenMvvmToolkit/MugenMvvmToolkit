@@ -1,11 +1,11 @@
-﻿using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Interfaces.Observation.Components;
-using MugenMvvm.Binding.Observation.Paths;
+﻿using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Observation.Components
+namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class MemberPathProvider : IMemberPathProviderComponent, IHasPriority
     {

@@ -1,7 +1,7 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing
+namespace MugenMvvm.Bindings.Interfaces.Parsing
 {
     public interface IExpressionVisitor
     {

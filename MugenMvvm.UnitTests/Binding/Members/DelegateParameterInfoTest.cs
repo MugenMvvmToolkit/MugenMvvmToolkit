@@ -1,9 +1,9 @@
 ﻿using System;
-using MugenMvvm.Binding.Members;
+using MugenMvvm.Bindings.Members;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Members
+namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class DelegateParameterInfoTest : UnitTestBase
     {

@@ -1,12 +1,12 @@
-﻿using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components;
-using MugenMvvm.Binding.Extensions;
+﻿using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionParserCacheTest : UnitTestBase
     {

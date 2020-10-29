@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.App.Components;
 using MugenMvvm.App.Configuration;
-using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Components;

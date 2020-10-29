@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
+﻿namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
     public interface IHasTargetExpressionNode<out TExpression> : IExpressionNode where TExpression : class, IExpressionNode
     {

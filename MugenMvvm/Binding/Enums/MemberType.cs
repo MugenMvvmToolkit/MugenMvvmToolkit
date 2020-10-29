@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Binding.Enums
+namespace MugenMvvm.Bindings.Enums
 {
     [Flags]
     public enum MemberType : byte

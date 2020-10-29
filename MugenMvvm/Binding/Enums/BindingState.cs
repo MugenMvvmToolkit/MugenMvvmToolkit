@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 
-namespace MugenMvvm.Binding.Enums
+namespace MugenMvvm.Bindings.Enums
 {
     public class BindingState : EnumBase<BindingState, int>
     {

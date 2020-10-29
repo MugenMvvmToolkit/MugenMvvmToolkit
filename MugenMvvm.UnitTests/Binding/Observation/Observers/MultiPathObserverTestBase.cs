@@ -1,17 +1,17 @@
 ﻿using System;
-using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observation.Observers;
-using MugenMvvm.Binding.Observation.Paths;
+using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Observation.Observers
+namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public abstract class MultiPathObserverTestBase<TObserver> : ObserverBaseTest<TObserver> where TObserver : MultiPathObserverBase
     {

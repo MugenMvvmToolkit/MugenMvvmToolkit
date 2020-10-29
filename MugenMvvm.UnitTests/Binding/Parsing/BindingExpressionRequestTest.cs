@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Parsing;
+using MugenMvvm.Bindings.Parsing;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Parsing
+namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class BindingExpressionRequestTest : UnitTestBase
     {

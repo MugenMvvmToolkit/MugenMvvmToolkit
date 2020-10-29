@@ -4,7 +4,7 @@ using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Interfaces.ViewModels;
 
-namespace MugenMvvm.Android.Binding
+namespace MugenMvvm.Android.Bindings
 {
     public sealed class ContentTemplateSelectorWrapper : IContentTemplateSelector, IFragmentTemplateSelector, ITitleTemplateSelector
     {

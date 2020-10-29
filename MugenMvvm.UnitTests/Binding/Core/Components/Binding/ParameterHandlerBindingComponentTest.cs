@@ -1,16 +1,16 @@
-﻿using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.UnitTests.Binding.Compiling.Internal;
-using MugenMvvm.UnitTests.Binding.Convert.Internal;
-using MugenMvvm.UnitTests.Binding.Core.Internal;
-using MugenMvvm.UnitTests.Binding.Members.Internal;
-using MugenMvvm.UnitTests.Binding.Observation.Internal;
+﻿using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
+using MugenMvvm.UnitTests.Bindings.Convert.Internal;
+using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Binding.Core.Components.Binding
+namespace MugenMvvm.UnitTests.Bindings.Core.Components.Binding
 {
     public class ParameterHandlerBindingComponentTest : UnitTestBase
     {

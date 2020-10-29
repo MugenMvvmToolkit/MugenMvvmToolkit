@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Members;
 
-namespace MugenMvvm.Binding.Members.Builders
+namespace MugenMvvm.Bindings.Members.Builders
 {
     [StructLayout(LayoutKind.Auto)]
     public ref struct ParameterBuilder
