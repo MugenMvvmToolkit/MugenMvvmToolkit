@@ -7,7 +7,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
-using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;

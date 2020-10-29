@@ -1,5 +1,5 @@
 ﻿using System;
-using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
@@ -7,7 +7,7 @@ using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Bindings.Core.Components.Binding
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class DelayBindingComponentTest : UnitTestBase
     {

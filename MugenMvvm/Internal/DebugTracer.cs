@@ -5,7 +5,6 @@ using System.Threading;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
-using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;

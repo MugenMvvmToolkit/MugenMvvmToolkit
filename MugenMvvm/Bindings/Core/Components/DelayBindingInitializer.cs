@@ -1,5 +1,4 @@
 ﻿using MugenMvvm.Bindings.Constants;
-using MugenMvvm.Bindings.Core.Components.Binding;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Interfaces.Models;

@@ -1,5 +1,5 @@
 ﻿using MugenMvvm.Bindings.Core;
-using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
@@ -10,7 +10,7 @@ using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Bindings.Core.Components.Binding
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class ParameterHandlerBindingComponentTest : UnitTestBase
     {

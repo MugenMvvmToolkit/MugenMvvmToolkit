@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Bindings.Core.Components.Binding;
-using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
@@ -12,7 +12,7 @@ using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Bindings.Core.Components.Binding
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class OneTimeBindingModeTest : UnitTestBase
     {

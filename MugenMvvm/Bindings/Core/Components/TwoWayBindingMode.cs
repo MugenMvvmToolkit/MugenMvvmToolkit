@@ -1,13 +1,13 @@
 ﻿using System;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Interfaces.Core;
-using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Bindings.Core.Components.Binding
+namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class TwoWayBindingMode : IAttachableComponent, IBindingSourceObserverListener, IBindingTargetObserverListener, IHasPriority
     {

@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
-using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
@@ -19,7 +18,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Bindings.Core.Components.Binding
+namespace MugenMvvm.Bindings.Core.Components
 {
     public class EventHandlerBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent, IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority
     {

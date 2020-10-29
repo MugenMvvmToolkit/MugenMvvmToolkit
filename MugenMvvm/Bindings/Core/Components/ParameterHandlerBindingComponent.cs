@@ -3,12 +3,12 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Core;
-using MugenMvvm.Bindings.Interfaces.Core.Components.Binding;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Bindings.Core.Components.Binding
+namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class ParameterHandlerBindingComponent : ISourceValueInterceptorBindingComponent, ITargetValueInterceptorBindingComponent, IHasPriority, IDisposable
     {

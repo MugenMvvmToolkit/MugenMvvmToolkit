@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings;
 using MugenMvvm.Bindings.Core;
-using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -18,7 +18,7 @@ using MugenMvvm.UnitTests.Commands.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Bindings.Core.Components.Binding
+namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class EventHandlerBindingComponentTest : UnitTestBase
     {

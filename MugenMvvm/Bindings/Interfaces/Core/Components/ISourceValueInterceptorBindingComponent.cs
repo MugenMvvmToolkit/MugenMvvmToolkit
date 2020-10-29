@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Bindings.Interfaces.Core.Components.Binding
+namespace MugenMvvm.Bindings.Interfaces.Core.Components
 {
     public interface ISourceValueInterceptorBindingComponent : IComponent<IBinding>
     {

@@ -10,7 +10,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
-using MugenMvvm.Bindings.Core.Components.Binding;
+using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Convert;
