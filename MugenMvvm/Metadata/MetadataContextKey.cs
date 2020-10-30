@@ -31,6 +31,8 @@ namespace MugenMvvm.Metadata
 
         public bool IsSerializable { get; }
 
+        public abstract Type ValueType { get; }
+
         public IReadOnlyDictionary<string, object?> Metadata { get; }
 
         #endregion
@@ -278,6 +280,12 @@ namespace MugenMvvm.Metadata
                 _fieldOrPropertyName = fieldOrPropertyName;
                 DefaultValue = default!;
             }
+
+            #endregion
+
+            #region Properties
+
+            public override Type ValueType => typeof(T);
 
             #endregion
 

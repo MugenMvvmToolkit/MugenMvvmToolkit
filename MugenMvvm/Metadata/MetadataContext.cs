@@ -77,17 +77,10 @@ namespace MugenMvvm.Metadata
             var components = GetComponents();
             lock (_dictionary)
             {
-                if (components.Length == 0)
-                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>) _dictionary.ToArray()).GetEnumerator();
-
                 var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(value => value.Key == null);
                 foreach (var keyValuePair in _dictionary)
                     contextValues.Add(keyValuePair);
-                for (var i = 0; i < components.Length; i++)
-                {
-                    foreach (var keyValuePair in components[i].GetValues(this))
-                        contextValues.Add(keyValuePair);
-                }
+                components.GetValues(this, MetadataOperationType.Get, ref contextValues);
 
                 var v = contextValues.ToItemOrList();
                 if (v.Item.Key != null)
@@ -340,11 +333,7 @@ namespace MugenMvvm.Metadata
             {
                 foreach (var pair in _dictionary)
                     oldValues.Add(pair);
-                for (var i = 0; i < components.Length; i++)
-                {
-                    foreach (var keyValuePair in components[i].GetValues(this))
-                        oldValues.Add(keyValuePair);
-                }
+                components.GetValues(this, MetadataOperationType.Remove, ref oldValues);
 
                 _dictionary.Clear();
                 components.Clear(this);

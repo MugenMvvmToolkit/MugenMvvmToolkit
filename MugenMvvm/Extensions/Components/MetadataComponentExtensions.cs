@@ -1,6 +1,8 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Collections.Generic;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -33,6 +35,16 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(key, nameof(key));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnRemoved(context, key, oldValue);
+        }
+
+        public static void GetValues(this IMetadataContextValueManagerComponent[] components, IMetadataContext context,
+            MetadataOperationType operationType, ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>, List<KeyValuePair<IMetadataContextKey, object?>>> values)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(operationType, nameof(operationType));
+            for (int i = 0; i < components.Length; i++)
+                components[i].GetValues(context, operationType, ref values);
         }
 
         public static int GetCount(this IMetadataContextValueManagerComponent[] components, IMetadataContext context)

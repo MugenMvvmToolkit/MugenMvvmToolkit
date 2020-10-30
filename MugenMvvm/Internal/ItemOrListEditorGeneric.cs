@@ -86,6 +86,8 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
+        public ItemOrListEditor<TItem, TList> AddRange(IEnumerable<TItem>? values) => AddRange(ItemOrList.FromList<TItem, IEnumerable<TItem>>(values));
+
         public ItemOrListEditor<TItem, TList> AddRange<T>(ItemOrList<TItem, T> value) where T : class, IEnumerable<TItem>
         {
             if (_isEmpty(value.Item!) && value.List == null)

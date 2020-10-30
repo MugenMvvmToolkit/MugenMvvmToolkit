@@ -37,6 +37,7 @@ namespace MugenMvvm.UnitTests.Metadata
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldBeFalse();
+            key.ValueType.ShouldEqual(typeof(int));
         }
 
         [Theory]

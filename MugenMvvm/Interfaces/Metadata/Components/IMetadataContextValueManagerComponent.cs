@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Metadata.Components
 {
@@ -8,7 +9,7 @@ namespace MugenMvvm.Interfaces.Metadata.Components
     {
         int GetCount(IMetadataContext context);
 
-        IEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues(IMetadataContext context);
+        void GetValues(IMetadataContext context, MetadataOperationType operationType, ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>, List<KeyValuePair<IMetadataContextKey, object?>>> values);
 
         bool Contains(IMetadataContext context, IMetadataContextKey contextKey);
 

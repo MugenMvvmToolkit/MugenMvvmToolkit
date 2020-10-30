@@ -8,6 +8,8 @@ namespace MugenMvvm.Interfaces.Metadata
     {
         bool IsSerializable { get; }
 
+        Type ValueType { get; }
+
         IReadOnlyDictionary<string, object?> Metadata { get; }
     }
 }

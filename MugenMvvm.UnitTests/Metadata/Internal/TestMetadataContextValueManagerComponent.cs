@@ -54,10 +54,12 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
             return GetCount?.Invoke() ?? 0;
         }
 
-        IEnumerable<KeyValuePair<IMetadataContextKey, object?>> IMetadataContextValueManagerComponent.GetValues(IMetadataContext context)
+        void IMetadataContextValueManagerComponent.GetValues(IMetadataContext context, MetadataOperationType operationType,
+            ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>, List<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
-            return GetValues?.Invoke() ?? Default.Array<KeyValuePair<IMetadataContextKey, object?>>();
+            var array = GetValues?.Invoke() ?? Default.Array<KeyValuePair<IMetadataContextKey, object?>>();
+            values.AddRange(array);
         }
 
         bool IMetadataContextValueManagerComponent.Contains(IMetadataContext context, IMetadataContextKey contextKey)
