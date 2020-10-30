@@ -40,8 +40,8 @@ namespace MugenMvvm.Threading.Components
 
         #region Implementation of interfaces
 
-        public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata) =>
-            executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
+        public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
+            => executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread() || executionMode == ThreadExecutionMode.Background && !IsOnMainThread();
 
         public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -49,7 +49,7 @@ namespace MugenMvvm.Threading.Components
                 return ExecuteInline(handler, state);
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
                 return ExecuteMainThread(handler, state);
-            if (executionMode == ThreadExecutionMode.Background)
+            if (executionMode == ThreadExecutionMode.Background || executionMode == ThreadExecutionMode.BackgroundAsync)
                 return ExecuteBackground(handler, state);
             return false;
         }

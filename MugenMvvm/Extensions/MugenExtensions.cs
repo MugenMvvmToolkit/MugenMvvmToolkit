@@ -30,6 +30,7 @@ using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 using MugenMvvm.Internal;
+using MugenMvvm.Threading;
 using MugenMvvm.Wrapping.Components;
 
 namespace MugenMvvm.Extensions
@@ -121,6 +122,12 @@ namespace MugenMvvm.Extensions
 
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state, IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, handler, state, metadata);
+
+        public static ThreadSwitcherAwaitable SwitchToMainAsync(this IThreadDispatcher? threadDispatcher) => threadDispatcher.SwitchToAsync(ThreadExecutionMode.Main);
+
+        public static ThreadSwitcherAwaitable SwitchToBackgroundAsync(this IThreadDispatcher? threadDispatcher) => threadDispatcher.SwitchToAsync(ThreadExecutionMode.Background);
+
+        public static ThreadSwitcherAwaitable SwitchToAsync(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode) => new ThreadSwitcherAwaitable(threadDispatcher.DefaultIfNull(), executionMode);
 
         public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
