@@ -46,7 +46,7 @@ namespace MugenMvvm.Threading
 
             #region Constructors
 
-            public ThreadSwitcherAwaiter(IThreadDispatcher? threadDispatcher, ThreadExecutionMode? executionMode)
+            internal ThreadSwitcherAwaiter(IThreadDispatcher? threadDispatcher, ThreadExecutionMode? executionMode)
             {
                 _threadDispatcher = threadDispatcher;
                 _executionMode = executionMode;
