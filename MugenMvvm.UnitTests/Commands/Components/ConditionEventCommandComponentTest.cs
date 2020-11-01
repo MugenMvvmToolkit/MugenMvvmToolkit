@@ -171,7 +171,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldSubscribeMessenger(int listenersCount, bool hasService)
         {
             var subscribedCount = 0;
-            IMessengerHandlerRaw? handlerRaw = null;
+            IMessengerHandler? handlerRaw = null;
             var list = new List<object>();
             for (var i = 0; i < listenersCount; i++)
             {
@@ -181,7 +181,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                     TrySubscribe = (o, arg3, arg4) =>
                     {
                         ++subscribedCount;
-                        handlerRaw = (IMessengerHandlerRaw?) o;
+                        handlerRaw = (IMessengerHandler?) o;
                         return true;
                     }
                 };
@@ -209,14 +209,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(false)]
         public void ShouldSubscribeMessengerCanNotify(bool hasService)
         {
-            IMessengerHandlerRaw? handlerRaw = null;
+            IMessengerHandler? handlerRaw = null;
             var list = new List<object>();
             var messenger = new Messenger();
             var component = new TestMessengerSubscriberComponent
             {
                 TrySubscribe = (o, arg3, arg4) =>
                 {
-                    handlerRaw = (IMessengerHandlerRaw?) o;
+                    handlerRaw = (IMessengerHandler?) o;
                     return true;
                 }
             };

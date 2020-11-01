@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Messaging;
 
 namespace MugenMvvm.UnitTests.Messaging.Internal
 {
-    public class TestMessengerHandlerRaw : IMessengerHandlerRaw
+    public class TestMessengerHandlerRaw : IMessengerHandler
     {
         #region Properties
 
@@ -16,9 +16,9 @@ namespace MugenMvvm.UnitTests.Messaging.Internal
 
         #region Implementation of interfaces
 
-        bool IMessengerHandlerRaw.CanHandle(Type messageType) => CanHandle?.Invoke(messageType) ?? false;
+        bool IMessengerHandler.CanHandle(Type messageType) => CanHandle?.Invoke(messageType) ?? false;
 
-        MessengerResult IMessengerHandlerRaw.Handle(IMessageContext messageContext) => Handle?.Invoke(messageContext) ?? MessengerResult.Ignored;
+        MessengerResult IMessengerHandler.Handle(IMessageContext messageContext) => Handle?.Invoke(messageContext) ?? MessengerResult.Ignored;
 
         #endregion
     }

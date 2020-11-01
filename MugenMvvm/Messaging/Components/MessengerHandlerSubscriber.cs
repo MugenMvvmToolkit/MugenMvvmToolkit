@@ -50,9 +50,9 @@ namespace MugenMvvm.Messaging.Components
 
         public bool TrySubscribe(IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
-            if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandler handler)
+            if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandlerBase handler)
                 return Add(new HandlerSubscriber(weakReference, RuntimeHelpers.GetHashCode(handler), executionMode));
-            if (subscriber is IMessengerHandler)
+            if (subscriber is IMessengerHandlerBase)
                 return Add(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), executionMode));
             return false;
         }
@@ -67,7 +67,7 @@ namespace MugenMvvm.Messaging.Components
                 return Remove(new HandlerSubscriber(target, RuntimeHelpers.GetHashCode(target), null));
             }
 
-            if (subscriber is IMessengerHandler)
+            if (subscriber is IMessengerHandlerBase)
                 return Remove(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), null));
 
             return false;
@@ -106,7 +106,7 @@ namespace MugenMvvm.Messaging.Components
                     var action = GetHandler(_reflectionManager, subscriber.GetType(), messageType);
                     if (action != null)
                         result.Add(new MessengerHandler(HandlerDelegate, handler.Subscriber, handler.ExecutionMode, action));
-                    if (subscriber is IMessengerHandlerRaw handlerRaw && handlerRaw.CanHandle(messageType))
+                    if (subscriber is IMessengerHandler handlerRaw && handlerRaw.CanHandle(messageType))
                         result.Add(new MessengerHandler(HandlerRawDelegate, handler.Subscriber, handler.ExecutionMode));
                 }
             }
@@ -155,7 +155,7 @@ namespace MugenMvvm.Messaging.Components
                 subscriber = weakReference.Target!;
             if (subscriber == null)
                 return MessengerResult.Invalid;
-            return ((IMessengerHandlerRaw) subscriber).Handle(context);
+            return ((IMessengerHandler) subscriber).Handle(context);
         }
 
         private new bool Add(HandlerSubscriber subscriber)

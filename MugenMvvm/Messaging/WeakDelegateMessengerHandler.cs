@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Messaging;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class WeakDelegateMessengerHandler<TTarget, TMessage> : IMessengerHandlerRaw
+    public sealed class WeakDelegateMessengerHandler<TTarget, TMessage> : IMessengerHandler
         where TTarget : class
     {
         #region Fields

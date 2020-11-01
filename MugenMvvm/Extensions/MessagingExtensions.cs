@@ -33,7 +33,7 @@ namespace MugenMvvm.Extensions
         public static ActionToken Subscribe<TMessage>(this IMessenger messenger, Action<object?, TMessage, IMessageContext> action, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null) =>
             messenger.Subscribe(new DelegateMessengerHandler<TMessage>(action), executionMode, metadata);
 
-        public static ActionToken SubscribeWeak(this IMessenger messenger, IMessengerHandler subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null) =>
+        public static ActionToken SubscribeWeak(this IMessenger messenger, IMessengerHandlerBase subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null) =>
             messenger.Subscribe(subscriber.ToWeakReference(), executionMode, metadata);
 
         public static ActionToken SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target, Action<TTarget, object?, TMessage, IMessageContext> action,

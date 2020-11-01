@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Messaging;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class DelegateMessengerHandler<TMessage> : IMessengerHandlerRaw
+    public sealed class DelegateMessengerHandler<TMessage> : IMessengerHandler
     {
         #region Fields
 
