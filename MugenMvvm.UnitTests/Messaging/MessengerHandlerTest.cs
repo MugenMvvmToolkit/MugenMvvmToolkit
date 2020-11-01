@@ -43,10 +43,13 @@ namespace MugenMvvm.UnitTests.Messaging
                 return result;
             };
             var messengerHandler = new MessengerHandler(handler, subscriber, executionMode, state);
-            messengerHandler.Handler.ShouldEqual(handler);
+            messengerHandler.Deconstruct(out var s, out var m, out var h, out var st);
+            s.ShouldEqual(subscriber);
+            m.ShouldEqual(executionMode);
+            h.ShouldEqual(handler);
+            st.ShouldEqual(state);
             messengerHandler.ExecutionMode.ShouldEqual(executionMode);
             messengerHandler.Subscriber.ShouldEqual(subscriber);
-            messengerHandler.State.ShouldEqual(state);
 
             messengerHandler.Handle(messageContext).ShouldEqual(result);
             invokeCount.ShouldEqual(1);

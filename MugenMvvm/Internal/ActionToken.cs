@@ -64,6 +64,17 @@ namespace MugenMvvm.Internal
 
         #endregion
 
+        #region Methods
+
+        public void Deconstruct(out object? handler, out object? state1, out object? state2)
+        {
+            handler = _handler;
+            state1 = _state1;
+            state2 = _state2;
+        }
+
+        #endregion
+
         #region Nested types
 
         public interface IHandler

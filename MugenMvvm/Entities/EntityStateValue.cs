@@ -7,7 +7,7 @@ namespace MugenMvvm.Entities
     {
         #region Fields
 
-        public readonly object Member;
+        public readonly object? Member;
         public readonly object? NewValue;
         public readonly object? OldValue;
 

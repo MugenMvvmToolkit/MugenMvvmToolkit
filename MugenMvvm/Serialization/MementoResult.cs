@@ -9,6 +9,8 @@ namespace MugenMvvm.Serialization
     {
         #region Fields
 
+        public readonly bool IsRestored;
+        public readonly object? Target;
         private readonly IReadOnlyMetadataContext? _metadata;
 
         #endregion
@@ -33,10 +35,6 @@ namespace MugenMvvm.Serialization
         #endregion
 
         #region Properties
-
-        public bool IsRestored { get; }
-
-        public object? Target { get; }
 
         public IReadOnlyMetadataContext Metadata => _metadata ?? Default.Metadata;
 

@@ -13,6 +13,8 @@ namespace MugenMvvm.Validation
 
         public static readonly ValidationResult NoErrors = new ValidationResult(null, Default.ReadOnlyDictionary<string, object?>());
 
+        public readonly object? RawErrors;
+        public readonly string? SingleMemberName;
         public readonly IReadOnlyMetadataContext Metadata;
 
         #endregion
@@ -31,10 +33,6 @@ namespace MugenMvvm.Validation
         #region Properties
 
         public bool HasResult => RawErrors != null;
-
-        public string? SingleMemberName { get; }
-
-        public object? RawErrors { get; }
 
         public ItemOrList<object, IReadOnlyList<object>> SingleMemberErrors
         {

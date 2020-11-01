@@ -8,8 +8,8 @@ namespace MugenMvvm.Entities
     {
         #region Fields
 
-        public readonly object Entity;
-        public readonly EntityState State;
+        public readonly object? Entity;
+        public readonly EntityState? State;
 
         #endregion
 

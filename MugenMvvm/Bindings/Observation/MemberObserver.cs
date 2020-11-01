@@ -14,8 +14,8 @@ namespace MugenMvvm.Bindings.Observation
 
         public static readonly MemberObserver NoDo = new MemberObserver((_, __, ___, ____) => default, Default.Metadata);
 
-        public readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> Handler;
-        public readonly object Member;
+        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>? _handler;
+        private readonly object? _member;
 
         #endregion
 
@@ -25,28 +25,34 @@ namespace MugenMvvm.Bindings.Observation
         {
             Should.NotBeNull(handler, nameof(handler));
             Should.NotBeNull(member, nameof(member));
-            Member = member;
-            Handler = handler;
+            _member = member;
+            _handler = handler;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsEmpty => Handler == null;
+        public bool IsEmpty => _handler == null;
 
         #endregion
 
         #region Methods
+
+        public void Deconstruct(out Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>? handler, out object? member)
+        {
+            handler = _handler;
+            member = _member;
+        }
 
         public MemberObserver NoDoIfEmpty() => IsEmpty ? NoDo : this;
 
         [Pure]
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            if (Handler == null)
+            if (_handler == null)
                 return default;
-            return Handler.Invoke(target, Member, listener, metadata);
+            return _handler.Invoke(target, _member!, listener, metadata);
         }
 
         #endregion

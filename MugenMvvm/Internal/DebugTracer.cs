@@ -316,14 +316,14 @@ namespace MugenMvvm.Internal
                 var handlers = Components.TryGetMessengerHandlers(messenger, messageType, metadata);
                 foreach (var messengerHandler in handlers.Iterator(handler => handler.IsEmpty))
                 {
-                    var handler = messengerHandler.Handler;
+                    messengerHandler.Deconstruct(out var subscriber, out var mode, out var handler, out var state);
                     editor.Add(new MessengerHandler((o, context, s) =>
                     {
                         Tracer.Info()?.Trace($"{MessagingTag}handling message {Dump(o, context)}");
-                        var result = handler(o, context, s);
+                        var result = handler!(o, context, s);
                         Tracer.Info()?.Trace($"{MessagingTag}handled message result={result}, {Dump(o, context)}");
                         return result;
-                    }, messengerHandler.Subscriber, messengerHandler.ExecutionMode, messengerHandler.State));
+                    }, subscriber!, mode, state));
                 }
 
                 return editor.ToItemOrList<IReadOnlyList<MessengerHandler>>();

@@ -10,10 +10,10 @@ namespace MugenMvvm.Messaging
     {
         #region Fields
 
-        public readonly Func<object, IMessageContext, object?, MessengerResult> Handler;
+        public readonly object? Subscriber;
         public readonly ThreadExecutionMode? ExecutionMode;
-        public readonly object Subscriber;
-        public readonly object? State;
+        private readonly Func<object, IMessageContext, object?, MessengerResult>? _handler;
+        private readonly object? _state;
 
         #endregion
 
@@ -25,25 +25,33 @@ namespace MugenMvvm.Messaging
             Should.NotBeNull(subscriber, nameof(subscriber));
             ExecutionMode = executionMode;
             Subscriber = subscriber;
-            Handler = handler;
-            State = state;
+            _handler = handler;
+            _state = state;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsEmpty => Handler == null;
+        public bool IsEmpty => _handler == null;
 
         #endregion
 
         #region Methods
 
+        public void Deconstruct(out object? subscriber, out ThreadExecutionMode? executionMode, out Func<object, IMessageContext, object?, MessengerResult>? handler, out object? state)
+        {
+            subscriber = Subscriber;
+            executionMode = ExecutionMode;
+            handler = _handler;
+            state = _state;
+        }
+
         public MessengerResult Handle(IMessageContext messageContext)
         {
-            if (Handler == null)
+            if (_handler == null)
                 return MessengerResult.Ignored;
-            return Handler(Subscriber, messageContext, State);
+            return _handler(Subscriber!, messageContext, _state);
         }
 
         #endregion

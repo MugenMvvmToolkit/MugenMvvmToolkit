@@ -1,4 +1,7 @@
-﻿using MugenMvvm.Bindings.Observation;
+﻿using System;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
@@ -25,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var listener = new TestWeakEventListener();
             var member = new object();
             var result = ActionToken.NoDoToken;
-            var observer = new MemberObserver((t, m, l, meta) =>
+            var handler = new Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>((t, m, l, meta) =>
             {
                 ++count;
                 t.ShouldEqual(target);
@@ -33,10 +36,14 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 l.ShouldEqual(listener);
                 meta.ShouldEqual(DefaultMetadata);
                 return result;
-            }, member);
+            });
+            var observer = new MemberObserver(handler, member);
 
             observer.IsEmpty.ShouldBeFalse();
-            observer.Member.ShouldEqual(member);
+            observer.Deconstruct(out var h, out var m);
+            handler.ShouldEqual(h);
+            m.ShouldEqual(member);
+
             observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
         }

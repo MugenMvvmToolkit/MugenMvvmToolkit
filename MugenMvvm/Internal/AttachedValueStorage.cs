@@ -38,7 +38,7 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        public void GetInternalState(out IAttachedValueStorageManager storageManager, out object item, out object? state)
+        public void Deconstruct(out IAttachedValueStorageManager storageManager, out object item, out object? state)
         {
             EnsureInitialized();
             storageManager = _storageManager;

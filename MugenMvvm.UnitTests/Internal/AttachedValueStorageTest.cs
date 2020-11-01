@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Internal
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetOrAdd("", ""));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetOrAdd("", "", (o, s) => ""));
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Clear());
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().GetInternalState(out _, out _, out _));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Deconstruct(out _, out _, out _));
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Internal
             var manager = new TestAttachedValueStorageManager();
             var attachedValueStorage = new AttachedValueStorage(item, manager, state);
 
-            attachedValueStorage.GetInternalState(out var internalManager, out var internalItem, out var internalState);
+            attachedValueStorage.Deconstruct(out var internalManager, out var internalItem, out var internalState);
             internalManager.ShouldEqual(manager);
             internalItem.ShouldEqual(item);
             internalState.ShouldEqual(state);
