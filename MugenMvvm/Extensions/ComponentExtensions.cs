@@ -70,14 +70,7 @@ namespace MugenMvvm.Extensions
             return false;
         }
 
-        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
-            if (componentOwner.HasComponents)
-                componentOwner.Components.Clear(metadata);
-        }
-
-        public static void ClearComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static void RemoveComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
@@ -86,6 +79,13 @@ namespace MugenMvvm.Extensions
                 for (var i = 0; i < components.Length; i++)
                     componentOwner.Components.Remove(components[i], metadata);
             }
+        }
+
+        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            if (componentOwner.HasComponents)
+                componentOwner.Components.Clear(metadata);
         }
 
         public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class

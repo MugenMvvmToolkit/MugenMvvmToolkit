@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
@@ -117,14 +118,17 @@ namespace MugenMvvm.Bindings.Extensions
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetPosition(this ITokenParserContext context, int? position = null)
         {
             Should.NotBeNull(context, nameof(context));
             return position.GetValueOrDefault(context.Position);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static char TokenAt(this ITokenParserContext context, int? position = null) => context.TokenAt(context.GetPosition(position));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEof(this ITokenParserContext context, int? position = null) => context.GetPosition(position) >= context.Length;
 
         public static bool IsToken(this ITokenParserContext context, char token, int? position = null)
@@ -190,6 +194,7 @@ namespace MugenMvvm.Bindings.Extensions
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDigit(this ITokenParserContext context, int? position = null) => !context.IsEof(position) && char.IsDigit(context.TokenAt(position));
 
         public static int FindAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null)

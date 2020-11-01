@@ -56,7 +56,7 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         public static void ThrowRequestNotSupported<T>(object obj, object? request, IReadOnlyMetadataContext? metadata) =>
-            throw new InvalidOperationException(ObjectNotInitializedOrRequestNotSupportedFormat4.Format(obj, typeof(T).Name, request, metadata.Dump()));
+            throw new InvalidOperationException(ObjectNotInitializedOrRequestNotSupportedFormat4.Format(obj, typeof(T).Name, request, metadata.Dump("")));
 
         [DoesNotReturn]
         public static void ThrowObjectNotInitialized(object obj, [CallerMemberName] string? hint = null) =>

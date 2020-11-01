@@ -120,10 +120,10 @@ namespace MugenMvvm.Extensions
             return metadataContext.Remove(contextKey, out _);
         }
 
-        public static string Dump(this IReadOnlyMetadataContext? metadata)
+        public static string Dump(this IReadOnlyMetadataContext? metadata, string nullResult = "null")
         {
             if (metadata == null)
-                return "null";
+                return nullResult;
             var builder = new StringBuilder("(");
             var values = metadata.ToArray();
             for (var index = 0; index < values.Length; index++)

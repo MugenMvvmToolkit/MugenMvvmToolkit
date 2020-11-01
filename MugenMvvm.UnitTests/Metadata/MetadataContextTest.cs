@@ -400,7 +400,7 @@ namespace MugenMvvm.UnitTests.Metadata
             {
                 listenerInvokedCount.ShouldEqual(1);
                 listenerInvokedCount = 0;
-                context.ClearComponents<IMetadataContextListener>();
+                context.RemoveComponents<IMetadataContextListener>();
                 context.AddComponent(new TestMetadataContextListener(context)
                 {
                     OnChanged = (key, oldV, newV) =>
@@ -467,7 +467,7 @@ namespace MugenMvvm.UnitTests.Metadata
                 var oldValues = keyValues.ToList();
                 listenerInvokedCount.ShouldEqual(count);
                 listenerInvokedCount = 0;
-                context.ClearComponents<IMetadataContextListener>();
+                context.RemoveComponents<IMetadataContextListener>();
                 context.AddComponent(new TestMetadataContextListener(context)
                 {
                     OnChanged = (key, oldV, newV) =>
