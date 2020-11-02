@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Android.Views;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
@@ -86,6 +87,7 @@ namespace MugenMvvm.Android.Bindings
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         public readonly struct MenuBindInfo
         {
             #region Fields

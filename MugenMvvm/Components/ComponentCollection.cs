@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -230,6 +231,7 @@ namespace MugenMvvm.Components
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct ComponentTracker
         {
             #region Fields

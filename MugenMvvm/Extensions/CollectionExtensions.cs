@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
@@ -190,6 +191,7 @@ namespace MugenMvvm.Extensions
         #region Nested types
 
 #if SPAN_API
+        [StructLayout(LayoutKind.Auto)]
         public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
         {
             private readonly ReadOnlySpan<T> _buffer;

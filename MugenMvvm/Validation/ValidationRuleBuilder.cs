@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
@@ -8,6 +9,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation
 {
+    [StructLayout(LayoutKind.Auto)]
     public ref struct ValidationRuleBuilder<T> where T : class
     {
         #region Fields

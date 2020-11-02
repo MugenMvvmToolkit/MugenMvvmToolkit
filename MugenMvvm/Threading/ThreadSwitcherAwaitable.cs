@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Threading
 {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct ThreadSwitcherAwaitable
     {
         #region Fields
@@ -35,6 +37,7 @@ namespace MugenMvvm.Threading
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         public readonly struct ThreadSwitcherAwaiter : ICriticalNotifyCompletion
         {
             #region Fields

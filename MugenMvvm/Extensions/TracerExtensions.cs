@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
@@ -40,6 +41,7 @@ namespace MugenMvvm.Extensions
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         public readonly struct TracerWithLevel
         {
             #region Fields

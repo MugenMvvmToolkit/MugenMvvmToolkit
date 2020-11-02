@@ -1,10 +1,12 @@
-﻿using MugenMvvm.Bindings.Delegates;
+﻿using System.Runtime.InteropServices;
+using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Observation;
 
 namespace MugenMvvm.Bindings.Members.Builders
 {
+    [StructLayout(LayoutKind.Auto)]
     public ref struct CustomPropertyBuilder<TTarget, TValue> where TTarget : class?
     {
         #region Fields

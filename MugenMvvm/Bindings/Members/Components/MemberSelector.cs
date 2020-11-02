@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
@@ -149,6 +150,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         private struct MemberList
         {
             #region Fields

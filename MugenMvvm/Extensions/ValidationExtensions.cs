@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
@@ -131,6 +132,7 @@ namespace MugenMvvm.Extensions
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         public ref struct ValidationRuleMemberBuilder<T, TMember> where T : class
         {
             #region Fields

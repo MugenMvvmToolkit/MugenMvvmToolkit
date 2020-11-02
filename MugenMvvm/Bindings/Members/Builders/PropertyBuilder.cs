@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
@@ -16,6 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Builders
 {
+    [StructLayout(LayoutKind.Auto)]
     public ref struct PropertyBuilder<TTarget, TValue> where TTarget : class?
     {
         #region Fields

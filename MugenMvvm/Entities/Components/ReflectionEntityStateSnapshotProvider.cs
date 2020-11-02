@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Entities;
@@ -191,6 +192,7 @@ namespace MugenMvvm.Entities.Components
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct MemberState
         {
             #region Fields
@@ -213,6 +215,7 @@ namespace MugenMvvm.Entities.Components
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct EntityMemberAccessor
         {
             #region Fields
