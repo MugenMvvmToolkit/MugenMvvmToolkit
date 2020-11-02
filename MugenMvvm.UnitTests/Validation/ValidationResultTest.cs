@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Validation
             var result = ValidationResult.Get(dictionary, DefaultMetadata);
             result.Metadata.ShouldEqual(DefaultMetadata);
             result.Errors.ShouldEqual(dictionary);
-            result.SingleMemberErrors.IsNullOrEmpty().ShouldBeTrue();
+            result.SingleMemberErrors.IsEmpty.ShouldBeTrue();
             result.SingleMemberName.ShouldBeNull();
             result.HasResult.ShouldBeTrue();
         }

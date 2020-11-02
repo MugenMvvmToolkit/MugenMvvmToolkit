@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Core;
@@ -64,7 +65,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             };
 
             var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
-            var binding = new MultiBinding(target, sources: source, expression: expression);
+            var binding = new MultiBinding(target, sources: ItemOrList.FromItem<object?, object?[]>(source), expression: expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);
@@ -155,7 +156,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 GetLastMember = metadata => new MemberPathLastMember(sourceObj, sourceMember)
             };
 
-            binding = new MultiBinding(target, sources: source, expression: expression);
+            binding = new MultiBinding(target, sources: ItemOrList.FromItem<object?, object?[]>(source), expression: expression);
             binding.Expression.ShouldEqual(expression);
             binding.UpdateTarget();
             targetSet.ShouldEqual(1);
@@ -176,7 +177,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void MetadataShouldReturnBindingAndMultiBinding()
         {
-            var binding = new MultiBinding(EmptyPathObserver.Empty, ItemOrList.FromRawValue<object?, object?[]>(null), new TestCompiledExpression());
+            var binding = new MultiBinding(EmptyPathObserver.Empty, default, new TestCompiledExpression());
             var context = (IReadOnlyMetadataContext) binding;
             context.Count.ShouldEqual(2);
             context.Contains(BindingMetadata.Binding).ShouldBeTrue();

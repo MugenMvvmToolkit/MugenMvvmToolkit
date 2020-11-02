@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
@@ -27,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
-                        return parentMember;
+                        return ItemOrList.FromItem<IMemberInfo>(parentMember);
                     return default;
                 }
             });
@@ -73,7 +74,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
-                        return parentMember;
+                        return ItemOrList.FromItem<IMemberInfo>(parentMember);
                     return default;
                 }
             });

@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Parsing.Visitors;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Core.Components
@@ -38,12 +37,10 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
-            if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler)
-                || context.BindingComponents.ContainsKey(BindingParameterNameConstant.Mode)
-                || !context.Parameters.IsNullOrEmpty())
+            if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler) || context.BindingComponents.ContainsKey(BindingParameterNameConstant.Mode) || !context.Parameters.IsEmpty)
                 return;
 
-            var collect = _memberExpressionCollectorVisitor.Collect(context.SourceExpression).Iterator();
+            var collect = _memberExpressionCollectorVisitor.Collect(context.SourceExpression);
             var canInline = collect.Count == 0;
             if (!canInline && UseOneTimeModeForStaticMembersImplicit)
             {

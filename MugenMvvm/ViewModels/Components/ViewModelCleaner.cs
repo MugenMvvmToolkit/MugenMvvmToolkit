@@ -65,7 +65,7 @@ namespace MugenMvvm.ViewModels.Components
             if (CleanupCommands)
                 DisposeCommands(viewModel);
             var viewManager = _viewManager.DefaultIfNull();
-            foreach (var v in viewManager.GetViews(viewModel, metadata).Iterator())
+            foreach (var v in viewManager.GetViews(viewModel, metadata))
                 viewManager.TryCleanupAsync(v, state, default, metadata);
 
             var busyManager = viewModel.TryGetService<IBusyManager>(true);
@@ -114,7 +114,7 @@ namespace MugenMvvm.ViewModels.Components
             if (rawValue == null)
                 return;
 
-            foreach (var invoker in ItemOrList.FromRawValue<Func<object, ICommand>, List<Func<object, ICommand>>>(rawValue, true).Iterator())
+            foreach (var invoker in ItemOrList.FromRawValue<Func<object, ICommand>, List<Func<object, ICommand>>>(rawValue))
             {
                 try
                 {

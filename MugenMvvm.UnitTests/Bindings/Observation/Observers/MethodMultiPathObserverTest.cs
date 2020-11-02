@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Internal;
@@ -62,15 +63,15 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         t.ShouldEqual(target3.GetType());
                         m.ShouldEqual(MemberType.Method);
                         f.ShouldEqual(MemberFlags.All.ClearInstanceOrStaticFlags(false));
-                        return methodMember;
+                        return ItemOrList.FromItem<IMemberInfo>(methodMember);
                     }
 
                     if (t == target2.GetType())
-                        return accessorInfo3;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
                     if (t == root.GetType())
-                        return accessorInfo1;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
                     if (t == target1.GetType())
-                        return accessorInfo2;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
                     throw new NotSupportedException();
                 }
             };

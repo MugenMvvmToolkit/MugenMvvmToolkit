@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
@@ -39,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     t.ShouldEqual(GetType());
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(path.Path);
-                    return accessorInfo;
+                    return ItemOrList.FromItem<IMemberInfo>(accessorInfo);
                 }
             };
 
@@ -88,7 +89,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     t.ShouldEqual(GetType());
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(path.Path);
-                    return accessorInfo;
+                    return ItemOrList.FromItem<IMemberInfo>(accessorInfo);
                 }
             };
 
@@ -186,7 +187,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, meta) => accessorInfo
+                TryGetMembers = (t, m, f, r, meta) => ItemOrList.FromItem<IMemberInfo>(accessorInfo)
             };
             using var _ = MugenService.AddComponent(component);
 

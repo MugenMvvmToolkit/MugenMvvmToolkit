@@ -125,7 +125,7 @@ namespace MugenMvvm.Bindings.Extensions
                         editor.AddRange(validator.GetErrors(members[i]));
 
                     if (editor.Count != 0)
-                        return editor.ToItemOrList().Iterator().ToArray();
+                        return editor.ToItemOrList().ToArray();
                 }
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)

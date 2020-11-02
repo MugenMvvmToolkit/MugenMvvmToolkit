@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Internal;
@@ -48,10 +49,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         t.ShouldEqual(lastMemberTarget.GetType());
                         m.ShouldEqual(MemberType.Method);
                         f.ShouldEqual(MemberFlags.All.ClearInstanceOrStaticFlags(false));
-                        return methodMember;
+                        return ItemOrList.FromItem<IMemberInfo>(methodMember);
                     }
 
-                    return accessorInfo;
+                    return ItemOrList.FromItem<IMemberInfo>(accessorInfo);
                 }
             };
             using var _ = MugenService.AddComponent(component);

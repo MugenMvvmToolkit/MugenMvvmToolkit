@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             var component = new FakeMemberProvider();
             component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Accessor, DefaultMetadata).Item.ShouldBeType<ConstantMemberInfo>();
-            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldReturnEmptyResultNoPrefix()
         {
             var component = new FakeMemberProvider();
-            component.TryGetMembers(null!, typeof(object), "test", MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, typeof(object), "test", MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         #endregion

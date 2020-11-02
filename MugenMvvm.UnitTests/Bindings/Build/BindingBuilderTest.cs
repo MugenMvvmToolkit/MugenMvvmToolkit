@@ -7,10 +7,12 @@ using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Build;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Convert.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
@@ -42,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
+                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
                 }
             });
 
@@ -75,7 +77,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
+                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
                 }
             });
 
@@ -109,7 +111,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                     ++invokeCount;
                     o.ShouldEqual(del);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
+                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
                 }
             });
 
@@ -186,7 +188,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                 }
             });
 
-            target.Bind(request, source, DefaultMetadata, bindingManager, false).IsNullOrEmpty().ShouldBeTrue();
+            target.Bind(request, source, DefaultMetadata, bindingManager, false).IsEmpty.ShouldBeTrue();
             invokeCount.ShouldEqual(1);
             buildInvokeCount.ShouldEqual(2);
         }

@@ -545,14 +545,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
         {
             var members = _memberManager
                 .DefaultIfNull()
-                .TryGetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata)
-                .Iterator();
+                .TryGetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
 
             var methods = new MethodData[members.Count];
             var count = 0;
-            for (var i = 0; i < methods.Length; i++)
+            foreach (var member in members)
             {
-                if (members[i] is IMethodMemberInfo method)
+                if (member is IMethodMemberInfo method)
                 {
                     var m = typeArgs == null || typeArgs.Length == 0 ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)

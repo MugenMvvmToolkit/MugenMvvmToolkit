@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
@@ -120,7 +121,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 {
                     o.ShouldEqual(viewModel);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return view;
+                    return ItemOrList.FromItem<IView>(view);
                 }
             });
             var cleanupCount = 0;

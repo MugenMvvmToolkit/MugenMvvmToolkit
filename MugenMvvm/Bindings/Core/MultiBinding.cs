@@ -34,6 +34,8 @@ namespace MugenMvvm.Bindings.Core
         {
             Should.NotBeNull(expression, nameof(expression));
             _expression = expression;
+            if (!sources.HasItem)
+                ClearFlag(HasItem);
         }
 
         #endregion

@@ -50,7 +50,7 @@ namespace MugenMvvm.Presenters.Components
                 return default;
 
             var result = ItemOrListEditor.Get<IPresenterResult>();
-            foreach (var mediator in TryGetMediators(presenter, viewModel, request, metadata).Iterator())
+            foreach (var mediator in TryGetMediators(presenter, viewModel, request, metadata))
                 result.Add(mediator.TryShow(view, cancellationToken, metadata));
 
             return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
@@ -89,7 +89,7 @@ namespace MugenMvvm.Presenters.Components
                     return default;
 
                 var dictionary = viewModel.Metadata.Get(InternalMetadata.Mediators);
-                foreach (var mapping in _viewManager.DefaultIfNull().GetMappings(request, metadata).Iterator())
+                foreach (var mapping in _viewManager.DefaultIfNull().GetMappings(request, metadata))
                 {
                     if (dictionary == null || !dictionary.TryGetValue(mapping.Id, out var mediator))
                     {

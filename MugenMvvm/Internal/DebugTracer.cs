@@ -79,15 +79,14 @@ namespace MugenMvvm.Internal
 
         private static string Dump(ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results)
         {
-            var iterator = results.Iterator();
-            if (iterator.Count == 0)
+            if (results.Count == 0)
                 return " result=empty";
 
             var builder = new StringBuilder();
             var count = 0;
-            foreach (var result in iterator)
+            foreach (var result in results)
             {
-                string r = iterator.Count == 1 ? ", result=" : $", result_{count++}=";
+                string r = results.Count == 1 ? ", result=" : $", result_{count++}=";
                 builder.Append(
                     $"{r}(type={result.NavigationType}, id={result.NavigationId}, target={result.Target}, provider={result.NavigationProvider}, metadata={result.GetMetadataOrDefault().Dump()})");
             }
@@ -314,7 +313,7 @@ namespace MugenMvvm.Internal
             {
                 var editor = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
                 var handlers = Components.TryGetMessengerHandlers(messenger, messageType, metadata);
-                foreach (var messengerHandler in handlers.Iterator(handler => handler.IsEmpty))
+                foreach (var messengerHandler in handlers)
                 {
                     messengerHandler.Deconstruct(out var subscriber, out var mode, out var handler, out var state);
                     editor.Add(new MessengerHandler((o, context, s) =>
@@ -428,15 +427,15 @@ namespace MugenMvvm.Internal
 
             private static string Dump(IViewManager viewManager, object view)
             {
-                var iterator = viewManager.GetViews(view).Iterator();
-                if (iterator.Count == 0)
+                var views = viewManager.GetViews(view);
+                if (views.Count == 0)
                     return $"view={view}";
-                if (iterator.Count == 1)
-                    return $"view={iterator[0].Target}, viewmodel={iterator[0].ViewModel}";
+                if (views.Count == 1)
+                    return $"view={views.Item}, viewmodel={views.Item.ViewModel}";
                 var stringBuilder = new StringBuilder();
                 var count = 0;
-                foreach (var v in iterator)
-                    stringBuilder.Append($"view_{count++}={v.Target}, viewmodel={iterator[0].ViewModel}; ");
+                foreach (var v in views)
+                    stringBuilder.Append($"view_{count++}={v.Target}, viewmodel={v.ViewModel}; ");
                 return stringBuilder.ToString();
             }
 

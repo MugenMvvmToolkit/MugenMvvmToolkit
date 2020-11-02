@@ -1,9 +1,12 @@
-﻿using MugenMvvm.Bindings.Constants;
+﻿using System.Collections.Generic;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -32,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new DelayBindingInitializer();
             var context = new BindingExpressionInitializerContext(this);
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Delay), ConstantExpressionNode.Get(delay));
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(parameter), DefaultMetadata);
             if (ignore)
                 context.BindingComponents[BindingParameterNameConstant.Delay] = null;
 
@@ -58,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new DelayBindingInitializer();
             var context = new BindingExpressionInitializerContext(this);
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetDelay), ConstantExpressionNode.Get(delay));
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(parameter), DefaultMetadata);
             if (ignore)
                 context.BindingComponents[BindingParameterNameConstant.TargetDelay] = null;
 

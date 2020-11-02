@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.Source.ShouldBeNull();
             context.TargetExpression.ShouldBeNull();
             context.SourceExpression.ShouldBeNull();
-            context.Parameters.ShouldEqual(default);
+            context.Parameters.IsEmpty.ShouldBeTrue();
         }
 
         [Theory]

@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Internal;
@@ -41,11 +42,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     if (t == target2.GetType())
-                        return accessorInfo3;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
                     if (t == root.GetType())
-                        return accessorInfo1;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
                     if (t == target1.GetType())
-                        return accessorInfo2;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
                     throw new NotSupportedException();
                 }
             };

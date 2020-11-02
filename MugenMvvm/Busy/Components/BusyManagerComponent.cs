@@ -184,7 +184,7 @@ namespace MugenMvvm.Busy.Components
                     _listeners = this;
                 }
 
-                foreach (var t in listeners.Iterator())
+                foreach (var t in listeners)
                     t.OnCompleted(this);
 
                 Owner.OnBusyInfoChanged();
@@ -274,7 +274,7 @@ namespace MugenMvvm.Busy.Components
                         return;
 
                     IsSuspended = suspended;
-                    foreach (var t in GetListeners().Iterator())
+                    foreach (var t in GetListeners())
                         t?.OnSuspendChanged(suspended);
                 }
 
@@ -295,7 +295,7 @@ namespace MugenMvvm.Busy.Components
             {
                 if (IsCompleted)
                     return default;
-                return ItemOrList.FromRawValue<IBusyTokenCallback, List<IBusyTokenCallback>>(_listeners, true);
+                return ItemOrList.FromRawValue<IBusyTokenCallback, List<IBusyTokenCallback>>(_listeners);
             }
 
             #endregion

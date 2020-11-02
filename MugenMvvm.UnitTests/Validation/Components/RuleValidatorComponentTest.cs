@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.AddComponent(component);
 
             validator.ValidateAsync(memberName2).IsCompleted.ShouldBeTrue();
-            validator.GetErrors(memberName2).Iterator().AsList().Single().ShouldEqual(memberName2);
+            validator.GetErrors(memberName2).AsList().Single().ShouldEqual(memberName2);
 
             var task = validator.ValidateAsync(memberName1);
             task.IsCompleted.ShouldBeFalse();
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             tcs.TrySetResult(null);
             WaitCompletion();
             task.IsCompleted.ShouldBeTrue();
-            validator.GetErrors(memberName1).Iterator().AsList().Single().ShouldEqual(memberName1);
+            validator.GetErrors(memberName1).AsList().Single().ShouldEqual(memberName1);
         }
 
         #endregion

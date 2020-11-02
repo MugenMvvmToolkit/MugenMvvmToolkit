@@ -68,7 +68,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             var result = bindingManager.TryParseBindingExpression(expression, metadata);
-            if (result.IsNullOrEmpty())
+            if (result.IsEmpty)
                 BindingExceptionManager.ThrowCannotParseExpression(expression);
             return result;
         }
@@ -106,7 +106,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (target == null)
                 return;
-            foreach (var binding in MugenBindingService.BindingManager.GetBindings(target).Iterator())
+            foreach (var binding in MugenBindingService.BindingManager.GetBindings(target))
                 binding.Dispose();
             if (clearAttachedValues)
                 target.AttachedValues().Clear();
@@ -300,7 +300,7 @@ namespace MugenMvvm.Bindings.Extensions
             }
             else
             {
-                values = GetParameterValue(sourceRaw, metadata);
+                values = ItemOrList.FromItem<ParameterValue, ParameterValue[]>(GetParameterValue(sourceRaw, metadata), true);
                 if (values.Item.Value.IsUnsetValueOrDoNothing())
                     return values.Item.Value;
             }

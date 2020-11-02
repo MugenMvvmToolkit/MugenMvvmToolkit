@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             memberManager.AddComponent(provider);
             provider.Add(typeof(ExtensionMethodMemberProviderComponentExtTest));
 
-            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
             var method = typeof(ExtensionMethodMemberProviderComponentExtTest).GetMethod(nameof(ExtensionMethodMemberProviderComponentExtTest.Method), new[] {typeof(string)});
             var itemOrList = provider.TryGetMembers(null!, typeof(string), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             provider.Remove(typeof(ExtensionMethodMemberProviderComponentExtTest));
             itemOrList = provider.TryGetMembers(null!, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
-            itemOrList.IsNullOrEmpty().ShouldBeTrue();
+            itemOrList.IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -43,10 +43,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             memberManager.AddComponent(provider);
             provider.Add(typeof(ExtensionMethodMemberProviderComponentExtTest));
 
-            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
             var members = provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata);
-            members.Iterator().Count.ShouldEqual(2);
+            members.Count.ShouldEqual(2);
 
             var methodInfos = typeof(Enumerable)
                 .GetMethods()

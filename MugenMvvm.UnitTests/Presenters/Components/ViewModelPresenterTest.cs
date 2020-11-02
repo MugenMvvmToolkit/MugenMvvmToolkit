@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Presenters;
 using MugenMvvm.Presenters.Components;
@@ -29,8 +30,8 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var vm = new TestViewModel();
             var presenter = new Presenter();
             var viewModelPresenter = new ViewModelPresenter();
-            viewModelPresenter.TryShow(presenter, vm, default, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            viewModelPresenter.TryShow(presenter, this, default, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            viewModelPresenter.TryShow(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            viewModelPresenter.TryShow(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -39,8 +40,8 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var vm = new TestViewModel();
             var presenter = new Presenter();
             var viewModelPresenter = new ViewModelPresenter();
-            viewModelPresenter.TryClose(presenter, vm, default, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            viewModelPresenter.TryClose(presenter, this, default, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            viewModelPresenter.TryClose(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            viewModelPresenter.TryClose(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -52,7 +53,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var request = new ViewModelViewRequest(viewModel, new object());
             var viewManager = new ViewManager();
             var cancellationToken = new CancellationTokenSource().Token;
-            var mapping = new ViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
+            IViewMapping mapping = new ViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, m) =>
@@ -63,7 +64,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                         o.ShouldEqual(request);
 
                     m.ShouldEqual(DefaultMetadata);
-                    return mapping;
+                    return mapping.ToItemOrList();
                 }
             });
 
@@ -167,10 +168,10 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     return result;
                 }
             };
-            var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
+            IViewMapping mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (o, arg3) => mapping
+                TryGetMappings = (o, arg3) => mapping.ToItemOrList()
             });
 
             var presenter = new Presenter();

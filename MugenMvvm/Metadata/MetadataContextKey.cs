@@ -235,7 +235,7 @@ namespace MugenMvvm.Metadata
                 };
                 if (_buildCallbacks != null)
                 {
-                    foreach (var action in ItemOrList.FromRawValue<Action<IMetadataContextKey<T>>, List<Action<IMetadataContextKey<T>>>>(_buildCallbacks).Iterator())
+                    foreach (var action in ItemOrList.FromRawValue<Action<IMetadataContextKey<T>>, List<Action<IMetadataContextKey<T>>>>(_buildCallbacks))
                         action(key);
                 }
 

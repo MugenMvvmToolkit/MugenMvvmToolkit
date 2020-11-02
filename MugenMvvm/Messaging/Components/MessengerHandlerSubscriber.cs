@@ -127,7 +127,7 @@ namespace MugenMvvm.Messaging.Components
                 if (Count == 1)
                 {
                     var subscriber = this.FirstOrDefault();
-                    return new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode);
+                    return ItemOrList.FromItem(new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode), true);
                 }
 
                 return ItemOrList.FromListToReadOnly(this.ToArray(subscriber => new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode)));

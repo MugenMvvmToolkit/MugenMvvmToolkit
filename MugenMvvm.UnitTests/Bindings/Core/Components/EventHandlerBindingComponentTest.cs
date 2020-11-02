@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
             if (addOneTimeMode)
-                binding.Source = new TestMemberPathObserver {GetLastMember = metadata => default};
+                binding.Source = ItemOrList.FromItem<object?, object?[]>(new TestMemberPathObserver { GetLastMember = metadata => default });
             IAttachableComponent component = EventHandlerBindingComponent.Get(default, false, true);
             component.OnAttached(binding, DefaultMetadata);
             updateCount.ShouldEqual(1);
@@ -288,7 +288,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     f.ShouldEqual(MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static));
                     m.ShouldEqual(MemberType.Accessor);
                     t.ShouldEqual(target.GetType());
-                    return enabledMember;
+                    return ItemOrList.FromItem<IMemberInfo>(enabledMember);
                 }
             });
 
@@ -358,7 +358,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             using var _ = MugenService.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, meta) => enabledMember
+                TryGetMembers = (t, m, f, r, meta) => ItemOrList.FromItem<IMemberInfo>(enabledMember)
             });
 
             IEventListener? listener = null;

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.Presenters;
@@ -25,7 +28,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         public void ShouldIgnoreNonViewRequest()
         {
             var request = new TestViewModel();
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            IPresenterResult presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
 
             var presenter = new Presenter();
             presenter.AddComponent(new ViewPresenterDecorator());
@@ -35,7 +38,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(request);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return presenterResult;
+                    return presenterResult.ToItemOrList();
                 }
             });
             presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
@@ -45,7 +48,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         public void ShouldIgnoreMultiMappings()
         {
             var view = new object();
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            IPresenterResult presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
 
             var invokeCount = 0;
             var viewManager = new ViewManager();
@@ -68,7 +71,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return presenterResult;
+                    return presenterResult.ToItemOrList();
                 }
             });
             presenter.TryShow(view, default, DefaultMetadata).ShouldEqual(presenterResult);
@@ -79,7 +82,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         public void ShouldIgnoreMultiViews()
         {
             var view = new object();
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            IPresenterResult presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
 
             var invokeCount = 0;
             var viewManager = new ViewManager();
@@ -102,7 +105,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return presenterResult;
+                    return presenterResult.ToItemOrList();
                 }
             });
             presenter.TryShow(view, default, DefaultMetadata).ShouldEqual(presenterResult);
@@ -117,8 +120,8 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var disposeCount = 0;
             var view = new object();
             var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
-            var mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
-            var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
+            IViewMapping mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
+            IPresenterResult presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
             var request = view;
 
@@ -129,7 +132,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(request);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return mapping;
+                    return mapping.ToItemOrList();
                 }
             });
             var viewModelManager = new ViewModelManager();
@@ -150,7 +153,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(presenterResult);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return callback;
+                    return ItemOrList.FromItem<INavigationCallback>(callback);
                 }
             });
             var presenter = new Presenter();
@@ -163,12 +166,12 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return presenterResult;
+                    return presenterResult.ToItemOrList();
                 }
             });
             presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
-            callback.SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
+            ((NavigationCallback)callback).SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(disposeViewModel ? 1 : 0);
         }
 
@@ -182,9 +185,9 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
             var mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
-            var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
+            IPresenterResult presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
-            var viewObj = new View(mapping, view, viewModel);
+            IView viewObj = new View(mapping, view, viewModel);
             var request = view;
 
             var viewManager = new ViewManager();
@@ -194,7 +197,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(view);
                     context.ShouldEqual(DefaultMetadata);
-                    return viewObj;
+                    return viewObj.ToItemOrList();
                 }
             });
 
@@ -205,7 +208,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(presenterResult);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return callback;
+                    return ItemOrList.FromItem<INavigationCallback>(callback);
                 }
             });
             var presenter = new Presenter();
@@ -218,12 +221,12 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return presenterResult;
+                    return presenterResult.ToItemOrList();
                 }
             });
             presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
-            callback.SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
+            ((NavigationCallback)callback).SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(0);
         }
 
@@ -234,7 +237,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var v1 = new View(ViewMapping.Undefined, view, new TestViewModel());
             var v2 = new View(ViewMapping.Undefined, view, new TestViewModel());
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            IPresenterResult presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
 
             var invokeCount = 0;
             var viewManager = new ViewManager();
@@ -258,7 +261,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     closedVms.Add(o);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return presenterResult;
+                    return presenterResult.ToItemOrList();
                 }
             });
             presenter.TryClose(view, default, DefaultMetadata).AsList().ShouldEqual(new[] {presenterResult, presenterResult});

@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var parser = new ExpressionParser();
             parser.AddComponent(parserComponent);
             var builder = new BindingExpressionParser(parser);
-            builder.TryParseBindingExpression(null!, st, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            builder.TryParseBindingExpression(null!, st, DefaultMetadata).IsEmpty.ShouldBeTrue();
             count.ShouldEqual(1);
         }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var parserComponent = new TestExpressionParserComponent
             {
-                TryParse = (o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
+                TryParse = (o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default).ToItemOrList()
             };
             var parser = new ExpressionParser();
             parser.AddComponent(parserComponent);

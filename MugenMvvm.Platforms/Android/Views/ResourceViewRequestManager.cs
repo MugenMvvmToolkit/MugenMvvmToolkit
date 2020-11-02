@@ -31,7 +31,7 @@ namespace MugenMvvm.Android.Views
             if (mapping.IsUndefined() && request is ResourceViewRequest viewRequest && viewRequest.ViewModel != null && viewRequest.Container is Object container)
             {
                 IResourceViewMapping? viewMapping = null;
-                foreach (var t in viewManager.GetMappings(viewRequest.ViewModel, metadata).Iterator())
+                foreach (var t in viewManager.GetMappings(viewRequest.ViewModel, metadata))
                 {
                     if (t is IResourceViewMapping m && (viewRequest.ResourceId == 0 || m.ResourceId == viewRequest.ResourceId))
                     {
@@ -43,7 +43,7 @@ namespace MugenMvvm.Android.Views
                 if (viewMapping != null || viewRequest.ResourceId != 0)
                 {
                     var resourceId = viewMapping?.ResourceId ?? viewRequest.ResourceId;
-                    foreach (var v in viewManager.GetViews(viewRequest.ViewModel, metadata).Iterator())
+                    foreach (var v in viewManager.GetViews(viewRequest.ViewModel, metadata))
                     {
                         if (v.Mapping is IResourceViewMapping m && m.ResourceId == resourceId)
                             return new ValueTask<IView?>(v);

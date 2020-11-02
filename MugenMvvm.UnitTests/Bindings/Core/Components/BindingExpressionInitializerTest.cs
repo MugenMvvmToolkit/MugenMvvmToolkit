@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
@@ -186,7 +187,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         f.ShouldEqual(MemberFlags.StaticPublic);
                         t.ShouldEqual(typeof(string));
                         m.ShouldEqual(MemberType.Accessor);
-                        return new TestAccessorMemberInfo
+                        return ItemOrList.FromItem<IMemberInfo>(new TestAccessorMemberInfo
                         {
                             CanRead = true,
                             GetValue = (o1, metadataContext) =>
@@ -195,7 +196,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                                 metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                                 return this;
                             }
-                        };
+                        });
                     }
 
                     if (r.Equals(targetPath.Members[1]))
@@ -203,10 +204,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         f.ShouldEqual(MemberFlags.InstancePublic);
                         t.ShouldEqual(GetType());
                         m.ShouldEqual(MemberType.Event);
-                        return new TestEventInfo
+                        return ItemOrList.FromItem<IMemberInfo>(new TestEventInfo
                         {
                             MemberType = MemberType.Event
-                        };
+                        });
                     }
 
                     throw new NotSupportedException();

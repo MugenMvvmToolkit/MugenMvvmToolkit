@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
@@ -386,14 +387,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                     {
                         t.ShouldEqual(returnType);
                         f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(true));
-                        return member1;
+                        return ItemOrList.FromItem<IMemberInfo>(member1);
                     }
 
                     if (r.Equals(MemberName2))
                     {
                         t.ShouldEqual(member1Result.GetType());
                         f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
-                        return member2;
+                        return ItemOrList.FromItem<IMemberInfo>(member2);
                     }
 
                     throw new NotSupportedException();
@@ -496,7 +497,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                     {
                         t.ShouldEqual(resource.GetType());
                         f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
-                        return member;
+                        return ItemOrList.FromItem<IMemberInfo>(member);
                     }
 
                     throw new NotSupportedException();

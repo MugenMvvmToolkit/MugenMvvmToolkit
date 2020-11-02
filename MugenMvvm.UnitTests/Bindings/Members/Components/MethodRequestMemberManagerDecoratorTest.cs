@@ -23,9 +23,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var manager = new MemberManager();
             var component = new MethodRequestMemberManagerDecorator();
             manager.AddComponent(component);
-            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Default.Array<Type>()), DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Default.Array<Type>()), DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]

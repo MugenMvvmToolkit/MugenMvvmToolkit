@@ -48,15 +48,17 @@ namespace MugenMvvm.Bindings.Core.Components
                 : target.AttachedValues(metadata, _attachedValueManager).GetValues(path,
                     (_, key, __, state) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && key.EndsWith(state, StringComparison.Ordinal));
 
-            var iterator = values.Iterator(pair => pair.Key == null);
-            if (iterator.Count == 0)
+
+            var count = values.Count;
+            if (count == 0)
                 return default;
-            if (iterator.Count == 1)
+            if (count == 1)
                 return ItemOrList.FromItem((IBinding) values.Item.Value!);
 
-            var bindings = new IBinding[iterator.Count];
-            for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding) iterator[i].Value!;
+            var bindings = new IBinding[count];
+            int index = 0;
+            foreach (var value in values)
+                bindings[index++] = (IBinding) value.Value!;
             return ItemOrList.FromListToReadOnly(bindings);
         }
 

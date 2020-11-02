@@ -1,6 +1,8 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.UnitTests.Views.Internal;
 using MugenMvvm.Views;
@@ -63,7 +65,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return view;
+                    return ItemOrList.FromItem<IView>(view);
                 }
             });
             viewManager.AddComponent(new TestViewLifecycleDispatcherComponent

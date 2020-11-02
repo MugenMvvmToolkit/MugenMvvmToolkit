@@ -105,10 +105,10 @@ namespace MugenMvvm.Bindings.Build
                 {
                     //note post handler sorting expressions if need
                     var expressions = BindingManager.TryParseBindingExpression(builder.Value!, metadata);
-                    if (expressions.IsNullOrEmpty())
-                        expressions = ItemOrList.FromRawValueReadonly<IBindingBuilder>(builder.Value, true);
+                    if (expressions.IsEmpty)
+                        expressions = ItemOrList.FromRawValueReadonly<IBindingBuilder>(builder.Value);
 
-                    foreach (var exp in expressions.Iterator())
+                    foreach (var exp in expressions)
                     {
                         var binding = exp.Build(builder.Key.Item1, builder.Key.Item2, metadata);
                         if (includeBindings)
@@ -125,7 +125,7 @@ namespace MugenMvvm.Bindings.Build
             Should.NotBeNull(target, nameof(target));
             var key = (target, source);
             Builders.TryGetValue(key, out var value);
-            var list = ItemOrList.FromRawValue<IBindingBuilder, List<IBindingBuilder>>(value, true).Editor();
+            var list = ItemOrList.FromRawValue<IBindingBuilder, List<IBindingBuilder>>(value).Editor();
             list.AddRange(expressions);
             Builders[key] = list.GetRawValue();
         }

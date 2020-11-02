@@ -4,10 +4,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using MugenMvvm.Bindings.Compiling;
+using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
@@ -17,6 +21,11 @@ namespace MugenMvvm.UnitTests
     public static class UnitTestExtensions
     {
         #region Methods
+
+        public static ItemOrList<T, IReadOnlyList<T>> ToItemOrList<T>(this T value, bool hasItem = true) => new ItemOrList<T, IReadOnlyList<T>>(value, hasItem);
+
+        public static object? Invoke(this ICompiledExpression expression, ParameterValue value, IReadOnlyMetadataContext? metadata)
+            => expression.Invoke(ItemOrList.FromItem<ParameterValue, ParameterValue[]>(value, true), metadata);
 
         public static void Wait<T>(this ValueTask<T> task) => task.AsTask().WaitEx();
 
@@ -65,6 +74,10 @@ namespace MugenMvvm.UnitTests
             value!.ShouldNotBeNull(nameof(value));
             enumerable!.SequenceEqual(value!, comparer).ShouldBeTrue();
         }
+
+        public static void ShouldEqual<T, TList>(this ItemOrList<T, TList> itemOrList, T value)
+            where TList : class, IEnumerable<T> =>
+            itemOrList.ShouldEqual(new ItemOrList<T, TList>(value, true));
 
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
         {
@@ -162,10 +175,17 @@ namespace MugenMvvm.UnitTests
         }
 
         public static TList AsList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem> =>
-            (TList) itemOrList
-                .Cast<IReadOnlyList<TItem>>()
-                .Iterator(item => EqualityComparer<TItem>.Default.Equals(item, default!))
-                .AsList();
+            itemOrList.AsList(() =>
+            {
+                if (typeof(TList) == typeof(List<TItem>))
+                    return (TList) (object) new List<TItem>();
+                return (TList) (object) Default.Array<TItem>();
+            }, item =>
+            {
+                if (typeof(TList) == typeof(List<TItem>))
+                    return (TList) (object) new List<TItem> {item};
+                return (TList) (object) new[] {item};
+            });
 
         #endregion
 

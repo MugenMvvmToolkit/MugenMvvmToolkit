@@ -34,7 +34,7 @@ namespace MugenMvvm.Internal.Components
                 if (predicate == null)
                 {
                     if (dictionary.Count == 1)
-                        return dictionary.FirstOrDefault();
+                        return ItemOrList.FromItem(dictionary.FirstOrDefault(), true);
                     return ItemOrList.FromListToReadOnly(new List<KeyValuePair<string, object?>>(dictionary));
                 }
 

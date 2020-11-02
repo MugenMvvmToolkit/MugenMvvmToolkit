@@ -3,10 +3,12 @@ using System.Globalization;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
@@ -45,13 +47,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 TryGetMembers = (type, s, t, arg3) =>
                 {
                     if (t == MemberType.Method)
-                        return method;
+                        return ItemOrList.FromItem<IMemberInfo>(method);
                     return default;
                 }
             });
 
             manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
-                .IsNullOrEmpty()
+                .IsEmpty
                 .ShouldBeTrue();
             manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
                 .AsList()

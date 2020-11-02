@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation.Observers;
@@ -67,7 +68,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         t.ShouldEqual(lastMemberTarget.GetType());
                         m.ShouldEqual(MemberType.Method);
                         f.ShouldEqual(flags);
-                        return methodMember;
+                        return ItemOrList.FromItem<IMemberInfo>(methodMember);
                     }
 
                     throw new NotSupportedException();

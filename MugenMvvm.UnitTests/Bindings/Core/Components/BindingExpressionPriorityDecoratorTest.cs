@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return exp;
+                    return ItemOrList.FromItem<IBindingBuilder>(exp);
                 }
             });
             bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);

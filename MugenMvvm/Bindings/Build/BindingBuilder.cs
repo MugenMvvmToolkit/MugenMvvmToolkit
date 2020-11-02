@@ -201,7 +201,7 @@ namespace MugenMvvm.Bindings.Build
         private static void BindInternalWithoutBindings(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
-            foreach (var bindingBuilder in bindingManager.DefaultIfNull().ParseBindingExpression(request, metadata).Iterator())
+            foreach (var bindingBuilder in bindingManager.DefaultIfNull().ParseBindingExpression(request, metadata))
                 bindingBuilder.Build(target, source, metadata);
         }
 
@@ -215,10 +215,10 @@ namespace MugenMvvm.Bindings.Build
             if (expressions.Item != null)
                 return ItemOrList.FromItem(expressions.Item.Build(target, source, metadata));
 
-            var iterator = expressions.Iterator();
-            var result = new IBinding[iterator.Count];
-            for (var i = 0; i < result.Length; i++)
-                result[i] = iterator[i].Build(target, source, metadata);
+            var result = new IBinding[expressions.Count];
+            int index = 0;
+            foreach (var builder in expressions)
+                result[index++] = builder.Build(target, source, metadata);
             return ItemOrList.FromListToReadOnly(result);
         }
 

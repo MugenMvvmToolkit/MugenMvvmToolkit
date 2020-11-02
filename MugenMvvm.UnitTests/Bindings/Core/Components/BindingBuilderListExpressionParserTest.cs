@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var builder = new BindingBuilderListExpressionParser();
             builder.TryParseBindingExpression(null!, bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
 
-            builder.TryParseBindingExpression(null!, this, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            builder.TryParseBindingExpression(null!, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         #endregion

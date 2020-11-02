@@ -40,7 +40,7 @@ namespace MugenMvvm.Views.Components
                         else
                             viewType = v?.GetType()!;
                         var mappingId = mappings.Item?.Id ?? $"a{viewModel.GetType().FullName}{viewType.FullName}";
-                        foreach (var view in viewManager.GetViews(viewModel, metadata).Iterator())
+                        foreach (var view in viewManager.GetViews(viewModel, metadata))
                         {
                             if (view.Mapping.Id == mappingId && (v == null || Equals(v, view.Target)))
                                 return new ValueTask<IView?>(view);

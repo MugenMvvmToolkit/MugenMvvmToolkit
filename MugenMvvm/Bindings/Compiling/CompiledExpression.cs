@@ -252,7 +252,7 @@ namespace MugenMvvm.Bindings.Compiling
                         memberValues.Add(new KeyValuePair<IBindingMemberExpressionNode, Expression>(memberExpression, index.ConvertIfNeed(expressionValues[memberExpression.Index].Type, false)));
                 }
 
-                foreach (var pair in memberValues.ToItemOrList().Iterator(pair => pair.Key == null))
+                foreach (var pair in memberValues.ToItemOrList())
                     _expressions[pair.Key] = pair.Value;
 
                 var expression = this.Build(_expression).ConvertIfNeed(typeof(object), false);

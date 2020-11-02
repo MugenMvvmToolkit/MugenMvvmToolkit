@@ -12,285 +12,203 @@ namespace MugenMvvm.UnitTests.Internal
         #region Methods
 
         [Fact]
-        public void FromListRawShouldHandleList()
-        {
-            var list = new[] {this};
-            var itemOrList = ItemOrList.FromListRaw<object, object[]>(list);
-            itemOrList.List.ShouldEqual(list);
-            itemOrList.Item.ShouldBeNull();
-        }
+        public void FromItemShouldHandleSingleItem1() => AssertItem(ItemOrList.FromItem(this), this);
 
         [Fact]
-        public void FromItemShouldHandleSingleItem1()
-        {
-            var itemOrList = ItemOrList.FromItem(this);
-            itemOrList.List.ShouldBeNull();
-            itemOrList.Item.ShouldEqual(this);
-        }
+        public void FromItemShouldHandleSingleItem2() => AssertItem(ItemOrList.FromItem<ItemOrListTest, ItemOrListTest[]>(this), this);
 
         [Fact]
-        public void FromItemShouldHandleSingleItem2()
-        {
-            var itemOrList = ItemOrList.FromItem<ItemOrListTest, ItemOrListTest[]>(this);
-            itemOrList.List.ShouldBeNull();
-            itemOrList.Item.ShouldEqual(this);
-        }
-
-        [Fact]
-        public void FromListToReadOnlyShouldHandleArray1() => ItemOrList.FromListToReadOnly<string>(array: null).IsNullOrEmpty().ShouldBeTrue();
+        public void FromListToReadOnlyShouldHandleArray1() => AssertEmpty(ItemOrList.FromListToReadOnly<string>(array: null));
 
         [Fact]
         public void FromListToReadOnlyShouldHandleArray2()
         {
             var array = new[] {this};
-            var itemOrList = ItemOrList.FromListToReadOnly(array);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromListToReadOnly(array), array[0]);
         }
 
         [Fact]
         public void FromListToReadOnlyShouldHandleArray3()
         {
             var array = new[] {this, this};
-            var itemOrList = ItemOrList.FromListToReadOnly(array);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(array);
+            AssertList(ItemOrList.FromListToReadOnly(array), array);
         }
 
         [Fact]
-        public void FromListToReadOnlyShouldHandleList1() => ItemOrList.FromListToReadOnly<string>(list: null).IsNullOrEmpty().ShouldBeTrue();
+        public void FromListToReadOnlyShouldHandleList1() => AssertEmpty(ItemOrList.FromListToReadOnly<string>(list: null));
 
         [Fact]
         public void FromListToReadOnlyShouldHandleList2()
         {
             var list = new[] {this}.ToList();
-            var itemOrList = ItemOrList.FromListToReadOnly(list);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromListToReadOnly(list), list[0]);
         }
 
         [Fact]
         public void FromListToReadOnlyShouldHandleList3()
         {
             var list = new[] {this, this}.ToList();
-            var itemOrList = ItemOrList.FromListToReadOnly(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromListToReadOnly(list), list);
         }
 
         [Fact]
-        public void FromListShouldHandleArray1() => ItemOrList.FromList<string>(array: null).IsNullOrEmpty().ShouldBeTrue();
+        public void FromListShouldHandleArray1() => AssertEmpty(ItemOrList.FromList<string>(array: null));
 
         [Fact]
         public void FromListShouldHandleArray2()
         {
             var array = new[] {this};
-            var itemOrList = ItemOrList.FromList(array);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromList(array), array[0]);
         }
 
         [Fact]
         public void FromListShouldHandleArray3()
         {
             var array = new[] {this, this};
-            var itemOrList = ItemOrList.FromList(array);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(array);
+            AssertList(ItemOrList.FromList(array), array);
         }
 
         [Fact]
-        public void FromListShouldHandleReadOnlyList1() => ItemOrList.FromList<string>(readOnlyList: null).IsNullOrEmpty().ShouldBeTrue();
+        public void FromListShouldHandleReadOnlyList1() => AssertEmpty(ItemOrList.FromList<string>(readOnlyList: null));
 
         [Fact]
         public void FromListShouldHandleReadOnlyList2()
         {
             IReadOnlyList<ItemOrListTest> list = new[] {this};
-            var itemOrList = ItemOrList.FromList(list);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromList(list), list[0]);
         }
 
         [Fact]
         public void FromListShouldHandleReadOnlyList3()
         {
             IReadOnlyList<ItemOrListTest> list = new[] {this, this};
-            var itemOrList = ItemOrList.FromList(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromList(list), list);
         }
 
         [Fact]
-        public void FromListShouldHandleIList1() => ItemOrList.FromList<string>(iList: null).IsNullOrEmpty().ShouldBeTrue();
+        public void FromListShouldHandleIList1() => AssertEmpty(ItemOrList.FromList<string>(iList: null));
 
         [Fact]
         public void FromListShouldHandleIList2()
         {
             IList<ItemOrListTest> list = new[] {this};
-            var itemOrList = ItemOrList.FromList(list);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromList(list), list[0]);
         }
 
         [Fact]
         public void FromListShouldHandleIList3()
         {
             IList<ItemOrListTest> list = new[] {this, this};
-            var itemOrList = ItemOrList.FromList(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromList(list), list);
         }
 
         [Fact]
-        public void FromListShouldHandleList1() => ItemOrList.FromList<string>(list: null).IsNullOrEmpty().ShouldBeTrue();
+        public void FromListShouldHandleList1() => AssertEmpty(ItemOrList.FromList<string>(list: null));
 
         [Fact]
         public void FromListShouldHandleList2()
         {
             var list = new[] {this}.ToList();
-            var itemOrList = ItemOrList.FromList(list);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromList(list), list[0]);
         }
 
         [Fact]
         public void FromListShouldHandleList3()
         {
             var list = new[] {this, this}.ToList();
-            var itemOrList = ItemOrList.FromList(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromList(list), list);
         }
 
         [Fact]
-        public void FromListShouldHandleNullCollection() => ItemOrList.FromList<string, IEnumerable<string>>(null).IsNullOrEmpty().ShouldBeTrue();
+        public void FromListShouldHandleNullCollection() => AssertEmpty(ItemOrList.FromList<string, IEnumerable<string>>(null));
 
         [Fact]
         public void FromListShouldHandleReadOnlyListCollection1()
         {
             IReadOnlyList<ItemOrListTest> list = new[] {this};
-            var itemOrList = ItemOrList.FromList<object, IEnumerable<object>>(list);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromList<object, IEnumerable<object>>(list), list[0]);
         }
 
         [Fact]
         public void FromListShouldHandleReadOnlyListCollection2()
         {
             IReadOnlyList<ItemOrListTest> list = new[] {this, this};
-            var itemOrList = ItemOrList.FromList<object, IEnumerable<object>>(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromList<object, IEnumerable<object>>(list), list);
         }
 
         [Fact]
         public void FromListShouldHandleArrayCollection1()
         {
             var list = new[] {this};
-            var itemOrList = ItemOrList.FromList<object, IEnumerable<object>>(list);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromList<object, IEnumerable<object>>(list), list[0]);
         }
 
         [Fact]
         public void FromListShouldHandleArrayCollection2()
         {
             var list = new[] {this, this};
-            var itemOrList = ItemOrList.FromList<object, IEnumerable<object>>(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromList<object, IEnumerable<object>>(list), list);
         }
 
         [Fact]
         public void FromListShouldHandleEnumerableCollection1()
         {
             var list = new[] {this}.Where(test => test != null);
-            var itemOrList = ItemOrList.FromList<object, IEnumerable<object>>(list);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(ItemOrList.FromList<object, IEnumerable<object>>(list), list.First());
         }
 
         [Fact]
         public void FromListShouldHandleEnumerableCollection2()
         {
             var list = new[] {this, this}.Where(test => test != null);
-            var itemOrList = ItemOrList.FromList<object, IEnumerable<object>>(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromList<object, IEnumerable<object>>(list), list);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void FromRawValueShouldHandleSingleItem(bool @unchecked)
+        [Fact]
+        public void FromRawValueShouldHandleSingleItem()
         {
-            var itemOrList = ItemOrList.FromRawValue<object, object[]>(this, @unchecked);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            var itemOrList = ItemOrList.FromRawValue<object, object[]>(this);
+            AssertItem(ItemOrList.FromRawValue<object, object[]>(this), this);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void FromRawValueShouldHandleSingleItemInList(bool @unchecked)
+        [Fact]
+        public void FromRawValueShouldHandleSingleItemInList()
         {
             var list = new[] {this};
-            var itemOrList = ItemOrList.FromRawValue<object, object[]>(list, @unchecked);
-            if (@unchecked)
-            {
-                itemOrList.List.ShouldEqual(list);
-                itemOrList.Item.ShouldBeNull();
-            }
-            else
-            {
-                itemOrList.Item.ShouldEqual(this);
-                itemOrList.List.ShouldBeNull();
-            }
+            AssertItem(ItemOrList.FromRawValue<object, object[]>(list), list[0]);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void FromRawValueShouldHandleList(bool @unchecked)
+        [Fact]
+        public void FromRawValueShouldHandleList()
         {
             var list = new object[] {this, this};
-            var itemOrList = ItemOrList.FromRawValue<object, object[]>(list, @unchecked);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(ItemOrList.FromRawValue<object, object[]>(list), list);
         }
 
         [Fact]
         public void ShouldHandleNull()
         {
-            var itemOrList = new ItemOrList<object, object[]>(null);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldBeNull();
+            AssertEmpty(new ItemOrList<object, object[]>(null));
         }
 
         [Fact]
         public void ShouldHandleSingleItem()
         {
-            var itemOrList = new ItemOrList<object, object[]>(this);
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(new ItemOrList<object, object[]>(this, true), this);
         }
 
         [Fact]
         public void ShouldHandleList1()
         {
             var list = new object[] {this};
-            var itemOrList = new ItemOrList<object, object[]>(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertItem(new ItemOrList<object, object[]>(list), list[0]);
         }
 
         [Fact]
         public void ShouldHandleList2()
         {
             var list = new object[] {this, this};
-            var itemOrList = new ItemOrList<object, object[]>(list);
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(new ItemOrList<object, object[]>(list), list);
         }
 
         [Fact]
@@ -298,17 +216,7 @@ namespace MugenMvvm.UnitTests.Internal
         {
             var list = new object[] {this, this};
             var itemOrList = ItemOrList.FromRawValue<object, object[]>(list);
-            var cast = itemOrList.Cast<IReadOnlyList<object>>();
-            cast.Item.ShouldBeNull();
-            cast.List.ShouldEqual(list);
-        }
-
-        [Fact]
-        public void ImplicitCastShouldHandleSingleItem()
-        {
-            ItemOrList<ItemOrListTest, ItemOrListTest[]> itemOrList = this;
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertList(itemOrList.Cast<IReadOnlyList<object>>(), list);
         }
 
         [Fact]
@@ -316,8 +224,7 @@ namespace MugenMvvm.UnitTests.Internal
         {
             var list = new object[] {this, this};
             ItemOrList<object, object[]> itemOrList = list;
-            itemOrList.Item.ShouldBeNull();
-            itemOrList.List.ShouldEqual(list);
+            AssertList(itemOrList, list);
         }
 
         [Fact]
@@ -325,21 +232,53 @@ namespace MugenMvvm.UnitTests.Internal
         {
             var list = new object[] {this};
             ItemOrList<object, object[]> itemOrList = list;
-            itemOrList.Item.ShouldEqual(this);
-            itemOrList.List.ShouldBeNull();
+            AssertItem(itemOrList, list[0]);
         }
 
-        [Fact]
-        public void DeconstructShouldReturnItemOrList()
+        private static void AssertEmpty<T, TList>(ItemOrList<T, TList> itemOrList) where TList : class, IEnumerable<T>
         {
-            new ItemOrList<object, IEnumerable<object>>(this).Deconstruct(out var item, out var list);
-            item.ShouldEqual(this);
-            list.ShouldBeNull();
+            itemOrList.Item.ShouldEqual(default!);
+            itemOrList.IsEmpty.ShouldBeTrue();
+            itemOrList.Count.ShouldEqual(0);
+            itemOrList.HasItem.ShouldBeFalse();
+            itemOrList.List.ShouldBeNull();
+            itemOrList.AsList().ShouldEqual(Default.Array<T>());
+            itemOrList.ToArray().ShouldEqual(Default.Array<T>());
+            var buffer = new List<T>();
+            foreach (var i in itemOrList)
+                buffer.Add(i);
+            buffer.ShouldEqual(Default.Array<T>());
+        }
 
-            var array = new object[] {this, this};
-            new ItemOrList<object, IEnumerable<object>>(array).Deconstruct(out item, out list);
-            item.ShouldBeNull();
-            list.ShouldEqual(array);
+        private static void AssertItem<T, TList>(ItemOrList<T, TList> itemOrList, T item) where TList : class, IEnumerable<T>
+        {
+            var list = new[] {item};
+            itemOrList.Item.ShouldEqual(item);
+            itemOrList.IsEmpty.ShouldBeFalse();
+            itemOrList.Count.ShouldEqual(1);
+            itemOrList.HasItem.ShouldBeTrue();
+            itemOrList.List.ShouldBeNull();
+            itemOrList.AsList().ShouldEqual(list);
+            itemOrList.ToArray().ShouldEqual(list);
+            var buffer = new List<T>();
+            foreach (var i in itemOrList)
+                buffer.Add(i);
+            buffer.ShouldEqual(list);
+        }
+
+        private static void AssertList<T, TList>(ItemOrList<T, TList> itemOrList, IEnumerable<T> list) where TList : class, IEnumerable<T>
+        {
+            itemOrList.Item.ShouldBeNull();
+            itemOrList.IsEmpty.ShouldBeFalse();
+            itemOrList.Count.ShouldEqual(list.Count());
+            itemOrList.HasItem.ShouldBeFalse();
+            itemOrList.List.ShouldEqual(list);
+            itemOrList.AsList().ShouldEqual(list);
+            itemOrList.ToArray().ShouldEqual(list);
+            var buffer = new List<T>();
+            foreach (var item in itemOrList)
+                buffer.Add(item);
+            buffer.ShouldEqual(list);
         }
 
         #endregion

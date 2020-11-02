@@ -63,7 +63,7 @@ namespace MugenMvvm.Validation.Components
         public void AddRules(ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> rules, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)
         {
             Should.NotBeNull(condition, nameof(condition));
-            foreach (var rule in rules.Iterator())
+            foreach (var rule in rules)
                 _rules.Add((rule, condition));
         }
 

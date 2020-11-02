@@ -33,25 +33,25 @@ namespace MugenMvvm.UnitTests.Entities
             collection.Count.ShouldEqual(count);
             collection.HasChanges.ShouldBeTrue();
 
-            var changes = collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged);
+            var changes = collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).AsList();
             changes.Count.ShouldEqual(count);
             items.All(entry => changes.Any(stateEntry => stateEntry.Entity == entry)).ShouldBeTrue();
 
-            changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added);
+            changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added).AsList();
             changes.Count.ShouldEqual(count);
             items.All(entry => changes.Any(stateEntry => stateEntry.Entity == entry)).ShouldBeTrue();
 
             foreach (var item in items)
             {
                 collection.GetState(item).ShouldEqual(EntityState.Added);
-                collection.GetChanges(this, (entity, t) => entity.Entity == item && entity.State == EntityState.Added).Single().Entity.ShouldEqual(item);
+                collection.GetChanges(this, (entity, t) => entity.Entity == item && entity.State == EntityState.Added).AsList().Single().Entity.ShouldEqual(item);
 
                 collection.SetState(item, EntityState.Unchanged);
             }
 
             collection.Count.ShouldEqual(count);
             collection.HasChanges.ShouldBeFalse();
-            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).ShouldBeEmpty();
+            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).IsEmpty.ShouldBeTrue();
 
             collection.SetState(new object(), EntityState.Added);
             collection.HasChanges.ShouldBeTrue();
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Entities
             collection.Clear();
             collection.Count.ShouldEqual(0);
             collection.HasChanges.ShouldBeFalse();
-            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).ShouldBeEmpty();
+            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Entities
             collection.SetState(item2, EntityState.Added);
             collection.Count.ShouldEqual(1);
 
-            var changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added);
+            var changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added).AsList();
             changes.Count.ShouldEqual(1);
             changes[0].Entity.ShouldEqual(item2);
         }

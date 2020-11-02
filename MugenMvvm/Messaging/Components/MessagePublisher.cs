@@ -125,8 +125,7 @@ namespace MugenMvvm.Messaging.Components
         {
             var handlers = messenger
                 .GetComponents<IMessengerSubscriberComponent>()
-                .TryGetMessengerHandlers(messenger, messageType, metadata)
-                .Iterator(handler => handler.IsEmpty);
+                .TryGetMessengerHandlers(messenger, messageType, metadata);
 
             if (handlers.Count == 0)
                 return null;
@@ -182,7 +181,7 @@ namespace MugenMvvm.Messaging.Components
                 for (var i = 0; i < Count; i++)
                 {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)
-                        _messenger.TryUnsubscribe(this[i].Subscriber, messageContext.GetMetadataOrDefault());
+                        _messenger.TryUnsubscribe(this[i].Subscriber!, messageContext.GetMetadataOrDefault());
                 }
             }
 

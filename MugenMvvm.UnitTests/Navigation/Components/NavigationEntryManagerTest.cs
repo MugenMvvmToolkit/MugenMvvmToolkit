@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
@@ -256,7 +257,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             presenter.AddComponent(component);
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryShow = (o, context, arg3) => (PresenterResult) o
+                TryShow = (o, context, arg3) => ItemOrList.FromItem<IPresenterResult>((IPresenterResult) o)
             });
 
             var contexts = new List<IHasNavigationInfo>();
@@ -308,7 +309,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             presenter.AddComponent(component);
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryShow = (o, context, arg3) => (PresenterResult) o
+                TryShow = (o, context, arg3) => ItemOrList.FromItem<IPresenterResult>((IPresenterResult) o)
             });
 
             var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
@@ -338,7 +339,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             presenter.AddComponent(component);
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryShow = (o, context, arg3) => (PresenterResult) o
+                TryShow = (o, context, arg3) => ItemOrList.FromItem<IPresenterResult>((IPresenterResult)o)
             });
 
             var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
@@ -369,7 +370,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             presenter.AddComponent(component);
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryShow = (o, context, arg3) => (PresenterResult) o
+                TryShow = (o, context, arg3) => ItemOrList.FromItem<IPresenterResult>((IPresenterResult) o)
             });
 
             var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);

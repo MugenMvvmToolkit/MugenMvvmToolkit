@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -59,7 +62,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             foreach (var bindingMode in bindingModeInitializer.BindingModes)
             {
                 context.BindingComponents.Clear();
-                context.Parameters = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode), new MemberExpressionNode(null, bindingMode.Key));
+                context.Parameters = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode), new MemberExpressionNode(null, bindingMode.Key)));
                 bindingModeInitializer.Initialize(null!, context);
                 if (bindingMode.Value == null)
                     context.BindingComponents.Count.ShouldEqual(0);
@@ -82,7 +85,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             foreach (var bindingMode in bindingModeInitializer.BindingModes)
             {
                 context.BindingComponents.Clear();
-                context.Parameters = new MemberExpressionNode(null, bindingMode.Key);
+                context.Parameters = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new MemberExpressionNode(null, bindingMode.Key));
                 bindingModeInitializer.Initialize(null!, context);
                 if (bindingMode.Value == null)
                     context.BindingComponents.Count.ShouldEqual(0);
@@ -101,7 +104,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
 
-            context.Parameters = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode), new MemberExpressionNode(null, "Test"));
+            context.Parameters = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode),
+                new MemberExpressionNode(null, "Test")));
             ShouldThrow<InvalidOperationException>(() => bindingModeInitializer.Initialize(null!, context));
         }
 

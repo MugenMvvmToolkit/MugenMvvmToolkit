@@ -140,7 +140,7 @@ namespace MugenMvvm.Navigation
 
             if (completed)
             {
-                foreach (var listener in callbacks.Iterator())
+                foreach (var listener in callbacks)
                     InvokeCallback(listener);
                 return true;
             }
@@ -166,7 +166,7 @@ namespace MugenMvvm.Navigation
             }
         }
 
-        private ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> GetCallbacksRaw() => ItemOrList.FromRawValue<INavigationCallbackListener, List<INavigationCallbackListener>>(_callbacks, true);
+        private ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> GetCallbacksRaw() => ItemOrList.FromRawValue<INavigationCallbackListener, List<INavigationCallbackListener>>(_callbacks);
 
         #endregion
     }

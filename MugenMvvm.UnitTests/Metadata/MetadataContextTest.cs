@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Metadata
         [Fact]
         public void TryGetShouldUseCustomGetter()
         {
-            var context = new MetadataContext(CustomGetterKey.ToValue(DefaultGetterValue));
+            var context = new MetadataContext(new ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
             TryGetGetterTest(context);
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Metadata
         {
             var contextKey = MetadataContextKey.FromKey<int>(intValue.ToString());
             var value = contextKey.ToValue(intValue);
-            var context = new MetadataContext(value);
+            var context = new MetadataContext(new ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(value, true));
             EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             TryGetTest(context, contextKey, intValue);

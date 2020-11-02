@@ -114,7 +114,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             if (IsDisposed)
                 return default;
-            return ItemOrList.FromRawValueReadonly<IMemberPathObserverListener>(_listeners, true);
+            return ItemOrList.FromRawValueReadonly<IMemberPathObserverListener>(_listeners);
         }
 
         public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);

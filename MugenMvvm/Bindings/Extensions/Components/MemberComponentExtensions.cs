@@ -22,7 +22,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var members = components[i].TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
-                if (!members.IsNullOrEmpty())
+                if (!members.IsEmpty)
                     return members;
             }
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                foreach (var member in components[i].TryGetMembers(memberManager, type, name, memberTypes, metadata).Iterator())
+                foreach (var member in components[i].TryGetMembers(memberManager, type, name, memberTypes, metadata))
                     result.Add(member);
             }
         }

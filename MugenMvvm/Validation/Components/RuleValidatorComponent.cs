@@ -32,7 +32,7 @@ namespace MugenMvvm.Validation.Components
         {
             var errors = new Dictionary<string, object?>(3);
             var tasks = ItemOrListEditor.Get<Task>();
-            foreach (var rule in Rules.Iterator())
+            foreach (var rule in Rules)
             {
                 var task = rule.ValidateAsync(Target, memberName, errors, cancellationToken, metadata);
                 if (task != null && !task.IsCompleted)

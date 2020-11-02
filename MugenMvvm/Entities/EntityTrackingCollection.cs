@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Entities;
@@ -66,21 +65,21 @@ namespace MugenMvvm.Entities
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<TrackingEntity> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate)
+        public ItemOrList<TrackingEntity, IReadOnlyList<TrackingEntity>> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate)
         {
             Should.NotBeNull(predicate, nameof(predicate));
-            LazyList<TrackingEntity> list = default;
+            var editor = ItemOrListEditor.Get<TrackingEntity>(entity => entity.IsEmpty);
             lock (_dictionary)
             {
                 foreach (var pair in _dictionary)
                 {
                     var entity = new TrackingEntity(pair.Key, pair.Value);
                     if (predicate(entity, state))
-                        list.Add(entity);
+                        editor.Add(entity);
                 }
             }
 
-            return (IReadOnlyList<TrackingEntity>?) list.List ?? Default.Array<TrackingEntity>();
+            return editor.ToItemOrList<IReadOnlyList<TrackingEntity>>();
         }
 
         public EntityState GetState(object entity, IReadOnlyMetadataContext? metadata = null)

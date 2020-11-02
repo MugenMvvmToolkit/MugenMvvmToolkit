@@ -44,6 +44,7 @@ namespace MugenMvvm.Bindings.Core
         protected const int HasTargetObserverListener = 1 << 10;
         protected const int HasSourceObserverListener = 1 << 11;
 
+        protected const int HasItem = 1 << 29;
         protected const int InvalidFlag = 1 << 30;
         protected const int DisposedFlag = 1 << 31;
 
@@ -56,6 +57,7 @@ namespace MugenMvvm.Bindings.Core
             Should.NotBeNull(target, nameof(target));
             Target = target;
             SourceRaw = sourceRaw;
+            SetFlag(HasItem);
         }
 
         #endregion
@@ -98,7 +100,15 @@ namespace MugenMvvm.Bindings.Core
 
         public IMemberPathObserver Target { get; private set; }
 
-        public ItemOrList<object?, object?[]> Source => ItemOrList.FromRawValue<object?, object?[]>(SourceRaw, true);
+        public ItemOrList<object?, object?[]> Source
+        {
+            get
+            {
+                if (SourceRaw is object?[] objects)
+                    return new ItemOrList<object?, object?[]>(objects);
+                return new ItemOrList<object?, object?[]>(SourceRaw, CheckFlag(HasItem));
+            }
+        }
 
         protected object? SourceRaw { get; private set; }
 
@@ -123,7 +133,7 @@ namespace MugenMvvm.Bindings.Core
             SourceRaw = null;
         }
 
-        public ItemOrList<object, object[]> GetComponents() => ItemOrList.FromRawValue<object, object[]>(_components, true);
+        public ItemOrList<object, object[]> GetComponents() => ItemOrList.FromRawValue<object, object[]>(_components);
 
         public void UpdateTarget()
         {

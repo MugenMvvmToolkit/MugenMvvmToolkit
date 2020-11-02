@@ -22,7 +22,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(presenter, nameof(presenter));
             var result = presenter.TryShow(request, cancellationToken, metadata);
-            if (result.IsNullOrEmpty())
+            if (result.IsEmpty)
                 ExceptionManager.ThrowPresenterCannotShowRequest(request, metadata);
             return result;
         }
@@ -46,9 +46,9 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
             var tasks = ItemOrListEditor.Get<Task<bool>>();
-            foreach (var result in presenter.DefaultIfNull().TryClose(viewModel, cancellationToken, metadata).Iterator())
+            foreach (var result in presenter.DefaultIfNull().TryClose(viewModel, cancellationToken, metadata))
             {
-                foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata).Iterator())
+                foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata))
                 {
                     if (callback.CallbackType == NavigationCallbackType.Closing)
                         tasks.Add(callback.ToTask(isSerializable).CancelToFalse());
@@ -87,7 +87,7 @@ namespace MugenMvvm.Extensions
             presenterResult = result.Item;
             showingCallback = null;
             closeCallback = null!;
-            foreach (var navigationCallback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result.Item, metadata).Iterator())
+            foreach (var navigationCallback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result.Item, metadata))
             {
                 if (navigationCallback.CallbackType == NavigationCallbackType.Showing)
                     showingCallback = navigationCallback;

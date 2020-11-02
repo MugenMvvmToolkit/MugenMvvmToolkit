@@ -121,8 +121,7 @@ namespace MugenMvvm.Views.Components
             }
 
             foreach (var t in ItemOrList
-                .FromRawValue<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>(delegates, true)
-                .Iterator())
+                .FromRawValue<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>(delegates))
                 t.Invoke(this, view, clear, metadata);
         }
 
@@ -140,7 +139,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            foreach (var t in ItemOrList.FromRawValue<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>, List<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>>(delegates, true).Iterator())
+            foreach (var t in ItemOrList.FromRawValue<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>, List<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>>(delegates))
                 t.Invoke(this, view, viewModel);
         }
 

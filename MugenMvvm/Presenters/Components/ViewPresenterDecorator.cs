@@ -56,9 +56,9 @@ namespace MugenMvvm.Presenters.Components
             var result = Components.TryShow(presenter, ViewModelViewRequest.GetRequestOrRaw(request, viewModel, view), cancellationToken, metadata);
             if (canDisposeViewModel && DisposeViewModelOnClose)
             {
-                foreach (var presenterResult in result.Iterator())
+                foreach (var presenterResult in result)
                 {
-                    foreach (var callback in _navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(presenterResult, metadata).Iterator())
+                    foreach (var callback in _navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(presenterResult, metadata))
                     {
                         if (callback.CallbackType == NavigationCallbackType.Close)
                         {
@@ -77,7 +77,7 @@ namespace MugenMvvm.Presenters.Components
             var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (vm == null && view != null)
             {
-                var views = _viewManager.DefaultIfNull().GetViews(request, metadata).Iterator();
+                var views = _viewManager.DefaultIfNull().GetViews(request, metadata);
                 var result = ItemOrListEditor.Get<IPresenterResult>();
                 foreach (var v in views)
                     result.AddRange(Components.TryClose(presenter, v.ViewModel, cancellationToken, metadata));
@@ -106,7 +106,7 @@ namespace MugenMvvm.Presenters.Components
 
             var viewManager = _viewManager.DefaultIfNull();
             var views = viewManager.GetViews(view, metadata);
-            if (!views.IsNullOrEmpty())
+            if (!views.IsEmpty)
             {
                 canDisposeViewModel = false;
                 return views.Item?.ViewModel;

@@ -86,7 +86,7 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        public ItemOrListEditor<TItem, TList> AddRange(IEnumerable<TItem>? values) => AddRange(ItemOrList.FromList<TItem, IEnumerable<TItem>>(values));
+        public ItemOrListEditor<TItem, TList> AddRange(IEnumerable<TItem>? values) => AddRange(new ItemOrList<TItem, IEnumerable<TItem>>(values));
 
         public ItemOrListEditor<TItem, TList> AddRange<T>(ItemOrList<TItem, T> value) where T : class, IEnumerable<TItem>
         {
@@ -181,22 +181,22 @@ namespace MugenMvvm.Internal
         public ItemOrList<TItem, TList> ToItemOrList()
         {
             if (_list == null)
-                return _item;
+                return new ItemOrList<TItem, TList>(_item, !_isEmpty(_item));
 
             if (_list.Count > 1)
-                return new ItemOrList<TItem, TList>(_list);
-            return _list.Count == 0 ? default! : _list[0];
+                return new ItemOrList<TItem, TList>(_list, true);
+            return _list.Count == 0 ? default! : new ItemOrList<TItem, TList>(_list[0], true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList<TItem, TNewList> ToItemOrList<TNewList>() where TNewList : class, IEnumerable<TItem>
         {
             if (_list == null)
-                return _item;
+                return new ItemOrList<TItem, TNewList>(_item, !_isEmpty(_item));
 
             if (_list.Count > 1)
-                return new ItemOrList<TItem, TNewList>((TNewList) (object) _list);
-            return _list.Count == 0 ? default! : _list[0];
+                return new ItemOrList<TItem, TNewList>((TNewList) (object) _list, true);
+            return _list.Count == 0 ? default! : new ItemOrList<TItem, TNewList>(_list[0], true);
         }
 
         #endregion

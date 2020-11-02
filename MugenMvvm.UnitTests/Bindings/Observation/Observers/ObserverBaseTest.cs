@@ -103,11 +103,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             }
 
             observer.Dispose();
-            observer.GetListeners().IsNullOrEmpty().ShouldBeTrue();
+            observer.GetListeners().IsEmpty.ShouldBeTrue();
 
             for (var i = 0; i < removeCount; i++)
                 observer.AddListener(listeners[i]);
-            observer.GetListeners().IsNullOrEmpty().ShouldBeTrue();
+            observer.GetListeners().IsEmpty.ShouldBeTrue();
         }
 
         protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action<bool> onCleared, int validationCount = 1, bool ignoreFirstMember = true)

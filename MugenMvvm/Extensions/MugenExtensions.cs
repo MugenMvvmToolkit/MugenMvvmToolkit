@@ -58,7 +58,7 @@ namespace MugenMvvm.Extensions
         public static void ClearBusy(this IBusyManager busyManager)
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
-            foreach (var t in busyManager.GetTokens().Iterator())
+            foreach (var t in busyManager.GetTokens())
                 t.Dispose();
         }
 

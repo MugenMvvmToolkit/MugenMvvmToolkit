@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
@@ -92,21 +93,21 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     {
                         f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                         m.ShouldEqual(MemberType.Accessor | MemberType.Event);
-                        return accessorInfo3;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
                     }
 
                     m.ShouldEqual(MemberType.Accessor);
                     if (t == root.GetType())
                     {
                         f.ShouldEqual(memberFlags);
-                        return accessorInfo1;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
                     }
 
                     if (!canReturn)
                         return default;
                     f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                     if (t == target1.GetType())
-                        return accessorInfo2;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
                     throw new NotSupportedException();
                 }
             };
@@ -209,21 +210,21 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     {
                         f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                         m.ShouldEqual(MemberType.Accessor | MemberType.Event);
-                        return accessorInfo3;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
                     }
 
                     m.ShouldEqual(MemberType.Accessor);
                     if (t == root.GetType())
                     {
                         f.ShouldEqual(memberFlags);
-                        return accessorInfo1;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
                     }
 
                     if (!canReturn)
                         return default;
                     f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                     if (t == target1.GetType())
-                        return accessorInfo2;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
                     throw new NotSupportedException();
                 }
             };
@@ -337,11 +338,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     if (t == target2.GetType())
-                        return accessorInfo3;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
                     if (t == root.GetType())
-                        return accessorInfo1;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
                     if (t == target1.GetType())
-                        return accessorInfo2;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
                     throw new NotSupportedException();
                 }
             };
@@ -387,11 +388,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     if (t == target2.GetType())
-                        return accessorInfo3;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
                     if (t == root.GetType())
-                        return accessorInfo1;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
                     if (t == target1.GetType())
-                        return accessorInfo2;
+                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
                     throw new NotSupportedException();
                 }
             };

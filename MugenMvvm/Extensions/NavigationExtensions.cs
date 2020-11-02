@@ -39,7 +39,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(navigationTarget, nameof(navigationTarget));
             IReadOnlyMetadataContext? closeMetadata = null;
             var callbacks = ItemOrListEditor.Get<Task>();
-            foreach (var navigationEntry in navigationDispatcher.GetNavigationEntries(metadata).Iterator())
+            foreach (var navigationEntry in navigationDispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && navigationEntry.IsPending)
                     continue;
@@ -48,9 +48,9 @@ namespace MugenMvvm.Extensions
                     continue;
 
                 closeMetadata ??= new MetadataContext(metadata) {{NavigationMetadata.ForceClose, true}, {NavigationMetadata.NavigationType, navigationType}};
-                foreach (var result in presenter.DefaultIfNull().TryClose(navigationEntry.Target, default, closeMetadata).Iterator())
+                foreach (var result in presenter.DefaultIfNull().TryClose(navigationEntry.Target, default, closeMetadata))
                 {
-                    foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata).Iterator())
+                    foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
                     {
                         if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
                             callbacks.Add(navigationCallback.ToTask(false));
@@ -69,7 +69,7 @@ namespace MugenMvvm.Extensions
                     return null;
                 if (state.navigationType != null && entry.NavigationType != state.navigationType || !(entry.Target is IViewModelBase viewModel))
                     return null;
-                foreach (var t in MugenService.ViewManager.GetViews(viewModel, m).Iterator())
+                foreach (var t in MugenService.ViewManager.GetViews(viewModel, m))
                 {
                     if (t.Target is TView view)
                         return view;
@@ -147,7 +147,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
             var tasks = ItemOrListEditor.Get<Task>();
-            foreach (var t in dispatcher.GetNavigationEntries(metadata).Iterator())
+            foreach (var t in dispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && t.IsPending)
                     continue;
@@ -155,7 +155,7 @@ namespace MugenMvvm.Extensions
                 if (navigationTarget != null && Equals(t.Target, navigationTarget))
                     continue;
 
-                foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata).Iterator())
+                foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata))
                 {
                     if (filter(callback, state))
                         tasks.Add(callback.ToTask(isSerializable));

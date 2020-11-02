@@ -69,7 +69,7 @@ namespace MugenMvvm.Android.Views
                     else if (view is IFragmentView f)
                         FragmentExtensions.Remove(f);
                 }
-                else if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsNullOrEmpty())
+                else if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsEmpty)
                 {
                     if (view is IActivityView activity)
                         activity.Finish();
@@ -87,7 +87,7 @@ namespace MugenMvvm.Android.Views
 
         private void Finish(IActivityView activityView)
         {
-            if (!ActivityExtensions.IsTaskRoot(activityView) || _presenter.DefaultIfNull().Show(activityView).IsNullOrEmpty())
+            if (!ActivityExtensions.IsTaskRoot(activityView) || _presenter.DefaultIfNull().Show(activityView).IsEmpty)
                 activityView.Finish();
         }
 

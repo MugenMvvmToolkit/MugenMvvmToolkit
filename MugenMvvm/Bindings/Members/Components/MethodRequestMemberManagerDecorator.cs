@@ -45,9 +45,9 @@ namespace MugenMvvm.Bindings.Members.Components
                 return default;
 
             var types = typesRequest.Types;
-            var iterator = Components.TryGetMembers(memberManager, type, memberTypes, flags, _members, metadata).Iterator();
+            var members = Components.TryGetMembers(memberManager, type, memberTypes, flags, _members, metadata);
             _members.Clear();
-            foreach (var memberInfo in iterator)
+            foreach (var memberInfo in members)
             {
                 if (!(memberInfo is IMethodMemberInfo methodInfo))
                 {

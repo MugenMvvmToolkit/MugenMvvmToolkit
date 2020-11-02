@@ -179,9 +179,17 @@ namespace MugenMvvm.Entities.Components
                     pair.Value.SetValue(entity, pair.Value.Value);
             }
 
-            public IReadOnlyList<EntityStateValue> Dump(object entity, IReadOnlyMetadataContext? metadata = null)
+            public ItemOrList<EntityStateValue, IReadOnlyList<EntityStateValue>> Dump(object entity, IReadOnlyMetadataContext? metadata = null)
             {
                 Should.BeOfType(entity, EntityType, nameof(entity));
+                if (Count == 0)
+                    return default;
+                if (Count == 1)
+                {
+                    var pair = this.FirstOrDefault();
+                    return ItemOrList.FromItem(new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity)), true);
+                }
+
                 var values = new EntityStateValue[Count];
                 var index = 0;
                 foreach (var pair in this)

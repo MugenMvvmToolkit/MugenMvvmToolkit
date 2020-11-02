@@ -43,11 +43,10 @@ namespace MugenMvvm.Presenters.Components
             using (SuspendNavigation(dispatcher, metadata))
             {
                 var results = Components.TryShow(presenter, request, cancellationToken, metadata);
-                var iterator = results.Iterator();
-                if (iterator.Count != 0)
+                if (results.Count != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
-                    foreach (var result in iterator)
+                    foreach (var result in results)
                     {
                         components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, result.NavigationId, result.NavigationType, result, metadata);
                         components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Close, result.NavigationId, result.NavigationType, result, metadata);
@@ -64,11 +63,10 @@ namespace MugenMvvm.Presenters.Components
             using (SuspendNavigation(dispatcher, metadata))
             {
                 var results = Components.TryClose(presenter, request, cancellationToken, metadata);
-                var iterator = results.Iterator();
-                if (iterator.Count != 0)
+                if (results.Count != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
-                    foreach (var t in iterator)
+                    foreach (var t in results)
                         components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Closing, t.NavigationId, t.NavigationType, t, metadata);
                 }
 

@@ -40,7 +40,7 @@ namespace MugenMvvm.Validation
             {
                 if (SingleMemberName == null)
                     return default;
-                return ItemOrList.FromRawValue<object, IReadOnlyList<object>>(RawErrors, true);
+                return ItemOrList.FromRawValue<object, IReadOnlyList<object>>(RawErrors);
             }
         }
 

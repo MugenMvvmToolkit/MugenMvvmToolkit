@@ -647,7 +647,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
-                        return parentMember;
+                        return ItemOrList.FromItem<IMemberInfo>(parentMember);
                     return default;
                 }
             });

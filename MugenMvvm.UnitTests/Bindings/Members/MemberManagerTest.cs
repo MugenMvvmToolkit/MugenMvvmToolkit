@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var memberFlags = MemberFlags.All;
             var request = "test";
             var memberManager = new MemberManager();
-            var member = new TestAccessorMemberInfo();
+            IMemberInfo member = new TestAccessorMemberInfo();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                         r.ShouldEqual(request);
                         meta.ShouldEqual(DefaultMetadata);
                         if (isLast)
-                            return member;
+                            return member.ToItemOrList();
                         return default;
                     }
                 };
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }
 
             var result = memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
-            result.Iterator().Count.ShouldEqual(1);
+            result.Count.ShouldEqual(1);
             result.Item.ShouldEqual(member);
             invokeCount.ShouldEqual(count);
         }

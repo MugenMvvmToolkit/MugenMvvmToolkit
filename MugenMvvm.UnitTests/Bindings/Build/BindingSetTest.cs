@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
+                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
                 }
             });
 
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
+                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
                 }
             });
 
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                     ++invokeCount;
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
+                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
                 }
             });
 
@@ -157,7 +157,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                     ++invokeCount;
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
+                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
                 }
             });
 
@@ -208,7 +208,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                         return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
                     }
 
-                    return list.Single(tuple => tuple.request.Equals(o)).builder;
+                    return ItemOrList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
                 }
             });
 
@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
             foreach (var group in groupBy)
                 group.Count().ShouldEqual(bindingCount);
 
-            bindingSet.BuildIncludeBindings(DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            bindingSet.BuildIncludeBindings(DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -271,7 +271,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                         return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
                     }
 
-                    return list.Single(tuple => tuple.request.Equals(o)).builder;
+                    return ItemOrList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
                 }
             });
 
@@ -329,7 +329,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
                         return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
                     }
 
-                    return list.Single(tuple => tuple.request.Equals(o)).builder;
+                    return ItemOrList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
                 }
             });
 

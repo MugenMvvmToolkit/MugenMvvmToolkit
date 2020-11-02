@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             memberManager.AddComponent(new ReflectionMemberProvider());
             memberManager.AddComponent(new NameRequestMemberManagerDecorator());
             memberManager.AddComponent(TestMemberManagerComponent.Selector);
-            memberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, BindingInternalConstant.IndexerStringGetterName, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            memberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, BindingInternalConstant.IndexerStringGetterName, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new NameRequestMemberManagerDecorator());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            manager.TryGetMembers(typeof(int[]), MemberType.Method, MemberFlags.All, "[1]", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            manager.TryGetMembers(typeof(int[]), MemberType.Method, MemberFlags.All, "[1]", DefaultMetadata).IsEmpty.ShouldBeTrue();
 
             var member = (MethodAccessorMemberInfo) manager.TryGetMembers(typeof(int[]), MemberType.Accessor, MemberFlags.All, "[1]", DefaultMetadata).Item!;
             member.ShouldNotBeNull();

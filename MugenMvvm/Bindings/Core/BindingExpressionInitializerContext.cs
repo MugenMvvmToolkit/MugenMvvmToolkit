@@ -48,7 +48,7 @@ namespace MugenMvvm.Bindings.Core
 
         public ItemOrList<IExpressionNode, IList<IExpressionNode>> Parameters
         {
-            get => ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parameters, true);
+            get => ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parameters);
             set
             {
                 _parameters = value.GetRawValue();

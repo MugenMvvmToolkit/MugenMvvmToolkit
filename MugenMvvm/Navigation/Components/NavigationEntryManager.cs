@@ -79,7 +79,7 @@ namespace MugenMvvm.Navigation.Components
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var result = Components.TryShow(presenter, request, cancellationToken, metadata);
-            foreach (var r in result.Iterator())
+            foreach (var r in result)
                 UpdateEntries(_navigationDispatcher.DefaultIfNull(), true, r.Target, r.NavigationProvider, r, true, r.GetMetadataOrDefault());
             return result;
         }

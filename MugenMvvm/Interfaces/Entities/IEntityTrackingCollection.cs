@@ -4,6 +4,7 @@ using MugenMvvm.Entities;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Entities
 {
@@ -11,7 +12,7 @@ namespace MugenMvvm.Interfaces.Entities
     {
         bool HasChanges { get; }
 
-        IReadOnlyList<TrackingEntity> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate);
+        ItemOrList<TrackingEntity, IReadOnlyList<TrackingEntity>> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate);
 
         EntityState GetState(object entity, IReadOnlyMetadataContext? metadata = null);
 

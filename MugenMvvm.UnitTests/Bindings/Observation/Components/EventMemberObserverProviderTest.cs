@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation.Components;
 using MugenMvvm.Extensions;
@@ -142,7 +143,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 {
                     set.Add((string) r);
                     if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
-                        return result;
+                        return ItemOrList.FromItem<IMemberInfo>(result);
                     return default;
                 }
             });
@@ -193,7 +194,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     f.ShouldEqual(flags);
                     set.Add((string) r);
                     if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
-                        return result;
+                        return ItemOrList.FromItem<IMemberInfo>(result);
                     return default;
                 }
             });
@@ -244,7 +245,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     f.ShouldEqual(flags);
                     set.Add((string) r);
                     if (r.Equals(member))
-                        return result;
+                        return ItemOrList.FromItem<IMemberInfo>(result);
                     return default;
                 }
             });

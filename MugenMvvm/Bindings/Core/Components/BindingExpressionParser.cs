@@ -72,7 +72,7 @@ namespace MugenMvvm.Bindings.Core.Components
             var item = parserResult.Item;
             if (item.IsEmpty)
                 return default;
-            return new BindingBuilder(_context, item.Target, item.Source, item.Parameters.GetRawValue());
+            return ItemOrList.FromItem<IBindingBuilder>(new BindingBuilder(_context, item.Target, item.Source, item.Parameters.GetRawValue()));
         }
 
         #endregion
@@ -122,7 +122,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
                 if (_compiledExpression == InitializedState)
                 {
-                    return InitializeBinding(new Core.Binding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
+                    return InitializeBinding(new Binding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
                         ((IBindingMemberExpressionNode) _sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
@@ -134,17 +134,15 @@ namespace MugenMvvm.Bindings.Core.Components
 
             #region Methods
 
-            private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+            private IBinding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 if (_parametersRaw != null)
                 {
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
-                    {
                         binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)),
                             metadata);
-                    }
                 }
 
                 if (binding.State == BindingState.Valid)
@@ -191,7 +189,7 @@ namespace MugenMvvm.Bindings.Core.Components
                     return default;
                 if (_parametersRaw is IReadOnlyList<IExpressionNode> parameters)
                     return ItemOrList.FromList(iList: parameters.ToList());
-                return ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parametersRaw, true);
+                return ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parametersRaw);
             }
 
             #endregion

@@ -73,10 +73,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var emptyPathObserver = new EmptyPathObserver(this);
             var listener = new TestMemberPathObserverListener();
             emptyPathObserver.AddListener(listener);
-            emptyPathObserver.GetListeners().IsNullOrEmpty().ShouldBeTrue();
+            emptyPathObserver.GetListeners().IsEmpty.ShouldBeTrue();
 
             emptyPathObserver.RemoveListener(listener);
-            emptyPathObserver.GetListeners().IsNullOrEmpty().ShouldBeTrue();
+            emptyPathObserver.GetListeners().IsEmpty.ShouldBeTrue();
         }
 
         #endregion

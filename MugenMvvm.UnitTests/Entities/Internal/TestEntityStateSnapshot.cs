@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Entities.Internal
 
         public Action<object, IReadOnlyMetadataContext?>? Restore { get; set; }
 
-        public Func<object, IReadOnlyMetadataContext?, IReadOnlyList<EntityStateValue>>? Dump { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrList<EntityStateValue, IReadOnlyList<EntityStateValue>>>? Dump { get; set; }
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Entities.Internal
 
         void IEntityStateSnapshot.Restore(object entity, IReadOnlyMetadataContext? metadata) => Restore?.Invoke(entity, metadata);
 
-        IReadOnlyList<EntityStateValue> IEntityStateSnapshot.Dump(object entity, IReadOnlyMetadataContext? metadata) => Dump?.Invoke(entity, metadata) ?? Default.Array<EntityStateValue>();
+        ItemOrList<EntityStateValue, IReadOnlyList<EntityStateValue>> IEntityStateSnapshot.Dump(object entity, IReadOnlyMetadataContext? metadata) => Dump?.Invoke(entity, metadata) ?? Default.Array<EntityStateValue>();
 
         #endregion
     }

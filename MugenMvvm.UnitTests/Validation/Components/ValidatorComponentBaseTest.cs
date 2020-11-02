@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Validation.Internal;
 using MugenMvvm.Validation;
 using Should;
@@ -113,7 +114,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var component = new TestValidatorComponentBase<object>(this)
             {
-                GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
+                GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(ValidationResult.Get(s, ItemOrList.FromItem<object>(s)))
             };
 
             var validator = new Validator();
@@ -175,7 +176,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 {
                     if (string.IsNullOrEmpty(s))
                         return new ValueTask<ValidationResult>(ValidationResult.NoErrors);
-                    return new ValueTask<ValidationResult>(ValidationResult.Get(s, s));
+                    return new ValueTask<ValidationResult>(ValidationResult.Get(s, ItemOrList.FromItem<object>(s)));
                 }
             };
             var validator = new Validator();
@@ -246,7 +247,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var expectedMember = "test";
             var component = new TestValidatorComponentBase<object>(this)
             {
-                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
+                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, ItemOrList.FromItem<object>(s)))
             };
             var validator = new Validator();
             validator.AddComponent(component);
@@ -317,7 +318,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var expectedMember = "test";
             var component = new TestValidatorComponentBase<object>(this)
             {
-                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
+                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, ItemOrList.FromItem<object>(s)))
             };
             var validator = new Validator();
             validator.AddComponent(component);
@@ -353,7 +354,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var expectedMember = "test";
             var component = new TestValidatorComponentBase<object>(this)
             {
-                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
+                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, ItemOrList.FromItem<object>(s)))
             };
             var validator = new Validator();
             validator.AddComponent(component);

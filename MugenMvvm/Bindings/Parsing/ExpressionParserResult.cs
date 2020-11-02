@@ -42,7 +42,7 @@ namespace MugenMvvm.Bindings.Parsing
 
         public bool IsEmpty => Target == null;
 
-        public ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> Parameters => ItemOrList.FromRawValueReadonly<IExpressionNode>(_parametersRaw, true);
+        public ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> Parameters => ItemOrList.FromRawValueReadonly<IExpressionNode>(_parametersRaw);
 
         #endregion
     }

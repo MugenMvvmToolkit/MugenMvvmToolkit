@@ -50,7 +50,7 @@ namespace MugenMvvm.Bindings.Build.Components
                 }
 
                 if (value != this)
-                    return ItemOrList.FromRawValueReadonly<IBindingBuilder>(value, true);
+                    return ItemOrList.FromRawValueReadonly<IBindingBuilder>(value);
             }
 
             return Components.TryParseBindingExpression(bindingManager, expression, metadata);

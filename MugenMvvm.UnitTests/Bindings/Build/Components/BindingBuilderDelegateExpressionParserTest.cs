@@ -2,8 +2,10 @@
 using MugenMvvm.Bindings.Build.Components;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
@@ -36,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build.Components
                     ++invokeCount;
                     o.ShouldEqual(ConverterRequest);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return testExp;
+                    return ItemOrList.FromItem<IBindingBuilder>(testExp);
                 }
             };
             bindingManager.AddComponent(cache);

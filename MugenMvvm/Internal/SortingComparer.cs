@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Internal
 {
@@ -27,7 +26,7 @@ namespace MugenMvvm.Internal
 
         public int Compare([AllowNull] T x, [AllowNull] T y)
         {
-            foreach (var item in _sortInfo.Iterator(info => info.IsEmpty))
+            foreach (var item in _sortInfo)
             {
                 var compare = item.Compare(x!, y!);
                 if (compare == 0)

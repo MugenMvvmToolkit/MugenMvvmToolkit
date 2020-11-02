@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 .ToArray();
             items.ShouldNotBeEmpty();
 
-            component.TryGetMembers(null!, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
             var members = component.TryGetMembers(null!, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
         }
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 .Where(info => info.Name == nameof(FieldStatic))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            component.TryGetMembers(null!, GetType(), nameof(FieldStatic), MemberType.Event, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, GetType(), nameof(FieldStatic), MemberType.Event, DefaultMetadata).IsEmpty.ShouldBeTrue();
             var members = component.TryGetMembers(null!, GetType(), nameof(FieldStatic), MemberType.Accessor, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
         }
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 .Where(info => info.Name == nameof(EventStatic))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Method, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
             var members = component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Event, DefaultMetadata).AsList();
 
             if (canObserve)
