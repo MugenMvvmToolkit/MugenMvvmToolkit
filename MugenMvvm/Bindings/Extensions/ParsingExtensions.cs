@@ -352,10 +352,12 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseExpression(this ITokenParserContext context)
         {
-            var result = ItemOrListEditor.Get<ExpressionParserResult>(r => r.IsEmpty);
+            var result = ItemOrListEditor.Get<ExpressionParserResult>();
             while (!context.IsEof())
             {
-                result.Add(TryParseNext(context));
+                var r = TryParseNext(context);
+                if (!r.IsEmpty)
+                    result.Add(r);
                 context.SkipWhitespaces();
             }
 

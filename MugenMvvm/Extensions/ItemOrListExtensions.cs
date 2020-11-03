@@ -37,19 +37,22 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item;
         }
 
-        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
-            where TItem : class =>
-            itemOrList.Editor(item => item == null);
+        public static ItemOrListEditor<TItem, TList> AddIfNotNull<TItem, TList>(this ref ItemOrListEditor<TItem, TList> editor, [AllowNull] TItem value)
+            where TItem : class?
+            where TList : class, IList<TItem>
+        {
+            if (value != null)
+                return editor.Add(value);
+            return editor;
+        }
 
-        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList, Func<TItem, bool> isEmpty) =>
-            new ItemOrListEditor<TItem, IList<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList) =>
+            new ItemOrListEditor<TItem, IList<TItem>>(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
 
-        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList)
-            where TItem : class =>
-            itemOrList.Editor(item => item == null);
-
-        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, Func<TItem, bool> isEmpty) =>
-            new ItemOrListEditor<TItem, List<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList) =>
+            new ItemOrListEditor<TItem, List<TItem>>(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
 
         public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TList : class, IEnumerable<TItem>

@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Messaging
         {
             #region Properties
 
-            public Action<object?, string, IMessageContext>? HandleFunc { get; set; }
+            public Action<object?, string, IMessageContext>? HandleFunc { get; set; } = (o, s, arg3) => throw new NotSupportedException();
 
             #endregion
 

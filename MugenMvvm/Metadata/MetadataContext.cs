@@ -77,7 +77,7 @@ namespace MugenMvvm.Metadata
             var components = GetComponents();
             lock (_dictionary)
             {
-                var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(value => value.Key == null);
+                var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>();
                 foreach (var keyValuePair in _dictionary)
                     contextValues.Add(keyValuePair);
                 components.GetValues(this, MetadataOperationType.Get, ref contextValues);
@@ -274,7 +274,7 @@ namespace MugenMvvm.Metadata
             }
             else
             {
-                var values = ItemOrListEditor.Get<KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>>(pair => pair.Key.Key == null);
+                var values = ItemOrListEditor.Get<KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>>();
                 lock (_dictionary)
                 {
                     foreach (var item in items)
@@ -328,7 +328,7 @@ namespace MugenMvvm.Metadata
                 return;
             }
 
-            var oldValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(pair => pair.Key == null);
+            var oldValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>();
             lock (_dictionary)
             {
                 foreach (var pair in _dictionary)

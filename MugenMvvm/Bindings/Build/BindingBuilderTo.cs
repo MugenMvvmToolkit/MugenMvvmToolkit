@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Build
             Should.NotBeNull(pathOrExpression, nameof(pathOrExpression));
             _fromBuilder = from;
             _pathOrExpression = pathOrExpression;
-            _parameters = parameters.Editor(pair => pair.Value == null);
+            _parameters = parameters.Editor();
         }
 
         #endregion

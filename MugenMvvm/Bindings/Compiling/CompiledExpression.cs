@@ -235,7 +235,7 @@ namespace MugenMvvm.Bindings.Compiling
             try
             {
                 var expressionValues = values.List;
-                var memberValues = ItemOrListEditor.Get<KeyValuePair<IBindingMemberExpressionNode, Expression>>(pair => pair.Key == null);
+                var memberValues = ItemOrListEditor.Get<KeyValuePair<IBindingMemberExpressionNode, Expression>>();
                 foreach (var value in _expressions)
                 {
                     if (!(value.Key is IBindingMemberExpressionNode memberExpression))

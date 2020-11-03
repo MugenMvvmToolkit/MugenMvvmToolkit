@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Internal
 {
@@ -91,7 +92,7 @@ namespace MugenMvvm.Internal
                 return;
             }
 
-            count = list.Count();
+            count = list.CountEx();
             if (count > 1)
             {
                 _fixedCount = 0;
@@ -120,6 +121,7 @@ namespace MugenMvvm.Internal
             _fixedCount = list is TItem[] array ? array.Length : 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ItemOrList(TItem item, TList? list, int fixedCount)
         {
             Item = item;
@@ -146,7 +148,7 @@ namespace MugenMvvm.Internal
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _fixedCount == 0 ? ListCount() : _fixedCount;
+            get => _fixedCount == 0 ? List.CountEx() : _fixedCount;
         }
 
         #endregion
@@ -162,14 +164,6 @@ namespace MugenMvvm.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList<TItem, TNewList> Cast<TNewList>() where TNewList : class, IEnumerable<TItem>
             => new ItemOrList<TItem, TNewList>(Item!, (TNewList?) (object?) List, _fixedCount);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int ListCount()
-        {
-            if (List == null)
-                return 0;
-            return List.Count();
-        }
 
         #endregion
 

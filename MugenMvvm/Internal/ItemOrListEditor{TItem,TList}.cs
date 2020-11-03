@@ -14,28 +14,27 @@ namespace MugenMvvm.Internal
         #region Fields
 
         private readonly Func<TList> _getNewList;
-        private readonly Func<TItem, bool> _isEmpty;
         private TItem _item;
         private TList? _list;
+        private bool _hasItem;
 
         #endregion
 
         #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor(Func<TItem, bool> isEmpty, Func<TList> getNewList) : this(default!, null, isEmpty, getNewList)
+        public ItemOrListEditor(Func<TList> getNewList) : this(default!, null, false, getNewList)
         {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor([AllowNull] TItem item, TList? list, Func<TItem, bool> isEmpty, Func<TList> getNewList)
+        public ItemOrListEditor([AllowNull] TItem item, TList? list, bool hasItem, Func<TList> getNewList)
         {
-            Should.NotBeNull(isEmpty, nameof(isEmpty));
             Should.NotBeNull(getNewList, nameof(getNewList));
-            _isEmpty = isEmpty;
-            _getNewList = getNewList;
             _item = item!;
             _list = list;
+            _hasItem = hasItem;
+            _getNewList = getNewList;
         }
 
         #endregion
@@ -49,14 +48,14 @@ namespace MugenMvvm.Internal
             {
                 if (_list != null)
                     return _list.Count;
-                return _isEmpty(_item) ? 0 : 1;
+                return _hasItem ? 1 : 0;
             }
         }
 
-        public bool IsNullOrEmpty
+        public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _isEmpty == null || _list == null && _isEmpty(_item);
+            get => !_hasItem && _list == null;
         }
 
         public TItem this[int index]
@@ -90,15 +89,18 @@ namespace MugenMvvm.Internal
 
         public ItemOrListEditor<TItem, TList> AddRange<T>(ItemOrList<TItem, T> value) where T : class, IEnumerable<TItem>
         {
-            if (_isEmpty(value.Item!) && value.List == null)
+            if (value.IsEmpty)
                 return this;
 
             if (_list == null)
             {
-                if (_isEmpty(_item))
+                if (!_hasItem)
                 {
                     if (value.List == null)
+                    {
                         _item = value.Item!;
+                        _hasItem = true;
+                    }
                     else
                     {
                         _list = _getNewList();
@@ -111,6 +113,7 @@ namespace MugenMvvm.Internal
                 _list = _getNewList();
                 _list.Add(_item);
                 _item = default!;
+                _hasItem = false;
             }
 
             if (value.List == null)
@@ -120,20 +123,22 @@ namespace MugenMvvm.Internal
             return this;
         }
 
-        public ItemOrListEditor<TItem, TList> Add([AllowNull] TItem item)
+        public ItemOrListEditor<TItem, TList> Add(TItem item)
         {
-            if (_isEmpty(item!))
-                return this;
             if (_list != null)
                 _list.Add(item!);
-            else if (_isEmpty(_item))
-                _item = item!;
-            else
+            else if (_hasItem)
             {
                 _list = _getNewList();
                 _list.Add(_item);
                 _list.Add(item!);
                 _item = default!;
+                _hasItem = false;
+            }
+            else
+            {
+                _item = item!;
+                _hasItem = true;
             }
 
             return this;
@@ -142,14 +147,12 @@ namespace MugenMvvm.Internal
         public bool Remove(TItem item)
         {
             if (_list != null)
-            {
-                _list.Remove(item);
-                return true;
-            }
+                return _list.Remove(item);
 
             if (EqualityComparer<TItem>.Default.Equals(_item, item))
             {
                 _item = default!;
+                _hasItem = false;
                 return true;
             }
 
@@ -161,7 +164,10 @@ namespace MugenMvvm.Internal
             if ((uint) index >= (uint) Count)
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
             if (_list == null)
+            {
                 _item = default!;
+                _hasItem = false;
+            }
             else
                 _list.RemoveAt(index);
         }
@@ -178,21 +184,13 @@ namespace MugenMvvm.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrList<TItem, TList> ToItemOrList()
-        {
-            if (_list == null)
-                return new ItemOrList<TItem, TList>(_item, !_isEmpty(_item));
-
-            if (_list.Count > 1)
-                return new ItemOrList<TItem, TList>(_list, true);
-            return _list.Count == 0 ? default! : new ItemOrList<TItem, TList>(_list[0], true);
-        }
+        public ItemOrList<TItem, TList> ToItemOrList() => ToItemOrList<TList>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList<TItem, TNewList> ToItemOrList<TNewList>() where TNewList : class, IEnumerable<TItem>
         {
             if (_list == null)
-                return new ItemOrList<TItem, TNewList>(_item, !_isEmpty(_item));
+                return new ItemOrList<TItem, TNewList>(_item, _hasItem);
 
             if (_list.Count > 1)
                 return new ItemOrList<TItem, TNewList>((TNewList) (object) _list, true);

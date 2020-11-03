@@ -38,7 +38,7 @@ namespace MugenMvvm.Internal.Components
                     return ItemOrList.FromListToReadOnly(new List<KeyValuePair<string, object?>>(dictionary));
                 }
 
-                var result = ItemOrListEditor.Get<KeyValuePair<string, object?>>(pair => pair.Key == null);
+                var result = ItemOrListEditor.Get<KeyValuePair<string, object?>>();
                 foreach (var keyValue in dictionary)
                 {
                     if (predicate(item, keyValue.Key, keyValue.Value, state))

@@ -68,7 +68,7 @@ namespace MugenMvvm.Entities
         public ItemOrList<TrackingEntity, IReadOnlyList<TrackingEntity>> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate)
         {
             Should.NotBeNull(predicate, nameof(predicate));
-            var editor = ItemOrListEditor.Get<TrackingEntity>(entity => entity.IsEmpty);
+            var editor = ItemOrListEditor.Get<TrackingEntity>();
             lock (_dictionary)
             {
                 foreach (var pair in _dictionary)

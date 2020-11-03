@@ -326,7 +326,7 @@ namespace MugenMvvm.Collections
                     return true;
                 case NotifyCollectionChangedAction.Reset:
                     items = GetCollectionItems((IEnumerable) sender);
-                    return items.Count() != 0;
+                    return items.CountEx() != 0;
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
                     return false;

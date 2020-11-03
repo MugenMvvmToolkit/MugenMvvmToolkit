@@ -98,14 +98,14 @@ namespace MugenMvvm.Navigation.Components
                     var callback = callbacks[i];
                     if (callback == null || callback.NavigationId == navigationContext.NavigationId && callback.NavigationType == navigationContext.NavigationType)
                     {
-                        toInvoke.Add(callback);
+                        toInvoke.AddIfNotNull(callback!);
                         callbacks.RemoveAt(i);
                         --i;
                     }
                 }
             }
 
-            if (toInvoke.IsNullOrEmpty)
+            if (toInvoke.IsEmpty)
                 return false;
 
             for (var i = 0; i < toInvoke.Count; i++)
@@ -162,9 +162,9 @@ namespace MugenMvvm.Navigation.Components
                 AddCallbacks(InternalMetadata.ClosingCallbacks, metadata, ref list);
                 AddCallbacks(InternalMetadata.CloseCallbacks, metadata, ref list);
 
-                if (!list.IsNullOrEmpty || !canMoveNext)
+                if (!list.IsEmpty || !canMoveNext)
                     break;
-                if (list.IsNullOrEmpty)
+                if (list.IsEmpty)
                     metadata = GetTargetMetadata(target, true);
                 canMoveNext = false;
             }
@@ -181,7 +181,7 @@ namespace MugenMvvm.Navigation.Components
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
-                    list.Add(callbacks[i]);
+                    list.AddIfNotNull(callbacks[i]!);
             }
         }
 

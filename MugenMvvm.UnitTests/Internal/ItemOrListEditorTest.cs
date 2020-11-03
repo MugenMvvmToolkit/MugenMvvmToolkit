@@ -15,16 +15,16 @@ namespace MugenMvvm.UnitTests.Internal
         public void IsNullOrEmptyShouldBeTrueDefault()
         {
             ItemOrListEditor<object, object[]> editor = default;
-            editor.IsNullOrEmpty.ShouldBeTrue();
+            editor.IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
         public void IndexShouldThrowOutOfRange()
         {
-            var iterator = new ItemOrListEditor<object, object[]>(o => o == null, () => new object[0]);
+            var editor = new ItemOrListEditor<object, object[]>(() => new object[0]);
             try
             {
-                var o = iterator[0];
+                var o = editor[0];
                 throw new NotSupportedException();
             }
             catch (ArgumentOutOfRangeException)
@@ -44,9 +44,9 @@ namespace MugenMvvm.UnitTests.Internal
                 objects.Add(new object());
             var itemOrList = ItemOrList.FromList(objects);
 
-            var editor = new ItemOrListEditor<object, List<object>>(itemOrList.Item, itemOrList.List, o => o == null, () => new List<object>());
+            var editor = new ItemOrListEditor<object, List<object>>(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<object>());
             editor.Count.ShouldEqual(objects.Count);
-            editor.IsNullOrEmpty.ShouldEqual(count == 0);
+            editor.IsEmpty.ShouldEqual(count == 0);
             for (var i = 0; i < editor.Count; i++)
                 objects[i].ShouldEqual(editor[i]);
 
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTests.Internal
                 objects.Add(new object());
             var itemOrList = ItemOrList.FromList(objects);
 
-            var editor = new ItemOrListEditor<object, List<object>>(null, null, o => o == null, () => new List<object>());
+            var editor = new ItemOrListEditor<object, List<object>>(null, null, false, () => new List<object>());
             editor.AddRange(itemOrList);
 
             var editorItemOrList = editor.ToItemOrList();
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(10)]
         public void AddRemoveShouldBeCorrect(int count)
         {
-            var editor = new ItemOrListEditor<object, List<object>>(null, null, o => o == null, () => new List<object>());
+            var editor = new ItemOrListEditor<object, List<object>>(null, null, false, () => new List<object>());
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
             {
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(10)]
         public void AddRemoveAtShouldBeCorrect(int count)
         {
-            var editor = new ItemOrListEditor<object, List<object>>(null, null, o => o == null, () => new List<object>());
+            var editor = new ItemOrListEditor<object, List<object>>(null, null, false, () => new List<object>());
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
             {

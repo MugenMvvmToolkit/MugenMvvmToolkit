@@ -62,7 +62,7 @@ namespace MugenMvvm.Internal
 
             internal Builder(SortingInfo sortingInfo)
             {
-                _sortInfo = ItemOrListEditor.Get<SortingInfo, List<SortingInfo>>(info => info.IsEmpty, () => new List<SortingInfo>(2));
+                _sortInfo = ItemOrListEditor.Get<SortingInfo, List<SortingInfo>>(() => new List<SortingInfo>(2));
                 _sortInfo.Add(sortingInfo);
             }
 
@@ -119,14 +119,17 @@ namespace MugenMvvm.Internal
 
             public int Compare(T x, T y) => _compare(_expression, _isAscending, x, y);
 
-            public static SortingInfo Create<TValue>(Func<T, TValue> expression, bool isAscending) =>
-                new SortingInfo((exp, isAsc, x, y) =>
+            public static SortingInfo Create<TValue>(Func<T, TValue> expression, bool isAscending)
+            {
+                Should.NotBeNull(expression, nameof(expression));
+                return new SortingInfo((exp, isAsc, x, y) =>
                 {
                     var func = (Func<T, TValue>) exp;
                     if (isAsc)
                         return Comparer<TValue>.Default.Compare(func(x), func(y));
                     return Comparer<TValue>.Default.Compare(func(y), func(x));
                 }, expression, isAscending);
+            }
 
             #endregion
         }

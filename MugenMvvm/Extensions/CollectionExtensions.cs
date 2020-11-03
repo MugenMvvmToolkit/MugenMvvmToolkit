@@ -54,6 +54,12 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(items, nameof(items));
             Should.NotBeNull(value, nameof(value));
+            if (items is List<T> list)
+            {
+                list.AddRange(value);
+                return;
+            }
+
             foreach (var item in value)
                 items.Add(item);
         }
@@ -138,6 +144,15 @@ namespace MugenMvvm.Extensions
             if (array != null)
                 items = array;
             return array != null;
+        }
+
+        internal static int CountEx<T>(this IEnumerable<T>? enumerable)
+        {
+            if (enumerable == null)
+                return 0;
+            if (enumerable is IReadOnlyCollection<T> c)
+                return c.Count;
+            return enumerable.Count();
         }
 
         internal static IReadOnlyList<object>? ToReadOnlyList(this IEnumerable? enumerable)

@@ -94,7 +94,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messenger, nameof(messenger));
             if (components.Length == 1)
                 return components[0].TryGetSubscribers(messenger, metadata);
-            var subscribers = ItemOrListEditor.Get<MessengerSubscriberInfo>(info => info.IsEmpty);
+            var subscribers = ItemOrListEditor.Get<MessengerSubscriberInfo>();
             for (var i = 0; i < components.Length; i++)
                 subscribers.AddRange(components[i].TryGetSubscribers(messenger, metadata));
             return subscribers.ToItemOrList<IReadOnlyList<MessengerSubscriberInfo>>();
@@ -108,7 +108,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messageType, nameof(messageType));
             if (components.Length == 1)
                 return components[0].TryGetMessengerHandlers(messenger, messageType, metadata);
-            var handlers = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
+            var handlers = ItemOrListEditor.Get<MessengerHandler>();
             for (var i = 0; i < components.Length; i++)
                 handlers.AddRange(components[i].TryGetMessengerHandlers(messenger, messageType, metadata));
             return handlers.ToItemOrList<IReadOnlyList<MessengerHandler>>();

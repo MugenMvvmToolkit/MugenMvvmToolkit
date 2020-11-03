@@ -311,7 +311,7 @@ namespace MugenMvvm.Internal
 
             public ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
             {
-                var editor = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
+                var editor = ItemOrListEditor.Get<MessengerHandler>();
                 var handlers = Components.TryGetMessengerHandlers(messenger, messageType, metadata);
                 foreach (var messengerHandler in handlers)
                 {
