@@ -100,7 +100,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
             else
                 AddParameter(expression.Parameters.Item, ref parameters, metadata);
 
-            return ItemOrList.FromItem(new ExpressionParserResult(target, source, parameters.ToItemOrList<IReadOnlyList<IExpressionNode>>()), true);
+            return new ExpressionParserResult(target, source, parameters.ToItemOrList<IReadOnlyList<IExpressionNode>>());
         }
 
         private IExpressionNode Convert(object? expression, IReadOnlyMetadataContext? metadata = null)

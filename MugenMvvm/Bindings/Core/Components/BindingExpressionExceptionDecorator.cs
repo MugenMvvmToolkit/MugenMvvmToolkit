@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Core.Components
             {
                 var result = Components.TryParseBindingExpression(bindingManager, expression, metadata);
                 if (result.Item != null)
-                    return ItemOrList.FromItem(ExceptionWrapperBindingBuilder.Wrap(result.Item));
+                    return ExceptionWrapperBindingBuilder.Wrap(result.Item);
 
                 var items = result.List;
                 if (items != null)
@@ -44,7 +44,7 @@ namespace MugenMvvm.Bindings.Core.Components
             }
             catch (Exception e)
             {
-                return ItemOrList.FromItem<IBindingBuilder>(new InvalidBinding(e));
+                return new InvalidBinding(e);
             }
 
             return default;
@@ -95,7 +95,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
             #region Methods
 
-            public static IBindingBuilder Wrap(IBindingBuilder expression)
+            public static ExceptionWrapperBindingBuilder Wrap(IBindingBuilder expression)
             {
                 if (expression is ExceptionWrapperBindingBuilder wrapper)
                     return wrapper;

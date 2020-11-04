@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var request = new ViewModelViewRequest(viewModel, new object());
             var viewManager = new ViewManager();
             var cancellationToken = new CancellationTokenSource().Token;
-            IViewMapping mapping = new ViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, m) =>
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                         o.ShouldEqual(request);
 
                     m.ShouldEqual(DefaultMetadata);
-                    return mapping.ToItemOrList();
+                    return mapping;
                 }
             });
 
@@ -168,10 +168,10 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     return result;
                 }
             };
-            IViewMapping mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
+            var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (o, arg3) => mapping.ToItemOrList()
+                TryGetMappings = (o, arg3) => mapping
             });
 
             var presenter = new Presenter();

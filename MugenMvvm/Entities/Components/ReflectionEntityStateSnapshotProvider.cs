@@ -187,7 +187,7 @@ namespace MugenMvvm.Entities.Components
                 if (Count == 1)
                 {
                     var pair = this.FirstOrDefault();
-                    return ItemOrList.FromItem(new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity)), true);
+                    return new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity));
                 }
 
                 var values = new EntityStateValue[Count];

@@ -93,8 +93,8 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
             var mapping = ViewMapping.Undefined;
-            IViewMapping viewMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
-            IView result = new View(viewMapping, this, request.ViewModel!);
+            var viewMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var result = new View(viewMapping, this, request.ViewModel!);
             var cancellationToken = new CancellationTokenSource().Token;
 
             var viewManager = new ViewManager();
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return viewMapping.ToItemOrList();
+                    return viewMapping;
                 }
             });
             viewManager.AddComponent(new TestViewProviderComponent
@@ -113,7 +113,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request.ViewModel);
                     context.ShouldEqual(DefaultMetadata);
-                    return result.ToItemOrList();
+                    return result;
                 }
             });
             viewManager.AddComponent(new TestViewManagerComponent
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
             var mapping = ViewMapping.Undefined;
-            IViewMapping newMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var newMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return newMapping.ToItemOrList();
+                    return newMapping;
                 }
             });
             viewManager.AddComponent(new TestViewManagerComponent
@@ -207,7 +207,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var request = new TestViewModel();
             var mapping = ViewMapping.Undefined;
-            IViewMapping newMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var newMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return newMapping.ToItemOrList();
+                    return newMapping;
                 }
             });
             viewManager.AddComponent(new TestViewManagerComponent
@@ -250,7 +250,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var request = new ViewModelViewRequest(new TestViewModel(), view);
             var mapping = ViewMapping.Undefined;
             var result = new ValueTask<IView?>();
-            IViewMapping viewMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var viewMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -261,7 +261,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return viewMapping.ToItemOrList();
+                    return viewMapping;
                 }
             });
             viewManager.AddComponent(new TestViewProviderComponent

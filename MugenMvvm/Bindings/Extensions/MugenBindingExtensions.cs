@@ -300,7 +300,7 @@ namespace MugenMvvm.Bindings.Extensions
             }
             else
             {
-                values = ItemOrList.FromItem<ParameterValue, ParameterValue[]>(GetParameterValue(sourceRaw, metadata), true);
+                values = GetParameterValue(sourceRaw, metadata);
                 if (values.Item.Value.IsUnsetValueOrDoNothing())
                     return values.Item.Value;
             }

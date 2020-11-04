@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                         o.ShouldEqual(request);
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
-                            return result.ToItemOrList();
+                            return result;
                         return null;
                     }
                 };
@@ -378,38 +378,38 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 
 
             item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
-                new KeyValuePair<string?, object>(nameof(StringProperty), nameof(Test)).ToItemOrList()), DefaultMetadata).Item;
+                new KeyValuePair<string?, object>(nameof(StringProperty), nameof(Test))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), MemberExpressionNode.Get(null, nameof(Test))));
 
             item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
-                new KeyValuePair<string?, object>(nameof(StringProperty), MemberExpressionNode.Empty).ToItemOrList()), DefaultMetadata).Item;
+                new KeyValuePair<string?, object>(nameof(StringProperty), MemberExpressionNode.Empty)), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), MemberExpressionNode.Empty));
 
             item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
-                new KeyValuePair<string?, object>(nameof(StringProperty), Expression.Constant(nameof(Test))).ToItemOrList()), DefaultMetadata).Item;
+                new KeyValuePair<string?, object>(nameof(StringProperty), Expression.Constant(nameof(Test)))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), ConstantExpressionNode.Get(nameof(Test))));
 
 
             item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty, 
-                new KeyValuePair<string?, object>(null, nameof(Test)).ToItemOrList()), DefaultMetadata).Item;
+                new KeyValuePair<string?, object>(null, nameof(Test))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
 
             item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
-                new KeyValuePair<string?, object>(null, MemberExpressionNode.Empty).ToItemOrList()), DefaultMetadata).Item;
+                new KeyValuePair<string?, object>(null, MemberExpressionNode.Empty)), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(MemberExpressionNode.Empty);
 
             item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
-                new KeyValuePair<string?, object>(null, Expression.Constant(nameof(Test))).ToItemOrList()), DefaultMetadata).Item;
+                new KeyValuePair<string?, object>(null, Expression.Constant(nameof(Test)))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(ConstantExpressionNode.Get(nameof(Test)));
@@ -433,12 +433,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             item.Parameters.IsEmpty.ShouldBeTrue();
 
             item = parser.TryParse(new BindingExpressionRequest(testExpression, stPropertyExpression,
-                new KeyValuePair<string?, object>(nameof(StringProperty), stPropertyExpression).ToItemOrList()), DefaultMetadata).Item;
+                new KeyValuePair<string?, object>(nameof(StringProperty), stPropertyExpression)), DefaultMetadata).Item;
             item.Target.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
             item.Source.ShouldEqual(new MemberExpressionNode(null, nameof(StringProperty)));
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), new MemberExpressionNode(null, nameof(StringProperty))));
 
-            item = parser.TryParse(new BindingExpressionRequest(selfExpression, selfExpression, new KeyValuePair<string?, object>(nameof(StringProperty), selfExpression).ToItemOrList()), DefaultMetadata).Item;
+            item = parser.TryParse(new BindingExpressionRequest(selfExpression, selfExpression, new KeyValuePair<string?, object>(nameof(StringProperty), selfExpression)), DefaultMetadata).Item;
             item.Target.ShouldEqual(ConstantExpressionNode.Null);
             item.Source.ShouldEqual(ConstantExpressionNode.Null);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), ConstantExpressionNode.Null));
@@ -465,7 +465,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 
             var parser = GetInitializedExpressionParser();
 
-            var item = parser.TryParse(new BindingExpressionRequest(source, source, new KeyValuePair<string?, object>(null, source).ToItemOrList()), DefaultMetadata).Item;
+            var item = parser.TryParse(new BindingExpressionRequest(source, source, new KeyValuePair<string?, object>(null, source)), DefaultMetadata).Item;
             item.Target.ShouldEqual(expectedResult);
             item.Source.ShouldEqual(expectedResult);
             item.Parameters.Item.ShouldEqual(expectedResult);

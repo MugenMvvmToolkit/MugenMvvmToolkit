@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             var target = Expression.Constant("1");
             var source = Expression.Constant("2");
             var parameter = new KeyValuePair<string?, object>("", "");
-            var memberManagerRequest = new BindingExpressionRequest(target, source, parameter.ToItemOrList());
+            var memberManagerRequest = new BindingExpressionRequest(target, source, parameter);
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
             memberManagerRequest.Parameters.ShouldEqual(parameter);

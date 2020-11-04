@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var memberType = MemberType.Accessor;
             var memberFlags = MemberFlags.All;
             object request = this;
-            IMemberInfo result = new TestAccessorMemberInfo();
+            var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    return result.ToItemOrList();
+                    return result;
                 }
             });
             memberManager.AddComponent(new MemberManagerCache());
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var memberType = MemberType.Accessor;
             var memberFlags = MemberFlags.All;
             var request = "test";
-            IMemberInfo result = new TestAccessorMemberInfo();
+            var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    return result.ToItemOrList();
+                    return result;
                 }
             });
             memberManager.AddComponent(new MemberManagerCache());
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var memberType = MemberType.Accessor;
             var memberFlags = MemberFlags.All;
             var request = new MemberTypesRequest("test", new[] {typeof(object)});
-            IMemberInfo result = new TestAccessorMemberInfo();
+            var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    return result.ToItemOrList();
+                    return result;
                 }
             });
             memberManager.AddComponent(new MemberManagerCache());
@@ -119,14 +119,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var memberFlags = MemberFlags.All;
             var request1 = "test1";
             var request2 = "test2";
-            IMemberInfo result = new TestAccessorMemberInfo();
+            var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++invokeCount;
-                    return result.ToItemOrList();
+                    return result;
                 }
             });
             memberManager.AddComponent(new MemberManagerCache());
@@ -164,7 +164,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var memberFlags = MemberFlags.All;
             var request1 = "test1";
             var request2 = "test2";
-            IMemberInfo result = new TestAccessorMemberInfo();
+            var result = new TestAccessorMemberInfo();
             var cacheComponent = new MemberManagerCache();
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
@@ -172,7 +172,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++invokeCount;
-                    return result.ToItemOrList();
+                    return result;
                 }
             });
             memberManager.AddComponent(cacheComponent);

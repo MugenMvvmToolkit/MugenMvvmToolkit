@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
             var request = "t";
             var bindingManager = new BindingManager();
-            IBindingBuilder expression = new TestBindingBuilder();
+            var expression = new TestBindingBuilder();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         r.ShouldEqual(request);
                         m.ShouldEqual(DefaultMetadata);
                         if (isLast)
-                            return expression.ToItemOrList();
+                            return expression;
                         return default;
                     }
                 };
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var list2 = new List<IBinding>();
             for (var i = 0; i < count; i++)
             {
-                IBinding binding = new TestBinding();
+                var binding = new TestBinding();
                 list1.Add(binding);
                 var component = new TestBindingHolderComponent(bindingManager)
                 {
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         t.ShouldEqual(target);
                         p.ShouldEqual(path);
                         m.ShouldEqual(DefaultMetadata);
-                        return binding.ToItemOrList();
+                        return binding;
                     }
                 };
                 bindingManager.AddComponent(component);

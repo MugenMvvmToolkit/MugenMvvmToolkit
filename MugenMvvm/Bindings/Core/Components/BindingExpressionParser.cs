@@ -72,7 +72,7 @@ namespace MugenMvvm.Bindings.Core.Components
             var item = parserResult.Item;
             if (item.IsEmpty)
                 return default;
-            return ItemOrList.FromItem<IBindingBuilder>(new BindingBuilder(_context, item.Target, item.Source, item.Parameters.GetRawValue()));
+            return new BindingBuilder(_context, item.Target, item.Source, item.Parameters.GetRawValue());
         }
 
         #endregion
@@ -141,8 +141,7 @@ namespace MugenMvvm.Bindings.Core.Components
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
-                        binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)),
-                            metadata);
+                        binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)), metadata);
                 }
 
                 if (binding.State == BindingState.Valid)

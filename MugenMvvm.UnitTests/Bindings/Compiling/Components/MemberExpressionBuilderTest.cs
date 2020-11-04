@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            IMemberInfo result = new TestAccessorMemberInfo
+            var result = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
                 f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return result.ToItemOrList();
+                return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            IMemberInfo result = new TestAccessorMemberInfo
+            var result = new TestAccessorMemberInfo
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
                 f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return result.ToItemOrList();
+                return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);

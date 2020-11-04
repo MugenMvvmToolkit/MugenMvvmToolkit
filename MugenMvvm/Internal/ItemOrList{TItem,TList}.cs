@@ -156,6 +156,9 @@ namespace MugenMvvm.Internal
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ItemOrList<TItem, TList>(TItem item) => new ItemOrList<TItem, TList>(item, item != null);//note all value types will hasItem = true
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrList<TItem, TList>(TList? items) => new ItemOrList<TItem, TList>(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

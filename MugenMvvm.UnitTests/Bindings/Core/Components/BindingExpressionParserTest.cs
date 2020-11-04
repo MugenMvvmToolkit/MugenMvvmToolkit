@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var parserComponent = new TestExpressionParserComponent
             {
-                TryParse = (o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default).ToItemOrList()
+                TryParse = (o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
             };
             var parser = new ExpressionParser();
             parser.AddComponent(parserComponent);

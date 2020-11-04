@@ -52,7 +52,7 @@ namespace MugenMvvm.Bindings.Members.Components
                 _cache[name] = value;
             }
 
-            return ItemOrList.FromItem<IMemberInfo>(value);
+            return value;
         }
 
         #endregion
