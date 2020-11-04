@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             for (var i = 0; i < count; i++)
             {
                 var handler = new TestMessengerHandler();
-                component.TrySubscribe(messenger, handler, ThreadExecutionMode.FromValueOrDefault(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
+                component.TrySubscribe(messenger, handler, ThreadExecutionMode.TryParse(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
             }
 
             component.TryUnsubscribeAll(messenger, DefaultMetadata);

@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Enums
         public void ParseTryParseShouldUseCachedValues()
         {
             ViewLifecycleState.TryParse(null, out var v).ShouldBeFalse();
-            TestEnum.SetEnumerations(new Dictionary<int, TestEnum>());
+            TestEnum.SetEnums(new Dictionary<int, TestEnum>());
             var v1 = -1;
             var v2 = -2;
             var v3 = -3;
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.Enums
 
             var testEnum2 = new TestEnum(v2, "");
             TestEnum.SetEnum(v3, testEnum2);
-            TestEnum.GetAll().Count.ShouldEqual(3);
+            TestEnum.GetAll().Length.ShouldEqual(3);
             TestEnum.GetAll().ShouldContain(testEnum, testEnum2);
 
             TestEnum.Parse(v3).ShouldEqual(testEnum2);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Constants;
@@ -19,6 +20,7 @@ namespace MugenMvvm.Enums
 
         private string? _name;
         private static Dictionary<TValue, TEnumeration> _enumerations = new Dictionary<TValue, TEnumeration>();
+        private static TEnumeration[]? _values;
 
         #endregion
 
@@ -36,7 +38,10 @@ namespace MugenMvvm.Enums
             Value = value;
             _name = name;
             if (!_enumerations.ContainsKey(value))
+            {
                 _enumerations[value] = (TEnumeration) this;
+                _values = null;
+            }
         }
 
         protected EnumBase(TValue value)
@@ -110,7 +115,14 @@ namespace MugenMvvm.Enums
 
         public static explicit operator TValue(EnumBase<TEnumeration, TValue> value) => value.Value;
 
-        public static ICollection<TEnumeration> GetAll() => Enumerations.Values;
+        public static TEnumeration[] GetAll() => _values ??= Enumerations.Values.ToArray();
+
+        public static TEnumeration TryParse(TValue value, TEnumeration defaultValue)
+        {
+            if (TryParse(value, out var result))
+                return result;
+            return defaultValue;
+        }
 
         public static bool TryParse([AllowNull] TValue value, [NotNullWhen(true)] out TEnumeration? result)
         {
@@ -131,26 +143,27 @@ namespace MugenMvvm.Enums
             return result;
         }
 
-        public static TEnumeration FromValueOrDefault(TValue value, TEnumeration defaultValue)
-        {
-            if (TryParse(value, out var result))
-                return result;
-            return defaultValue;
-        }
-
-        public static void SetEnumerations(Dictionary<TValue, TEnumeration> enumerations)
+        public static void SetEnums(Dictionary<TValue, TEnumeration> enumerations)
         {
             Should.NotBeNull(enumerations, nameof(enumerations));
             _enumerations = enumerations;
+            _values = null;
         }
 
-        public static void SetEnum(TValue value, TEnumeration enumeration) => _enumerations[value] = enumeration;
+        public static void SetEnum(TValue value, TEnumeration enumeration)
+        {
+            _enumerations[value] = enumeration;
+            _values = null;
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public sealed override bool Equals(object? obj) => obj is TEnumeration e && Equals(e);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         public sealed override int GetHashCode() => HashCode.Combine(Value);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public sealed override string ToString() => Name;
 
         #endregion
