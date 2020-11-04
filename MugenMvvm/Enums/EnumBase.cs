@@ -12,15 +12,16 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
-    public abstract class EnumBase<TEnumeration, TValue> : IEnum, IHasId<TValue>, IComparable<TEnumeration?>, IEquatable<TEnumeration?>
-        where TEnumeration : EnumBase<TEnumeration, TValue>
+    public abstract class EnumBase<TEnum, TValue> : IEnum, IHasId<TValue>, IComparable<TEnum?>, IEquatable<TEnum?>
+        where TEnum : EnumBase<TEnum, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>
     {
         #region Fields
 
         private string? _name;
-        private static Dictionary<TValue, TEnumeration> _enumerations = new Dictionary<TValue, TEnumeration>();
-        private static TEnumeration[]? _values;
+        private static Dictionary<TValue, TEnum> _enumerations = new Dictionary<TValue, TEnum>();
+        private static Dictionary<string, TEnum> _enumerationNames = new Dictionary<string, TEnum>(StringComparer.OrdinalIgnoreCase);
+        private static TEnum[]? _values;
 
         #endregion
 
@@ -39,7 +40,8 @@ namespace MugenMvvm.Enums
             _name = name;
             if (!_enumerations.ContainsKey(value))
             {
-                _enumerations[value] = (TEnumeration) this;
+                _enumerations[value] = (TEnum) this;
+                _enumerationNames[Name] = (TEnum) this;
                 _values = null;
             }
         }
@@ -67,13 +69,25 @@ namespace MugenMvvm.Enums
         [DataMember(Name = "_v")]
         public TValue Value { get; internal set; }
 
-        private static Dictionary<TValue, TEnumeration> Enumerations
+        public static int Count => Enumerations.Count;
+
+        private static Dictionary<TValue, TEnum> Enumerations
         {
             get
             {
                 if (_enumerations.Count == 0)
-                    RuntimeHelpers.RunClassConstructor(typeof(TEnumeration).TypeHandle);
+                    RuntimeHelpers.RunClassConstructor(typeof(TEnum).TypeHandle);
                 return _enumerations;
+            }
+        }
+
+        private static Dictionary<string, TEnum> EnumerationNames
+        {
+            get
+            {
+                if (_enumerationNames.Count == 0)
+                    RuntimeHelpers.RunClassConstructor(typeof(TEnum).TypeHandle);
+                return _enumerationNames;
             }
         }
 
@@ -82,24 +96,17 @@ namespace MugenMvvm.Enums
         #region Implementation of interfaces
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(TEnumeration? other)
-        {
-            if (ReferenceEquals(other, this))
-                return 0;
-            if (ReferenceEquals(other, null))
-                return 1;
-            return Comparer<TValue>.Default.Compare(Value, other.Value);
-        }
+        public int CompareTo(TEnum? other) => CompareTo(this, other);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(TEnumeration? other) => ReferenceEquals(this, other) || !ReferenceEquals(other, null) && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
+        public bool Equals(TEnum? other) => ReferenceEquals(this, other) || !ReferenceEquals(other, null) && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
         #endregion
 
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
+        public static bool operator ==(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right)
         {
             if (ReferenceEquals(left, right))
                 return true;
@@ -109,22 +116,47 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right) => !(left == right);
+        public static bool operator !=(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right) => !(left == right);
 
-        public static explicit operator EnumBase<TEnumeration, TValue>(TValue value) => Parse(value);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator <(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right) => CompareTo(left, right) < 0;
 
-        public static explicit operator TValue(EnumBase<TEnumeration, TValue> value) => value.Value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator <=(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right) => CompareTo(left, right) <= 0;
 
-        public static TEnumeration[] GetAll() => _values ??= Enumerations.Values.ToArray();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator >(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right) => CompareTo(left, right) > 0;
 
-        public static TEnumeration TryParse(TValue value, TEnumeration defaultValue)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator >=(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right) => CompareTo(left, right) >= 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static explicit operator EnumBase<TEnum, TValue>(string value) => GetByName(value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static explicit operator EnumBase<TEnum, TValue>(TValue value) => Get(value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static explicit operator TValue(EnumBase<TEnum, TValue> value) => value.Value;
+
+        public static TEnum[] GetAll() => _values ??= Enumerations.Values.ToArray();
+
+        public static TEnum Get(TValue value)
         {
-            if (TryParse(value, out var result))
+            if (!TryGet(value, out var result))
+                ExceptionManager.ThrowEnumIsNotValid(value);
+
+            return result;
+        }
+
+        public static TEnum TryGet(TValue value, TEnum defaultValue)
+        {
+            if (TryGet(value, out var result))
                 return result;
             return defaultValue;
         }
 
-        public static bool TryParse([AllowNull] TValue value, [NotNullWhen(true)] out TEnumeration? result)
+        public static bool TryGet([AllowNull] TValue value, [NotNullWhen(true)] out TEnum? result)
         {
             if (value == null)
             {
@@ -135,33 +167,69 @@ namespace MugenMvvm.Enums
             return Enumerations.TryGetValue(value, out result);
         }
 
-        public static TEnumeration Parse(TValue value)
+        public static TEnum GetByName(string value, bool ignoreCase = false)
         {
-            if (!TryParse(value, out var result))
+            Should.NotBeNull(value, nameof(value));
+            if (!TryGetByName(value, out var result, ignoreCase))
                 ExceptionManager.ThrowEnumIsNotValid(value);
 
             return result;
         }
 
-        public static void SetEnums(Dictionary<TValue, TEnumeration> enumerations)
+        public static TEnum TryGetByName(string? value, TEnum defaultValue, bool ignoreCase = false)
+        {
+            if (TryGetByName(value, out var result, ignoreCase))
+                return result;
+            return defaultValue;
+        }
+
+        public static bool TryGetByName(string? value, [NotNullWhen(true)] out TEnum? result, bool ignoreCase = false)
+        {
+            if (value == null)
+            {
+                result = default;
+                return false;
+            }
+
+            return EnumerationNames.TryGetValue(value, out result) && (ignoreCase || value.Equals(result.Name, StringComparison.Ordinal));
+        }
+
+        public static void SetEnums(Dictionary<TValue, TEnum> enumerations)
         {
             Should.NotBeNull(enumerations, nameof(enumerations));
             _enumerations = enumerations;
+            _enumerationNames.Clear();
+            foreach (var enumeration in enumerations)
+                _enumerationNames[enumeration.Value.Name] = enumeration.Value;
             _values = null;
         }
 
-        public static void SetEnum(TValue value, TEnumeration enumeration)
+        public static void SetEnum(TValue value, TEnum enumeration)
         {
+            Should.NotBeNull(enumeration, nameof(enumeration));
             _enumerations[value] = enumeration;
+            _enumerationNames[enumeration.Name] = enumeration;
             _values = null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public sealed override bool Equals(object? obj) => obj is TEnumeration e && Equals(e);
+        private static int CompareTo(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right)
+        {
+            if (ReferenceEquals(right, left))
+                return 0;
+            if (ReferenceEquals(right, null))
+                return 1;
+            if (ReferenceEquals(left, null))
+                return -1;
+            return Comparer<TValue>.Default.Compare(left.Value, right.Value);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public sealed override bool Equals(object? obj) => obj is TEnum e && Equals(e);
+
         // ReSharper disable once NonReadonlyMemberInGetHashCode
-        public sealed override int GetHashCode() => HashCode.Combine(Value);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public sealed override int GetHashCode() => Value.GetHashCode();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public sealed override string ToString() => Name;
