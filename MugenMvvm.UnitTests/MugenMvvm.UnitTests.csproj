@@ -6,6 +6,18 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) ">
+    <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <DefineConstants>NET_CORE;SPAN_API;ANDROID</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
+    <DefineConstants>NET_CORE;SPAN_API;IOS</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="Should-DotNetStandard" Version="1.0.0" />

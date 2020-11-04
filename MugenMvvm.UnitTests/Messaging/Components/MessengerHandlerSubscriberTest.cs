@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             for (var i = 0; i < count; i++)
             {
                 var handler = new TestMessengerHandler();
-                ThreadExecutionMode.TryParse(i, out var mode);
+                ThreadExecutionMode.TryGet(i, out var mode);
                 component.TrySubscribe(messenger, handler, mode, DefaultMetadata).ShouldBeTrue();
 
                 var info = new MessengerSubscriberInfo(handler, mode);
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 var handler = new TestMessengerHandler().ToWeakReference();
                 if (keepAlive)
                     list.Add(handler.Target!);
-                ThreadExecutionMode.TryParse(i, out var mode);
+                ThreadExecutionMode.TryGet(i, out var mode);
                 component.TrySubscribe(messenger, handler, mode, DefaultMetadata).ShouldBeTrue();
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             for (var i = 0; i < count; i++)
             {
                 var handler = new TestMessengerHandler();
-                component.TrySubscribe(messenger, handler, ThreadExecutionMode.TryParse(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
+                component.TrySubscribe(messenger, handler, ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
             }
 
             component.TryUnsubscribeAll(messenger, DefaultMetadata);

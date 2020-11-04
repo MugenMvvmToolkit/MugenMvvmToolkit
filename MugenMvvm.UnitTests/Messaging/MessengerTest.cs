@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Messaging
         [InlineData(10, 1)]
         public void SubscribeShouldBeHandledByComponents(int count, int? executionMode)
         {
-            var threadMode = executionMode == null ? null : ThreadExecutionMode.Parse(executionMode.Value);
+            var threadMode = executionMode == null ? null : ThreadExecutionMode.Get(executionMode.Value);
             var invokeCount = 0;
             var messenger = new Messenger();
             var result = false;

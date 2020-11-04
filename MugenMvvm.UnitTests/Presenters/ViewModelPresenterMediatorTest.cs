@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTests.Presenters
         [InlineData(nameof(ViewLifecycleState.Disappeared))]
         public void ShouldUseViewState(string stateString)
         {
-            var state = ViewLifecycleState.Parse(stateString);
+            var state = ViewLifecycleState.Get(stateString);
             var vm = new TestViewModel();
             var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
             var view = new View(mapping, new object(), vm);

@@ -209,31 +209,31 @@ namespace MugenMvvm.UnitTests.Threading.Components
             };
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Background, action, state, DefaultMetadata).ShouldBeTrue();
+            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, action, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Background, actionWithState, state, DefaultMetadata).ShouldBeTrue();
+            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, actionWithState, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Background, handler, state, DefaultMetadata).ShouldBeTrue();
+            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, handler, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Background, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
+            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Background, callback, state, DefaultMetadata).ShouldBeTrue();
+            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, callback, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
-            component.TryExecute(null!, ThreadExecutionMode.Background, component, component, DefaultMetadata).ShouldBeFalse();
+            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, component, component, DefaultMetadata).ShouldBeFalse();
         }
 
         private static void WaitThreadPool()

@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(10, "Error", false)]
         public void CanTraceShouldBeHandledByComponents(int count, string traceLevel, bool withMetadata)
         {
-            var traceLevelValue = TraceLevel.Parse(traceLevel);
+            var traceLevelValue = TraceLevel.Get(traceLevel);
             var tracer = new Tracer();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(10, "Error", false)]
         public void TraceShouldBeHandledByComponents(int count, string traceLevel, bool withMetadata)
         {
-            var traceLevelValue = TraceLevel.Parse(traceLevel);
+            var traceLevelValue = TraceLevel.Get(traceLevel);
             var message = traceLevel;
             var exception = withMetadata ? new Exception() : null;
             var tracer = new Tracer();

@@ -27,8 +27,8 @@ namespace MugenMvvm.UnitTests.Navigation
         [InlineData(2, "12", "Window")]
         public void ConstructorShouldInitializeCallback(int callbackType, string operationId, string navigationType)
         {
-            var navigationCallbackType = NavigationCallbackType.Parse(callbackType);
-            var type = NavigationType.Parse(navigationType);
+            var navigationCallbackType = NavigationCallbackType.Get(callbackType);
+            var type = NavigationType.Get(navigationType);
             var callback = new NavigationCallback(navigationCallbackType, operationId, type);
             callback.IsCompleted.ShouldBeFalse();
             callback.NavigationId.ShouldEqual(operationId);

@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         [InlineData(true, -1)]
         public void TryPublishShouldUseThreadDispatcher(bool global, int threadMode)
         {
-            ThreadExecutionMode.TryParse(threadMode, out var threadExecutionMode);
+            ThreadExecutionMode.TryGet(threadMode, out var threadExecutionMode);
             var invokedCount = 0;
             var messengerHandlers = new[]
             {

@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(4)]
         public void ShouldUseLocalThreadDispatcher(int mode)
         {
-            var executionMode = ThreadExecutionMode.Parse(mode);
+            var executionMode = ThreadExecutionMode.Get(mode);
             Action? invoke = null;
             var threadDispatcher = new ThreadDispatcher();
             var threadDispatcherComponent = new TestThreadDispatcherComponent();
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(4)]
         public void ShouldUseGlobalThreadDispatcher(int mode)
         {
-            var executionMode = ThreadExecutionMode.Parse(mode);
+            var executionMode = ThreadExecutionMode.Get(mode);
             Action? invoke = null;
             var threadDispatcherComponent = new TestThreadDispatcherComponent();
             using var t = MugenService.AddComponent(threadDispatcherComponent);
