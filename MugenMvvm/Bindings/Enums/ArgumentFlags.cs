@@ -8,7 +8,7 @@ namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
-    public class ArgumentFlags : FlagsEnumBase<ArgumentFlags, byte>, IHasPriority
+    public class ArgumentFlags : FlagsEnumBase<ArgumentFlags, int>, IHasPriority
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Enums
 
         #region Constructors
 
-        public ArgumentFlags(byte value, int priority) : base(value)
+        public ArgumentFlags(int value, int priority) : base(value)
         {
             Priority = priority;
         }
