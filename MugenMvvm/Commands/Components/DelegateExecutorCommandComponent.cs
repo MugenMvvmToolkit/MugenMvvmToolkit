@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
@@ -17,7 +16,7 @@ namespace MugenMvvm.Commands.Components
         #region Fields
 
         private readonly bool _allowMultipleExecution;
-        private readonly CommandExecutionMode _executionMode;
+        private readonly CommandExecutionBehavior _executionBehavior;
         private Delegate? _canExecute;
         private Delegate? _execute;
         private ICompositeCommand? _executingCommand;
@@ -26,12 +25,13 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public DelegateExecutorCommandComponent(Delegate execute, Delegate? canExecute, CommandExecutionMode executionMode, bool allowMultipleExecution)
+        public DelegateExecutorCommandComponent(Delegate execute, Delegate? canExecute, CommandExecutionBehavior executionBehavior, bool allowMultipleExecution)
         {
             Should.NotBeNull(execute, nameof(execute));
+            Should.NotBeNull(executionBehavior, nameof(executionBehavior));
             _execute = execute;
             _canExecute = canExecute;
-            _executionMode = executionMode;
+            _executionBehavior = executionBehavior;
             _allowMultipleExecution = allowMultipleExecution;
         }
 
@@ -63,37 +63,28 @@ namespace MugenMvvm.Commands.Components
             _execute = null;
         }
 
-        public Task ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+        public async Task ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             try
             {
                 if (_allowMultipleExecution)
-                    return ExecuteInternalAsync(command, parameter);
-
-                if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
-                    return Default.CompletedTask;
-
-                var executionTask = ExecuteInternalAsync(command, parameter);
-                if (executionTask.IsCompleted)
                 {
-                    _executingCommand = null;
-                    return executionTask;
+                    await ExecuteInternalAsync(command, parameter).ConfigureAwait(false);
+                    return;
                 }
 
+                if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
+                    return;
+
                 command.RaiseCanExecuteChanged();
-                executionTask.ContinueWith((t, o) =>
-                {
-                    var component = (DelegateExecutorCommandComponent<T>) o!;
-                    var cmd = component._executingCommand;
-                    component._executingCommand = null;
-                    cmd?.RaiseCanExecuteChanged();
-                }, this, TaskContinuationOptions.ExecuteSynchronously);
-                return executionTask;
+                await ExecuteInternalAsync(command, parameter).ConfigureAwait(false);
+                _executingCommand = null;
+                command.RaiseCanExecuteChanged();
             }
-            catch (Exception e)
+            catch
             {
                 _executingCommand = null;
-                return e.ToTask();
+                throw;
             }
         }
 
@@ -101,41 +92,25 @@ namespace MugenMvvm.Commands.Components
 
         #region Methods
 
-        private Task ExecuteInternalAsync(ICompositeCommand command, object? parameter)
+        private async Task ExecuteInternalAsync(ICommand command, object? parameter)
         {
-            if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecute)
-            {
-                if (!command.CanExecute(parameter))
-                {
-                    command.RaiseCanExecuteChanged();
-                    return Default.CompletedTask;
-                }
-            }
-            else if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecuteException)
-            {
-                if (!command.CanExecute(parameter))
-                    ExceptionManager.ThrowCommandCannotBeExecuted();
-            }
-
             var executeAction = _execute;
             if (executeAction == null)
-                return Default.CompletedTask;
+                return;
+
+            if (!_executionBehavior.BeforeExecute(command, parameter))
+                return;
 
             if (executeAction is Action execute)
-            {
                 execute();
-                return Default.CompletedTask;
-            }
-
-            if (executeAction is Action<T> genericExecute)
-            {
+            else if (executeAction is Action<T> genericExecute)
                 genericExecute((T) parameter!);
-                return Default.CompletedTask;
-            }
+            else if (executeAction is Func<Task> executeTask)
+                await executeTask().ConfigureAwait(false);
+            else
+                await ((Func<T, Task>) executeAction).Invoke((T) parameter!).ConfigureAwait(false);
 
-            if (executeAction is Func<Task> executeTask)
-                return executeTask();
-            return ((Func<T, Task>) executeAction).Invoke((T) parameter!);
+            _executionBehavior.AfterExecute(command, parameter);
         }
 
         #endregion

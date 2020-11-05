@@ -18,13 +18,16 @@ namespace MugenMvvm.UnitTests
     {
         #region Methods
 
-        public static void Wait<T>(this ValueTask<T> task) => task.AsTask().WaitEx();
-
-        public static void WaitEx(this Task task)
+        public static async Task WaitSafeAsync(this Task task)
         {
-            var tcs = new TaskCompletionSource<object?>();
-            task.ContinueWith(_ => tcs.TrySetResult(null));
-            tcs.Task.Wait(1000);
+            try
+            {
+                await task;
+            }
+            catch
+            {
+                ;
+            }
         }
 
         public static ItemOrList<object, IReadOnlyList<object>> AsItemOrList(this object? item) =>

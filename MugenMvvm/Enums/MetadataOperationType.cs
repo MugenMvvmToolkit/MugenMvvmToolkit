@@ -1,5 +1,11 @@
-﻿namespace MugenMvvm.Enums
+﻿using System;
+using System.Runtime.Serialization;
+using MugenMvvm.Constants;
+
+namespace MugenMvvm.Enums
 {
+    [Serializable]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class MetadataOperationType : EnumBase<MetadataOperationType, int>
     {
         #region Fields

@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         }
 
         [Fact]
-        public void ValidateAsyncShouldCancelPreviousValidation()
+        public async Task ValidateAsyncShouldCancelPreviousValidation()
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
@@ -55,13 +55,15 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var task = validator.ValidateAsync(expectedMember, CancellationToken.None)!;
             task.IsCompleted.ShouldBeFalse();
 
+#pragma warning disable 4014
             validator.ValidateAsync(expectedMember, CancellationToken.None);
-            task.WaitEx();
+#pragma warning restore 4014
+            await task.WaitSafeAsync();
             task.IsCanceled.ShouldBeTrue();
         }
 
         [Fact]
-        public void HasErrorsShouldReturnTrueAsync()
+        public async Task HasErrorsShouldReturnTrueAsync()
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
@@ -77,7 +79,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.HasErrors().ShouldBeTrue();
             validator.HasErrors(expectedMember).ShouldBeTrue();
             tcs.SetResult(default);
-            task.WaitEx();
+            await task;
 
             validator.HasErrors().ShouldBeFalse();
             validator.HasErrors(expectedMember).ShouldBeFalse();

@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Validation
         }
 
         [Fact]
-        public void AddAsyncValidatorShouldUseDelegate()
+        public async Task AddAsyncValidatorShouldUseDelegate()
         {
             var memberName = "Test";
             var target = new object();
@@ -61,9 +61,8 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var errorTcs = new TaskCompletionSource<object?>();
             var invokeCount = 0;
-            var builder = ValidationRuleBuilder<object>.Get();
             var cts = new CancellationTokenSource();
-            var rule = builder.AddAsyncValidator(memberName, o => value, this, (o, s, state, ct, m) =>
+            var rule = ValidationRuleBuilder<object>.Get().AddAsyncValidator(memberName, o => value, this, (o, s, state, ct, m) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(target);
@@ -80,7 +79,7 @@ namespace MugenMvvm.UnitTests.Validation
             invokeCount.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
-            WaitCompletion();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
@@ -90,7 +89,7 @@ namespace MugenMvvm.UnitTests.Validation
             invokeCount.ShouldEqual(2);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
-            WaitCompletion();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             ((IEnumerable<object>) errors[memberName]!).ShouldEqual(new[] {error, error});
@@ -102,7 +101,7 @@ namespace MugenMvvm.UnitTests.Validation
             invokeCount.ShouldEqual(3);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
-            WaitCompletion();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(0);
         }
@@ -437,7 +436,7 @@ namespace MugenMvvm.UnitTests.Validation
         }
 
         [Fact]
-        public void MustAsyncExtensionShouldBeCorrect()
+        public async Task MustAsyncExtensionShouldBeCorrect()
         {
             var dpMember = "d";
             var error = "error";
@@ -465,7 +464,7 @@ namespace MugenMvvm.UnitTests.Validation
             var task = rule.ValidateAsync(validationModel, propertyName, errors, cts.Token, DefaultMetadata)!;
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
-            WaitCompletion();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
@@ -475,7 +474,7 @@ namespace MugenMvvm.UnitTests.Validation
             task = rule.ValidateAsync(validationModel, dpMember, errors, cts.Token, DefaultMetadata)!;
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
-            WaitCompletion();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(1);
             errors[propertyName].ShouldEqual(error);
@@ -492,7 +491,7 @@ namespace MugenMvvm.UnitTests.Validation
             task = rule.ValidateAsync(validationModel, propertyName, errors, cts.Token, DefaultMetadata)!;
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(true);
-            WaitCompletion();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Count.ShouldEqual(0);
         }

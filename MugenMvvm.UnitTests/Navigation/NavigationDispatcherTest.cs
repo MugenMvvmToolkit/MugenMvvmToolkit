@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTests.Navigation
         [InlineData(10, 2)]
         [InlineData(10, 3)]
         [InlineData(10, 4)]
-        public void OnNavigatingAsyncShouldBeHandledByComponents(int count, int state)
+        public async Task OnNavigatingAsyncShouldBeHandledByComponents(int count, int state)//0 - true, 1 - false, 2 - canceled, 3 - exception, 4 - precanceled
         {
             var cts = new CancellationTokenSource();
             var token = cts.Token;
@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTests.Navigation
             if (state == 0 || state == 1)
             {
                 callbacks.Last().TrySetResult(state == 0);
-                result.WaitEx();
+                await result;
                 result.IsCompleted.ShouldBeTrue();
                 result.Result.ShouldEqual(state == 0);
                 navigatingCount.ShouldEqual(state == 0 ? count : 0);
@@ -208,7 +208,7 @@ namespace MugenMvvm.UnitTests.Navigation
             {
                 if (state == 2)
                     callbacks.Last().TrySetCanceled(token);
-                result.WaitEx();
+                await result.WaitSafeAsync();
                 result.IsCompleted.ShouldBeTrue();
                 result.IsCanceled.ShouldBeTrue();
                 navigatingCount.ShouldEqual(0);
@@ -217,7 +217,7 @@ namespace MugenMvvm.UnitTests.Navigation
 
             var ex = new Exception();
             callbacks.Last().TrySetException(ex);
-            result.WaitEx();
+            await result.WaitSafeAsync();
             result.IsCompleted.ShouldBeTrue();
             result.IsFaulted.ShouldBeTrue();
             result.Exception!.InnerExceptions.Contains(ex).ShouldBeTrue();

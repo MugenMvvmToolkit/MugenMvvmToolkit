@@ -222,11 +222,12 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionMode.CanExecuteBeforeExecute, true, true, true, true)]
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
         public void CreateShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
-            CommandExecutionMode? executionMode, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             Action execute = () => { };
+            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -315,11 +316,12 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionMode.CanExecuteBeforeExecute, true, true, true, true)]
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
         public void CreateShouldGenerateValidRequest4(bool hasCanExecute, bool? allowMultipleExecution,
-            CommandExecutionMode? executionMode, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             Action<object> execute = t => { };
+            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -408,11 +410,12 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionMode.CanExecuteBeforeExecute, true, true, true, true)]
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
         public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
-            CommandExecutionMode? executionMode, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             Func<Task> execute = () => Default.CompletedTask;
+            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -501,11 +504,12 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionMode.CanExecuteBeforeExecute, true, true, true, true)]
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
         public void CreateFromTaskShouldGenerateValidRequest4(bool hasCanExecute, bool? allowMultipleExecution,
-            CommandExecutionMode? executionMode, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             Func<object?, Task> execute = item => Default.CompletedTask;
+            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;

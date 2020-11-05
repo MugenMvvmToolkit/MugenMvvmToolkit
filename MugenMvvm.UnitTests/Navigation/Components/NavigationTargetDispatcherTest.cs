@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public void CanNavigateAsyncShouldInvokeCallbackClose(bool includeTarget, bool includePrevTarget)
+        public async Task CanNavigateAsyncShouldInvokeCallbackClose(bool includeTarget, bool includePrevTarget)
         {
             var dispatcher = new NavigationDispatcher();
             var tcsPrevTarget = new TaskCompletionSource<bool>();
@@ -225,12 +225,12 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             if (includePrevTarget)
             {
                 task.IsCompleted.ShouldBeFalse();
-                WaitCompletion();
-                prevTargetInvokeCount.ShouldEqual(1);
                 tcsPrevTarget.SetResult(true);
+                await task;
+                prevTargetInvokeCount.ShouldEqual(1);
             }
 
-            task.WaitEx();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             task.Result.ShouldBeTrue();
         }
@@ -240,7 +240,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public void CanNavigateAsyncShouldInvokeCallbackNew(bool includeTarget, bool includePrevTarget)
+        public async Task CanNavigateAsyncShouldInvokeCallbackNew(bool includeTarget, bool includePrevTarget)
         {
             var dispatcher = new NavigationDispatcher();
             var tcsPrevTarget = new TaskCompletionSource<bool>();
@@ -295,12 +295,12 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             if (includeTarget)
             {
                 task.IsCompleted.ShouldBeFalse();
-                WaitCompletion();
-                targetInvokeCount.ShouldEqual(1);
                 tcsTarget.SetResult(true);
+                await task;
+                targetInvokeCount.ShouldEqual(1);
             }
 
-            task.WaitEx();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             task.Result.ShouldBeTrue();
         }

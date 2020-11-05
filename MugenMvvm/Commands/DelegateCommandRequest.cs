@@ -8,7 +8,7 @@ namespace MugenMvvm.Commands
     {
         #region Constructors
 
-        public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
+        public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
             ThreadExecutionMode? eventThreadMode, IReadOnlyList<object>? notifiers, Func<object, bool>? canNotify)
         {
             Should.NotBeNull(execute, nameof(execute));
@@ -35,7 +35,7 @@ namespace MugenMvvm.Commands
 
         public Delegate Execute { get; protected set; }
 
-        public CommandExecutionMode? ExecutionMode { get; protected set; }
+        public CommandExecutionBehavior? ExecutionMode { get; protected set; }
 
         public IReadOnlyList<object>? Notifiers { get; protected set; }
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.Commands
 
         #region Methods
 
-        public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
+        public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
             ThreadExecutionMode? eventThreadMode, IReadOnlyList<object>? notifiers, Func<object, bool>? canNotify)
         {
             if (canExecute == null && allowMultipleExecution == null && executionMode == null && eventThreadMode == null)

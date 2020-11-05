@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         #region Methods
 
         [Fact]
-        public void ValidateShouldUseRules()
+        public async Task ValidateShouldUseRules()
         {
             var memberName1 = "Test1";
             var memberName2 = "Test2";
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             task.IsCompleted.ShouldBeFalse();
 
             tcs.TrySetResult(null);
-            WaitCompletion();
+            await task;
             task.IsCompleted.ShouldBeTrue();
             validator.GetErrors(memberName1).AsList().Single().ShouldEqual(memberName1);
         }

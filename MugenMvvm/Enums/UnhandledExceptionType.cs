@@ -1,7 +1,12 @@
-﻿using MugenMvvm.Attributes;
+﻿using System;
+using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 
 namespace MugenMvvm.Enums
 {
+    [Serializable]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class UnhandledExceptionType : EnumBase<UnhandledExceptionType, int>
     {
         #region Fields

@@ -32,12 +32,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionMode.CanExecuteBeforeExecute, true, true, true, true)]
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
         public void TryGetCommandShouldUseValidParameters1(bool hasCanExecute, bool? allowMultipleExecution,
-            CommandExecutionMode? executionMode, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var executedCount = 0;
             var canExecuteValue = true;
+            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             Action execute = () => { ++executedCount; };
             var canExecute = hasCanExecute ? () => { return canExecuteValue; } : (Func<bool>?) null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;

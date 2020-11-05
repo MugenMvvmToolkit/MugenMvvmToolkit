@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         [InlineData(0)] //success
         [InlineData(1)] //canceled
         [InlineData(2)] //error
-        public void TryInitializeAsyncShouldUseThreadDispatcher(int state)
+        public async Task TryInitializeAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
@@ -110,7 +110,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 cancellationTokenSource.Cancel();
             task.IsCompleted.ShouldBeFalse();
             action!();
-            task.Wait();
+            await task.AsTask().WaitSafeAsync();
             switch (state)
             {
                 case 1:
@@ -174,7 +174,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         [InlineData(0)] //success
         [InlineData(1)] //canceled
         [InlineData(2)] //error
-        public void TryCleanupAsyncShouldUseThreadDispatcher(int state)
+        public async Task TryCleanupAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
@@ -220,7 +220,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var task = manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldBeFalse();
             action!();
-            task.WaitEx();
+            await task.WaitSafeAsync();
             switch (state)
             {
                 case 1:

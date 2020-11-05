@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ValidateAsyncShouldUpdateErrors(bool isAsync)
+        public async Task ValidateAsyncShouldUpdateErrors(bool isAsync)
         {
             var invokeCount = 0;
             var expectedMember = "test";
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             {
                 task.IsCompleted.ShouldBeFalse();
                 tcs.SetResult(result);
-                task.WaitEx();
+                await task;
                 task.IsCompleted.ShouldBeTrue();
             }
 
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         }
 
         [Fact]
-        public void ValidateAsyncShouldUseCancellationToken()
+        public async Task ValidateAsyncShouldUseCancellationToken()
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
@@ -79,12 +79,12 @@ namespace MugenMvvm.UnitTests.Validation.Components
             task.IsCompleted.ShouldBeFalse();
 
             cts.Cancel();
-            task.WaitEx();
+            await task.WaitSafeAsync();
             task.IsCanceled.ShouldBeTrue();
         }
 
         [Fact]
-        public void ValidateAsyncShouldBeCanceledDispose()
+        public async Task ValidateAsyncShouldBeCanceledDispose()
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             task.IsCompleted.ShouldBeFalse();
 
             component.Dispose();
-            task.WaitEx();
+            await task.WaitSafeAsync();
             task.IsCanceled.ShouldBeTrue();
         }
 

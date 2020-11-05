@@ -28,7 +28,7 @@ namespace MugenMvvm.Commands.Components
         {
             _componentCollectionManager = componentCollectionManager;
             _threadDispatcher = threadDispatcher;
-            CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
+            CommandExecutionBehavior = CommandExecutionBehavior.CanExecuteBeforeExecute;
             EventThreadMode = ThreadExecutionMode.Main;
         }
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.Commands.Components
 
         public bool AllowMultipleExecution { get; set; }
 
-        public CommandExecutionMode CommandExecutionMode { get; set; }
+        public CommandExecutionBehavior CommandExecutionBehavior { get; set; }
 
         public ThreadExecutionMode EventThreadMode { get; set; }
 
@@ -53,14 +53,14 @@ namespace MugenMvvm.Commands.Components
             if (request is Delegate execute)
             {
                 var compositeCommand = new CompositeCommand();
-                compositeCommand.AddComponent(new DelegateExecutorCommandComponent<TParameter>(execute, null, CommandExecutionMode, AllowMultipleExecution));
+                compositeCommand.AddComponent(new DelegateExecutorCommandComponent<TParameter>(execute, null, CommandExecutionBehavior, AllowMultipleExecution));
                 return compositeCommand;
             }
 
             if (request is DelegateCommandRequest commandRequest)
             {
                 var command = new CompositeCommand(metadata, _componentCollectionManager);
-                command.AddComponent(new DelegateExecutorCommandComponent<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode.GetValueOrDefault(CommandExecutionMode),
+                command.AddComponent(new DelegateExecutorCommandComponent<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode ?? CommandExecutionBehavior,
                     commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
                 if (commandRequest.CanExecute != null && commandRequest.Notifiers != null && commandRequest.Notifiers.Count > 0)
                     command.AddComponent(new ConditionEventCommandComponent(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, commandRequest.Notifiers, commandRequest.CanNotify));
