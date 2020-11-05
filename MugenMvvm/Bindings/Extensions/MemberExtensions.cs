@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members.Descriptors;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -43,7 +44,7 @@ namespace MugenMvvm.Bindings.Extensions
                 .TryGetMembers(type ?? typeof(TTarget), MemberType.Event, flags.SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Name, metadata)
                 .SingleOrDefault<IObservableMemberInfo>();
 
-        public static IMemberInfo? TryGetMember(this IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberInfo? TryGetMember(this IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberManager, nameof(memberManager));
             return memberManager.TryGetMembers(type, memberTypes, flags, request, metadata).SingleOrDefault<IMemberInfo>();

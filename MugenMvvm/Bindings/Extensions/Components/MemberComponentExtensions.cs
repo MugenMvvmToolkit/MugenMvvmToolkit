@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -13,7 +14,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
     {
         #region Methods
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags,
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags,
             object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -29,7 +30,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return default;
         }
 
-        public static void TryAddMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, ICollection<IMemberInfo> result, Type type, string name, MemberType memberTypes,
+        public static void TryAddMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, ICollection<IMemberInfo> result, Type type, string name, EnumFlags<MemberType> memberTypes,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -44,7 +45,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             }
         }
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, Type type, string name, MemberType memberTypes,
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

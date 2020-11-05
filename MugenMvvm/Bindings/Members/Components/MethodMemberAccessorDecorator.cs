@@ -10,6 +10,7 @@ using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -40,9 +41,9 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
-            if (!memberTypes.HasFlagEx(MemberType.Accessor))
+            if (!memberTypes.HasFlag(MemberType.Accessor))
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
             var methodArgsRaw = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);

@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -79,7 +80,7 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata)
         {
             if (!(request is IReadOnlyList<IMemberInfo> members))
                 return default;
@@ -88,7 +89,7 @@ namespace MugenMvvm.Bindings.Members.Components
             for (var i = 0; i < members.Count; i++)
             {
                 var member = members[i];
-                if (!memberTypes.HasFlagEx(member.MemberType) || !flags.HasFlagEx(member.AccessModifiers))
+                if (!memberTypes.HasFlag(member.MemberType) || !flags.HasFlagEx(member.AccessModifiers))
                     continue;
 
                 if (_selectorDictionary.TryGetValue(member, out var list))

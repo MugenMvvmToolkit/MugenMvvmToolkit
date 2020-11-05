@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -51,9 +52,10 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, (int) key.MemberType, (int) key.MemberFlags, key.Types.Length);
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, (int) key.MemberFlags, key.Types.Length);
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             var name = request as string;
             Type[]? types;
@@ -116,7 +118,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
             public readonly string Key;
             public readonly Type Type;
-            public readonly MemberType MemberType;
+            public readonly int MemberType;
             public readonly MemberFlags MemberFlags;
             public readonly Type[] Types;
 
@@ -124,11 +126,11 @@ namespace MugenMvvm.Bindings.Members.Components
 
             #region Constructors
 
-            public CacheKey(Type type, string key, MemberType memberType, MemberFlags memberFlags, Type[] types)
+            public CacheKey(Type type, string key, EnumFlags<MemberType> memberType, MemberFlags memberFlags, Type[] types)
             {
                 Type = type;
                 Key = key;
-                MemberType = memberType;
+                MemberType = memberType.Value();
                 MemberFlags = memberFlags;
                 Types = types;
             }

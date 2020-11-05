@@ -49,9 +49,9 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
-            if (!memberTypes.HasFlagEx(MemberType.Method))
+            if (!memberTypes.HasFlag(MemberType.Method))
                 return default;
 
             var members = ItemOrListEditor.Get<IMemberInfo>();

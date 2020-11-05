@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -40,7 +41,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (!_registeredMembers.TryGetValue(name, out var members))
                 return default;
@@ -49,7 +50,7 @@ namespace MugenMvvm.Bindings.Members.Components
             for (var index = 0; index < members.Count; index++)
             {
                 var memberInfo = members[index];
-                if (memberTypes.HasFlagEx(memberInfo.MemberType) && memberInfo.DeclaringType.IsAssignableFromGeneric(type))
+                if (memberTypes.HasFlag(memberInfo.MemberType) && memberInfo.DeclaringType.IsAssignableFromGeneric(type))
                     result.Add(memberInfo);
             }
 

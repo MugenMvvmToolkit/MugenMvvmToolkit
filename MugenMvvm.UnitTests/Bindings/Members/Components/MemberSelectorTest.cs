@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
@@ -204,9 +205,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             return list;
         }
 
-        private static IMemberInfo[] Filter(IEnumerable<IMemberInfo> members, MemberType type, MemberFlags flags)
+        private static IMemberInfo[] Filter(IEnumerable<IMemberInfo> members, EnumFlags<MemberType> type, MemberFlags flags)
         {
-            var memberInfo = members.SingleOrDefault(info => flags.HasFlagEx(info.AccessModifiers) && type.HasFlagEx(info.MemberType));
+            var memberInfo = members.SingleOrDefault(info => flags.HasFlagEx(info.AccessModifiers) && type.HasFlag(info.MemberType));
             if (memberInfo == null)
                 return new IMemberInfo[0];
             return new[] {memberInfo};

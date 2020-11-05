@@ -43,14 +43,14 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             _types.Clear();
             if (type == typeof(string) && name == BindingInternalConstant.IndexerGetterName)
                 name = BindingInternalConstant.IndexerStringGetterName;
-            var hasProperty = !memberTypes.HasFlagEx(MemberType.Accessor);
+            var hasProperty = !memberTypes.HasFlag(MemberType.Accessor);
             var hasField = hasProperty;
-            var hasEvent = !memberTypes.HasFlagEx(MemberType.Event);
+            var hasEvent = !memberTypes.HasFlag(MemberType.Event);
             var result = ItemOrListEditor.Get<IMemberInfo>();
             var types = MugenBindingExtensions.SelfAndBaseTypes(type, types: _types);
             foreach (var t in types)
@@ -68,7 +68,7 @@ namespace MugenMvvm.Bindings.Members.Components
                     break;
             }
 
-            if (memberTypes.HasFlagEx(MemberType.Method))
+            if (memberTypes.HasFlag(MemberType.Method))
             {
                 types.Clear();
                 foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type, false, types: types))

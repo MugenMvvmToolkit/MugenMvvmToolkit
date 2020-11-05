@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
@@ -33,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             var requestType = typeof(string);
             var name = "test";
-            var memberType = MemberType.Method;
+            var memberType = MemberType.Method.AsFlags();
 
             var invalidateCount = 0;
             var hasCache = new TestHasCache
@@ -45,10 +46,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             owner.AddComponent(component);
             owner.Components.Add(hasCache);
             var list = new List<IMemberInfo>();
-            var delegates = new List<Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?>>();
+            var delegates = new List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>>();
             for (var i = 0; i < count; i++)
             {
-                Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?> func = (type, s, t, arg3) =>
+                Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?> func = (type, s, t, arg3) =>
                 {
                     memberType.ShouldEqual(t);
                     type.ShouldEqual(requestType);

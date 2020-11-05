@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -17,7 +18,7 @@ namespace MugenMvvm.Bindings.Members.Components
     {
         #region Fields
 
-        private readonly List<Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?>> _dynamicMembers;
+        private readonly List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>> _dynamicMembers;
 
         #endregion
 
@@ -26,7 +27,7 @@ namespace MugenMvvm.Bindings.Members.Components
         [Preserve(Conditional = true)]
         public AttachedDynamicMemberProvider()
         {
-            _dynamicMembers = new List<Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?>>();
+            _dynamicMembers = new List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>>();
         }
 
         #endregion
@@ -39,7 +40,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (_dynamicMembers.Count == 0)
                 return default;
@@ -53,14 +54,14 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Methods
 
-        public void Register(Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
+        public void Register(Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
         {
             Should.NotBeNull(getMember, nameof(getMember));
             _dynamicMembers.Add(getMember);
             OwnerOptional.TryInvalidateCache();
         }
 
-        public void Unregister(Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
+        public void Unregister(Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
         {
             Should.NotBeNull(getMember, nameof(getMember));
             if (_dynamicMembers.Remove(getMember))

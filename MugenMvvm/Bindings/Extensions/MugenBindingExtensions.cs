@@ -583,9 +583,6 @@ namespace MugenMvvm.Bindings.Extensions
         public static bool HasFlagEx(this MemberFlags value, MemberFlags flag) => (value & flag) == flag;//todo remove
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this MemberType value, MemberType flag) => (value & flag) == flag;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EnumFlags<BindingMemberExpressionFlags> SetTargetFlags(this EnumFlags<BindingMemberExpressionFlags> flags, bool isTarget) =>
             isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
 
