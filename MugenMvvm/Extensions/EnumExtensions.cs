@@ -67,7 +67,7 @@ namespace MugenMvvm.Extensions
             var editor = ItemOrListEditor.Get<T>();
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
             {
-                if (flags.HasFlagLong(value.FlagValue))
+                if (flags.HasFlag(value.FlagValue))
                     editor.Add(value);
             }
 

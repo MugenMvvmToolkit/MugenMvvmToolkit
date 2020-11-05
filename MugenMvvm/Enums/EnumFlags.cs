@@ -57,7 +57,7 @@ namespace MugenMvvm.Enums
         public bool HasFlag(EnumFlags<T> flag) => (Flags & flag.Flags) == flag.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasFlagLong(long flag) => (Flags & flag) == flag;
+        public bool HasFlag(long flag) => (Flags & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(EnumFlags<T> other) => Flags.CompareTo(other.Flags);

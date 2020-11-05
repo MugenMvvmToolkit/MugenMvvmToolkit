@@ -4,7 +4,7 @@
     {
         #region Fields
 
-        public static readonly MetadataOperationType Get = new MetadataOperationType(1);
+        public new static readonly MetadataOperationType Get = new MetadataOperationType(1);
         public static readonly MetadataOperationType Set = new MetadataOperationType(2);
         public static readonly MetadataOperationType Remove = new MetadataOperationType(3);
 

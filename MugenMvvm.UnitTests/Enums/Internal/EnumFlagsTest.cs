@@ -32,10 +32,10 @@ namespace MugenMvvm.UnitTests.Enums.Internal
             (f1 | f2).HasFlag(TestFlags.Flag1).ShouldBeTrue();
             (f1 | f2).HasFlag(TestFlags.Flag2).ShouldBeTrue();
 
-            f1.HasFlagLong(TestFlags.Flag1.FlagValue).ShouldBeTrue();
-            f1.HasFlagLong(TestFlags.Flag2.FlagValue).ShouldBeFalse();
-            (f1 | f2).HasFlagLong(TestFlags.Flag1.FlagValue).ShouldBeTrue();
-            (f1 | f2).HasFlagLong(TestFlags.Flag2.FlagValue).ShouldBeTrue();
+            f1.HasFlag(TestFlags.Flag1.FlagValue).ShouldBeTrue();
+            f1.HasFlag(TestFlags.Flag2.FlagValue).ShouldBeFalse();
+            (f1 | f2).HasFlag(TestFlags.Flag1.FlagValue).ShouldBeTrue();
+            (f1 | f2).HasFlag(TestFlags.Flag2.FlagValue).ShouldBeTrue();
 
             f1.Equals(f1).ShouldBeTrue();
             f1.Equals(f2).ShouldBeFalse();
