@@ -30,7 +30,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             memberFlags = MemberFlags;
-            if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target))
+            if (Flags.HasFlag(BindingMemberExpressionFlags.Target))
             {
                 path = Request(metadata).Path;
                 return target;
@@ -48,7 +48,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target))
+            if (Flags.HasFlag(BindingMemberExpressionFlags.Target))
                 return GetObserver(target, metadata);
             if (source == null)
                 return ObservationManager.DefaultIfNull().GetMemberPathObserver(target.ToWeakReference(), DataContextRequest(metadata), metadata);
@@ -64,7 +64,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         private string GetDataContextPath()
         {
             var path = MergePath(BindableMembers.For<object>().DataContext());
-            if (Flags.HasFlagEx(BindingMemberExpressionFlags.DataContextPath))
+            if (Flags.HasFlag(BindingMemberExpressionFlags.DataContextPath))
                 path = BindableMembers.For<object>().Parent().Name + "." + path;
             return path;
         }

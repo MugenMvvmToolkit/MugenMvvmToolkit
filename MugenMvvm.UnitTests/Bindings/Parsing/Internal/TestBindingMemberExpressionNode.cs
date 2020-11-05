@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
@@ -23,7 +24,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingMember;
 
-        public BindingMemberExpressionFlags Flags { get; set; }
+        public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
         public MemberFlags MemberFlags { get; set; }
 

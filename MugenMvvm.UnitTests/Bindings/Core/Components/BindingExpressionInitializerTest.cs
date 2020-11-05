@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
-                    expressionVisitor.Flags.HasFlagEx(BindingMemberExpressionFlags.DataContextPath);
+                    expressionVisitor.Flags.HasFlag(BindingMemberExpressionFlags.DataContextPath);
                     return null;
                 }
             };

@@ -11,6 +11,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -51,7 +52,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public string OneTimeBindingMode { get; set; } = BindingModeNameConstant.OneTime;
 
-        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
+        public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; } = BindingMemberExpressionFlags.Observable;
 
         public MemberFlags MemberFlags
         {
@@ -101,9 +102,9 @@ namespace MugenMvvm.Bindings.Core.Components
             context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
             if (context.SourceExpression is IBindingMemberExpressionNode memberExpression)
             {
-                if (flags.HasFlagEx(BindingMemberExpressionFlags.Observable))
+                if (flags.HasFlag(BindingMemberExpressionFlags.Observable))
                     memberExpression.Flags |= BindingMemberExpressionFlags.Observable;
-                if (flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods))
+                if (flags.HasFlag(BindingMemberExpressionFlags.ObservableMethods))
                     memberExpression.Flags |= BindingMemberExpressionFlags.ObservableMethods;
             }
 

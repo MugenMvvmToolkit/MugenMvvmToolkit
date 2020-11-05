@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -34,7 +35,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingMember;
 
-        public BindingMemberExpressionFlags Flags { get; set; }
+        public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
         public int Index { get; set; }
 
@@ -60,8 +61,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         protected MemberPathObserverRequest GetObserverRequest(string path, IReadOnlyMetadataContext? metadata) =>
             new MemberPathObserverRequest(ObservationManager.DefaultIfNull().GetMemberPath(path, metadata), MemberFlags,
-                Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
-                Flags.HasFlagEx(BindingMemberExpressionFlags.Observable), Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath));
+                Flags.HasFlag(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlag(BindingMemberExpressionFlags.StablePath),
+                Flags.HasFlag(BindingMemberExpressionFlags.Observable), Flags.HasFlag(BindingMemberExpressionFlags.StablePath));
 
         protected string MergePath(string value)
         {

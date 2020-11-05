@@ -49,7 +49,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var resource = GetResource(target, metadata, out var request);
-            if (_request == request && !Flags.HasFlagEx(BindingMemberExpressionFlags.Target) && string.IsNullOrEmpty(Path))
+            if (_request == request && !Flags.HasFlag(BindingMemberExpressionFlags.Target) && string.IsNullOrEmpty(Path))
                 return resource;
 
             if (resource == null)

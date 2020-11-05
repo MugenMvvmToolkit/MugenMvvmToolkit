@@ -1,15 +1,31 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Bindings.Enums
 {
-    [Flags]
-    public enum BindingMemberExpressionFlags : byte
+    [Serializable]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    public class BindingMemberExpressionFlags : FlagsEnumBase<BindingMemberExpressionFlags, byte>
     {
-        StablePath = 1,
-        Observable = 1 << 1,
-        ObservableMethods = 1 << 2,
-        Optional = 1 << 3,
-        Target = 1 << 4,
-        DataContextPath = 1 << 5
+        #region Fields
+
+        public static readonly BindingMemberExpressionFlags StablePath = new BindingMemberExpressionFlags(1 << 0);
+        public static readonly BindingMemberExpressionFlags Observable = new BindingMemberExpressionFlags(1 << 1);
+        public static readonly BindingMemberExpressionFlags ObservableMethods = new BindingMemberExpressionFlags(1 << 2);
+        public static readonly BindingMemberExpressionFlags Optional = new BindingMemberExpressionFlags(1 << 3);
+        public static readonly BindingMemberExpressionFlags Target = new BindingMemberExpressionFlags(1 << 4);
+        public static readonly BindingMemberExpressionFlags DataContextPath = new BindingMemberExpressionFlags(1 << 5);
+
+        #endregion
+
+        #region Constructors
+
+        public BindingMemberExpressionFlags(byte value) : base(value)
+        {
+        }
+
+        #endregion
     }
 }

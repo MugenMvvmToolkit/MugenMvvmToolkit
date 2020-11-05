@@ -14,6 +14,7 @@ using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -52,7 +53,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         public MemberFlags MemberFlags { get; set; }
 
-        public BindingMemberExpressionFlags Flags { get; set; }
+        public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
         public bool IgnoreMethodMembers { get; set; }
 

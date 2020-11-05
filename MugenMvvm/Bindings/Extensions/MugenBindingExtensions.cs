@@ -243,7 +243,7 @@ namespace MugenMvvm.Bindings.Extensions
             return new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
         }
 
-        public static void ApplyFlags(this IBindingExpressionInitializerContext context, BindingMemberExpressionVisitor memberExpressionVisitor, string parameterName, BindingMemberExpressionFlags flag)
+        public static void ApplyFlags(this IBindingExpressionInitializerContext context, BindingMemberExpressionVisitor memberExpressionVisitor, string parameterName, EnumFlags<BindingMemberExpressionFlags> flag)
         {
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(memberExpressionVisitor, nameof(memberExpressionVisitor));
@@ -583,13 +583,10 @@ namespace MugenMvvm.Bindings.Extensions
         public static bool HasFlagEx(this MemberFlags value, MemberFlags flag) => (value & flag) == flag;//todo remove
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BindingMemberExpressionFlags value, BindingMemberExpressionFlags flag) => (value & flag) == flag;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this MemberType value, MemberType flag) => (value & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static BindingMemberExpressionFlags SetTargetFlags(this BindingMemberExpressionFlags flags, bool isTarget) =>
+        internal static EnumFlags<BindingMemberExpressionFlags> SetTargetFlags(this EnumFlags<BindingMemberExpressionFlags> flags, bool isTarget) =>
             isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

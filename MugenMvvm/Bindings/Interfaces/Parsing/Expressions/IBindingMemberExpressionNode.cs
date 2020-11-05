@@ -1,12 +1,13 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
     public interface IBindingMemberExpressionNode : IExpressionNode
     {
-        BindingMemberExpressionFlags Flags { get; set; }
+        EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
         MemberFlags MemberFlags { get; }
 
