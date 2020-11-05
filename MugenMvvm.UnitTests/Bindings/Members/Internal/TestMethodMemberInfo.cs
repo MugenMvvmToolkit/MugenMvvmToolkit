@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -25,7 +26,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         public Func<object?, object?[], IReadOnlyMetadataContext?, object?>? Invoke { get; set; }
 
-        public Func<ArgumentFlags, object?[]?, IReadOnlyMetadataContext?, IAccessorMemberInfo?>? TryGetAccessor { get; set; }
+        public Func<EnumFlags<ArgumentFlags>, object?[]?, IReadOnlyMetadataContext?, IAccessorMemberInfo?>? TryGetAccessor { get; set; }
 
         #endregion
 
@@ -39,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         IMethodMemberInfo IMethodMemberInfo.MakeGenericMethod(Type[] types) => MakeGenericMethod?.Invoke(types) ?? this;
 
-        IAccessorMemberInfo? IMethodMemberInfo.TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata) => TryGetAccessor?.Invoke(argumentFlags, args, metadata);
+        IAccessorMemberInfo? IMethodMemberInfo.TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata) => TryGetAccessor?.Invoke(argumentFlags, args, metadata);
 
         object? IMethodMemberInfo.Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata) => Invoke?.Invoke(target, args, metadata);
 

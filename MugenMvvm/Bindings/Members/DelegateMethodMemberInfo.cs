@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -68,7 +69,7 @@ namespace MugenMvvm.Bindings.Members
             return null!;
         }
 
-        public IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
+        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null) => BoxingExtensions.Box(_invoke(this, (TTarget) target!, args, metadata));
 

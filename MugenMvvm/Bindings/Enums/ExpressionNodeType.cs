@@ -1,8 +1,13 @@
-﻿using MugenMvvm.Attributes;
+﻿using System;
+using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Bindings.Enums
 {
+    [Serializable]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class ExpressionNodeType : EnumBase<ExpressionNodeType, int>
     {
         #region Fields

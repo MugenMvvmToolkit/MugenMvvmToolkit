@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -120,7 +121,7 @@ namespace MugenMvvm.Bindings.Members
             return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType);
         }
 
-        public IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => null;
+        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => null;
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {

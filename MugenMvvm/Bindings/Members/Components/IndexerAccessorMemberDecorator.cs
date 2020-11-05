@@ -13,6 +13,7 @@ using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -24,7 +25,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
-        private readonly Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, ArgumentFlags flags)> _membersDictionary;
+        private readonly Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, EnumFlags<ArgumentFlags> flags)> _membersDictionary;
         private readonly IObservationManager? _observationManager;
 
         #endregion
@@ -38,7 +39,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _globalValueConverter = globalValueConverter;
             _observationManager = observationManager;
             _members = new List<IMemberInfo>();
-            _membersDictionary = new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, ArgumentFlags flags)>(this);
+            _membersDictionary = new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, EnumFlags<ArgumentFlags> flags)>(this);
         }
 
         #endregion

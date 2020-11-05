@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -25,5 +26,5 @@ namespace MugenMvvm.Bindings.Delegates
 
     public delegate TValue InvokeMethodDelegate<in TMember, in TTarget, out TValue>(TMember member, TTarget target, object?[] args, IReadOnlyMetadataContext? metadata);
 
-    public delegate IAccessorMemberInfo? TryGetAccessorDelegate<in TMember>(TMember member, ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata);
+    public delegate IAccessorMemberInfo? TryGetAccessorDelegate<in TMember>(TMember member, EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata);
 }

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Members
 
         #region Constructors
 
-        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObservationManager? observationManager)
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType, IObservationManager? observationManager)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));
@@ -48,7 +48,7 @@ namespace MugenMvvm.Bindings.Members
 
         #region Properties
 
-        public ArgumentFlags ArgumentFlags { get; }
+        public EnumFlags<ArgumentFlags> ArgumentFlags { get; }
 
         public string Name { get; }
 
@@ -95,7 +95,7 @@ namespace MugenMvvm.Bindings.Members
             if (_getMethod == null)
                 BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
             object?[] args;
-            if (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata))
+            if (ArgumentFlags.HasFlag(Enums.ArgumentFlags.Metadata))
             {
                 args = new object?[_args.Length];
                 Array.Copy(_args, args, _args.Length);
@@ -114,7 +114,7 @@ namespace MugenMvvm.Bindings.Members
             var args = new object?[_args.Length + 1];
             Array.Copy(_args, args, _args.Length);
             args[args.Length - 1] = value;
-            if (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata))
+            if (ArgumentFlags.HasFlag(Enums.ArgumentFlags.Metadata))
                 args[args.Length - 2] = metadata;
             _setMethod.Invoke(target, args, metadata);
         }

@@ -131,19 +131,18 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             if (!(member is IHasArgsMemberInfo hasArgs))
                 return 0;
-            switch (hasArgs.ArgumentFlags)
+            var flags = hasArgs.ArgumentFlags;
+            if (flags == default)
+                return default;
+
+            int priority = 0;
+            foreach (var f in ArgumentFlags.GetAll())
             {
-                case ArgumentFlags.Metadata:
-                    return -1;
-                case ArgumentFlags.Optional:
-                    return -2;
-                case ArgumentFlags.ParamArray:
-                    return -3;
-                case ArgumentFlags.EmptyParamArray:
-                    return -4;
-                default:
-                    return 0;
+                if (flags.HasFlag(f))
+                    priority += f.Priority;
             }
+
+            return priority;
         }
 
         #endregion

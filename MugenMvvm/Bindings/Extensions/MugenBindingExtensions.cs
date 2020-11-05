@@ -24,6 +24,7 @@ using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -130,9 +131,9 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static object?[]? TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, TState state, int argsLength,
-            Func<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out ArgumentFlags flags)
+            Func<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out EnumFlags<ArgumentFlags> flags)
         {
-            flags = 0;
+            flags = default;
             var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
             object?[] result;
             if (arguments != null && argsLength == parameters.Count)
@@ -198,12 +199,12 @@ namespace MugenMvvm.Bindings.Extensions
         public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
         {
             args = converter.TryGetInvokeArgs(parameters, args, args.Length, (objects, i, _) => objects[i], args, out var flags)!;
-            if (args != null && flags.HasFlagEx(ArgumentFlags.Metadata))
+            if (args != null && flags.HasFlag(ArgumentFlags.Metadata))
                 args[args.Length - 1] = metadata;
             return args;
         }
 
-        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out ArgumentFlags flags)
+        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out EnumFlags<ArgumentFlags> flags)
         {
             try
             {
@@ -216,7 +217,7 @@ namespace MugenMvvm.Bindings.Extensions
             }
             catch
             {
-                flags = 0;
+                flags = default;
                 return null;
             }
         }
@@ -579,10 +580,7 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag) => (value & flag) == flag;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this ArgumentFlags value, ArgumentFlags flag) => (value & flag) == flag;
+        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag) => (value & flag) == flag;//todo remove
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BindingMemberExpressionFlags value, BindingMemberExpressionFlags flag) => (value & flag) == flag;

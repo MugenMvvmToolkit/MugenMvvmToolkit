@@ -1,13 +1,37 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using MugenMvvm.Constants;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Enums
 {
-    [Flags]
-    public enum ArgumentFlags : byte
+    [Serializable]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    public class ArgumentFlags : FlagsEnumBase<ArgumentFlags, byte>, IHasPriority
     {
-        Metadata = 1 << 0,
-        ParamArray = 1 << 1,
-        EmptyParamArray = ParamArray | 1 << 2,
-        Optional = 1 << 4
+        #region Fields
+
+        public static readonly ArgumentFlags Metadata = new ArgumentFlags(1 << 0, -1);
+        public static readonly ArgumentFlags Optional = new ArgumentFlags(1 << 4, -2);
+        public static readonly ArgumentFlags ParamArray = new ArgumentFlags(1 << 1, -3);
+        public static readonly ArgumentFlags EmptyParamArray = new ArgumentFlags((byte) (ParamArray.Value | 1 << 2), -4);
+
+        #endregion
+
+        #region Constructors
+
+        public ArgumentFlags(byte value, int priority) : base(value)
+        {
+            Priority = priority;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
     }
 }

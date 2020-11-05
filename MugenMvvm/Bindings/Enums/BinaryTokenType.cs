@@ -1,10 +1,14 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Bindings.Enums
 {
     //https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/index
+    [Serializable]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class BinaryTokenType : EnumBase<BinaryTokenType, string>
     {
         #region Fields

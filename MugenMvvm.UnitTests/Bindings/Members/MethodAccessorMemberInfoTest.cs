@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
@@ -116,7 +117,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 }
             });
 
-            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : 0, reflectedType, observationManager);
+            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : (EnumFlags<ArgumentFlags>) default, reflectedType, observationManager);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.DeclaringType.ShouldEqual(declaringType);
             memberInfo.Type.ShouldEqual(type);

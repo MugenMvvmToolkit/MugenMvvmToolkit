@@ -49,7 +49,7 @@ namespace MugenMvvm.Enums
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue> value) => new EnumFlags<TEnum>(value.FlagValue);
+        public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue>? value) => ReferenceEquals(value, null) ? default : new EnumFlags<TEnum>(value.FlagValue);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EnumFlags<TEnum> operator |(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new EnumFlags<TEnum>(left.FlagValue | right.FlagValue);
@@ -74,6 +74,9 @@ namespace MugenMvvm.Enums
         }
 
         private static T Cast<T>(TValue value) => MugenExtensions.CastGeneric<TValue, T>(value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EnumFlags<TEnum> AsFlags() => new EnumFlags<TEnum>(FlagValue);
 
         #endregion
     }
