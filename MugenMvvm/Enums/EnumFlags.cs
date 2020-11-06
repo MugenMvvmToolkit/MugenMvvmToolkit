@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Enums
@@ -55,12 +56,6 @@ namespace MugenMvvm.Enums
         public static EnumFlags<T> operator ~(EnumFlags<T> flag) => new EnumFlags<T>(~flag.Flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasFlag(EnumFlags<T> flag) => (Flags & flag.Flags) == flag.Flags;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasFlag(long flag) => (Flags & flag) == flag;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(EnumFlags<T> other) => Flags.CompareTo(other.Flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,7 +73,7 @@ namespace MugenMvvm.Enums
             StringBuilder? builder = null;
             foreach (var @enum in EnumBase.GetAll<T>())
             {
-                if (HasFlag(@enum.Flag))
+                if (this.HasFlag(@enum.Flag))
                     (builder ??= new StringBuilder()).Append(@enum.Name).Append(' ').Append('|').Append(' ');
             }
 

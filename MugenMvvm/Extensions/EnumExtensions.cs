@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -11,6 +12,37 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, long flag) where T : class, IFlagsEnum => (flags.Flags & flag) == flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, EnumFlags<T> flag) where T : class, IFlagsEnum => (flags.Flags & flag.Flags) == flag.Flags;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, byte> flag) where T : FlagsEnumBase<T, byte> => (flags.Flags & flag.Flag) == flag.Flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, sbyte> flag) where T : FlagsEnumBase<T, sbyte> => (flags.Flags & flag.Flag) == flag.Flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, short> flag) where T : FlagsEnumBase<T, short> => (flags.Flags & flag.Flag) == flag.Flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, ushort> flag) where T : FlagsEnumBase<T, ushort> => (flags.Flags & flag.Flag) == flag.Flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, int> flag) where T : FlagsEnumBase<T, int> => (flags.Flags & flag.Flag) == flag.Flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, uint> flag) where T : FlagsEnumBase<T, uint> => (flags.Flags & flag.Flag) == flag.Flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, long> flag) where T : FlagsEnumBase<T, long> => (flags.Flags & flag.Flag) == flag.Flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, ulong> flag) where T : FlagsEnumBase<T, ulong> => (flags.Flags & flag.Flag) == flag.Flag;
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte Value<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => (byte) flags.Flags;
