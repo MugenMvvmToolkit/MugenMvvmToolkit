@@ -238,6 +238,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         protected IReadOnlyMetadataContext? TryGetMetadata()
         {
+            if (_listeners == null)
+                return null;
             if (_listeners is IMemberPathObserverListener[] l)
             {
                 for (var i = 0; i < l.Length; i++)
@@ -302,7 +304,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
         {
             if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
-                return metadataOwner.GetMetadataOrDefault();
+                return metadataOwner.Metadata;
             return null;
         }
 
