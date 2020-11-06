@@ -290,7 +290,7 @@ namespace MugenMvvm.Android.Extensions
                     if (ActionBarExtensions.IsSupported(target))
                         ActionBarExtensions.SetDisplayHomeAsUpEnabled(target, newValue);
                     else
-                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<Object>()
@@ -311,7 +311,7 @@ namespace MugenMvvm.Android.Extensions
                 {
                     if (ToolbarExtensions.IsSupported(target))
                         return ToolbarExtensions.GetTitle(target);
-                    BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                     return null!;
                 })
                 .CustomSetter((member, target, value, metadata) =>
@@ -319,7 +319,7 @@ namespace MugenMvvm.Android.Extensions
                     if (ToolbarExtensions.IsSupported(target))
                         ToolbarExtensions.SetTitle(target, value);
                     else
-                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
                 .Build());
             attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>("Subtitle")
@@ -328,7 +328,7 @@ namespace MugenMvvm.Android.Extensions
                 {
                     if (ToolbarExtensions.IsSupported(target))
                         return ToolbarExtensions.GetSubtitle(target);
-                    BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                     return null!;
                 })
                 .CustomSetter((member, target, value, metadata) =>
@@ -336,7 +336,7 @@ namespace MugenMvvm.Android.Extensions
                     if (ToolbarExtensions.IsSupported(target))
                         ToolbarExtensions.SetSubtitle(target, value);
                     else
-                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -351,7 +351,7 @@ namespace MugenMvvm.Android.Extensions
                         newValue?.Apply(menu, target);
                     }
                     else
-                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
                 .Build());
 
@@ -397,7 +397,7 @@ namespace MugenMvvm.Android.Extensions
                 {
                     if (TabLayoutTabExtensions.IsSupported(target))
                         return TabLayoutTabExtensions.GetText(target);
-                    BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                     return null!;
                 })
                 .CustomSetter((member, target, value, metadata) =>
@@ -408,7 +408,7 @@ namespace MugenMvvm.Android.Extensions
                         return;
                     }
 
-                    BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
                 .Build());
 
@@ -441,13 +441,13 @@ namespace MugenMvvm.Android.Extensions
                 .CustomGetter((member, target, metadata) =>
                 {
                     if (!ViewGroupExtensions.IsSelectedIndexSupported(target))
-                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                     return ViewGroupExtensions.GetSelectedIndex(target);
                 })
                 .CustomSetter((member, target, value, metadata) =>
                 {
                     if (!ViewGroupExtensions.SetSelectedIndex(target, value))
-                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()

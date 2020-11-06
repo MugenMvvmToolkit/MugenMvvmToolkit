@@ -86,7 +86,7 @@ namespace MugenMvvm.Bindings.Core
                 if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)
                     return (TValue) (object) member.Member;
 
-                BindingExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
+                ExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
             }
 
             if ((typeof(TValue) == typeof(bool?) || typeof(TValue) == typeof(bool)) && InlineParameters.TryGetValue(parameterName, out var b))

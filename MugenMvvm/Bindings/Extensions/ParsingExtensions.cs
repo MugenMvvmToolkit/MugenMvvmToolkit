@@ -104,10 +104,10 @@ namespace MugenMvvm.Bindings.Extensions
             if (errors != null && errors.Count != 0)
             {
                 errors.Reverse();
-                BindingExceptionManager.ThrowCannotParseExpression(expression, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
+                ExceptionManager.ThrowCannotParseExpression(expression, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
             }
             else
-                BindingExceptionManager.ThrowCannotParseExpression(expression);
+                ExceptionManager.ThrowCannotParseExpression(expression);
         }
 
         public static List<string>? TryGetErrors(this IParserContext context)

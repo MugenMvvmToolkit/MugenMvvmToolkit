@@ -65,7 +65,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(target, nameof(target));
             var member = bindableMember.TryGetMember(GetTargetType(bindableMember.IsStatic, ref target!), flags, metadata, memberManager);
             if (member == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(target, bindableMember);
+                ExceptionManager.ThrowInvalidBindingMember(target, bindableMember);
             member.SetValue(target, BoxingExtensions.Box(value), metadata);
         }
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(target, nameof(target));
             var method = methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager);
             if (method == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(target, methodMember.ToString());
+                ExceptionManager.ThrowInvalidBindingMember(target, methodMember.ToString());
             return (TReturn) method.Invoke(target, args ?? Default.Array<object?>(), metadata)!;
         }
 
@@ -106,7 +106,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(target, nameof(target));
             var member = eventMember.TryGetMember(GetTargetType(eventMember.IsStatic, ref target!), flags, metadata, memberManager);
             if (member == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(target, eventMember);
+                ExceptionManager.ThrowInvalidBindingMember(target, eventMember);
             return member.TryObserve(target, listener, metadata);
         }
 
@@ -116,7 +116,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(target, nameof(target));
             var member = bindableMember.TryGetMember(GetTargetType(bindableMember.IsStatic, ref target!), flags, metadata, memberManager);
             if (member == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(target, bindableMember);
+                ExceptionManager.ThrowInvalidBindingMember(target, bindableMember);
             return member.TryObserve(target, listener, metadata);
         }
 
@@ -126,7 +126,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(target, nameof(target));
             var member = methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager);
             if (member == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(target, methodMember);
+                ExceptionManager.ThrowInvalidBindingMember(target, methodMember);
             return member.TryObserve(target, listener, metadata);
         }
 
@@ -161,7 +161,7 @@ namespace MugenMvvm.Bindings.Extensions
         private static TReturn? SingleOrDefault<TReturn>(this ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> itemOrList) where TReturn : class, IMemberInfo
         {
             if (itemOrList.List != null)
-                BindingExceptionManager.ThrowAmbiguousMatchFound();
+                ExceptionManager.ThrowAmbiguousMatchFound();
             return (TReturn?) itemOrList.Item;
         }
 

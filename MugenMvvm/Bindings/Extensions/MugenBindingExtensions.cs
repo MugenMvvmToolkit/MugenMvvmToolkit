@@ -70,7 +70,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             var result = bindingManager.TryParseBindingExpression(expression, metadata);
             if (result.IsEmpty)
-                BindingExceptionManager.ThrowCannotParseExpression(expression);
+                ExceptionManager.ThrowCannotParseExpression(expression);
             return result;
         }
 
@@ -78,7 +78,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             Should.NotBeNull(converter, nameof(converter));
             if (!converter.TryConvert(ref value, targetType, member, metadata))
-                BindingExceptionManager.ThrowCannotConvertType(value, targetType);
+                ExceptionManager.ThrowCannotConvertType(value, targetType);
             return value;
         }
 
@@ -87,7 +87,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(compiler, nameof(compiler));
             var result = compiler.TryCompile(expression, metadata);
             if (result == null)
-                BindingExceptionManager.ThrowCannotCompileExpression(expression);
+                ExceptionManager.ThrowCannotCompileExpression(expression);
             return result;
         }
 
@@ -123,7 +123,7 @@ namespace MugenMvvm.Bindings.Extensions
             {
                 var type = resourceResolver.TryGetType(types[i], null, metadata);
                 if (type == null)
-                    BindingExceptionManager.ThrowCannotResolveType(types[i]);
+                    ExceptionManager.ThrowCannotResolveType(types[i]);
                 typeArgs[i] = type;
             }
 
@@ -259,10 +259,10 @@ namespace MugenMvvm.Bindings.Extensions
             if (errors != null && errors.Count != 0)
             {
                 errors.Reverse();
-                BindingExceptionManager.ThrowCannotCompileExpression(expression, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
+                ExceptionManager.ThrowCannotCompileExpression(expression, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
             }
             else
-                BindingExceptionManager.ThrowCannotCompileExpression(expression);
+                ExceptionManager.ThrowCannotCompileExpression(expression);
         }
 
         public static List<string>? TryGetErrors(this IExpressionBuilderContext context)
@@ -679,7 +679,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             var member = (IAccessorMemberInfo?) memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
             if (member == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(type, path);
+                ExceptionManager.ThrowInvalidBindingMember(type, path);
             return member.GetValue(target, metadata);
         }
 

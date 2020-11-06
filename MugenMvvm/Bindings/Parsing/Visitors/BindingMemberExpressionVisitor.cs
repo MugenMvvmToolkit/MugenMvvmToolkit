@@ -179,7 +179,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                     return GetOrAddResource(memberExpression.Member, methodName);
 
                 if (!resource.IsResolved)
-                    BindingExceptionManager.ThrowCannotResolveResource(memberExpression.Member);
+                    ExceptionManager.ThrowCannotResolveResource(memberExpression.Member);
 
                 result = TryGetConstant("~r", memberExpression.Member, out key);
                 if (result == null)

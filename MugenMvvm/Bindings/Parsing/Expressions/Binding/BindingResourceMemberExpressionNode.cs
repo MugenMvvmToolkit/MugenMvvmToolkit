@@ -52,7 +52,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
                 return resource;
 
             if (resource == null)
-                BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
+                ExceptionManager.ThrowCannotResolveResource(ResourceName);
 
             return ObservationManager.DefaultIfNull().GetMemberPathObserver(resource, request, metadata);
         }
@@ -61,7 +61,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         {
             var resource = _resourceResolver.DefaultIfNull().TryGetResource(ResourceName, target, metadata);
             if (!resource.IsResolved)
-                BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
+                ExceptionManager.ThrowCannotResolveResource(ResourceName);
 
             if (resource.Resource is IDynamicResource)
             {

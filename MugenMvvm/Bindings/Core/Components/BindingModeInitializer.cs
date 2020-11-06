@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Core.Components
                         context.BindingComponents[BindingParameterNameConstant.Mode] = mode;
                 }
                 else
-                    BindingExceptionManager.ThrowCannotParseBindingParameter(BindingParameterNameConstant.Mode, string.Join(",", BindingModes.Keys), modeName);
+                    ExceptionManager.ThrowCannotParseBindingParameter(BindingParameterNameConstant.Mode, string.Join(",", BindingModes.Keys), modeName);
 
                 return;
             }

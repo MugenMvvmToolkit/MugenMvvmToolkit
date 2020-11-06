@@ -140,7 +140,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                     if (Optional)
                         SetLastMember(null, null);
                     else
-                        BindingExceptionManager.ThrowInvalidBindingMember(targetType, Path.Path);
+                        ExceptionManager.ThrowInvalidBindingMember(targetType, Path.Path);
                     return;
                 }
 

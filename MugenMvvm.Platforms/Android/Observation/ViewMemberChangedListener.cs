@@ -167,7 +167,7 @@ namespace MugenMvvm.Android.Observation
                 if (_view.Handle == IntPtr.Zero)
                     return;
                 if (!ViewExtensions.AddMemberListener(_view, GetMember(memberName)))
-                    BindingExceptionManager.ThrowInvalidBindingMember(_view, memberName);
+                    ExceptionManager.ThrowInvalidBindingMember(_view, memberName);
             }
 
             protected override void OnListenerRemoved(string memberName)

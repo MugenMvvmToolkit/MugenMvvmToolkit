@@ -109,7 +109,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 .DefaultIfNull()
                 .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IAccessorMemberInfo;
             if (property == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
+                ExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
             return property.GetValue(target, metadata);
         }
 

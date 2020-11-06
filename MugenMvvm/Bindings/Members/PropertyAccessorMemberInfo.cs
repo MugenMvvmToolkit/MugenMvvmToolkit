@@ -104,11 +104,11 @@ namespace MugenMvvm.Bindings.Members
 
         #region Methods
 
-        private void MustBeWritable(object? _, object? __) => BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
+        private void MustBeWritable(object? _, object? __) => ExceptionManager.ThrowBindingMemberMustBeWritable(this);
 
         private object MustBeReadable(object? _)
         {
-            BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
+            ExceptionManager.ThrowBindingMemberMustBeReadable(this);
             return null;
         }
 

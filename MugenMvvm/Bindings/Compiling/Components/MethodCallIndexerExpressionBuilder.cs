@@ -604,7 +604,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 }
 
                 if (method.IsEmpty)
-                    BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
+                    ExceptionManager.ThrowInvalidBindingMember(type, methodName);
                 return method.Method.Invoke(target, _component._globalValueConverter.TryGetInvokeArgs(method.Parameters, args, metadata)!, metadata);
             }
 

@@ -151,7 +151,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                         if (Optional)
                             SetMembers(null, null, null);
                         else
-                            BindingExceptionManager.ThrowInvalidBindingMember(type, paths[i]);
+                            ExceptionManager.ThrowInvalidBindingMember(type, paths[i]);
                         return true;
                     }
 

@@ -68,7 +68,7 @@ namespace MugenMvvm.Bindings.Members
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
             if (!CanWrite)
-                BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
+                ExceptionManager.ThrowBindingMemberMustBeWritable(this);
         }
 
         #endregion

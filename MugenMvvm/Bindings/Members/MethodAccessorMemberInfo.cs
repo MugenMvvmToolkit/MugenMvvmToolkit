@@ -93,7 +93,7 @@ namespace MugenMvvm.Bindings.Members
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
             if (_getMethod == null)
-                BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
+                ExceptionManager.ThrowBindingMemberMustBeReadable(this);
             object?[] args;
             if (ArgumentFlags.HasFlag(Enums.ArgumentFlags.Metadata))
             {
@@ -110,7 +110,7 @@ namespace MugenMvvm.Bindings.Members
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
             if (_setMethod == null)
-                BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
+                ExceptionManager.ThrowBindingMemberMustBeWritable(this);
             var args = new object?[_args.Length + 1];
             Array.Copy(_args, args, _args.Length);
             args[args.Length - 1] = value;

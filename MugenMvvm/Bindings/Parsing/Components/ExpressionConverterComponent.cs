@@ -138,7 +138,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
                 return _parserContext.ParseWhileAnyOf(null);
             }
 
-            BindingExceptionManager.ThrowCannotParseExpression(expression);
+            ExceptionManager.ThrowCannotParseExpression(expression);
             return null!;
         }
 

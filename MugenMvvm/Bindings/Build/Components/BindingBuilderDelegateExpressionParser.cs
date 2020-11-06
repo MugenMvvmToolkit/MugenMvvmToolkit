@@ -68,7 +68,7 @@ namespace MugenMvvm.Bindings.Build.Components
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(BindingBuilderDelegate<,>))
             {
                 if (del.HasClosure())
-                    BindingExceptionManager.ThrowCannotUseExpressionClosure(del);
+                    ExceptionManager.ThrowCannotUseExpressionClosure(del);
                 _singleValueArray[0] = del;
                 return Components.TryParseBindingExpression(bindingManager, GetRequestMethod.MakeGenericMethod(type.GetGenericArguments()).Invoke(null, _singleValueArray)!, metadata).GetRawValue();
             }

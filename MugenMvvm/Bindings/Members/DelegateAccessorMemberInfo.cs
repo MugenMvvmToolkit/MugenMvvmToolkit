@@ -47,14 +47,14 @@ namespace MugenMvvm.Bindings.Members
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata)
         {
             if (_getValue == null)
-                BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
+                ExceptionManager.ThrowBindingMemberMustBeReadable(this);
             return BoxingExtensions.Box(_getValue(this, (TTarget) target!, metadata));
         }
 
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata)
         {
             if (_setValue == null)
-                BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
+                ExceptionManager.ThrowBindingMemberMustBeWritable(this);
             _setValue(this, (TTarget) target!, (TValue) value!, metadata);
         }
 

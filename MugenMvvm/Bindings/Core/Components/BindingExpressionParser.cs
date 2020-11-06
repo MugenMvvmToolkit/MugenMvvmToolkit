@@ -158,7 +158,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 var sourceExpression = _context.SourceExpression;
 
                 if (!(TargetExpression is IBindingMemberExpressionNode))
-                    BindingExceptionManager.ThrowCannotUseExpressionExpected(TargetExpression, typeof(IBindingMemberExpressionNode));
+                    ExceptionManager.ThrowCannotUseExpressionExpected(TargetExpression, typeof(IBindingMemberExpressionNode));
 
                 if (sourceExpression is IBindingMemberExpressionNode)
                 {
@@ -168,7 +168,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 else
                 {
                     if (sourceExpression == null)
-                        BindingExceptionManager.ThrowExpressionNodeCannotBeNull(typeof(BindingBuilder));
+                        ExceptionManager.ThrowExpressionNodeCannotBeNull(typeof(BindingBuilder));
                     _sourceExpression = component._expressionCollectorVisitor.Collect(sourceExpression, metadata).GetRawValue()!;
                     _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
                 }

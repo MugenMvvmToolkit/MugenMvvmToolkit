@@ -40,7 +40,7 @@ namespace MugenMvvm.Bindings.Core.Components
                     return ItemOrList.FromListToReadOnly(expressions);
                 }
 
-                BindingExceptionManager.ThrowCannotParseExpression(expression);
+                ExceptionManager.ThrowCannotParseExpression(expression);
             }
             catch (Exception e)
             {
