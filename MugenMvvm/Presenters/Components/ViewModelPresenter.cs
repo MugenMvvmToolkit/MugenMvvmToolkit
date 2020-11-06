@@ -65,7 +65,7 @@ namespace MugenMvvm.Presenters.Components
             var result = ItemOrListEditor.Get<IPresenterResult>();
             lock (_locker)
             {
-                var dictionary = viewModel.GetMetadataOrDefault().Get(InternalMetadata.Mediators);
+                var dictionary = viewModel.GetOrDefault(InternalMetadata.Mediators);
                 if (dictionary == null)
                     return default;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using MugenMvvm.Interfaces.Metadata;
@@ -136,6 +137,18 @@ namespace MugenMvvm.Extensions
                 builder.Remove(builder.Length - 1, 1);
             builder.Append(")");
             return builder.ToString();
+        }
+
+        [return: MaybeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key) => owner.GetOrDefault(key, default);
+
+        [return: MaybeNull]
+        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
+        {
+            if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue))
+                return v;
+            return default;
         }
 
         internal static bool TryGetFromRaw<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, bool hasValue, object? rawValue, out T value, [AllowNull] T defaultValue)

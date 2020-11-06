@@ -265,13 +265,8 @@ namespace MugenMvvm.Bindings.Extensions
                 ExceptionManager.ThrowCannotCompileExpression(expression);
         }
 
-        public static List<string>? TryGetErrors(this IExpressionBuilderContext context)
-        {
-            Should.NotBeNull(context, nameof(context));
-            if (context.GetMetadataOrDefault().TryGet(CompilingMetadata.CompilingErrors, out var errors))
-                return errors;
-            return null;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<string>? TryGetErrors(this IExpressionBuilderContext context) => context.GetOrDefault(CompilingMetadata.CompilingErrors, null);
 
         [Preserve(Conditional = true)]
         public static void Raise<TArg>(this EventListenerCollection collection, object? sender, TArg args) => collection.Raise(sender, args, null);

@@ -101,7 +101,7 @@ namespace MugenMvvm.Extensions
             var list = entries.List;
             if (list == null)
                 return null;
-            foreach (var navigationEntry in list.OrderByDescending(entry => entry.GetMetadataOrDefault().Get(NavigationMetadata.NavigationDate)))
+            foreach (var navigationEntry in list.OrderByDescending(entry => entry.GetOrDefault(NavigationMetadata.NavigationDate)))
             {
                 var result = predicate(navigationEntry, state, metadata);
                 if (result != null)

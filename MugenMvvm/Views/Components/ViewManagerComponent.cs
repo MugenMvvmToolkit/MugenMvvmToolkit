@@ -87,7 +87,7 @@ namespace MugenMvvm.Views.Components
                 if (viewModel is IComponentOwner componentOwner)
                     return ItemOrList.FromListToReadOnly(componentOwner.GetComponents<IView>());
 
-                return GetViews(viewModel.GetMetadataOrDefault().Get(InternalMetadata.Views));
+                return GetViews(viewModel.GetOrDefault(InternalMetadata.Views));
             }
 
             if (view != null && view.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var value))

@@ -110,13 +110,8 @@ namespace MugenMvvm.Bindings.Extensions
                 ExceptionManager.ThrowCannotParseExpression(expression);
         }
 
-        public static List<string>? TryGetErrors(this IParserContext context)
-        {
-            Should.NotBeNull(context, nameof(context));
-            if (context.GetMetadataOrDefault().TryGet(ParsingMetadata.ParsingErrors, out var errors))
-                return errors;
-            return null;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<string>? TryGetErrors(this IParserContext context) => context.GetOrDefault(ParsingMetadata.ParsingErrors, null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetPosition(this ITokenParserContext context, int? position = null)
@@ -145,7 +140,8 @@ namespace MugenMvvm.Bindings.Extensions
 
             var p = context.GetPosition(position);
             var i = 0;
-            while (i != token.Length)
+            var length = token.Length;
+            while (i != length)
             {
                 if (context.IsEof(p) || TokenAt(context, p) != token[i])
                     return false;
@@ -200,7 +196,8 @@ namespace MugenMvvm.Bindings.Extensions
         public static int FindAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null)
         {
             var start = context.GetPosition(position);
-            for (var i = start; i < context.Length; i++)
+            var length = context.Length;
+            for (var i = start; i < length; i++)
             {
                 if (tokens.Contains(context.TokenAt(i)))
                     return i;
@@ -412,6 +409,7 @@ namespace MugenMvvm.Bindings.Extensions
             return default;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsValidIdentifierSymbol(this char symbol, bool isFirstSymbol)
         {
             if (isFirstSymbol)

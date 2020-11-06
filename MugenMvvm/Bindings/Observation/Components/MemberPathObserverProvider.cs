@@ -37,7 +37,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
             var path = observerRequest.Path;
             var membersCount = path.Members.Count;
-            if (ObservableMethods != null && observerRequest.ObservableMethodName != null && ObservableMethods.Contains(observerRequest.ObservableMethodName))
+            if (observerRequest.ObservableMethodName != null && (ObservableMethods == null || ObservableMethods.Contains(observerRequest.ObservableMethodName)))
             {
                 if (membersCount == 0)
                     return new MethodEmptyPathObserver(observerRequest.ObservableMethodName, target, observerRequest.MemberFlags);

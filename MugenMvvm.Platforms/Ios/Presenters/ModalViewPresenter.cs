@@ -61,7 +61,7 @@ namespace MugenMvvm.Ios.Presenters
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
             {
-                view.ModalInPresentation = !navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.NonModal, NonModal);
+                view.ModalInPresentation = !navigationContext.GetOrDefault(NavigationMetadata.NonModal, NonModal);
                 view.PresentationController.Delegate = _presentationControllerDelegate;
             }
 
@@ -71,7 +71,7 @@ namespace MugenMvvm.Ios.Presenters
             var topView = NavigationDispatcher.GetTopView<UIViewController>(includePending: false, metadata: navigationContext.GetMetadataOrDefault());
             if (topView == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(UIViewController), nameof(topView));
-            topView.PresentViewController(view, navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.Animated, Animated), null);
+            topView.PresentViewController(view, navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated), null);
             return Default.CompletedTask;
         }
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.Ios.Presenters
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, request, navigationContext.GetMetadataOrDefault());
             if (!request.Cancel.GetValueOrDefault())
             {
-                var animated = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.Animated, Animated);
+                var animated = navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated);
                 var childViewController = view.PresentedViewController;
                 view.DismissViewController(animated, () =>
                 {

@@ -157,7 +157,7 @@ namespace MugenMvvm.Presenters
                 mode = NavigationMode.Refresh;
             else
             {
-                var hashSet = ViewModel.GetMetadataOrDefault().Get(InternalMetadata.OpenedNavigationProviders);
+                var hashSet = ViewModel.GetOrDefault(InternalMetadata.OpenedNavigationProviders);
                 if (hashSet != null)
                 {
                     lock (hashSet)
@@ -428,7 +428,7 @@ namespace MugenMvvm.Presenters
         private void ClearFields(INavigationContext navigationContext, CancellationToken? cancellationToken, Exception? error)
         {
             if (View != null && (cancellationToken != null || error != null) &&
-                (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRestore || Equals(navigationContext.GetMetadataOrDefault().Get(InternalMetadata.View), View.Target)))
+                (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRestore || Equals(navigationContext.GetOrDefault(InternalMetadata.View), View.Target)))
                 UpdateView(null, navigationContext);
             ShowingCancellationTokenSource?.Dispose();
             ShowingCancellationTokenSource = null;

@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;
 
-            var method = context.GetMetadataOrDefault().Get(CompilingMetadata.LambdaParameter)?.ParameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);
+            var method = context.GetOrDefault(CompilingMetadata.LambdaParameter)?.ParameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);
             if (method == null)
             {
                 context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileLambdaExpressionDelegateFormat1.Format(lambdaExpression));

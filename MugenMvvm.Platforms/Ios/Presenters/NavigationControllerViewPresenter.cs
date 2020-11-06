@@ -71,7 +71,7 @@ namespace MugenMvvm.Ios.Presenters
             if (controllers == null)
                 return Default.CompletedTask;
 
-            var animated = navigationContext.GetMetadataOrDefault().Get(NavigationMetadata.Animated, Animated);
+            var animated = navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated);
             if (controllers.Length != 1 && Equals(NavigationController.TopViewController, view))
             {
                 NavigationController.PopViewController(animated);

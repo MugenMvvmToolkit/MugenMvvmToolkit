@@ -139,7 +139,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         private static IComponent<IBinding> GetEventHandlerComponent((BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target, object? source,
             IReadOnlyMetadataContext? metadata) => EventHandlerBindingComponent.Get(state.value.ToBindingParameter(target, source, metadata), state.toggle,
-            state.isOneTime || binding.GetMetadataOrDefault().Get(BindingMetadata.IsMultiBinding));
+            state.isOneTime || binding.GetOrDefault(BindingMetadata.IsMultiBinding));
 
         #endregion
     }
