@@ -269,7 +269,7 @@ namespace MugenMvvm.Bindings.Members.Builders
 
                 return attachedValues.GetOrAdd(key, (wrapMemberName, flags, metadata), (o, s) =>
                 {
-                    var member = MugenBindingService
+                    var member = MugenService
                         .MemberManager
                         .TryGetMember(s.flags.GetTargetType(ref o!), MemberType.Accessor, s.flags, s.wrapMemberName, s.metadata) as IAccessorMemberInfo;
                     return new MemberWrapper(member);

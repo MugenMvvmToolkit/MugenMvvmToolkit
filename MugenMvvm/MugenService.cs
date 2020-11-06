@@ -1,4 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Commands;
@@ -30,37 +37,143 @@ namespace MugenMvvm
 
         #region Properties
 
-        public static IMugenApplication Application => Instance<IMugenApplication>();
+        public static IMugenApplication Application
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IMugenApplication>();
+        }
 
-        public static ICommandManager CommandManager => Instance<ICommandManager>();
+        public static ICommandManager CommandManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<ICommandManager>();
+        }
 
-        public static IComponentCollectionManager ComponentCollectionManager => Instance<IComponentCollectionManager>();
+        public static IComponentCollectionManager ComponentCollectionManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IComponentCollectionManager>();
+        }
 
-        public static IAttachedValueManager AttachedValueManager => Instance<IAttachedValueManager>();
+        public static IAttachedValueManager AttachedValueManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IAttachedValueManager>();
+        }
 
-        public static IEntityManager EntityManager => Instance<IEntityManager>();
+        public static IEntityManager EntityManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IEntityManager>();
+        }
 
-        public static IReflectionManager ReflectionManager => Instance<IReflectionManager>();
+        public static IReflectionManager ReflectionManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IReflectionManager>();
+        }
 
-        public static IWeakReferenceManager WeakReferenceManager => Instance<IWeakReferenceManager>();
+        public static IWeakReferenceManager WeakReferenceManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IWeakReferenceManager>();
+        }
 
-        public static IMessenger Messenger => Instance<IMessenger>();
+        public static IMessenger Messenger
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IMessenger>();
+        }
 
-        public static INavigationDispatcher NavigationDispatcher => Instance<INavigationDispatcher>();
+        public static INavigationDispatcher NavigationDispatcher
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<INavigationDispatcher>();
+        }
 
-        public static IPresenter Presenter => Instance<IPresenter>();
+        public static IPresenter Presenter
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IPresenter>();
+        }
 
-        public static ISerializer Serializer => Instance<ISerializer>();
+        public static ISerializer Serializer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<ISerializer>();
+        }
 
-        public static IThreadDispatcher ThreadDispatcher => Instance<IThreadDispatcher>();
+        public static IThreadDispatcher ThreadDispatcher
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IThreadDispatcher>();
+        }
 
-        public static IValidationManager ValidationManager => Instance<IValidationManager>();
+        public static IValidationManager ValidationManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IValidationManager>();
+        }
 
-        public static IViewModelManager ViewModelManager => Instance<IViewModelManager>();
+        public static IViewModelManager ViewModelManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IViewModelManager>();
+        }
 
-        public static IViewManager ViewManager => Instance<IViewManager>();
+        public static IViewManager ViewManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IViewManager>();
+        }
 
-        public static IWrapperManager WrapperManager => Instance<IWrapperManager>();
+        public static IWrapperManager WrapperManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IWrapperManager>();
+        }
+
+        public static IGlobalValueConverter GlobalValueConverter
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IGlobalValueConverter>();
+        }
+
+        public static IBindingManager BindingManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IBindingManager>();
+        }
+
+        public static IMemberManager MemberManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IMemberManager>();
+        }
+
+        public static IObservationManager ObservationManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IObservationManager>();
+        }
+
+        public static IResourceResolver ResourceResolver
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IResourceResolver>();
+        }
+
+        public static IExpressionParser ExpressionParser
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IExpressionParser>();
+        }
+
+        public static IExpressionCompiler ExpressionCompiler
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IExpressionCompiler>();
+        }
 
         #endregion
 

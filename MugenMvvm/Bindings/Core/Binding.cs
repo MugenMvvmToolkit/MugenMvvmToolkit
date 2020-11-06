@@ -88,6 +88,7 @@ namespace MugenMvvm.Bindings.Core
 
         public BindingState State
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (CheckFlag(InvalidFlag))
@@ -127,7 +128,7 @@ namespace MugenMvvm.Bindings.Core
                 Target.RemoveListener(this);
             if (CheckFlag(HasSourceObserverListener))
                 BindingComponentExtensions.RemoveListener(SourceRaw, this);
-            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
+            MugenService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
             OnDispose();
             Target = EmptyPathObserver.Empty;
             SourceRaw = null;

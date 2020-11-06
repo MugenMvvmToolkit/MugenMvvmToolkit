@@ -35,27 +35,25 @@ namespace MugenMvvm.Bindings.Observation.Components
             if (!(request is MemberPathObserverRequest observerRequest))
                 return null;
 
-            var memberFlags = observerRequest.MemberFlags;
             var path = observerRequest.Path;
-            var observableMethod = observerRequest.ObservableMethodName;
             var membersCount = path.Members.Count;
-            if (!string.IsNullOrEmpty(observableMethod) && (ObservableMethods == null || ObservableMethods.Contains(observableMethod!)))
+            if (ObservableMethods != null && observerRequest.ObservableMethodName != null && ObservableMethods.Contains(observerRequest.ObservableMethodName))
             {
                 if (membersCount == 0)
-                    return new MethodEmptyPathObserver(observableMethod!, target, memberFlags);
+                    return new MethodEmptyPathObserver(observerRequest.ObservableMethodName, target, observerRequest.MemberFlags);
                 if (membersCount == 1)
-                    return new MethodSinglePathObserver(observableMethod!, target, path, memberFlags, observerRequest.Optional);
-                return new MethodMultiPathObserver(observableMethod!, target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+                    return new MethodSinglePathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.Optional);
+                return new MethodMultiPathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
             }
 
             if (membersCount == 0)
                 return new EmptyPathObserver(target);
             if (membersCount == 1)
-                return new SinglePathObserver(target, path, memberFlags, observerRequest.Optional);
+                return new SinglePathObserver(target, path, observerRequest.MemberFlags, observerRequest.Optional);
 
             if (observerRequest.Observable)
-                return new MultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
-            return new RootMultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+                return new MultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+            return new RootMultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
         }
 
         #endregion

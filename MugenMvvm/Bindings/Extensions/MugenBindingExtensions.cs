@@ -107,7 +107,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (target == null)
                 return;
-            foreach (var binding in MugenBindingService.BindingManager.GetBindings(target))
+            foreach (var binding in MugenService.BindingManager.GetBindings(target))
                 binding.Dispose();
             if (clearAttachedValues)
                 target.AttachedValues().Clear();
@@ -188,7 +188,7 @@ namespace MugenMvvm.Bindings.Extensions
                 }
                 else
                 {
-                    converter ??= MugenBindingService.GlobalValueConverter;
+                    converter ??= MugenService.GlobalValueConverter;
                     result[i] = converter.Convert(value, parameterInfo.ParameterType, parameterInfo);
                 }
             }
@@ -650,7 +650,7 @@ namespace MugenMvvm.Bindings.Extensions
             }
 
             lastValueRef = value.ToWeakReference();
-            var member = MugenBindingService.MemberManager.TryGetMember(type, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false), observer.Method, metadata);
+            var member = MugenService.MemberManager.TryGetMember(type, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false), observer.Method, metadata);
             if (member is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(value, observer.GetMethodListener(), metadata);
             if (unsubscriber.IsEmpty)

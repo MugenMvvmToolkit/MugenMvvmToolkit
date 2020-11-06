@@ -115,7 +115,7 @@ namespace MugenMvvm.Bindings.Observation
         public void TrySetValueWithConvert(object? value, IReadOnlyMetadataContext? metadata = null)
         {
             if (_member is IAccessorMemberInfo member)
-                member.SetValue(_target, MugenBindingService.GlobalValueConverter.Convert(value, member.Type, member, metadata), metadata);
+                member.SetValue(_target, MugenService.GlobalValueConverter.Convert(value, member.Type, member, metadata), metadata);
         }
 
         #endregion

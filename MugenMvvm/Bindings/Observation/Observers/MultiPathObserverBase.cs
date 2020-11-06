@@ -136,7 +136,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
                 var paths = Path.Members;
                 var members = new IMemberInfo[paths.Count];
-                var memberManager = MugenBindingService.MemberManager;
+                var memberManager = MugenService.MemberManager;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
                 var type = memberFlags.GetTargetType(ref target);

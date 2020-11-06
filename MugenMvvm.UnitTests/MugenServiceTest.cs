@@ -107,6 +107,13 @@ namespace MugenMvvm.UnitTests
             Validate(() => MugenService.ViewModelManager, lastType);
             Validate(() => MugenService.ViewManager, lastType);
             Validate(() => MugenService.WrapperManager, lastType);
+            Validate(() => MugenService.GlobalValueConverter, lastType);
+            Validate(() => MugenService.BindingManager, lastType);
+            Validate(() => MugenService.MemberManager, lastType);
+            Validate(() => MugenService.ObservationManager, lastType);
+            Validate(() => MugenService.ResourceResolver, lastType);
+            Validate(() => MugenService.ExpressionParser, lastType);
+            Validate(() => MugenService.ExpressionCompiler, lastType);
         }
 
         private static void Validate<T>(Func<T> getService, in Type? type) where T : class

@@ -70,7 +70,7 @@ namespace MugenMvvm.Bindings.Members
             if (_tryObserve == null)
             {
                 if (_observer.IsEmpty)
-                    _observer = MugenBindingService.ObservationManager.TryGetMemberObserver(DeclaringType, this, metadata).NoDoIfEmpty();
+                    _observer = MugenService.ObservationManager.TryGetMemberObserver(DeclaringType, this, metadata).NoDoIfEmpty();
 
                 return _observer.TryObserve(target, listener, metadata);
             }

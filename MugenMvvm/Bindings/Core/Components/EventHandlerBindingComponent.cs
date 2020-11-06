@@ -94,7 +94,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
-            var bindingManager = MugenBindingService.BindingManager;
+            var bindingManager = MugenService.BindingManager;
             var components = bindingManager.GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             try
             {

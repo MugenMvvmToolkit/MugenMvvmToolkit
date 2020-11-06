@@ -136,7 +136,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var components = new List<IDisposable>();
             for (var i = 0; i < count; i++)
             {
-                var subscribe = MugenService.AddComponent(new TestBindingEventHandlerComponent(MugenBindingService.BindingManager)
+                var subscribe = MugenService.AddComponent(new TestBindingEventHandlerComponent(MugenService.BindingManager)
                 {
                     OnBeginEvent = (s, msg, metadata) =>
                     {

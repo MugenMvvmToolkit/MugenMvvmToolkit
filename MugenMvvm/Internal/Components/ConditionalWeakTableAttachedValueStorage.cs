@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
@@ -45,6 +47,8 @@ namespace MugenMvvm.Internal.Components
         }
 
         protected override bool ClearInternal(object item) => _weakTable.Remove(item);
+
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => true;
 
         #endregion
     }
