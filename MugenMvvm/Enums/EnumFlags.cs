@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Enums
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct EnumFlags<T> : IEquatable<EnumFlags<T>>, IComparable<EnumFlags<T>> where T : IFlagsEnum
+    public readonly struct EnumFlags<T> : IEquatable<EnumFlags<T>>, IComparable<EnumFlags<T>> where T : class, IFlagsEnum
     {
         #region Fields
 
@@ -72,7 +73,20 @@ namespace MugenMvvm.Enums
         public override int GetHashCode() => Flags.GetHashCode();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override string ToString() => Flags.ToString();
+        public override string ToString()
+        {
+            StringBuilder? builder = null;
+            foreach (var @enum in EnumBase.GetAll<T>())
+            {
+                if (HasFlag(@enum.Flag))
+                    (builder ??= new StringBuilder()).Append(@enum.Name).Append(' ').Append('|').Append(' ');
+            }
+
+            if (builder == null)
+                return Flags.ToString();
+            builder.Remove(builder.Length - 3, 3);
+            return builder.ToString();
+        }
 
         #endregion
     }

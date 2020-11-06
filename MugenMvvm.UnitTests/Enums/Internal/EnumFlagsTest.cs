@@ -16,8 +16,8 @@ namespace MugenMvvm.UnitTests.Enums.Internal
             EnumFlags<TestFlags> f1 = TestFlags.Flag1;
             EnumFlags<TestFlags> f2 = TestFlags.Flag2;
 
-            f1.Flags.ShouldEqual(TestFlags.Flag1.FlagValue);
-            f2.Flags.ShouldEqual(TestFlags.Flag2.FlagValue);
+            f1.Flags.ShouldEqual(TestFlags.Flag1.Flag);
+            f2.Flags.ShouldEqual(TestFlags.Flag2.Flag);
             (f1 >= f2).ShouldEqual(f1.Flags >= f2.Flags);
             (f1 <= f2).ShouldEqual(f1.Flags <= f2.Flags);
             (f1 > f2).ShouldEqual(f1.Flags > f2.Flags);
@@ -32,15 +32,16 @@ namespace MugenMvvm.UnitTests.Enums.Internal
             (f1 | f2).HasFlag(TestFlags.Flag1).ShouldBeTrue();
             (f1 | f2).HasFlag(TestFlags.Flag2).ShouldBeTrue();
 
-            f1.HasFlag(TestFlags.Flag1.FlagValue).ShouldBeTrue();
-            f1.HasFlag(TestFlags.Flag2.FlagValue).ShouldBeFalse();
-            (f1 | f2).HasFlag(TestFlags.Flag1.FlagValue).ShouldBeTrue();
-            (f1 | f2).HasFlag(TestFlags.Flag2.FlagValue).ShouldBeTrue();
+            f1.HasFlag(TestFlags.Flag1.Flag).ShouldBeTrue();
+            f1.HasFlag(TestFlags.Flag2.Flag).ShouldBeFalse();
+            (f1 | f2).HasFlag(TestFlags.Flag1.Flag).ShouldBeTrue();
+            (f1 | f2).HasFlag(TestFlags.Flag2.Flag).ShouldBeTrue();
 
             f1.Equals(f1).ShouldBeTrue();
             f1.Equals(f2).ShouldBeFalse();
             f1.GetHashCode().ShouldEqual(f1.Flags.GetHashCode());
-            f1.ToString().ShouldEqual(f1.Flags.ToString());
+            f1.ToString().ShouldEqual(TestFlags.Flag1.Name);
+            (f1 | f2).ToString().ShouldEqual($"{TestFlags.Flag1.Name} | {TestFlags.Flag2.Name}");
         }
 
         [Fact]

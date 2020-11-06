@@ -1,4 +1,5 @@
 ﻿// ReSharper disable MethodOverloadWithOptionalParameter
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -67,7 +68,7 @@ namespace MugenMvvm.Extensions
             var editor = ItemOrListEditor.Get<T>();
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
             {
-                if (flags.HasFlag(value.FlagValue))
+                if (flags.HasFlag(value.Flag))
                     editor.Add(value);
             }
 

@@ -6,14 +6,14 @@ namespace MugenMvvm.UnitTests.Enums.Internal
     {
         #region Fields
 
-        public static readonly TestFlags Flag1 = new TestFlags(1 << 1);
-        public static readonly TestFlags Flag2 = new TestFlags(1 << 2);
+        public static readonly TestFlags Flag1 = new TestFlags(1 << 1, nameof(Flag1));
+        public static readonly TestFlags Flag2 = new TestFlags(1 << 2, nameof(Flag2));
 
         #endregion
 
         #region Constructors
 
-        public TestFlags(int value) : base(value)
+        public TestFlags(int value, string name) : base(value, name)
         {
         }
 

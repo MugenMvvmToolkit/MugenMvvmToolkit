@@ -14,8 +14,8 @@ namespace MugenMvvm.UnitTests.Enums
             var f1 = TestFlags.Flag1;
             var f2 = TestFlags.Flag2;
 
-            f1.FlagValue.ShouldEqual(f1.Value);
-            f2.FlagValue.ShouldEqual(f2.Value);
+            f1.Flag.ShouldEqual(f1.Value);
+            f2.Flag.ShouldEqual(f2.Value);
             (f1 | f2).Flags.ShouldEqual(f1.Value | f2.Value);
             (f1 & f2).Flags.ShouldEqual(f1.Value & f2.Value);
             (~f1).Flags.ShouldEqual(~f1.Value);

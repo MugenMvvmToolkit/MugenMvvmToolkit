@@ -26,15 +26,15 @@ namespace MugenMvvm.Enums
         {
         }
 
-        protected FlagsEnumBase(TValue value, string? name, long flagValue)
+        protected FlagsEnumBase(TValue value, string? name, long flag)
             : base(value, name)
         {
-            FlagValue = flagValue;
+            Flag = flag;
         }
 
-        protected FlagsEnumBase(TValue value, long flagValue) : base(value)
+        protected FlagsEnumBase(TValue value, long flag) : base(value)
         {
-            FlagValue = flagValue;
+            Flag = flag;
         }
 
         #endregion
@@ -42,30 +42,38 @@ namespace MugenMvvm.Enums
         #region Properties
 
         [DataMember(Name = "_f")]
-        public long FlagValue { get; internal set; }
+        public long Flag { get; internal set; }
 
         #endregion
 
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue>? value) => ReferenceEquals(value, null) ? default : new EnumFlags<TEnum>(value.FlagValue);
+        public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue>? value) => ReferenceEquals(value, null) ? default : new EnumFlags<TEnum>(value.Flag);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<TEnum> operator |(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new EnumFlags<TEnum>(left.FlagValue | right.FlagValue);
+        public static EnumFlags<TEnum> operator |(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new EnumFlags<TEnum>(left.Flag | right.Flag);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<TEnum> operator &(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new EnumFlags<TEnum>(left.FlagValue & right.FlagValue);
+        public static EnumFlags<TEnum> operator &(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new EnumFlags<TEnum>(left.Flag & right.Flag);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<TEnum> operator ~(FlagsEnumBase<TEnum, TValue> value) => new EnumFlags<TEnum>(~value.FlagValue);
+        public static EnumFlags<TEnum> operator ~(FlagsEnumBase<TEnum, TValue> value) => new EnumFlags<TEnum>(~value.Flag);
 
         private static long ConvertValue(TValue value)
         {
             if (typeof(TValue) == typeof(int))
                 return Cast<int>(value);
+            if (typeof(TValue) == typeof(uint))
+                return Cast<uint>(value);
+            if (typeof(TValue) == typeof(short))
+                return Cast<short>(value);
+            if (typeof(TValue) == typeof(ushort))
+                return Cast<ushort>(value);
             if (typeof(TValue) == typeof(byte))
                 return Cast<byte>(value);
+            if (typeof(TValue) == typeof(sbyte))
+                return Cast<sbyte>(value);
             if (typeof(TValue) == typeof(long))
                 return Cast<long>(value);
             if (typeof(TValue) == typeof(ulong))
@@ -76,7 +84,7 @@ namespace MugenMvvm.Enums
         private static T Cast<T>(TValue value) => MugenExtensions.CastGeneric<TValue, T>(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EnumFlags<TEnum> AsFlags() => new EnumFlags<TEnum>(FlagValue);
+        public EnumFlags<TEnum> AsFlags() => new EnumFlags<TEnum>(Flag);
 
         #endregion
     }

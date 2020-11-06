@@ -2,5 +2,6 @@
 {
     public interface IFlagsEnum : IEnum
     {
+        long Flag { get; }
     }
 }
