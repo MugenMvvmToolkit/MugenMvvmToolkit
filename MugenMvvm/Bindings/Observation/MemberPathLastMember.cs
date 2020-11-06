@@ -48,6 +48,7 @@ namespace MugenMvvm.Bindings.Observation
 
         public Exception? Error
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (_member == null)
