@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
@@ -118,7 +119,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(1);
         }
 
-        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
+        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, in TState state,
             bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
             where TTarget : class? =>
             new DelegateObservableMemberInfo<TTarget, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);

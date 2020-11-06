@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -21,7 +22,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         #region Constructors
 
-        public MethodSinglePathObserver(string method, object target, IMemberPath path, MemberFlags memberFlags, bool optional)
+        public MethodSinglePathObserver(string method, object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional)
             : base(target, path, memberFlags, optional)
         {
             Should.NotBeNull(method, nameof(method));
@@ -31,8 +32,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
         #endregion
 
         #region Properties
-
-        MemberFlags IMethodPathObserver.MemberFlags => MemberFlags;
 
         string IMethodPathObserver.Method => _method;
 

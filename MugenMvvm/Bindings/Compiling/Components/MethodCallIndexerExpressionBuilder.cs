@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public int Priority { get; set; } = CompilingComponentPriority.Member;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+        public EnumFlags<MemberFlags> MemberFlags { get; set; } = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic;
 
         #endregion
 
@@ -255,7 +255,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             if (result.Method.UnderlyingMember is MethodInfo m)
             {
                 Expression? targetExp;
-                if (result.Method.AccessModifiers.HasFlagEx(MemberFlags.Extension))
+                if (result.Method.AccessModifiers.HasFlag(Enums.MemberFlags.Extension))
                 {
                     targetExp = null;
                     resultArgs = resultArgs.InsertFirstArg(target.Expression!);
@@ -299,7 +299,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                         hasParams = parameters[lastIndex].IsParamArray();
                     }
 
-                    var notExactlyEqual = methodInfo.Method.AccessModifiers.HasFlagEx(MemberFlags.Extension) ? NotExactlyEqualBoxWeight : 0;
+                    var notExactlyEqual = methodInfo.Method.AccessModifiers.HasFlag(Enums.MemberFlags.Extension) ? NotExactlyEqualBoxWeight : 0;
                     var valid = true;
                     for (var j = 0; j < methodInfo.ExpectedParameterCount; j++)
                     {

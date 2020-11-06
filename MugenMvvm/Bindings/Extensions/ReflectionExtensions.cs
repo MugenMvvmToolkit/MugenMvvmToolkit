@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 
@@ -263,17 +264,17 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static Type GetNonNullableType(this Type type) => IsNullableType(type) ? type.GetGenericArguments()[0] : type;
 
-        public static MemberFlags GetAccessModifiers(this MemberInfo member) =>
+        public static EnumFlags<MemberFlags> GetAccessModifiers(this MemberInfo member) =>
             member switch
             {
                 FieldInfo f => f.GetAccessModifiers(),
                 PropertyInfo p => p.GetAccessModifiers(),
                 EventInfo e => e.GetAccessModifiers(),
                 MethodBase m => m.GetAccessModifiers(),
-                _ => 0
+                _ => default
             };
 
-        public static MemberFlags GetAccessModifiers(this FieldInfo? fieldInfo)
+        public static EnumFlags<MemberFlags> GetAccessModifiers(this FieldInfo? fieldInfo)
         {
             if (fieldInfo == null)
                 return MemberFlags.Instance;
@@ -282,27 +283,27 @@ namespace MugenMvvm.Bindings.Extensions
             return fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
         }
 
-        public static MemberFlags GetAccessModifiers(this EventInfo? eventInfo)
+        public static EnumFlags<MemberFlags> GetAccessModifiers(this EventInfo? eventInfo)
         {
             if (eventInfo == null)
                 return MemberFlags.Instance;
             return (eventInfo.GetAddMethod(true) ?? eventInfo.GetRemoveMethod(true)).GetAccessModifiers();
         }
 
-        public static MemberFlags GetAccessModifiers(this PropertyInfo? propertyInfo)
+        public static EnumFlags<MemberFlags> GetAccessModifiers(this PropertyInfo? propertyInfo)
         {
             if (propertyInfo == null)
                 return MemberFlags.Instance;
             return (propertyInfo.GetGetMethod(true) ?? propertyInfo.GetSetMethod(true)).GetAccessModifiers();
         }
 
-        public static MemberFlags GetAccessModifiers(this MethodBase? method)
+        public static EnumFlags<MemberFlags> GetAccessModifiers(this MethodBase? method)
         {
             ParameterInfo[]? parameters = null;
             return method.GetAccessModifiers(false, ref parameters);
         }
 
-        public static MemberFlags GetAccessModifiers(this MethodBase? method, bool checkExtension, [NotNullIfNotNull("extensionParameters")]
+        public static EnumFlags<MemberFlags> GetAccessModifiers(this MethodBase? method, bool checkExtension, [NotNullIfNotNull("extensionParameters")]
             ref ParameterInfo[]? extensionParameters)
         {
             if (method == null)

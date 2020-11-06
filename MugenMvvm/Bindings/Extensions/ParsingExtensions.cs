@@ -65,7 +65,7 @@ namespace MugenMvvm.Bindings.Extensions
             ParameterInfo[]? parameters = null;
             IExpressionNode? target;
             var args = context.Convert(methodCallExpression.Arguments);
-            if (method.GetAccessModifiers(true, ref parameters).HasFlagEx(MemberFlags.Extension))
+            if (method.GetAccessModifiers(true, ref parameters).HasFlag(MemberFlags.Extension))
             {
                 target = args[0];
                 args.RemoveAt(0);

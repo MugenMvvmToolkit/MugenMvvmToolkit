@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
@@ -211,7 +212,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
         }
 
-        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional) => new SinglePathObserver(target, path, memberFlags, optional);
+        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) => new SinglePathObserver(target, path, memberFlags, optional);
 
         protected override SinglePathObserver GetObserver(object target) => new SinglePathObserver(target, DefaultPath, MemberFlags.InstancePublic, true);
 

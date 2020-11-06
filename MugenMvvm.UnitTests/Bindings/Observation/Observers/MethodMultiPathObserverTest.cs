@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
@@ -82,7 +83,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 isValueType ? 0 : 1, false);
         }
 
-        protected override MultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional) =>
+        protected override MultiPathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional) =>
             new MethodMultiPathObserver(MethodName, target, path, memberFlags, hasStablePath, optional);
 
         protected override MultiPathObserver GetObserver(object target) => new MethodMultiPathObserver(MethodName, target, DefaultPath, MemberFlags.All, false, false);

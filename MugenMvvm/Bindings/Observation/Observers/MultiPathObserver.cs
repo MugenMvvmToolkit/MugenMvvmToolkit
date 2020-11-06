@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,7 +20,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         #region Constructors
 
-        public MultiPathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
+        public MultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
             _listeners = new ActionToken[path.Members.Count];

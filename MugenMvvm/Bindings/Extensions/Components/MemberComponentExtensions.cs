@@ -14,8 +14,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
     {
         #region Methods
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags,
-            object request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, 
+            EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(memberManager, nameof(memberManager));

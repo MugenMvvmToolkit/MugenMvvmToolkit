@@ -3,6 +3,7 @@ using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
+using MugenMvvm.Enums;
 using Should;
 using Xunit;
 
@@ -77,7 +78,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(1);
         }
 
-        protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
+        protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, in TState state,
             bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
             new DelegateAccessorMemberInfo<TTarget, object, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, metadata) => "",
                 (member, target, value, metadata) => { }, tryObserveByMember, tryObserve, raise);

@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
+﻿using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
@@ -34,10 +33,9 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
             path = Request(metadata).Path;
-            memberFlags = MemberFlags;
             return Instance;
         }
 

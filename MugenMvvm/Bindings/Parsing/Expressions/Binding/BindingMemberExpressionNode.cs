@@ -27,9 +27,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
-            memberFlags = MemberFlags;
             if (Flags.HasFlag(BindingMemberExpressionFlags.Target))
             {
                 path = Request(metadata).Path;

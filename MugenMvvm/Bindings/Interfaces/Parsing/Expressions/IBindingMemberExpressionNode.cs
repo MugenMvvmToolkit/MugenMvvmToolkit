@@ -9,13 +9,13 @@ namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
     {
         EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
-        MemberFlags MemberFlags { get; }
+        EnumFlags<MemberFlags> MemberFlags { get; }
 
         int Index { get; set; }
 
         string Path { get; }
 
-        object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
+        object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path);
 
         object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
     }

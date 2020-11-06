@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -21,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         public MemberType MemberType { get; set; } = default!;
 
-        public MemberFlags AccessModifiers { get; set; } = default!;
+        public EnumFlags<MemberFlags> AccessModifiers { get; set; }
 
         public Func<object?, IEventListener, IReadOnlyMetadataContext?, ActionToken>? TryObserve { get; set; }
 

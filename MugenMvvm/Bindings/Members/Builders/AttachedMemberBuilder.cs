@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members.Descriptors;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -84,7 +85,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             {
                 attachedValues.GetOrAdd(id, (member, handler, metadata), (t, s) =>
                 {
-                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget) t, s.metadata);
+                    s.handler(s.member, member.AccessModifiers.HasFlag(MemberFlags.Static) ? null! : (TTarget) t, s.metadata);
                     return (object?) null;
                 });
             }
@@ -93,12 +94,12 @@ namespace MugenMvvm.Bindings.Members.Builders
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static object GetTarget(this IMemberInfo member, object? target)
         {
-            if (member.AccessModifiers.HasFlagEx(MemberFlags.Static))
+            if (member.AccessModifiers.HasFlag(MemberFlags.Static))
                 return member.DeclaringType;
             return target!;
         }
 
-        internal static MemberFlags GetFlags(bool isStatic) => isStatic ? MemberFlags.StaticPublic | MemberFlags.Attached : MemberFlags.InstancePublic | MemberFlags.Attached;
+        internal static EnumFlags<MemberFlags> GetFlags(bool isStatic) => isStatic ? MemberFlags.StaticPublic | MemberFlags.Attached : MemberFlags.InstancePublic | MemberFlags.Attached;
 
         internal static string GenerateMemberId(string prefix, Type declaringType, string name) => prefix + declaringType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + declaringType.Name +
                                                                                                    declaringType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture) + name;

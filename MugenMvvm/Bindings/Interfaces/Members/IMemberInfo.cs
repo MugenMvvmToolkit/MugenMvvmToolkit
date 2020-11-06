@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Bindings.Interfaces.Members
 {
@@ -15,6 +16,6 @@ namespace MugenMvvm.Bindings.Interfaces.Members
 
         MemberType MemberType { get; }
 
-        MemberFlags AccessModifiers { get; }
+        EnumFlags<MemberFlags> AccessModifiers { get; }
     }
 }

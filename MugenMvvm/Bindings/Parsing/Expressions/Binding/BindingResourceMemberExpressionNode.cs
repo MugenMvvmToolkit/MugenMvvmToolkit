@@ -38,11 +38,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
             var resource = GetResource(target, metadata, out var r);
             path = r.Path;
-            memberFlags = MemberFlags;
             return resource;
         }
 

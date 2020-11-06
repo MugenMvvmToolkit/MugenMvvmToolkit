@@ -44,7 +44,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public int Priority { get; set; } = CompilingComponentPriority.Member;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+        public EnumFlags<MemberFlags> MemberFlags { get; set; } = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic;
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             var target = context.Build(memberExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
-            MemberFlags flags;
+            EnumFlags<MemberFlags> flags;
             if (target == null)
             {
                 if (type.IsEnum)

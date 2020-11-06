@@ -4,6 +4,8 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -16,13 +18,14 @@ namespace MugenMvvm.Bindings.Members
         private readonly RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _raise;
         private readonly TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _tryObserve;
         public readonly TState State;
+        private readonly ushort _modifiers;
         private MemberObserver _observer;
 
         #endregion
 
         #region Constructors
 
-        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, TState state, bool tryObserveByMember,
+        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, TState state, bool tryObserveByMember,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             Should.NotBeNull(name, nameof(name));
@@ -32,7 +35,7 @@ namespace MugenMvvm.Bindings.Members
             DeclaringType = declaringType;
             UnderlyingMember = underlyingMember;
             State = state;
-            AccessModifiers = accessModifiers;
+            _modifiers = accessModifiers.Value();
             Type = memberType;
             _tryObserve = tryObserve;
             _raise = raise;
@@ -54,7 +57,7 @@ namespace MugenMvvm.Bindings.Members
 
         public virtual MemberType MemberType => MemberType.Event;
 
-        public MemberFlags AccessModifiers { get; }
+        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
 
         #endregion
 

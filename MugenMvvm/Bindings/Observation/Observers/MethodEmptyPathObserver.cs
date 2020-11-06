@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -15,19 +16,16 @@ namespace MugenMvvm.Bindings.Observation.Observers
     {
         #region Fields
 
-        private readonly MemberFlags _memberFlags;
         private readonly string _method;
-
         private ActionToken _unsubscriber;
 
         #endregion
 
         #region Constructors
 
-        public MethodEmptyPathObserver(string method, object target, MemberFlags memberFlags) : base(target)
+        public MethodEmptyPathObserver(string method, object target, EnumFlags<MemberFlags> memberFlags) : base(target, memberFlags)
         {
             Should.NotBeNull(method, nameof(method));
-            _memberFlags = memberFlags;
             _method = method;
             CanDispose = true;
         }
@@ -37,8 +35,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
         #region Properties
 
         public override IMemberPath Path => EmptyMemberPath.Instance;
-
-        public override bool CanDispose { get; set; }
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
@@ -89,7 +85,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 _unsubscriber = ActionToken.NoDoToken;
             else
             {
-                var member = MugenBindingService.MemberManager.TryGetMember(_memberFlags.GetTargetType(ref target), MemberType.Method, _memberFlags, _method, TryGetMetadata());
+                var member = MugenBindingService.MemberManager.TryGetMember(MemberFlags.GetTargetType(ref target), MemberType.Method, MemberFlags, _method, TryGetMetadata());
                 if (member is IObservableMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this, TryGetMetadata());
                 if (_unsubscriber.IsEmpty)

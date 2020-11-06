@@ -3,6 +3,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -50,7 +51,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public MemberFlags AccessModifiers => MemberFlags.Public | MemberFlags.Dynamic;
+        public EnumFlags<MemberFlags> AccessModifiers => MemberFlags.Public | MemberFlags.Dynamic;
 
         public bool CanRead => true;
 

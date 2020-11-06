@@ -60,7 +60,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public MemberFlags AccessModifiers => _getMethod?.AccessModifiers ?? _setMethod!.AccessModifiers;
+        public EnumFlags<MemberFlags> AccessModifiers => _getMethod?.AccessModifiers ?? _setMethod!.AccessModifiers;
 
         public bool CanRead => _getMethod != null;
 

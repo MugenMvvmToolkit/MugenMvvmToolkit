@@ -10,6 +10,6 @@ namespace MugenMvvm.Bindings.Interfaces.Members.Components
 {
     public interface IMemberManagerComponent : IComponent<IMemberManager>
     {
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata);
+        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata);
     }
 }

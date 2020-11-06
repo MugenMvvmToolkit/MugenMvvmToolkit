@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -14,8 +15,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
     {
         #region Fields
 
-        protected readonly MemberFlags MemberFlags;
-        private byte _state;
         protected IMemberInfo[]? Members;
         protected object? PenultimateValueOrException;
 
@@ -23,14 +22,13 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         #region Constructors
 
-        protected MultiPathObserverBase(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
-            : base(target)
+        protected MultiPathObserverBase(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
+            : base(target, memberFlags)
         {
-            MemberFlags = memberFlags;
             if (hasStablePath)
-                _state |= HasStablePathFlag;
+                SetFlag(HasStablePathFlag);
             if (optional)
-                _state |= OptionalFlag;
+                SetFlag(OptionalFlag);
             Path = path;
         }
 
@@ -40,23 +38,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         public override IMemberPath Path { get; }
 
-        public override bool CanDispose
-        {
-            get => !CheckFlag(NoDisposeFlag);
-            set
-            {
-                if (value)
-                    _state = (byte) (_state & ~NoDisposeFlag);
-                else
-                    _state |= NoDisposeFlag;
-            }
-        }
-
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        protected bool HasStablePath => CheckFlag(HasStablePathFlag);
-
-        protected bool Optional => CheckFlag(OptionalFlag);
 
         #endregion
 
@@ -136,7 +118,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             try
             {
-                _state |= UpdatingFlag;
+                SetFlag(UpdatingFlag);
                 var target = Target;
                 if (target == null)
                 {
@@ -148,7 +130,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
                 if (HasStablePath && Members != null)
                 {
-                    UpdateHasStablePath(Members, MemberFlags.HasFlagEx(MemberFlags.Static) ? null : target);
+                    UpdateHasStablePath(Members, MemberFlags.HasFlag(Enums.MemberFlags.Static) ? null : target);
                     return true;
                 }
 
@@ -201,7 +183,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             }
             finally
             {
-                _state = (byte) (_state & ~UpdatingFlag);
+                ClearFlag(UpdatingFlag);
             }
 
             return true;
@@ -235,12 +217,9 @@ namespace MugenMvvm.Bindings.Observation.Observers
             PenultimateValueOrException = (object?) exception ?? penultimateValue;
             Members = members;
             if (exception == null)
-                _state |= InitializedFlag;
+                SetFlag(InitializedFlag);
             OnPathMembersChanged();
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CheckFlag(byte flag) => (_state & flag) == flag;
 
         #endregion
     }

@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Enums;
@@ -22,10 +21,6 @@ namespace MugenMvvm.Bindings.Members.Components
 
         private readonly Dictionary<IMemberInfo, MemberList> _selectorDictionary;
 
-        private const int AttachedPriority = 1000000;
-        private const int InstancePriority = 100000;
-        private const int ExtensionPriority = 10000;
-        private const int DynamicPriority = 1000;
         private const int MaxDeclaringTypePriority = 100;
 
         #endregion
@@ -80,7 +75,8 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             if (!(request is IReadOnlyList<IMemberInfo> members))
                 return default;
@@ -89,7 +85,7 @@ namespace MugenMvvm.Bindings.Members.Components
             for (var i = 0; i < members.Count; i++)
             {
                 var member = members[i];
-                if (!memberTypes.HasFlag(member.MemberType) || !flags.HasFlagEx(member.AccessModifiers))
+                if (!memberTypes.HasFlag(member.MemberType) || !flags.HasFlag(member.AccessModifiers))
                     continue;
 
                 if (_selectorDictionary.TryGetValue(member, out var list))
@@ -119,13 +115,14 @@ namespace MugenMvvm.Bindings.Members.Components
         private static int GetPriority(IMemberInfo member, Type requestedType)
         {
             var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
-            if (member.AccessModifiers.HasFlagEx(MemberFlags.Attached))
-                return AttachedPriority + priority;
-            if (member.AccessModifiers.HasFlagEx(MemberFlags.Extension))
-                return ExtensionPriority + priority;
-            if (member.AccessModifiers.HasFlagEx(MemberFlags.Dynamic))
-                return DynamicPriority + priority;
-            return InstancePriority + priority;
+            var flags = member.AccessModifiers;
+            foreach (var f in MemberFlags.GetAll())
+            {
+                if (flags.HasFlag(f))
+                    priority += f.Priority;
+            }
+
+            return priority;
         }
 
         private static int GetArgsPriority(IMemberInfo member)

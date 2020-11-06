@@ -20,35 +20,35 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
         [Theory]
         [MemberData(nameof(GetMemberFlagsData))]
-        public void TrySelectMembersWithGetMemberFlagsData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result) =>
+        public void TrySelectMembersWithGetMemberFlagsData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, EnumFlags<MemberFlags> flags, IReadOnlyList<IMemberInfo> result) =>
             TrySelectMembersShouldSelectCorrectMembers(members, type, memberTypes, flags, result);
 
         [Theory]
         [MemberData(nameof(GetMemberTypesData))]
-        public void TrySelectMembersWithGetMemberTypesData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result) =>
+        public void TrySelectMembersWithGetMemberTypesData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, EnumFlags<MemberFlags> flags, IReadOnlyList<IMemberInfo> result) =>
             TrySelectMembersShouldSelectCorrectMembers(members, type, memberTypes, flags, result);
 
         [Theory]
         [MemberData(nameof(GetTypesData))]
-        public void TrySelectMembersWithGetTypesData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result) =>
+        public void TrySelectMembersWithGetTypesData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, EnumFlags<MemberFlags> flags, IReadOnlyList<IMemberInfo> result) =>
             TrySelectMembersShouldSelectCorrectMembers(members, type, memberTypes, flags, result);
 
         [Theory]
         [MemberData(nameof(GetMemberFlagsExData))]
-        public void TrySelectMembersWithGetMemberFlagsExData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result) =>
+        public void TrySelectMembersWithGetMemberFlagsExData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, EnumFlags<MemberFlags> flags, IReadOnlyList<IMemberInfo> result) =>
             TrySelectMembersShouldSelectCorrectMembers(members, type, memberTypes, flags, result);
 
         [Theory]
         [MemberData(nameof(GetMethodsData))]
-        public void TrySelectMembersWithGetMethodsData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result) =>
+        public void TrySelectMembersWithGetMethodsData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, EnumFlags<MemberFlags> flags, IReadOnlyList<IMemberInfo> result) =>
             TrySelectMembersShouldSelectCorrectMembers(members, type, memberTypes, flags, result);
 
         [Theory]
         [MemberData(nameof(GetArgumentFlagsData))]
-        public void TrySelectMembersWithGetArgumentFlagsData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result) =>
+        public void TrySelectMembersWithGetArgumentFlagsData(Type type, IReadOnlyList<IMemberInfo> members, MemberType memberTypes, EnumFlags<MemberFlags> flags, IReadOnlyList<IMemberInfo> result) =>
             TrySelectMembersShouldSelectCorrectMembers(members, type, memberTypes, flags, result);
 
-        private static void TrySelectMembersShouldSelectCorrectMembers(IReadOnlyList<IMemberInfo> members, Type type, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result)
+        private static void TrySelectMembersShouldSelectCorrectMembers(IReadOnlyList<IMemberInfo> members, Type type, MemberType memberTypes, EnumFlags<MemberFlags> flags, IReadOnlyList<IMemberInfo> result)
         {
             var component = new MemberSelector();
             var array = component.TryGetMembers(null!, type, memberTypes, flags, members, DefaultMetadata).AsList();
@@ -205,15 +205,15 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             return list;
         }
 
-        private static IMemberInfo[] Filter(IEnumerable<IMemberInfo> members, EnumFlags<MemberType> type, MemberFlags flags)
+        private static IMemberInfo[] Filter(IEnumerable<IMemberInfo> members, EnumFlags<MemberType> type, EnumFlags<MemberFlags> flags)
         {
-            var memberInfo = members.SingleOrDefault(info => flags.HasFlagEx(info.AccessModifiers) && type.HasFlag(info.MemberType));
+            var memberInfo = members.SingleOrDefault(info => flags.HasFlag(info.AccessModifiers) && type.HasFlag(info.MemberType));
             if (memberInfo == null)
                 return new IMemberInfo[0];
             return new[] {memberInfo};
         }
 
-        private static TestAccessorMemberInfo GetAccessorInfo(Type declaringType, MemberType type, MemberFlags flags) =>
+        private static TestAccessorMemberInfo GetAccessorInfo(Type declaringType, MemberType type, EnumFlags<MemberFlags> flags) =>
             new TestAccessorMemberInfo
             {
                 DeclaringType = declaringType,

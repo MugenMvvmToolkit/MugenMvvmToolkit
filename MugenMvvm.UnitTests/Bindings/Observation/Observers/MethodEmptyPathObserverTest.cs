@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         [InlineData(10, false)]
         public void ObserverShouldNotifyListenersMethodMember(int count, bool isStatic)
         {
-            var flags = MemberFlags.Public.SetInstanceOrStaticFlags(isStatic);
+            var flags = MemberFlags.Public.AsFlags().SetInstanceOrStaticFlags(isStatic);
             var lastMemberTarget = this;
             IEventListener? currentListener = null;
             IEventListener? lastListener = null;

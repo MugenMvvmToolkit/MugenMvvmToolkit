@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -37,7 +38,7 @@ namespace MugenMvvm.Bindings.Core.Components
             {
                 IgnoreIndexMembers = true,
                 IgnoreMethodMembers = true,
-                MemberFlags = MemberFlags.All & ~MemberFlags.NonPublic
+                MemberFlags = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic
             };
             _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             _compiler = compiler;
@@ -49,7 +50,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public int Priority { get; set; } = BindingComponentPriority.BindingParameterInitializer;
 
-        public MemberFlags MemberFlags
+        public EnumFlags<MemberFlags> MemberFlags
         {
             get => _memberExpressionVisitor.MemberFlags;
             set => _memberExpressionVisitor.MemberFlags = value;

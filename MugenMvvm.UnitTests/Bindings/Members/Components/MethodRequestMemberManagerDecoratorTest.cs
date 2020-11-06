@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             var type = GetType();
             var memberType = MemberType.All;
-            var memberFlags = MemberFlags.Instance;
+            var memberFlags = MemberFlags.Instance.AsFlags();
             var request = new MemberTypesRequest("", memberTypes);
             var selectorCount = 0;
             var providerCount = 0;

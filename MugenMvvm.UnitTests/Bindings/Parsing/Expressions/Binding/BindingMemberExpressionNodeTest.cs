@@ -52,12 +52,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 MemberFlags = MemberFlags.All,
                 Flags = BindingMemberExpressionFlags.Target
             };
-            exp.GetSource(target, source, DefaultMetadata, out var p, out var flags).ShouldEqual(target);
-            flags.ShouldEqual(MemberFlags.All);
+            exp.GetSource(target, source, DefaultMetadata, out var p).ShouldEqual(target);
             p.ShouldEqual(path);
 
-            exp.GetSource(target, null, DefaultMetadata, out p, out flags).ShouldEqual(target);
-            flags.ShouldEqual(MemberFlags.All);
+            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
             p.ShouldEqual(path);
 
             expectedPath = inputPath;
@@ -65,13 +63,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             {
                 MemberFlags = MemberFlags.All
             };
-            exp.GetSource(target, source, DefaultMetadata, out p, out flags).ShouldEqual(source);
-            flags.ShouldEqual(MemberFlags.All);
+            exp.GetSource(target, source, DefaultMetadata, out p).ShouldEqual(source);
             p.ShouldEqual(path);
 
             expectedPath = dataContextInputPath;
-            exp.GetSource(target, null, DefaultMetadata, out p, out flags).ShouldEqual(target);
-            flags.ShouldEqual(MemberFlags.All);
+            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
             p.ShouldEqual(path);
         }
 

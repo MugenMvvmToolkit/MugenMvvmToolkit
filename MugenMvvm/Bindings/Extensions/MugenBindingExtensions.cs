@@ -353,7 +353,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static bool IsAllMembersAvailable(this IMemberPathObserver observer) => observer.GetLastMember().IsAvailable;
 
-        public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
+        public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, EnumFlags<MemberFlags> flags,
             int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
         {
             Should.NotBeNull(type, nameof(type));
@@ -363,7 +363,7 @@ namespace MugenMvvm.Bindings.Extensions
                 if (firstMemberIndex > 0)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
 
-                if (flags.HasFlagEx(MemberFlags.Static))
+                if (flags.HasFlag(MemberFlags.Static))
                     return type;
                 return target;
             }
@@ -385,7 +385,7 @@ namespace MugenMvvm.Bindings.Extensions
             return target;
         }
 
-        public static IMemberInfo? GetLastMemberFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
+        public static IMemberInfo? GetLastMemberFromPath(this IMemberPath path, Type type, object? target, EnumFlags<MemberFlags> flags,
             MemberType lastMemberType, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
         {
             Should.NotBeNull(type, nameof(type));
@@ -564,7 +564,7 @@ namespace MugenMvvm.Bindings.Extensions
 #endif
         }
 
-        public static Type GetTargetType<T>(this MemberFlags flags, ref T? target) where T : class => GetTargetType(flags.HasFlagEx(MemberFlags.Static), ref target);
+        public static Type GetTargetType<T>(this EnumFlags<MemberFlags> flags, ref T? target) where T : class => GetTargetType(flags.HasFlag(MemberFlags.Static), ref target);
 
         public static Type GetTargetType<T>(bool isStatic, ref T? target) where T : class
         {
@@ -580,18 +580,18 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag) => (value & flag) == flag;//todo remove
+        internal static EnumFlags<MemberFlags> GetDefaultFlags(this EnumFlags<MemberFlags> flags) => flags.Flags == 0 ? MemberFlags.All : flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EnumFlags<BindingMemberExpressionFlags> SetTargetFlags(this EnumFlags<BindingMemberExpressionFlags> flags, bool isTarget) =>
             isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MemberFlags SetInstanceOrStaticFlags(this MemberFlags value, bool isStatic) =>
+        internal static EnumFlags<MemberFlags> SetInstanceOrStaticFlags(this EnumFlags<MemberFlags> value, bool isStatic) =>
             isStatic ? (value | MemberFlags.Static) & ~MemberFlags.Instance : (value | MemberFlags.Instance) & ~MemberFlags.Static;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MemberFlags ClearInstanceOrStaticFlags(this MemberFlags value, bool isStatic) => isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
+        internal static EnumFlags<MemberFlags> ClearInstanceOrStaticFlags(this EnumFlags<MemberFlags> value, bool isStatic) => isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsNullOrUnsetValue([NotNullWhen(false)] this object? value) => value == null || value == BindingMetadata.UnsetValue;
@@ -675,7 +675,7 @@ namespace MugenMvvm.Bindings.Extensions
             return new ParameterValue(sourceRaw.GetType(), sourceRaw);
         }
 
-        private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, EnumFlags<MemberFlags> flags, IReadOnlyMetadataContext? metadata)
         {
             var member = (IAccessorMemberInfo?) memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
             if (member == null)

@@ -1,13 +1,22 @@
-﻿using MugenMvvm.Bindings.Enums;
+﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Bindings.Observation
 {
     public class MemberPathObserverRequest
     {
+        #region Fields
+
+        private ushort _memberFlags;
+
+        #endregion
+
         #region Constructors
 
-        public MemberPathObserverRequest(IMemberPath path, MemberFlags memberFlags, string? observableMethodName,
+        public MemberPathObserverRequest(IMemberPath path, EnumFlags<MemberFlags> memberFlags, string? observableMethodName,
             bool hasStablePath, bool observable, bool optional)
         {
             Should.NotBeNull(path, nameof(path));
@@ -25,7 +34,12 @@ namespace MugenMvvm.Bindings.Observation
 
         public bool HasStablePath { get; protected set; }
 
-        public MemberFlags MemberFlags { get; protected set; }
+        public EnumFlags<MemberFlags> MemberFlags
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new EnumFlags<MemberFlags>(_memberFlags);
+            protected set => _memberFlags = value.Value();
+        }
 
         public bool Observable { get; protected set; }
 

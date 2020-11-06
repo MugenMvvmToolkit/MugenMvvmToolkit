@@ -26,13 +26,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
-        public MemberFlags MemberFlags { get; set; }
+        public EnumFlags<MemberFlags> MemberFlags { get; set; }
 
         public int Index { get; set; }
 
         public string Path { get; set; }
 
-        public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath, MemberFlags)>? GetSource { get; set; }
+        public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath)>? GetSource { get; set; }
 
         public Func<object, object?, IReadOnlyMetadataContext?, object?>? GetBindingSource { get; set; }
 
@@ -42,11 +42,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         #region Implementation of interfaces
 
-        object? IBindingMemberExpressionNode.GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        object? IBindingMemberExpressionNode.GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
             var tuple = GetSource?.Invoke(target, source, metadata);
             path = tuple?.Item2!;
-            memberFlags = tuple?.Item3 ?? default;
             return tuple?.Item1!;
         }
 

@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -17,6 +18,7 @@ namespace MugenMvvm.Bindings.Members
 
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
+        private readonly ushort _modifiers;
         private Func<object?, object?> _getterFunc;
 
         private MemberObserver _observer;
@@ -60,7 +62,7 @@ namespace MugenMvvm.Bindings.Members
                 _setterFunc = CompileSetter;
             }
 
-            AccessModifiers = (getMethod ?? setMethod).GetAccessModifiers();
+            _modifiers = (getMethod ?? setMethod).GetAccessModifiers().Value();
         }
 
         #endregion
@@ -77,7 +79,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public MemberFlags AccessModifiers { get; }
+        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
 
         public bool CanRead { get; }
 

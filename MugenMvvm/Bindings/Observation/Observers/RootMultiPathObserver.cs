@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -16,7 +17,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         #region Constructors
 
-        public RootMultiPathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
+        public RootMultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
         }

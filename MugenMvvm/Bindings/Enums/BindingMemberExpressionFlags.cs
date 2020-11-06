@@ -7,7 +7,7 @@ namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
-    public class BindingMemberExpressionFlags : FlagsEnumBase<BindingMemberExpressionFlags, int>
+    public class BindingMemberExpressionFlags : FlagsEnumBase<BindingMemberExpressionFlags, ushort>
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Bindings.Enums
 
         #region Constructors
 
-        public BindingMemberExpressionFlags(int value) : base(value)
+        public BindingMemberExpressionFlags(ushort value) : base(value)
         {
         }
 

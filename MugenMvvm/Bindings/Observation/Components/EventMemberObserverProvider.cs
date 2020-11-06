@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -65,15 +66,15 @@ namespace MugenMvvm.Bindings.Observation.Components
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
             string memberName;
-            MemberFlags flags;
+            EnumFlags<MemberFlags> flags;
             if (member is MemberInfo m)
             {
-                flags = MemberFlags.All.ClearInstanceOrStaticFlags(m.GetAccessModifiers().HasFlagEx(MemberFlags.Static));
+                flags = MemberFlags.All.ClearInstanceOrStaticFlags(m.GetAccessModifiers().HasFlag(MemberFlags.Static));
                 memberName = m.Name;
             }
             else if (member is IMemberInfo memberInfo)
             {
-                flags = MemberFlags.All.ClearInstanceOrStaticFlags(memberInfo.AccessModifiers.HasFlagEx(MemberFlags.Static));
+                flags = MemberFlags.All.ClearInstanceOrStaticFlags(memberInfo.AccessModifiers.HasFlag(MemberFlags.Static));
                 memberName = memberInfo.Name;
             }
             else if (member is string st)

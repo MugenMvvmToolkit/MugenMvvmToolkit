@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
                 m.ShouldEqual(MemberType.Method);
-                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
                 return ItemOrList.FromItem<IMemberInfo>(result);
             };
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
                 m.ShouldEqual(MemberType.Method);
-                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
                 return ItemOrList.FromItem<IMemberInfo>(result);
             };
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
                 m.ShouldEqual(MemberType.Method);
-                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
                 return members;
             };
@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
                 m.ShouldEqual(MemberType.Method);
-                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
                 return members;
             };
@@ -226,7 +226,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
                 m.ShouldEqual(MemberType.Method);
-                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
                 return ItemOrList.FromItem<IMemberInfo>(result);
             };
@@ -253,7 +253,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
                 m.ShouldEqual(MemberType.Method);
-                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
                 return ItemOrList.FromItem<IMemberInfo>(result);
             };
@@ -624,7 +624,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
                 m.ShouldEqual(MemberType.Method);
-                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
                 return ItemOrList.FromItem<IMemberInfo>(result);
             };

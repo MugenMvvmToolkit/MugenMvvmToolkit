@@ -231,8 +231,7 @@ namespace MugenMvvm.Enums
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public sealed override int GetHashCode() => Value.GetHashCode();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public sealed override string ToString() => Name;
+        public override string ToString() => Name;
 
         #endregion
     }

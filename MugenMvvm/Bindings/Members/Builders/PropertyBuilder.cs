@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Delegates;
@@ -104,9 +105,9 @@ namespace MugenMvvm.Bindings.Members.Builders
 
         public CustomPropertyBuilder<TTarget, TValue> CustomSetter(SetValueDelegate<IAccessorMemberInfo, TTarget, TValue> setter) => new CustomPropertyBuilder<TTarget, TValue>(this).CustomSetter(setter);
 
-        public CustomPropertyBuilder<TTarget, TValue> WrapMember(string memberName, MemberFlags memberFlags = MemberFlags.All)
+        public CustomPropertyBuilder<TTarget, TValue> WrapMember(string memberName, EnumFlags<MemberFlags> memberFlags = default)
         {
-            WrapperClosure = new MemberWrapperClosure(memberName, memberFlags);
+            WrapperClosure = new MemberWrapperClosure(memberName, memberFlags.GetDefaultFlags());
             return CustomGetter(WrapperClosure.GetValue).CustomSetter(WrapperClosure.SetValue).ObservableHandler(WrapperClosure.TryObserve);
         }
 
@@ -168,34 +169,45 @@ namespace MugenMvvm.Bindings.Members.Builders
             private readonly string _key;
             private readonly string _memberName;
 
-            private MemberFlags _flags;
+            private ushort _flags;
 
             #endregion
 
             #region Constructors
 
-            public MemberWrapperClosure(string memberName, MemberFlags flags)
+            public MemberWrapperClosure(string memberName, EnumFlags<MemberFlags> flags)
             {
                 Should.NotBeNull(memberName, nameof(memberName));
                 _memberName = memberName;
                 _key = BindingInternalConstant.WrapMemberPrefix + memberName;
-                _flags = flags;
+                Flags = flags;
+            }
+
+            #endregion
+
+            #region Properties
+
+            private EnumFlags<MemberFlags> Flags
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => new EnumFlags<MemberFlags>(_flags);
+                set => _flags = value.Value();
             }
 
             #endregion
 
             #region Methods
 
-            public void SetFlags(bool isStatic) => _flags = _flags.SetInstanceOrStaticFlags(isStatic);
+            public void SetFlags(bool isStatic) => Flags = Flags.SetInstanceOrStaticFlags(isStatic);
 
             public TValue GetValue(IAccessorMemberInfo member, TTarget target, IReadOnlyMetadataContext? metadata) =>
-                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).GetValue(target, metadata);
+                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, Flags, metadata).GetValue(target, metadata);
 
             public void SetValue(IAccessorMemberInfo member, TTarget target, TValue value, IReadOnlyMetadataContext? metadata) =>
-                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).SetValue(target, value, metadata);
+                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, Flags, metadata).SetValue(target, value, metadata);
 
             public ActionToken TryObserve(IObservableMemberInfo member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata) =>
-                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).TryObserve(target, listener, metadata);
+                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, Flags, metadata).TryObserve(target, listener, metadata);
 
             #endregion
         }
@@ -248,7 +260,7 @@ namespace MugenMvvm.Bindings.Members.Builders
 
             #region Methods
 
-            public static MemberWrapper GetOrAdd(object target, string key, string wrapMemberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+            public static MemberWrapper GetOrAdd(object target, string key, string wrapMemberName, EnumFlags<MemberFlags> flags, IReadOnlyMetadataContext? metadata)
             {
                 Should.NotBeNull(target, nameof(target));
                 var attachedValues = target.AttachedValues(metadata);
@@ -485,7 +497,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                     return (AutoProperty) value!;
                 return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, s) =>
                 {
-                    if (s.member.AccessModifiers.HasFlagEx(MemberFlags.Static))
+                    if (s.member.AccessModifiers.HasFlag(MemberFlags.Static))
                         t = null!;
                     s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) s.member, (TTarget) t, s.metadata);
                     return new AutoProperty(s.member.State.PropertyChanged,

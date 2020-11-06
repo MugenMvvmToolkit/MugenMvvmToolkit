@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             var type = GetType();
             var memberType = MemberType.All;
-            var memberFlags = MemberFlags.Instance;
+            var memberFlags = MemberFlags.Instance.AsFlags();
             var request = "";
             var selectorCount = 0;
             var providerCount = 0;

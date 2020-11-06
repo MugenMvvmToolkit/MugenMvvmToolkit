@@ -5,6 +5,8 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -16,6 +18,7 @@ namespace MugenMvvm.Bindings.Members
 
         private readonly EventInfo _eventInfo;
         private readonly MemberObserver _observer;
+        private readonly ushort _modifiers;
 
         #endregion
 
@@ -29,7 +32,7 @@ namespace MugenMvvm.Bindings.Members
             _observer = observer;
             Name = name;
             Type = _eventInfo.EventHandlerType ?? typeof(EventHandler);
-            AccessModifiers = _eventInfo.GetAccessModifiers();
+            _modifiers = _eventInfo.GetAccessModifiers().Value();
         }
 
         #endregion
@@ -46,7 +49,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Event;
 
-        public MemberFlags AccessModifiers { get; }
+        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
 
         #endregion
 

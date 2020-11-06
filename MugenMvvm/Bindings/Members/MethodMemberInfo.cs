@@ -21,6 +21,7 @@ namespace MugenMvvm.Bindings.Members
         private readonly MethodInfo _method;
         private readonly IParameterInfo[] _parameters;
         private readonly Type _reflectedType;
+        private readonly ushort _modifiers;
         private Func<object?, object?[], object?> _invoker;
         private MemberObserver _observer;
 
@@ -56,15 +57,15 @@ namespace MugenMvvm.Bindings.Members
             }
 
             parameterInfos ??= _method.GetParameters();
-            AccessModifiers = _method.GetAccessModifiers(isExtensionMethodSupported, ref parameterInfos);
-            DeclaringType = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType ?? typeof(object);
+            _modifiers = _method.GetAccessModifiers(isExtensionMethodSupported, ref parameterInfos).Value();
+            DeclaringType = AccessModifiers.HasFlag(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType ?? typeof(object);
             if (parameterInfos.Length == 0)
             {
                 _parameters = Default.Array<IParameterInfo>();
                 return;
             }
 
-            var startIndex = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? 1 : 0;
+            var startIndex = AccessModifiers.HasFlag(MemberFlags.Extension) ? 1 : 0;
             var length = parameterInfos.Length - startIndex;
             if (length == 0)
                 _parameters = Default.Array<IParameterInfo>();
@@ -90,7 +91,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Method;
 
-        public MemberFlags AccessModifiers { get; }
+        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
 
         public bool IsGenericMethod => _method.IsGenericMethod;
 
@@ -111,21 +112,22 @@ namespace MugenMvvm.Bindings.Members
 
         public IReadOnlyList<Type> GetGenericArguments() => _genericArguments ?? _method.GetGenericArguments();
 
-        public IMethodMemberInfo GetGenericMethodDefinition() => new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType);
+        public IMethodMemberInfo GetGenericMethodDefinition()
+            => new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlag(MemberFlags.Extension), _reflectedType);
 
         public IMethodMemberInfo MakeGenericMethod(Type[] types)
         {
             var method = _method;
             if (IsGenericMethodDefinition)
                 method = _method.GetGenericMethodDefinition();
-            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType);
+            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlag(MemberFlags.Extension), _reflectedType);
         }
 
         public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => null;
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {
-            if (target != null && AccessModifiers.HasFlagEx(MemberFlags.Extension))
+            if (target != null && AccessModifiers.HasFlag(MemberFlags.Extension))
                 return _invoker(null, args.InsertFirstArg(target));
             return _invoker(target, args);
         }

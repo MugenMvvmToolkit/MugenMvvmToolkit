@@ -22,44 +22,44 @@ namespace MugenMvvm.Bindings.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMembersTargetDescriptor<T> BindableMembers<T>(this T target) where T : class => new BindableMembersTargetDescriptor<T>(target);
 
-        public static IMethodMemberInfo? TryGetMember<TTarget, TValue>(this BindableMethodDescriptor<TTarget, TValue> bindableMember, Type? type = null, MemberFlags flags = MemberFlags.All,
+        public static IMethodMemberInfo? TryGetMember<TTarget, TValue>(this BindableMethodDescriptor<TTarget, TValue> bindableMember, Type? type = null, EnumFlags<MemberFlags> flags = default,
             IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
             where TTarget : class =>
             memberManager
                 .DefaultIfNull()
-                .TryGetMembers(type ?? typeof(TTarget), MemberType.Method, flags.SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Request!, metadata)
+                .TryGetMembers(type ?? typeof(TTarget), MemberType.Method, flags.GetDefaultFlags().SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Request!, metadata)
                 .SingleOrDefault<IMethodMemberInfo>();
 
         public static IAccessorMemberInfo? TryGetMember<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember,
-            Type? type = null, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
+            Type? type = null, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
             memberManager
                 .DefaultIfNull()
-                .TryGetMembers(type ?? typeof(TTarget), MemberType.Accessor, flags.SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Name, metadata)
+                .TryGetMembers(type ?? typeof(TTarget), MemberType.Accessor, flags.GetDefaultFlags().SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Name, metadata)
                 .SingleOrDefault<IAccessorMemberInfo>();
 
         public static IObservableMemberInfo? TryGetMember<TTarget>(this BindableEventDescriptor<TTarget> bindableMember,
-            Type? type = null, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
+            Type? type = null, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
             memberManager
                 .DefaultIfNull()
-                .TryGetMembers(type ?? typeof(TTarget), MemberType.Event, flags.SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Name, metadata)
+                .TryGetMembers(type ?? typeof(TTarget), MemberType.Event, flags.GetDefaultFlags().SetInstanceOrStaticFlags(bindableMember.IsStatic), bindableMember.Name, metadata)
                 .SingleOrDefault<IObservableMemberInfo>();
 
-        public static IMemberInfo? TryGetMember(this IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberInfo? TryGetMember(this IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberManager, nameof(memberManager));
             return memberManager.TryGetMembers(type, memberTypes, flags, request, metadata).SingleOrDefault<IMemberInfo>();
         }
 
         public static TValue GetValue<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
-            MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
-            flags = flags.SetInstanceOrStaticFlags(bindableMember.IsStatic);
+            flags = flags.GetDefaultFlags().SetInstanceOrStaticFlags(bindableMember.IsStatic);
             return (TValue) memberManager.DefaultIfNull().GetValue(flags.GetTargetType(ref target!), target, bindableMember, flags, metadata)!;
         }
 
         public static void SetValue<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
-            [MaybeNull] TValue value, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
+            [MaybeNull] TValue value, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
             where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
@@ -70,7 +70,7 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static TReturn Invoke<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> methodMember, TTarget target,
-            object?[]? args = null, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            object?[]? args = null, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             var method = methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager);
@@ -80,28 +80,28 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static TReturn Invoke<TTarget, TArg1, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TReturn> methodMember, TTarget target,
-            TArg1 arg1, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
+            TArg1 arg1, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
             methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TReturn> methodMember, TTarget target,
-            TArg1 arg1, TArg2 arg2, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
+            TArg1 arg1, TArg2 arg2, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
             methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TArg3, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TReturn> methodMember, TTarget target,
-            TArg1 arg1, TArg2 arg2, TArg3 arg3, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
+            TArg1 arg1, TArg2 arg2, TArg3 arg3, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
             methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn> methodMember, TTarget target,
-            TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
+            TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
             methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3), BoxingExtensions.Box(arg4)}, flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> methodMember, TTarget target,
-            TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
+            TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, TArg5 arg5, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
             methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3), BoxingExtensions.Box(arg4), BoxingExtensions.Box(arg5)}, flags, metadata,
                 memberManager);
 
         public static ActionToken Subscribe<TTarget>(this BindableEventDescriptor<TTarget> eventMember, TTarget target,
-            IEventListener listener, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            IEventListener listener, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             var member = eventMember.TryGetMember(GetTargetType(eventMember.IsStatic, ref target!), flags, metadata, memberManager);
@@ -111,7 +111,7 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static ActionToken TryObserve<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
-            IEventListener listener, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            IEventListener listener, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             var member = bindableMember.TryGetMember(GetTargetType(bindableMember.IsStatic, ref target!), flags, metadata, memberManager);
@@ -121,7 +121,7 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static ActionToken TryObserve<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> methodMember, TTarget target,
-            IEventListener listener, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            IEventListener listener, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             var member = methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager);
@@ -131,21 +131,21 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static void TryRaise<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target, object? message = null,
-            MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             (bindableMember.TryGetMember(GetTargetType(bindableMember.IsStatic, ref target!), flags, metadata, memberManager) as INotifiableMemberInfo)?.Raise(target, message, metadata);
         }
 
         public static void TryRaise<TTarget>(this BindableEventDescriptor<TTarget> eventMember, TTarget target, object? message = null,
-            MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             (eventMember.TryGetMember(GetTargetType(eventMember.IsStatic, ref target!), flags, metadata, memberManager) as INotifiableMemberInfo)?.Raise(target, message, metadata);
         }
 
         public static void TryRaise<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> methodMember, TTarget target, object? message = null,
-            MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             (methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager) as INotifiableMemberInfo)?.Raise(target, message, metadata);

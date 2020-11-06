@@ -64,9 +64,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 MemberFlags = MemberFlags.All
             };
 
-            var target = exp.GetSource(t, src, DefaultMetadata, out var p, out var flags);
+            var target = exp.GetSource(t, src, DefaultMetadata, out var p);
             target.ShouldEqual(resource);
-            flags.ShouldEqual(MemberFlags.All);
             p.ShouldEqual(path);
         }
 

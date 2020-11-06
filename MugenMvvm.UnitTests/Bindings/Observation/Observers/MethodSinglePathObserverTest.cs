@@ -3,6 +3,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
@@ -63,7 +64,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 
         protected override SinglePathObserver GetObserver(object target) => new MethodSinglePathObserver(MethodName, target, DefaultPath, MemberFlags.InstancePublic, true);
 
-        protected override SinglePathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional) => new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
+        protected override SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) => new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
 
         #endregion
     }

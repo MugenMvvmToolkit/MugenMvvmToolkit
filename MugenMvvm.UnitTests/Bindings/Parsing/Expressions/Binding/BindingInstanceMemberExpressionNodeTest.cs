@@ -45,14 +45,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 MemberFlags = MemberFlags.All
             };
 
-            var target = exp.GetSource("", "", DefaultMetadata, out var p, out var flags);
+            var target = exp.GetSource("", "", DefaultMetadata, out var p);
             target.ShouldEqual(this);
-            flags.ShouldEqual(MemberFlags.All);
             p.ShouldEqual(path);
 
-            target = exp.GetSource("", "", DefaultMetadata, out p, out flags);
+            target = exp.GetSource("", "", DefaultMetadata, out p);
             target.ShouldEqual(this);
-            flags.ShouldEqual(MemberFlags.All);
             p.ShouldEqual(path);
         }
 

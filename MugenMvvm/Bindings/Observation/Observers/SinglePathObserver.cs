@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -15,23 +16,19 @@ namespace MugenMvvm.Bindings.Observation.Observers
     {
         #region Fields
 
-        protected readonly MemberFlags MemberFlags;
-
         private object? _lastMemberOrException;
         private ActionToken _lastMemberUnsubscriber;
-        private byte _state;
 
         #endregion
 
         #region Constructors
 
-        public SinglePathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional)
-            : base(target)
+        public SinglePathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional)
+            : base(target, memberFlags)
         {
             Should.NotBeNull(path, nameof(path));
-            MemberFlags = memberFlags;
             if (optional)
-                _state |= OptionalFlag;
+                SetFlag(OptionalFlag);
             Path = path;
         }
 
@@ -41,21 +38,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         public override IMemberPath Path { get; }
 
-        public override bool CanDispose
-        {
-            get => !CheckFlag(NoDisposeFlag);
-            set
-            {
-                if (value)
-                    _state = (byte) (_state & ~NoDisposeFlag);
-                else
-                    _state |= NoDisposeFlag;
-            }
-        }
-
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        protected bool Optional => CheckFlag(OptionalFlag);
 
         #endregion
 
@@ -136,7 +119,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             try
             {
-                _state |= UpdatingFlag;
+                SetFlag(UpdatingFlag);
                 var target = Target;
                 if (target == null)
                 {
@@ -172,7 +155,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             }
             finally
             {
-                _state = (byte) (_state & ~UpdatingFlag);
+                ClearFlag(UpdatingFlag);
             }
         }
 
@@ -180,7 +163,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             _lastMemberOrException = (object?) exception ?? lastMember;
             if (exception == null)
-                _state |= InitializedFlag;
+                SetFlag(InitializedFlag);
             OnLastMemberChanged();
         }
 
@@ -194,9 +177,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
         }
 
         protected virtual void UnsubscribeLastMember() => _lastMemberUnsubscriber.Dispose();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CheckFlag(byte flag) => (_state & flag) == flag;
 
         #endregion
     }

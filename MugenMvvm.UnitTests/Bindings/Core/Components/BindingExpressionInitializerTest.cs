@@ -60,7 +60,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var sourceVisitCount = 0;
             var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
             {
-                GetSource = (o, o1, arg3) => (this, EmptyMemberPath.Instance, MemberFlags.Instance)
+                MemberFlags = MemberFlags.Instance,
+                GetSource = (o, o1, arg3) => (this, EmptyMemberPath.Instance)
             };
             var source = new TestExpressionNode
             {
@@ -309,12 +310,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var sourceVisitCount = 0;
             var target = new TestBindingMemberExpressionNode
             {
+                MemberFlags = memberFlags,
                 GetSource = (t, s, m) =>
                 {
                     t.ShouldEqual(targetSrc);
                     s.ShouldEqual(sourceSrc);
                     m.ShouldEqual(context.GetMetadataOrDefault());
-                    return (targetSrc, targetPath, memberFlags);
+                    return (targetSrc, targetPath);
                 },
                 VisitHandler = (visitor, metadataContext) =>
                 {

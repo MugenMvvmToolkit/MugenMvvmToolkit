@@ -37,14 +37,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         public int Priority { get; set; }
 
-        public Func<Type, EnumFlags<MemberType>, MemberFlags, object, IReadOnlyMetadataContext?, ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>>? TryGetMembers { get; set; }
+        public Func<Type, EnumFlags<MemberType>, EnumFlags<MemberFlags>, object, IReadOnlyMetadataContext?, ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>>? TryGetMembers { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberManagerComponent.TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request,
-            IReadOnlyMetadataContext? metadata)
+        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberManagerComponent.TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, 
+            EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata)
         {
             _memberManager?.ShouldEqual(memberManager);
             return TryGetMembers?.Invoke(type, memberTypes, flags, request, metadata) ?? default;

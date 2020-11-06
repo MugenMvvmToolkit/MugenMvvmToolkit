@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using MugenMvvm.Bindings.Constants;
@@ -51,7 +52,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         bool IExpressionVisitor.IsPostOrder => false;
 
-        public MemberFlags MemberFlags { get; set; }
+        public EnumFlags<MemberFlags> MemberFlags { get; set; }
 
         public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
@@ -230,7 +231,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     ObservableMethodName = methodName,
                     Flags = flags,
-                    MemberFlags = key.MemberFlags
+                    MemberFlags = key.Flags
                 };
 
                 _members[key] = node;
@@ -239,7 +240,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             return node;
         }
 
-        private IExpressionNode GetOrAddInstance(object instance, MemberFlags flags, string? methodName)
+        private IExpressionNode GetOrAddInstance(object instance, EnumFlags<MemberFlags> flags, string? methodName)
         {
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, flags, instance, BindingMemberType.Instance);
             if (!_members.TryGetValue(key, out var node))
@@ -248,7 +249,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     ObservableMethodName = methodName,
                     Flags = Flags,
-                    MemberFlags = key.MemberFlags
+                    MemberFlags = key.Flags
                 };
 
                 _members[key] = node;
@@ -266,7 +267,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     ObservableMethodName = methodName,
                     Flags = Flags,
-                    MemberFlags = key.MemberFlags
+                    MemberFlags = key.Flags
                 };
 
                 _members[key] = node;
@@ -303,7 +304,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
             public readonly string Path;
             public readonly string? MethodName;
-            public readonly MemberFlags MemberFlags;
+            public readonly ushort MemberFlags;
             public readonly BindingMemberType MemberType;
             public readonly object? Target;
 
@@ -311,13 +312,23 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
             #region Constructors
 
-            public CacheKey(string path, string? methodName, MemberFlags memberFlags, object? target, BindingMemberType memberType)
+            public CacheKey(string path, string? methodName, EnumFlags<MemberFlags> memberFlags, object? target, BindingMemberType memberType)
             {
                 Path = path;
                 MethodName = methodName;
-                MemberFlags = memberFlags;
+                MemberFlags = memberFlags.Value();
                 MemberType = memberType;
                 Target = target;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public EnumFlags<MemberFlags> Flags
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => new EnumFlags<MemberFlags>(MemberFlags);
             }
 
             #endregion

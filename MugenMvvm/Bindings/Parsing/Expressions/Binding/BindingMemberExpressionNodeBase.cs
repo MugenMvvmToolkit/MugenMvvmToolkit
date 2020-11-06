@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -16,6 +17,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         #region Fields
 
         protected readonly IObservationManager? ObservationManager;
+        private ushort _flags;
+        private ushort _memberFlags;
 
         #endregion
 
@@ -35,11 +38,21 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingMember;
 
-        public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
+        public EnumFlags<BindingMemberExpressionFlags> Flags
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new EnumFlags<BindingMemberExpressionFlags>(_flags);
+            set => _flags = value.Value();
+        }
+
+        public EnumFlags<MemberFlags> MemberFlags
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new EnumFlags<MemberFlags>(_memberFlags);
+            set => _memberFlags = value.Value();
+        }
 
         public int Index { get; set; }
-
-        public MemberFlags MemberFlags { get; set; }
 
         public string? ObservableMethodName { get; set; }
 
@@ -49,7 +62,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Implementation of interfaces
 
-        public abstract object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
+        public abstract object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path);
 
         public abstract object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
 

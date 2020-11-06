@@ -52,10 +52,10 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, (int) key.MemberFlags, key.Types.Length);
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, key.MemberFlags, key.Types.Length);
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, MemberFlags flags, object request,
-            IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
+            object request, IReadOnlyMetadataContext? metadata)
         {
             var name = request as string;
             Type[]? types;
@@ -118,20 +118,20 @@ namespace MugenMvvm.Bindings.Members.Components
 
             public readonly string Key;
             public readonly Type Type;
-            public readonly int MemberType;
-            public readonly MemberFlags MemberFlags;
+            public readonly ushort MemberType;
+            public readonly ushort MemberFlags;
             public readonly Type[] Types;
 
             #endregion
 
             #region Constructors
 
-            public CacheKey(Type type, string key, EnumFlags<MemberType> memberType, MemberFlags memberFlags, Type[] types)
+            public CacheKey(Type type, string key, EnumFlags<MemberType> memberType, EnumFlags<MemberFlags> memberFlags, Type[] types)
             {
                 Type = type;
                 Key = key;
                 MemberType = memberType.Value();
-                MemberFlags = memberFlags;
+                MemberFlags = memberFlags.Value();
                 Types = types;
             }
 

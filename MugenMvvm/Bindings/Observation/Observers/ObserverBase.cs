@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -17,6 +18,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         private object? _listeners;
         private object? _target;
+        private readonly ushort _flags;
+        private byte _state;
 
         protected const byte UpdatingFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
@@ -30,18 +33,22 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         #region Constructors
 
-        protected ObserverBase(object target)
+        protected ObserverBase(object target, EnumFlags<MemberFlags> memberFlags)
         {
             Should.NotBeNull(target, nameof(target));
             _target = target;
+            _flags = memberFlags.Value();
         }
 
         #endregion
 
         #region Properties
 
+        public abstract IMemberPath Path { get; }
+
         public bool IsAlive
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (_target is IWeakItem w)
@@ -61,13 +68,48 @@ namespace MugenMvvm.Bindings.Observation.Observers
             }
         }
 
-        public abstract IMemberPath Path { get; }
+        public EnumFlags<MemberFlags> MemberFlags
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new EnumFlags<MemberFlags>(_flags);
+        }
 
-        protected bool HasListeners => _listeners != null;
+        public bool HasStablePath
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => CheckFlag(HasStablePathFlag);
+        }
 
-        protected bool IsDisposed => _listeners == DisposedItems;
+        public bool Optional
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => CheckFlag(OptionalFlag);
+        }
 
-        public abstract bool CanDispose { get; set; }
+        public bool CanDispose
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => !CheckFlag(NoDisposeFlag);
+            set
+            {
+                if (value)
+                    ClearFlag(NoDisposeFlag);
+                else
+                    SetFlag(NoDisposeFlag);
+            }
+        }
+
+        protected bool HasListeners
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _listeners != null;
+        }
+
+        protected bool IsDisposed
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _listeners == DisposedItems;
+        }
 
         #endregion
 
@@ -125,23 +167,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         #region Methods
 
-        protected IReadOnlyMetadataContext? TryGetMetadata()
-        {
-            if (_listeners is IMemberPathObserverListener[] l)
-            {
-                for (var i = 0; i < l.Length; i++)
-                {
-                    var metadata = TryGetMetadata(l[i]);
-                    if (metadata != null)
-                        return metadata;
-                }
-
-                return null;
-            }
-
-            return TryGetMetadata(_listeners);
-        }
-
         protected virtual void OnListenersAdded()
         {
         }
@@ -152,25 +177,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         protected virtual void OnDisposed()
         {
-        }
-
-        protected void OnPathMembersChanged()
-        {
-            try
-            {
-                var listeners = _listeners;
-                if (listeners is IMemberPathObserverListener[] l)
-                {
-                    for (var i = 0; i < l.Length; i++)
-                        l[i].OnPathMembersChanged(this);
-                }
-                else
-                    (listeners as IMemberPathObserverListener)?.OnPathMembersChanged(this);
-            }
-            catch (Exception e)
-            {
-                OnError(e);
-            }
         }
 
         protected virtual void OnLastMemberChanged()
@@ -185,6 +191,25 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 }
                 else
                     (listeners as IMemberPathObserverListener)?.OnLastMemberChanged(this);
+            }
+            catch (Exception e)
+            {
+                OnError(e);
+            }
+        }
+
+        protected void OnPathMembersChanged()
+        {
+            try
+            {
+                var listeners = _listeners;
+                if (listeners is IMemberPathObserverListener[] l)
+                {
+                    for (var i = 0; i < l.Length; i++)
+                        l[i].OnPathMembersChanged(this);
+                }
+                else
+                    (listeners as IMemberPathObserverListener)?.OnPathMembersChanged(this);
             }
             catch (Exception e)
             {
@@ -210,6 +235,32 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 ;
             }
         }
+
+        protected IReadOnlyMetadataContext? TryGetMetadata()
+        {
+            if (_listeners is IMemberPathObserverListener[] l)
+            {
+                for (var i = 0; i < l.Length; i++)
+                {
+                    var metadata = TryGetMetadata(l[i]);
+                    if (metadata != null)
+                        return metadata;
+                }
+
+                return null;
+            }
+
+            return TryGetMetadata(_listeners);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool CheckFlag(byte flag) => (_state & flag) == flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void SetFlag(byte flag) => _state = (byte) (_state | flag);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void ClearFlag(byte flag) => _state = (byte) (_state & ~flag);
 
         private bool RemoveListenerInternal(IMemberPathObserverListener listener)
         {
@@ -261,7 +312,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         protected internal interface IMethodPathObserver : IMemberPathObserver
         {
-            MemberFlags MemberFlags { get; }
+            EnumFlags<MemberFlags> MemberFlags { get; }
 
             string Method { get; }
 

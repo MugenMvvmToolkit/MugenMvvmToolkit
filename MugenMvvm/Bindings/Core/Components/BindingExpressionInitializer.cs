@@ -39,7 +39,7 @@ namespace MugenMvvm.Bindings.Core.Components
         {
             _memberExpressionVisitor = new BindingMemberExpressionVisitor
             {
-                MemberFlags = MemberFlags.All & ~MemberFlags.NonPublic
+                MemberFlags = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic
             };
             _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             _compiler = compiler;
@@ -54,7 +54,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; } = BindingMemberExpressionFlags.Observable;
 
-        public MemberFlags MemberFlags
+        public EnumFlags<MemberFlags> MemberFlags
         {
             get => _memberExpressionVisitor.MemberFlags;
             set => _memberExpressionVisitor.MemberFlags = value;
@@ -127,9 +127,10 @@ namespace MugenMvvm.Bindings.Core.Components
         {
             if (targetExpression is IBindingMemberExpressionNode bindingMemberExpression)
             {
-                target = bindingMemberExpression.GetSource(target, source, metadata, out var path, out var flags)!;
+                target = bindingMemberExpression.GetSource(target, source, metadata, out var path)!;
                 if (target == null)
                     return false;
+                var flags = bindingMemberExpression.MemberFlags;
                 return path.GetLastMemberFromPath(flags.GetTargetType(ref target!), target, flags, MemberType.Event, metadata, _memberManager) != null;
             }
 

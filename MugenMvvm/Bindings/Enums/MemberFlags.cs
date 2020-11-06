@@ -1,33 +1,62 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using MugenMvvm.Constants;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Enums
 {
-    [Flags]
-    public enum MemberFlags : byte
+    [Serializable]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    public class MemberFlags : FlagsEnumBase<MemberFlags, ushort>, IHasPriority
     {
-        Public = 1,
-        NonPublic = 1 << 1,
+        #region Fields
 
-        Static = 1 << 2,
-        Instance = 1 << 3,
-        Attached = 1 << 4,
-        Dynamic = 1 << 5,
-        Extension = Instance | 1 << 6,
+        private const int AttachedPriority = 1000000;
+        private const int DefaultPriority = 100000;
+        private const int ExtensionPriority = -1000;
+        private const int DynamicPriority = -10000;
 
-        InstancePublic = Instance | Public,
-        InstanceNonPublic = Instance | NonPublic,
+        public static readonly MemberFlags Public = new MemberFlags(1 << 0, 10);
+        public static readonly MemberFlags NonPublic = new MemberFlags(1 << 1, 0);
 
-        StaticPublic = Static | Public,
-        StaticNonPublic = Static | NonPublic,
+        public static readonly MemberFlags Static = new MemberFlags(1 << 2, DefaultPriority);
+        public static readonly MemberFlags Instance = new MemberFlags(1 << 3, DefaultPriority);
+        public static readonly MemberFlags Attached = new MemberFlags(1 << 4, AttachedPriority);
+        public static readonly MemberFlags Dynamic = new MemberFlags(1 << 5, DynamicPriority);
+        public static readonly MemberFlags Extension = new MemberFlags((ushort) (Instance.Value | 1 << 6), ExtensionPriority);
 
-        StaticOnly = StaticPublic | StaticNonPublic,
-        InstanceOnly = InstancePublic | InstanceNonPublic,
+        public static readonly EnumFlags<MemberFlags> InstancePublic = Instance | Public;
+        public static readonly EnumFlags<MemberFlags> InstanceNonPublic = Instance | NonPublic;
 
-        InstancePublicAll = All & ~(Static | NonPublic),
-        StaticPublicAll = All & ~(Instance | NonPublic),
-        InstanceAll = All & ~Static,
-        StaticAll = All & ~Instance,
+        public static readonly EnumFlags<MemberFlags> StaticPublic = Static | Public;
+        public static readonly EnumFlags<MemberFlags> StaticNonPublic = Static | NonPublic;
 
-        All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension
+        public static readonly EnumFlags<MemberFlags> StaticOnly = StaticPublic | StaticNonPublic;
+        public static readonly EnumFlags<MemberFlags> InstanceOnly = InstancePublic | InstanceNonPublic;
+
+        public static readonly EnumFlags<MemberFlags> All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension;
+
+        public static readonly EnumFlags<MemberFlags> InstancePublicAll = All & ~(Static | NonPublic);
+        public static readonly EnumFlags<MemberFlags> StaticPublicAll = All & ~(Instance | NonPublic);
+        public static readonly EnumFlags<MemberFlags> InstanceAll = All & ~Static;
+        public static readonly EnumFlags<MemberFlags> StaticAll = All & ~Instance;
+
+        #endregion
+
+        #region Constructors
+
+        public MemberFlags(ushort value, int priority) : base(value)
+        {
+            Priority = priority;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
     }
 }
