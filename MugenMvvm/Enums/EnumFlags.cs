@@ -67,7 +67,6 @@ namespace MugenMvvm.Enums
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => Flags.GetHashCode();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString()
         {
             StringBuilder? builder = null;
