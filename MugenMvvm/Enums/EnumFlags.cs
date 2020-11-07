@@ -71,14 +71,23 @@ namespace MugenMvvm.Enums
         public override string ToString()
         {
             StringBuilder? builder = null;
+            string? name = null;
             foreach (var @enum in EnumBase.GetAll<T>())
             {
                 if (this.HasFlag(@enum.Flag))
-                    (builder ??= new StringBuilder()).Append(@enum.Name).Append(' ').Append('|').Append(' ');
+                {
+                    if (name == null)
+                        name = @enum.Name;
+                    else
+                    {
+                        builder ??= new StringBuilder(name).Append(' ').Append('|').Append(' ');
+                        builder.Append(@enum.Name).Append(' ').Append('|').Append(' ');
+                    }
+                }
             }
 
             if (builder == null)
-                return Flags.ToString();
+                return name ?? Flags.ToString();
             builder.Remove(builder.Length - 3, 3);
             return builder.ToString();
         }

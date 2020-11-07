@@ -71,9 +71,13 @@ namespace MugenMvvm.UnitTests.Enums
             TestEnum.TryGet(v1, out var r).ShouldBeFalse();
             TestEnum.Count.ShouldEqual(0);
             TestEnum.GetAll().ShouldBeEmpty();
+            EnumBase.GetAll<TestEnum>().ShouldBeEmpty();
+            EnumBase.GetAll(typeof(TestEnum)).ShouldBeEmpty();
 
             var testEnum = new TestEnum(v1, v1.ToString());
             TestEnum.GetAll().Single().ShouldEqual(testEnum);
+            EnumBase.GetAll<TestEnum>().Single().ShouldEqual(testEnum);
+            EnumBase.GetAll(typeof(TestEnum)).Single().ShouldEqual(testEnum);
             TestEnum.Count.ShouldEqual(1);
 
             TestEnum.Get(v1).ShouldEqual(testEnum);
@@ -86,6 +90,11 @@ namespace MugenMvvm.UnitTests.Enums
             TestEnum.Count.ShouldEqual(3);
             TestEnum.GetAll().Length.ShouldEqual(3);
             TestEnum.GetAll().ShouldContain(testEnum, testEnum2);
+
+            EnumBase.GetAll<TestEnum>().Length.ShouldEqual(3);
+            EnumBase.GetAll<TestEnum>().ShouldContain(testEnum, testEnum2);
+            EnumBase.GetAll(typeof(TestEnum)).Length.ShouldEqual(3);
+            EnumBase.GetAll(typeof(TestEnum)).ShouldContain(testEnum, testEnum2);
 
             TestEnum.Get(v3).ShouldEqual(testEnum2);
             ((TestEnum) v3).ShouldEqual(testEnum2);
@@ -105,8 +114,12 @@ namespace MugenMvvm.UnitTests.Enums
 
             TestEnum.TryGetByName(value.ToLower(), out var result, true).ShouldBeTrue();
             result.ShouldEqual(testEnum);
+            EnumBase.TryGetByName<TestEnum>(value.ToLower(), null, true).ShouldEqual(testEnum);
+            EnumBase.TryGetByName(typeof(TestEnum), value.ToLower(), null, true).ShouldEqual(testEnum);
 
-            TestEnum.TryGetByName(value.ToLower(), out result, false).ShouldBeFalse();
+            TestEnum.TryGetByName(value.ToLower(), out result).ShouldBeFalse();
+            EnumBase.TryGetByName<TestEnum>(value.ToLower()).ShouldBeNull();
+            EnumBase.TryGetByName(typeof(TestEnum), value.ToLower()).ShouldBeNull();
 
             TestEnum.SetEnums(new Dictionary<int, TestEnum>());
             TestEnum.TryGetByName(value.ToLower(), out result, true).ShouldBeFalse();

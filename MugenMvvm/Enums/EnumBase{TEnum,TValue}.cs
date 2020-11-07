@@ -149,7 +149,8 @@ namespace MugenMvvm.Enums
             return result;
         }
 
-        public static TEnum TryGet(TValue value, TEnum defaultValue)
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TEnum? TryGet(TValue value, TEnum? defaultValue = null)
         {
             if (TryGet(value, out var result))
                 return result;
@@ -176,7 +177,8 @@ namespace MugenMvvm.Enums
             return result;
         }
 
-        public static TEnum TryGetByName(string? value, TEnum defaultValue, bool ignoreCase = false)
+        [return: NotNullIfNotNull("defaultValue")]
+        public static TEnum? TryGetByName(string? value, TEnum? defaultValue = null, bool ignoreCase = false)
         {
             if (TryGetByName(value, out var result, ignoreCase))
                 return result;
@@ -226,7 +228,7 @@ namespace MugenMvvm.Enums
 
         private static Dictionary<TValue, TEnum> Init()
         {
-            EnumBase.SetEnumProvider(GetAll);
+            EnumBase.SetEnumProvider(GetAll, TryGetByName);
             return new Dictionary<TValue, TEnum>();
         }
 
