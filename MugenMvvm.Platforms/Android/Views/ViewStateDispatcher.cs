@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Android.OS;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Enums;
@@ -47,8 +47,6 @@ namespace MugenMvvm.Android.Views
 
         public int Priority { get; set; } = ViewComponentPriority.StateManager;
 
-        public bool SaveState { get; set; }
-
         #endregion
 
         #region Implementation of interfaces
@@ -94,13 +92,18 @@ namespace MugenMvvm.Android.Views
         private void PreserveState(IView view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
             bundle.PutString(AndroidInternalConstant.BundleVmId, view.ViewModel.GetId());
-            if (!SaveState)
+
+            var serializer = _serializer.DefaultIfNull();
+            if (!serializer.IsSupported(SerializationFormat.AppStateBytes))
+            {
+                bundle.Remove(AndroidInternalConstant.BundleViewState);
                 return;
+            }
 
             var state = ViewModelMetadata.ViewModel.ToContext(view.ViewModel);
-            using var stream = new MemoryStream();
-            if (_serializer.DefaultIfNull().TrySerialize(stream, state, metadata))
-                bundle.PutByteArray(AndroidInternalConstant.BundleViewState, stream.ToArray());
+            ReadOnlyMemory<byte> buffer = default;
+            if (serializer.TrySerialize(SerializationFormat.AppStateBytes, state, ref buffer, metadata))
+                bundle.PutByteArray(AndroidInternalConstant.BundleViewState, buffer.ToArray());
             else
                 bundle.Remove(AndroidInternalConstant.BundleViewState);
         }
@@ -114,15 +117,16 @@ namespace MugenMvvm.Android.Views
             var viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id!, metadata);
             if (viewModel == null)
             {
-                if (!SaveState)
+                var serializer = _serializer.DefaultIfNull();
+                if (!serializer.IsSupported(DeserializationFormat.AppStateBytes))
                     return null;
 
                 var state = bundle.GetByteArray(AndroidInternalConstant.BundleViewState);
                 if (state == null)
                     return null;
 
-                using var stream = new MemoryStream(state);
-                if (!_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value) || !(value is IReadOnlyMetadataContext restoredState))
+                IReadOnlyMetadataContext? restoredState = null;
+                if (!serializer.TryDeserialize(DeserializationFormat.AppStateBytes, state, ref restoredState))
                     return null;
 
                 viewModel = restoredState.Get(ViewModelMetadata.ViewModel);

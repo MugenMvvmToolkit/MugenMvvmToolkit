@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Foundation;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -80,9 +79,9 @@ namespace MugenMvvm.Ios.App
                 var viewType = typeSt == null ? null : Type.GetType(typeSt, false);
                 if (viewType != null && bytes != null)
                 {
-                    using var stream = new MemoryStream(bytes);
-                    if (_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value)
-                        && value is IReadOnlyMetadataContext restoredState && restoredState.TryGet(ViewModelMetadata.ViewModel, out var vm) && vm != null)
+                    IReadOnlyMetadataContext? restoredState = null;
+                    if (_serializer.DefaultIfNull().TryDeserialize(DeserializationFormat.AppStateBytes, bytes, ref restoredState, metadata)
+                        && restoredState.TryGet(ViewModelMetadata.ViewModel, out var vm) && vm != null)
                     {
                         var viewModelViewRequest = new ViewModelViewRequest(vm, viewType);
                         var view = _viewManager.DefaultIfNull().TryInitializeAsync(ViewMapping.Undefined, viewModelViewRequest, default, metadata).Result;
@@ -116,10 +115,10 @@ namespace MugenMvvm.Ios.App
                 if (view is IView v)
                 {
                     var stateMeta = ViewModelMetadata.ViewModel.ToContext(v.ViewModel);
-                    using var stream = new MemoryStream();
-                    if (_serializer.DefaultIfNull().TrySerialize(stream, stateMeta, metadata))
+                    ReadOnlyMemory<byte> buffer = default;
+                    if (_serializer.DefaultIfNull().TrySerialize(SerializationFormat.AppStateBytes, stateMeta, ref buffer, metadata))
                     {
-                        coder.Encode(stream.ToArray(), IosInternalConstants.ViewModelStateKey);
+                        coder.Encode(buffer.ToArray(), IosInternalConstants.ViewModelStateKey);
                         coder.Encode(v.Target.GetType().AssemblyQualifiedName, IosInternalConstants.ViewControllerTypeKey);
                     }
                 }

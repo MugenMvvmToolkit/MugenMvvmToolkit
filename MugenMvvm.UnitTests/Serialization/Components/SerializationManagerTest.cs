@@ -1,17 +1,15 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Serialization;
-using MugenMvvm.UnitTests.Components;
+using MugenMvvm.Serialization.Components;
 using MugenMvvm.UnitTests.Serialization.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Serialization
+namespace MugenMvvm.UnitTests.Serialization.Components
 {
-    public class SerializerTest : ComponentOwnerTestBase<Serializer>
+    public class SerializationManagerTest : UnitTestBase
     {
         #region Methods
 
@@ -22,11 +20,12 @@ namespace MugenMvvm.UnitTests.Serialization
         {
             var format = new SerializationFormat<string, Stream?>(1, "Test");
             var serializer = new Serializer();
+            serializer.AddComponent(new SerializationManager());
             var executeCount = 0;
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestSerializationManagerComponent(serializer)
+                var component = new TestSerializerComponent<string, Stream?>(serializer)
                 {
                     IsSupported = (t, context) =>
                     {
@@ -46,9 +45,6 @@ namespace MugenMvvm.UnitTests.Serialization
             executeCount.ShouldEqual(count);
         }
 
-        [Fact]
-        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(SerializationFormat.JsonBytes!, null!));
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -59,6 +55,7 @@ namespace MugenMvvm.UnitTests.Serialization
             var ctx = new SerializationContext<string, Stream>(format, request);
             var result = Stream.Null;
             var serializer = new Serializer();
+            serializer.AddComponent(new SerializationManager());
             serializer.AddComponent(new TestSerializationContextProvider(serializer)
             {
                 TryGetSerializationContext = (f, r, arg4) =>
@@ -73,7 +70,7 @@ namespace MugenMvvm.UnitTests.Serialization
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestSerializationManagerComponent(serializer)
+                var component = new TestSerializerComponent<string, Stream?>(serializer)
                 {
                     TrySerialize = (t, context) =>
                     {
@@ -93,9 +90,6 @@ namespace MugenMvvm.UnitTests.Serialization
             executeCount.ShouldEqual(count);
         }
 
-        [Fact]
-        public void DeserializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(DeserializationFormat.JsonBytes, null!));
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -106,6 +100,7 @@ namespace MugenMvvm.UnitTests.Serialization
             var ctx = new SerializationContext<string, Stream>(format, request);
             var result = Stream.Null;
             var serializer = new Serializer();
+            serializer.AddComponent(new SerializationManager());
             serializer.AddComponent(new TestSerializationContextProvider(serializer)
             {
                 TryGetSerializationContext = (f, r, arg4) =>
@@ -120,7 +115,7 @@ namespace MugenMvvm.UnitTests.Serialization
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestSerializationManagerComponent(serializer)
+                var component = new TestDeserializerComponent<string, Stream?>(serializer)
                 {
                     TryDeserialize = (t, context) =>
                     {
@@ -139,8 +134,6 @@ namespace MugenMvvm.UnitTests.Serialization
             serializer.Deserialize(format, request, null, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
-
-        protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Serializer(collectionProvider);
 
         #endregion
     }

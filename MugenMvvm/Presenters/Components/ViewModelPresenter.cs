@@ -84,7 +84,7 @@ namespace MugenMvvm.Presenters.Components
             var result = ItemOrListEditor.Get<IViewModelPresenterMediator>();
             lock (_locker)
             {
-                var components = presenter.GetComponents<IViewModelPresenterMediatorProviderComponent>();
+                var components = presenter.GetComponents<IViewModelPresenterMediatorProviderComponent>(metadata);
                 if (components.Length == 0)
                     return default;
 

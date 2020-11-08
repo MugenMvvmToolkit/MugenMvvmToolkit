@@ -8,7 +8,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Serialization.Internal
 {
-    public class TestSerializerComponent<TRequest, TResult> : ISerializerComponent<TRequest, TResult>, IHasPriority
+    public class TestDeserializerComponent<TRequest, TResult> : IDeserializerComponent<TRequest, TResult>, IHasPriority
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         #region Constructors
 
-        public TestSerializerComponent(ISerializer? serializer = null)
+        public TestDeserializerComponent(ISerializer? serializer = null)
         {
             _serializer = serializer;
         }
@@ -31,23 +31,23 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         public Func<ISerializationFormatBase, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
-        public Func<object, ISerializationContext, object?>? TrySerialize { get; set; }
+        public Func<object, ISerializationContext, object?>? TryDeserialize { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        bool ISerializerComponent<TRequest, TResult>.IsSupported(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, IReadOnlyMetadataContext? metadata)
+        bool IDeserializerComponent<TRequest, TResult>.IsSupported(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, IReadOnlyMetadataContext? metadata)
         {
             _serializer?.ShouldEqual(serializer);
             return IsSupported?.Invoke(format, metadata) ?? false;
         }
 
-        bool ISerializerComponent<TRequest, TResult>.TrySerialize(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,
-            [NotNullWhen(true)] [AllowNull] ref TResult result)
+        bool IDeserializerComponent<TRequest, TResult>.TryDeserialize(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,
+            [NotNullWhen(true)][AllowNull] ref TResult result)
         {
             _serializer?.ShouldEqual(serializer);
-            result = (TResult) TrySerialize?.Invoke(request!, serializationContext)!;
+            result = (TResult)TryDeserialize?.Invoke(request!, serializationContext)!;
             return result != null;
         }
 

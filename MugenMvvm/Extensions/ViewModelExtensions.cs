@@ -23,7 +23,7 @@ namespace MugenMvvm.Extensions
         public static bool IsInState(this IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            return viewModelManager.GetComponents<ILifecycleTrackerComponent<ViewModelLifecycleState>>().IsInState(viewModelManager, viewModel, state, metadata);
+            return viewModelManager.GetComponents<ILifecycleTrackerComponent<ViewModelLifecycleState>>(metadata).IsInState(viewModelManager, viewModel, state, metadata);
         }
 
         public static IViewModelBase GetViewModel(this IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata = null)

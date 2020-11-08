@@ -15,6 +15,7 @@ using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Commands;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
@@ -27,6 +28,7 @@ using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
+using MugenMvvm.Serialization;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Threading.Internal;
 using MugenMvvm.ViewModels;
@@ -40,6 +42,7 @@ namespace MugenMvvm.UnitTests
     {
         #region Fields
 
+        protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new SerializationContext<object?, object?>(new SerializationFormat<object?, object?>(1, ""), null);
         protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
 
         #endregion

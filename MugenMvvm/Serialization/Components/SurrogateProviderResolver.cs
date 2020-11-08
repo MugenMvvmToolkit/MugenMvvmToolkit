@@ -31,7 +31,7 @@ namespace MugenMvvm.Serialization.Components
 
         #region Properties
 
-        public int Priority { get; set; } = SerializationComponentPriority.SurrogateResolver;
+        public int Priority { get; set; } = SerializationComponentPriority.SurrogateProvider;
 
         #endregion
 

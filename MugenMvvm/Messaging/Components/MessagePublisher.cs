@@ -124,7 +124,7 @@ namespace MugenMvvm.Messaging.Components
         private static Dictionary<ThreadExecutionMode, MessageThreadExecutor>? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode, IReadOnlyMetadataContext? metadata)
         {
             var handlers = messenger
-                .GetComponents<IMessengerSubscriberComponent>()
+                .GetComponents<IMessengerSubscriberComponent>(metadata)
                 .TryGetMessengerHandlers(messenger, messageType, metadata);
 
             if (handlers.Count == 0)

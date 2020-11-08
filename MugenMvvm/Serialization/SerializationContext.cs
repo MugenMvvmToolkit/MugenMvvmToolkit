@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
@@ -6,25 +6,33 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Serialization
 {
-    public sealed class SerializationContext : MetadataOwnerBase, ISerializationContext
+    public sealed class SerializationContext<TRequest, TResult> : MetadataOwnerBase, ISerializationContext
     {
         #region Constructors
 
-        public SerializationContext(Stream stream, bool isSerialization, IReadOnlyMetadataContext? metadata = null)
+        public SerializationContext(ISerializationFormatBase<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata = null)
             : base(metadata)
         {
-            Should.NotBeNull(stream, nameof(stream));
-            Stream = stream;
-            IsSerialization = isSerialization;
+            Should.NotBeNull(format, nameof(format));
+            Format = format;
+            Request = request;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsSerialization { get; }
+        ISerializationFormatBase ISerializationContext.Format => Format;
 
-        public Stream Stream { get; }
+        object ISerializationContext.Request => Request!;
+
+        public Type RequestType => typeof(TRequest);
+
+        public Type ResultType => typeof(TResult);
+
+        public ISerializationFormatBase<TRequest, TResult> Format { get; }
+
+        public TRequest Request { get; }
 
         #endregion
 

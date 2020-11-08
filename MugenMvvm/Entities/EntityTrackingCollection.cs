@@ -99,14 +99,14 @@ namespace MugenMvvm.Entities
             {
                 if (!_dictionary.TryGetValue(entity, out oldState))
                     oldState = EntityState.Detached;
-                state = GetComponents<IEntityStateChangingListener>().OnEntityStateChanging(this, entity, oldState, state, metadata);
+                state = GetComponents<IEntityStateChangingListener>(metadata).OnEntityStateChanging(this, entity, oldState, state, metadata);
                 _dictionary.Remove(entity);
                 if (state != EntityState.Detached)
                     _dictionary[entity] = state;
             }
 
             if (oldState != state)
-                GetComponents<IEntityStateChangedListener>().OnEntityStateChanged(this, entity, oldState, state, metadata);
+                GetComponents<IEntityStateChangedListener>(metadata).OnEntityStateChanged(this, entity, oldState, state, metadata);
         }
 
         public void Clear(IReadOnlyMetadataContext? metadata = null)
@@ -115,7 +115,7 @@ namespace MugenMvvm.Entities
             {
                 if (_dictionary.Count != 0)
                 {
-                    var listeners = GetComponents<IEntityStateChangedListener>();
+                    var listeners = GetComponents<IEntityStateChangedListener>(metadata);
                     foreach (var pair in _dictionary)
                         listeners.OnEntityStateChanged(this, pair.Key, pair.Value, EntityState.Detached, metadata);
                 }

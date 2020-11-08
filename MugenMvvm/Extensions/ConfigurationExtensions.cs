@@ -27,6 +27,7 @@ using MugenMvvm.Navigation.Components;
 using MugenMvvm.Presenters;
 using MugenMvvm.Presenters.Components;
 using MugenMvvm.Serialization;
+using MugenMvvm.Serialization.Components;
 using MugenMvvm.Threading;
 using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
@@ -95,7 +96,8 @@ namespace MugenMvvm.Extensions
                 .WithComponent(entryManager)
                 .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator));
 
-            configuration.WithAppService(new Serializer());
+            configuration.WithAppService(new Serializer())
+                .WithComponent(new SerializationManager());
 
             configuration.WithAppService(new ThreadDispatcher());
 
@@ -169,7 +171,7 @@ namespace MugenMvvm.Extensions
 
         private static IViewModelPresenterMediator? GetViewModelPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
         {
-            var viewPresenter = presenter.GetComponents<IViewPresenterProviderComponent>().TryGetViewPresenter(presenter, viewModel, mapping, metadata);
+            var viewPresenter = presenter.GetComponents<IViewPresenterProviderComponent>(metadata).TryGetViewPresenter(presenter, viewModel, mapping, metadata);
             if (viewPresenter == null)
                 return null;
             return new ViewModelPresenterMediator<object>(viewModel, mapping, viewPresenter);

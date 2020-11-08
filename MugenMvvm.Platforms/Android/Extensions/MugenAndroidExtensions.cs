@@ -70,7 +70,7 @@ namespace MugenMvvm.Android.Extensions
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).Result;
 
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null,
-            bool shouldSaveAppState = true, bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
+            bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
         {
             MugenAndroidNativeService.Initialize(context ?? Application.Context, new BindViewCallback(), rawViewTagMode);
             LifecycleExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), nativeMode);
@@ -89,7 +89,7 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new ViewNavigationConditionDispatcher());
 
             configuration.ServiceConfiguration<IViewManager>()
-                .WithComponent(new ViewStateDispatcher {SaveState = shouldSaveAppState})
+                .WithComponent(new ViewStateDispatcher())
                 .WithComponent(new ViewLifecycleDispatcher())
                 .WithComponent(new ResourceViewRequestManager())
                 .WithComponent(new ViewStateMapperDispatcher())

@@ -23,12 +23,12 @@ namespace MugenMvvm.Busy
 
         #region Implementation of interfaces
 
-        public IBusyToken? TryBeginBusy(object? request, IReadOnlyMetadataContext? metadata = null) => GetComponents<IBusyManagerComponent>().TryBeginBusy(this, request, metadata);
+        public IBusyToken? TryBeginBusy(object? request, IReadOnlyMetadataContext? metadata = null) => GetComponents<IBusyManagerComponent>(metadata).TryBeginBusy(this, request, metadata);
 
         public IBusyToken? TryGetToken<TState>(TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<IBusyManagerComponent>().TryGetToken(this, filter, state, metadata);
+            GetComponents<IBusyManagerComponent>(metadata).TryGetToken(this, filter, state, metadata);
 
-        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens(IReadOnlyMetadataContext? metadata = null) => GetComponents<IBusyManagerComponent>().TryGetTokens(this, metadata);
+        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens(IReadOnlyMetadataContext? metadata = null) => GetComponents<IBusyManagerComponent>(metadata).TryGetTokens(this, metadata);
 
         #endregion
     }

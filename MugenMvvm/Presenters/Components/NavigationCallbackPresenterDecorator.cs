@@ -78,7 +78,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
-        private ActionToken SuspendNavigation(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata) => navigationDispatcher.GetComponents<ISuspendable>().Suspend(Owner, metadata);
+        private ActionToken SuspendNavigation(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata) => navigationDispatcher.GetComponents<ISuspendable>(metadata).Suspend(Owner, metadata);
 
         #endregion
     }

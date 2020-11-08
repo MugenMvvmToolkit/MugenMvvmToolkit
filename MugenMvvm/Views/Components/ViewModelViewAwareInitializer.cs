@@ -62,7 +62,7 @@ namespace MugenMvvm.Views.Components
             {
                 viewImp.Components.AddComponent(this);
                 TryUpdateViewModel(viewImp.Target, viewImp.ViewModel);
-                var components = viewImp.GetComponents<object>();
+                var components = viewImp.GetComponents<object>(metadata);
                 for (var i = 0; i < components.Length; i++)
                     TryUpdateViewModel(components[i], viewImp.ViewModel);
                 TryUpdateView(viewImp, false, metadata);
@@ -71,7 +71,7 @@ namespace MugenMvvm.Views.Components
             {
                 TryUpdateView(viewImp, true, metadata);
                 TryUpdateViewModel(viewImp.Target, null);
-                var components = viewImp.GetComponents<object>();
+                var components = viewImp.GetComponents<object>(metadata);
                 for (var i = 0; i < components.Length; i++)
                     TryUpdateViewModel(components[i], null);
                 viewImp.Components.RemoveComponent(this);

@@ -20,7 +20,7 @@ namespace MugenMvvm.Extensions
         public static bool IsInState(this IViewManager viewManager, object view, ViewLifecycleState state, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
-            return viewManager.GetComponents<ILifecycleTrackerComponent<ViewLifecycleState>>().IsInState(viewManager, view, state, metadata);
+            return viewManager.GetComponents<ILifecycleTrackerComponent<ViewLifecycleState>>(metadata).IsInState(viewManager, view, state, metadata);
         }
 
         public static async ValueTask<IView> InitializeAsync(this IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken = default,

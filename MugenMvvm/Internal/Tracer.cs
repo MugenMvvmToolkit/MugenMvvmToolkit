@@ -23,9 +23,9 @@ namespace MugenMvvm.Internal
 
         #region Implementation of interfaces
 
-        public bool CanTrace(TraceLevel level, IReadOnlyMetadataContext? metadata = null) => GetComponents<ITracerComponent>().CanTrace(this, level, metadata);
+        public bool CanTrace(TraceLevel level, IReadOnlyMetadataContext? metadata = null) => GetComponents<ITracerComponent>(metadata).CanTrace(this, level, metadata);
 
-        public void Trace(TraceLevel level, string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<ITracerComponent>().Trace(this, level, message, exception, metadata);
+        public void Trace(TraceLevel level, string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<ITracerComponent>(metadata).Trace(this, level, message, exception, metadata);
 
         #endregion
 

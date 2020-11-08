@@ -1,11 +1,13 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Serialization.Components
 {
-    public interface ISerializerComponent : IComponent<ISerializer>
+    public interface ISerializerComponent<in TRequest, TResult> : IComponent<ISerializer>
     {
-        bool TrySerialize(ISerializer serializer, object request, ISerializationContext serializationContext);
+        bool IsSupported(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, IReadOnlyMetadataContext? metadata);
 
-        bool TryDeserialize(ISerializer serializer, ISerializationContext serializationContext, out object? value);
+        bool TrySerialize(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result);
     }
 }

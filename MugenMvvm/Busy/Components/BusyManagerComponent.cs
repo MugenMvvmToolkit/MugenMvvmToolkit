@@ -84,11 +84,11 @@ namespace MugenMvvm.Busy.Components
             }
 
             if (busyToken.Combine())
-                OwnerOptional?.GetComponents<IBusyManagerListener>().OnBeginBusy(Owner, busyToken, metadata);
+                OwnerOptional?.GetComponents<IBusyManagerListener>(metadata).OnBeginBusy(Owner, busyToken, metadata);
             return busyToken;
         }
 
-        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.GetComponents<IBusyManagerListener>().OnBusyStateChanged(Owner, metadata);
+        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.GetComponents<IBusyManagerListener>(metadata).OnBusyStateChanged(Owner, metadata);
 
         #endregion
 

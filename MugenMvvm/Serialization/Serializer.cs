@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -21,19 +21,27 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public bool TrySerialize(Stream stream, object request, IReadOnlyMetadataContext? metadata = null)
+        public bool IsSupported<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, IReadOnlyMetadataContext? metadata = null)
+            => GetComponents<ISerializationManagerComponent>(metadata).IsSupported(this, format, metadata);
+
+        public bool TrySerialize<TRequest, TResult>(ISerializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] [AllowNull] ref TResult result, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(stream, nameof(stream));
-            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, stream, request, metadata) ?? new SerializationContext(stream, true, metadata);
-            return GetComponents<ISerializerComponent>().TrySerialize(this, request, ctx);
+            using var ctx = GetContext(format, request, metadata);
+            return GetComponents<ISerializationManagerComponent>(metadata).TrySerialize(this, format, request, ctx, ref result);
         }
 
-        public bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
+        public bool TryDeserialize<TRequest, TResult>(IDeserializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] [AllowNull] ref TResult result, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(stream, nameof(stream));
-            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetDeserializationContext(this, stream, metadata) ?? new SerializationContext(stream, false, metadata);
-            return GetComponents<ISerializerComponent>().TryDeserialize(this, ctx, out value);
+            using var ctx = GetContext(format, request, metadata);
+            return GetComponents<ISerializationManagerComponent>(metadata).TryDeserialize(this, format, request, ctx, ref result);
         }
+
+        #endregion
+
+        #region Methods
+
+        private ISerializationContext GetContext<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata) =>
+            GetComponents<ISerializationContextProviderComponent>(metadata).TryGetSerializationContext(this, format, request, metadata) ?? new SerializationContext<TRequest, TResult>(format, request, metadata);
 
         #endregion
     }

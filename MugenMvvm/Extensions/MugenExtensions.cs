@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -43,7 +42,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(application, nameof(application));
             Should.NotBeNull(state, nameof(state));
-            return application.GetComponents<ILifecycleTrackerComponent<ApplicationLifecycleState>>().IsInState(application, application, state, metadata);
+            return application.GetComponents<ILifecycleTrackerComponent<ApplicationLifecycleState>>(metadata).IsInState(application, application, state, metadata);
         }
 
         public static IBusyToken BeginBusy(this IBusyManager busyManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
@@ -80,19 +79,22 @@ namespace MugenMvvm.Extensions
             return snapshot;
         }
 
-        public static void Serialize(this ISerializer serializer, Stream stream, object request, IReadOnlyMetadataContext? metadata = null)
+        public static TResult Serialize<TRequest, TResult>(this ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, 
+            [AllowNull] TResult buffer = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
-            if (!serializer.TrySerialize(stream, request, metadata))
-                ExceptionManager.ThrowRequestNotSupported<ISerializerComponent>(serializer, request, metadata);
+            if (!serializer.TrySerialize(format, request, ref buffer, metadata))
+                ExceptionManager.ThrowRequestNotSupported<ISerializerComponent<TRequest, TResult>>(serializer, request, metadata);
+            return buffer;
         }
 
-        public static object? Deserialize(this ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata = null)
+        public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request, 
+            [AllowNull] TResult buffer = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
-            if (!serializer.TryDeserialize(stream, metadata, out var result))
-                ExceptionManager.ThrowRequestNotSupported<ISerializerComponent>(serializer, stream, metadata);
-            return result;
+            if (!serializer.TryDeserialize(format, request, ref buffer, metadata))
+                ExceptionManager.ThrowRequestNotSupported<IDeserializerComponent<TRequest, TResult>>(serializer, request, metadata);
+            return buffer;
         }
 
         public static IWeakReference GetWeakReference(this IWeakReferenceManager weakReferenceManager, object? item, IReadOnlyMetadataContext? metadata = null)

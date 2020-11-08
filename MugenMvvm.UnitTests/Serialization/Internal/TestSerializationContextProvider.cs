@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
@@ -29,24 +28,17 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         public int Priority { get; set; }
 
-        public Func<Stream, object, IReadOnlyMetadataContext?, ISerializationContext?>? TryGetSerializationContext { get; set; }
-
-        public Func<Stream, IReadOnlyMetadataContext?, ISerializationContext?>? TryGetDeserializationContext { get; set; }
+        public Func<ISerializationFormatBase, object, IReadOnlyMetadataContext?, ISerializationContext?>? TryGetSerializationContext { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ISerializationContext? ISerializationContextProviderComponent.TryGetSerializationContext(ISerializer serializer, Stream stream, object request, IReadOnlyMetadataContext? metadata)
+        ISerializationContext? ISerializationContextProviderComponent.TryGetSerializationContext<TRequest, TResult>(ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, TRequest request,
+            IReadOnlyMetadataContext? metadata)
         {
             _serializer?.ShouldEqual(serializer);
-            return TryGetSerializationContext?.Invoke(stream, request, metadata);
-        }
-
-        ISerializationContext? ISerializationContextProviderComponent.TryGetDeserializationContext(ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata)
-        {
-            _serializer?.ShouldEqual(serializer);
-            return TryGetDeserializationContext?.Invoke(stream, metadata);
+            return TryGetSerializationContext?.Invoke(format, request!, metadata);
         }
 
         #endregion

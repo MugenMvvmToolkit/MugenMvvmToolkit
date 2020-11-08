@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
@@ -93,15 +93,15 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static ISerializationContext? TryGetSerializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, Stream stream, object request, IReadOnlyMetadataContext? metadata)
+        public static ISerializationContext? TryGetSerializationContext<TRequest, TResult>(this ISerializationContextProviderComponent[] components, ISerializer serializer,
+            ISerializationFormatBase<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(stream, nameof(stream));
-            Should.NotBeNull(request, nameof(request));
+            Should.NotBeNull(format, nameof(format));
             for (var i = 0; i < components.Length; i++)
             {
-                var context = components[i].TryGetSerializationContext(serializer, stream, request, metadata);
+                var context = components[i].TryGetSerializationContext(serializer, format, request, metadata);
                 if (context != null)
                     return context;
             }
@@ -109,47 +109,115 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ISerializationContext? TryGetDeserializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata)
+        public static bool IsSupported<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(stream, nameof(stream));
+            Should.NotBeNull(format, nameof(format));
             for (var i = 0; i < components.Length; i++)
             {
-                var context = components[i].TryGetDeserializationContext(serializer, stream, metadata);
-                if (context != null)
-                    return context;
-            }
-
-            return null;
-        }
-
-        public static bool TrySerialize(this ISerializerComponent[] components, ISerializer serializer, object request, ISerializationContext serializationContext)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(serializationContext, nameof(serializationContext));
-            Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TrySerialize(serializer, request, serializationContext))
+                if (components[i].IsSupported(serializer, format, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TryDeserialize(this ISerializerComponent[] components, ISerializer serializer, ISerializationContext serializationContext, out object? value)
+        public static bool TrySerialize<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
+            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(format, nameof(format));
+            Should.NotBeNull(serializationContext, nameof(serializationContext));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryDeserialize(serializer, serializationContext, out value))
+                if (components[i].TrySerialize(serializer, format, request, serializationContext, ref result))
                     return true;
             }
 
-            value = null;
+            result = default!;
+            return false;
+        }
+
+        public static bool TryDeserialize<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
+            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(format, nameof(format));
+            Should.NotBeNull(serializationContext, nameof(serializationContext));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TryDeserialize(serializer, format, request, serializationContext, ref result))
+                    return true;
+            }
+
+            result = default!;
+            return false;
+        }
+
+        public static bool IsSupported<TRequest, TResult>(this ISerializerComponent<TRequest, TResult>[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format,
+            IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(format, nameof(format));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].IsSupported(serializer, format, metadata))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool TrySerialize<TRequest, TResult>(this ISerializerComponent<TRequest, TResult>[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
+            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(format, nameof(format));
+            Should.NotBeNull(serializationContext, nameof(serializationContext));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TrySerialize(serializer, format, request, serializationContext, ref result))
+                    return true;
+            }
+
+            result = default!;
+            return false;
+        }
+
+        public static bool IsSupported<TRequest, TResult>(this IDeserializerComponent<TRequest, TResult>[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format,
+            IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(format, nameof(format));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].IsSupported(serializer, format, metadata))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool TryDeserialize<TRequest, TResult>(this IDeserializerComponent<TRequest, TResult>[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
+            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(format, nameof(format));
+            Should.NotBeNull(serializationContext, nameof(serializationContext));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TryDeserialize(serializer, format, request, serializationContext, ref result))
+                    return true;
+            }
+
+            result = default!;
             return false;
         }
 

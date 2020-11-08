@@ -110,7 +110,7 @@ namespace MugenMvvm.Validation.Components
             }
 
             if (notify)
-                OwnerOptional?.GetComponents<IValidatorListener>().OnErrorsChanged(Owner, null, member, metadata);
+                OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, null, member, metadata);
         }
 
         #endregion

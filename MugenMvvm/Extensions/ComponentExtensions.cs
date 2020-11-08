@@ -53,7 +53,7 @@ namespace MugenMvvm.Extensions
         {
             if (owner == null)
                 return default;
-            return owner.GetComponents<ISuspendable>().Suspend(state, metadata);
+            return owner.GetComponents<ISuspendable>(metadata).Suspend(state, metadata);
         }
 
         public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class

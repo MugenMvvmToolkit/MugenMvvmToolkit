@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Metadata;
@@ -58,12 +59,11 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
             var memento = ((IHasMemento) key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
-            memento.Preserve(serializationContext);
+            memento.Preserve(EmptySerializationContext);
             ContextKeyField = MetadataContextKey.FromKey<int>("121");
-            var restore = memento.Restore(serializationContext);
+            var restore = memento.Restore(EmptySerializationContext);
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyField);
         }
@@ -86,12 +86,11 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
             var memento = ((IHasMemento) key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
-            memento.Preserve(serializationContext);
+            memento.Preserve(EmptySerializationContext);
             ContextKeyProperty = MetadataContextKey.FromKey<int>("121");
-            var restore = memento.Restore(serializationContext);
+            var restore = memento.Restore(EmptySerializationContext);
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyProperty);
         }
@@ -160,12 +159,11 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
             var memento = ((IHasMemento) key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
-            memento.Preserve(serializationContext);
+            memento.Preserve(EmptySerializationContext);
             ContextKeyField = MetadataContextKey.FromKey<int>("121");
-            var restore = memento.Restore(serializationContext);
+            var restore = memento.Restore(EmptySerializationContext);
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyField);
         }
@@ -191,12 +189,11 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var serializationContext = new SerializationContext(Stream.Null, true, DefaultMetadata);
             var memento = ((IHasMemento) key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
-            memento.Preserve(serializationContext);
+            memento.Preserve(EmptySerializationContext);
             ContextKeyProperty = MetadataContextKey.FromKey<int>("121");
-            var restore = memento.Restore(serializationContext);
+            var restore = memento.Restore(EmptySerializationContext);
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyProperty);
         }
