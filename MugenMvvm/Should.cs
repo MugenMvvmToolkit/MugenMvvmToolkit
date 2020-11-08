@@ -45,6 +45,7 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BeValid([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool validation, string paramName)
         {
@@ -83,6 +84,7 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool isSupported, string methodName) =>
             BeSupported(isSupported, MessageConstant.ShouldMethodBeSupportedFormat1.Format(methodName));
