@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Models;
@@ -45,6 +46,11 @@ namespace MugenMvvm.Bindings.Enums
         #endregion
 
         #region Constructors
+
+        [Preserve(Conditional = true)]
+        protected MemberFlags()
+        {
+        }
 
         public MemberFlags(ushort value, int priority) : base(value)
         {

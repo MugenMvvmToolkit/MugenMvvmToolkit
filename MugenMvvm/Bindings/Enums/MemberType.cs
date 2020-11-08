@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 
@@ -19,6 +20,11 @@ namespace MugenMvvm.Bindings.Enums
         #endregion
 
         #region Constructors
+
+        [Preserve(Conditional = true)]
+        protected MemberType()
+        {
+        }
 
         public MemberType(ushort value) : base(value)
         {

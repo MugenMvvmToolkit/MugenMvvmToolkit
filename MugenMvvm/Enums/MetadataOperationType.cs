@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 
 namespace MugenMvvm.Enums
@@ -17,6 +18,11 @@ namespace MugenMvvm.Enums
         #endregion
 
         #region Constructors
+
+        [Preserve(Conditional = true)]
+        protected MetadataOperationType()
+        {
+        }
 
         public MetadataOperationType(int value) : base(value)
         {

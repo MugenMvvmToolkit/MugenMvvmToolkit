@@ -228,7 +228,7 @@ namespace MugenMvvm.Enums
 
         private static Dictionary<TValue, TEnum> Init()
         {
-            EnumBase.SetEnumProvider(GetAll, TryGetByName);
+            EnumBase.SetEnumProvider<TEnum, TValue>(GetAll, TryGet, TryGetByName);
             return new Dictionary<TValue, TEnum>();
         }
 

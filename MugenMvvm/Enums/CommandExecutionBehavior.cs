@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Windows.Input;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Commands;
 
@@ -22,6 +23,11 @@ namespace MugenMvvm.Enums
         #endregion
 
         #region Constructors
+
+        [Preserve(Conditional = true)]
+        protected CommandExecutionBehavior()
+        {
+        }
 
         public CommandExecutionBehavior(int value, Func<ICommand, object?, bool>? beforeExecute, Action<ICommand, object?>? afterExecute) : base(value)
         {

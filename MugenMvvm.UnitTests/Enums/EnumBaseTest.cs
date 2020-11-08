@@ -69,6 +69,8 @@ namespace MugenMvvm.UnitTests.Enums
                 var @enum = (TestEnum) v1;
             });
             TestEnum.TryGet(v1, out var r).ShouldBeFalse();
+            EnumBase.TryGet<TestEnum, int>(v1).ShouldBeNull();
+            EnumBase.TryGet(typeof(TestEnum), v1).ShouldBeNull();
             TestEnum.Count.ShouldEqual(0);
             TestEnum.GetAll().ShouldBeEmpty();
             EnumBase.GetAll<TestEnum>().ShouldBeEmpty();
@@ -80,6 +82,8 @@ namespace MugenMvvm.UnitTests.Enums
             EnumBase.GetAll(typeof(TestEnum)).Single().ShouldEqual(testEnum);
             TestEnum.Count.ShouldEqual(1);
 
+            EnumBase.TryGet<TestEnum, int>(v1).ShouldEqual(testEnum);
+            EnumBase.TryGet(typeof(TestEnum), v1).ShouldEqual(testEnum);
             TestEnum.Get(v1).ShouldEqual(testEnum);
             ((TestEnum) v1!).ShouldEqual(testEnum);
             TestEnum.TryGet(v1, out r).ShouldBeTrue();
@@ -96,6 +100,8 @@ namespace MugenMvvm.UnitTests.Enums
             EnumBase.GetAll(typeof(TestEnum)).Length.ShouldEqual(3);
             EnumBase.GetAll(typeof(TestEnum)).ShouldContain(testEnum, testEnum2);
 
+            EnumBase.TryGet<TestEnum, int>(v2).ShouldEqual(testEnum2);
+            EnumBase.TryGet(typeof(TestEnum), v2).ShouldEqual(testEnum2);
             TestEnum.Get(v3).ShouldEqual(testEnum2);
             ((TestEnum) v3).ShouldEqual(testEnum2);
             TestEnum.TryGet(v3, out r).ShouldBeTrue();
