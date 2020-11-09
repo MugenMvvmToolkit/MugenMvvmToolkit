@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         public int Priority { get; set; }
 
-        public Func<ISerializationFormatBase, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
+        public Func<ISerializationFormatBase, object?, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
         public Func<object, ISerializationContext, object?>? TryDeserialize { get; set; }
 
@@ -37,17 +37,17 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         #region Implementation of interfaces
 
-        bool IDeserializerComponent<TRequest, TResult>.IsSupported(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, IReadOnlyMetadataContext? metadata)
+        bool IDeserializerComponent<TRequest, TResult>.IsSupported(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
         {
             _serializer?.ShouldEqual(serializer);
-            return IsSupported?.Invoke(format, metadata) ?? false;
+            return IsSupported?.Invoke(format, request!, metadata) ?? false;
         }
 
         bool IDeserializerComponent<TRequest, TResult>.TryDeserialize(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,
-            [NotNullWhen(true)][AllowNull] ref TResult result)
+            [NotNullWhen(true)] [AllowNull] ref TResult result)
         {
             _serializer?.ShouldEqual(serializer);
-            result = (TResult)TryDeserialize?.Invoke(request!, serializationContext)!;
+            result = (TResult) TryDeserialize?.Invoke(request!, serializationContext)!;
             return result != null;
         }
 

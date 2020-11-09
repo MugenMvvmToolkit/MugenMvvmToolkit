@@ -21,6 +21,7 @@ namespace MugenMvvm.UnitTests.Serialization
         public void IsSupportedShouldBeHandledByComponents(int count)
         {
             var format = new SerializationFormat<string, Stream?>(1, "Test");
+            var request = "r";
             var serializer = new Serializer();
             var executeCount = 0;
             for (var i = 0; i < count; i++)
@@ -28,10 +29,11 @@ namespace MugenMvvm.UnitTests.Serialization
                 var isLast = i == count - 1;
                 var component = new TestSerializationManagerComponent(serializer)
                 {
-                    IsSupported = (t, context) =>
+                    IsSupported = (t, r, context) =>
                     {
                         ++executeCount;
                         t.ShouldEqual(format);
+                        r.ShouldEqual(request);
                         context.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return true;
@@ -42,7 +44,7 @@ namespace MugenMvvm.UnitTests.Serialization
                 serializer.AddComponent(component);
             }
 
-            serializer.IsSupported(format, DefaultMetadata).ShouldEqual(true);
+            serializer.IsSupported(format, request, DefaultMetadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
 

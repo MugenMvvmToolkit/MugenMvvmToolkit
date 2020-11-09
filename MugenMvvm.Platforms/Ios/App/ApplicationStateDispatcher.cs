@@ -58,7 +58,7 @@ namespace MugenMvvm.Ios.App
         {
             if (lifecycleState == IosApplicationLifecycleState.Preserving && state is ICancelableRequest cancelableRequest
                                                                           && cancelableRequest.Cancel == null)
-                cancelableRequest.Cancel = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController == null;
+                cancelableRequest.Cancel = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController == null || !_serializer.DefaultIfNull().IsSupported(SerializationFormat.AppStateBytes);
             else if (lifecycleState == IosApplicationLifecycleState.Preserved && state is NSCoder coder)
             {
                 var rootViewController = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController;
@@ -112,11 +112,15 @@ namespace MugenMvvm.Ios.App
                 viewController.RestorationIdentifier = vw.ViewModel.GetId();
             else if (lifecycleState == IosViewLifecycleState.EncodingRestorableState && state is NSCoder coder)
             {
+                var serializer = _serializer.DefaultIfNull();
+                if (!serializer.IsSupported(SerializationFormat.AppStateBytes))
+                    return;
+
                 if (view is IView v)
                 {
                     var stateMeta = ViewModelMetadata.ViewModel.ToContext(v.ViewModel);
                     ReadOnlyMemory<byte> buffer = default;
-                    if (_serializer.DefaultIfNull().TrySerialize(SerializationFormat.AppStateBytes, stateMeta, ref buffer, metadata))
+                    if (serializer.TrySerialize(SerializationFormat.AppStateBytes, stateMeta, ref buffer, metadata))
                     {
                         coder.Encode(buffer.ToArray(), IosInternalConstants.ViewModelStateKey);
                         coder.Encode(v.Target.GetType().AssemblyQualifiedName, IosInternalConstants.ViewControllerTypeKey);

@@ -16,9 +16,10 @@ namespace MugenMvvm.UnitTests.Serialization.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void IsSupportedShouldBeHandledByComponents(int count)
+        public void IsSupportedShouldBeHandledByComponentsSerializer(int count)
         {
             var format = new SerializationFormat<string, Stream?>(1, "Test");
+            var request = "r";
             var serializer = new Serializer();
             serializer.AddComponent(new SerializationManager());
             var executeCount = 0;
@@ -27,10 +28,11 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                 var isLast = i == count - 1;
                 var component = new TestSerializerComponent<string, Stream?>(serializer)
                 {
-                    IsSupported = (t, context) =>
+                    IsSupported = (t, r, context) =>
                     {
                         ++executeCount;
                         t.ShouldEqual(format);
+                        r.ShouldEqual(request);
                         context.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return true;
@@ -41,7 +43,41 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                 serializer.AddComponent(component);
             }
 
-            serializer.IsSupported(format, DefaultMetadata).ShouldEqual(true);
+            serializer.IsSupported(format, request, DefaultMetadata).ShouldEqual(true);
+            executeCount.ShouldEqual(count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void IsSupportedShouldBeHandledByComponentsDeserializer(int count)
+        {
+            var format = new DeserializationFormat<string, Stream?>(1, "Test");
+            var request = "r";
+            var serializer = new Serializer();
+            serializer.AddComponent(new SerializationManager());
+            var executeCount = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                var component = new TestDeserializerComponent<string, Stream?>(serializer)
+                {
+                    IsSupported = (t, r, context) =>
+                    {
+                        ++executeCount;
+                        t.ShouldEqual(format);
+                        r.ShouldEqual(request);
+                        context.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return true;
+                        return false;
+                    },
+                    Priority = -i
+                };
+                serializer.AddComponent(component);
+            }
+
+            serializer.IsSupported(format, request, DefaultMetadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
 

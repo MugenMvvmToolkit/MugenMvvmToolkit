@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Serialization;
+﻿using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 #if SPAN_API
 using System;
@@ -13,11 +12,13 @@ namespace MugenMvvm.Enums
         #region Fields
 
 #if SPAN_API
-        public static readonly IDeserializationFormat<ReadOnlyMemory<byte>, object?> JsonBytes = new DeserializationFormat<ReadOnlyMemory<byte>, object?>(1, InternalConstant.JsonFormat);
-        public static readonly IDeserializationFormat<ReadOnlyMemory<byte>, IReadOnlyMetadataContext?> AppStateBytes = new DeserializationFormat<ReadOnlyMemory<byte>, IReadOnlyMetadataContext?>(-1, InternalConstant.StateFormat);
+        public static readonly IDeserializationFormat<ReadOnlyMemory<byte>, object?> JsonBytes = new DeserializationFormat<ReadOnlyMemory<byte>, object?>(0, SerializationFormat.JsonName);
+        public static readonly IDeserializationFormat<ReadOnlyMemory<byte>, IReadOnlyMetadataContext?> AppStateBytes =
+            new DeserializationFormat<ReadOnlyMemory<byte>, IReadOnlyMetadataContext?>(-1, SerializationFormat.AppStateName);
 #else
-        public static readonly IDeserializationFormat<byte[], object?> JsonBytes = new DeserializationFormat<byte[], object?>(1, InternalConstant.JsonFormat);
-        public static readonly IDeserializationFormat<byte[], IReadOnlyMetadataContext?> AppStateBytes = new DeserializationFormat<byte[], IReadOnlyMetadataContext?>(-1, InternalConstant.StateFormat);
+        public static readonly IDeserializationFormat<byte[], object?> JsonBytes = new DeserializationFormat<byte[], object?>(0, SerializationFormat.JsonName);
+        public static readonly IDeserializationFormat<byte[], IReadOnlyMetadataContext?> AppStateBytes =
+            new DeserializationFormat<byte[], IReadOnlyMetadataContext?>(-1, SerializationFormat.AppStateName);
 #endif
 
         #endregion

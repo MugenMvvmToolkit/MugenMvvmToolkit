@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         public int Priority { get; set; }
 
-        public Func<ISerializationFormatBase, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
+        public Func<ISerializationFormatBase, object?, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
         public Func<object, ISerializationContext, object?>? TrySerialize { get; set; }
 
@@ -37,10 +37,10 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         #region Implementation of interfaces
 
-        bool ISerializerComponent<TRequest, TResult>.IsSupported(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, IReadOnlyMetadataContext? metadata)
+        bool ISerializerComponent<TRequest, TResult>.IsSupported(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
         {
             _serializer?.ShouldEqual(serializer);
-            return IsSupported?.Invoke(format, metadata) ?? false;
+            return IsSupported?.Invoke(format, request, metadata) ?? false;
         }
 
         bool ISerializerComponent<TRequest, TResult>.TrySerialize(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,

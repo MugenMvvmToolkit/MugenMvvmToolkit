@@ -21,8 +21,8 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public bool IsSupported<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, IReadOnlyMetadataContext? metadata = null)
-            => GetComponents<ISerializationManagerComponent>(metadata).IsSupported(this, format, metadata);
+        public bool IsSupported<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request = default, IReadOnlyMetadataContext? metadata = null)
+            => GetComponents<ISerializationManagerComponent>(metadata).IsSupported(this, format, request, metadata);
 
         public bool TrySerialize<TRequest, TResult>(ISerializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] [AllowNull] ref TResult result, IReadOnlyMetadataContext? metadata = null)
         {

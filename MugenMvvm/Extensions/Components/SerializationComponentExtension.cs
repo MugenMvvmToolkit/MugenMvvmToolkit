@@ -109,14 +109,15 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool IsSupported<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, IReadOnlyMetadataContext? metadata)
+        public static bool IsSupported<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].IsSupported(serializer, format, metadata))
+                if (components[i].IsSupported(serializer, format, request, metadata))
                     return true;
             }
 
@@ -158,14 +159,14 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool IsSupported<TRequest, TResult>(this ISerializerComponent<TRequest, TResult>[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format,
-            IReadOnlyMetadataContext? metadata)
+            [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].IsSupported(serializer, format, metadata))
+                if (components[i].IsSupported(serializer, format, request, metadata))
                     return true;
             }
 
@@ -190,14 +191,14 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool IsSupported<TRequest, TResult>(this IDeserializerComponent<TRequest, TResult>[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format,
-            IReadOnlyMetadataContext? metadata)
+            [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].IsSupported(serializer, format, metadata))
+                if (components[i].IsSupported(serializer, format, request, metadata))
                     return true;
             }
 

@@ -79,7 +79,7 @@ namespace MugenMvvm.Extensions
             return snapshot;
         }
 
-        public static TResult Serialize<TRequest, TResult>(this ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, 
+        public static TResult Serialize<TRequest, TResult>(this ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
             [AllowNull] TResult buffer = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
@@ -88,7 +88,11 @@ namespace MugenMvvm.Extensions
             return buffer;
         }
 
-        public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request, 
+        public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, object?> dynamicFormat, TRequest request,
+            [AllowNull] TResult buffer = default, IReadOnlyMetadataContext? metadata = null) where TResult : class =>
+            serializer.Deserialize<TRequest, TResult>(format: dynamicFormat, request: request, buffer, metadata: metadata);
+
+        public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
             [AllowNull] TResult buffer = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));

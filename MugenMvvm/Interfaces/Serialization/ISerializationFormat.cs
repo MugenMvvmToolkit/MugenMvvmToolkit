@@ -11,7 +11,8 @@
     {
     }
 
-    public interface ISerializationFormat<out TRequest, in TResult> : ISerializationFormatBase<TRequest, TResult>
+    // ReSharper disable once TypeParameterCanBeVariant
+    public interface ISerializationFormat<out TRequest, TResult> : ISerializationFormatBase<TRequest, TResult>
     {
     }
 
