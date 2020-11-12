@@ -58,13 +58,7 @@ namespace MugenMvvm.Extensions.Components
             var tokens = new ActionToken[components.Length];
             for (var i = 0; i < components.Length; i++)
                 tokens[i] = components[i].Suspend(state, metadata);
-
-            return new ActionToken((o, _) =>
-            {
-                var list = (ActionToken[]) o!;
-                for (var i = 0; i < list.Length; i++)
-                    list[i].Dispose();
-            }, tokens);
+            return new ActionToken(tokens);
         }
 
         #endregion

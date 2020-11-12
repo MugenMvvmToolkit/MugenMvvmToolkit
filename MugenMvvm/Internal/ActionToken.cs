@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -23,6 +24,34 @@ namespace MugenMvvm.Internal
             _handler = handler;
             _state1 = state;
             _state2 = state2;
+        }
+
+        public ActionToken(ItemOrList<ActionToken, IReadOnlyList<ActionToken>> tokens)
+        {
+            if (tokens.HasItem)
+            {
+                var token = tokens.Item;
+                _handler = token._handler;
+                _state1 = token._state1;
+                _state2 = token._state2;
+            }
+            else if (tokens.List != null)
+            {
+                _handler = new Action<object?, object?>((o, _) =>
+                {
+                    var list = (ActionToken[]) o!;
+                    for (var i = 0; i < list.Length; i++)
+                        list[i].Dispose();
+                });
+                _state1 = tokens.List;
+                _state2 = null;
+            }
+            else
+            {
+                _handler = null;
+                _state1 = null;
+                _state2 = null;
+            }
         }
 
         public ActionToken(IHandler handler, object? state1 = null, object? state2 = null) : this(handler, state: state1, state2)
