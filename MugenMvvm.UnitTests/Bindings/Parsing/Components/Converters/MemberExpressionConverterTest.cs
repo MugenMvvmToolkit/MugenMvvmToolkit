@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var propertyInfo = target.GetType().GetProperty(nameof(target.PropertyResourceExt));
             var ctx = new ExpressionConverterContext<Expression>();
             var component = new MemberExpressionConverter();
-            var expressionNode = component.TryConvert(ctx, Expression.Property(Expression.Constant(target), propertyInfo));
+            var expressionNode = component.TryConvert(ctx, Expression.Property(Expression.Constant(target), propertyInfo!));
             expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.PropertyResource)));
         }
 

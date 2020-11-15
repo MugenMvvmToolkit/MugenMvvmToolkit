@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     if (expressionNode is IMemberExpressionNode memberExpression)
                     {
                         var target = ((IExpressionBuilderContext) ctx).Build(memberExpression.Target!);
-                        return Expression.MakeMemberAccess(target, typeof(string).GetProperty(memberExpression.Member));
+                        return Expression.MakeMemberAccess(target, typeof(string).GetProperty(memberExpression.Member)!);
                     }
 
                     return null;
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     if (expressionNode is IMethodCallExpressionNode methodCall)
                     {
                         var target = ((IExpressionBuilderContext) ctx).Build(methodCall.Target!);
-                        return Expression.Call(target.ConvertIfNeed(typeof(object), false), typeof(object).GetMethods().FirstOrDefault(info => info.Name == nameof(ToString)));
+                        return Expression.Call(target.ConvertIfNeed(typeof(object), false), typeof(object).GetMethods().FirstOrDefault(info => info.Name == nameof(ToString))!);
                     }
 
                     return null;

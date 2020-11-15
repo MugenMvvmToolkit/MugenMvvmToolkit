@@ -61,8 +61,9 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             _countRaised = false;
         }
 
-        private static void OnAddEvent(List<T> items, IList newItems, int index)
+        private static void OnAddEvent(List<T> items, IList? newItems, int index)
         {
+            Should.NotBeNull(newItems, nameof(newItems));
             foreach (var newItem in newItems.Cast<T>())
             {
                 items.Insert(index, newItem);
@@ -70,17 +71,17 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             }
         }
 
-        private static void OnRemoveEvent(List<T> items, IList oldItems, int index)
+        private static void OnRemoveEvent(List<T> items, IList? oldItems, int index)
         {
-            if (oldItems.Count > 1)
+            if (oldItems == null || oldItems.Count > 1)
                 throw new NotSupportedException();
             items[index]!.ShouldEqual(oldItems[0]);
             items.RemoveAt(index);
         }
 
-        private static void OnMoveEvent(List<T> items, IList oldItems, int oldIndex, int newIndex)
+        private static void OnMoveEvent(List<T> items, IList? oldItems, int oldIndex, int newIndex)
         {
-            if (oldItems.Count > 1)
+            if (oldItems == null || oldItems.Count > 1)
                 throw new NotSupportedException();
 
             items[oldIndex]!.ShouldEqual(oldItems[0]);
@@ -88,9 +89,9 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             items.Insert(newIndex, (T) oldItems[0]!);
         }
 
-        private static void OnReplaceEvent(List<T> items, IList oldItems, IList newItems, int index)
+        private static void OnReplaceEvent(List<T> items, IList? oldItems, IList? newItems, int index)
         {
-            if (oldItems.Count > 1 || newItems.Count > 1)
+            if (oldItems == null || newItems == null || oldItems.Count > 1 || newItems.Count > 1)
                 throw new NotSupportedException();
             items[index]!.ShouldEqual(oldItems[0]);
             items[index] = (T) newItems[0]!;
@@ -103,8 +104,9 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 items.AddRange(resetItems);
         }
 
-        public void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
         {
+            Should.NotBeNull(sender, nameof(sender));
             var items = ChangedItems;
             switch (args.Action)
             {

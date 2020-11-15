@@ -60,7 +60,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static void AddCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler handler, IReadOnlyMetadataContext? metadata)
+        public static void AddCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
@@ -69,7 +69,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].AddCanExecuteChanged(command, handler, metadata);
         }
 
-        public static void RemoveCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler handler, IReadOnlyMetadataContext? metadata)
+        public static void RemoveCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));

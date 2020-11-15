@@ -22,8 +22,8 @@ namespace MugenMvvm.Serialization.Components
         public bool IsSupported<TRequest, TResult>(ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (format.IsSerialization)
-                return serializer.Components.Get<ISerializerComponent<TRequest, TResult>>(metadata).IsSupported(serializer, (ISerializationFormat<TRequest, TResult>) format, request, metadata);
-            return serializer.Components.Get<IDeserializerComponent<TRequest, TResult>>(metadata).IsSupported(serializer, (IDeserializationFormat<TRequest, TResult>) format, request, metadata);
+                return serializer.Components.Get<ISerializerComponent<TRequest, TResult>>(metadata)!.IsSupported(serializer, (ISerializationFormat<TRequest, TResult>) format, request, metadata);
+            return serializer.Components.Get<IDeserializerComponent<TRequest, TResult>>(metadata)!.IsSupported(serializer, (IDeserializationFormat<TRequest, TResult>) format, request, metadata);
         }
 
         public bool TrySerialize<TRequest, TResult>(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,

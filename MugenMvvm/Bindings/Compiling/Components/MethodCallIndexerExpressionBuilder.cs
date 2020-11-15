@@ -101,7 +101,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             var type = MugenBindingExtensions.GetTargetType(ref target);
 
             if (type.IsArray)
-                return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
+                return Expression.ArrayIndex(target!, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
             return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), Default.Array<Type>());
         }
 
@@ -426,7 +426,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     {
                         var parameter = parameters[j];
                         if (j == parameters.Count - 1 && hasParams)
-                            result[j] = Expression.NewArrayInit(parameter.ParameterType.GetElementType(), Default.Array<Expression>());
+                            result[j] = Expression.NewArrayInit(parameter.ParameterType.GetElementType()!, Default.Array<Expression>());
                         else
                         {
                             if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))

@@ -288,18 +288,18 @@ namespace MugenMvvm.Collections
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    for (var i = 0; i < e.NewItems.Count; i++)
+                    for (var i = 0; i < e.NewItems!.Count; i++)
                         AddEvent(CollectionChangedEvent.Add(e.NewItems[i], e.NewStartingIndex + i), version);
                     break;
                 case NotifyCollectionChangedAction.Move:
-                    AddEvent(CollectionChangedEvent.Move(e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex), version);
+                    AddEvent(CollectionChangedEvent.Move(e.OldItems![0], e.OldStartingIndex, e.NewStartingIndex), version);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    for (var i = 0; i < e.OldItems.Count; i++)
+                    for (var i = 0; i < e.OldItems!.Count; i++)
                         AddEvent(CollectionChangedEvent.Remove(e.OldItems[i], e.OldStartingIndex + i), version);
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    AddEvent(CollectionChangedEvent.Replace(e.OldItems[0], e.NewItems[0], e.NewStartingIndex), version);
+                    AddEvent(CollectionChangedEvent.Replace(e.OldItems![0], e.NewItems![0], e.NewStartingIndex), version);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     AddEvent(CollectionChangedEvent.Reset(null), version);
@@ -320,7 +320,7 @@ namespace MugenMvvm.Collections
                     return false;
                 case NotifyCollectionChangedAction.Move:
                 case NotifyCollectionChangedAction.Replace:
-                    if (e.OldItems.Count == 1)
+                    if (e.OldItems!.Count == 1)
                         return false;
                     items = GetCollectionItems((IEnumerable) sender);
                     return true;
@@ -420,8 +420,11 @@ namespace MugenMvvm.Collections
 
             public void SetVersion(int version) => _version = version;
 
-            public void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+            public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
             {
+                if (sender == null)
+                    return;
+
                 var adapter = GetAdapter();
                 if (adapter == null || !adapter.IsAlive)
                     ((INotifyCollectionChanged) sender).CollectionChanged -= OnCollectionChanged;

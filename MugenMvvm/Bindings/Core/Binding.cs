@@ -284,8 +284,8 @@ namespace MugenMvvm.Bindings.Core
 
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
 
-        bool IReadOnlyMetadataContext.TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
-            => this.TryGetFromRaw(contextKey, TryGetMetadata(contextKey, out var rawValue), rawValue, out value, defaultValue);
+        bool IReadOnlyMetadataContext.TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)][NotNullIfNotNull("defaultValue")] out T value, [AllowNull] T defaultValue)
+            => this.TryGetFromRaw(contextKey, TryGetMetadata(contextKey, out var rawValue), rawValue, out value, defaultValue!);
 
         #endregion
 

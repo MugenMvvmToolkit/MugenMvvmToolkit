@@ -99,7 +99,8 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
+            out T value, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             var components = GetComponents();
@@ -110,7 +111,7 @@ namespace MugenMvvm.Metadata
                 hasValue = TryGet(components, contextKey, MetadataOperationType.Get, out rawValue);
             }
 
-            return this.TryGetFromRaw(contextKey, hasValue, rawValue, out value, defaultValue);
+            return this.TryGetFromRaw(contextKey, hasValue, rawValue, out value, defaultValue!);
         }
 
         public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory)

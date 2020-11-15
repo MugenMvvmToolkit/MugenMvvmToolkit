@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>monoandroid10.0;xamarin.ios10;net461;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>monoandroid10.0;xamarin.ios10;net461;netcoreapp3.1;net5.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -11,7 +11,7 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) ">
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) or $(TargetFramework.StartsWith('net5'))">
     <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
   </PropertyGroup>
 

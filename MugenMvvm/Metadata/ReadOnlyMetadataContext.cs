@@ -41,8 +41,9 @@ namespace MugenMvvm.Metadata
 
         public bool Contains(IMetadataContextKey contextKey) => _dictionary.ContainsKey(contextKey);
 
-        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
-            => this.TryGetFromRaw(contextKey, _dictionary.TryGetValue(contextKey, out var rawValue), rawValue, out value, defaultValue);
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
+            out T value, [AllowNull] T defaultValue)
+            => this.TryGetFromRaw(contextKey, _dictionary.TryGetValue(contextKey, out var rawValue), rawValue, out value, defaultValue!);
 
         #endregion
     }

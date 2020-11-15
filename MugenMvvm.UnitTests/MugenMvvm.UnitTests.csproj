@@ -1,12 +1,12 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net461;monoandroid10.0</TargetFrameworks>
+    <TargetFrameworks>net461;monoandroid10.0;net5.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) ">
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) or $(TargetFramework.StartsWith('net5')) ">
     <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
   </PropertyGroup>
 
@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
     <PackageReference Include="Should-DotNetStandard" Version="1.0.0" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />

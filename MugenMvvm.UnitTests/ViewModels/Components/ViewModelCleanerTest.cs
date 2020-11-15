@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             var viewModel = new TestCleanerViewModel();
             viewModel.Metadata.Set(ViewModelMetadata.ViewModel, viewModel);
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            viewModel.Metadata.TryGet(ViewModelMetadata.ViewModel, out _).ShouldBeFalse();
+            viewModel.Metadata.TryGet(ViewModelMetadata.ViewModel, out var vm).ShouldBeFalse();
         }
 
         [Fact]

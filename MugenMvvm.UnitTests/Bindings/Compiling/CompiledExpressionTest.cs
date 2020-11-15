@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                         var expression2 = context.TryGetExpression(member2);
 
                         if (isLast)
-                            return Expression.Add(expression1, expression2);
+                            return Expression.Add(expression1!, expression2!);
                         return null;
                     }
                 });
@@ -237,7 +237,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                         node.ShouldEqual(expressionNode);
                         var expression1 = context.TryGetExpression(member1);
                         var expression2 = context.TryGetExpression(member2);
-                        return Expression.Add(expression1, expression2);
+                        return Expression.Add(expression1!, expression2!);
                     }
                 }
             };

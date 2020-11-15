@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if !NET5_0
+
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace MugenMvvm.UnitTests.Internal.Internal
@@ -38,3 +40,5 @@ namespace MugenMvvm.UnitTests.Internal.Internal
         #endregion
     }
 }
+
+#endif

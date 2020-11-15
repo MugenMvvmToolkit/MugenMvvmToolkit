@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -68,6 +69,7 @@ namespace MugenMvvm.Bindings.Core
 
         #region Implementation of interfaces
 
+        [return: MaybeNull]
         public TValue TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default)
         {
             Should.NotBeNull(parameterName, nameof(parameterName));

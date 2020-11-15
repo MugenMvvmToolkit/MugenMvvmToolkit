@@ -72,22 +72,23 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        //note nullable type generic issue
+        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.TryGet(contextKey, out value, default!);
+        }
+
         [return: MaybeNull]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key) => metadataContext.Get(key, default);
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key) => metadataContext.Get(key, default!);
 
         [return: MaybeNull]
         [return: NotNullIfNotNull("defaultValue")]
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            metadataContext.TryGet(key, out var value, defaultValue);
+            metadataContext.TryGet(key, out var value, defaultValue!);
             return value;
-        }
-
-        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.TryGet(contextKey, out value, default);
         }
 
         public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, IMetadataContextKey<T>, T> valueFactory,
@@ -139,19 +140,22 @@ namespace MugenMvvm.Extensions
             return builder.ToString();
         }
 
+        //note nullable type generic issue
         [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key) => owner.GetOrDefault(key, default);
+        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key) => owner.GetOrDefault(key, default!);
 
         [return: MaybeNull]
         internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
         {
-            if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue))
+            if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue!))
                 return v;
             return default;
         }
 
-        internal static bool TryGetFromRaw<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, bool hasValue, object? rawValue, out T value, [AllowNull] T defaultValue)
+        internal static bool TryGetFromRaw<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, bool hasValue, object? rawValue,
+            [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
+            out T value, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             if (hasValue)

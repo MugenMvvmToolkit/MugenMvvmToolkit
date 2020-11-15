@@ -29,8 +29,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var body = Expression.Constant("");
             var expectedResult = new LambdaExpressionNode(ConstantExpressionNode.EmptyString, new[]
             {
-                new ParameterExpressionNode(p1.Name),
-                new ParameterExpressionNode(p2.Name)
+                new ParameterExpressionNode(p1.Name!),
+                new ParameterExpressionNode(p2.Name!)
             });
             var ctx = new ExpressionConverterContext<Expression>
             {
@@ -40,8 +40,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
                     {
                         TryConvert = (context, expression) =>
                         {
-                            context.TryGetExpression(p1).ShouldEqual(new ParameterExpressionNode(p1.Name));
-                            context.TryGetExpression(p2).ShouldEqual(new ParameterExpressionNode(p2.Name));
+                            context.TryGetExpression(p1).ShouldEqual(new ParameterExpressionNode(p1.Name!));
+                            context.TryGetExpression(p2).ShouldEqual(new ParameterExpressionNode(p2.Name!));
                             return ConstantExpressionNode.EmptyString;
                         }
                     }

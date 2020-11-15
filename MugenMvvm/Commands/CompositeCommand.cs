@@ -53,7 +53,7 @@ namespace MugenMvvm.Commands
 
         #region Events
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add => GetComponents<IConditionEventCommandComponent>().AddCanExecuteChanged(this, value, null);
             remove => GetComponents<IConditionEventCommandComponent>().RemoveCanExecuteChanged(this, value, null);
@@ -63,9 +63,9 @@ namespace MugenMvvm.Commands
 
         #region Implementation of interfaces
 
-        public bool CanExecute(object parameter) => GetComponents<IConditionCommandComponent>().CanExecute(this, parameter, null);
+        public bool CanExecute(object? parameter) => GetComponents<IConditionCommandComponent>().CanExecute(this, parameter, null);
 
-        public void Execute(object parameter) => ExecuteAsync(parameter);
+        public void Execute(object? parameter) => ExecuteAsync(parameter);
 
         public Task ExecuteAsync(object? parameter) => GetComponents<IExecutorCommandComponent>().ExecuteAsync(this, parameter, null);
 

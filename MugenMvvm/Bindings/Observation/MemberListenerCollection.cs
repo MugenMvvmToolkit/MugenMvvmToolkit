@@ -84,8 +84,9 @@ namespace MugenMvvm.Bindings.Observation
             }
         }
 
-        public ActionToken Add(IEventListener target, string memberName)
+        public ActionToken Add(IEventListener target, string? memberName)
         {
+            memberName ??= "";
             if (_size > MaxValueTrim && _removedSize == 0 && _listeners.Length == _size)
                 ClearDeadReferences();
 

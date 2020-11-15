@@ -127,7 +127,8 @@ namespace MugenMvvm.Internal
 
             public bool Contains(IMetadataContextKey contextKey) => false;
 
-            public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue) => this.TryGetFromRaw(contextKey, false, null, out value, defaultValue);
+            public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)][NotNullIfNotNull("defaultValue")] out T value, [AllowNull] T defaultValue) 
+                => this.TryGetFromRaw(contextKey, false, null, out value, defaultValue!);
 
             void IWeakReference.Release()
             {

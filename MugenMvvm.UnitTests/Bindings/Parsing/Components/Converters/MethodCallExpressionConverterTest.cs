@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var method = target.GetType().GetMethod(nameof(target.MethodResourceExt));
             var ctx = new ExpressionConverterContext<Expression>();
             var component = new MethodCallExpressionConverter();
-            var expressionNode = component.TryConvert(ctx, Expression.Call(Expression.Constant(target), method, Expression.Constant("")));
+            var expressionNode = component.TryConvert(ctx, Expression.Call(Expression.Constant(target), method!, Expression.Constant("")));
             expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.MethodResource)));
         }
 

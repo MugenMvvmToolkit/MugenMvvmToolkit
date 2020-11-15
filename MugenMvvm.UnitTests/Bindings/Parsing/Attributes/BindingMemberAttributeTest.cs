@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnMemberExpression6()
         {
-            var access = Expression.MakeMemberAccess(null, GetType().GetProperty(nameof(StaticProperty)));
+            var access = Expression.MakeMemberAccess(null, GetType().GetProperty(nameof(StaticProperty))!);
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(access.Member)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, access, out var result).ShouldBeTrue();
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnMemberExpression7()
         {
-            var access = Expression.MakeMemberAccess(Expression.Constant(this), GetType().GetProperty(nameof(Property)));
+            var access = Expression.MakeMemberAccess(Expression.Constant(this), GetType().GetProperty(nameof(Property))!);
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(access.Member)!;
             var ctx = new ExpressionConverterContext<Expression>
             {

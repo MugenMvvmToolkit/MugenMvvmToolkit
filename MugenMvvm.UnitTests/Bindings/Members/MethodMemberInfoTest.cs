@@ -113,7 +113,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         [Fact]
         public void ConstructorShouldInitializeMember3()
         {
-            var methodInfo = typeof(Enumerable).GetMethods().FirstOrDefault(info => info.Name == nameof(Enumerable.FirstOrDefault) && info.GetParameters().Length == 1);
+            var methodInfo = typeof(Enumerable).GetMethods().FirstOrDefault(info => info.Name == nameof(Enumerable.FirstOrDefault) && info.GetParameters().Length == 1)!;
 
             var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, true, methodInfo.ReflectedType!, null, null);
             memberInfo.Name.ShouldEqual(methodInfo.Name);

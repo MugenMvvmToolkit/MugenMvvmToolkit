@@ -124,7 +124,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var collection = new MemberListenerCollection();
             for (var i = 0; i < count; i++)
             {
-                collection.Add(listeners[i], args.PropertyName);
+                collection.Add(listeners[i], args.PropertyName!);
                 collection.RaisePropertyChanged(sender, args);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
                 collection.Count.ShouldEqual(i + 1);
@@ -146,7 +146,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             for (var i = 0; i < removeCount; i++)
             {
                 listeners[i].IsAlive = true;
-                tokens.Add(collection.Add(listeners[i], args.PropertyName));
+                tokens.Add(collection.Add(listeners[i], args.PropertyName!));
             }
 
             collection.RaisePropertyChanged(sender, args);

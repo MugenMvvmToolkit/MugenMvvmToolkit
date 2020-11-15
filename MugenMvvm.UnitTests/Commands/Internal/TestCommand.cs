@@ -19,10 +19,10 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Events
 
-        event EventHandler ICommand.CanExecuteChanged
+        event EventHandler? ICommand.CanExecuteChanged
         {
-            add => AddCanExecuteChanged?.Invoke(value);
-            remove => RemoveCanExecuteChanged?.Invoke(value);
+            add => AddCanExecuteChanged?.Invoke(value!);
+            remove => RemoveCanExecuteChanged?.Invoke(value!);
         }
 
         #endregion

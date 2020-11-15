@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var component = new UnaryExpressionConverter();
             component.Mapping.Clear();
             var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.MakeUnary(ExpressionType.Negate, Expression.Constant(1), null)).ShouldBeNull();
+            component.TryConvert(ctx, Expression.MakeUnary(ExpressionType.Negate, Expression.Constant(1), null!)).ShouldBeNull();
         }
 
         [Theory]
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             else
                 result = new UnaryExpressionNode(unaryTokenType, operandExpr);
 
-            return new object[] {context, Expression.MakeUnary(expressionType, operand, unaryTokenType == null ? typeof(T) : null), result};
+            return new object[] {context, Expression.MakeUnary(expressionType, operand, unaryTokenType == null ? typeof(T) : null!), result};
         }
 
         #endregion
