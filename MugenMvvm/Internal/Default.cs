@@ -121,13 +121,12 @@ namespace MugenMvvm.Internal
             {
             }
 
-            public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator() => Enumerable.Empty<KeyValuePair<IMetadataContextKey, object?>>().GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            public ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetValues() => default;
 
             public bool Contains(IMetadataContextKey contextKey) => false;
 
-            public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)][NotNullIfNotNull("defaultValue")] out T value, [AllowNull] T defaultValue) 
+            public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
+                out T value, [AllowNull] T defaultValue)
                 => this.TryGetFromRaw(contextKey, false, null, out value, defaultValue!);
 
             void IWeakReference.Release()

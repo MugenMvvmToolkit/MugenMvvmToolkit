@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -113,7 +112,7 @@ namespace MugenMvvm.Bindings.Core
 
         protected object? SourceRaw { get; private set; }
 
-        int IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>.Count => GetMetadataCount();
+        int IReadOnlyMetadataContext.Count => GetMetadataCount();
 
         #endregion
 
@@ -278,13 +277,12 @@ namespace MugenMvvm.Bindings.Core
                 BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
         }
 
-        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator() => GetMetadataEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetMetadataEnumerator();
+        ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> IReadOnlyMetadataContext.GetValues() => GetMetadataValues();
 
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
 
-        bool IReadOnlyMetadataContext.TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)][NotNullIfNotNull("defaultValue")] out T value, [AllowNull] T defaultValue)
+        bool IReadOnlyMetadataContext.TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
+            out T value, [AllowNull] T defaultValue)
             => this.TryGetFromRaw(contextKey, TryGetMetadata(contextKey, out var rawValue), rawValue, out value, defaultValue!);
 
         #endregion
@@ -406,7 +404,8 @@ namespace MugenMvvm.Bindings.Core
 
         protected virtual int GetMetadataCount() => 1;
 
-        protected virtual IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetMetadataEnumerator() => Default.SingleValueEnumerator(BindingMetadata.Binding.ToValue(this));
+        protected virtual ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetMetadataValues()
+            => BindingMetadata.Binding.ToValue(this);
 
         protected virtual bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -116,6 +115,19 @@ namespace MugenMvvm.Extensions
             metadataContext.Set(contextKey, value, out _);
         }
 
+        public static void Merge(this IMetadataContext metadataContext, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            Should.NotBeNull(metadata, nameof(metadata));
+            metadataContext.Merge(metadata.GetValues());
+        }
+
+        public static void Merge(this IMetadataContext metadataContext, IEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            metadataContext.Merge(ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>(values));
+        }
+
         public static bool Remove(this IMetadataContext metadataContext, IMetadataContextKey contextKey)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
@@ -127,12 +139,8 @@ namespace MugenMvvm.Extensions
             if (metadata == null)
                 return nullResult;
             var builder = new StringBuilder("(");
-            var values = metadata.ToArray();
-            for (var index = 0; index < values.Length; index++)
-            {
-                var item = values[index];
+            foreach (var item in metadata.GetValues())
                 builder.Append(item.Key).Append("=").Append(item.Value).Append(";");
-            }
 
             if (builder.Length != 0)
                 builder.Remove(builder.Length - 1, 1);

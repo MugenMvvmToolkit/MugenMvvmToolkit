@@ -145,7 +145,8 @@ namespace MugenMvvm.Extensions
             return 0;
         }
 
-        public static Task InvokeAllAsync<TComponent, TState>(this TComponent[] components, TState state, Func<TComponent, TState, CancellationToken, Task> getResult, CancellationToken cancellationToken)
+        public static Task InvokeAllAsync<TComponent, TState>(this TComponent[] components, TState state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> getResult)
             where TComponent : class, IComponent
         {
             Should.NotBeNull(getResult, nameof(getResult));
@@ -154,7 +155,7 @@ namespace MugenMvvm.Extensions
             {
                 try
                 {
-                    return getResult(component, state, cancellationToken);
+                    return getResult(component, state, cancellationToken, metadata);
                 }
                 catch (Exception e)
                 {

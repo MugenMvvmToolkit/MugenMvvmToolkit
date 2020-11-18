@@ -90,7 +90,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
-            return components.InvokeAllAsync((command, parameter, metadata), (component, s, c) => component.ExecuteAsync(s.command, s.parameter, s.metadata), default);
+            return components.InvokeAllAsync((command, parameter), default, metadata, (component, s, c, m) => component.ExecuteAsync(s.command, s.parameter, m));
         }
 
         #endregion

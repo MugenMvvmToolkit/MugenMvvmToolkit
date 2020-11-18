@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
@@ -17,7 +18,7 @@ namespace MugenMvvm.Interfaces.Metadata
 
         bool Set<T>(IMetadataContextKey<T> contextKey, T value, out object? oldValue);
 
-        void Merge(IEnumerable<KeyValuePair<IMetadataContextKey, object?>> items);
+        void Merge(ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> values);
 
         bool Remove(IMetadataContextKey contextKey, out object? oldValue);
 

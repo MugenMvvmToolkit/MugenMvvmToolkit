@@ -75,6 +75,9 @@ namespace MugenMvvm.Extensions
         public static IReadOnlyList<TItem> AsList<TItem>(this ItemOrList<TItem, IReadOnlyList<TItem>> itemOrList)
             => itemOrList.AsList(() => Default.Array<TItem>(), item => new[] {item});
 
+        public static IEnumerable<TItem> AsList<TItem>(this ItemOrList<TItem, IEnumerable<TItem>> itemOrList)
+            => itemOrList.AsList(() => Default.Array<TItem>(), item => new[] {item});
+
         public static TList AsList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TList> getDefaultList, Func<TItem, TList> getItemList)
             where TList : class, IEnumerable<TItem>
         {

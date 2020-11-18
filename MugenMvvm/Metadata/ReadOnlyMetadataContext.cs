@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -17,7 +16,7 @@ namespace MugenMvvm.Metadata
 
         #region Constructors
 
-        public ReadOnlyMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> values)
+        public ReadOnlyMetadataContext(ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             Should.NotBeNull(values, nameof(values));
             _dictionary = new Dictionary<IMetadataContextKey, object?>(values.Count, InternalEqualityComparer.MetadataContextKey);
@@ -35,9 +34,7 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator() => _dictionary.GetEnumerator();
+        public ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetValues() => _dictionary;
 
         public bool Contains(IMetadataContextKey contextKey) => _dictionary.ContainsKey(contextKey);
 

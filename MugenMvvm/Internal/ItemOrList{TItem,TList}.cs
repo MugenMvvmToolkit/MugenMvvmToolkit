@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -156,10 +157,14 @@ namespace MugenMvvm.Internal
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>(TItem item) => new ItemOrList<TItem, TList>(item, item != null);//note all value types will hasItem = true
+        public static implicit operator ItemOrList<TItem, TList>(TItem item) => new ItemOrList<TItem, TList>(item, item != null); //note all value types will hasItem = true
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrList<TItem, TList>(TList? items) => new ItemOrList<TItem, TList>(items);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ItemOrList<TItem, IEnumerable<TItem>>(ItemOrList<TItem, TList> itemOrList)
+            => new ItemOrList<TItem, IEnumerable<TItem>>(itemOrList.Item!, itemOrList.List, itemOrList._fixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() => new Enumerator(this);
@@ -173,7 +178,7 @@ namespace MugenMvvm.Internal
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        public struct Enumerator : IDisposable
+        public struct Enumerator : IEnumerator<TItem>
         {
             #region Fields
 
@@ -234,6 +239,8 @@ namespace MugenMvvm.Internal
 
             #region Properties
 
+            object IEnumerator.Current => Current!;
+
             public TItem Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -252,11 +259,7 @@ namespace MugenMvvm.Internal
             #region Implementation of interfaces
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Dispose() => _enumerator?.Dispose();
-
-            #endregion
-
-            #region Methods
+            void IEnumerator.Reset() => _enumerator?.Reset();
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
@@ -265,6 +268,9 @@ namespace MugenMvvm.Internal
                     return ++_index < _count;
                 return _enumerator.MoveNext();
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Dispose() => _enumerator?.Dispose();
 
             #endregion
         }

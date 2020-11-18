@@ -117,7 +117,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(validator, nameof(validator));
-            return components.InvokeAllAsync((validator, memberName, metadata), (component, s, c) => component.TryValidateAsync(s.validator, s.memberName, c, s.metadata), cancellationToken);
+            return components.InvokeAllAsync((validator, memberName), cancellationToken, metadata, (component, s, c, m) => component.TryValidateAsync(s.validator, s.memberName, c, m));
         }
 
         public static void ClearErrors(this IValidatorComponent[] components, IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)

@@ -366,7 +366,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.Contains(BindingMetadata.Binding).ShouldBeTrue();
             context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
             b.ShouldEqual(binding);
-            context.ToArray().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding)});
+            context.GetValues().AsList().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding)});
         }
 
         [Fact]

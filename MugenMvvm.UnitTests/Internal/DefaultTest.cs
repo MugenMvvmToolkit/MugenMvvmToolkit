@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Internal
 
             Default.Metadata.Count.ShouldEqual(0);
             Default.Metadata.Contains(MetadataContextKey.FromKey<object>("test")).ShouldBeFalse();
-            Default.Metadata.ToArray().ShouldBeEmpty();
+            Default.Metadata.GetValues().IsEmpty.ShouldBeTrue();
             Default.Metadata.TryGet(MetadataContextKey.FromKey<object>("test"), out _, null).ShouldBeFalse();
             Default.Disposable.ShouldNotBeNull();
             Default.WeakReference.Target.ShouldBeNull();
