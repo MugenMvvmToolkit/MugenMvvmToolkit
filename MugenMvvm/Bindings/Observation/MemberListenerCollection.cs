@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -239,7 +240,7 @@ namespace MugenMvvm.Bindings.Observation
 
             if (listenedMember[0] == '[')
             {
-                if (Default.IndexerName.Equals(changedMember))
+                if (InternalConstant.IndexerName.Equals(changedMember))
                     return true;
                 if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
                 {

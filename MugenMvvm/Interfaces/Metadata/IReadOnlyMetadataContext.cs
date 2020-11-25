@@ -12,7 +12,6 @@ namespace MugenMvvm.Interfaces.Metadata
 
         bool Contains(IMetadataContextKey contextKey);
 
-        bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
-            out T value, [AllowNull] T defaultValue);
+        bool TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value);
     }
 }

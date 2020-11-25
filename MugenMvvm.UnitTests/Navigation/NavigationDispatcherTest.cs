@@ -133,11 +133,11 @@ namespace MugenMvvm.UnitTests.Navigation
         }
 
         [Fact]
-        public void OnNavigatingAsyncShouldReturnTrueNoComponents()
+        public async Task OnNavigatingAsyncShouldReturnTrueNoComponents()
         {
             var navigationContext = new NavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
-            dispatcher.OnNavigatingAsync(navigationContext).Result.ShouldBeTrue();
+            (await dispatcher.OnNavigatingAsync(navigationContext)).ShouldBeTrue();
         }
 
         [Theory]
@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTests.Navigation
         [InlineData(10, 2)]
         [InlineData(10, 3)]
         [InlineData(10, 4)]
-        public async Task OnNavigatingAsyncShouldBeHandledByComponents(int count, int state)//0 - true, 1 - false, 2 - canceled, 3 - exception, 4 - precanceled
+        public async Task OnNavigatingAsyncShouldBeHandledByComponents(int count, int state) //0 - true, 1 - false, 2 - canceled, 3 - exception, 4 - precanceled
         {
             var cts = new CancellationTokenSource();
             var token = cts.Token;

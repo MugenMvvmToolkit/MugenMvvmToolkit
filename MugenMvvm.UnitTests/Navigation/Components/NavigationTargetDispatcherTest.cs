@@ -341,7 +341,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         }
 
         [Fact]
-        public void NavigationConditionShouldInvokeCallback()
+        public async Task NavigationConditionShouldInvokeCallback()
         {
             var dispatcher = new NavigationDispatcher();
             var target = new HasCloseNavigationCondition(dispatcher);
@@ -359,10 +359,10 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 return result;
             };
 
-            dispatcher.OnNavigatingAsync(closeCtx, cts).Result.ShouldBeFalse();
+            (await dispatcher.OnNavigatingAsync(closeCtx, cts)).ShouldBeFalse();
             closeCount.ShouldEqual(1);
 
-            dispatcher.OnNavigatingAsync(newCtx, cts).Result.ShouldBeTrue();
+            (await dispatcher.OnNavigatingAsync(newCtx, cts)).ShouldBeTrue();
             closeCount.ShouldEqual(1);
         }
 

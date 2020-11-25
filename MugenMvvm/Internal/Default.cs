@@ -5,10 +5,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Extensions;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -20,13 +19,11 @@ namespace MugenMvvm.Internal
     {
         #region Fields
 
-        internal const string IndexerName = "Item[]";
-
         private static int _counter;
 
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
-        internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
+        internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new PropertyChangedEventArgs(InternalConstant.IndexerName);
         internal static readonly PropertyChangedEventArgs IsBusyPropertyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
         internal static readonly PropertyChangedEventArgs BusyTokenPropertyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.BusyToken));
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
@@ -125,9 +122,11 @@ namespace MugenMvvm.Internal
 
             public bool Contains(IMetadataContextKey contextKey) => false;
 
-            public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
-                out T value, [AllowNull] T defaultValue)
-                => this.TryGetFromRaw(contextKey, false, null, out value, defaultValue!);
+            public bool TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value)
+            {
+                value = null;
+                return false;
+            }
 
             void IWeakReference.Release()
             {

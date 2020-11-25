@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Views
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void InitializeAsyncShouldBeHandledByComponents(int componentCount)
+        public async Task InitializeAsyncShouldBeHandledByComponents(int componentCount)
         {
             var manager = new ViewManager();
             var result = new ValueTask<IView?>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
@@ -149,14 +149,14 @@ namespace MugenMvvm.UnitTests.Views
                 manager.AddComponent(component);
             }
 
-            manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result!);
+            (await manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(componentCount);
         }
 
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void CleanupAsyncShouldBeHandledByComponents(int componentCount)
+        public async Task CleanupAsyncShouldBeHandledByComponents(int componentCount)
         {
             var manager = new ViewManager();
             var result = Default.TrueTask;
@@ -185,9 +185,8 @@ namespace MugenMvvm.UnitTests.Views
                 manager.AddComponent(component);
             }
 
-            var task = manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
-            task.IsCompleted.ShouldBeTrue();
-            task.Result.ShouldEqual(result.Result);
+            var r = await manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
+            r.ShouldEqual(result.Result);
             invokeCount.ShouldEqual(componentCount);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Enums;
@@ -33,7 +34,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
         [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
-        public void TryGetCommandShouldUseValidParameters1(bool hasCanExecute, bool? allowMultipleExecution,
+        public async Task TryGetCommandShouldUseValidParameters1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var executedCount = 0;
@@ -52,7 +53,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateExecutorCommandComponent<object>>();
-            component.ExecuteAsync(command, null, null);
+            await component.ExecuteAsync(command, null, null);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
             {

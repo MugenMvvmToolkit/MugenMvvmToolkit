@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         #region Methods
 
         [Fact]
-        public void TryInitializeAsyncShouldBeExecutedInline()
+        public async Task TryInitializeAsyncShouldBeExecutedInline()
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result!);
+            (await manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             action.ShouldBeNull();
         }
 
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         }
 
         [Fact]
-        public void TryCleanupAsyncShouldBeExecutedInline()
+        public async Task TryCleanupAsyncShouldBeExecutedInline()
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
@@ -164,9 +164,8 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            var task = manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
-            task.IsCompleted.ShouldBeTrue();
-            task.Result.ShouldEqual(result.Result);
+            var r = await manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
+            r.ShouldEqual(result.Result);
             action.ShouldBeNull();
         }
 

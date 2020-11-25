@@ -78,6 +78,20 @@ namespace MugenMvvm.Extensions
             return metadataContext.TryGet(contextKey, out value, default!);
         }
 
+        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
+            out T value, [AllowNull] T defaultValue)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            if (metadataContext.TryGetRaw(contextKey, out var rawValue))
+            {
+                value = contextKey.GetValue(metadataContext, rawValue);
+                return true;
+            }
+
+            value = contextKey.GetDefaultValue(metadataContext, defaultValue);
+            return false;
+        }
+
         [return: MaybeNull]
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key) => metadataContext.Get(key, default!);
 
@@ -159,21 +173,6 @@ namespace MugenMvvm.Extensions
             if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue!))
                 return v;
             return default;
-        }
-
-        internal static bool TryGetFromRaw<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, bool hasValue, object? rawValue,
-            [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
-            out T value, [AllowNull] T defaultValue)
-        {
-            Should.NotBeNull(contextKey, nameof(contextKey));
-            if (hasValue)
-            {
-                value = contextKey.GetValue(metadataContext, rawValue);
-                return true;
-            }
-
-            value = contextKey.GetDefaultValue(metadataContext, defaultValue);
-            return false;
         }
 
         #endregion

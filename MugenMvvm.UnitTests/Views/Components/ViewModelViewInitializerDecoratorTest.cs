@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         #region Methods
 
         [Fact]
-        public void TryInitializeAsyncShouldUpdateViewViewModel()
+        public async Task TryInitializeAsyncShouldUpdateViewViewModel()
         {
             var viewType = typeof(object);
             var viewModelType = typeof(TestViewModel);
@@ -76,24 +76,24 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ViewModelViewInitializerDecorator(viewModelManager, testServiceProvider);
             viewManager.AddComponent(component);
 
-            viewManager.InitializeAsync(mapping, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result!);
+            (await viewManager.InitializeAsync(mapping, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
-            viewManager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result!);
+            (await viewManager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
-            viewManager.InitializeAsync(mapping, view, cancellationToken, DefaultMetadata).ShouldEqual(result!);
+            (await viewManager.InitializeAsync(mapping, view, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
-            viewManager.InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result!);
+            (await viewManager.InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             initializeCount.ShouldEqual(1);
         }
 
         [Fact]
-        public void TryCleanupAsyncShouldBeHandledByComponents()
+        public async Task TryCleanupAsyncShouldBeHandledByComponents()
         {
             var viewType = typeof(object);
             var viewModelType = typeof(TestViewModel);
@@ -121,9 +121,8 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ViewModelViewInitializerDecorator();
             viewManager.AddComponent(component);
 
-            var task = viewManager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
-            task.IsCompleted.ShouldBeTrue();
-            result.Result.ShouldEqual(result.Result);
+            var r = await viewManager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
+            r.ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 

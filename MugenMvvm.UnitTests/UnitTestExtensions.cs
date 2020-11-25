@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
@@ -57,6 +58,12 @@ namespace MugenMvvm.UnitTests
         public static void ShouldEqual(this IExpressionNode? x1, IExpressionNode? x2) => x1!.ShouldEqual(x2!, ExpressionNodeEqualityComparer.Instance);
 
         public static void ShouldEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second) => first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance).ShouldBeTrue();
+
+        public static void ShouldEqual(this IReadOnlyMetadataContext x1, IReadOnlyMetadataContext x2)
+        {
+            if (!ReferenceEquals(x1, x2))
+                x1.GetValues().AsEnumerable().ShouldEqual(x2.GetValues().AsEnumerable());
+        }
 
         public static void ShouldEqual<T>([AllowNull] this IEnumerable<T> enumerable, [AllowNull] IEnumerable<T> value) => enumerable.ShouldEqual(value, EqualityComparer<T>.Default);
 

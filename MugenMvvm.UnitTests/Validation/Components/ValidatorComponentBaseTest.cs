@@ -110,7 +110,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void GetErrorsShouldReturnErrors(int count)
+        public async Task GetErrorsShouldReturnErrors(int count)
         {
             var component = new TestValidatorComponentBase<object>(this)
             {
@@ -155,7 +155,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             {
                 var member = i.ToString();
                 members.Add(member);
-                component.TryValidateAsync(validator, member);
+                await component.TryValidateAsync(validator, member);
             }
 
             component.HasErrors(validator, null, null).ShouldBeTrue();
@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ValidateAsyncShouldUpdateAllErrorsEmptyString1(int count)
+        public async Task ValidateAsyncShouldUpdateAllErrorsEmptyString1(int count)
         {
             var component = new TestValidatorComponentBase<object>(this)
             {
@@ -191,14 +191,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
             }
 
             component.HasErrors(validator, null, null).ShouldBeTrue();
-            component.TryValidateAsync(validator, string.Empty);
+            await component.TryValidateAsync(validator, string.Empty);
             component.HasErrors(validator, null, null).ShouldBeFalse();
             component.TryGetErrors(validator, string.Empty).AsList().ShouldBeEmpty();
             component.TryGetErrors(validator).ShouldBeEmpty();
         }
 
         [Fact]
-        public void ValidateAsyncShouldUpdateAllErrorsEmptyString2()
+        public async Task ValidateAsyncShouldUpdateAllErrorsEmptyString2()
         {
             var errors = new Dictionary<string, object?>
             {
@@ -221,7 +221,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.AddComponent(component);
 
             component.HasErrors(validator, null, null).ShouldBeFalse();
-            component.TryValidateAsync(validator, "test");
+            await component.TryValidateAsync(validator, "test");
             component.TryGetErrors(validator, errors.First().Key).AsList().ShouldEqual((IEnumerable<object>) errors.First().Value!);
             var pair = component.TryGetErrors(validator).Single();
             pair.Key.ShouldEqual(errors.First().Key);
@@ -229,7 +229,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             component.HasErrors(validator, null, null).ShouldBeTrue();
             component.HasErrors(validator, errors.First().Key, null).ShouldBeTrue();
 
-            component.TryValidateAsync(validator, string.Empty);
+            await component.TryValidateAsync(validator, string.Empty);
             component.TryGetErrors(validator, emptyStringErrors.First().Key).AsList().ShouldEqual((IEnumerable<object>) emptyStringErrors.First().Value!);
             pair = component.TryGetErrors(validator).Single();
             pair.Key.ShouldEqual(emptyStringErrors.First().Key);
@@ -241,13 +241,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ValidateAsyncShouldNotifyListeners1(int count)
+        public async Task ValidateAsyncShouldNotifyListeners1(int count)
         {
             var invokeCount = 0;
             var expectedMember = "test";
             var component = new TestValidatorComponentBase<object>(this)
             {
-                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, ItemOrList.FromItem<object>(s)))
+                GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, ItemOrList.FromItem<object>(s), DefaultMetadata))
             };
             var validator = new Validator();
             validator.AddComponent(component);
@@ -268,7 +268,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 validator.AddComponent(listener);
             }
 
-            component.TryValidateAsync(validator, expectedMember, CancellationToken.None, DefaultMetadata);
+            await component.TryValidateAsync(validator, expectedMember, CancellationToken.None, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
 
@@ -312,7 +312,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ClearShouldNotifyListeners1(int count)
+        public async Task ClearShouldNotifyListeners1(int count)
         {
             var invokeCount = 0;
             var expectedMember = "test";
@@ -323,7 +323,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var validator = new Validator();
             validator.AddComponent(component);
 
-            component.TryValidateAsync(validator, expectedMember, CancellationToken.None, DefaultMetadata);
+            await component.TryValidateAsync(validator, expectedMember, CancellationToken.None, DefaultMetadata);
 
             for (var i = 0; i < count; i++)
             {
@@ -348,7 +348,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ClearShouldNotifyListeners2(int count)
+        public async Task ClearShouldNotifyListeners2(int count)
         {
             var invokeCount = 0;
             var expectedMember = "test";
@@ -358,7 +358,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             };
             var validator = new Validator();
             validator.AddComponent(component);
-            component.TryValidateAsync(validator, expectedMember, CancellationToken.None, DefaultMetadata);
+            await component.TryValidateAsync(validator, expectedMember, CancellationToken.None, DefaultMetadata);
 
             for (var i = 0; i < count; i++)
             {

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -99,19 +100,23 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
-            out T value, [AllowNull] T defaultValue)
+        public bool TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             var components = GetComponents();
-            object? rawValue;
-            bool hasValue;
             lock (_dictionary)
             {
-                hasValue = TryGet(components, contextKey, MetadataOperationType.Get, out rawValue);
+                return TryGet(components, contextKey, MetadataOperationType.Get, out value);
             }
+        }
 
-            return this.TryGetFromRaw(contextKey, hasValue, rawValue, out value, defaultValue!);
+        public ActionToken BatchUpdate()
+        {
+            var lockTaken = false;
+            Monitor.Enter(_dictionary, ref lockTaken);
+            if (lockTaken)
+                return new ActionToken((o, _) => Monitor.Exit(o!), _dictionary);
+            return default;
         }
 
         public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory)
