@@ -77,9 +77,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 
             var array = vms.Select(model => model.Metadata.Get(ViewModelMetadata.Id)).ToArray();
             vms.Clear();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            GcCollect();
             for (var i = 0; i < count; i++)
                 manager.TryGetViewModel(array[i]!).ShouldBeNull();
         }

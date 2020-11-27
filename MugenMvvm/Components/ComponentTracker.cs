@@ -63,7 +63,7 @@ namespace MugenMvvm.Components
             Should.NotBeNull(collection, nameof(collection));
             if (Interlocked.CompareExchange(ref _flag, int.MaxValue, 0) != 0)
                 return;
-            collection.Components.Add(this);
+            collection.Components.Add(this, metadata);
             if (_listeners != null)
             {
                 for (var i = 0; i < _listeners.Count; i++)
@@ -84,8 +84,7 @@ namespace MugenMvvm.Components
             Should.NotBeNull(collection, nameof(collection));
             if (Interlocked.CompareExchange(ref _flag, 0, int.MaxValue) != int.MaxValue)
                 return;
-            collection.Remove(this);
-            collection.Components.Remove(this);
+            collection.Components.Remove(this, metadata);
             if (_listeners != null)
             {
                 for (var i = 0; i < _listeners.Count; i++)
@@ -95,7 +94,7 @@ namespace MugenMvvm.Components
                 _listener.Clear(collection, metadata);
         }
 
-        private void OnComponentChanged(object component, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
+        public void OnComponentChanged(object component, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
         {
             if (_listeners != null)
             {

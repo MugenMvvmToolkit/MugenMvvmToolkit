@@ -293,8 +293,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(0);
         }
 
-#if !DEBUG
-        [Fact]
+        [Fact(Skip = ReleaseTest)]
         public void ShouldListenPropertyChangedWeak()
         {
             var propertyChangedModel = new TestNotifyPropertyChangedModel();
@@ -312,14 +311,11 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var reference = new WeakReference(conditionEventCommandComponent);
             compositeCommand = null;
             conditionEventCommandComponent = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            GcCollect();
 
             propertyChangedModel.OnPropertyChanged("test");
             reference.IsAlive.ShouldBeFalse();
         }
-#endif
 
         #endregion
     }

@@ -11,9 +11,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
         protected override IAttachedValueStorageProviderComponent GetComponent() => new StaticTypeAttachedValueStorage();
 
-        #endregion
-
-#if !DEBUG
         public override void ShouldBeEphemeron1()
         {
         }
@@ -21,6 +18,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public override void ShouldBeEphemeron2()
         {
         }
-#endif
+
+        #endregion
     }
 }

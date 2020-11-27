@@ -13,12 +13,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members
 {
-    public sealed class MemberManager : ComponentOwnerBase<IMemberManager>, IMemberManager
+    public sealed class MemberManager : ComponentOwnerBase<IMemberManager>, IMemberManager, IHasComponentAddedHandler, IHasComponentRemovedHandler
     {
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IMemberManagerComponent[]? _components;
+        private IMemberManagerComponent[] _components;
 
         #endregion
 
@@ -28,6 +28,7 @@ namespace MugenMvvm.Bindings.Members
         public MemberManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
+            _components = Default.Array<IMemberManagerComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IMemberManagerComponent, MemberManager>((components, state, _) => state._components = components, this);
         }
@@ -36,12 +37,12 @@ namespace MugenMvvm.Bindings.Members
 
         #region Implementation of interfaces
 
+        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
+
+        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
+
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (_components == null)
-                _componentTracker.Attach(this, metadata);
-            return _components!.TryGetMembers(this, type, memberTypes, flags, request, metadata);
-        }
+            => _components.TryGetMembers(this, type, memberTypes, flags, request, metadata);
 
         #endregion
     }

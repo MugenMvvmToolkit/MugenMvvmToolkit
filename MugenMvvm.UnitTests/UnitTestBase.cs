@@ -33,6 +33,7 @@ using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Threading.Internal;
 using MugenMvvm.ViewModels;
 using Xunit;
+using Xunit.Abstractions;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
@@ -42,6 +43,12 @@ namespace MugenMvvm.UnitTests
     {
         #region Fields
 
+#if DEBUG || NET5_0
+        protected const string ReleaseTest = "NOT SUPPORTED IN DEBUG";
+#else
+        protected const string ReleaseTest = null;
+#endif
+
         protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new SerializationContext<object?, object?>(new SerializationFormat<object?, object?>(1, ""), null);
         protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
 
@@ -49,7 +56,7 @@ namespace MugenMvvm.UnitTests
 
         #region Constructors
 
-        public UnitTestBase()
+        public UnitTestBase(ITestOutputHelper? outputHelper = null)
         {
             MugenService.Configuration.InitializeFallback(null);
             MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
@@ -94,6 +101,13 @@ namespace MugenMvvm.UnitTests
 
             IMessenger messenger = new Messenger();
             MugenService.Configuration.InitializeInstance(messenger);
+
+            if (outputHelper != null)
+            {
+                ITracer tracer = new Tracer();
+                tracer.AddComponent(new DelegateTracer((l, msg, e, m) => outputHelper.WriteLine($"{l} - {msg} {e?.Flatten()}"), (level, context) => true));
+                MugenService.Configuration.InitializeInstance(tracer);
+            }
         }
 
         #endregion
@@ -110,6 +124,14 @@ namespace MugenMvvm.UnitTests
         }
 
         protected static void ShouldThrow<T>(Action action) where T : Exception => Assert.Throws<T>(action);
+
+        protected static void GcCollect()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.WaitForFullGCComplete();
+            GC.Collect();
+        }
 
         protected void ShouldThrow(Action action) => Assert.ThrowsAny<Exception>(action);
 

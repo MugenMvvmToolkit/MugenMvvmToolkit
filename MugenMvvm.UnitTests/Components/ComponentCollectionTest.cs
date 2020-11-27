@@ -8,7 +8,6 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
-using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Components.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
@@ -334,8 +333,8 @@ namespace MugenMvvm.UnitTests.Components
         public void GetShouldDecorateItems()
         {
             var executed = 0;
-            var threadDispatcher = new ThreadDispatcher();
-            var componentCollection = new ComponentCollection(threadDispatcher);
+            var owner = new TestComponentOwner<object>();
+            var componentCollection = new ComponentCollection(owner);
 
             var componentDecorated1 = new TestThreadDispatcherComponent();
             var componentDecorated2 = new TestThreadDispatcherComponent();
@@ -390,18 +389,20 @@ namespace MugenMvvm.UnitTests.Components
         [InlineData(10)]
         public void ShouldUseCorrectOrderForDecorators(int count)
         {
-            var threadDispatcher = new ThreadDispatcher();
-            var componentCollection = new ComponentCollection(threadDispatcher);
+            var owner = new TestComponentOwner<object>();
+            var componentCollection = new ComponentCollection(owner);
 
             var executed = 0;
             for (var i = 0; i < count; i++)
             {
-                var decoratorComponent = new TestThreadDispatcherDecorator();
-                decoratorComponent.DecorateHandler = (c, list, context) =>
+                var decoratorComponent = new TestThreadDispatcherDecorator
                 {
-                    ++executed;
-                    c.ShouldEqual(componentCollection);
-                    list.Add(new TestThreadDispatcherComponent());
+                    DecorateHandler = (c, list, context) =>
+                    {
+                        ++executed;
+                        c.ShouldEqual(componentCollection);
+                        list.Add(new TestThreadDispatcherComponent());
+                    }
                 };
                 componentCollection.Add(decoratorComponent);
                 componentCollection.AddComponent(decoratorComponent);

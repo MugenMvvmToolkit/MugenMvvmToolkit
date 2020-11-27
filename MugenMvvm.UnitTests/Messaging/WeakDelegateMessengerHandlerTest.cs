@@ -98,6 +98,30 @@ namespace MugenMvvm.UnitTests.Messaging
         {
         }
 
+        [Fact(Skip = ReleaseTest)]
+        public void ShouldBeWeek1()
+        {
+            var sender = new object();
+            var msg2 = "test";
+            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
+
+            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl().Handle);
+            GcCollect();
+            subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Invalid);
+        }
+
+        [Fact(Skip = ReleaseTest)]
+        public void ShouldBeWeek2()
+        {
+            var sender = new object();
+            var msg2 = "test";
+            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
+
+            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl(), (impl, o, arg3, arg4) => { });
+            GcCollect();
+            subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Invalid);
+        }
+
         #endregion
 
         #region Nested types
@@ -118,35 +142,5 @@ namespace MugenMvvm.UnitTests.Messaging
         }
 
         #endregion
-
-#if !DEBUG
-        [Fact]
-        public void ShouldBeWeek1()
-        {
-            var sender = new object();
-            var msg2 = "test";
-            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
-
-            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl().Handle);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-            subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Invalid);
-        }
-
-        [Fact]
-        public void ShouldBeWeek2()
-        {
-            var sender = new object();
-            var msg2 = "test";
-            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
-
-            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl(), (impl, o, arg3, arg4) => { });
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-            subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Invalid);
-        }
-#endif
     }
 }

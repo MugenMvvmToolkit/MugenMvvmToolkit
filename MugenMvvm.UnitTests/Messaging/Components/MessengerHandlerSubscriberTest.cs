@@ -88,9 +88,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
             hashSet.Count.ShouldEqual(0);
 
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            GcCollect();
 
             foreach (var messengerSubscriberInfo in subscribers)
                 component.TryUnsubscribe(messenger, messengerSubscriberInfo.Subscriber, DefaultMetadata).ShouldBeTrue();

@@ -17,11 +17,20 @@ using MugenMvvm.UnitTests.Views.Internal;
 using MugenMvvm.Views;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Presenters
 {
     public class ViewModelPresenterMediatorTest : UnitTestBase
     {
+        #region Constructors
+
+        public ViewModelPresenterMediatorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         [Fact]
@@ -315,6 +324,7 @@ namespace MugenMvvm.UnitTests.Presenters
             {
                 OnNavigated = context =>
                 {
+                    ++navigatedCount;
                     if (!shown)
                     {
                         context.NavigationMode.ShouldEqual(NavigationMode.New);
@@ -322,8 +332,6 @@ namespace MugenMvvm.UnitTests.Presenters
                     }
                     else
                         context.NavigationMode.ShouldEqual(NavigationMode.Close);
-
-                    ++navigatedCount;
                 }
             });
             var threadDispatcher = new ThreadDispatcher();
@@ -336,6 +344,7 @@ namespace MugenMvvm.UnitTests.Presenters
 
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
             navigatedCount.ShouldEqual(1);
+            WaitCompletion();
 
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared);
             navigatedCount.ShouldEqual(2);

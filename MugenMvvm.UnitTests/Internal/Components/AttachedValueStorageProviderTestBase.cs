@@ -285,10 +285,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
         protected abstract IAttachedValueStorageProviderComponent GetComponent();
 
-        #endregion
-
-#if !DEBUG
-        [Fact]
+        [Fact(Skip = ReleaseTest)]
         public virtual void ClearShouldNotKeepRef()
         {
             var item = GetSupportedItem();
@@ -297,16 +294,17 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
             var value = new object();
             var weakReference = new WeakReference(value);
-            manager.TryGetAttachedValues(item, DefaultMetadata).Set(TestPath, value, out _);
-            manager.TryGetAttachedValues(item, DefaultMetadata).Remove(TestPath, out _);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.Set(TestPath, value, out _);
+            attachedValues.Remove(TestPath, out value);
+            attachedValues = default;
+            value = null;
+            GcCollect();
 
             weakReference.IsAlive.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact(Skip = ReleaseTest)]
         public virtual void ShouldBeEphemeron1()
         {
             var item = GetSupportedItem();
@@ -315,34 +313,35 @@ namespace MugenMvvm.UnitTests.Internal.Components
 
             var value = new object();
             var weakReference = new WeakReference(value);
-            manager.TryGetAttachedValues(item, DefaultMetadata).Set(TestPath, value, out _);
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.Set(TestPath, value, out _);
 
+            attachedValues = default;
             item = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            value = null;
+            GcCollect();
 
             weakReference.IsAlive.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact(Skip = ReleaseTest)]
         public virtual void ShouldBeEphemeron2()
         {
             var item = GetSupportedItem();
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
 
-            var value = item;
-            var weakReference = new WeakReference(value);
-            manager.TryGetAttachedValues(item, DefaultMetadata).Set(TestPath, value, out _);
+            var weakReference = new WeakReference(item);
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.Set(TestPath, item, out _);
 
+            attachedValues = default;
             item = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            GcCollect();
 
             weakReference.IsAlive.ShouldBeFalse();
         }
-#endif
+
+        #endregion
     }
 }
