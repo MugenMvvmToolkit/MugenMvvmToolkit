@@ -117,47 +117,60 @@ namespace MugenMvvm.Bindings.Extensions
         public static int GetPosition(this ITokenParserContext context, int? position = null)
         {
             Should.NotBeNull(context, nameof(context));
-            return position.GetValueOrDefault(context.Position);
+            if (position == null)
+                return context.Position;
+            return position.Value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static char TokenAt(this ITokenParserContext context, int? position = null) => context.TokenAt(context.GetPosition(position));
+        public static char TokenAt(this ITokenParserContext context) => context.TokenAt(context.Position);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEof(this ITokenParserContext context, int? position = null) => context.GetPosition(position) >= context.Length;
+        public static char TokenAt(this ITokenParserContext context, int position) => context.TokenAt(position);
 
-        public static bool IsToken(this ITokenParserContext context, char token, int? position = null)
-        {
-            if (context.IsEof(position))
-                return false;
-            return context.TokenAt(position) == token;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static char TokenAt(this ITokenParserContext context, int? position) => context.TokenAt(context.GetPosition(position));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEof(this ITokenParserContext context) => context.Position >= context.Length;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEof(this ITokenParserContext context, int position) => position >= context.Length;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEof(this ITokenParserContext context, int? position) => context.GetPosition(position) >= context.Length;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsToken(this ITokenParserContext context, char token) => context.IsToken(token, context.Position);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsToken(this ITokenParserContext context, char token, int position) => !context.IsEof(position) && context.TokenAt(position) == token;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsToken(this ITokenParserContext context, char token, int? position) => !context.IsEof(position) && context.TokenAt(position) == token;
 
         public static bool IsToken(this ITokenParserContext context, string token, int? position = null, bool isPartOfIdentifier = true)
         {
-            if (token.Length == 1)
+            var length = token.Length;
+            if (length == 1)
                 return context.IsToken(token[0], position);
 
             var p = context.GetPosition(position);
             var i = 0;
-            var length = token.Length;
+            var ctxLength = context.Length;
             while (i != length)
             {
-                if (context.IsEof(p) || TokenAt(context, p) != token[i])
+                if (p >= ctxLength || context.TokenAt(p) != token[i])
                     return false;
                 ++i;
                 ++p;
             }
 
-            return isPartOfIdentifier || context.IsEof(p) || !context.TokenAt(p).IsValidIdentifierSymbol(false);
+            return isPartOfIdentifier || p >= ctxLength || !context.TokenAt(p).IsValidIdentifierSymbol(false);
         }
 
-        public static bool IsAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null)
-        {
-            if (context.IsEof(position))
-                return false;
-            return tokens.Contains(context.TokenAt(position));
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null) => !context.IsEof(position) && tokens.Contains(context.TokenAt(position));
 
         public static bool IsAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null)
         {
@@ -176,9 +189,12 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static bool IsEofOrAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null) => context.IsEof(position) || context.IsAnyOf(tokens, position);
 
-        public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int? position = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int? position = null) => context.IsIdentifier(out endPosition, context.GetPosition(position));
+
+        public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int position)
         {
-            endPosition = context.GetPosition(position);
+            endPosition = position;
             if (context.IsEof(endPosition) || !TokenAt(context, endPosition).IsValidIdentifierSymbol(true))
                 return false;
 
@@ -206,25 +222,31 @@ namespace MugenMvvm.Bindings.Extensions
             return -1;
         }
 
-        public static int SkipWhitespacesPosition(this ITokenParserContext context, int? position = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int SkipWhitespacesPosition(this ITokenParserContext context) => context.SkipWhitespacesPosition(context.Position);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int SkipWhitespacesPosition(this ITokenParserContext context, int position)
         {
-            var p = context.GetPosition(position);
-            while (!context.IsEof(p) && char.IsWhiteSpace(TokenAt(context, p)))
-                ++p;
-            return p;
+            while (!context.IsEof(position) && char.IsWhiteSpace(TokenAt(context, position)))
+                ++position;
+            return position;
         }
 
-        public static ITokenParserContext SkipWhitespaces(this ITokenParserContext context,
-            int? position = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ITokenParserContext SkipWhitespaces(this ITokenParserContext context) => context.SkipWhitespaces(context.Position);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ITokenParserContext SkipWhitespaces(this ITokenParserContext context, int position)
         {
             context.Position = context.SkipWhitespacesPosition(position);
             return context;
         }
 
-        public static ITokenParserContext MoveNext(this ITokenParserContext context,
-            int value = 1)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ITokenParserContext MoveNext(this ITokenParserContext context, int value = 1)
         {
-            if (!context.IsEof(context.Position))
+            if (!context.IsEof())
                 context.Position += value;
             return context;
         }
@@ -250,8 +272,7 @@ namespace MugenMvvm.Bindings.Extensions
             }
         }
 
-        public static IExpressionNode ParseWhileAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null,
-            IExpressionNode? expression = null)
+        public static IExpressionNode ParseWhileAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null, IExpressionNode? expression = null)
         {
             var expressionNode = context.Parse(expression);
             while (!context.SkipWhitespaces().IsEofOrAnyOf(tokens, position))

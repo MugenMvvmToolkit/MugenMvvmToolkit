@@ -56,7 +56,15 @@ namespace MugenMvvm.Bindings.Parsing
             }
         }
 
-        public int Length => _limit.GetValueOrDefault(Source.Length);
+        public int Length
+        {
+            get
+            {
+                if (_limit == null)
+                    return Source.Length;
+                return _limit.Value;
+            }
+        }
 
         public ITokenParserComponent[] Parsers
         {
