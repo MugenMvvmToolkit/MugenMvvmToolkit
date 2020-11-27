@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             expressionDisposed.ShouldBeFalse();
 
             binding.Components.Clear();
-            binding.AddComponent(components[0]).ShouldBeFalse();
+            binding.AddComponent(components[0]).IsEmpty.ShouldBeTrue();
             binding.GetComponents().AsList().ShouldBeEmpty();
             ShouldThrow<ObjectDisposedException>(() =>
             {

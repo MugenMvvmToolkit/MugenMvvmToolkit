@@ -185,7 +185,8 @@ namespace MugenMvvm
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TService? Optional<TService>() where TService : class => Configuration<TService>.Optional;
 
-        public static ActionToken AddComponent<T>(IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner => Instance<T>().AddComponentWithToken(component, metadata);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ActionToken AddComponent<T>(IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner<T> => Instance<T>().AddComponent(component, metadata);
 
         #endregion
 

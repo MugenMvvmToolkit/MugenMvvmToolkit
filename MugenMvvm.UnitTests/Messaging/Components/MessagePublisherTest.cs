@@ -99,7 +99,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                     return true;
                 }
             };
-            using var t = threadDispatcher.AddComponentWithToken(testThreadDispatcherComponent);
+            using var t = threadDispatcher.AddComponent(testThreadDispatcherComponent);
             var messenger = new Messenger();
             var subscriberComponent = new TestMessengerSubscriberComponent(messenger);
             messenger.AddComponent(component);

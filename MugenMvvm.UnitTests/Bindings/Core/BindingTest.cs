@@ -1316,7 +1316,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             disposeCount.ShouldEqual(1);
 
             binding.Components.Clear();
-            binding.AddComponent(components[0]).ShouldBeFalse();
+            binding.AddComponent(components[0]).IsEmpty.ShouldBeTrue();
             binding.GetComponents().AsList().ShouldBeEmpty();
         }
 

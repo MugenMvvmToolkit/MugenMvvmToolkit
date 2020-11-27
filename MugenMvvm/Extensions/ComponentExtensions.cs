@@ -16,15 +16,6 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static ActionToken AddComponentWithToken<T>(this T componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner
-        {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
-            Should.NotBeNull(component, nameof(component));
-            if (componentOwner.Components.Add(component, metadata))
-                return new ActionToken((owner, comp) => ((T) owner!).Components.Remove(comp!), componentOwner, component);
-            return default;
-        }
-
         public static IComponentCollection GetComponentCollection(this IComponentCollectionManager provider, object owner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(provider, nameof(provider));
@@ -56,10 +47,13 @@ namespace MugenMvvm.Extensions
             return owner.GetComponents<ISuspendable>(metadata).Suspend(state, metadata);
         }
 
-        public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static ActionToken AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
-            return componentOwner.Components.Add(component, metadata);
+            Should.NotBeNull(component, nameof(component));
+            if (componentOwner.Components.Add(component, metadata))
+                return new ActionToken((owner, comp) => ((IComponentOwner) owner!).Components.Remove(comp!), componentOwner, component);
+            return default;
         }
 
         public static bool RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class

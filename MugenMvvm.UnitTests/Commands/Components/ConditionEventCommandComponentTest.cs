@@ -314,6 +314,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
             GcCollect();
 
             propertyChangedModel.OnPropertyChanged("test");
+            compositeCommand.ShouldBeNull();
+            conditionEventCommandComponent.ShouldBeNull();
             reference.IsAlive.ShouldBeFalse();
         }
 
