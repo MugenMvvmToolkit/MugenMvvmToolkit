@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -108,15 +107,6 @@ namespace MugenMvvm.Metadata
             {
                 return TryGet(components, contextKey, MetadataOperationType.Get, out value);
             }
-        }
-
-        public ActionToken BatchUpdate()
-        {
-            var lockTaken = false;
-            Monitor.Enter(_dictionary, ref lockTaken);
-            if (lockTaken)
-                return new ActionToken((o, _) => Monitor.Exit(o!), _dictionary);
-            return default;
         }
 
         public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory)

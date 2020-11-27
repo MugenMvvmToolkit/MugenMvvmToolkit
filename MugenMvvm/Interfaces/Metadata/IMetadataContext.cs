@@ -7,8 +7,6 @@ namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IMetadataContext : IReadOnlyMetadataContext, IComponentOwner<IMetadataContext>
     {
-        ActionToken BatchUpdate();
-
         T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory);
 
         T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, IMetadataContextKey<T>, TState, T> valueFactory,
