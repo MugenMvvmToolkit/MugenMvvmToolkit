@@ -168,28 +168,43 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool CanTrace(this ITracerComponent[] components, ITracer tracer, TraceLevel level, IReadOnlyMetadataContext? metadata)
+        public static ILogger? TryGetLogger(this ILoggerProviderComponent[] components, ILogger logger, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(tracer, nameof(tracer));
+            Should.NotBeNull(logger, nameof(logger));
+            Should.NotBeNull(request, nameof(request));
+            for (var i = 0; i < components.Length; i++)
+            {
+                var result = components[i].TryGetLogger(logger, request, metadata);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
+
+        public static bool CanLog(this ILoggerComponent[] components, ILogger logger, LogLevel level, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(level, nameof(level));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].CanTrace(tracer, level, metadata))
+                if (components[i].CanLog(logger, level, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static void Trace(this ITracerComponent[] components, ITracer tracer, TraceLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
+        public static void Log(this ILoggerComponent[] components, ILogger logger, LogLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(tracer, nameof(tracer));
+            Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(level, nameof(level));
             Should.NotBeNull(message, nameof(message));
             for (var i = 0; i < components.Length; i++)
-                components[i].Trace(tracer, level, message, exception, metadata);
+                components[i].Log(logger, level, message, exception, metadata);
         }
 
         public static IWeakReference? TryGetWeakReference(this IWeakReferenceProviderComponent[] components, IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)

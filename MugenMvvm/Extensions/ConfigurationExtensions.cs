@@ -70,7 +70,7 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ExpressionReflectionDelegateProvider())
                 .WithComponent(new ReflectionDelegateProviderCache());
 
-            configuration.WithAppService(new Tracer());
+            configuration.WithAppService(new Logger());
 
             configuration.WithAppService(new WeakReferenceManager())
                 .WithComponent(new ValueHolderWeakReferenceProviderCache())
@@ -130,7 +130,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static MugenApplicationConfiguration TraceConfiguration(this MugenApplicationConfiguration configuration, bool traceApp = true, bool traceBinding = true,
-            bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true, bool includeConsoleTracer = true)
+            bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true, bool includeConsoleLogger = true)
         {
             if (traceApp)
                 DebugTracer.TraceApp(configuration.Application);
@@ -146,12 +146,12 @@ namespace MugenMvvm.Extensions
                 DebugTracer.TraceViewModel(configuration.ServiceConfiguration<IViewModelManager>().Service());
             if (traceView)
                 DebugTracer.TraceView(configuration.ServiceConfiguration<IViewManager>().Service());
-            if (includeConsoleTracer)
-                DebugTracer.AddConsoleTracer(configuration.ServiceConfiguration<ITracer>().Service());
+            if (includeConsoleLogger)
+                DebugTracer.AddConsoleLogger(configuration.ServiceConfiguration<ILogger>().Service());
             return configuration;
         }
 
-        public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service, IReadOnlyMetadataContext? metadata = null)
+        public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service)
             where TService : class
         {
             MugenService.Configuration.InitializeInstance((TService) service);

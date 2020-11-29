@@ -104,17 +104,15 @@ namespace MugenMvvm.UnitTests
 
             if (outputHelper != null)
             {
-                ITracer tracer = new Tracer();
-                tracer.AddComponent(new DelegateTracer((l, msg, e, m) => outputHelper.WriteLine($"{l} - {msg} {e?.Flatten()}"), (level, context) => true));
-                MugenService.Configuration.InitializeInstance(tracer);
+                ILogger logger = new Logger();
+                logger.AddComponent(new DelegateLogger((l, msg, e, m) => outputHelper.WriteLine($"{l} - {msg} {e?.Flatten()}"), (level, context) => true));
+                MugenService.Configuration.InitializeInstance(logger);
             }
         }
 
         #endregion
 
         #region Methods
-
-        protected static void WaitCompletion(int milliseconds = 10) => Thread.Sleep(milliseconds);
 
         protected virtual void InitializeThreadDispatcher()
         {
@@ -123,7 +121,11 @@ namespace MugenMvvm.UnitTests
             MugenService.Configuration.InitializeInstance<IThreadDispatcher>(threadDispatcher);
         }
 
+        protected static void WaitCompletion(int milliseconds = 10) => Thread.Sleep(milliseconds);
+
         protected static void ShouldThrow<T>(Action action) where T : Exception => Assert.Throws<T>(action);
+
+        protected void ShouldThrow(Action action) => Assert.ThrowsAny<Exception>(action);
 
         protected static void GcCollect()
         {
@@ -131,20 +133,6 @@ namespace MugenMvvm.UnitTests
             GC.WaitForPendingFinalizers();
             GC.WaitForFullGCComplete();
             GC.Collect();
-        }
-
-        protected void ShouldThrow(Action action) => Assert.ThrowsAny<Exception>(action);
-
-        protected static Exception GetOriginalException(AggregateException aggregateException)
-        {
-            Exception exception = aggregateException;
-            while (aggregateException != null)
-            {
-                exception = aggregateException.InnerException!;
-                aggregateException = (exception as AggregateException)!;
-            }
-
-            return exception;
         }
 
         #endregion

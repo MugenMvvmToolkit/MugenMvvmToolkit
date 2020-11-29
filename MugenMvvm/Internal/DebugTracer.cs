@@ -46,8 +46,8 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        public static void AddConsoleTracer(ITracer tracer) =>
-            tracer.AddComponent(new DelegateTracer((level, s, arg3, arg4) => Console.Out.WriteLine($"{level.Name}: {s} {arg3?.Flatten()}"), (level, context) => true));
+        public static void AddConsoleLogger(ILogger logger) =>
+            logger.AddComponent(new DelegateLogger((level, s, arg3, arg4) => Console.Out.WriteLine($"{level.Name}/{s} {arg3?.Flatten()}"), (level, context) => true));
 
         public static void TraceApp(IMugenApplication application) => application.AddComponent(new ApplicationTracer());
 
@@ -146,7 +146,7 @@ namespace MugenMvvm.Internal
             }
 
             public void OnSourceUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata) =>
-                Tracer.Info()?.Trace($"{BindingTag}({Dump(binding)}) source update failed: {exception.Flatten(true)}");
+                Logger.Trace()?.Log($"{BindingTag}({Dump(binding)}) source update failed: {exception.Flatten(true)}");
 
             public void OnSourceUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata)
             {
@@ -157,7 +157,7 @@ namespace MugenMvvm.Internal
             }
 
             public void OnTargetUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata) =>
-                Tracer.Info()?.Trace($"{BindingTag}({Dump(binding)}) target update failed: {exception.Flatten(true)}");
+                Logger.Trace()?.Log($"{BindingTag}({Dump(binding)}) target update failed: {exception.Flatten(true)}");
 
             public void OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata)
             {
@@ -193,17 +193,17 @@ namespace MugenMvvm.Internal
             {
             }
 
-            public void OnSourceUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata) => Tracer.Info()?.Trace($"{_tag}: ({Dump(binding)}) source update canceled");
+            public void OnSourceUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) source update canceled");
 
-            public void OnSourceUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) => Tracer.Info()?.Trace($"{_tag}: ({Dump(binding)}) source updated newValue={newValue}");
+            public void OnSourceUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) source updated newValue={newValue}");
 
             public void OnTargetUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata)
             {
             }
 
-            public void OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata) => Tracer.Info()?.Trace($"{_tag}: ({Dump(binding)}) target update canceled");
+            public void OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) target update canceled");
 
-            public void OnTargetUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) => Tracer.Info()?.Trace($"{_tag}: ({Dump(binding)}) target updated newValue={newValue}");
+            public void OnTargetUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) target updated newValue={newValue}");
 
             #endregion
         }
@@ -222,9 +222,9 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Tracer.Info()?.Trace($"{ApplicationTag}before lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ApplicationTag}before lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(application, lifecycleState, state, metadata);
-                Tracer.Info()?.Trace($"{ApplicationTag}after lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ApplicationTag}after lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
             }
 
             #endregion
@@ -244,16 +244,16 @@ namespace MugenMvvm.Internal
 
             public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
             {
-                Tracer.Info()?.Trace($"{NavigationTag}before failed {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}before failed {Dump(navigationDispatcher, navigationContext)}");
                 Components.OnNavigationFailed(navigationDispatcher, navigationContext, exception);
-                Tracer.Info()?.Trace($"{NavigationTag}after failed {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}after failed {Dump(navigationDispatcher, navigationContext)}");
             }
 
             public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
             {
-                Tracer.Info()?.Trace($"{NavigationTag}before canceled {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}before canceled {Dump(navigationDispatcher, navigationContext)}");
                 Components.OnNavigationCanceled(navigationDispatcher, navigationContext, cancellationToken);
-                Tracer.Info()?.Trace($"{NavigationTag}after canceled {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}after canceled {Dump(navigationDispatcher, navigationContext)}");
             }
 
             #endregion
@@ -273,16 +273,16 @@ namespace MugenMvvm.Internal
 
             public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
             {
-                Tracer.Info()?.Trace($"{NavigationTag}before navigating {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}before navigating {Dump(navigationDispatcher, navigationContext)}");
                 Components.OnNavigating(navigationDispatcher, navigationContext);
-                Tracer.Info()?.Trace($"{NavigationTag}after navigating {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}after navigating {Dump(navigationDispatcher, navigationContext)}");
             }
 
             public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
             {
-                Tracer.Info()?.Trace($"{NavigationTag}before navigated {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}before navigated {Dump(navigationDispatcher, navigationContext)}");
                 Components.OnNavigated(navigationDispatcher, navigationContext);
-                Tracer.Info()?.Trace($"{NavigationTag}after navigated {Dump(navigationDispatcher, navigationContext)}");
+                Logger.Trace()?.Log($"{NavigationTag}after navigated {Dump(navigationDispatcher, navigationContext)}");
             }
 
             #endregion
@@ -318,9 +318,9 @@ namespace MugenMvvm.Internal
                     messengerHandler.Deconstruct(out var subscriber, out var mode, out var handler, out var state);
                     editor.Add(new MessengerHandler((o, context, s) =>
                     {
-                        Tracer.Info()?.Trace($"{MessagingTag}handling message {Dump(o, context)}");
+                        Logger.Trace()?.Log($"{MessagingTag}handling message {Dump(o, context)}");
                         var result = handler!(o, context, s);
-                        Tracer.Info()?.Trace($"{MessagingTag}handled message result={result}, {Dump(o, context)}");
+                        Logger.Trace()?.Log($"{MessagingTag}handled message result={result}, {Dump(o, context)}");
                         return result;
                     }, subscriber!, mode, state));
                 }
@@ -348,17 +348,17 @@ namespace MugenMvvm.Internal
 
             public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
-                Tracer.Info()?.Trace($"{PresentationTag}showing request={request}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{PresentationTag}showing request={request}, metadata={metadata.Dump()}");
                 var result = Components.TryShow(presenter, request, cancellationToken, metadata);
-                Tracer.Info()?.Trace($"{PresentationTag}shown request={request}{Dump(result)}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{PresentationTag}shown request={request}{Dump(result)}, metadata={metadata.Dump()}");
                 return result;
             }
 
             public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
-                Tracer.Info()?.Trace($"{PresentationTag}closing request={request}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{PresentationTag}closing request={request}, metadata={metadata.Dump()}");
                 var result = Components.TryClose(presenter, request, cancellationToken, metadata);
-                Tracer.Info()?.Trace($"{PresentationTag}closed request={request}{Dump(result)}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{PresentationTag}closed request={request}{Dump(result)}, metadata={metadata.Dump()}");
                 return result;
             }
 
@@ -387,16 +387,16 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Tracer.Info()?.Trace($"{ViewModelTag}before ({viewModel}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewModelTag}before ({viewModel}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
-                Tracer.Info()?.Trace($"{ViewModelTag}after ({viewModel}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewModelTag}after ({viewModel}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 if (lifecycleState == ViewModelLifecycleState.Created)
                     ++_createdCount;
                 else if (lifecycleState == ViewModelLifecycleState.Disposed)
                     ++_disposedCount;
                 else if (lifecycleState == ViewModelLifecycleState.Finalized)
                     ++_finalizedCount;
-                Tracer.Info()?.Trace($"{ViewModelTag}created={_createdCount}, disposed={_disposedCount}, finalized={_finalizedCount}");
+                Logger.Trace()?.Log($"{ViewModelTag}created={_createdCount}, disposed={_disposedCount}, finalized={_finalizedCount}");
             }
 
             #endregion
@@ -416,9 +416,9 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Tracer.Info()?.Trace($"{ViewTag}before ({Dump(viewManager, view)}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewTag}before ({Dump(viewManager, view)}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
-                Tracer.Info()?.Trace($"{ViewTag}after ({Dump(viewManager, view)}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewTag}after ({Dump(viewManager, view)}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
             }
 
             #endregion

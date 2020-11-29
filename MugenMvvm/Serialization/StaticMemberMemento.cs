@@ -80,7 +80,7 @@ namespace MugenMvvm.Serialization
                          (MemberInfo?) type.GetProperty(fieldOrPropertyName, BindingFlagsEx.StaticOnly);
             if (member == null)
             {
-                Tracer.Error()?.Trace(MessageConstant.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
+                Logger.Error()?.Log(MessageConstant.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
                 return null;
             }
 

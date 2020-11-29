@@ -5,16 +5,16 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Enums
 {
-    public class TraceLevelTest
+    public class LogLevelTest
     {
         #region Methods
 
         [Fact]
         public void CompareToEqualsShouldBeValid()
         {
-            var enum1 = TraceLevel.Information;
-            var enum2 = TraceLevel.Error;
-            var enum3 = new TraceLevel(enum1.Value);
+            var enum1 = LogLevel.Info;
+            var enum2 = LogLevel.Error;
+            var enum3 = new LogLevel(enum1.Value);
             var v1 = enum1.Value;
             var v2 = enum2.Value;
             enum1.CompareTo(null).ShouldEqual(1);

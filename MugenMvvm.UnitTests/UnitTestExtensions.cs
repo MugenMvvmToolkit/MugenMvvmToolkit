@@ -59,10 +59,15 @@ namespace MugenMvvm.UnitTests
 
         public static void ShouldEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second) => first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance).ShouldBeTrue();
 
-        public static void ShouldEqual(this IReadOnlyMetadataContext x1, IReadOnlyMetadataContext x2)
+        public static void ShouldEqual(this IReadOnlyMetadataContext? x1, IReadOnlyMetadataContext? x2)
         {
             if (!ReferenceEquals(x1, x2))
-                x1.GetValues().AsEnumerable().ShouldEqual(x2.GetValues().AsEnumerable());
+            {
+                if (x1 != null && x2 != null)
+                    x1.GetValues().AsEnumerable().ShouldEqual(x2.GetValues().AsEnumerable());
+                else
+                    ObjectAssertExtensions.ShouldEqual(x1, x2);
+            }
         }
 
         public static void ShouldEqual<T>([AllowNull] this IEnumerable<T> enumerable, [AllowNull] IEnumerable<T> value) => enumerable.ShouldEqual(value, EqualityComparer<T>.Default);

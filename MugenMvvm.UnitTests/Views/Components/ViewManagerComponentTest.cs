@@ -44,8 +44,8 @@ namespace MugenMvvm.UnitTests.Views.Components
             {
                 var view = new object();
                 var mapping = new ViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                var result = await manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata);
-                results.Add(result!);
+                var result = (await manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata))!;
+                results.Add(result);
 
                 result.Mapping.ShouldEqual(mapping);
                 result.ViewModel.ShouldEqual(viewModel);

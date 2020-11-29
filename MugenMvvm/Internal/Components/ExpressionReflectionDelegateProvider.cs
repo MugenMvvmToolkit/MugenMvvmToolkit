@@ -292,7 +292,7 @@ namespace MugenMvvm.Internal.Components
                 }
                 catch (Exception e)
                 {
-                    Tracer.Error()?.Trace(nameof(TryGetMethodDelegate), e);
+                    Logger.Error()?.Log(nameof(TryGetMethodDelegate), e);
                     return null;
                 }
 
