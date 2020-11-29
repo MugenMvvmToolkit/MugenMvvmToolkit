@@ -73,9 +73,9 @@ namespace MugenMvvm.Components
             lock (_items)
             {
                 MugenExtensions.AddOrdered(_items, component, this);
+                UpdateTrackers(component);
             }
 
-            UpdateTrackers(component);
             ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
             _components?.Get<IComponentCollectionChangedListener>(metadata).OnAdded(this, component, metadata);
             return true;
@@ -96,9 +96,9 @@ namespace MugenMvvm.Components
             {
                 if (!_items.Remove(component))
                     return false;
+                UpdateTrackers(component);
             }
 
-            UpdateTrackers(component);
             ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
             _components?.Get<IComponentCollectionChangedListener>().OnRemoved(this, component, metadata);
             return true;
@@ -110,9 +110,9 @@ namespace MugenMvvm.Components
             lock (_items)
             {
                 _items.Clear();
+                _componentTrackers = Default.Array<ComponentTracker>();
             }
 
-            _componentTrackers = Default.Array<ComponentTracker>();
             var changedListeners = _components.GetOrDefault<IComponentCollectionChangedListener>(metadata);
             for (var i = 0; i < oldItems.Length; i++)
             {
@@ -133,15 +133,18 @@ namespace MugenMvvm.Components
                     return (TComponent[]) componentTrackers[i].Components;
             }
 
-            return AddNewTracker<TComponent>(componentTrackers, metadata);
+            return AddNewTracker<TComponent>(metadata);
         }
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IComponentCollectionDecorator decorator)
             {
-                MugenExtensions.AddOrdered(ref _decorators, decorator, this);
-                UpdateTrackers(null, decorator);
+                lock (_items)
+                {
+                    MugenExtensions.AddOrdered(ref _decorators, decorator, this);
+                    UpdateTrackers(null, decorator);
+                }
             }
         }
 
@@ -149,8 +152,11 @@ namespace MugenMvvm.Components
         {
             if (component is IComponentCollectionDecorator decorator)
             {
-                MugenExtensions.Remove(ref _decorators, decorator);
-                UpdateTrackers(null, decorator);
+                lock (_items)
+                {
+                    MugenExtensions.Remove(ref _decorators, decorator);
+                    UpdateTrackers(null, decorator);
+                }
             }
         }
 
@@ -158,13 +164,17 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        private TComponent[] AddNewTracker<TComponent>(ComponentTracker[] componentTrackers, IReadOnlyMetadataContext? metadata) where TComponent : class
+        private TComponent[] AddNewTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class
         {
-            var tracker = GetComponentTracker<TComponent>(metadata);
-            Array.Resize(ref componentTrackers, componentTrackers.Length + 1);
-            componentTrackers[componentTrackers.Length - 1] = tracker;
-            _componentTrackers = componentTrackers;
-            return (TComponent[]) tracker.Components;
+            lock (_items)
+            {
+                var tracker = GetComponentTracker<TComponent>(metadata);
+                var componentTrackers = _componentTrackers;
+                Array.Resize(ref componentTrackers, componentTrackers.Length + 1);
+                componentTrackers[componentTrackers.Length - 1] = tracker;
+                _componentTrackers = componentTrackers;
+                return (TComponent[]) tracker.Components;
+            }
         }
 
         private void UpdateTrackers(object? component, IComponentCollectionDecorator? decorator = null)
@@ -186,41 +196,37 @@ namespace MugenMvvm.Components
 
         private ComponentTracker GetComponentTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class
         {
-            var items = _items;
-            lock (items)
+            var size = 0;
+            for (var i = 0; i < _items.Count; i++)
             {
-                var size = 0;
-                for (var i = 0; i < items.Count; i++)
-                {
-                    if (items[i] is TComponent)
-                        ++size;
-                }
-
-                if (size == 0)
-                    return ComponentTracker.Get(Default.Array<TComponent>());
-
-                if (_decorators.Length != 0 && _decorators.HasDecorators<TComponent>())
-                    return GetComponentTrackerWithDecorators<TComponent>(items, size, metadata);
-
-                var components = new TComponent[size];
-                size = 0;
-                for (var i = 0; i < items.Count; i++)
-                {
-                    if (items[i] is TComponent c)
-                        components[size++] = c;
-                }
-
-                return ComponentTracker.Get(components);
+                if (_items[i] is TComponent)
+                    ++size;
             }
+
+            if (size == 0)
+                return ComponentTracker.Get(Default.Array<TComponent>());
+
+            if (_decorators.Length != 0 && _decorators.HasDecorators<TComponent>())
+                return GetComponentTrackerWithDecorators<TComponent>(size, metadata);
+
+            var components = new TComponent[size];
+            size = 0;
+            for (var i = 0; i < _items.Count; i++)
+            {
+                if (_items[i] is TComponent c)
+                    components[size++] = c;
+            }
+
+            return ComponentTracker.Get(components);
         }
 
-        private ComponentTracker GetComponentTrackerWithDecorators<TComponent>(List<object> items, int size, IReadOnlyMetadataContext? metadata)
+        private ComponentTracker GetComponentTrackerWithDecorators<TComponent>(int size, IReadOnlyMetadataContext? metadata)
             where TComponent : class
         {
             var components = new List<TComponent>(size);
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < _items.Count; i++)
             {
-                if (items[i] is TComponent c)
+                if (_items[i] is TComponent c)
                     components.Add(c);
             }
 
