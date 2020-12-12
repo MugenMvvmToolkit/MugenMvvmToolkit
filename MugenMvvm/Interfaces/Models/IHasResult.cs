@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Interfaces.Models
 {
-    public interface IHasNavigationResult<out TResult>
+    public interface IHasResult<out TResult>
     {
         TResult Result { get; }
     }

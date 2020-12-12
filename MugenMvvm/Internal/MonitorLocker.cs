@@ -47,10 +47,17 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(locker, nameof(locker));
             var lockTaken = false;
-            Monitor.Enter(locker, ref lockTaken);
-            if (lockTaken)
+            try
+            {
+                Monitor.Enter(locker, ref lockTaken);
                 return new MonitorLocker(locker);
-            return default;
+            }
+            catch
+            {
+                if (lockTaken)
+                    Monitor.Exit(locker);
+                throw;
+            }
         }
 
         #endregion

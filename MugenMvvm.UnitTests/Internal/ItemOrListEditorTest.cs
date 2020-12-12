@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(10)]
-        public void AddRangeShouldAddItemOrList(int count)
+        public void AddRangeClearShouldAddItemOrListClear(int count)
         {
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
@@ -86,6 +86,10 @@ namespace MugenMvvm.UnitTests.Internal
             editorItemOrList = editor.ToItemOrList();
             editorItemOrList.Item.ShouldEqual(itemOrList.Item);
             editorItemOrList.List.ShouldEqual(itemOrList.List);
+
+            editor.Clear();
+            editor.IsEmpty.ShouldBeTrue();
+            editor.Count.ShouldEqual(0);
         }
 
         [Theory]

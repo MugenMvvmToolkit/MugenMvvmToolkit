@@ -172,6 +172,17 @@ namespace MugenMvvm.Internal
                 _list.RemoveAt(index);
         }
 
+        public void Clear()
+        {
+            if (_list == null)
+            {
+                _item = default!;
+                _hasItem = false;
+            }
+            else
+                _list.Clear();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal object? GetRawValueInternal()
         {

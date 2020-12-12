@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type[]?>,
+    internal sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type[]?>,
         IEqualityComparer<Type?>, IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>,
         IEqualityComparer<ThreadExecutionMode?>, IEqualityComparer<KeyValuePair<Type, Type>>, IEqualityComparer<IMetadataContextKey?>
     {

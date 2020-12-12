@@ -34,7 +34,7 @@ namespace MugenMvvm.Extensions
             return new ShowPresenterResult(presenterResult, showingCallback, closeCallback);
         }
 
-        public static ShowPresenterResult<T> ShowAsync<T>(this IHasNavigationResult<T> hasNavigationResult, CancellationToken cancellationToken = default,
+        public static ShowPresenterResult<T> ShowAsync<T>(this IHasResult<T> hasNavigationResult, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
             TryGetShowPresenterResult(presenter.DefaultIfNull().Show(hasNavigationResult, cancellationToken, metadata), navigationDispatcher, metadata, out var showingCallback, out var closeCallback,
@@ -67,7 +67,7 @@ namespace MugenMvvm.Extensions
         public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult, bool isSerializable = true) =>
             showResult.CloseCallback
                 .ToTask(isSerializable)
-                .ContinueWith(task => (task.Result.Target is IHasNavigationResult<T> navigationResult ? navigationResult.Result : default)!, TaskContinuationOptions.ExecuteSynchronously)
+                .ContinueWith(task => (task.Result.Target is IHasResult<T> navigationResult ? navigationResult.Result : default)!, TaskContinuationOptions.ExecuteSynchronously)
                 .GetAwaiter()!;
 
         private static Task<bool> CancelToFalse(this Task<INavigationContext> task) =>
