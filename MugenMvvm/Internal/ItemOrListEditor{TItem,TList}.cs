@@ -55,7 +55,7 @@ namespace MugenMvvm.Internal
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => !_hasItem && _list == null;
+            get => Count == 0;
         }
 
         public TItem this[int index]
