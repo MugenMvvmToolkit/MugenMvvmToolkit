@@ -42,7 +42,7 @@ namespace MugenMvvm.Ios.Extensions
         {
             configuration
                 .ServiceConfiguration<IThreadDispatcher>()
-                .WithComponent(new SynchronizationContextThreadDispatcher(SynchronizationContext.Current));
+                .WithComponent(new SynchronizationContextThreadDispatcher(SynchronizationContext.Current, true));
 
             configuration
                 .ServiceConfiguration<IWeakReferenceManager>()

@@ -37,7 +37,7 @@ namespace MugenMvvm.Android.Views
                 return await Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata).ConfigureAwait(false);
             }
 
-            var handler = new PendingActivityHandler(activityRequest.Mapping, cancellationToken);
+            var handler = new PendingActivityHandler(activityRequest, cancellationToken);
             viewManager.AddComponent(handler);
             activityRequest.StartActivity();
 
@@ -56,16 +56,16 @@ namespace MugenMvvm.Android.Views
         {
             #region Fields
 
+            private readonly IActivityViewRequest _request;
             private readonly CancellationToken _cancellationToken;
-            private readonly IViewMapping _mapping;
 
             #endregion
 
             #region Constructors
 
-            public PendingActivityHandler(IViewMapping mapping, CancellationToken cancellationToken)
+            public PendingActivityHandler(IActivityViewRequest request, CancellationToken cancellationToken)
             {
-                _mapping = mapping;
+                _request = request;
                 _cancellationToken = cancellationToken;
             }
 
@@ -81,10 +81,8 @@ namespace MugenMvvm.Android.Views
 
             public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                if (lifecycleState != AndroidViewLifecycleState.Created)
-                    return;
                 view = MugenExtensions.Unwrap(view);
-                if (!_mapping.ViewType.IsInstanceOfType(view))
+                if (!_request.IsTargetActivity(view, lifecycleState, state, metadata))
                     return;
 
                 viewManager.RemoveComponent(this);

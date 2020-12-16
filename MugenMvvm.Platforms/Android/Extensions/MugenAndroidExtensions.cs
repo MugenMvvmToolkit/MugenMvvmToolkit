@@ -92,7 +92,7 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new ViewStateDispatcher())
                 .WithComponent(new ViewLifecycleDispatcher())
                 .WithComponent(new ResourceViewRequestManager())
-                .WithComponent(new ViewStateMapperDispatcher())
+                .WithComponent(new ViewLifecycleMapperDispatcher())
                 .WithComponent(new ActivityViewRequestManager())
                 .WithComponent(new ResourceViewMappingDecorator())
                 .Service()

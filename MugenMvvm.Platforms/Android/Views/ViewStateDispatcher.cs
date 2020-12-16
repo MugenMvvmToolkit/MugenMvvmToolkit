@@ -53,35 +53,50 @@ namespace MugenMvvm.Android.Views
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && TryGetBundle(view, state, false, out var bundle))
+            if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && TryGetBundle(state, out var bundle))
                 PreserveState(v, bundle, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(view, state, true, out var b))
-            {
-                view = MugenExtensions.Unwrap(view);
-                var request = TryRestoreState(view, b, metadata);
-                if (request == null)
-                {
-                    FragmentExtensions.ClearFragmentState(b);
-                    if (view is IActivityView av)
-                        Finish(av);
-                    else if (view is IFragmentView f)
-                        FragmentExtensions.Remove(f);
-                }
-                else if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsEmpty)
-                {
-                    if (view is IActivityView activity)
-                        activity.Finish();
-                    else
-                        viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
-                }
-                else
-                    viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
-            }
+            else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(state, out bundle))
+                TryRestore(viewManager, view, bundle, state, metadata);
+            else if (lifecycleState == AndroidViewLifecycleState.Created)
+                TryRestore(viewManager, view, null, state, metadata);
         }
 
         #endregion
 
         #region Methods
+
+        private void TryRestore(IViewManager viewManager, object view, Bundle? b, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (viewManager.IsInState(view, AndroidViewLifecycleState.PendingInitialization))
+                return;
+
+            view = MugenExtensions.Unwrap(view);
+            var request = TryRestoreState(view, b, metadata);
+            if (b == null)
+            {
+                if (request != null)
+                    viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
+                return;
+            }
+
+            if (request == null)
+            {
+                FragmentExtensions.ClearFragmentState(b);
+                if (view is IActivityView av)
+                    Finish(av);
+                else if (view is IFragmentView f)
+                    FragmentExtensions.Remove(f);
+            }
+            else if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsEmpty)
+            {
+                if (view is IActivityView activity)
+                    activity.Finish();
+                else
+                    viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
+            }
+            else
+                viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
+        }
 
         private void Finish(IActivityView activityView)
         {
@@ -108,15 +123,18 @@ namespace MugenMvvm.Android.Views
                 bundle.Remove(AndroidInternalConstant.BundleViewState);
         }
 
-        private ViewModelViewRequest? TryRestoreState(object view, Bundle bundle, IReadOnlyMetadataContext? metadata)
+        private ViewModelViewRequest? TryRestoreState(object view, Bundle? bundle, IReadOnlyMetadataContext? metadata)
         {
-            var id = bundle.GetString(AndroidInternalConstant.BundleVmId);
+            var id = bundle?.GetString(AndroidInternalConstant.BundleVmId) ?? GetViewModelId(view);
             if (string.IsNullOrEmpty(id))
                 return null;
 
             var viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id!, metadata);
             if (viewModel == null)
             {
+                if (bundle == null)
+                    return null;
+
                 var serializer = _serializer.DefaultIfNull();
                 if (!serializer.IsSupported(DeserializationFormat.AppStateBytes))
                     return null;
@@ -137,7 +155,7 @@ namespace MugenMvvm.Android.Views
             return new ViewModelViewRequest(viewModel, view);
         }
 
-        private static bool TryGetBundle(object view, object? state, bool extrasAsFallback, [NotNullWhen(true)] out Bundle? bundle)
+        private static bool TryGetBundle(object? state, [NotNullWhen(true)] out Bundle? bundle)
         {
             while (true)
             {
@@ -159,16 +177,12 @@ namespace MugenMvvm.Android.Views
                     continue;
                 }
 
-                if (extrasAsFallback && MugenExtensions.Unwrap(view) is IActivityView activityView)
-                {
-                    bundle = ActivityExtensions.GetExtras(activityView);
-                    return bundle != null;
-                }
-
                 bundle = null;
                 return false;
             }
         }
+
+        private static string? GetViewModelId(object view) => view is IActivityView activityView ? ActivityExtensions.GetViewModelId(activityView) : null;
 
         #endregion
     }

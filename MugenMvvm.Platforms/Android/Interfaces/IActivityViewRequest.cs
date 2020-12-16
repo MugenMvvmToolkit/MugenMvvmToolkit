@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Interfaces.ViewModels;
+﻿using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 
 namespace MugenMvvm.Android.Interfaces
@@ -10,6 +12,8 @@ namespace MugenMvvm.Android.Interfaces
         IViewModelBase? ViewModel { get; set; }
 
         IViewMapping Mapping { get; }
+
+        bool IsTargetActivity(object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata);
 
         void StartActivity();
     }

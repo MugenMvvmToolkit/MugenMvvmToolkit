@@ -46,6 +46,7 @@ namespace MugenMvvm.Android.Views
 
         public bool IsInState(object owner, object target, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
+            target = MugenExtensions.Unwrap(target);
             if (target is IActivityView activity)
             {
                 if (state == AndroidViewLifecycleState.Finishing || state == AndroidViewLifecycleState.Finished)
@@ -68,7 +69,8 @@ namespace MugenMvvm.Android.Views
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if ((lifecycleState == AndroidViewLifecycleState.Started || lifecycleState == AndroidViewLifecycleState.Resumed) &&
-                !viewManager.IsInState(view, AndroidViewLifecycleState.PendingInitialization, metadata))
+                !viewManager.IsInState(view, AndroidViewLifecycleState.PendingInitialization, metadata) &&
+                !viewManager.IsInState(view, AndroidViewLifecycleState.Finishing))
             {
                 if (lifecycleState == AndroidViewLifecycleState.Started && !(view is IView) && viewManager.GetViews(view, metadata).IsEmpty)
                     _presenter.DefaultIfNull().TryShow(view, default, metadata);
