@@ -10,8 +10,6 @@ using JetBrains.Annotations;
 using MugenMvvm.Commands;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions.Components;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Commands;
@@ -37,13 +35,6 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
-
-        public static bool IsInState(this IMugenApplication application, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(application, nameof(application));
-            Should.NotBeNull(state, nameof(state));
-            return application.GetComponents<ILifecycleTrackerComponent<ApplicationLifecycleState>>(metadata).IsInState(application, application, state, metadata);
-        }
 
         public static IBusyToken BeginBusy(this IBusyManager busyManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {

@@ -434,7 +434,8 @@ namespace MugenMvvm.Presenters
             ShowingCancellationTokenSource = null;
             if (navigationContext.NavigationMode.IsClose)
             {
-                IsShown = false;
+                if (cancellationToken == null && error == null)
+                    IsShown = false;
                 ClosingContext = null;
                 ClosingCancelArgs = null;
             }

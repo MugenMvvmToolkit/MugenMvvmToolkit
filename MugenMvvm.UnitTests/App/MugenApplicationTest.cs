@@ -5,6 +5,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.App.Internal;
+using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -30,6 +31,41 @@ namespace MugenMvvm.UnitTests.App
             deviceInfo.DeviceVersion.ShouldEqual("0.0");
             deviceInfo.Metadata.ShouldNotBeNull();
             MugenService.Application.ShouldEqual(mugenApplication);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void IsInStateShouldBeHandledByComponents(int componentCount)
+        {
+            var count = 0;
+            var owner = new MugenApplication();
+            var target = owner;
+            var state = ApplicationLifecycleState.Activated;
+
+            owner.IsInState(state, DefaultMetadata).ShouldBeFalse();
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                bool isLast = i - 1 == componentCount;
+                var component = new TestLifecycleTrackerComponent<ApplicationLifecycleState>(owner)
+                {
+                    IsInState = (o, t, s, m) =>
+                    {
+                        ++count;
+                        t.ShouldEqual(target);
+                        m.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return true;
+                        return false;
+                    },
+                    Priority = -i
+                };
+                owner.Components.Add(component);
+            }
+
+            owner.IsInState(state, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
         }
 
         [Theory]

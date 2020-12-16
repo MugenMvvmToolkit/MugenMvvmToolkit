@@ -10,6 +10,8 @@ namespace MugenMvvm.Interfaces.Views
 {
     public interface IViewManager : IComponentOwner<IViewManager>
     {
+        bool IsInState(object view, ViewLifecycleState state, IReadOnlyMetadataContext? metadata = null);
+
         void OnLifecycleChanged(object view, ViewLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<IView, IReadOnlyList<IView>> GetViews(object request, IReadOnlyMetadataContext? metadata = null);

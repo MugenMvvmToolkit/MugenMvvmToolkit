@@ -61,7 +61,7 @@ namespace MugenMvvm.ViewModels
 
         public void Dispose()
         {
-            if (IsDisposed)
+            if (IsDisposed || !CanDispose())
                 return;
             lock (this)
             {
@@ -136,6 +136,8 @@ namespace MugenMvvm.ViewModels
             base.OnPropertyChangedInternal(args);
             this.TryGetService<IMessenger>(true)?.Publish(this, args);
         }
+
+        private bool CanDispose() => !(this is IHasDisposeCondition condition) || condition.CanDispose;
 
         #endregion
     }

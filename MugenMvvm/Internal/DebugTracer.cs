@@ -222,9 +222,9 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Logger.Trace()?.Log($"{ApplicationTag}before lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ApplicationTag}before ({lifecycleState}) state={state ?? "null"}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(application, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ApplicationTag}after lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ApplicationTag}after ({lifecycleState}) state={state ?? "null"}, metadata={metadata.Dump()}");
             }
 
             #endregion
@@ -387,9 +387,9 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Logger.Trace()?.Log($"{ViewModelTag}before ({viewModel}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewModelTag}before ({lifecycleState}) viewmodel={viewModel}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ViewModelTag}after ({viewModel}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewModelTag}after ({lifecycleState}) viewmodel={viewModel}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 if (lifecycleState == ViewModelLifecycleState.Created)
                     ++_createdCount;
                 else if (lifecycleState == ViewModelLifecycleState.Disposed)
@@ -416,9 +416,9 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Logger.Trace()?.Log($"{ViewTag}before ({Dump(viewManager, view)}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ViewTag}after ({Dump(viewManager, view)}) lifecycle changed {lifecycleState}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewTag}after ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
             }
 
             #endregion

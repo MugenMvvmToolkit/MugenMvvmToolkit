@@ -62,11 +62,11 @@ namespace MugenMvvm.Extensions
             return Task.WhenAll((List<Task<bool>>) tasks.GetRawValue()!).ContinueWith(task => task.Result.WhenAny(), TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult, bool isSerializable = true) => ((Task) showResult.CloseCallback.ToTask(isSerializable)).GetAwaiter();
+        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult) => ((Task) showResult.CloseCallback.ToTask(true)).GetAwaiter();
 
-        public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult, bool isSerializable = true) =>
+        public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult) =>
             showResult.CloseCallback
-                .ToTask(isSerializable)
+                .ToTask(true)
                 .ContinueWith(task => (task.Result.Target is IHasResult<T> navigationResult ? navigationResult.Result : default)!, TaskContinuationOptions.ExecuteSynchronously)
                 .GetAwaiter()!;
 

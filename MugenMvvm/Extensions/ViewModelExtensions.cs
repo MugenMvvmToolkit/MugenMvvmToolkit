@@ -1,7 +1,5 @@
 ﻿using System;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions.Components;
-using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -19,12 +17,6 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
-
-        public static bool IsInState(this IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            return viewModelManager.GetComponents<ILifecycleTrackerComponent<ViewModelLifecycleState>>(metadata).IsInState(viewModelManager, viewModel, state, metadata);
-        }
 
         public static IViewModelBase GetViewModel(this IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata = null)
         {

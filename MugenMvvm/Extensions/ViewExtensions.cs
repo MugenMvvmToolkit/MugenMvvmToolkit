@@ -2,9 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Enums;
-using MugenMvvm.Extensions.Components;
-using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
@@ -16,12 +13,6 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
-
-        public static bool IsInState(this IViewManager viewManager, object view, ViewLifecycleState state, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewManager, nameof(viewManager));
-            return viewManager.GetComponents<ILifecycleTrackerComponent<ViewLifecycleState>>(metadata).IsInState(viewManager, view, state, metadata);
-        }
 
         public static async ValueTask<IView> InitializeAsync(this IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)

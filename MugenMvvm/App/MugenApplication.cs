@@ -5,6 +5,7 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.App
@@ -47,6 +48,9 @@ namespace MugenMvvm.App
         #endregion
 
         #region Implementation of interfaces
+
+        public bool IsInState(ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata = null) =>
+            Components.Get<ILifecycleTrackerComponent<ApplicationLifecycleState>>(metadata).IsInState(this, this, state, metadata);
 
         public void OnUnhandledException(Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata = null) =>
             Components.Get<IApplicationUnhandledExceptionComponent>().OnUnhandledException(this, exception, type, metadata);

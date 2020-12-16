@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Components;
+using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.UnitTests.Views.Internal;
 using MugenMvvm.Views;
@@ -19,6 +20,41 @@ namespace MugenMvvm.UnitTests.Views
     public class ViewManagerTest : ComponentOwnerTestBase<ViewManager>
     {
         #region Methods
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void IsInStateShouldBeHandledByComponents(int componentCount)
+        {
+            var count = 0;
+            var owner = new ViewManager();
+            var target = new object();
+            var state = ViewLifecycleState.Appeared;
+
+            owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                bool isLast = i - 1 == componentCount;
+                var component = new TestLifecycleTrackerComponent<ViewLifecycleState>(owner)
+                {
+                    IsInState = (o, t, s, m) =>
+                    {
+                        ++count;
+                        t.ShouldEqual(target);
+                        m.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return true;
+                        return false;
+                    },
+                    Priority = -i
+                };
+                owner.Components.Add(component);
+            }
+
+            owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+        }
 
         [Theory]
         [InlineData(1)]

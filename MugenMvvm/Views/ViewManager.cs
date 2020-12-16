@@ -6,6 +6,7 @@ using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
@@ -26,6 +27,9 @@ namespace MugenMvvm.Views
         #endregion
 
         #region Implementation of interfaces
+
+        public bool IsInState(object view, ViewLifecycleState state, IReadOnlyMetadataContext? metadata = null)
+            => GetComponents<ILifecycleTrackerComponent<ViewLifecycleState>>(metadata).IsInState(this, view, state, metadata);
 
         public void OnLifecycleChanged(object view, ViewLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IViewLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(this, view, lifecycleState, state, metadata);

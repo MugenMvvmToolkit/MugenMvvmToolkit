@@ -3,6 +3,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Components;
+using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.ViewModels;
 using Should;
@@ -13,7 +14,42 @@ namespace MugenMvvm.UnitTests.ViewModels
     public class ViewModelManagerTest : ComponentOwnerTestBase<ViewModelManager>
     {
         #region Methods
+        
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void IsInStateShouldBeHandledByComponents(int componentCount)
+        {
+            var count = 0;
+            var owner = new ViewModelManager();
+            var target = new TestViewModel();
+            var state = ViewModelLifecycleState.Created;
 
+            owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                bool isLast = i - 1 == componentCount;
+                var component = new TestLifecycleTrackerComponent<ViewModelLifecycleState>(owner)
+                {
+                    IsInState = (o, t, s, m) =>
+                    {
+                        ++count;
+                        t.ShouldEqual(target);
+                        m.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return true;
+                        return false;
+                    },
+                    Priority = -i
+                };
+                owner.Components.Add(component);
+            }
+
+            owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+        }
+        
         [Theory]
         [InlineData(1)]
         [InlineData(10)]

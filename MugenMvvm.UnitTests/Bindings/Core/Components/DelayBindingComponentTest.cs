@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public void ShouldDelayTargetValue()
         {
             const int delay = 10;
-            const int wait = 10 * 3;
+            const int wait = 10 * 4;
             Action? invokeAction = null;
             var testDispatcher = new TestThreadDispatcherComponent
             {
