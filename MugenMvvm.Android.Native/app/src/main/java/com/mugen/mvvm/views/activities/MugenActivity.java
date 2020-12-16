@@ -107,11 +107,14 @@ public class MugenActivity extends Activity implements INativeActivityView {
 
     @Override
     public void setContentView(int layoutResID) {
-        setContentView(getLayoutInflater().inflate(layoutResID, null));
+        if (!isFinishing())
+            setContentView(getLayoutInflater().inflate(layoutResID, null));
     }
 
     @Override
     public void setContentView(View view) {
+        if (isFinishing())
+            return;
         ViewExtensions.onInitializingView(this, view);
         super.setContentView(view);
         ViewExtensions.onInitializedView(this, view);
@@ -119,6 +122,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
+        if (isFinishing())
+            return;
         ViewExtensions.onInitializingView(this, view);
         super.setContentView(view, params);
         ViewExtensions.onInitializedView(this, view);

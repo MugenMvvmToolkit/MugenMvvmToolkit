@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Toolbar;
 
@@ -19,8 +18,10 @@ import com.mugen.mvvm.views.activities.MugenActivity;
 import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
 public final class ActivityExtensions {
-    static final String ViewIdIntentKey = "~v_id!";
-    static final String ExtraBundleKey = "~eb@#";
+    public static final String ViewIdIntentKey = "~v_id!";
+    public static final String ViewModelIdIntentKey = "~vm_id!";
+    public static final String RequestIdIntentKey = "~r_id!";
+
     @SuppressLint("StaticFieldLeak")
     private static Activity _currentActivity;
 
@@ -34,9 +35,14 @@ public final class ActivityExtensions {
         return false;
     }
 
-    public static Bundle getExtras(IActivityView activityView) {
+    public static int getRequestId(IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
-        return activity.getIntent().getBundleExtra(ExtraBundleKey);
+        return activity.getIntent().getIntExtra(RequestIdIntentKey, 0);
+    }
+
+    public static String getViewModelId(IActivityView activityView) {
+        Activity activity = (Activity) activityView.getActivity();
+        return activity.getIntent().getStringExtra(ViewModelIdIntentKey);
     }
 
     public static Object getActionBar(IActivityView activityView) {
@@ -61,7 +67,7 @@ public final class ActivityExtensions {
         return false;
     }
 
-    public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags, Bundle extras) {
+    public static boolean startActivity(IActivityView activityView, Class activityClass, int requestId, String viewModelId, int resourceId, int flags) {
         if (activityClass == null)
             activityClass = ViewExtensions.tryGetClassById(resourceId);
         if (activityClass == null)
@@ -69,14 +75,15 @@ public final class ActivityExtensions {
 
         Context context = activityView == null ? MugenNativeService.getAppContext() : activityView.getActivity();
         Intent intent = new Intent(context, activityClass);
-        if (extras != null)
-            intent.putExtra(ExtraBundleKey, extras);
         if (activityView == null)
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (flags != 0)
             intent.addFlags(flags);
         if (resourceId != 0)
             intent.putExtra(ViewIdIntentKey, resourceId);
+        if (viewModelId != null)
+            intent.putExtra(ViewModelIdIntentKey, viewModelId);
+        intent.putExtra(RequestIdIntentKey, requestId);
         context.startActivity(intent);
         return true;
     }
