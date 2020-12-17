@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Views.Components
 
 
             var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
-            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
             view.Target.BindableMembers().SetDataContext(viewModel);
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     return true;
                 }
             });
-            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner());
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             };
             var viewModel = new TestCleanableViewModel();
-            var view = new View(new ViewMapping("1", rawView.GetType(), typeof(IViewModelBase)), rawView, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), rawView.GetType()), rawView, viewModel);
             view.Components.Add(componentView);
             view.Components.Components.Add(this);
             var viewManager = new ViewManager();
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public void ShouldClearMetadata()
         {
             var viewModel = new TestCleanableViewModel();
-            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner());
             view.Metadata.Set(ViewModelMetadata.Id, "");

@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void ConstructorShouldInitializeFields()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping);
             mediator.Id.ShouldEqual($"{mediator.GetType().FullName}{mapping.Id}");
             mediator.ViewModel.ShouldEqual(vm);
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldNotifyNavigationDispatcher(int state)
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
             var exception = new Exception();
@@ -171,7 +171,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldRequestViewInitialization(bool includeView)
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
             var initCount = 0;
@@ -218,7 +218,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldWrapView(bool includeView)
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
             var initCount = 0;
@@ -259,7 +259,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldDetectRestore()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
             var showCount = 0;
@@ -304,7 +304,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldActivateView(bool result)
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
             var showCount = 0;
@@ -373,7 +373,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldUpdateView()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var newView = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
@@ -443,7 +443,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldWaitNavigationDispatcherOnNavigating(bool result)
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource().Token;
             var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
@@ -508,7 +508,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryCloseShouldClearView()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
             var initCount = 0;
@@ -562,7 +562,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldClearViewFailed()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource();
             var initCount = 0;
@@ -604,7 +604,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryCloseShouldWaitNavigationDispatcherOnNavigating(bool result)
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource().Token;
             var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
@@ -679,7 +679,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void OnClosingShouldWaitNavigationDispatcherOnNavigating()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
             var canClose = true;
@@ -740,7 +740,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryCloseShouldNotifyNavigationDispatcher(int state)
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
             var exception = new Exception();
@@ -871,7 +871,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryCloseShouldCheckView()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource().Token;
             var closeCount = 0;
@@ -912,7 +912,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryShowShouldCheckNavigationType()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource().Token;
             var showCount = 0;
@@ -946,7 +946,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void TryCloseShouldCheckNavigationType()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource().Token;
             var closeCount = 0;

@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var state = "test";
             var st = ViewLifecycleState.Initialized;
             var viewModel = new TestViewModel();
-            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
             var invokeCount = 0;
 
             var viewManager = new ViewManager();
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var state = "test";
             var st = ViewLifecycleState.Initialized;
             var viewModel = new TestViewModel();
-            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
             var invokeCount = 0;
 
             var viewManager = new ViewManager();

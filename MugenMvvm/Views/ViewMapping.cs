@@ -10,13 +10,13 @@ namespace MugenMvvm.Views
     {
         #region Fields
 
-        public static readonly IViewMapping Undefined = new ViewMapping("-", typeof(object), typeof(IViewModelBase));
+        public static readonly IViewMapping Undefined = new ViewMapping("-", typeof(IViewModelBase), typeof(object));
 
         #endregion
 
         #region Constructors
 
-        public ViewMapping(string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
+        public ViewMapping(string id, Type viewModelType, Type viewType, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(id, nameof(id));
             Should.NotBeNull(viewType, nameof(viewType));

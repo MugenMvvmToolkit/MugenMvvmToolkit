@@ -73,7 +73,10 @@ namespace MugenMvvm.Android.Views
                 !viewManager.IsInState(view, AndroidViewLifecycleState.Finishing))
             {
                 if (lifecycleState == AndroidViewLifecycleState.Started && !(view is IView) && viewManager.GetViews(view, metadata).IsEmpty)
-                    _presenter.DefaultIfNull().TryShow(view, default, metadata);
+                {
+                    if (!_presenter.DefaultIfNull().TryShow(view, default, metadata).IsEmpty)
+                        viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
+                }
                 else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view is IActivityView activityView && viewManager.GetViews(view).IsEmpty)
                     activityView.Finish();
             }

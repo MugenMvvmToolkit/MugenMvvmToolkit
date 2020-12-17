@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
         {
             var wrapperType = typeof(string);
             var view = new object();
-            var request = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), view, new TestViewModel());
+            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel());
             var invokeCount = 0;
 
             var wrapperManager = new WrapperManager();
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
         {
             var wrapperType = typeof(object);
             var view = new object();
-            var request = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), view, new TestViewModel());
+            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel());
 
             var wrapperManager = new WrapperManager();
             wrapperManager.AddComponent(new ViewWrapperManagerDecorator());
@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
         {
             var wrapperType = typeof(ViewWrapperManagerDecoratorTest);
             var view = new object();
-            var request = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), view, new TestViewModel());
+            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel());
             var invokeCount = 0;
 
             var wrapperManager = new WrapperManager();

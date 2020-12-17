@@ -9,8 +9,8 @@ namespace MugenMvvm.Android.Views
     {
         #region Constructors
 
-        public ResourceViewMapping(int resourceId, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
-            : base(viewModelType.Name + resourceId, viewType, viewModelType, metadata)
+        public ResourceViewMapping(int resourceId, Type viewModelType, Type viewType, IReadOnlyMetadataContext? metadata = null)
+            : base(viewModelType.Name + resourceId, viewModelType, viewType, metadata)
         {
             ResourceId = resourceId;
         }

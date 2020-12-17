@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Presenters
         {
             var viewRequest = new object();
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var showCount = 0;
             var initializeCount = 0;
@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTests.Presenters
         {
             var state = ViewLifecycleState.Get(stateString);
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var navigatingCount = 0;
             var navigateCanceledCount = 0;
@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void ShouldListenViewLifecycle()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var navigatingCount = 0;
             var navigatedCount = 0;
@@ -278,7 +278,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void ShouldInitCleanViewFromLifecycle()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
 
             var viewPresenter = new TestViewPresenter();
@@ -307,7 +307,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void ShouldCloseAfterShow()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
 
             var navigatedCount = 0;
@@ -354,7 +354,7 @@ namespace MugenMvvm.UnitTests.Presenters
         public void ShouldCancelCloseReappearing()
         {
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", typeof(object), vm.GetType(), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
 
             var navigatedCount = 0;

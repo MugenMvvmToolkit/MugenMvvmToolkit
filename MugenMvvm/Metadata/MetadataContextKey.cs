@@ -113,7 +113,7 @@ namespace MugenMvvm.Metadata
         {
             #region Fields
 
-            private readonly string _key;
+            public readonly string Key;
             private readonly Type? _declaredType;
             private readonly string? _fieldOrPropertyName;
 
@@ -135,7 +135,7 @@ namespace MugenMvvm.Metadata
             public Builder(string key, Type? declaredType, string? fieldOrPropertyName)
             {
                 Should.NotBeNull(key, nameof(key));
-                _key = key;
+                Key = key;
                 _declaredType = declaredType;
                 _fieldOrPropertyName = fieldOrPropertyName;
                 _metadata = null;
@@ -223,7 +223,7 @@ namespace MugenMvvm.Metadata
             {
                 if (_isSerializable && _getMementoFunc == null && (_declaredType == null || _fieldOrPropertyName == null))
                     ExceptionManager.ThrowMementoRequiredContextKey();
-                var key = new MetadataContextKeyInternal<T>(_key, _isSerializable, _metadata, _declaredType, _fieldOrPropertyName)
+                var key = new MetadataContextKeyInternal<T>(Key, _isSerializable, _metadata, _declaredType, _fieldOrPropertyName)
                 {
                     SetValueFunc = _setValueFunc,
                     ValidateAction = _validateAction,

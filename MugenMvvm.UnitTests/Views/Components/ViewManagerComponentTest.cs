@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         [Fact]
         public void TryInitializeAsyncShouldIgnoreNull()
         {
-            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
             var component = new ViewManagerComponent();
             component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldEqual(default);
         }
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             for (var i = 0; i < count; i++)
             {
                 var view = new object();
-                var mapping = new ViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
+                var mapping = new ViewMapping("id" + i, typeof(TestViewModel), typeof(object), DefaultMetadata);
                 var result = (await manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata))!;
                 results.Add(result);
 
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             for (var i = 0; i < viewCount; i++)
             {
                 var view = new object();
-                var mapping = new ViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
+                var mapping = new ViewMapping("id" + i, typeof(TestViewModel), typeof(object), DefaultMetadata);
                 results.Add((await manager.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata))!);
             }
 
@@ -130,7 +130,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         [InlineData(10, false)]
         public async Task TryInitializeAsyncShouldInitializeViewAndNotifyListeners(int count, bool owner)
         {
-            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
             var view = new object();
             var clearView = view;
             var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();

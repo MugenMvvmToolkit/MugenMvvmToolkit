@@ -46,7 +46,7 @@ namespace MugenMvvm.Views.Components
                                 return new ValueTask<IView?>(view);
                         }
 
-                        mapping = mappings.Item ?? new ViewMapping(mappingId, viewType, viewModel.GetType(), metadata);
+                        mapping = mappings.Item ?? new ViewMapping(mappingId, viewModel.GetType(), viewType, metadata);
                     }
 
                     request = ViewModelViewRequest.GetRequestOrRaw(request, viewModel, v);

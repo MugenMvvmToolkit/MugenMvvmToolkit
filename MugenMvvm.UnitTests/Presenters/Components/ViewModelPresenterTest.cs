@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var request = new ViewModelViewRequest(viewModel, new object());
             var viewManager = new ViewManager();
             var cancellationToken = new CancellationTokenSource().Token;
-            var mapping = new ViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("t", typeof(TestViewModel), typeof(TestView1), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, m) =>

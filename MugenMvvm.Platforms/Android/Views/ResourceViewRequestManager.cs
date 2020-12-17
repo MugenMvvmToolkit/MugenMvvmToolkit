@@ -50,7 +50,7 @@ namespace MugenMvvm.Android.Views
                     }
 
                     var view = ViewExtensions.GetView(container, resourceId, true);
-                    viewMapping ??= new ResourceViewMapping(resourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
+                    viewMapping ??= new ResourceViewMapping(resourceId, viewRequest.ViewModel.GetType(), view.GetType(), metadata);
                     viewRequest.View = view;
                     mapping = viewMapping;
                 }

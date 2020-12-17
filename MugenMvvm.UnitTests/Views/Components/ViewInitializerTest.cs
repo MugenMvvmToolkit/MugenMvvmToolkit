@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             });
 
             var viewModel = new TestInitializableViewModel {Service = new Messenger()};
-            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewInitializer {SetDataContext = true});
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     return true;
                 }
             });
-            var view = new View(new ViewMapping("1", GetType(), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             };
 
             var viewModel = new TestInitializableViewModel();
-            view = new View(new ViewMapping("1", rawView.GetType(), typeof(IViewModelBase)), rawView, viewModel);
+            view = new View(new ViewMapping("1", typeof(IViewModelBase), rawView.GetType()), rawView, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
             view.Components.Add(componentView);

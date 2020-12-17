@@ -89,7 +89,7 @@ namespace MugenMvvm.Views.Components
         {
             Should.BeOfType(viewModelType, typeof(IViewModelBase), nameof(viewModelType));
             Should.NotBeNull(viewType, nameof(viewType));
-            var mapping = new ViewMapping(id ?? $"{viewModelType.FullName}{viewType.FullName}{name}", viewType, viewModelType, metadata);
+            var mapping = new ViewMapping(id ?? $"{viewModelType.Name}{viewType.Name}{name}", viewModelType, viewType, metadata);
             AddMapping(mapping, exactlyEqual, name);
         }
 

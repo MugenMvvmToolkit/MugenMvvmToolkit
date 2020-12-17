@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public async Task TryInitializeAsyncShouldBeHandledByComponentsNotUndefinedMapping()
         {
             var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
-            var mapping = new ViewMapping("id", typeof(object), typeof(IViewModelBase), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(IViewModelBase), typeof(object), DefaultMetadata);
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return new[] {new ViewMapping("1", typeof(object), typeof(IViewModelBase)), new ViewMapping("1", typeof(object), typeof(IViewModelBase))};
+                    return new[] {new ViewMapping("1", typeof(IViewModelBase), typeof(object)), new ViewMapping("1", typeof(IViewModelBase), typeof(object))};
                 }
             });
             viewManager.AddComponent(new TestViewManagerComponent
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
             var mapping = ViewMapping.Undefined;
-            var viewMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var viewMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
             var result = new View(viewMapping, this, request.ViewModel!);
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
             var mapping = ViewMapping.Undefined;
-            var newMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var newMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
@@ -207,7 +207,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var request = new TestViewModel();
             var mapping = ViewMapping.Undefined;
-            var newMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var newMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
@@ -250,7 +250,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var request = new ViewModelViewRequest(new TestViewModel(), view);
             var mapping = ViewMapping.Undefined;
             var result = new ValueTask<IView?>();
-            var viewMapping = new ViewMapping("1", typeof(object), typeof(IViewModelBase));
+            var viewMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -299,7 +299,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var viewType = typeof(object);
             var viewModelType = typeof(TestViewModel);
-            var mapping = new ViewMapping("id", viewType, viewModelType, DefaultMetadata);
+            var mapping = new ViewMapping("id", viewModelType, viewType, DefaultMetadata);
             var view = new View(mapping, new object(), new TestViewModel());
             var viewModel = new TestViewModel();
             var result = Default.TrueTask;

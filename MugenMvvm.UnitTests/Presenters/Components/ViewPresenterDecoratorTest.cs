@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var disposeCount = 0;
             var view = new object();
             var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
-            var mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
+            var mapping = new ViewMapping("d", typeof(TestViewModel), typeof(object));
             var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
             var request = view;
@@ -184,7 +184,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var disposeCount = 0;
             var view = new object();
             var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
-            var mapping = new ViewMapping("d", typeof(object), typeof(TestViewModel));
+            var mapping = new ViewMapping("d", typeof(TestViewModel), typeof(object));
             var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
             var viewObj = new View(mapping, view, viewModel);
