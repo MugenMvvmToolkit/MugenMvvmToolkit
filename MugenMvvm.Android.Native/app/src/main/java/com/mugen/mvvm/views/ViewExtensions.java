@@ -257,9 +257,9 @@ public final class ViewExtensions {
         getNativeAttachedValues(view, true).setAttachedValues(values);
     }
 
-    public static void addViewMapping(Class viewClass, int resourceId) {
+    public static void addViewMapping(Class viewClass, int resourceId, boolean rewrite) {
         _resourceViewMapping.put(resourceId, viewClass);
-        if (_viewResourceMapping.containsKey(viewClass))
+        if (!rewrite && _viewResourceMapping.containsKey(viewClass))
             _viewResourceMapping.put(viewClass, 0);
         else
             _viewResourceMapping.put(viewClass, resourceId);

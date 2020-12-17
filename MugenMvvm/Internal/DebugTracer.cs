@@ -146,7 +146,7 @@ namespace MugenMvvm.Internal
             }
 
             public void OnSourceUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata) =>
-                Logger.Trace()?.Log($"{BindingTag}({Dump(binding)}) source update failed: {exception.Flatten(true)}");
+                Logger.Error()?.Log($"{BindingTag}({Dump(binding)}) source update failed", exception);
 
             public void OnSourceUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata)
             {
@@ -157,7 +157,7 @@ namespace MugenMvvm.Internal
             }
 
             public void OnTargetUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata) =>
-                Logger.Trace()?.Log($"{BindingTag}({Dump(binding)}) target update failed: {exception.Flatten(true)}");
+                Logger.Error()?.Log($"{BindingTag}({Dump(binding)}) target update failed", exception);
 
             public void OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata)
             {

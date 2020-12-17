@@ -102,11 +102,11 @@ public final class ActivityExtensions {
     }
 
     public static void setMainActivityMapping(int resource, boolean isCompat) {
-        ViewExtensions.addViewMapping(isCompat ? MainMugenAppCompatActivity.class : MainMugenActivity.class, resource);
+        ViewExtensions.addViewMapping(isCompat ? MainMugenAppCompatActivity.class : MainMugenActivity.class, resource, false);
     }
 
     public static void addCommonActivityMapping(int resource, boolean isCompat) {
-        ViewExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource);
+        ViewExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource, false);
     }
 
 
