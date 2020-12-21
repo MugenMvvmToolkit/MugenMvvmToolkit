@@ -18,6 +18,7 @@ using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Metadata;
@@ -222,9 +223,20 @@ namespace MugenMvvm.Bindings.Extensions
             }
         }
 
+        public static void VisitParameterExpressions(this IBindingExpressionInitializerContext context, IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(visitor, nameof(visitor));
+            var parameters = context.ParameterExpressions.Editor();
+            for (int i = 0; i < parameters.Count; i++)
+                parameters[i] = parameters[i].Accept(visitor, metadata);
+            context.ParameterExpressions = parameters.ToItemOrList();
+        }
+
         public static BindingParameterExpression TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler, BindingMemberExpressionVisitor memberExpressionVisitor,
             BindingMemberExpressionCollectorVisitor memberExpressionCollectorVisitor, string parameterName, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(context, nameof(context));
             var expression = context.TryGetParameterValue<IExpressionNode>(parameterName);
             if (expression == null)
                 return default;
