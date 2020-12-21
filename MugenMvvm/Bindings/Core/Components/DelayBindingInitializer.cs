@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         private static void TryAddDelay(IBindingExpressionInitializerContext context, string parameterName)
         {
-            if (context.BindingComponents.ContainsKey(parameterName))
+            if (context.Components.ContainsKey(parameterName))
                 return;
 
             var delay = context.TryGetParameterValue<int?>(parameterName, null);
@@ -36,7 +36,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 var builder = parameterName == BindingParameterNameConstant.Delay
                     ? new DelegateBindingComponentProvider<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetSource(i), (ushort) delay.Value)
                     : new DelegateBindingComponentProvider<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetTarget(i), (ushort) delay.Value);
-                context.BindingComponents[parameterName] = builder;
+                context.Components[parameterName] = builder;
             }
         }
 

@@ -38,7 +38,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
-            if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler) || context.BindingComponents.ContainsKey(BindingParameterNameConstant.Mode) || !context.Parameters.IsEmpty)
+            if (context.Components.ContainsKey(BindingParameterNameConstant.EventHandler) || context.Components.ContainsKey(BindingParameterNameConstant.Mode) || !context.ParameterExpressions.IsEmpty)
                 return;
 
             var collect = _memberExpressionCollectorVisitor.Collect(context.SourceExpression);
@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Core.Components
             }
 
             if (canInline)
-                context.BindingComponents[BindingParameterNameConstant.Mode] = OneTimeBindingMode.Instance;
+                context.Components[BindingParameterNameConstant.Mode] = OneTimeBindingMode.Instance;
         }
 
         #endregion

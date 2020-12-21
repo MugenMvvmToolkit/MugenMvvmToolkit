@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
             initializer.Initialize(null!, context);
-            context.BindingComponents.ShouldBeEmpty();
+            context.Components.ShouldBeEmpty();
         }
 
         [Theory]
@@ -98,17 +98,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new BindingParameterInitializer(compiler);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameters, DefaultMetadata);
             if (ignore)
-                context.BindingComponents[BindingParameterNameConstant.ParameterHandler] = null;
+                context.Components[BindingParameterNameConstant.ParameterHandler] = null;
             initializer.Initialize(null!, context);
-            context.BindingComponents.Count.ShouldEqual(1);
+            context.Components.Count.ShouldEqual(1);
             if (ignore)
             {
-                context.BindingComponents[BindingParameterNameConstant.ParameterHandler].ShouldBeNull();
+                context.Components[BindingParameterNameConstant.ParameterHandler].ShouldBeNull();
                 return;
             }
 
             parameterVisitCount.ShouldEqual(1);
-            var bindingComponentProvider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.ParameterHandler]!;
+            var bindingComponentProvider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.ParameterHandler]!;
             var component = (ParameterHandlerBindingComponent) bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
 
             component.Converter.Parameter.ShouldEqual(converter);

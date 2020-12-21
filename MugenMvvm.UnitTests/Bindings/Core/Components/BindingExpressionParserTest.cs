@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
                         context.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{index}"));
                         context.SourceExpression.ShouldEqual(new TestBindingMemberExpressionNode(index + "_"));
-                        context.Parameters.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
+                        context.ParameterExpressions.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {
@@ -144,16 +144,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                                 return sourceObserver;
                             }
                         };
-                        var itemOrList = context.Parameters.Editor();
+                        var itemOrList = context.ParameterExpressions.Editor();
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
-                        context.Parameters = itemOrList.ToItemOrList();
+                        context.ParameterExpressions = itemOrList.ToItemOrList();
 
                         if (includeNullComponent)
-                            context.BindingComponents[$"{index}null"] = null;
-                        context.BindingComponents[$"{index}_1"] = rawComponent;
+                            context.Components[$"{index}null"] = null;
+                        context.Components[$"{index}_1"] = rawComponent;
                         if (includeFactoryComponent)
                         {
-                            context.BindingComponents[$"{index}_2"] =
+                            context.Components[$"{index}_2"] =
                                 new DelegateBindingComponentProvider<object?>((o, b, arg3, arg4, arg5) =>
                                 {
                                     b.ShouldNotBeNull();
@@ -270,7 +270,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
                         context.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{index}"));
                         context.SourceExpression.ShouldEqual(GetBindingSourceExpression(index, out _, out _));
-                        context.Parameters.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
+                        context.ParameterExpressions.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {
@@ -298,16 +298,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                             return sourceObserver2;
                         };
 
-                        var itemOrList = context.Parameters.Editor();
+                        var itemOrList = context.ParameterExpressions.Editor();
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
-                        context.Parameters = itemOrList.ToItemOrList();
+                        context.ParameterExpressions = itemOrList.ToItemOrList();
 
                         if (includeNullComponent)
-                            context.BindingComponents[$"{index}null"] = null;
-                        context.BindingComponents[$"{index}_1"] = rawComponent;
+                            context.Components[$"{index}null"] = null;
+                        context.Components[$"{index}_1"] = rawComponent;
                         if (includeFactoryComponent)
                         {
-                            context.BindingComponents[$"{index}_2"] =
+                            context.Components[$"{index}_2"] =
                                 new DelegateBindingComponentProvider<object?>((o, b, arg3, arg4, arg5) =>
                                 {
                                     b.ShouldNotBeNull();

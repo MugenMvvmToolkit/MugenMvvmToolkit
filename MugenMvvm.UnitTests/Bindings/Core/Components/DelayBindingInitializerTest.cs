@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
             initializer.Initialize(null!, context);
-            context.BindingComponents.ShouldBeEmpty();
+            context.Components.ShouldBeEmpty();
         }
 
         [Theory]
@@ -37,17 +37,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Delay), ConstantExpressionNode.Get(delay));
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(parameter), DefaultMetadata);
             if (ignore)
-                context.BindingComponents[BindingParameterNameConstant.Delay] = null;
+                context.Components[BindingParameterNameConstant.Delay] = null;
 
             initializer.Initialize(null!, context);
-            context.BindingComponents.Count.ShouldEqual(1);
+            context.Components.Count.ShouldEqual(1);
             if (ignore)
             {
-                context.BindingComponents[BindingParameterNameConstant.Delay].ShouldBeNull();
+                context.Components[BindingParameterNameConstant.Delay].ShouldBeNull();
                 return;
             }
 
-            var provider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.Delay]!;
+            var provider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.Delay]!;
             var component = (DelayBindingComponent.Source) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
             component.Delay.ShouldEqual((ushort) delay);
         }
@@ -63,17 +63,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetDelay), ConstantExpressionNode.Get(delay));
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(parameter), DefaultMetadata);
             if (ignore)
-                context.BindingComponents[BindingParameterNameConstant.TargetDelay] = null;
+                context.Components[BindingParameterNameConstant.TargetDelay] = null;
 
             initializer.Initialize(null!, context);
-            context.BindingComponents.Count.ShouldEqual(1);
+            context.Components.Count.ShouldEqual(1);
             if (ignore)
             {
-                context.BindingComponents[BindingParameterNameConstant.TargetDelay].ShouldBeNull();
+                context.Components[BindingParameterNameConstant.TargetDelay].ShouldBeNull();
                 return;
             }
 
-            var provider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.TargetDelay]!;
+            var provider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.TargetDelay]!;
             var component = (DelayBindingComponent.Target) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
             component.Delay.ShouldEqual((ushort) delay);
         }

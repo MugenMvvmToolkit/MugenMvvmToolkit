@@ -139,10 +139,10 @@ namespace MugenMvvm.Internal
 
             public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
             {
-                context.BindingComponents["Debug"] = this;
+                context.Components["Debug"] = this;
                 var tag = context.TryGetParameterValue<string?>(BindingParameterNameConstant.Trace);
                 if (!string.IsNullOrEmpty(tag))
-                    context.BindingComponents[BindingParameterNameConstant.Trace] = new BindingTracer(tag!);
+                    context.Components[BindingParameterNameConstant.Trace] = new BindingTracer(tag!);
             }
 
             public void OnSourceUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata) =>

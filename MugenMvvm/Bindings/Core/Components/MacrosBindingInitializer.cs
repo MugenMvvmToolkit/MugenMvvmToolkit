@@ -37,7 +37,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Implementation of interfaces
 
-        public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
+        public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)//todo ext IBindingExpressionInitializerContext accept parameters
         {
             var metadata = context.GetMetadataOrDefault();
             for (var i = 0; i < TargetVisitors.Count; i++)
@@ -51,7 +51,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
             if (ParameterVisitors.Count != 0)
             {
-                var parameters = context.Parameters.Editor();
+                var parameters = context.ParameterExpressions.Editor();
                 for (var i = 0; i < ParameterVisitors.Count; i++)
                 {
                     var visitor = ParameterVisitors[i];
@@ -59,7 +59,7 @@ namespace MugenMvvm.Bindings.Core.Components
                         parameters[j] = parameters[j].Accept(visitor, metadata);
                 }
 
-                context.Parameters = parameters.ToItemOrList();
+                context.ParameterExpressions = parameters.ToItemOrList();
             }
         }
 

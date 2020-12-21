@@ -62,7 +62,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
-            if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.ParameterHandler) || context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler))
+            if (context.Components.ContainsKey(BindingParameterNameConstant.ParameterHandler) || context.Components.ContainsKey(BindingParameterNameConstant.EventHandler))
                 return;
 
             _memberExpressionVisitor.Flags = BindingMemberExpressionFlags.Observable;
@@ -78,7 +78,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 var state = (converter, converterParameter, fallback, targetNullValue);
                 var provider =
                     new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
-                context.BindingComponents[BindingParameterNameConstant.ParameterHandler] = provider;
+                context.Components[BindingParameterNameConstant.ParameterHandler] = provider;
             }
         }
 

@@ -15,7 +15,7 @@ namespace MugenMvvm.Bindings.Core
     {
         #region Fields
 
-        private object? _parameters;
+        private object? _parameterExpressions;
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace MugenMvvm.Bindings.Core
             Owner = owner;
             Target = null!;
             TargetExpression = null!;
-            BindingComponents = new Dictionary<string, object?>();
+            Components = new Dictionary<string, object?>();
             AssignmentParameters = new Dictionary<string, IExpressionNode>();
             InlineParameters = new Dictionary<string, bool>();
         }
@@ -47,19 +47,19 @@ namespace MugenMvvm.Bindings.Core
 
         public IExpressionNode? SourceExpression { get; set; }
 
-        public ItemOrList<IExpressionNode, IList<IExpressionNode>> Parameters
+        public ItemOrList<IExpressionNode, IList<IExpressionNode>> ParameterExpressions
         {
-            get => ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parameters);
+            get => ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parameterExpressions);
             set
             {
-                _parameters = value.GetRawValue();
+                _parameterExpressions = value.GetRawValue();
                 InitializeParameters(value);
             }
         }
 
-        IDictionary<string, object?> IBindingExpressionInitializerContext.BindingComponents => BindingComponents;
+        IDictionary<string, object?> IBindingExpressionInitializerContext.Components => Components;
 
-        public Dictionary<string, object?> BindingComponents { get; }
+        public Dictionary<string, object?> Components { get; }
 
         public Dictionary<string, IExpressionNode> AssignmentParameters { get; }
 
@@ -108,7 +108,7 @@ namespace MugenMvvm.Bindings.Core
             Should.NotBeNull(targetExpression, nameof(targetExpression));
             AssignmentParameters.Clear();
             InlineParameters.Clear();
-            BindingComponents.Clear();
+            Components.Clear();
             MetadataRaw?.Clear();
             if (!metadata.IsNullOrEmpty())
                 Metadata.Merge(metadata!);
@@ -116,7 +116,7 @@ namespace MugenMvvm.Bindings.Core
             Source = source;
             TargetExpression = targetExpression;
             SourceExpression = sourceExpression;
-            Parameters = parameters;
+            ParameterExpressions = parameters;
         }
 
         public void Clear()
@@ -125,8 +125,8 @@ namespace MugenMvvm.Bindings.Core
             Source = null;
             TargetExpression = null!;
             SourceExpression = null!;
-            _parameters = null;
-            BindingComponents.Clear();
+            _parameterExpressions = null;
+            Components.Clear();
             InlineParameters.Clear();
             AssignmentParameters.Clear();
             MetadataRaw?.Clear();

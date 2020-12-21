@@ -41,10 +41,10 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
-            if (context.BindingComponents.TryGetValue(BindingParameterNameConstant.Mode, out var value))
+            if (context.Components.TryGetValue(BindingParameterNameConstant.Mode, out var value))
             {
                 if (value == null)
-                    context.BindingComponents.Remove(BindingParameterNameConstant.Mode);
+                    context.Components.Remove(BindingParameterNameConstant.Mode);
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 if (BindingModes.TryGetValue(modeName, out var mode))
                 {
                     if (mode != null)
-                        context.BindingComponents[BindingParameterNameConstant.Mode] = mode;
+                        context.Components[BindingParameterNameConstant.Mode] = mode;
                 }
                 else
                     ExceptionManager.ThrowCannotParseBindingParameter(BindingParameterNameConstant.Mode, string.Join(",", BindingModes.Keys), modeName);
@@ -67,13 +67,13 @@ namespace MugenMvvm.Bindings.Core.Components
                 if (context.TryGetParameterValue<bool>(mode.Key))
                 {
                     if (mode.Value != null)
-                        context.BindingComponents[BindingParameterNameConstant.Mode] = mode.Value;
+                        context.Components[BindingParameterNameConstant.Mode] = mode.Value;
                     return;
                 }
             }
 
             if (DefaultMode != null)
-                context.BindingComponents[BindingParameterNameConstant.Mode] = DefaultMode;
+                context.Components[BindingParameterNameConstant.Mode] = DefaultMode;
         }
 
         #endregion

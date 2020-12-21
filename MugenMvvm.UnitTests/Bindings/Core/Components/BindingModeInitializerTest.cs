@@ -25,13 +25,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             bindingModeInitializer.DefaultMode = OneWayBindingMode.Instance;
             bindingModeInitializer.Initialize(null!, context);
-            context.BindingComponents.Count.ShouldEqual(1);
-            context.BindingComponents[BindingParameterNameConstant.Mode].ShouldEqual(bindingModeInitializer.DefaultMode);
+            context.Components.Count.ShouldEqual(1);
+            context.Components[BindingParameterNameConstant.Mode].ShouldEqual(bindingModeInitializer.DefaultMode);
 
-            context.BindingComponents.Clear();
+            context.Components.Clear();
             bindingModeInitializer.DefaultMode = null;
             bindingModeInitializer.Initialize(null!, context);
-            context.BindingComponents.Count.ShouldEqual(0);
+            context.Components.Count.ShouldEqual(0);
         }
 
         [Fact]
@@ -41,14 +41,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
 
-            context.BindingComponents[BindingParameterNameConstant.Mode] = this;
+            context.Components[BindingParameterNameConstant.Mode] = this;
             bindingModeInitializer.Initialize(null!, context);
-            context.BindingComponents.Count.ShouldEqual(1);
-            context.BindingComponents[BindingParameterNameConstant.Mode].ShouldEqual(this);
+            context.Components.Count.ShouldEqual(1);
+            context.Components[BindingParameterNameConstant.Mode].ShouldEqual(this);
 
-            context.BindingComponents[BindingParameterNameConstant.Mode] = null;
+            context.Components[BindingParameterNameConstant.Mode] = null;
             bindingModeInitializer.Initialize(null!, context);
-            context.BindingComponents.Count.ShouldEqual(0);
+            context.Components.Count.ShouldEqual(0);
         }
 
         [Fact]
@@ -61,15 +61,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             bindingModeInitializer.BindingModes.ShouldNotBeNull();
             foreach (var bindingMode in bindingModeInitializer.BindingModes)
             {
-                context.BindingComponents.Clear();
-                context.Parameters = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode), new MemberExpressionNode(null, bindingMode.Key)));
+                context.Components.Clear();
+                context.ParameterExpressions = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode), new MemberExpressionNode(null, bindingMode.Key)));
                 bindingModeInitializer.Initialize(null!, context);
                 if (bindingMode.Value == null)
-                    context.BindingComponents.Count.ShouldEqual(0);
+                    context.Components.Count.ShouldEqual(0);
                 else
                 {
-                    context.BindingComponents.Count.ShouldEqual(1);
-                    context.BindingComponents[BindingParameterNameConstant.Mode].ShouldEqual(bindingMode.Value);
+                    context.Components.Count.ShouldEqual(1);
+                    context.Components[BindingParameterNameConstant.Mode].ShouldEqual(bindingMode.Value);
                 }
             }
         }
@@ -84,15 +84,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             bindingModeInitializer.BindingModes.ShouldNotBeNull();
             foreach (var bindingMode in bindingModeInitializer.BindingModes)
             {
-                context.BindingComponents.Clear();
-                context.Parameters = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new MemberExpressionNode(null, bindingMode.Key));
+                context.Components.Clear();
+                context.ParameterExpressions = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new MemberExpressionNode(null, bindingMode.Key));
                 bindingModeInitializer.Initialize(null!, context);
                 if (bindingMode.Value == null)
-                    context.BindingComponents.Count.ShouldEqual(0);
+                    context.Components.Count.ShouldEqual(0);
                 else
                 {
-                    context.BindingComponents.Count.ShouldEqual(1);
-                    context.BindingComponents[BindingParameterNameConstant.Mode].ShouldEqual(bindingMode.Value);
+                    context.Components.Count.ShouldEqual(1);
+                    context.Components[BindingParameterNameConstant.Mode].ShouldEqual(bindingMode.Value);
                 }
             }
         }
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
 
-            context.Parameters = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode),
+            context.ParameterExpressions = ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Mode),
                 new MemberExpressionNode(null, "Test")));
             ShouldThrow<InvalidOperationException>(() => bindingModeInitializer.Initialize(null!, context));
         }

@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
             };
             context.Initialize(this, this, target, source, default, DefaultMetadata);
-            context.BindingComponents[BindingParameterNameConstant.EventHandler] = null;
+            context.Components[BindingParameterNameConstant.EventHandler] = null;
             component.Initialize(null!, context);
         }
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             context.Initialize(this, this, target, source, default, DefaultMetadata);
             component.Initialize(null!, context);
             sourceVisitCount.ShouldEqual(1);
-            context.BindingComponents.ShouldBeEmpty();
+            context.Components.ShouldBeEmpty();
         }
 
         [Theory]
@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             component.Initialize(null!, context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
-            context.BindingComponents.ShouldBeEmpty();
+            context.Components.ShouldBeEmpty();
         }
 
         [Theory]
@@ -349,8 +349,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             component.Initialize(null!, context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
-            context.BindingComponents[BindingParameterNameConstant.Mode].ShouldBeNull();
-            var bindingComponentProvider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.EventHandler]!;
+            context.Components[BindingParameterNameConstant.Mode].ShouldBeNull();
+            var bindingComponentProvider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.EventHandler]!;
             var bindingComponent = (EventHandlerBindingComponent) bindingComponentProvider.TryGetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
             if (parametersSetting)
                 bindingComponent.ShouldBeType<EventHandlerBindingComponent>();

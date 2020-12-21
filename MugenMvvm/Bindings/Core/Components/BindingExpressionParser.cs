@@ -174,7 +174,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 }
 
                 var components = ItemOrListEditor.Get<object>();
-                foreach (var componentPair in _context.BindingComponents)
+                foreach (var componentPair in _context.Components)
                     components.AddIfNotNull(componentPair.Value!);
 
                 var itemOrList = components.ToItemOrList();

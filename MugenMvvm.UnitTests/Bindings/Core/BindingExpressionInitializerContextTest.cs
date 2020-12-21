@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
             var context = new BindingExpressionInitializerContext(this);
             context.Owner.ShouldEqual(this);
-            context.BindingComponents.ShouldBeEmpty();
+            context.Components.ShouldBeEmpty();
             context.AssignmentParameters.ShouldBeEmpty();
             context.InlineParameters.ShouldBeEmpty();
 
@@ -34,18 +34,18 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.Source.ShouldEqual(source);
             context.TargetExpression.ShouldEqual(targetExp);
             context.SourceExpression.ShouldEqual(sourceExp);
-            context.Parameters.ShouldEqual(parameters);
+            context.ParameterExpressions.ShouldEqual(parameters);
 
             context.Clear();
             context.Owner.ShouldEqual(this);
-            context.BindingComponents.ShouldBeEmpty();
+            context.Components.ShouldBeEmpty();
             context.AssignmentParameters.ShouldBeEmpty();
             context.InlineParameters.ShouldBeEmpty();
             context.Target.ShouldBeNull();
             context.Source.ShouldBeNull();
             context.TargetExpression.ShouldBeNull();
             context.SourceExpression.ShouldBeNull();
-            context.Parameters.IsEmpty.ShouldBeTrue();
+            context.ParameterExpressions.IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -88,7 +88,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             if (reinitialize)
                 context.Initialize(this, this, MemberExpressionNode.Self, MemberExpressionNode.Source, new[] {new MemberExpressionNode(null, parameter4)}, null);
             else
-                context.Parameters = new[] {new MemberExpressionNode(null, parameter4)};
+                context.ParameterExpressions = new[] {new MemberExpressionNode(null, parameter4)};
 
             context.AssignmentParameters.Count.ShouldEqual(0);
             context.TryGetParameterValue<IExpressionNode>(parameter1).ShouldBeNull();

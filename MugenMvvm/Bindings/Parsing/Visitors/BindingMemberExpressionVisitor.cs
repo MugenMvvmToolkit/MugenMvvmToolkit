@@ -56,7 +56,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
-        public bool IgnoreMethodMembers { get; set; }
+        public bool IgnoreMethodMembers { get; set; }//todo metadata
 
         public bool IgnoreIndexMembers { get; set; }
 

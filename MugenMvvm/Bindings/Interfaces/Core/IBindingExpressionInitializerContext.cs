@@ -16,9 +16,9 @@ namespace MugenMvvm.Bindings.Interfaces.Core
 
         IExpressionNode? SourceExpression { get; set; }
 
-        ItemOrList<IExpressionNode, IList<IExpressionNode>> Parameters { get; set; }
+        ItemOrList<IExpressionNode, IList<IExpressionNode>> ParameterExpressions { get; set; }
 
-        IDictionary<string, object?> BindingComponents { get; }
+        IDictionary<string, object?> Components { get; }
 
         [return: MaybeNull]
         TValue TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default);
