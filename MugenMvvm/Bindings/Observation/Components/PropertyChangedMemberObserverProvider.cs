@@ -23,6 +23,7 @@ namespace MugenMvvm.Bindings.Observation.Components
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
 
+        public static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHolderHandler = TryObserveHolder;
         private static readonly Func<object, object?, MemberListenerCollection> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
@@ -59,6 +60,14 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         #region Methods
 
+        private static ActionToken TryObserveHolder(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        {
+            if (target == null)
+                return default;
+
+            return (((IValueHolder<MemberListenerCollection>) target).Value ??= new MemberListenerCollection()).Add(listener, (string) member);
+        }
+
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
@@ -72,6 +81,8 @@ namespace MugenMvvm.Bindings.Observation.Components
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFrom(type))
                 return new MemberObserver(_memberObserverHandler, member);
+            if (typeof(IValueHolder<MemberListenerCollection>).IsAssignableFrom(type))
+                return new MemberObserver(MemberObserverHolderHandler, member);
             return default;
         }
 

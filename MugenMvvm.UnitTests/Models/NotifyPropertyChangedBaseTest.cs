@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
@@ -32,6 +35,35 @@ namespace MugenMvvm.UnitTests.Models
             invokeCountEvent = 0;
             model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCountEvent.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void ClearPropertyChangedSubscribersShouldRemoveHolderSubscribers()
+        {
+            var invokeCountEvent = 0;
+            string propertyName = "Test";
+            var model = new TestNotifyPropertyChangedModel();
+            IValueHolder<MemberListenerCollection> holder = model;
+            holder.Value = new MemberListenerCollection();
+            holder.Value.Add(new TestWeakEventListener
+            {
+                TryHandle = (sender, args, _) =>
+                {
+                    sender.ShouldEqual(model);
+                    ((PropertyChangedEventArgs) args!).PropertyName.ShouldEqual(propertyName);
+                    ++invokeCountEvent;
+                    return true;
+                }
+            }, propertyName);
+
+            model.OnPropertyChanged(propertyName);
+            invokeCountEvent.ShouldEqual(1);
+
+            model.ClearPropertyChangedSubscribers();
+            invokeCountEvent = 0;
+            model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            invokeCountEvent.ShouldEqual(0);
+            holder.Value.ShouldBeNull();
         }
 
         [Fact]
@@ -108,7 +140,7 @@ namespace MugenMvvm.UnitTests.Models
         }
 
         [Fact]
-        public void OnPropertyChangedShouldRaiseEvent()
+        public void OnPropertyChangedShouldRaiseHolder()
         {
             var invokeCount = 0;
             var invokeCountEvent = 0;

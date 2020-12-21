@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -16,7 +18,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Models
 {
     public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, IThreadDispatcherHandler, ISuspendable,
-        IValueHolder<IWeakReference>, IValueHolder<Delegate>, IValueHolder<IDictionary<string, object?>>
+        IValueHolder<IWeakReference>, IValueHolder<Delegate>, IValueHolder<IDictionary<string, object?>>, IValueHolder<MemberListenerCollection>
     {
         #region Fields
 
@@ -27,6 +29,10 @@ namespace MugenMvvm.Models
         [NonSerialized]
         [IgnoreDataMember]
         private int _suspendCount;
+
+        [NonSerialized]
+        [IgnoreDataMember]
+        private MemberListenerCollection? _memberListeners;
 
         #endregion
 
@@ -45,6 +51,12 @@ namespace MugenMvvm.Models
         IDictionary<string, object?>? IValueHolder<IDictionary<string, object?>>.Value { get; set; }
 
         public bool IsSuspended => _suspendCount != 0;
+
+        MemberListenerCollection? IValueHolder<MemberListenerCollection>.Value
+        {
+            get => _memberListeners;
+            set => _memberListeners = value;
+        }
 
         #endregion
 
@@ -81,9 +93,17 @@ namespace MugenMvvm.Models
                 MugenService.ThreadDispatcher.Execute(ThreadExecutionMode.Main, this, args);
         }
 
-        protected void ClearPropertyChangedSubscribers() => PropertyChanged = null;
+        protected void ClearPropertyChangedSubscribers()
+        {
+            _memberListeners = null;
+            PropertyChanged = null;
+        }
 
-        protected virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
+        protected virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)
+        {
+            _memberListeners?.RaisePropertyChanged(this, args);
+            PropertyChanged?.Invoke(this, args);
+        }
 
         protected virtual void OnEndSuspend(bool isDirty)
         {
