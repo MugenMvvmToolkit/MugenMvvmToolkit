@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
@@ -9,9 +10,28 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public abstract class ExpressionNodeBase : IExpressionNode
     {
+        #region Fields
+
+        protected IDictionary<string, object?>? MetadataRaw;
+
+        #endregion
+
+        #region Constructors
+
+        protected ExpressionNodeBase(IDictionary<string, object?>? metadata)
+        {
+            MetadataRaw = metadata;
+        }
+
+        #endregion
+
         #region Properties
 
         public abstract ExpressionNodeType ExpressionType { get; }
+
+        public bool HasMetadata => MetadataRaw != null && MetadataRaw.Count != 0;
+
+        public IDictionary<string, object?> Metadata => MetadataRaw ??= new Dictionary<string, object?>(StringComparer.Ordinal);
 
         #endregion
 

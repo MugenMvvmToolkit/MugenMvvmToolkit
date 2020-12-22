@@ -42,7 +42,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 .ParseArguments("]");
             if (args == null)
                 return null;
-            return new IndexExpressionNode(expression, args);
+            return new IndexExpressionNode(expression, args, null);
         }
 
         #endregion

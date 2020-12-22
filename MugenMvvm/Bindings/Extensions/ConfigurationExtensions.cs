@@ -126,6 +126,7 @@ namespace MugenMvvm.Bindings.Extensions
                 .WithComponent(new MethodCallExpressionConverter())
                 .WithComponent(new ConditionExpressionConverter())
                 .WithComponent(new IndexerExpressionConverter())
+                .WithComponent(new LambdaExpressionConverter())
                 .WithComponent(new NewArrayExpressionConverter())
                 .WithComponent(new DefaultExpressionConverter());
 

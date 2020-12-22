@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Extensions;
+﻿using System.Collections.Generic;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
@@ -16,8 +17,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingInstanceMemberExpressionNode(object instance, string path, IObservationManager? observationManager = null)
-            : base(path, observationManager)
+        public BindingInstanceMemberExpressionNode(object instance, string path, IObservationManager? observationManager = null, IDictionary<string, object?>? metadata = null)
+            : base(path, observationManager, metadata)
         {
             Should.NotBeNull(instance, nameof(instance));
             Instance = instance;

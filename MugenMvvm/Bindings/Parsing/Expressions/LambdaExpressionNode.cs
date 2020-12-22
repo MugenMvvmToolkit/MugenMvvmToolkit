@@ -11,7 +11,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Constructors
 
-        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpressionNode>? parameters)
+        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpressionNode>? parameters, IDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(body, nameof(body));
             Body = body;
@@ -38,7 +38,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             var body = VisitWithCheck(visitor, Body, true, ref changed, metadata);
             var newParams = VisitWithCheck(visitor, Parameters, ref changed, metadata);
             if (changed)
-                return new LambdaExpressionNode(body, newParams);
+                return new LambdaExpressionNode(body, newParams, MetadataRaw);
             return this;
         }
 

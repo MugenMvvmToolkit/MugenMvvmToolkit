@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Parsing;
@@ -13,7 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
     {
         #region Constructors
 
-        public TestBindingMemberExpressionNode(string? path = null)
+        public TestBindingMemberExpressionNode(string? path = null, IDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Path = path!;
         }

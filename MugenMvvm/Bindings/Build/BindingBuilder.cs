@@ -228,7 +228,7 @@ namespace MugenMvvm.Bindings.Build
         {
             if (value)
                 return builder.BindingParameter(null, parameter);
-            return builder.BindingParameter(null, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, parameter));
+            return builder.BindingParameter(null, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, parameter, null));
         }
 
         #endregion

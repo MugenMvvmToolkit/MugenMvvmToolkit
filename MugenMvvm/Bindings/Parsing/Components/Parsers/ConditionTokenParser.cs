@@ -53,7 +53,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 return null;
             }
 
-            return new ConditionExpressionNode(expression, ifTrue, ifFalse);
+            return new ConditionExpressionNode(expression, ifTrue, ifFalse, null);
         }
 
         #endregion

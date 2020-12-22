@@ -12,7 +12,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         #region Constructors
 
         public MethodCallExpressionNode(IExpressionNode? target, string method,
-            IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
+            IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null, IDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(method, nameof(method));
             Should.NotBeNull(arguments, nameof(arguments));
@@ -43,10 +43,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         public IMethodCallExpressionNode UpdateArguments(IReadOnlyList<IExpressionNode> arguments)
         {
             Should.NotBeNull(arguments, nameof(arguments));
-            return ReferenceEquals(arguments, Arguments) ? this : new MethodCallExpressionNode(Target, Method, arguments, TypeArgs);
+            return ReferenceEquals(arguments, Arguments) ? this : new MethodCallExpressionNode(Target, Method, arguments, TypeArgs, MetadataRaw);
         }
 
-        public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);
+        public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new MethodCallExpressionNode(target, Method, Arguments, TypeArgs, MetadataRaw);
 
         #endregion
 
@@ -60,7 +60,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 target = VisitWithCheck(visitor, Target, false, ref changed, metadata);
             var newArgs = VisitWithCheck(visitor, Arguments, ref changed, metadata);
             if (changed)
-                return new MethodCallExpressionNode(target, Method, newArgs, TypeArgs);
+                return new MethodCallExpressionNode(target, Method, newArgs, TypeArgs, MetadataRaw);
             return this;
         }
 

@@ -29,6 +29,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
@@ -221,6 +222,40 @@ namespace MugenMvvm.Bindings.Extensions
                 flags = default;
                 return null;
             }
+        }
+
+        public static EnumFlags<T> GetFlags<T>(this IExpressionNode expression, string key, EnumFlags<T> defaultFlags) where T : class, IFlagsEnum
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            Should.NotBeNull(key, nameof(key));
+            EnumFlags<T> flags = default;
+            while (expression != null)
+            {
+                flags |= expression.TryGetMetadataValue(key, default(EnumFlags<T>));
+                expression = (expression as IHasTargetExpressionNode<IExpressionNode>)?.Target!;
+            }
+
+            if (flags.Flags == 0)
+                return defaultFlags;
+            return flags;
+        }
+
+        public static IDictionary<string, object?>? TryGetMetadata(this IExpressionNode expression)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            if (expression.HasMetadata)
+                return expression.Metadata;
+            return null;
+        }
+
+        [return: MaybeNull]
+        public static TValue TryGetMetadataValue<TValue>(this IExpressionNode expression, string key, TValue defaultValue = default)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            Should.NotBeNull(key, nameof(key));
+            if (expression.HasMetadata && expression.Metadata.TryGetValue(key, out var v))
+                return (TValue) v!;
+            return defaultValue;
         }
 
         public static void VisitParameterExpressions(this IBindingExpressionInitializerContext context, IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)

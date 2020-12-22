@@ -4,7 +4,6 @@
     {
         #region Fields
 
-        public const string BindingContext = nameof(BindingContext);
         public const string ItemTemplate = nameof(ItemTemplate);
         public const string ItemTemplateSelector = nameof(ItemTemplateSelector);
         public const string ContentTemplate = nameof(ContentTemplate);

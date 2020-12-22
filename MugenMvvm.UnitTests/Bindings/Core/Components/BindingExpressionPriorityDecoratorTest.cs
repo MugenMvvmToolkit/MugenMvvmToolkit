@@ -93,6 +93,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
         private sealed class HasPriorityExpressionNode : ExpressionNodeBase, IHasPriority, IMemberExpressionNode
         {
+            #region Constructors
+
+            public HasPriorityExpressionNode(IDictionary<string, object?>? metadata = null) : base(metadata)
+            {
+            }
+
+            #endregion
+
             #region Properties
 
             public override ExpressionNodeType ExpressionType => ExpressionNodeType.Index;

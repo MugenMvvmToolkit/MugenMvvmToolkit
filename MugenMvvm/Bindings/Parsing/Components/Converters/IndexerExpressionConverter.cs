@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
             if (context.TryConvertExtension(index.Indexer, expression, out var result))
                 return result;
 
-            return new IndexExpressionNode(context.ConvertTarget(index.Object, index.Indexer), context.Convert(index.Arguments));
+            return new IndexExpressionNode(context.ConvertTarget(index.Object, index.Indexer), context.Convert(index.Arguments), null);
         }
 
         #endregion

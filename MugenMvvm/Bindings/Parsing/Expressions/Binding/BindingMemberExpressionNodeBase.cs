@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
@@ -24,7 +25,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Constructors
 
-        protected BindingMemberExpressionNodeBase(string path, IObservationManager? observationManager)
+        protected BindingMemberExpressionNodeBase(string path, IObservationManager? observationManager, IDictionary<string, object?>? metadata)
+            : base(metadata)
         {
             Should.NotBeNull(path, nameof(path));
             Path = path;

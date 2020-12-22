@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Enums;
+﻿using System.Collections.Generic;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,7 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Constructors
 
-        public ParameterExpressionNode(string name)
+        public ParameterExpressionNode(string name, IDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(name, nameof(name));
             Name = name;

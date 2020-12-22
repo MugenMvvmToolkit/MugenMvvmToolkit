@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Enums;
+﻿using System.Collections.Generic;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,7 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Constructors
 
-        public ConditionExpressionNode(IExpressionNode condition, IExpressionNode ifTrue, IExpressionNode ifFalse)
+        public ConditionExpressionNode(IExpressionNode condition, IExpressionNode ifTrue, IExpressionNode ifFalse, IDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(condition, nameof(condition));
             Should.NotBeNull(ifTrue, nameof(ifTrue));
@@ -42,7 +43,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             var ifTrue = VisitWithCheck(visitor, IfTrue, true, ref changed, metadata);
             var ifFalse = VisitWithCheck(visitor, IfFalse, true, ref changed, metadata);
             if (changed)
-                return new ConditionExpressionNode(condition, ifTrue, ifFalse);
+                return new ConditionExpressionNode(condition, ifTrue, ifFalse, MetadataRaw);
             return this;
         }
 

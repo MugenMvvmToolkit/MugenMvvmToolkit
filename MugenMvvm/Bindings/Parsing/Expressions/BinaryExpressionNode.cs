@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Enums;
+﻿using System.Collections.Generic;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,7 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Constructors
 
-        public BinaryExpressionNode(BinaryTokenType token, IExpressionNode left, IExpressionNode right)
+        public BinaryExpressionNode(BinaryTokenType token, IExpressionNode left, IExpressionNode right, IDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(token, nameof(token));
             Should.NotBeNull(left, nameof(left));
@@ -41,7 +42,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             var left = VisitWithCheck(visitor, Left, true, ref changed, metadata);
             var right = VisitWithCheck(visitor, Right, true, ref changed, metadata);
             if (changed)
-                return new BinaryExpressionNode(Token, left, right);
+                return new BinaryExpressionNode(Token, left, right, MetadataRaw);
             return this;
         }
 

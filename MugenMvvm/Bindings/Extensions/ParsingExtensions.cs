@@ -82,7 +82,7 @@ namespace MugenMvvm.Bindings.Extensions
                     typeArgs[i] = genericArguments[i].AssemblyQualifiedName!;
             }
 
-            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs);
+            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs, null);
         }
 
         public static IExpressionNode Convert<T>(this IExpressionConverterContext<T> context, T expression) where T : class

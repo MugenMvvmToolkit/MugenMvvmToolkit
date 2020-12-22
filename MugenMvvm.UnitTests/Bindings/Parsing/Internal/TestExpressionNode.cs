@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
@@ -9,6 +10,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public class TestExpressionNode : ExpressionNodeBase
     {
+        #region Constructors
+
+        public TestExpressionNode(IDictionary<string, object?>? metadata = null) : base(metadata)
+        {
+        }
+
+        #endregion
+
         #region Properties
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Parameter;

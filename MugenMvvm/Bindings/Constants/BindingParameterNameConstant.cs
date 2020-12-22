@@ -26,6 +26,9 @@
         public const string ParameterHandler = nameof(ParameterHandler);
         public const string EventHandler = nameof(EventHandler);
 
+        public const string BindingMemberFlags = nameof(BindingMemberFlags);
+        public const string MemberFlags = nameof(MemberFlags);
+
         #endregion
     }
 }

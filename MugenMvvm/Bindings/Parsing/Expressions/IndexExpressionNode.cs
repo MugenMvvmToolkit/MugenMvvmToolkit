@@ -10,7 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Constructors
 
-        public IndexExpressionNode(IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments)
+        public IndexExpressionNode(IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments, IDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(arguments, nameof(arguments));
             Target = target;
@@ -36,10 +36,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             Should.NotBeNull(arguments, nameof(arguments));
             if (ReferenceEquals(arguments, Arguments))
                 return this;
-            return new IndexExpressionNode(Target, arguments);
+            return new IndexExpressionNode(Target, arguments, MetadataRaw);
         }
 
-        public IIndexExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new IndexExpressionNode(target, Arguments);
+        public IIndexExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new IndexExpressionNode(target, Arguments, MetadataRaw);
 
         #endregion
 
@@ -53,7 +53,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 target = VisitWithCheck(visitor, Target, false, ref changed, metadata);
             var newArgs = VisitWithCheck(visitor, Arguments, ref changed, metadata);
             if (changed)
-                return new IndexExpressionNode(target, newArgs);
+                return new IndexExpressionNode(target, newArgs, MetadataRaw);
             return this;
         }
 
