@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 canExecuteValue = false;
                 command.CanExecute(null).ShouldEqual(canExecuteValue);
                 if (notifiers != null)
-                    command.GetComponent<CommandConditionEventManager>().ShouldNotBeNull();
+                    command.GetComponent<CommandEventHandler>().ShouldNotBeNull();
             }
         }
 

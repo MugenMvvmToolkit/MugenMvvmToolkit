@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Commands
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandConditionEventManagerComponent
+                var component = new TestCommandEventHandlerComponent
                 {
                     AddCanExecuteChanged = (c, handler) =>
                     {
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Commands
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandConditionEventManagerComponent
+                var component = new TestCommandEventHandlerComponent
                 {
                     RemoveCanExecuteChanged = (c, handler) =>
                     {
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Commands
             var compositeCommand = GetComponentOwner();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandConditionEventManagerComponent
+                var component = new TestCommandEventHandlerComponent
                 {
                     RaiseCanExecuteChanged = c =>
                     {

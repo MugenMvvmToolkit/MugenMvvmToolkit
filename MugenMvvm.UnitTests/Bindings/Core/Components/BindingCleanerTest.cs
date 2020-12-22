@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             sourceListener.ShouldEqual(binding);
 
             var disposeCount = 0;
-            var testLifecycleListener = new TestBindingStateDispatcherComponent
+            var testLifecycleListener = new TestBindingLifecycleListener
             {
                 OnLifecycleChanged = (b, state, _, m) =>
                 {
@@ -146,7 +146,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             sourceListener.ShouldEqual(binding);
 
             var disposeCount = 0;
-            var testLifecycleListener = new TestBindingStateDispatcherComponent
+            var testLifecycleListener = new TestBindingLifecycleListener
             {
                 OnLifecycleChanged = (b, state, _, m) =>
                 {

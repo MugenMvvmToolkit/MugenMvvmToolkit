@@ -371,7 +371,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return false;
         }
 
-        public static void OnLifecycleChanged(this IBindingLifecycleDispatcherComponent[] components, IBindingManager bindingManager, IBinding binding,
+        public static void OnLifecycleChanged(this IBindingLifecycleListener[] components, IBindingManager bindingManager, IBinding binding,
             BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

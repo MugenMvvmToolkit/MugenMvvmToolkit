@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var lifecycleState = BindingLifecycleState.Disposed;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestBindingStateDispatcherComponent(manager)
+                var component = new TestBindingLifecycleListener(manager)
                 {
                     OnLifecycleChanged = (vm, viewModelLifecycleState, st, metadata) =>
                     {

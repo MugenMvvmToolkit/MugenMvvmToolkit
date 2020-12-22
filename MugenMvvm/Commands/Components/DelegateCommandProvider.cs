@@ -63,7 +63,7 @@ namespace MugenMvvm.Commands.Components
                 command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode ?? CommandExecutionBehavior,
                     commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
                 if (commandRequest.CanExecute != null && commandRequest.Notifiers != null && commandRequest.Notifiers.Count > 0)
-                    command.AddComponent(new CommandConditionEventManager(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, commandRequest.Notifiers, commandRequest.CanNotify));
+                    command.AddComponent(new CommandEventHandler(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, commandRequest.Notifiers, commandRequest.CanNotify));
                 return command;
             }
 

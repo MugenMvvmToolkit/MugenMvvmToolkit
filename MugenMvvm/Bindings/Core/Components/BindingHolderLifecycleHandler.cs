@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class BindingHolderLifecycleDispatcher : AttachableComponentBase<IBindingManager>, IBindingLifecycleDispatcherComponent, IHasPriority
+    public sealed class BindingHolderLifecycleHandler : AttachableComponentBase<IBindingManager>, IBindingLifecycleListener, IHasPriority
     {
         #region Fields
 
@@ -25,11 +25,11 @@ namespace MugenMvvm.Bindings.Core.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingHolderLifecycleDispatcher()
+        public BindingHolderLifecycleHandler()
         {
             _components = Default.Array<IBindingHolderComponent>();
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IBindingHolderComponent, BindingHolderLifecycleDispatcher>((components, state, _) => state._components = components, this);
+            _componentTracker.AddListener<IBindingHolderComponent, BindingHolderLifecycleHandler>((components, state, _) => state._components = components, this);
         }
 
         #endregion

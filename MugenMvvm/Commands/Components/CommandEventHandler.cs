@@ -17,7 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class CommandConditionEventManager : AttachableComponentBase<ICompositeCommand>, ICommandConditionEventManagerComponent,
+    public sealed class CommandEventHandler : AttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent,
         IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
     {
         #region Fields
@@ -34,7 +34,7 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public CommandConditionEventManager(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, IReadOnlyList<object> notifiers, Func<object, bool>? canNotify)
+        public CommandEventHandler(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, IReadOnlyList<object> notifiers, Func<object, bool>? canNotify)
         {
             Should.NotBeNull(eventExecutionMode, nameof(eventExecutionMode));
             Should.NotBeNull(notifiers, nameof(notifiers));
@@ -110,7 +110,7 @@ namespace MugenMvvm.Commands.Components
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((o, _) => ((CommandConditionEventManager) o!).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((CommandEventHandler) o!).EndSuspendNotifications(), this);
         }
 
         void IThreadDispatcherHandler.Execute(object? _) => _canExecuteChanged?.Invoke(Owner, EventArgs.Empty);
@@ -146,7 +146,7 @@ namespace MugenMvvm.Commands.Components
 
             #region Constructors
 
-            public Subscriber(CommandConditionEventManager component)
+            public Subscriber(CommandEventHandler component)
             {
                 _reference = component.ToWeakReference();
             }
@@ -159,7 +159,7 @@ namespace MugenMvvm.Commands.Components
 
             public MessengerResult Handle(IMessageContext messageContext)
             {
-                var mediator = (CommandConditionEventManager?) _reference?.Target;
+                var mediator = (CommandEventHandler?) _reference?.Target;
                 if (mediator == null)
                     return MessengerResult.Invalid;
                 mediator.Handle(messageContext.Message);
@@ -180,7 +180,7 @@ namespace MugenMvvm.Commands.Components
 
             private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
             {
-                var component = (CommandConditionEventManager?) _reference?.Target;
+                var component = (CommandEventHandler?) _reference?.Target;
                 if (component == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)

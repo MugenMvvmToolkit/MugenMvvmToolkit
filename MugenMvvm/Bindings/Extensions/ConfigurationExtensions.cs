@@ -76,7 +76,7 @@ namespace MugenMvvm.Bindings.Extensions
                 .WithComponent(new BindingExpressionParserCache())
                 .WithComponent(new BindingExpressionPriorityDecorator())
                 .WithComponent(new BindingHolder())
-                .WithComponent(new BindingHolderLifecycleDispatcher())
+                .WithComponent(new BindingHolderLifecycleHandler())
                 .WithComponent(new BindingExpressionInitializer())
                 .WithComponent(new BindingModeInitializer())
                 .WithComponent(new BindingParameterInitializer())

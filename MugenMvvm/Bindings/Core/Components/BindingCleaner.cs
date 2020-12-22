@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class BindingCleaner : IBindingLifecycleDispatcherComponent, IHasPriority
+    public sealed class BindingCleaner : IBindingLifecycleListener, IHasPriority
     {
         #region Properties
 

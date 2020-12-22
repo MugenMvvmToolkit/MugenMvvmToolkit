@@ -8,7 +8,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
-    public class TestBindingStateDispatcherComponent : IBindingLifecycleDispatcherComponent, IHasPriority
+    public class TestBindingLifecycleListener : IBindingLifecycleListener, IHasPriority
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         #region Constructors
 
-        public TestBindingStateDispatcherComponent(IBindingManager? bindingManager = null)
+        public TestBindingLifecycleListener(IBindingManager? bindingManager = null)
         {
             _bindingManager = bindingManager;
         }
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         #region Implementation of interfaces
 
-        void IBindingLifecycleDispatcherComponent.OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        void IBindingLifecycleListener.OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             _bindingManager?.ShouldEqual(bindingManager);
             OnLifecycleChanged?.Invoke(binding, lifecycleState, state, metadata);

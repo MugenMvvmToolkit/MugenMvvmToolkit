@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
-    public class BindingHolderLifecycleDispatcherTest : UnitTestBase
+    public class BindingHolderLifecycleHandlerTest : UnitTestBase
     {
         #region Methods
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
 
             manager.AddComponent(holder);
-            manager.AddComponent(new BindingHolderLifecycleDispatcher());
+            manager.AddComponent(new BindingHolderLifecycleHandler());
 
             binding.Target = new TestMemberPathObserver {Target = target};
             manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, DefaultMetadata);

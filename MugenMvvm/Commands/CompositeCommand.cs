@@ -55,8 +55,8 @@ namespace MugenMvvm.Commands
 
         public event EventHandler? CanExecuteChanged
         {
-            add => GetComponents<ICommandConditionEventManagerComponent>().AddCanExecuteChanged(this, value, null);
-            remove => GetComponents<ICommandConditionEventManagerComponent>().RemoveCanExecuteChanged(this, value, null);
+            add => GetComponents<ICommandEventHandlerComponent>().AddCanExecuteChanged(this, value, null);
+            remove => GetComponents<ICommandEventHandlerComponent>().RemoveCanExecuteChanged(this, value, null);
         }
 
         #endregion
@@ -82,7 +82,7 @@ namespace MugenMvvm.Commands
 
         public bool HasCanExecute(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().HasCanExecute(this, metadata);
 
-        public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionEventManagerComponent>().RaiseCanExecuteChanged(this, metadata);
+        public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandEventHandlerComponent>().RaiseCanExecuteChanged(this, metadata);
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {

@@ -17,7 +17,7 @@ namespace MugenMvvm.Bindings.Core
         private readonly ComponentTracker _componentTracker;
         private IBindingExpressionParserComponent[] _expressionBuilderComponents;
         private IBindingHolderComponent[] _holderComponents;
-        private IBindingLifecycleDispatcherComponent[] _stateDispatcherComponents;
+        private IBindingLifecycleListener[] _stateDispatcherComponents;
 
         #endregion
 
@@ -28,11 +28,11 @@ namespace MugenMvvm.Bindings.Core
         {
             _expressionBuilderComponents = Default.Array<IBindingExpressionParserComponent>();
             _holderComponents = Default.Array<IBindingHolderComponent>();
-            _stateDispatcherComponents = Default.Array<IBindingLifecycleDispatcherComponent>();
+            _stateDispatcherComponents = Default.Array<IBindingLifecycleListener>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IBindingExpressionParserComponent, BindingManager>((components, state, _) => state._expressionBuilderComponents = components, this);
             _componentTracker.AddListener<IBindingHolderComponent, BindingManager>((components, state, _) => state._holderComponents = components, this);
-            _componentTracker.AddListener<IBindingLifecycleDispatcherComponent, BindingManager>((components, state, _) => state._stateDispatcherComponents = components, this);
+            _componentTracker.AddListener<IBindingLifecycleListener, BindingManager>((components, state, _) => state._stateDispatcherComponents = components, this);
         }
 
         #endregion
