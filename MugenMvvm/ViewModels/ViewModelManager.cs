@@ -28,7 +28,7 @@ namespace MugenMvvm.ViewModels
             => GetComponents<ILifecycleTrackerComponent<ViewModelLifecycleState>>(metadata).IsInState(this, viewModel, state, metadata);
 
         public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(this, viewModel, lifecycleState, state, metadata);
+            GetComponents<IViewModelLifecycleListener>(metadata).OnLifecycleChanged(this, viewModel, lifecycleState, state, metadata);
 
         public object? TryGetService(IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(this, viewModel, request, metadata);

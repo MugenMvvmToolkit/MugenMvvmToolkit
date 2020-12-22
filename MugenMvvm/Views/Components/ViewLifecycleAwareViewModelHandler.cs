@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewLifecycleAwareViewModelDispatcher : IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class ViewLifecycleAwareViewModelHandler : IViewLifecycleListener, IHasPriority
     {
         #region Properties
 

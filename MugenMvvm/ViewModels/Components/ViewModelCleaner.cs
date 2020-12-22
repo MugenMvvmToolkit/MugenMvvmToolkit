@@ -17,7 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public class ViewModelCleaner : IViewModelLifecycleDispatcherComponent, IHasPriority
+    public class ViewModelCleaner : IViewModelLifecycleListener, IHasPriority
     {
         #region Fields
 

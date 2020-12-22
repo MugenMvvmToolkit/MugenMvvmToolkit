@@ -8,7 +8,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Views.Internal
 {
-    public class TestViewLifecycleDispatcherComponent : IViewLifecycleDispatcherComponent, IHasPriority
+    public class TestViewLifecycleListener : IViewLifecycleListener, IHasPriority
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Views.Internal
 
         #region Constructors
 
-        public TestViewLifecycleDispatcherComponent(IViewManager? viewManager = null)
+        public TestViewLifecycleListener(IViewManager? viewManager = null)
         {
             _viewManager = viewManager;
         }
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Views.Internal
 
         #region Implementation of interfaces
 
-        void IViewLifecycleDispatcherComponent.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             _viewManager?.ShouldEqual(viewManager);
             OnLifecycleChanged?.Invoke(view, lifecycleState, state, metadata);

@@ -23,7 +23,7 @@ using UIKit;
 
 namespace MugenMvvm.Ios.App
 {
-    public sealed class ApplicationStateDispatcher : IApplicationLifecycleDispatcherComponent, IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class ApplicationStateDispatcher : IApplicationLifecycleListener, IViewLifecycleListener, IHasPriority
     {
         #region Fields
 

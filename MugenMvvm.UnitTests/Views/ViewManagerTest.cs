@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Views
             var lifecycleState = ViewLifecycleState.Initializing;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestViewLifecycleDispatcherComponent(manager)
+                var component = new TestViewLifecycleListener(manager)
                 {
                     OnLifecycleChanged = (v, viewLifecycleState, st, metadata) =>
                     {

@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.App.Components
 {
-    public interface IApplicationUnhandledExceptionComponent : IComponent<IMugenApplication>
+    public interface IUnhandledExceptionHandlerComponent : IComponent<IMugenApplication>
     {
         void OnUnhandledException(IMugenApplication application, Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata);
     }

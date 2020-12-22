@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public class ViewCleaner : IViewLifecycleDispatcherComponent, IHasPriority, IComponentCollectionChangedListener
+    public class ViewCleaner : IViewLifecycleListener, IHasPriority, IComponentCollectionChangedListener
     {
         #region Properties
 

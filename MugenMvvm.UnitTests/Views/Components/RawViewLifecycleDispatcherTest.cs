@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Views.Components
 
             var viewManager = new ViewManager();
             viewManager.AddComponent(new RawViewLifecycleDispatcher());
-            viewManager.AddComponent(new TestViewLifecycleDispatcherComponent
+            viewManager.AddComponent(new TestViewLifecycleListener
             {
                 OnLifecycleChanged = (o, lifecycleState, arg3, arg5) =>
                 {
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     return ItemOrList.FromItem<IView>(view);
                 }
             });
-            viewManager.AddComponent(new TestViewLifecycleDispatcherComponent
+            viewManager.AddComponent(new TestViewLifecycleListener
             {
                 OnLifecycleChanged = (o, lifecycleState, arg3, arg5) =>
                 {

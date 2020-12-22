@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class DelegateExecutorCommandComponent<T> : IExecutorCommandComponent, IConditionCommandComponent, IDisposable, IHasPriority
+    public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IDisposable, IHasPriority
     {
         #region Fields
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public DelegateExecutorCommandComponent(Delegate execute, Delegate? canExecute, CommandExecutionBehavior executionBehavior, bool allowMultipleExecution)
+        public DelegateCommandExecutor(Delegate execute, Delegate? canExecute, CommandExecutionBehavior executionBehavior, bool allowMultipleExecution)
         {
             Should.NotBeNull(execute, nameof(execute));
             Should.NotBeNull(executionBehavior, nameof(executionBehavior));

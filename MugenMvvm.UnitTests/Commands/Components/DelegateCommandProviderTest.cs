@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command = _component.TryGetCommand<object>(new CommandManager(), request, metadata)!;
             command.ShouldNotBeNull();
 
-            var component = command.GetComponent<DelegateExecutorCommandComponent<object>>();
+            var component = command.GetComponent<DelegateCommandExecutor<object>>();
             await component.ExecuteAsync(command, null, null);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 canExecuteValue = false;
                 command.CanExecute(null).ShouldEqual(canExecuteValue);
                 if (notifiers != null)
-                    command.GetComponent<ConditionEventCommandComponent>().ShouldNotBeNull();
+                    command.GetComponent<CommandConditionEventManager>().ShouldNotBeNull();
             }
         }
 

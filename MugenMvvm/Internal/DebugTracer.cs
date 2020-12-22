@@ -208,7 +208,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class ApplicationTracer : ComponentDecoratorBase<IMugenApplication, IApplicationLifecycleDispatcherComponent>, IApplicationLifecycleDispatcherComponent
+        private sealed class ApplicationTracer : ComponentDecoratorBase<IMugenApplication, IApplicationLifecycleListener>, IApplicationLifecycleListener
         {
             #region Constructors
 
@@ -365,7 +365,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class ViewModelTracer : ComponentDecoratorBase<IViewModelManager, IViewModelLifecycleDispatcherComponent>, IViewModelLifecycleDispatcherComponent
+        private sealed class ViewModelTracer : ComponentDecoratorBase<IViewModelManager, IViewModelLifecycleListener>, IViewModelLifecycleListener
         {
             #region Fields
 
@@ -402,7 +402,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class ViewTracer : ComponentDecoratorBase<IViewManager, IViewLifecycleDispatcherComponent>, IViewLifecycleDispatcherComponent
+        private sealed class ViewTracer : ComponentDecoratorBase<IViewManager, IViewLifecycleListener>, IViewLifecycleListener
         {
             #region Constructors
 

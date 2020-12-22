@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTests.Commands.Internal
 {
-    public class TestExecutorCommandComponent : IExecutorCommandComponent
+    public class TestCommandExecutorComponent : ICommandExecutorComponent
     {
         #region Properties
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Implementation of interfaces
 
-        Task IExecutorCommandComponent.ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => ExecuteAsync?.Invoke(command, parameter) ?? Default.CompletedTask;
+        Task ICommandExecutorComponent.ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => ExecuteAsync?.Invoke(command, parameter) ?? Default.CompletedTask;
 
         #endregion
     }

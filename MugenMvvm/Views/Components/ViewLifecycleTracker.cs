@@ -10,7 +10,7 @@ using MugenMvvm.Internal.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewLifecycleTracker : LifecycleTrackerBase<ViewLifecycleState, object>, IHasPriority, IViewLifecycleDispatcherComponent
+    public sealed class ViewLifecycleTracker : LifecycleTrackerBase<ViewLifecycleState, object>, IHasPriority, IViewLifecycleListener
     {
         #region Constructors
 

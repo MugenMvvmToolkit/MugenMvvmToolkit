@@ -34,7 +34,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnCommandCreated<TParameter>(commandManager, command, request, metadata);
         }
 
-        public static bool HasCanExecute(this IConditionCommandComponent[] components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        public static bool HasCanExecute(this ICommandConditionComponent[] components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
@@ -47,7 +47,7 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool CanExecute(this IConditionCommandComponent[] components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+        public static bool CanExecute(this ICommandConditionComponent[] components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
@@ -60,7 +60,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static void AddCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
+        public static void AddCanExecuteChanged(this ICommandConditionEventManagerComponent[] components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
@@ -69,7 +69,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].AddCanExecuteChanged(command, handler, metadata);
         }
 
-        public static void RemoveCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
+        public static void RemoveCanExecuteChanged(this ICommandConditionEventManagerComponent[] components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
@@ -78,7 +78,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].RemoveCanExecuteChanged(command, handler, metadata);
         }
 
-        public static void RaiseCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        public static void RaiseCanExecuteChanged(this ICommandConditionEventManagerComponent[] components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
@@ -86,7 +86,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].RaiseCanExecuteChanged(command, metadata);
         }
 
-        public static Task ExecuteAsync(this IExecutorCommandComponent[] components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+        public static Task ExecuteAsync(this ICommandExecutorComponent[] components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));

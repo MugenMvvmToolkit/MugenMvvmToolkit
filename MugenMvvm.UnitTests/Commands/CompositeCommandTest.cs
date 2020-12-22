@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Commands
             compositeCommand.HasCanExecute().ShouldBeFalse();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionCommandComponent
+                var component = new TestCommandConditionComponent
                 {
                     HasCanExecute = c =>
                     {
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Commands
             compositeCommand.CanExecute(compositeCommand).ShouldBeTrue();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionCommandComponent
+                var component = new TestCommandConditionComponent
                 {
                     CanExecute = (c, item) =>
                     {
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Commands
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent
+                var component = new TestCommandConditionEventManagerComponent
                 {
                     AddCanExecuteChanged = (c, handler) =>
                     {
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Commands
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent
+                var component = new TestCommandConditionEventManagerComponent
                 {
                     RemoveCanExecuteChanged = (c, handler) =>
                     {
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Commands
             var compositeCommand = GetComponentOwner();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent
+                var component = new TestCommandConditionEventManagerComponent
                 {
                     RaiseCanExecuteChanged = c =>
                     {
@@ -202,7 +202,7 @@ namespace MugenMvvm.UnitTests.Commands
             var tcs = new List<TaskCompletionSource<object>>();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestExecutorCommandComponent
+                var component = new TestCommandExecutorComponent
                 {
                     ExecuteAsync = (c, o) =>
                     {

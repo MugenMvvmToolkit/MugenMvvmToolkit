@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             var disposingState = 0;
             var disposedState = 0;
             IViewModelBase? viewModel = null;
-            using var t = MugenService.AddComponent(new TestViewModelLifecycleDispatcherComponent
+            using var t = MugenService.AddComponent(new TestViewModelLifecycleListener
             {
                 OnLifecycleChanged = (vm, state, arg3, arg4) =>
                 {

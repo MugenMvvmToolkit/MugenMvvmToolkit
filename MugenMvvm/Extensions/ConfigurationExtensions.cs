@@ -121,7 +121,7 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ViewModelViewAwareInitializer())
                 .WithComponent(new ViewModelViewInitializerDecorator())
                 .WithComponent(new UndefinedMappingViewInitializer())
-                .WithComponent(new ViewLifecycleAwareViewModelDispatcher())
+                .WithComponent(new ViewLifecycleAwareViewModelHandler())
                 .WithComponent(new ViewMappingProvider());
             configuration.WithAppService(new WrapperManager())
                 .WithComponent(new ViewWrapperManagerDecorator());

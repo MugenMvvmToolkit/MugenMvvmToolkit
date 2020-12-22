@@ -12,7 +12,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class CacheViewModelProvider : IViewModelProviderComponent, IViewModelLifecycleDispatcherComponent, IHasPriority
+    public sealed class CacheViewModelProvider : IViewModelProviderComponent, IViewModelLifecycleListener, IHasPriority
     {
         #region Fields
 
@@ -41,7 +41,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
+        void IViewModelLifecycleListener.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
             if (ShouldCache != null && !ShouldCache(viewModel, state, metadata))

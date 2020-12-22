@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             var viewModel = new TestViewModel();
             var lifeCycles = new List<ViewModelLifecycleState>();
             var manager = new ViewModelManager();
-            manager.AddComponent(new TestViewModelLifecycleDispatcherComponent
+            manager.AddComponent(new TestViewModelLifecycleListener
             {
                 OnLifecycleChanged = (vm, state, arg4, m) =>
                 {

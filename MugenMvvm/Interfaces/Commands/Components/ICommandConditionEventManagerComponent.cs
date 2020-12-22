@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands.Components
 {
-    public interface IConditionEventCommandComponent : IComponent<ICompositeCommand>
+    public interface ICommandConditionEventManagerComponent : IComponent<ICompositeCommand>
     {
         void AddCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata);
 

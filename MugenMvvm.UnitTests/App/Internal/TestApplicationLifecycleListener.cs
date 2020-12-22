@@ -8,7 +8,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.App.Internal
 {
-    public class TestApplicationLifecycleDispatcherComponent : IApplicationLifecycleDispatcherComponent, IHasPriority
+    public class TestApplicationLifecycleListener : IApplicationLifecycleListener, IHasPriority
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.App.Internal
 
         #region Constructors
 
-        public TestApplicationLifecycleDispatcherComponent(IMugenApplication? owner = null)
+        public TestApplicationLifecycleListener(IMugenApplication? owner = null)
         {
             _owner = owner;
         }
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.App.Internal
 
         #region Implementation of interfaces
 
-        void IApplicationLifecycleDispatcherComponent.OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        void IApplicationLifecycleListener.OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             _owner?.ShouldEqual(application);
             OnLifecycleChanged?.Invoke(lifecycleState, state, metadata);

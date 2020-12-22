@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Views.Components
 {
-    public interface IViewLifecycleDispatcherComponent : IComponent<IViewManager>
+    public interface IViewLifecycleListener : IComponent<IViewManager>
     {
         void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata);
     }

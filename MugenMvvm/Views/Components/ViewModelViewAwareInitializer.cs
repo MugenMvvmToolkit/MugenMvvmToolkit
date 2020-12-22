@@ -17,7 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewModelViewAwareInitializer : IViewLifecycleDispatcherComponent, IHasPriority, IComponentCollectionChangedListener
+    public sealed class ViewModelViewAwareInitializer : IViewLifecycleListener, IHasPriority, IComponentCollectionChangedListener
     {
         #region Fields
 

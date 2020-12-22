@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Views.Components
 {
-    public class ViewLifecycleAwareViewModelDispatcherTest : UnitTestBase
+    public class ViewLifecycleAwareViewModelHandlerTest : UnitTestBase
     {
         #region Methods
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 m.ShouldEqual(DefaultMetadata);
                 ++invokeCount;
             };
-            var component = new ViewLifecycleAwareViewModelDispatcher();
+            var component = new ViewLifecycleAwareViewModelHandler();
             component.OnLifecycleChanged(null!, view, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }

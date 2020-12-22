@@ -8,7 +8,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.App.Internal
 {
-    public class TestApplicationUnhandledExceptionComponent : IApplicationUnhandledExceptionComponent, IHasPriority
+    public class TestUnhandledExceptionHandlerComponent : IUnhandledExceptionHandlerComponent, IHasPriority
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.App.Internal
 
         #region Constructors
 
-        public TestApplicationUnhandledExceptionComponent(IMugenApplication? mugenApplication = null)
+        public TestUnhandledExceptionHandlerComponent(IMugenApplication? mugenApplication = null)
         {
             _mugenApplication = mugenApplication;
         }
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.App.Internal
 
         #region Implementation of interfaces
 
-        void IApplicationUnhandledExceptionComponent.OnUnhandledException(IMugenApplication application, Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata)
+        void IUnhandledExceptionHandlerComponent.OnUnhandledException(IMugenApplication application, Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata)
         {
             _mugenApplication?.ShouldEqual(application);
             OnUnhandledException?.Invoke(exception, type, metadata);

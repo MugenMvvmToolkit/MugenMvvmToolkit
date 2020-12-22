@@ -52,7 +52,7 @@ namespace MugenMvvm.Android.Views
 
         #region Nested types
 
-        private sealed class PendingActivityHandler : TaskCompletionSource<object>, IViewLifecycleDispatcherComponent, IHasPriority
+        private sealed class PendingActivityHandler : TaskCompletionSource<object>, IViewLifecycleListener, IHasPriority
         {
             #region Fields
 

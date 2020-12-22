@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands.Components
 {
-    public interface IExecutorCommandComponent : IComponent<ICompositeCommand>
+    public interface ICommandExecutorComponent : IComponent<ICompositeCommand>
     {
         Task ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata);
     }

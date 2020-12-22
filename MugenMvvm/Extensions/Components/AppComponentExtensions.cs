@@ -10,7 +10,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnLifecycleChanged(this IApplicationLifecycleDispatcherComponent[] components, IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state,
+        public static void OnLifecycleChanged(this IApplicationLifecycleListener[] components, IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -20,7 +20,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(application, lifecycleState, state, metadata);
         }
 
-        public static void OnUnhandledException(this IApplicationUnhandledExceptionComponent[] components, IMugenApplication application, Exception exception, UnhandledExceptionType type,
+        public static void OnUnhandledException(this IUnhandledExceptionHandlerComponent[] components, IMugenApplication application, Exception exception, UnhandledExceptionType type,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

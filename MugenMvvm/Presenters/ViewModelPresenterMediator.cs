@@ -16,7 +16,7 @@ using MugenMvvm.Interfaces.Wrapping;
 
 namespace MugenMvvm.Presenters
 {
-    public class ViewModelPresenterMediator<TView> : ViewModelPresenterMediatorBase<TView>, IViewLifecycleDispatcherComponent, IHasPriority where TView : class
+    public class ViewModelPresenterMediator<TView> : ViewModelPresenterMediatorBase<TView>, IViewLifecycleListener, IHasPriority where TView : class
     {
         #region Fields
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        void IViewLifecycleDispatcherComponent.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             try
             {

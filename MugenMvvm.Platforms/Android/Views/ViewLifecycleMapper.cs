@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ViewLifecycleMapperDispatcher : IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class ViewLifecycleMapper : IViewLifecycleListener, IHasPriority
     {
         #region Properties
 

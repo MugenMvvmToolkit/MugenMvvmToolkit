@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTests.Commands.Internal
 {
-    public class TestConditionCommandComponent : IConditionCommandComponent
+    public class TestCommandConditionComponent : ICommandConditionComponent
     {
         #region Properties
 
@@ -17,9 +17,9 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Implementation of interfaces
 
-        bool IConditionCommandComponent.HasCanExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => HasCanExecute?.Invoke(command) ?? false;
+        bool ICommandConditionComponent.HasCanExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => HasCanExecute?.Invoke(command) ?? false;
 
-        bool IConditionCommandComponent.CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => CanExecute?.Invoke(command, parameter) ?? true;
+        bool ICommandConditionComponent.CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => CanExecute?.Invoke(command, parameter) ?? true;
 
         #endregion
     }

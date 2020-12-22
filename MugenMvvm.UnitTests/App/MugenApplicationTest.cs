@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.App
             var lifecycleState = ApplicationLifecycleState.Initialized;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestApplicationLifecycleDispatcherComponent(application)
+                var component = new TestApplicationLifecycleListener(application)
                 {
                     OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
                     {
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.App
             var ex = new Exception();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestApplicationUnhandledExceptionComponent(application)
+                var component = new TestUnhandledExceptionHandlerComponent(application)
                 {
                     OnUnhandledException = (e, t, metadata) =>
                     {
@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTests.App
             var states = new List<ApplicationLifecycleState>();
             var device = new PlatformInfo(PlatformType.UnitTest, new MetadataContext());
             var application = new MugenApplication();
-            application.AddComponent(new TestApplicationLifecycleDispatcherComponent(application)
+            application.AddComponent(new TestApplicationLifecycleListener(application)
             {
                 OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
                 {

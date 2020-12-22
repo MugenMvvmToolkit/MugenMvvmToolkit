@@ -9,7 +9,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnLifecycleChanged(this IViewModelLifecycleDispatcherComponent[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+        public static void OnLifecycleChanged(this IViewModelLifecycleListener[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
             object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

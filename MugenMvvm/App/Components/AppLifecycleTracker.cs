@@ -16,7 +16,7 @@ using MugenMvvm.Navigation;
 
 namespace MugenMvvm.App.Components
 {
-    public sealed class AppLifecycleTracker : LifecycleTrackerBase<ApplicationLifecycleState, IMugenApplication>, IApplicationLifecycleDispatcherComponent, IHasPriority
+    public sealed class AppLifecycleTracker : LifecycleTrackerBase<ApplicationLifecycleState, IMugenApplication>, IApplicationLifecycleListener, IHasPriority
     {
         #region Fields
 

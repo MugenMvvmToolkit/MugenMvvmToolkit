@@ -67,7 +67,7 @@ namespace MugenMvvm.Ios.Extensions
 
             configuration
                 .ServiceConfiguration<IViewManager>()
-                .WithComponent(new NativeViewLifecycleDispatcher());
+                .WithComponent(new ViewLifecycleDispatcher());
 
             configuration
                 .ServiceConfiguration<IPresenter>()

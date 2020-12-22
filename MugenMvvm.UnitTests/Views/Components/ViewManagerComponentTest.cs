@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             IView? expectedView = null;
             for (var i = 0; i < count; i++)
             {
-                var listener = new TestViewLifecycleDispatcherComponent
+                var listener = new TestViewLifecycleListener
                 {
                     OnLifecycleChanged = (v, s, st, m) =>
                     {
@@ -141,7 +141,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var states = new Dictionary<ViewLifecycleState, List<ViewLifecycleState>>();
             for (var i = 0; i < count; i++)
             {
-                var listener = new TestViewLifecycleDispatcherComponent
+                var listener = new TestViewLifecycleListener
                 {
                     OnLifecycleChanged = (vRaw, s, st, m) =>
                     {

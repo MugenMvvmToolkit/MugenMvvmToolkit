@@ -10,7 +10,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class ViewModelLifecycleTracker : IViewModelLifecycleDispatcherComponent, ILifecycleTrackerComponent<ViewModelLifecycleState>, IHasPriority
+    public sealed class ViewModelLifecycleTracker : IViewModelLifecycleListener, ILifecycleTrackerComponent<ViewModelLifecycleState>, IHasPriority
     {
         #region Properties
 

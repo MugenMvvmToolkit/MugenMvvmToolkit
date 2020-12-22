@@ -22,7 +22,7 @@ using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ViewStateDispatcher : IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class ViewStateDispatcher : IViewLifecycleListener, IHasPriority
     {
         #region Fields
 

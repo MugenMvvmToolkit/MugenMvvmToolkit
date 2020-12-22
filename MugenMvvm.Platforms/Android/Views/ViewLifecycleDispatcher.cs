@@ -14,12 +14,11 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ViewLifecycleDispatcher : IViewLifecycleDispatcherComponent, ILifecycleTrackerComponent<ViewLifecycleState>, IHasPriority
+    public sealed class ViewLifecycleDispatcher : IViewLifecycleListener, ILifecycleTrackerComponent<ViewLifecycleState>, IHasPriority
     {
         #region Fields
 
         private readonly IMugenApplication? _application;
-
         private readonly IPresenter? _presenter;
 
         #endregion

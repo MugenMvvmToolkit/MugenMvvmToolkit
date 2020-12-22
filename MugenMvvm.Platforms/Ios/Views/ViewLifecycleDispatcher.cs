@@ -13,7 +13,7 @@ using UIKit;
 
 namespace MugenMvvm.Ios.Views
 {
-    public sealed class NativeViewLifecycleDispatcher : IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class ViewLifecycleDispatcher : IViewLifecycleListener, IHasPriority
     {
         #region Properties
 

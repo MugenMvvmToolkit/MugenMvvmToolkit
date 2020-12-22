@@ -53,10 +53,10 @@ namespace MugenMvvm.App
             Components.Get<ILifecycleTrackerComponent<ApplicationLifecycleState>>(metadata).IsInState(this, this, state, metadata);
 
         public void OnUnhandledException(Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata = null) =>
-            Components.Get<IApplicationUnhandledExceptionComponent>().OnUnhandledException(this, exception, type, metadata);
+            Components.Get<IUnhandledExceptionHandlerComponent>().OnUnhandledException(this, exception, type, metadata);
 
         public void OnLifecycleChanged(ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null) =>
-            Components.Get<IApplicationLifecycleDispatcherComponent>().OnLifecycleChanged(this, lifecycleState, state, metadata);
+            Components.Get<IApplicationLifecycleListener>().OnLifecycleChanged(this, lifecycleState, state, metadata);
 
         public void Initialize(IPlatformInfo platformInfo, object? state, IReadOnlyMetadataContext? metadata = null)
         {

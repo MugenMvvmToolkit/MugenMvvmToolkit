@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands.Components
 {
-    public interface IConditionCommandComponent : IComponent<ICompositeCommand>
+    public interface ICommandConditionComponent : IComponent<ICompositeCommand>
     {
         bool HasCanExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata);
 
