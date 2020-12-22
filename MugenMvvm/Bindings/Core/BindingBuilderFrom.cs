@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Interfaces.Build;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.Bindings.Build
+namespace MugenMvvm.Bindings.Core
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly ref struct BindingBuilderFrom<TTarget, TSource>

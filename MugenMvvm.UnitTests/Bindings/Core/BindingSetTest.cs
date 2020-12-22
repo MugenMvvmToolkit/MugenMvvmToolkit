@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Bindings.Build;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -11,7 +10,7 @@ using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Bindings.Build
+namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingSetTest : UnitTestBase
     {

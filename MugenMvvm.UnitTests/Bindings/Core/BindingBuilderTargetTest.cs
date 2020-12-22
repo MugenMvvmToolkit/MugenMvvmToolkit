@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MugenMvvm.Bindings.Build;
+using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Interfaces.Build;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Bindings.Build
+namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingBuilderTargetTest : UnitTestBase
     {

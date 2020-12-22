@@ -8,7 +8,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Bindings.Build
+namespace MugenMvvm.Bindings.Core
 {
     [StructLayout(LayoutKind.Auto)]
     public struct BindingSet<TSource> : IDisposable

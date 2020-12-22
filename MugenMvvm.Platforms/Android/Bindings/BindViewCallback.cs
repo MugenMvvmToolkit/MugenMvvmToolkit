@@ -1,6 +1,5 @@
 ﻿using Java.Lang;
 using MugenMvvm.Android.Native.Interfaces.Views;
-using MugenMvvm.Bindings.Build;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Descriptors;

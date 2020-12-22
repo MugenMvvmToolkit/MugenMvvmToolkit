@@ -1,4 +1,4 @@
-﻿using MugenMvvm.Bindings.Build;
+﻿using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Parsing;
 
 namespace MugenMvvm.Bindings.Delegates

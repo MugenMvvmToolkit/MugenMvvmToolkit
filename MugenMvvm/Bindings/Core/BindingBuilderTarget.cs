@@ -6,7 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Bindings.Parsing.Expressions;
 
-namespace MugenMvvm.Bindings.Build
+namespace MugenMvvm.Bindings.Core
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly ref struct BindingBuilderTarget<TTarget, TSource>

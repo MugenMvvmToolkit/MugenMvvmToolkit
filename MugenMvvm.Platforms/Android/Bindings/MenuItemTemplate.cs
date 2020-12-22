@@ -4,7 +4,6 @@ using Android.Views;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Members;
-using MugenMvvm.Bindings.Build;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members;
 using String = Java.Lang.String;

@@ -4,7 +4,7 @@ using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Bindings.Build
+namespace MugenMvvm.Bindings.Core
 {
     [StructLayout(LayoutKind.Auto)]
     public ref struct BindingBuilderTo<TTarget, TSource>

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MugenMvvm.Bindings.Build;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Build;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
@@ -18,9 +18,9 @@ using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTests.Bindings.Build
+namespace MugenMvvm.UnitTests.Bindings.Extensions
 {
-    public class BindingBuilderTest : UnitTestBase
+    public class BindingBuilderExtensionsTest : UnitTestBase
     {
         #region Fields
 
@@ -88,7 +88,7 @@ namespace MugenMvvm.UnitTests.Bindings.Build
         [Fact]
         public void BindShouldBuildBinding2()
         {
-            var del = new BindingBuilderDelegate<BindingBuilderTest, string>(builderTarget => ConverterRequest);
+            var del = new BindingBuilderDelegate<BindingBuilderExtensionsTest, string>(builderTarget => ConverterRequest);
             var target = this;
             var source = "";
             var binding = new TestBinding();

@@ -40,7 +40,7 @@ namespace MugenMvvm.Internal
             if (list == null)
             {
                 Item = default!;
-                List = list;
+                List = null;
                 _fixedCount = 0;
                 return;
             }

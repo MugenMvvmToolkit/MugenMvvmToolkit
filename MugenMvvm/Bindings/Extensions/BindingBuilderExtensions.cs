@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Build;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -14,9 +14,9 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Bindings.Build
+namespace MugenMvvm.Bindings.Extensions
 {
-    public static class BindingBuilder
+    public static class BindingBuilderExtensions
     {
         #region Methods
 

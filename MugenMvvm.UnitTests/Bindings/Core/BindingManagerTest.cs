@@ -16,16 +16,25 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         #region Methods
 
         [Fact]
-        public void BuildBindingExpressionShouldThrowNoComponents()
+        public void ParseBindingExpressionShouldThrowNoComponents()
         {
             var bindingManager = new BindingManager();
             ShouldThrow<InvalidOperationException>(() => bindingManager.ParseBindingExpression(this, DefaultMetadata));
         }
 
+        [Fact]
+        public void TryParseBindingExpressionShouldHandleBuildersList()
+        {
+            var bindingExpressions = new List<IBindingBuilder> {new TestBindingBuilder(), new TestBindingBuilder()};
+            var bindingManager = new BindingManager();
+            bindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
+            bindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void BuildBindingExpressionShouldBeHandledByComponents(int count)
+        public void ParseBindingExpressionShouldBeHandledByComponents(int count)
         {
             var request = "t";
             var bindingManager = new BindingManager();

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using MugenMvvm.App.Configuration;
-using MugenMvvm.Bindings.Build.Components;
 using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Compiling.Components;
 using MugenMvvm.Bindings.Constants;
@@ -68,7 +67,6 @@ namespace MugenMvvm.Bindings.Extensions
 
             configuration.WithAppService(new BindingManager())
                 .WithComponent(macrosBindingInitializer)
-                .WithComponent(new BindingBuilderListExpressionParser())
                 .WithComponent(new BindingBuilderDelegateExpressionParser())
                 .WithComponent(new BindingCleaner())
                 .WithComponent(new BindingExpressionExceptionDecorator())

@@ -313,11 +313,11 @@ namespace MugenMvvm.Bindings.Extensions.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryParseBindingExpression(bindingManager, expression, metadata);
-                if (result.Item != null || result.List != null)
+                if (!result.IsEmpty)
                     return result;
             }
 
-            return default;
+            return ItemOrList.FromList(expression as IReadOnlyList<IBindingBuilder>);
         }
 
         public static void Initialize(this IBindingExpressionInitializerComponent[] components, IBindingManager bindingManager, IBindingExpressionInitializerContext context)
