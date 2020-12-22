@@ -56,9 +56,9 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
-        public bool IgnoreMethodMembers { get; set; }
+        public bool SuppressMethodAccessors { get; set; }
 
-        public bool IgnoreIndexMembers { get; set; }
+        public bool SuppressIndexAccessors { get; set; }
 
         #endregion
 
@@ -288,9 +288,9 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         private bool Condition(IExpressionNode expression)
         {
-            if (expression.TryGetMetadataValue(BindingParameterNameConstant.IgnoreIndexMembers, IgnoreIndexMembers) && expression is IIndexExpressionNode)
+            if (expression.TryGetMetadataValue(BindingParameterNameConstant.SuppressIndexAccessors, SuppressIndexAccessors) && expression is IIndexExpressionNode)
                 return false;
-            if (expression.TryGetMetadataValue(BindingParameterNameConstant.IgnoreMethodMembers, IgnoreMethodMembers) && expression is IMethodCallExpressionNode)
+            if (expression.TryGetMetadataValue(BindingParameterNameConstant.SuppressMethodAccessors, SuppressMethodAccessors) && expression is IMethodCallExpressionNode)
                 return false;
             return true;
         }

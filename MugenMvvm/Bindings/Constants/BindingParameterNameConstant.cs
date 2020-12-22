@@ -8,8 +8,8 @@
         public const string HasStablePath = nameof(HasStablePath);
         public const string Observable = nameof(Observable);
         public const string ToggleEnabled = nameof(ToggleEnabled);
-        public const string IgnoreMethodMembers = nameof(IgnoreMethodMembers);
-        public const string IgnoreIndexMembers = nameof(IgnoreIndexMembers);
+        public const string SuppressMethodAccessors = nameof(SuppressMethodAccessors);
+        public const string SuppressIndexAccessors = nameof(SuppressIndexAccessors);
         public const string ObservableMethods = nameof(ObservableMethods);
         public const string Trace = nameof(Trace);
 

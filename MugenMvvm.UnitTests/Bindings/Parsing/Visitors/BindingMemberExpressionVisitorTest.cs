@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             });
 
-            visitor.IgnoreMethodMembers = true;
+            visitor.SuppressMethodAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -58,8 +58,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             }));
 
-            visitor.IgnoreMethodMembers = false;
-            expression.Metadata.Add(BindingParameterNameConstant.IgnoreMethodMembers, BoxingExtensions.TrueObject);
+            visitor.SuppressMethodAccessors = false;
+            expression.Metadata.Add(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             });
 
-            visitor.IgnoreMethodMembers = true;
+            visitor.SuppressMethodAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -90,8 +90,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             }));
 
-            visitor.IgnoreMethodMembers = false;
-            expression.Metadata.Add(BindingParameterNameConstant.IgnoreMethodMembers, BoxingExtensions.TrueObject);
+            visitor.SuppressMethodAccessors = false;
+            expression.Metadata.Add(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             });
 
-            visitor.IgnoreMethodMembers = true;
+            visitor.SuppressMethodAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -122,8 +122,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = MethodName
             }));
 
-            visitor.IgnoreMethodMembers = false;
-            expression.Metadata.Add(BindingParameterNameConstant.IgnoreMethodMembers, BoxingExtensions.TrueObject);
+            visitor.SuppressMethodAccessors = false;
+            expression.Metadata.Add(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             });
 
-            visitor.IgnoreMethodMembers = true;
+            visitor.SuppressMethodAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]")
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -158,8 +158,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = MethodName
             }));
 
-            visitor.IgnoreMethodMembers = false;
-            expression.Metadata.Add(BindingParameterNameConstant.IgnoreMethodMembers, BoxingExtensions.TrueObject);
+            visitor.SuppressMethodAccessors = false;
+            expression.Metadata.Add(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]")
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             });
 
-            visitor.IgnoreIndexMembers = true;
+            visitor.SuppressIndexAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -190,8 +190,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             }));
 
-            visitor.IgnoreIndexMembers = false;
-            expression.Metadata.Add(BindingParameterNameConstant.IgnoreIndexMembers, BoxingExtensions.TrueObject);
+            visitor.SuppressIndexAccessors = false;
+            expression.Metadata.Add(BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -214,7 +214,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = null
             });
 
-            visitor.IgnoreIndexMembers = true;
+            visitor.SuppressIndexAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
@@ -222,8 +222,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 ObservableMethodName = MethodName
             }));
 
-            visitor.IgnoreIndexMembers = false;
-            expression.Metadata.Add(BindingParameterNameConstant.IgnoreIndexMembers, BoxingExtensions.TrueObject);
+            visitor.SuppressIndexAccessors = false;
+            expression.Metadata.Add(BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName)
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),

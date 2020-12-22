@@ -94,15 +94,15 @@ namespace MugenMvvm.Bindings.Extensions
             where TSource : class =>
             builder.BoolParameter(MemberExpressionNode.ToggleEnabledParameter, value);
 
-        public static BindingBuilderTo<TTarget, TSource> IgnoreMethodMembers<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, bool value = true)
+        public static BindingBuilderTo<TTarget, TSource> SuppressMethodAccessors<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, bool value = true)
             where TTarget : class
             where TSource : class =>
-            builder.BoolParameter(MemberExpressionNode.IgnoreMethodMembersParameter, value);
+            builder.BoolParameter(MemberExpressionNode.SuppressMethodAccessorsParameter, value);
 
-        public static BindingBuilderTo<TTarget, TSource> IgnoreIndexMembers<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, bool value = true)
+        public static BindingBuilderTo<TTarget, TSource> SuppressIndexAccessors<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, bool value = true)
             where TTarget : class
             where TSource : class =>
-            builder.BoolParameter(MemberExpressionNode.IgnoreIndexMembersParameter, value);
+            builder.BoolParameter(MemberExpressionNode.SuppressIndexAccessorsParameter, value);
 
         public static BindingBuilderTo<TTarget, TSource> ObservableMethods<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, bool value = true)
             where TTarget : class

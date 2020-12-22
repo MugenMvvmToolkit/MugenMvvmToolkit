@@ -64,8 +64,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             MemberExpressionNode.Get(null, BindingParameterNameConstant.HasStablePath).ShouldEqual(MemberExpressionNode.HasStablePathParameter);
             MemberExpressionNode.Get(null, BindingParameterNameConstant.Observable).ShouldEqual(MemberExpressionNode.ObservableParameter);
             MemberExpressionNode.Get(null, BindingParameterNameConstant.ToggleEnabled).ShouldEqual(MemberExpressionNode.ToggleEnabledParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.IgnoreMethodMembers).ShouldEqual(MemberExpressionNode.IgnoreMethodMembersParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.IgnoreIndexMembers).ShouldEqual(MemberExpressionNode.IgnoreIndexMembersParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.SuppressMethodAccessors).ShouldEqual(MemberExpressionNode.SuppressMethodAccessorsParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.SuppressIndexAccessors).ShouldEqual(MemberExpressionNode.SuppressIndexAccessorsParameter);
             MemberExpressionNode.Get(null, BindingParameterNameConstant.ObservableMethods).ShouldEqual(MemberExpressionNode.ObservableMethodsParameter);
             MemberExpressionNode.Get(null, BindingParameterNameConstant.Converter).ShouldEqual(MemberExpressionNode.ConverterParameter);
             MemberExpressionNode.Get(null, BindingParameterNameConstant.ConverterParameter).ShouldEqual(MemberExpressionNode.ConverterParameterParameter);

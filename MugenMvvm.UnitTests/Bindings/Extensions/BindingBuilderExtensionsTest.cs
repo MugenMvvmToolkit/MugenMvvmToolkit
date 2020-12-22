@@ -263,16 +263,16 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
             ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ToggleEnabledParameter);
 
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.IgnoreMethodMembers(value);
+            request = builder.SuppressMethodAccessors(value);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.IgnoreMethodMembersParameter);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.SuppressMethodAccessorsParameter);
 
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.IgnoreIndexMembers(value);
+            request = builder.SuppressIndexAccessors(value);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.IgnoreIndexMembersParameter);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.SuppressIndexAccessorsParameter);
 
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
             request = builder.ObservableMethods(value);

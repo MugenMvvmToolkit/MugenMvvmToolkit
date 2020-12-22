@@ -62,8 +62,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         if (visitor is BindingMemberExpressionVisitor expressionVisitor)
                         {
                             expressionVisitor.Flags.ShouldEqual(BindingMemberExpressionFlags.Observable);
-                            expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
-                            expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
+                            expressionVisitor.SuppressIndexAccessors.ShouldBeTrue();
+                            expressionVisitor.SuppressMethodAccessors.ShouldBeTrue();
                             expressionVisitor.MemberFlags.ShouldEqual(MemberFlags.All & ~MemberFlags.NonPublic);
                         }
 

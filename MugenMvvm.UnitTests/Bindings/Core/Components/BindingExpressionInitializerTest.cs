@@ -86,16 +86,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public void InitializeShouldRespectSettings(bool parametersSetting)
         {
             var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods | BindingMemberExpressionFlags.Optional;
-            var ignoreMethodMembers = true;
-            var ignoreIndexMembers = true;
+            var suppressMethodAccessors = true;
+            var suppressIndexAccessors = true;
             var memberFlags = MemberFlags.Static;
             var context = new BindingExpressionInitializerContext(this);
             var bindingManager = new BindingManager();
             var component = new BindingExpressionInitializer();
             bindingManager.AddComponent(component);
             component.Flags.ShouldNotEqual(flags);
-            component.IgnoreIndexMembers.ShouldNotEqual(ignoreIndexMembers);
-            component.IgnoreMethodMembers.ShouldNotEqual(ignoreMethodMembers);
+            component.SuppressIndexAccessors.ShouldNotEqual(suppressIndexAccessors);
+            component.SuppressMethodAccessors.ShouldNotEqual(suppressMethodAccessors);
             component.MemberFlags.ShouldNotEqual(memberFlags);
             component.MemberFlags = memberFlags;
 
@@ -104,8 +104,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 parameters = new IExpressionNode[]
                 {
-                    new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreMethodMembers),
-                    new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreIndexMembers),
+                    new MemberExpressionNode(null, BindingParameterNameConstant.SuppressMethodAccessors),
+                    new MemberExpressionNode(null, BindingParameterNameConstant.SuppressIndexAccessors),
                     new MemberExpressionNode(null, BindingParameterNameConstant.HasStablePath),
                     new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethods),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
@@ -116,8 +116,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 parameters = Default.Array<IExpressionNode>();
                 component.Flags = flags;
-                component.IgnoreIndexMembers = ignoreIndexMembers;
-                component.IgnoreMethodMembers = ignoreMethodMembers;
+                component.SuppressIndexAccessors = suppressIndexAccessors;
+                component.SuppressMethodAccessors = suppressMethodAccessors;
             }
 
             var targetVisitCount = 0;
@@ -130,8 +130,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
-                    expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
-                    expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
+                    expressionVisitor.SuppressIndexAccessors.ShouldEqual(suppressIndexAccessors);
+                    expressionVisitor.SuppressMethodAccessors.ShouldEqual(suppressMethodAccessors);
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
                     return null;
                 }
@@ -144,8 +144,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false));
-                    expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
-                    expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
+                    expressionVisitor.SuppressIndexAccessors.ShouldEqual(suppressIndexAccessors);
+                    expressionVisitor.SuppressMethodAccessors.ShouldEqual(suppressMethodAccessors);
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
                     return null;
                 }
@@ -171,8 +171,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var sourceSrc = new object();
             var targetPath = new MultiMemberPath("Member1.Member2");
             var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods | BindingMemberExpressionFlags.Optional;
-            var ignoreMethodMembers = true;
-            var ignoreIndexMembers = true;
+            var suppressMethodAccessors = true;
+            var suppressIndexAccessors = true;
             var toggleEnabledState = true;
             var memberFlags = MemberFlags.Static | MemberFlags.Public;
             var context = new BindingExpressionInitializerContext(this);
@@ -244,8 +244,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         if (visitor is BindingMemberExpressionVisitor expressionVisitor)
                         {
                             expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~BindingMemberExpressionFlags.ObservableMethods);
-                            expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
-                            expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
+                            expressionVisitor.SuppressIndexAccessors.ShouldBeTrue();
+                            expressionVisitor.SuppressMethodAccessors.ShouldBeTrue();
                             expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
                         }
 
@@ -274,8 +274,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var component = new BindingExpressionInitializer(compiler, memberManager);
             bindingManager.AddComponent(component);
             component.Flags.ShouldNotEqual(flags);
-            component.IgnoreIndexMembers.ShouldNotEqual(ignoreIndexMembers);
-            component.IgnoreMethodMembers.ShouldNotEqual(ignoreMethodMembers);
+            component.SuppressIndexAccessors.ShouldNotEqual(suppressIndexAccessors);
+            component.SuppressMethodAccessors.ShouldNotEqual(suppressMethodAccessors);
             component.ToggleEnabledState.ShouldNotEqual(toggleEnabledState);
             component.MemberFlags.ShouldNotEqual(memberFlags);
             component.MemberFlags = memberFlags;
@@ -285,8 +285,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 parameters = new IExpressionNode[]
                 {
-                    new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreMethodMembers),
-                    new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreIndexMembers),
+                    new MemberExpressionNode(null, BindingParameterNameConstant.SuppressMethodAccessors),
+                    new MemberExpressionNode(null, BindingParameterNameConstant.SuppressIndexAccessors),
                     new MemberExpressionNode(null, BindingParameterNameConstant.HasStablePath),
                     new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethods),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
@@ -301,8 +301,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.Metadata = BindingMetadata.IsMultiBinding.ToContext(false);
                 parameters = new[] {new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)};
                 component.Flags = flags;
-                component.IgnoreIndexMembers = ignoreIndexMembers;
-                component.IgnoreMethodMembers = ignoreMethodMembers;
+                component.SuppressIndexAccessors = suppressIndexAccessors;
+                component.SuppressMethodAccessors = suppressMethodAccessors;
                 component.ToggleEnabledState = toggleEnabledState;
             }
 
@@ -324,8 +324,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
-                    expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
-                    expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
+                    expressionVisitor.SuppressIndexAccessors.ShouldEqual(suppressIndexAccessors);
+                    expressionVisitor.SuppressMethodAccessors.ShouldEqual(suppressMethodAccessors);
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
                     return null;
                 }
@@ -338,8 +338,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods));
-                    expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
-                    expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
+                    expressionVisitor.SuppressIndexAccessors.ShouldBeTrue();
+                    expressionVisitor.SuppressMethodAccessors.ShouldBeTrue();
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
                     return null;
                 }

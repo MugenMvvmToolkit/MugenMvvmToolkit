@@ -60,9 +60,9 @@ namespace MugenMvvm.Bindings.Core.Components
             set => _memberExpressionVisitor.MemberFlags = value;
         }
 
-        public bool IgnoreMethodMembers { get; set; }
+        public bool SuppressMethodAccessors { get; set; }
 
-        public bool IgnoreIndexMembers { get; set; }
+        public bool SuppressIndexAccessors { get; set; }
 
         public bool ToggleEnabledState { get; set; }
 
@@ -79,8 +79,8 @@ namespace MugenMvvm.Bindings.Core.Components
 
             var metadata = context.GetMetadataOrDefault();
             _memberExpressionVisitor.Flags = Flags;
-            _memberExpressionVisitor.IgnoreMethodMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreMethodMembers).GetValueOrDefault(IgnoreMethodMembers);
-            _memberExpressionVisitor.IgnoreIndexMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreIndexMembers).GetValueOrDefault(IgnoreIndexMembers);
+            _memberExpressionVisitor.SuppressMethodAccessors = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.SuppressMethodAccessors).GetValueOrDefault(SuppressMethodAccessors);
+            _memberExpressionVisitor.SuppressIndexAccessors = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.SuppressIndexAccessors).GetValueOrDefault(SuppressIndexAccessors);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Observable, BindingMemberExpressionFlags.Observable);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
@@ -97,8 +97,8 @@ namespace MugenMvvm.Bindings.Core.Components
 
             var flags = _memberExpressionVisitor.Flags;
             _memberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods);
-            _memberExpressionVisitor.IgnoreIndexMembers = true;
-            _memberExpressionVisitor.IgnoreMethodMembers = true;
+            _memberExpressionVisitor.SuppressIndexAccessors = true;
+            _memberExpressionVisitor.SuppressMethodAccessors = true;
             context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
             if (context.SourceExpression is IBindingMemberExpressionNode memberExpression)
             {

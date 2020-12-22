@@ -30,8 +30,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         public static readonly MemberExpressionNode HasStablePathParameter = new MemberExpressionNode(null, BindingParameterNameConstant.HasStablePath, Default.ReadOnlyDictionary<string, object?>());
         public static readonly MemberExpressionNode ObservableParameter = new MemberExpressionNode(null, BindingParameterNameConstant.Observable, Default.ReadOnlyDictionary<string, object?>());
         public static readonly MemberExpressionNode ToggleEnabledParameter = new MemberExpressionNode(null, BindingParameterNameConstant.ToggleEnabled, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode IgnoreMethodMembersParameter = new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreMethodMembers, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode IgnoreIndexMembersParameter = new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreIndexMembers, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode SuppressMethodAccessorsParameter = new MemberExpressionNode(null, BindingParameterNameConstant.SuppressMethodAccessors, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode SuppressIndexAccessorsParameter = new MemberExpressionNode(null, BindingParameterNameConstant.SuppressIndexAccessors, Default.ReadOnlyDictionary<string, object?>());
         public static readonly MemberExpressionNode ObservableMethodsParameter = new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethods, Default.ReadOnlyDictionary<string, object?>());
         public static readonly MemberExpressionNode ConverterParameter = new MemberExpressionNode(null, BindingParameterNameConstant.Converter, Default.ReadOnlyDictionary<string, object?>());
         public static readonly MemberExpressionNode ConverterParameterParameter = new MemberExpressionNode(null, BindingParameterNameConstant.ConverterParameter, Default.ReadOnlyDictionary<string, object?>());
@@ -110,10 +110,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                         return ObservableParameter;
                     case BindingParameterNameConstant.ToggleEnabled:
                         return ToggleEnabledParameter;
-                    case BindingParameterNameConstant.IgnoreMethodMembers:
-                        return IgnoreMethodMembersParameter;
-                    case BindingParameterNameConstant.IgnoreIndexMembers:
-                        return IgnoreIndexMembersParameter;
+                    case BindingParameterNameConstant.SuppressMethodAccessors:
+                        return SuppressMethodAccessorsParameter;
+                    case BindingParameterNameConstant.SuppressIndexAccessors:
+                        return SuppressIndexAccessorsParameter;
                     case BindingParameterNameConstant.ObservableMethods:
                         return ObservableMethodsParameter;
                     case BindingParameterNameConstant.Converter:

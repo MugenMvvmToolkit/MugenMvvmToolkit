@@ -36,8 +36,8 @@ namespace MugenMvvm.Bindings.Core.Components
         {
             _memberExpressionVisitor = new BindingMemberExpressionVisitor
             {
-                IgnoreIndexMembers = true,
-                IgnoreMethodMembers = true,
+                SuppressIndexAccessors = true,
+                SuppressMethodAccessors = true,
                 MemberFlags = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic
             };
             _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
