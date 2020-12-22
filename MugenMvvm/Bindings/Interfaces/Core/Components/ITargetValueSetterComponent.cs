@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Interfaces.Core.Components
 {
-    public interface ITargetValueSetterBindingComponent : IComponent<IBinding>
+    public interface ITargetValueSetterComponent : IComponent<IBinding>
     {
         bool TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata);
     }

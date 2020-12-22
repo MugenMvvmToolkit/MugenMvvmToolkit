@@ -699,7 +699,7 @@ namespace MugenMvvm.Bindings.Extensions
                 unsubscriber = ActionToken.NoDoToken;
         }
 
-        internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args) => ((EventHandlerBindingComponent?) weakReference.Target)?.OnCanExecuteChanged();
+        internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args) => ((BindingEventHandler?) weakReference.Target)?.OnCanExecuteChanged();
 
         private static ParameterValue GetParameterValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {

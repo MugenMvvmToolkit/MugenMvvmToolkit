@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
 
             var provider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.Delay]!;
-            var component = (DelayBindingComponent.Source) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
+            var component = (DelayBindingHandler.Source) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
             component.Delay.ShouldEqual((ushort) delay);
         }
 
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
 
             var provider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.TargetDelay]!;
-            var component = (DelayBindingComponent.Target) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
+            var component = (DelayBindingHandler.Target) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
             component.Delay.ShouldEqual((ushort) delay);
         }
 

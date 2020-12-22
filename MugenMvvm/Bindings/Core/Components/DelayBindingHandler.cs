@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public abstract class DelayBindingComponent : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler
+    public abstract class DelayBindingHandler : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler
     {
         #region Fields
 
@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Constructors
 
-        protected DelayBindingComponent(ushort delay)
+        protected DelayBindingHandler(ushort delay)
         {
             Delay = delay;
         }
@@ -112,7 +112,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Nested types
 
-        internal sealed class Target : DelayBindingComponent, ITargetValueInterceptorBindingComponent
+        internal sealed class Target : DelayBindingHandler, ITargetValueInterceptorComponent
         {
             #region Constructors
 
@@ -135,7 +135,7 @@ namespace MugenMvvm.Bindings.Core.Components
             #endregion
         }
 
-        internal sealed class Source : DelayBindingComponent, ISourceValueInterceptorBindingComponent
+        internal sealed class Source : DelayBindingHandler, ISourceValueInterceptorComponent
         {
             #region Constructors
 

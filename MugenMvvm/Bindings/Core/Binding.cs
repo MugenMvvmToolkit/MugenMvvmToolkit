@@ -495,17 +495,17 @@ namespace MugenMvvm.Bindings.Core
         {
             if (CheckFlag(DisposedFlag))
                 return;
-            if (component is ISourceValueInterceptorBindingComponent)
+            if (component is ISourceValueInterceptorComponent)
                 SetFlag(HasSourceValueInterceptorFlag);
-            if (component is ITargetValueInterceptorBindingComponent)
+            if (component is ITargetValueInterceptorComponent)
                 SetFlag(HasTargetValueInterceptorFlag);
             if (component is IBindingSourceListener)
                 SetFlag(HasSourceListenerFlag);
             if (component is IBindingTargetListener)
                 SetFlag(HasTargetListenerFlag);
-            if (component is ITargetValueSetterBindingComponent)
+            if (component is ITargetValueSetterComponent)
                 SetFlag(HasTargetValueSetterFlag);
-            if (component is ISourceValueSetterBindingComponent)
+            if (component is ISourceValueSetterComponent)
                 SetFlag(HasSourceValueSetterFlag);
             if (component is IComponentCollectionChangingListener)
                 SetFlag(HasComponentChangingListener);

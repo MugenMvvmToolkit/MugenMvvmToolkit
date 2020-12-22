@@ -351,11 +351,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             sourceVisitCount.ShouldEqual(1);
             context.Components[BindingParameterNameConstant.Mode].ShouldBeNull();
             var bindingComponentProvider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.EventHandler]!;
-            var bindingComponent = (EventHandlerBindingComponent) bindingComponentProvider.TryGetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
+            var bindingComponent = (BindingEventHandler) bindingComponentProvider.TryGetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
             if (parametersSetting)
-                bindingComponent.ShouldBeType<EventHandlerBindingComponent>();
+                bindingComponent.ShouldBeType<BindingEventHandler>();
             else
-                bindingComponent.ShouldBeType<EventHandlerBindingComponent.OneWay>();
+                bindingComponent.ShouldBeType<BindingEventHandler.OneWay>();
             bindingComponent.ToggleEnabledState.ShouldEqual(toggleEnabledState);
 
             if (cmdParameterMode == 1)

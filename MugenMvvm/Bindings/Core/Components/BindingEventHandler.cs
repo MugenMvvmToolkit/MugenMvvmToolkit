@@ -20,7 +20,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public class EventHandlerBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent, IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority
+    public class BindingEventHandler : ITargetValueSetterComponent, IAttachableComponent, IDetachableComponent, IEventListener, IHasEventArgsComponent, IHasPriority
     {
         #region Fields
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Constructors
 
-        private EventHandlerBindingComponent(BindingParameterValue commandParameter, bool toggleEnabledState)
+        private BindingEventHandler(BindingParameterValue commandParameter, bool toggleEnabledState)
         {
             CommandParameter = commandParameter;
             ToggleEnabledState = toggleEnabledState;
@@ -151,10 +151,10 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Methods
 
-        public static EventHandlerBindingComponent Get(BindingParameterValue commandParameter, bool toggleEnabledState, bool isOneTime)
+        public static BindingEventHandler Get(BindingParameterValue commandParameter, bool toggleEnabledState, bool isOneTime)
         {
             if (isOneTime)
-                return new EventHandlerBindingComponent(commandParameter, toggleEnabledState);
+                return new BindingEventHandler(commandParameter, toggleEnabledState);
             return new OneWay(commandParameter, toggleEnabledState);
         }
 
@@ -215,7 +215,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Nested types
 
-        internal sealed class OneWay : EventHandlerBindingComponent, IBindingSourceObserverListener
+        internal sealed class OneWay : BindingEventHandler, IBindingSourceObserverListener
         {
             #region Constructors
 

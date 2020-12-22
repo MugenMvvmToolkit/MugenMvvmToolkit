@@ -738,7 +738,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 var expected = i;
                 var v = expected + 1;
-                binding.AddComponent(new TestTargetValueInterceptorBindingComponent
+                binding.AddComponent(new TestTargetValueInterceptorComponent
                 {
                     Priority = -i,
                     InterceptTargetValue = (b, member, value, metadata) =>
@@ -821,7 +821,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 var expected = i;
                 var v = expected + 1;
-                binding.AddComponent(new TestSourceValueInterceptorBindingComponent
+                binding.AddComponent(new TestSourceValueInterceptorComponent
                 {
                     Priority = -i,
                     InterceptSourceValue = (b, member, value, metadata) =>
@@ -903,7 +903,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                binding.AddComponent(new TestTargetValueSetterBindingComponent
+                binding.AddComponent(new TestTargetValueSetterComponent
                 {
                     Priority = -i,
                     TrySetTargetValue = (b, member, value, metadata) =>
@@ -985,7 +985,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                binding.AddComponent(new TestSourceValueSetterBindingComponent
+                binding.AddComponent(new TestSourceValueSetterComponent
                 {
                     Priority = -i,
                     TrySetSourceValue = (b, member, value, metadata) =>

@@ -90,7 +90,7 @@ namespace MugenMvvm.Bindings.Core.Components
             IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var (converter, converterParameter, fallback, targetNullValue) = state;
-            return new ParameterHandlerBindingComponent(converter.ToBindingParameter(target, source, metadata), converterParameter.ToBindingParameter(target, source, metadata),
+            return new BindingParameterHandler(converter.ToBindingParameter(target, source, metadata), converterParameter.ToBindingParameter(target, source, metadata),
                 fallback.ToBindingParameter(target, source, metadata), targetNullValue.ToBindingParameter(target, source, metadata));
         }
 

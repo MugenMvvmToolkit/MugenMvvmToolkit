@@ -43,11 +43,11 @@ namespace MugenMvvm.Bindings.Extensions
             var components = itemOrList.List;
             var component = itemOrList.Item;
             if (components == null)
-                return (component as IHasEventArgsBindingComponent)?.EventArgs;
+                return (component as IHasEventArgsComponent)?.EventArgs;
 
             for (var i = 0; i < components.Length; i++)
             {
-                var args = (components[i] as IHasEventArgsBindingComponent)?.EventArgs;
+                var args = (components[i] as IHasEventArgsComponent)?.EventArgs;
                 if (args != null)
                     return args;
             }

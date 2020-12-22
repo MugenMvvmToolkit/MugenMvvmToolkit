@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Bindings.Interfaces.Core.Components
 {
-    public interface IHasEventArgsBindingComponent : IComponent<IBinding>
+    public interface IHasEventArgsComponent : IComponent<IBinding>
     {
         object? EventArgs { get; }
     }

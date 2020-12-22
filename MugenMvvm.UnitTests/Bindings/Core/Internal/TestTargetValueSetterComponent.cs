@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
-    public class TestTargetValueSetterBindingComponent : ITargetValueSetterBindingComponent, IHasPriority
+    public class TestTargetValueSetterComponent : ITargetValueSetterComponent, IHasPriority
     {
         #region Properties
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         #region Implementation of interfaces
 
-        bool ITargetValueSetterBindingComponent.TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) =>
+        bool ITargetValueSetterComponent.TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) =>
             TrySetTargetValue?.Invoke(binding, targetMember, value, metadata) ?? false;
 
         #endregion

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
-    public class DelayBindingComponentTest : UnitTestBase
+    public class DelayBindingHandlerTest : UnitTestBase
     {
         #region Methods
 
@@ -24,13 +24,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 Execute = (action, mode, arg3, arg4) =>
                 {
                     invokeAction.ShouldBeNull();
-                    mode.ShouldEqual(DelayBindingComponent.ExecutionMode);
+                    mode.ShouldEqual(DelayBindingHandler.ExecutionMode);
                     invokeAction = () => action(arg3);
                     return true;
                 }
             };
 
-            var component = (DelayBindingComponent.Source) DelayBindingComponent.GetSource(delay);
+            var component = (DelayBindingHandler.Source) DelayBindingHandler.GetSource(delay);
             var sourceUpdateCount = 0;
             using var t = MugenService.AddComponent(testDispatcher);
             var testBinding = new TestBinding
@@ -85,13 +85,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 Execute = (action, mode, arg3, arg4) =>
                 {
                     invokeAction.ShouldBeNull();
-                    mode.ShouldEqual(DelayBindingComponent.ExecutionMode);
+                    mode.ShouldEqual(DelayBindingHandler.ExecutionMode);
                     invokeAction = () => action(arg3);
                     return true;
                 }
             };
 
-            var component = (DelayBindingComponent.Target) DelayBindingComponent.GetTarget(delay);
+            var component = (DelayBindingHandler.Target) DelayBindingHandler.GetTarget(delay);
             var sourceUpdateCount = 0;
             using var t = MugenService.AddComponent(testDispatcher);
             var testBinding = new TestBinding

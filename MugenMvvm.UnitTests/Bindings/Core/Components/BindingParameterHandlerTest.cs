@@ -12,7 +12,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
-    public class ParameterHandlerBindingComponentTest : UnitTestBase
+    public class BindingParameterHandlerTest : UnitTestBase
     {
         #region Methods
 
@@ -25,10 +25,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var binding = new TestBinding();
             var fallback = new object();
-            var handler = new ParameterHandlerBindingComponent(default, default, new BindingParameterValue(fallback, null), default);
+            var handler = new BindingParameterHandler(default, default, new BindingParameterValue(fallback, null), default);
             handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(fallback);
 
-            handler = new ParameterHandlerBindingComponent(default, default, default, default);
+            handler = new BindingParameterHandler(default, default, default, default);
             handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(0);
         }
 
@@ -41,10 +41,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var binding = new TestBinding();
             var targetNullValue = new object();
-            var handler = new ParameterHandlerBindingComponent(default, default, default, new BindingParameterValue(targetNullValue, null));
+            var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
             handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(targetNullValue);
 
-            handler = new ParameterHandlerBindingComponent(default, default, default, default);
+            handler = new BindingParameterHandler(default, default, default, default);
             handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(null);
         }
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return result;
                 }
             };
-            var handler = new ParameterHandlerBindingComponent(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
+            var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
             handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return result;
                 }
             };
-            var handler = new ParameterHandlerBindingComponent(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
+            var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
             handler.InterceptSourceValue(binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
         }
 
@@ -109,10 +109,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var binding = new TestBinding();
             var targetNullValue = new object();
-            var handler = new ParameterHandlerBindingComponent(default, default, default, new BindingParameterValue(targetNullValue, null));
+            var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
             handler.InterceptSourceValue(binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldBeNull();
 
-            handler = new ParameterHandlerBindingComponent(default, default, default, default);
+            handler = new BindingParameterHandler(default, default, default, default);
             handler.InterceptSourceValue(binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldEqual(targetNullValue);
         }
 
@@ -129,7 +129,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var converterParameter = new TestMemberPathObserver {Dispose = () => observer1Disposed = true};
             var fallback = new[] {new TestMemberPathObserver {Dispose = () => observer2Disposed = true}, new TestMemberPathObserver {Dispose = () => observer3Disposed = true}};
             var targetNullValue = new object();
-            var handler = new ParameterHandlerBindingComponent(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), new BindingParameterValue(fallback, expression),
+            var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), new BindingParameterValue(fallback, expression),
                 new BindingParameterValue(targetNullValue, null));
 
             handler.Converter.Parameter.ShouldEqual(converter);

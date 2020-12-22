@@ -20,7 +20,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
-    public class EventHandlerBindingComponentTest : UnitTestBase
+    public class BindingEventHandlerTest : UnitTestBase
     {
         #region Methods
 
@@ -30,13 +30,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public void GetShouldInitializeValues(bool isOneTime)
         {
             var parameter = new BindingParameterValue(this, null);
-            var eventHandlerBindingComponent = EventHandlerBindingComponent.Get(parameter, true, isOneTime);
+            var eventHandlerBindingComponent = BindingEventHandler.Get(parameter, true, isOneTime);
             eventHandlerBindingComponent.ToggleEnabledState.ShouldBeTrue();
             eventHandlerBindingComponent.CommandParameter.ShouldEqual(parameter);
             if (isOneTime)
-                eventHandlerBindingComponent.ShouldBeType<EventHandlerBindingComponent>();
+                eventHandlerBindingComponent.ShouldBeType<BindingEventHandler>();
             else
-                eventHandlerBindingComponent.ShouldBeType<EventHandlerBindingComponent.OneWay>();
+                eventHandlerBindingComponent.ShouldBeType<BindingEventHandler.OneWay>();
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     }
                 }
             };
-            IAttachableComponent component = EventHandlerBindingComponent.Get(default, false, true);
+            IAttachableComponent component = BindingEventHandler.Get(default, false, true);
             component.OnAttaching(binding, DefaultMetadata).ShouldBeFalse();
 
             member = new TestEventInfo();
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             if (addOneTimeMode)
                 binding.Source = ItemOrList.FromItem<object?, object?[]>(new TestMemberPathObserver { GetLastMember = metadata => default });
-            IAttachableComponent component = EventHandlerBindingComponent.Get(default, false, true);
+            IAttachableComponent component = BindingEventHandler.Get(default, false, true);
             component.OnAttached(binding, DefaultMetadata);
             updateCount.ShouldEqual(1);
             if (addOneTimeMode)
@@ -166,7 +166,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 components.Add(subscribe);
             }
 
-            var component = EventHandlerBindingComponent.Get(default, false, true);
+            var component = BindingEventHandler.Get(default, false, true);
             ((IAttachableComponent) component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
 
             component.TrySetTargetValue(binding, default, new TestValueExpression(), DefaultMetadata);
@@ -202,7 +202,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
 
             var cmdParameter = new object();
-            var component = EventHandlerBindingComponent.Get(new BindingParameterValue(cmdParameter, null), false, true);
+            var component = BindingEventHandler.Get(new BindingParameterValue(cmdParameter, null), false, true);
             var executeCount = 0;
             var value = new TestCommand
             {
@@ -242,7 +242,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            var component = EventHandlerBindingComponent.Get(default, false, true);
+            var component = BindingEventHandler.Get(default, false, true);
             var executeCount = 0;
             var value = new TestValueExpression
             {
@@ -292,7 +292,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             });
 
-            var component = EventHandlerBindingComponent.Get(new BindingParameterValue(cmdParameter, null), true, true);
+            var component = BindingEventHandler.Get(new BindingParameterValue(cmdParameter, null), true, true);
             var binding = new TestBinding();
 
             EventHandler? canExecuteHandler = null;
@@ -338,7 +338,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 UpdateSource = () => throw new NotSupportedException(),
                 UpdateTarget = () => ++invokeCount
             };
-            var eventHandlerBindingComponent = (EventHandlerBindingComponent.OneWay) EventHandlerBindingComponent.Get(default, true, false);
+            var eventHandlerBindingComponent = (BindingEventHandler.OneWay) BindingEventHandler.Get(default, true, false);
             eventHandlerBindingComponent.OnSourceLastMemberChanged(binding, null!, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
@@ -362,7 +362,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             });
 
             IEventListener? listener = null;
-            var component = EventHandlerBindingComponent.Get(new BindingParameterValue(cmdParameter, null), true, true);
+            var component = BindingEventHandler.Get(new BindingParameterValue(cmdParameter, null), true, true);
             var binding = new TestBinding
             {
                 Target = new TestMemberPathObserver
