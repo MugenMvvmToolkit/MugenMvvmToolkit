@@ -46,11 +46,7 @@ namespace MugenMvvm.Bindings.Core
             return (T) Parameter!;
         }
 
-        public void Dispose()
-        {
-            Expression?.Dispose();
-            MugenBindingExtensions.DisposeBindingSource(Parameter);
-        }
+        public void Dispose() => MugenBindingExtensions.DisposeBindingSource(Parameter);
 
         #endregion
     }

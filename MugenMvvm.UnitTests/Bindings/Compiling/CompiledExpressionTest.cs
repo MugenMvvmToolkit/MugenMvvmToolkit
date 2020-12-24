@@ -53,32 +53,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void InvokeShouldThrowDisposed(bool canDispose)
-        {
-            var member1 = new BindingMemberExpressionNode("test") {Index = 0};
-            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
-            var compiledExpression = new CompiledExpression(expressionNode);
-            compiledExpression.CanDispose.ShouldBeFalse();
-            compiledExpression.CanDispose = canDispose;
-            compiledExpression.Dispose();
-
-            var components = new List<IExpressionBuilderComponent>();
-            components.Add(new TestExpressionBuilderComponent
-            {
-                TryBuild = (context, node) => context.TryGetExpression(member1)
-            });
-
-            compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Dispose();
-            if (canDispose)
-                ShouldThrow<ObjectDisposedException>(() => compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata));
-            else
-                compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
-        }
-
-        [Theory]
         [InlineData(1)]
         [InlineData(10)]
         public void CompileShouldReturnValueForBindingExpression1(int count)

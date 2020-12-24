@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Enums;
@@ -31,10 +29,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
             var targetDisposed = false;
             var sourceDisposed = false;
-            var expressionDisposed = false;
             IMemberPathObserverListener? targetListener = null;
             IMemberPathObserverListener? sourceListener = null;
-            var expression = new TestCompiledExpression {Dispose = () => expressionDisposed = true};
+            var expression = new TestCompiledExpression();
             var target = new TestMemberPathObserver
             {
                 Dispose = () => targetDisposed = true,
@@ -92,7 +89,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
-            expressionDisposed.ShouldBeTrue();
 
             binding.Components.Clear();
             binding.AddComponent(components[0]).IsEmpty.ShouldBeTrue();

@@ -12,13 +12,12 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Bindings.Compiling
 {
-    public sealed class CompiledExpression : ICompiledExpression, IExpressionBuilderContext, IHasDisposeCondition, IExpressionVisitor, IEqualityComparer<IExpressionNode>, IEqualityComparer<object>
+    public sealed class CompiledExpression : ICompiledExpression, IExpressionBuilderContext, IExpressionVisitor, IEqualityComparer<IExpressionNode>, IEqualityComparer<object>
     {
         #region Fields
 
@@ -31,7 +30,6 @@ namespace MugenMvvm.Bindings.Compiling
         private IMetadataContext? _metadata;
         private object?[] _values;
 
-        private static readonly object?[] DisposedValues = new object?[0];
         private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
 
         #endregion
@@ -69,8 +67,6 @@ namespace MugenMvvm.Bindings.Compiling
             }
         }
 
-        public bool CanDispose { get; set; }
-
         bool IExpressionVisitor.IsPostOrder => false;
 
         #endregion
@@ -79,8 +75,6 @@ namespace MugenMvvm.Bindings.Compiling
 
         public object? Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata)
         {
-            if (_values == DisposedValues)
-                ExceptionManager.ThrowObjectDisposed(this);
             var list = values.List;
             var key = list ?? values.Item.Type ?? (object) Default.Array<ParameterValue>();
             if (!_cache.TryGetValue(key, out var invoker))
@@ -114,15 +108,6 @@ namespace MugenMvvm.Bindings.Compiling
             {
                 Array.Clear(_values, 0, _values.Length);
             }
-        }
-
-        public void Dispose()
-        {
-            if (!CanDispose || _values == DisposedValues)
-                return;
-            _values = DisposedValues;
-            _expressions.Clear();
-            _cache.Clear();
         }
 
         int IEqualityComparer<IExpressionNode>.GetHashCode([AllowNull] IExpressionNode key)

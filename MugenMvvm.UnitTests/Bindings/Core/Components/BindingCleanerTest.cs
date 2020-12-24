@@ -105,10 +105,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var targetDisposed = false;
             var sourceDisposed = false;
-            var expressionDisposed = false;
             IMemberPathObserverListener? targetListener = null;
             IMemberPathObserverListener? sourceListener = null;
-            var expression = new TestCompiledExpression {Dispose = () => expressionDisposed = true};
+            var expression = new TestCompiledExpression();
             var target = new TestMemberPathObserver
             {
                 Dispose = () => targetDisposed = true,
@@ -167,7 +166,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
-            expressionDisposed.ShouldBeTrue();
 
             binding.AddComponent(components[0]).IsEmpty.ShouldBeTrue();
             binding.GetComponents().AsList().ShouldBeEmpty();

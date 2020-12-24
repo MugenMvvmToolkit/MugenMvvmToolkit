@@ -119,12 +119,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [Fact]
         public void DisposeShouldDisposeValues()
         {
-            var expressionDisposed = false;
             var observer1Disposed = false;
             var observer2Disposed = false;
             var observer3Disposed = false;
 
-            var expression = new TestCompiledExpression {Dispose = () => expressionDisposed = true};
+            var expression = new TestCompiledExpression();
             var converter = new TestBindingValueConverter();
             var converterParameter = new TestMemberPathObserver {Dispose = () => observer1Disposed = true};
             var fallback = new[] {new TestMemberPathObserver {Dispose = () => observer2Disposed = true}, new TestMemberPathObserver {Dispose = () => observer3Disposed = true}};
@@ -150,7 +149,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             handler.ConverterParameter.IsEmpty.ShouldBeTrue();
             handler.Fallback.IsEmpty.ShouldBeTrue();
             handler.TargetNullValue.IsEmpty.ShouldBeTrue();
-            expressionDisposed.ShouldBeTrue();
             observer1Disposed.ShouldBeTrue();
             observer2Disposed.ShouldBeTrue();
             observer3Disposed.ShouldBeTrue();

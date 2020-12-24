@@ -81,11 +81,7 @@ namespace MugenMvvm.Bindings.Core
             return base.TryGetMetadata(contextKey, out value);
         }
 
-        protected override void OnDispose()
-        {
-            _expression?.Dispose();
-            _expression = null;
-        }
+        protected override void OnDispose() => _expression = null;
 
         protected override object? GetSourceValue(MemberPathLastMember targetMember)
         {

@@ -71,12 +71,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void ConstructorShouldInitializeValues3()
         {
-            var dispose = false;
             var result = this;
             var values = new[] {new object(), "", 1};
             var compiledExpression = new TestCompiledExpression
             {
-                Dispose = () => dispose = true,
                 Invoke = (list, context) =>
                 {
                     list.AsList().ShouldEqual(values.Select(o => new ParameterValue(o.GetType(), o)));
@@ -89,14 +87,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             parameterValue.GetValue<BindingParameterValueTest>(DefaultMetadata).ShouldEqual(result);
             ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(DefaultMetadata));
             parameterValue.Dispose();
-            dispose.ShouldBeTrue();
         }
 
         [Fact]
         public void ConstructorShouldInitializeValues4()
         {
             var invokeCount = 0;
-            var disposeExpression = false;
             var disposeObserver = false;
             var target = new object();
             var memberResult = BindingMetadata.UnsetValue;
@@ -122,7 +118,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var values = new[] {observer, new object(), "", 1};
             var compiledExpression = new TestCompiledExpression
             {
-                Dispose = () => disposeExpression = true,
                 Invoke = (list, context) =>
                 {
                     ++invokeCount;
@@ -146,7 +141,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             invokeCount.ShouldEqual(1);
 
             parameterValue.Dispose();
-            disposeExpression.ShouldBeTrue();
             disposeObserver.ShouldBeTrue();
         }
 

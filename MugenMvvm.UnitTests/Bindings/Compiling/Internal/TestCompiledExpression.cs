@@ -12,15 +12,11 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
 
         public Func<ItemOrList<ParameterValue, ParameterValue[]>, IReadOnlyMetadataContext?, object?>? Invoke { get; set; }
 
-        public Action? Dispose { get; set; }
-
         #endregion
 
         #region Implementation of interfaces
 
         object? ICompiledExpression.Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata) => Invoke?.Invoke(values, metadata);
-
-        void IDisposable.Dispose() => Dispose?.Invoke();
 
         #endregion
     }
