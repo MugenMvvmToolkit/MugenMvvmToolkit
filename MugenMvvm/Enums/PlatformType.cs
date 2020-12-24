@@ -18,7 +18,6 @@ namespace MugenMvvm.Enums
         public static readonly PlatformType WPF = new PlatformType(nameof(WPF));
         public static readonly PlatformType WinPhone = new PlatformType(nameof(WinPhone));
         public static readonly PlatformType UnitTest = new PlatformType(nameof(UnitTest));
-        public static readonly PlatformType Unknown = new PlatformType(nameof(Unknown));
 
         #endregion
 

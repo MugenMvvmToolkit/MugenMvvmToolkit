@@ -111,6 +111,8 @@ namespace MugenMvvm.ViewModels
             OnPropertyChanged(Default.BusyTokenPropertyChangedArgs);
         }
 
+        protected virtual bool CanDispose() => true;
+
         protected virtual void OnDispose(bool disposing)
         {
             if (!disposing)
@@ -136,8 +138,6 @@ namespace MugenMvvm.ViewModels
             base.OnPropertyChangedInternal(args);
             this.TryGetService<IMessenger>(true)?.Publish(this, args);
         }
-
-        private bool CanDispose() => !(this is IHasDisposeCondition condition) || condition.CanDispose;
 
         #endregion
     }

@@ -7,6 +7,12 @@ namespace MugenMvvm.App
 {
     public class PlatformInfo : MetadataOwnerBase, IPlatformInfo
     {
+        #region Fields
+
+        public static readonly IPlatformInfo UnitTest = new PlatformInfo(PlatformType.UnitTest);
+
+        #endregion
+
         #region Constructors
 
         protected internal PlatformInfo(PlatformType type, IReadOnlyMetadataContext? metadata = null) : base(metadata)

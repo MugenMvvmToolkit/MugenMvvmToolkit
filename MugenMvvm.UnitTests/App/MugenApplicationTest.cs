@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.App
             var deviceInfo = mugenApplication.PlatformInfo;
             deviceInfo.ShouldNotBeNull();
             deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
-            deviceInfo.Type.ShouldEqual(PlatformType.Unknown);
+            deviceInfo.Type.ShouldEqual(new PlatformType("-"));
             deviceInfo.ApplicationVersion.ShouldEqual("0.0");
             deviceInfo.DeviceVersion.ShouldEqual("0.0");
             deviceInfo.Metadata.ShouldNotBeNull();

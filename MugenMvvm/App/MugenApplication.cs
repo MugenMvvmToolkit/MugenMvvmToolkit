@@ -41,7 +41,7 @@ namespace MugenMvvm.App
 
         public IPlatformInfo PlatformInfo
         {
-            get => _deviceInfo ??= new PlatformInfo(PlatformType.Unknown);
+            get => _deviceInfo ??= new PlatformInfo(new PlatformType("-"));
             private set => _deviceInfo = value;
         }
 
