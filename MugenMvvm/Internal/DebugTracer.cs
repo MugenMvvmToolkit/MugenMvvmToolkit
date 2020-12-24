@@ -41,13 +41,20 @@ namespace MugenMvvm.Internal
         private const string PresentationTag = "Presentation: ";
         private const string ApplicationTag = "Application: ";
         private const string MessagingTag = "Messaging: ";
+        private static ILogger? _logger;
+
+        #endregion
+
+        #region Properties
+
+        private static ILogger? Logger => _logger ??= MugenService.Optional<ILogger>()?.GetLogger(typeof(DebugTracer));
 
         #endregion
 
         #region Methods
 
         public static void AddConsoleLogger(ILogger logger) =>
-            logger.AddComponent(new DelegateLogger((level, s, arg3, arg4) => Console.Out.WriteLine($"{level.Name}/{s} {arg3?.Flatten()}"), (level, context) => true));
+            logger.AddComponent(new DelegateLogger((level, s, e, _) => Console.Out.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}"), (level, context) => true));
 
         public static void TraceApp(IMugenApplication application) => application.AddComponent(new ApplicationTracer());
 

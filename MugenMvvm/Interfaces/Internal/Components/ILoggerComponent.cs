@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Internal.Components
     {
         bool CanLog(ILogger logger, LogLevel level, IReadOnlyMetadataContext? metadata);
 
-        void Log(ILogger logger, LogLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata);
+        void Log(ILogger logger, LogLevel level, object message, Exception? exception, IReadOnlyMetadataContext? metadata);
     }
 }

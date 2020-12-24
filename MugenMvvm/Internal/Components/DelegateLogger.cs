@@ -13,13 +13,13 @@ namespace MugenMvvm.Internal.Components
         #region Fields
 
         private readonly Func<LogLevel, IReadOnlyMetadataContext?, bool> _canLog;
-        private readonly Action<LogLevel, string, Exception?, IReadOnlyMetadataContext?> _log;
+        private readonly Action<LogLevel, object, Exception?, IReadOnlyMetadataContext?> _log;
 
         #endregion
 
         #region Constructors
 
-        public DelegateLogger(Action<LogLevel, string, Exception?, IReadOnlyMetadataContext?> log, Func<LogLevel, IReadOnlyMetadataContext?, bool> canLog)
+        public DelegateLogger(Action<LogLevel, object, Exception?, IReadOnlyMetadataContext?> log, Func<LogLevel, IReadOnlyMetadataContext?, bool> canLog)
         {
             Should.NotBeNull(log, nameof(log));
             Should.NotBeNull(canLog, nameof(canLog));
@@ -39,7 +39,7 @@ namespace MugenMvvm.Internal.Components
 
         public bool CanLog(ILogger logger, LogLevel level, IReadOnlyMetadataContext? metadata) => _canLog(level, metadata);
 
-        public void Log(ILogger logger, LogLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
+        public void Log(ILogger logger, LogLevel level, object message, Exception? exception, IReadOnlyMetadataContext? metadata)
         {
             if (_canLog(level, metadata))
                 _log(level, message, exception, metadata);

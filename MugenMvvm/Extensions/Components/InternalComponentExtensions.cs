@@ -197,7 +197,7 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static void Log(this ILoggerComponent[] components, ILogger logger, LogLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
+        public static void Log(this ILoggerComponent[] components, ILogger logger, LogLevel level, object message, Exception? exception, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(logger, nameof(logger));

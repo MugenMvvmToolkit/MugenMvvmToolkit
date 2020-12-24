@@ -11,6 +11,6 @@ namespace MugenMvvm.Interfaces.Internal
 
         bool CanLog(LogLevel level, IReadOnlyMetadataContext? metadata = null);
 
-        void Log(LogLevel level, string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null);
+        void Log(LogLevel level, object message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null);
     }
 }

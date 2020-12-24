@@ -28,7 +28,7 @@ namespace MugenMvvm.Internal
 
         public bool CanLog(LogLevel level, IReadOnlyMetadataContext? metadata = null) => GetComponents<ILoggerComponent>(metadata).CanLog(this, level, metadata);
 
-        public void Log(LogLevel level, string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null) =>
+        public void Log(LogLevel level, object message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<ILoggerComponent>(metadata).Log(this, level, message, exception, metadata);
 
         public void Dispose() => GetComponents<IDisposable>().Dispose();
