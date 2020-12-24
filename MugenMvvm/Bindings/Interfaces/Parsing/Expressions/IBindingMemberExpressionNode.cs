@@ -15,6 +15,8 @@ namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 
         string Path { get; }
 
+        IExpressionNode? OriginalExpression { get; }
+
         object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path);
 
         object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);

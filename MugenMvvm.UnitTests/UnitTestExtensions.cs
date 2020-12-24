@@ -129,11 +129,11 @@ namespace MugenMvvm.UnitTests
 
         private static bool EqualsEx(this IBindingMemberExpressionNode x1, IBindingMemberExpressionNode x2)
         {
-            if (x1.Path != x2.Path || x1.Index != x2.Index || x1.Flags != x2.Flags)
+            if (x1.Path != x2.Path || x1.Index != x2.Index || x1.Flags != x2.Flags || !x1.OriginalExpression.EqualsEx(x2.OriginalExpression))
                 return false;
             switch (x1)
             {
-                case BindingMemberExpressionNode bindingMemberExpressionNode:
+                case BindingMemberExpressionNode _:
                     return true;
                 case BindingInstanceMemberExpressionNode bindingInstanceMemberExpressionNode:
                     return Equals(bindingInstanceMemberExpressionNode.Instance, ((BindingInstanceMemberExpressionNode) x2).Instance);

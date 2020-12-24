@@ -52,12 +52,17 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
         }
 
-        [Fact]
-        public void InvokeShouldThrowDisposed()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void InvokeShouldThrowDisposed(bool canDispose)
         {
             var member1 = new BindingMemberExpressionNode("test") {Index = 0};
             var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
             var compiledExpression = new CompiledExpression(expressionNode);
+            compiledExpression.CanDispose.ShouldBeFalse();
+            compiledExpression.CanDispose = canDispose;
+            compiledExpression.Dispose();
 
             var components = new List<IExpressionBuilderComponent>();
             components.Add(new TestExpressionBuilderComponent
@@ -67,7 +72,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
 
             compiledExpression.ExpressionBuilders = components.ToArray();
             compiledExpression.Dispose();
-            ShouldThrow<ObjectDisposedException>(() => compiledExpression.Invoke(new ParameterValue(typeof(string), "test"), DefaultMetadata));
+            if (canDispose)
+                ShouldThrow<ObjectDisposedException>(() => compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata));
+            else
+                compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
         }
 
         [Theory]

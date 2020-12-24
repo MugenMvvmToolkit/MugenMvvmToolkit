@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 
@@ -17,7 +18,7 @@ namespace MugenMvvm.Bindings.Observation
         #region Constructors
 
         public MemberPathObserverRequest(IMemberPath path, EnumFlags<MemberFlags> memberFlags, string? observableMethodName,
-            bool hasStablePath, bool observable, bool optional)
+            bool hasStablePath, bool observable, bool optional, IExpressionNode? expression)
         {
             Should.NotBeNull(path, nameof(path));
             Path = path;
@@ -26,6 +27,7 @@ namespace MugenMvvm.Bindings.Observation
             Observable = observable;
             Optional = optional;
             ObservableMethodName = observable ? observableMethodName : null;
+            Expression = expression;
         }
 
         #endregion
@@ -48,6 +50,8 @@ namespace MugenMvvm.Bindings.Observation
         public bool Optional { get; protected set; }
 
         public IMemberPath Path { get; protected set; }
+
+        public IExpressionNode? Expression { get; }
 
         #endregion
     }

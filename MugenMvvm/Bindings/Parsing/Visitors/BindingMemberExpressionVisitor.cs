@@ -234,7 +234,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     ObservableMethodName = methodName,
                     Flags = key.BindingMemberFlags,
-                    MemberFlags = key.MemberFlags
+                    MemberFlags = key.MemberFlags,
+                    OriginalExpression = expression
                 };
 
                 _members[key] = node;
@@ -252,7 +253,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     ObservableMethodName = methodName,
                     Flags = key.BindingMemberFlags,
-                    MemberFlags = key.MemberFlags
+                    MemberFlags = key.MemberFlags,
+                    OriginalExpression = expression
                 };
 
                 _members[key] = node;
@@ -270,7 +272,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     ObservableMethodName = methodName,
                     Flags = key.BindingMemberFlags,
-                    MemberFlags = key.MemberFlags
+                    MemberFlags = key.MemberFlags,
+                    OriginalExpression = expression
                 };
 
                 _members[key] = node;

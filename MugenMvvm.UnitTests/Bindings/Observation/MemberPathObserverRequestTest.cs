@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var optional = true;
             IMemberPath path = EmptyMemberPath.Instance;
 
-            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional);
+            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional, null);
             request.HasStablePath.ShouldEqual(hasStablePath);
             request.MemberFlags.ShouldEqual(memberFlags);
             request.Observable.ShouldEqual(observable);
@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var optional = true;
             IMemberPath path = EmptyMemberPath.Instance;
 
-            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional);
+            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional, null);
             request.HasStablePath.ShouldEqual(hasStablePath);
             request.MemberFlags.ShouldEqual(memberFlags);
             request.Observable.ShouldEqual(observable);

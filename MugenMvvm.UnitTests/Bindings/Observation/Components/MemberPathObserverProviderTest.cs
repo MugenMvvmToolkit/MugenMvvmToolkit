@@ -26,13 +26,13 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             var path = EmptyMemberPath.Instance;
 
-            var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true);
+            var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true, null);
             var component = new MemberPathObserverProvider();
             var emptyPathObserver = (EmptyPathObserver) component.TryGetMemberPathObserver(null!, this, request, DefaultMetadata)!;
             emptyPathObserver.Target.ShouldEqual(this);
 
 
-            request = new MemberPathObserverRequest(path, MemberFlags.Attached, MethodName, true, true, true);
+            request = new MemberPathObserverRequest(path, MemberFlags.Attached, MethodName, true, true, true, null);
             var emptyPathObserverMethod = (MethodEmptyPathObserver) component.TryGetMemberPathObserver(null!, this, request, DefaultMetadata)!;
             emptyPathObserverMethod.Path.ShouldEqual(path);
             emptyPathObserverMethod.Target.ShouldEqual(this);
@@ -43,13 +43,13 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             var path = new SingleMemberPath("Test");
 
-            var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true);
+            var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true, null);
             var component = new MemberPathObserverProvider();
             var pathObserver = (SinglePathObserver) component.TryGetMemberPathObserver(null!, this, request, DefaultMetadata)!;
             pathObserver.Path.ShouldEqual(path);
             pathObserver.Target.ShouldEqual(this);
 
-            request = new MemberPathObserverRequest(path, MemberFlags.Attached, MethodName, true, true, true);
+            request = new MemberPathObserverRequest(path, MemberFlags.Attached, MethodName, true, true, true, null);
             var observer = (MethodSinglePathObserver) component.TryGetMemberPathObserver(null!, this, request, DefaultMetadata)!;
             observer.Path.ShouldEqual(path);
             observer.Target.ShouldEqual(this);
@@ -60,13 +60,13 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             var path = new MultiMemberPath("Test.Test2");
 
-            var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true);
+            var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true, null);
             var component = new MemberPathObserverProvider();
             var pathObserver = (MultiPathObserver) component.TryGetMemberPathObserver(null!, this, request, DefaultMetadata)!;
             pathObserver.Path.ShouldEqual(path);
             pathObserver.Target.ShouldEqual(this);
 
-            request = new MemberPathObserverRequest(path, MemberFlags.Attached, MethodName, true, true, true);
+            request = new MemberPathObserverRequest(path, MemberFlags.Attached, MethodName, true, true, true, null);
             var observer = (MethodMultiPathObserver) component.TryGetMemberPathObserver(null!, this, request, DefaultMetadata)!;
             observer.Path.ShouldEqual(path);
             observer.Target.ShouldEqual(this);

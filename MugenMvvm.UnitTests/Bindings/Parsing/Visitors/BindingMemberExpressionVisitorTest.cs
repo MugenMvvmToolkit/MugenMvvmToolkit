@@ -47,7 +47,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             visitor.SuppressMethodAccessors = true;
@@ -55,7 +56,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             }));
 
             visitor.SuppressMethodAccessors = false;
@@ -64,7 +66,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             }));
         }
 
@@ -79,7 +82,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             visitor.SuppressMethodAccessors = true;
@@ -87,7 +91,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             }));
 
             visitor.SuppressMethodAccessors = false;
@@ -96,7 +101,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             }));
         }
 
@@ -111,7 +117,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             visitor.SuppressMethodAccessors = true;
@@ -119,7 +126,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = MethodName
+                ObservableMethodName = MethodName,
+                OriginalExpression = expression.Target
             }));
 
             visitor.SuppressMethodAccessors = false;
@@ -128,7 +136,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = MethodName
+                ObservableMethodName = MethodName,
+                OriginalExpression = expression.Target
             }));
         }
 
@@ -147,7 +156,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             visitor.SuppressMethodAccessors = true;
@@ -155,7 +165,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = MethodName
+                ObservableMethodName = MethodName,
+                OriginalExpression = expression.Target
             }));
 
             visitor.SuppressMethodAccessors = false;
@@ -164,7 +175,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = MethodName
+                ObservableMethodName = MethodName,
+                OriginalExpression = expression.Target
             }));
         }
 
@@ -179,7 +191,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             visitor.SuppressIndexAccessors = true;
@@ -187,7 +200,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             }));
 
             visitor.SuppressIndexAccessors = false;
@@ -196,7 +210,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             }));
         }
 
@@ -211,7 +226,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             visitor.SuppressIndexAccessors = true;
@@ -219,7 +235,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = MethodName
+                ObservableMethodName = MethodName,
+                OriginalExpression = expression.Target
             }));
 
             visitor.SuppressIndexAccessors = false;
@@ -228,7 +245,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = MethodName
+                ObservableMethodName = MethodName,
+                OriginalExpression = expression.Target
             }));
         }
 
@@ -243,7 +261,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -258,7 +277,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -273,7 +293,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -297,7 +318,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = bindingMemberFlags1 | bindingMemberFlags2,
                 MemberFlags = (memberFlags1 | memberFlags2).SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -317,7 +339,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(true),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)), MemberName);
@@ -325,7 +348,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(true),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -349,7 +373,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = bindingMemberFlags.SetTargetFlags(true),
                 MemberFlags = memberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)), MemberName);
@@ -359,7 +384,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = bindingMemberFlags.SetTargetFlags(true),
                 MemberFlags = memberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -375,7 +401,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(false),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Source)), MemberName);
@@ -383,7 +410,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(false),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -399,7 +427,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(true),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context)), MemberName);
@@ -407,7 +436,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(true),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -436,7 +466,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(true),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
             invokeCount.ShouldEqual(1);
 
@@ -446,7 +477,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(true),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
             invokeCount.ShouldEqual(1);
         }
@@ -557,7 +589,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(true),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
@@ -565,7 +598,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = visitor.Flags.SetTargetFlags(isTarget),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(true),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 
@@ -584,7 +618,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = bindingMemberFlags,
                 MemberFlags = memberFlags.SetInstanceOrStaticFlags(true),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
@@ -594,7 +629,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             {
                 Flags = bindingMemberFlags,
                 MemberFlags = memberFlags.SetInstanceOrStaticFlags(true),
-                ObservableMethodName = null
+                ObservableMethodName = null,
+                OriginalExpression = expression
             });
         }
 

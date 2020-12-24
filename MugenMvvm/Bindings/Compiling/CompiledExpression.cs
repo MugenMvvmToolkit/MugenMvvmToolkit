@@ -12,12 +12,13 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Bindings.Compiling
 {
-    public sealed class CompiledExpression : ICompiledExpression, IExpressionBuilderContext, IExpressionVisitor, IEqualityComparer<IExpressionNode>, IEqualityComparer<object>
+    public sealed class CompiledExpression : ICompiledExpression, IExpressionBuilderContext, IHasDisposeCondition, IExpressionVisitor, IEqualityComparer<IExpressionNode>, IEqualityComparer<object>
     {
         #region Fields
 
@@ -54,7 +55,7 @@ namespace MugenMvvm.Bindings.Compiling
 
         public bool HasMetadata => !(_metadata ?? _inputMetadata).IsNullOrEmpty();
 
-        public IMetadataContext Metadata => _metadata ?? MugenExtensions.EnsureInitialized(ref _metadata, new MetadataContext());
+        public IMetadataContext Metadata => _metadata ?? MugenExtensions.EnsureInitialized(ref _metadata, new MetadataContext(_inputMetadata));
 
         public Expression MetadataExpression { get; }
 
@@ -67,6 +68,8 @@ namespace MugenMvvm.Bindings.Compiling
                 _expressionBuilders = value;
             }
         }
+
+        public bool CanDispose { get; set; }
 
         bool IExpressionVisitor.IsPostOrder => false;
 
@@ -115,7 +118,7 @@ namespace MugenMvvm.Bindings.Compiling
 
         public void Dispose()
         {
-            if (_values == DisposedValues)
+            if (!CanDispose || _values == DisposedValues)
                 return;
             _values = DisposedValues;
             _expressions.Clear();

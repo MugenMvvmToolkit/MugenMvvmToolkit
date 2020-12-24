@@ -60,6 +60,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         public string Path { get; }
 
+        public IExpressionNode? OriginalExpression { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -77,7 +79,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         protected MemberPathObserverRequest GetObserverRequest(string path, IReadOnlyMetadataContext? metadata) =>
             new MemberPathObserverRequest(ObservationManager.DefaultIfNull().GetMemberPath(path, metadata), MemberFlags,
                 Flags.HasFlag(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlag(BindingMemberExpressionFlags.StablePath),
-                Flags.HasFlag(BindingMemberExpressionFlags.Observable), Flags.HasFlag(BindingMemberExpressionFlags.StablePath));
+                Flags.HasFlag(BindingMemberExpressionFlags.Observable), Flags.HasFlag(BindingMemberExpressionFlags.StablePath), this);
 
         protected string MergePath(string value)
         {
@@ -88,7 +90,12 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
             return value + "." + Path;
         }
 
-        public override string ToString() => $"bind{Index}({Path})";
+        public override string ToString()
+        {
+            if (OriginalExpression == null)
+                return $"bind{Index}({Path})";
+            return $"bind{Index}({Path}, {OriginalExpression})";
+        }
 
         #endregion
     }

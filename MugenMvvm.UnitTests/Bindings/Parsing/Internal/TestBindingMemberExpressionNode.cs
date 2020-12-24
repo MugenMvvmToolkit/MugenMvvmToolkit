@@ -32,6 +32,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
         public int Index { get; set; }
 
         public string Path { get; set; }
+        
+        public IExpressionNode? OriginalExpression { get; set; }
 
         public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath)>? GetSource { get; set; }
 

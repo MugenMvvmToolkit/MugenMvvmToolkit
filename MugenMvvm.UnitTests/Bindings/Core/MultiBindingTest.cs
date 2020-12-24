@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
-            expressionDisposed.ShouldBeFalse();
+            expressionDisposed.ShouldBeTrue();
 
             binding.Components.Clear();
             binding.AddComponent(components[0]).IsEmpty.ShouldBeTrue();

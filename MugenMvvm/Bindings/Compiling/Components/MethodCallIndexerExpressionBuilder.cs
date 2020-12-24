@@ -587,8 +587,11 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             #region Methods
 
-            public object? Invoke(object target, string methodName, object?[] args, Type[] typeArgs, IReadOnlyMetadataContext? metadata)
+            public object? Invoke(object? target, string methodName, object?[] args, Type[] typeArgs, IReadOnlyMetadataContext? metadata)
             {
+                if (target.IsNullOrUnsetValue())
+                    return BindingMetadata.UnsetValue;
+
                 var type = target.GetType();
                 var types = GetArgTypes(args);
                 if (type != _type || TryGetValue(types, out var method))
