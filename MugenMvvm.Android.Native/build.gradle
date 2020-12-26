@@ -27,3 +27,13 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+subprojects { project ->
+    afterEvaluate {
+        if (project.plugins.hasPlugin('com.android.library')) {
+            android.libraryVariants.all {
+                it.generateBuildConfigProvider.configure { enabled = false }
+            }
+        }
+    }
+}
