@@ -17,8 +17,8 @@ namespace MugenMvvm.Enums
         private readonly Func<ICommand, object?, bool>? _beforeExecute;
 
         public static readonly CommandExecutionBehavior None = new CommandExecutionBehavior(0, null, null);
-        public static readonly CommandExecutionBehavior CanExecuteBeforeExecute = new CommandExecutionBehavior(1, CheckCanExecute, null);
-        public static readonly CommandExecutionBehavior CanExecuteBeforeExecuteException = new CommandExecutionBehavior(2, CheckCanExecuteThrow, null);
+        public static readonly CommandExecutionBehavior CheckCanExecute = new CommandExecutionBehavior(1, CheckCanExecuteIml, null);
+        public static readonly CommandExecutionBehavior CheckCanExecuteThrow = new CommandExecutionBehavior(2, CheckCanExecuteThrowImpl, null);
 
         #endregion
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.Enums
 
         public void AfterExecute(ICommand command, object? parameter) => _afterExecute?.Invoke(command, parameter);
 
-        private static bool CheckCanExecute(ICommand command, object? parameter)
+        private static bool CheckCanExecuteIml(ICommand command, object? parameter)
         {
             if (command.CanExecute(parameter))
                 return true;
@@ -51,7 +51,7 @@ namespace MugenMvvm.Enums
             return false;
         }
 
-        private static bool CheckCanExecuteThrow(ICommand command, object? parameter)
+        private static bool CheckCanExecuteThrowImpl(ICommand command, object? parameter)
         {
             if (!command.CanExecute(parameter))
                 ExceptionManager.ThrowCommandCannotBeExecuted();

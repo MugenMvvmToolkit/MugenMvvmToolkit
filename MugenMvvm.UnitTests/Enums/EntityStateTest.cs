@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Enums
         {
             var enum1 = EntityState.Detached;
             var enum2 = EntityState.Added;
-            var enum3 = new EntityState(enum1.Value);
+            var enum3 = new EntityState(enum1.Value, "Test");
             var v1 = enum1.Value;
             var v2 = enum2.Value;
             enum1.CompareTo(null).ShouldEqual(1);

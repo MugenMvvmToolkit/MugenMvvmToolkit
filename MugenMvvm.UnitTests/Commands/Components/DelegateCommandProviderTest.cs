@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CheckCanExecute
         public async Task TryGetCommandShouldUseValidParameters1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {

@@ -222,7 +222,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CheckCanExecute
         public void CreateShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
@@ -316,7 +316,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CheckCanExecute
         public void CreateShouldGenerateValidRequest4(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
@@ -410,7 +410,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CheckCanExecute
         public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
@@ -504,7 +504,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CanExecuteBeforeExecute
+        [InlineData(true, true, 1, true, true, true, true)]//CommandExecutionBehavior.CheckCanExecute
         public void CreateFromTaskShouldGenerateValidRequest4(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {

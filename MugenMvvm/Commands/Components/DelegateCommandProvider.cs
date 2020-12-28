@@ -28,7 +28,7 @@ namespace MugenMvvm.Commands.Components
         {
             _componentCollectionManager = componentCollectionManager;
             _threadDispatcher = threadDispatcher;
-            CommandExecutionBehavior = CommandExecutionBehavior.CanExecuteBeforeExecute;
+            CommandExecutionBehavior = CommandExecutionBehavior.CheckCanExecute;
             EventThreadMode = ThreadExecutionMode.Main;
         }
 

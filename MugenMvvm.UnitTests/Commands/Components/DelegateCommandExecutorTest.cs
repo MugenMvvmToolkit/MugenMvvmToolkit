@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             var cmd = new CompositeCommand();
-            var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CanExecuteBeforeExecute, true);
+            var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CheckCanExecute, true);
             cmd.AddComponent(component);
 
             await component.ExecuteAsync(cmd, null, null);
@@ -254,7 +254,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             var cmd = new CompositeCommand();
-            var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CanExecuteBeforeExecuteException, true);
+            var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CheckCanExecuteThrow, true);
             cmd.AddComponent(component);
 
             var task = component.ExecuteAsync(cmd, null, null)!;
