@@ -72,13 +72,13 @@ namespace MugenMvvm.Android.Extensions
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null,
             bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
         {
-            MugenAndroidNativeService.Initialize(context ?? Application.Context, new BindViewCallback(), rawViewTagMode);
+            MugenAndroidUtils.Initialize(context ?? Application.Context, new BindViewCallback(), rawViewTagMode);
             LifecycleExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), nativeMode);
 
             if (nativeMode)
-                MugenAndroidNativeService.SetNativeMode();
+                MugenAndroidUtils.SetNativeMode();
             if (disableFragmentState)
-                MugenAndroidNativeService.DisableFragmentState();
+                MugenAndroidUtils.DisableFragmentState();
             configuration.ServiceConfiguration<IThreadDispatcher>()
                 .WithComponent(new SynchronizationContextThreadDispatcher(Application.SynchronizationContext));
 
@@ -140,7 +140,7 @@ namespace MugenMvvm.Android.Extensions
 
         public static MugenApplicationConfiguration WithSupportLibs(this MugenApplicationConfiguration configuration, bool compat, bool material, bool recyclerView, bool swipeRefresh, bool viewPager, bool viewPager2)
         {
-            MugenAndroidNativeService.WithSupportLibs(compat, material, recyclerView, swipeRefresh, viewPager, viewPager2);
+            MugenAndroidUtils.WithSupportLibs(compat, material, recyclerView, swipeRefresh, viewPager, viewPager2);
             return configuration;
         }
 
@@ -500,22 +500,25 @@ namespace MugenMvvm.Android.Extensions
 
         private static float GetDensity()
         {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (_density == float.MinValue)
-                _density = MugenNativeUtils.Density;
+                _density = MugenAndroidUtils.Density;
             return _density;
         }
 
         private static float GetScaledDensity()
         {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (_scaledDensity == float.MinValue)
-                _scaledDensity = MugenNativeUtils.ScaledDensity;
+                _scaledDensity = MugenAndroidUtils.ScaledDensity;
             return _scaledDensity;
         }
 
         private static float GetXdpi()
         {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (_xdpi == float.MinValue)
-                _xdpi = MugenNativeUtils.Xdpi;
+                _xdpi = MugenAndroidUtils.Xdpi;
             return _xdpi;
         }
 

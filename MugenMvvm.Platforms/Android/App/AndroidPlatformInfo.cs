@@ -26,24 +26,24 @@ namespace MugenMvvm.Android.App
 
         #region Properties
 
-        public override string ApplicationVersion => _appVersion ??= DeviceService.AppVersion();
+        public override string ApplicationVersion => _appVersion ??= MugenAndroidUtils.AppVersion();
 
         public override PlatformIdiom Idiom => _idiom ??= GetIdiom();
 
-        public override string DeviceVersion => _deviceVersion ??= DeviceService.Version();
+        public override string DeviceVersion => _deviceVersion ??= MugenAndroidUtils.Version();
 
         #endregion
 
         #region Methods
 
         private static PlatformIdiom GetIdiom() =>
-            DeviceService.Idiom() switch
+            MugenAndroidUtils.Idiom() switch
             {
-                DeviceService.Desktop => PlatformIdiom.Desktop,
-                DeviceService.Phone => PlatformIdiom.Phone,
-                DeviceService.Tablet => PlatformIdiom.Tablet,
-                DeviceService.Tv => PlatformIdiom.TV,
-                DeviceService.Watch => PlatformIdiom.Watch,
+                MugenAndroidUtils.Desktop => PlatformIdiom.Desktop,
+                MugenAndroidUtils.Phone => PlatformIdiom.Phone,
+                MugenAndroidUtils.Tablet => PlatformIdiom.Tablet,
+                MugenAndroidUtils.Tv => PlatformIdiom.TV,
+                MugenAndroidUtils.Watch => PlatformIdiom.Watch,
                 _ => PlatformIdiom.Unknown
             };
 

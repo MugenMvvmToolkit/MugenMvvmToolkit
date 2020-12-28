@@ -5,7 +5,7 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
@@ -148,7 +148,7 @@ public final class ViewGroupExtensions {
             return;
 
         ViewGroup viewGroup = (ViewGroup) view;
-        if (MugenNativeService.isCompatSupported()) {
+        if (MugenUtils.isCompatSupported()) {
             if (content == null && FragmentExtensions.setFragment(view, null))
                 return;
             if (FragmentExtensions.isSupported(content) && FragmentExtensions.setFragment(view, (IFragmentView) content))

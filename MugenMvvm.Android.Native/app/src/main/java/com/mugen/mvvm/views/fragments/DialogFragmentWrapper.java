@@ -1,4 +1,4 @@
-package com.mugen.mvvm.views;
+package com.mugen.mvvm.views.fragments;
 
 import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.INativeFragmentView;

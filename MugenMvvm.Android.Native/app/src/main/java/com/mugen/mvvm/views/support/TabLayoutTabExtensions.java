@@ -4,14 +4,14 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import com.google.android.material.tabs.TabLayout;
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 
 public abstract class TabLayoutTabExtensions {
     private TabLayoutTabExtensions() {
     }
 
     public static boolean isSupported(Object view) {
-        return MugenNativeService.isMaterialSupported() && view instanceof TabLayout.Tab;
+        return MugenUtils.isMaterialSupported() && view instanceof TabLayout.Tab;
     }
 
     public static Object getTag(Object tab) {

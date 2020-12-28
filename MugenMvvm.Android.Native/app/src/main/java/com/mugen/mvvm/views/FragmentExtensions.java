@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
@@ -22,7 +22,7 @@ public final class FragmentExtensions {
     }
 
     public static boolean isSupported(Object fragment) {
-        return MugenNativeService.isCompatSupported() && fragment instanceof IFragmentView;
+        return MugenUtils.isCompatSupported() && fragment instanceof IFragmentView;
     }
 
     public static boolean isDestroyed(IFragmentView fragment) {

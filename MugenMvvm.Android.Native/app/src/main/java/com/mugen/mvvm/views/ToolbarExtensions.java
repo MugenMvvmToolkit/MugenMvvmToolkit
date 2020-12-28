@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toolbar;
 
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 
 @SuppressLint("NewApi")
 public final class ToolbarExtensions {
@@ -15,7 +15,7 @@ public final class ToolbarExtensions {
     }
 
     public static boolean isSupportedCompat(View view) {
-        return MugenNativeService.isCompatSupported() && view instanceof androidx.appcompat.widget.Toolbar;
+        return MugenUtils.isCompatSupported() && view instanceof androidx.appcompat.widget.Toolbar;
     }
 
     public static boolean isSupported(View view) {

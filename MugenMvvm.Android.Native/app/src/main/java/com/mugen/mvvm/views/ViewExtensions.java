@@ -7,7 +7,7 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.View;
 
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.IHasPriority;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
@@ -28,6 +28,9 @@ import com.mugen.mvvm.internal.MemberChangedListenerWrapper;
 import com.mugen.mvvm.internal.ViewAttachedValues;
 import com.mugen.mvvm.internal.ViewFactory;
 import com.mugen.mvvm.internal.ViewParentObserver;
+import com.mugen.mvvm.views.activities.ActivityWrapper;
+import com.mugen.mvvm.views.fragments.DialogFragmentWrapper;
+import com.mugen.mvvm.views.fragments.FragmentWrapper;
 import com.mugen.mvvm.views.support.TabLayoutTabExtensions;
 
 import java.lang.reflect.InvocationTargetException;
@@ -188,7 +191,7 @@ public final class ViewExtensions {
     }
 
     public static ViewAttachedValues getNativeAttachedValues(View view, boolean required) {
-        if (MugenNativeService.isRawViewTagMode()) {
+        if (MugenUtils.isRawViewTagMode()) {
             ViewAttachedValues result = (ViewAttachedValues) view.getTag();
             if (result != null || !required)
                 return result;
@@ -364,7 +367,7 @@ public final class ViewExtensions {
     }
 
     public static Object tryWrap(Object target) {
-        if (!MugenNativeService.isNativeMode())
+        if (!MugenUtils.isNativeMode())
             return target;
 
         if (target instanceof INativeActivityView) {

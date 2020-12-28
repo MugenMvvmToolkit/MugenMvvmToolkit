@@ -10,7 +10,7 @@ import android.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.views.activities.MainMugenActivity;
 import com.mugen.mvvm.views.activities.MainMugenAppCompatActivity;
@@ -47,7 +47,7 @@ public final class ActivityExtensions {
 
     public static Object getActionBar(IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
-        if (MugenNativeService.isCompatSupported() && activity instanceof AppCompatActivity)
+        if (MugenUtils.isCompatSupported() && activity instanceof AppCompatActivity)
             return ((AppCompatActivity) activity).getSupportActionBar();
         return activity.getActionBar();
     }
@@ -73,7 +73,7 @@ public final class ActivityExtensions {
         if (activityClass == null)
             return false;
 
-        Context context = activityView == null ? MugenNativeService.getAppContext() : activityView.getActivity();
+        Context context = activityView == null ? MugenUtils.getAppContext() : activityView.getActivity();
         Intent intent = new Intent(context, activityClass);
         if (activityView == null)
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

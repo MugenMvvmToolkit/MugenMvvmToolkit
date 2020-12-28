@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
@@ -16,7 +16,7 @@ import com.mugen.mvvm.views.ViewExtensions;
 public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher {
     @Override
     public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
-        if (MugenNativeService.isFragmentStateDisabled() && lifecycle == LifecycleState.Create && state instanceof Bundle)
+        if (MugenUtils.isFragmentStateDisabled() && lifecycle == LifecycleState.Create && state instanceof Bundle)
             FragmentExtensions.clearFragmentState((Bundle) state);
         return true;
     }

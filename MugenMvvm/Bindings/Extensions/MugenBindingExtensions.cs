@@ -76,6 +76,7 @@ namespace MugenMvvm.Bindings.Extensions
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? Convert(this IGlobalValueConverter converter, object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(converter, nameof(converter));

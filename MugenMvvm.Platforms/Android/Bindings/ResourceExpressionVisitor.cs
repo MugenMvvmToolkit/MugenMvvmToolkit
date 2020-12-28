@@ -20,13 +20,13 @@ namespace MugenMvvm.Android.Bindings
         public ResourceExpressionVisitor()
         {
             Resources = new Dictionary<string, (Func<string, object?> resolver, Delegate genericResolver)>(StringComparer.Ordinal);
-            var stringResolver = new Func<string, string>(MugenNativeUtils.GetResourceString);
-            Resources[AndroidInternalConstant.ColorResource] = (s => new Color(MugenNativeUtils.GetResourceColor(s)), new Func<string, Color>(s => new Color(MugenNativeUtils.GetResourceColor(s))));
-            Resources[AndroidInternalConstant.BoolResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceBool(s)), new Func<string, bool>(MugenNativeUtils.GetResourceBool));
-            Resources[AndroidInternalConstant.DimenResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceDimen(s)), new Func<string, float>(MugenNativeUtils.GetResourceDimen));
-            Resources[AndroidInternalConstant.IdResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceId(s)), new Func<string, int>(MugenNativeUtils.GetResourceId));
-            Resources[AndroidInternalConstant.LayoutResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceLayout(s)), new Func<string, int>(MugenNativeUtils.GetResourceLayout));
-            Resources[AndroidInternalConstant.IntegerResource] = (s => BoxingExtensions.Box(MugenNativeUtils.GetResourceInteger(s)), new Func<string, int>(MugenNativeUtils.GetResourceInteger));
+            var stringResolver = new Func<string, string>(MugenAndroidUtils.GetResourceString);
+            Resources[AndroidInternalConstant.ColorResource] = (s => new Color(MugenAndroidUtils.GetResourceColor(s)), new Func<string, Color>(s => new Color(MugenAndroidUtils.GetResourceColor(s))));
+            Resources[AndroidInternalConstant.BoolResource] = (s => BoxingExtensions.Box(MugenAndroidUtils.GetResourceBool(s)), new Func<string, bool>(MugenAndroidUtils.GetResourceBool));
+            Resources[AndroidInternalConstant.DimenResource] = (s => BoxingExtensions.Box(MugenAndroidUtils.GetResourceDimen(s)), new Func<string, float>(MugenAndroidUtils.GetResourceDimen));
+            Resources[AndroidInternalConstant.IdResource] = (s => BoxingExtensions.Box(MugenAndroidUtils.GetResourceId(s)), new Func<string, int>(MugenAndroidUtils.GetResourceId));
+            Resources[AndroidInternalConstant.LayoutResource] = (s => BoxingExtensions.Box(MugenAndroidUtils.GetResourceLayout(s)), new Func<string, int>(MugenAndroidUtils.GetResourceLayout));
+            Resources[AndroidInternalConstant.IntegerResource] = (s => BoxingExtensions.Box(MugenAndroidUtils.GetResourceInteger(s)), new Func<string, int>(MugenAndroidUtils.GetResourceInteger));
             Resources[AndroidInternalConstant.StringResource] = (stringResolver, stringResolver);
         }
 

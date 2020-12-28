@@ -3,14 +3,14 @@ package com.mugen.mvvm.views;
 import android.app.ActionBar;
 import android.content.Context;
 
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 
 public final class ActionBarExtensions {
     private ActionBarExtensions() {
     }
 
     public static boolean isSupportedCompat(Object actionBar) {
-        return MugenNativeService.isCompatSupported() && actionBar instanceof androidx.appcompat.app.ActionBar;
+        return MugenUtils.isCompatSupported() && actionBar instanceof androidx.appcompat.app.ActionBar;
     }
 
     public static boolean isSupported(Object actionBar) {

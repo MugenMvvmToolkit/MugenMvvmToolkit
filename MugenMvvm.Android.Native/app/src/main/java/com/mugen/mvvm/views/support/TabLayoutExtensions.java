@@ -8,7 +8,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
@@ -19,7 +19,7 @@ public final class TabLayoutExtensions {
     }
 
     public static boolean isSupported(View view) {
-        return MugenNativeService.isMaterialSupported() && view instanceof TabLayout;
+        return MugenUtils.isMaterialSupported() && view instanceof TabLayout;
     }
 
     public static Object newTab(View view) {
