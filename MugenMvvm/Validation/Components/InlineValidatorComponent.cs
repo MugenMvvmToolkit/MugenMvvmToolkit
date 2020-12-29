@@ -19,6 +19,8 @@ namespace MugenMvvm.Validation.Components
 
         #region Methods
 
+        protected override CancellationToken GetCancellationToken(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => cancellationToken;
+
         public void SetErrors(string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberName, nameof(memberName));

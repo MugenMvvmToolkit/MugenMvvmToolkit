@@ -17,7 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class CommandEventHandler : AttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent,
+    public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent,
         IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
     {
         #region Fields
@@ -113,7 +113,11 @@ namespace MugenMvvm.Commands.Components
             return new ActionToken((o, _) => ((CommandEventHandler) o!).EndSuspendNotifications(), this);
         }
 
-        void IThreadDispatcherHandler.Execute(object? _) => _canExecuteChanged?.Invoke(Owner, EventArgs.Empty);
+        void IThreadDispatcherHandler.Execute(object? _)
+        {
+            foreach (var owner in Owners)
+                _canExecuteChanged?.Invoke(owner, EventArgs.Empty);
+        }
 
         #endregion
 

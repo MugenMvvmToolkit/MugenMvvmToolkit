@@ -12,6 +12,7 @@ namespace MugenMvvm.Validation.Components
     {
         #region Fields
 
+        private readonly bool _isAsync;
         public readonly ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> Rules;
 
         #endregion
@@ -22,11 +23,22 @@ namespace MugenMvvm.Validation.Components
             : base(target)
         {
             Rules = rules;
+            foreach (var rule in rules)
+            {
+                if (rule.IsAsync)
+                {
+                    _isAsync = true;
+                    break;
+                }
+            }
         }
 
         #endregion
 
         #region Methods
+
+        protected override CancellationToken GetCancellationToken(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            _isAsync ? base.GetCancellationToken(memberName, cancellationToken, metadata) : cancellationToken;
 
         protected override async ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {

@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Busy.Components
 {
-    public sealed class BusyManagerComponent : AttachableComponentBase<IBusyManager>, IBusyManagerComponent, IHasPriority
+    public sealed class BusyManagerComponent : MultiAttachableComponentBase<IBusyManager>, IBusyManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -84,11 +84,19 @@ namespace MugenMvvm.Busy.Components
             }
 
             if (busyToken.Combine())
-                OwnerOptional?.GetComponents<IBusyManagerListener>(metadata).OnBeginBusy(Owner, busyToken, metadata);
+            {
+                foreach (var owner in Owners)
+                    owner.GetComponents<IBusyManagerListener>(metadata).OnBeginBusy(owner, busyToken, metadata);
+            }
+
             return busyToken;
         }
 
-        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.GetComponents<IBusyManagerListener>(metadata).OnBusyStateChanged(Owner, metadata);
+        private void OnBusyInfoChanged(IReadOnlyMetadataContext? metadata = null)
+        {
+            foreach (var owner in Owners)
+                owner.GetComponents<IBusyManagerListener>(metadata).OnBusyStateChanged(owner, metadata);
+        }
 
         #endregion
 

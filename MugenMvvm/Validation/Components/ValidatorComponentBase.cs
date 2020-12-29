@@ -13,13 +13,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
-    public abstract class ValidatorComponentBase<TTarget> : AttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IDisposable
+    public abstract class ValidatorComponentBase<TTarget> : MultiAttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IDisposable
         where TTarget : class
     {
         #region Fields
 
-        private readonly CancellationTokenSource _disposeToken;
-
+        private CancellationTokenSource? _disposeToken;
         private readonly Dictionary<string, object> _errors;
         private int _state;
 
@@ -32,7 +31,6 @@ namespace MugenMvvm.Validation.Components
         protected ValidatorComponentBase(TTarget target)
         {
             _errors = new Dictionary<string, object>(StringComparer.Ordinal);
-            _disposeToken = new CancellationTokenSource();
             Target = target;
         }
 
@@ -55,7 +53,7 @@ namespace MugenMvvm.Validation.Components
             if (Interlocked.Exchange(ref _state, DisposedState) != DisposedState)
             {
                 OnDispose();
-                _disposeToken.Cancel();
+                _disposeToken?.Cancel();
             }
         }
 
@@ -110,7 +108,7 @@ namespace MugenMvvm.Validation.Components
             return task;
         }
 
-        public void ClearErrors(IValidator validator, string? memberName = null, IReadOnlyMetadataContext? metadata = null)
+        public void ClearErrors(IValidator? validator, string? memberName = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (IsDisposed)
                 return;
@@ -137,11 +135,31 @@ namespace MugenMvvm.Validation.Components
 
         protected abstract ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
-        protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata) =>
-            OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, Target, memberName, metadata);
+        protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
+        {
+            foreach (var owner in Owners)
+                owner.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(owner, Target, memberName, metadata);
+        }
 
-        protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata) =>
-            OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnAsyncValidation(Owner, Target, memberName, validationTask, metadata);
+        protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
+        {
+            foreach (var owner in Owners)
+                owner.GetComponents<IValidatorListener>(metadata).OnAsyncValidation(owner, Target, memberName, validationTask, metadata);
+        }
+
+        protected virtual CancellationToken GetCancellationToken(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            if (_disposeToken == null)
+            {
+                var cts = new CancellationTokenSource();
+                if (Interlocked.CompareExchange(ref _disposeToken, cts, null) != null)
+                    cts.Dispose();
+            }
+
+            if (cancellationToken.CanBeCanceled)
+                return CancellationTokenSource.CreateLinkedTokenSource(_disposeToken.Token, cancellationToken).Token;
+            return _disposeToken.Token;
+        }
 
         protected virtual void OnDispose()
         {
@@ -166,9 +184,8 @@ namespace MugenMvvm.Validation.Components
         {
             if (IsDisposed)
                 ExceptionManager.ThrowObjectDisposed(this);
-            var token = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeToken.Token);
-            var result = await GetErrorsAsync(memberName, token.Token, metadata).ConfigureAwait(false);
-            token.Dispose();
+
+            var result = await GetErrorsAsync(memberName, GetCancellationToken(memberName, cancellationToken, metadata), metadata).ConfigureAwait(false);
             if (!result.HasResult)
                 return;
 
@@ -177,7 +194,7 @@ namespace MugenMvvm.Validation.Components
             {
                 if (result.SingleMemberName != null || result.Errors!.Count == 0)
                 {
-                    ClearErrors(OwnerOptional!, memberName, result.Metadata);
+                    ClearErrors(null, memberName, result.Metadata);
                     if (result.SingleMemberName != null && result.RawErrors != null)
                         UpdateErrors(result.SingleMemberName, result.RawErrors, true, result.Metadata);
                     return;
