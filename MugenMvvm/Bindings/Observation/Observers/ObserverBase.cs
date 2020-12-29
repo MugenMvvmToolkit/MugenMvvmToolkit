@@ -148,7 +148,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         public void RemoveListener(IMemberPathObserverListener listener)
         {
             Should.NotBeNull(listener, nameof(listener));
-            if (!IsDisposed && RemoveListenerInternal(listener) && _listeners == null)
+            if (!IsDisposed && MugenExtensions.RemoveRaw(ref _listeners, listener) && _listeners == null)
                 OnListenersRemoved();
         }
 
@@ -263,43 +263,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ClearFlag(byte flag) => _state = (byte) (_state & ~flag);
-
-        private bool RemoveListenerInternal(IMemberPathObserverListener listener)
-        {
-            if (_listeners == null)
-                return false;
-
-            if (listener == _listeners)
-            {
-                _listeners = null;
-                return true;
-            }
-
-            if (!(_listeners is IMemberPathObserverListener[] items))
-                return false;
-
-            if (items.Length == 2)
-            {
-                if (items[0] == listener)
-                {
-                    _listeners = items[1];
-                    return true;
-                }
-
-                if (items[1] == listener)
-                {
-                    _listeners = items[0];
-                    return true;
-                }
-            }
-            else if (MugenExtensions.Remove(ref items, listener))
-            {
-                _listeners = items.Length == 0 ? null : items;
-                return true;
-            }
-
-            return false;
-        }
 
         private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
         {

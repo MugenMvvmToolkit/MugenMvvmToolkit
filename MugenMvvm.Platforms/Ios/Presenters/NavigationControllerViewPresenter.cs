@@ -87,8 +87,7 @@ namespace MugenMvvm.Ios.Presenters
             if (cancelableRequest.Cancel.GetValueOrDefault())
                 return Default.CompletedTask;
 
-            Array.Copy(controllers, index + 1, controllers, index, controllers.Length - index - 1);
-            Array.Resize(ref controllers, controllers.Length - 1);
+            MugenExtensions.RemoveAt(ref controllers, index);
             NavigationController.SetViewControllers(controllers, animated);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closed, null, navigationContext.GetMetadataOrDefault());
             return Default.CompletedTask;

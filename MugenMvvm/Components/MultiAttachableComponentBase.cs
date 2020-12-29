@@ -1,38 +1,28 @@
-﻿using System.Runtime.CompilerServices;
-using System.Threading;
+﻿using System;
+using System.Runtime.CompilerServices;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
-    public abstract class AttachableComponentBase<T> : IAttachableComponent, IDetachableComponent where T : class
+    public abstract class MultiAttachableComponentBase<T> : IAttachableComponent, IDetachableComponent where T : class
     {
         #region Fields
 
-        private T? _owner;
+        private object? _owners;
 
         #endregion
 
         #region Properties
 
-        protected T Owner
+        protected ItemOrList<T, T[]> Owners
         {
+            // ReSharper disable once InconsistentlySynchronizedField
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                if (_owner == null)
-                    ExceptionManager.ThrowObjectNotInitialized(this, nameof(Owner));
-                return _owner;
-            }
+            get => ItemOrList.FromRawValue<T, T[]>(_owners);
         }
-
-        protected T? OwnerOptional
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _owner;
-        }
-
-        protected bool IsAttached => _owner != null;
 
         #endregion
 
@@ -50,8 +40,20 @@ namespace MugenMvvm.Components
             if (!(owner is T o))
                 return;
 
-            if (Interlocked.CompareExchange(ref _owner, o, null) != null)
-                ExceptionManager.ThrowObjectInitialized(this);
+            lock (this)
+            {
+                if (_owners == null)
+                    _owners = o;
+                else if (_owners is T[] items)
+                {
+                    Array.Resize(ref items, items.Length + 1);
+                    items[items.Length - 1] = o;
+                    _owners = items;
+                }
+                else
+                    _owners = new[] {(T) _owners, o};
+            }
+
             OnAttached(o, metadata);
         }
 
@@ -64,10 +66,13 @@ namespace MugenMvvm.Components
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (owner is T o)
+            if (!(owner is T o))
+                return;
+
+            OnDetached(o, metadata);
+            lock (this)
             {
-                OnDetached(o, metadata);
-                Interlocked.CompareExchange(ref _owner, null, o);
+                MugenExtensions.RemoveRaw(ref _owners, o);
             }
         }
 
@@ -75,7 +80,7 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => OwnerOptional == null;
+        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => true;
 
         protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {

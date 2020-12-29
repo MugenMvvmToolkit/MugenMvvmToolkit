@@ -467,11 +467,16 @@ namespace MugenMvvm.Bindings.Core
                     return true;
                 }
             }
-            else if (MugenExtensions.Remove(ref items, component))
+            else
             {
+                var index = MugenExtensions.IndexOf(items, component);
+                if (index < 0)
+                    return false;
+
                 if (!OnComponentRemoving(component, metadata))
                     return false;
 
+                MugenExtensions.RemoveAt(ref items, index);
                 _components = items;
                 return true;
             }

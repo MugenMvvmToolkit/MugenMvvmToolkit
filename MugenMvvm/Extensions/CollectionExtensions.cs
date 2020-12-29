@@ -114,36 +114,93 @@ namespace MugenMvvm.Extensions
 
         public static bool Remove<T>(ref T[] items, T item) where T : class
         {
-            if (items.Length == 0)
+            var index = IndexOf(items, item);
+            if (index < 0)
                 return false;
+
+            RemoveAt(ref items, index);
+            return true;
+        }
+
+        public static void RemoveAt<T>(ref T[] items, int index) where T : class
+        {
+            Should.BeValid(index < items.Length, nameof(index));
             if (items.Length == 1)
             {
-                if (items[0] == item)
+                items = Default.Array<T>();
+                return;
+            }
+
+            if (index == items.Length - 1)
+                Array.Resize(ref items, items.Length - 1);
+            else
+            {
+                var array = items;
+                Array.Resize(ref array, array.Length - 1);
+                Array.Copy(items, index + 1, array, index, items.Length - index - 1);
+                items = array;
+            }
+        }
+
+        internal static int IndexOf<T>(T[] items, T item) where T : class
+        {
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i] == item)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        internal static bool RemoveRaw<T>(ref object? source, T value) where T : class
+        {
+            if (source == null)
+                return false;
+            if (source == value)
+            {
+                source = null;
+                return true;
+            }
+
+            if (!(source is T[] array))
+                return false;
+
+            if (array.Length == 1)
+            {
+                if (array[0] == value)
                 {
-                    items = Default.Array<T>();
+                    source = null;
                     return true;
                 }
 
                 return false;
             }
 
-            T[]? array = null;
-            for (var i = 0; i < items.Length; i++)
+            if (array.Length == 2)
             {
-                if (array == null && item == items[i])
+                if (array[0] == value)
                 {
-                    array = new T[items.Length - 1];
-                    Array.Copy(items, 0, array, 0, i);
-                    continue;
+                    source = array[1];
+                    return true;
                 }
 
-                if (array != null)
-                    array[i - 1] = items[i];
+                if (array[1] == value)
+                {
+                    source = array[0];
+                    return true;
+                }
+
+                return false;
             }
 
-            if (array != null)
-                items = array;
-            return array != null;
+            if (Remove(ref array, value))
+            {
+                source = array;
+                return true;
+            }
+
+            return false;
         }
 
         internal static int CountEx<T>(this IEnumerable<T>? enumerable)

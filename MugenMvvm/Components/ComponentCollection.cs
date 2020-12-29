@@ -67,6 +67,13 @@ namespace MugenMvvm.Components
 
         public bool TryAdd(object component, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(component, nameof(component));
+            lock (_items)
+            {
+                if (_items.Contains(component))
+                    return true;
+            }
+
             if (!ComponentComponentExtensions.OnComponentAdding(this, component, metadata) || !_components.GetOrDefault<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
                 return false;
 
@@ -83,6 +90,7 @@ namespace MugenMvvm.Components
 
         public bool Remove(object component, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(component, nameof(component));
             lock (_items)
             {
                 if (!_items.Contains(component))
