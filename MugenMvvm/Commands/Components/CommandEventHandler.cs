@@ -17,8 +17,8 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent,
-        IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
+    public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent, 
+        IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IHasDisposeCondition, IHasPriority
     {
         #region Fields
 
@@ -42,6 +42,7 @@ namespace MugenMvvm.Commands.Components
             _eventExecutionMode = eventExecutionMode;
             _canNotify = canNotify;
             _subscriber = new Subscriber(this);
+            CanDispose = true;
             for (var index = 0; index < notifiers.Count; index++)
             {
                 var notifier = notifiers[index];
@@ -71,6 +72,8 @@ namespace MugenMvvm.Commands.Components
         public int Priority => CommandComponentPriority.ConditionEvent;
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
+
+        public bool CanDispose { get; set; }
 
         #endregion
 
@@ -102,9 +105,12 @@ namespace MugenMvvm.Commands.Components
 
         public void Dispose()
         {
-            _subscriber?.OnDispose();
-            _canExecuteChanged = null;
-            _subscriber = null;
+            if (CanDispose)
+            {
+                _subscriber?.OnDispose();
+                _canExecuteChanged = null;
+                _subscriber = null;
+            }
         }
 
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)

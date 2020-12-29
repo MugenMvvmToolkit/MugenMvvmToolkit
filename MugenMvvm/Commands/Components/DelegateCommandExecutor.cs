@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IDisposable, IHasPriority
+    public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IHasDisposeCondition, IHasPriority
     {
         #region Fields
 
@@ -33,6 +33,7 @@ namespace MugenMvvm.Commands.Components
             _canExecute = canExecute;
             _executionBehavior = executionBehavior;
             _allowMultipleExecution = allowMultipleExecution;
+            CanDispose = true;
         }
 
         #endregion
@@ -40,6 +41,8 @@ namespace MugenMvvm.Commands.Components
         #region Properties
 
         public int Priority => CommandComponentPriority.Executor;
+
+        public bool CanDispose { get; set; }
 
         #endregion
 
@@ -55,12 +58,6 @@ namespace MugenMvvm.Commands.Components
             if (canExecuteDelegate is Func<bool> func)
                 return func();
             return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
-        }
-
-        public void Dispose()
-        {
-            _canExecute = null;
-            _execute = null;
         }
 
         public async Task ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
@@ -85,6 +82,15 @@ namespace MugenMvvm.Commands.Components
             {
                 _executingCommand = null;
                 throw;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (CanDispose)
+            {
+                _canExecute = null;
+                _execute = null;
             }
         }
 

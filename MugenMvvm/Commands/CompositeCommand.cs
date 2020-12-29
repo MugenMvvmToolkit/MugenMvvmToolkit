@@ -22,7 +22,9 @@ namespace MugenMvvm.Commands
         private IReadOnlyMetadataContext? _metadata;
         private int _state;
 
-        private const int DisposedState = -1;
+        private const int DefaultState = 0;
+        private const int NoDisposeState = 1;
+        private const int DisposedState = 2;
 
         #endregion
 
@@ -32,7 +34,6 @@ namespace MugenMvvm.Commands
             : base(componentCollectionManager)
         {
             _metadata = metadata;
-            CanDispose = true;
         }
 
         #endregion
@@ -47,7 +48,17 @@ namespace MugenMvvm.Commands
 
         public bool IsDisposed => _state == DisposedState;
 
-        public bool CanDispose { get; set; }
+        public bool CanDispose
+        {
+            get => _state == DefaultState;
+            set
+            {
+                if (value)
+                    Interlocked.CompareExchange(ref _state, DefaultState, NoDisposeState);
+                else
+                    Interlocked.CompareExchange(ref _state, NoDisposeState, DefaultState);
+            }
+        }
 
         #endregion
 
@@ -71,11 +82,12 @@ namespace MugenMvvm.Commands
 
         public void Dispose()
         {
-            if (!CanDispose || Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
-                return;
-            base.GetComponents<IDisposable>().Dispose();
-            this.ClearComponents();
-            this.ClearMetadata(true);
+            if (Interlocked.CompareExchange(ref _state, DisposedState, DefaultState) == DefaultState)
+            {
+                base.GetComponents<IDisposable>().Dispose();
+                this.ClearComponents();
+                this.ClearMetadata(true);
+            }
         }
 
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<ISuspendable>().Suspend(state, metadata);

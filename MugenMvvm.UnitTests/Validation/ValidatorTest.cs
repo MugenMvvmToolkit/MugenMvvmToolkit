@@ -18,13 +18,17 @@ namespace MugenMvvm.UnitTests.Validation
         #region Methods
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void DisposeShouldClearComponentsMetadataNotifyListeners(int count)
+        [InlineData(1, true)]
+        [InlineData(10, true)]
+        [InlineData(1, false)]
+        [InlineData(10, false)]
+        public void DisposeShouldClearComponentsMetadataNotifyListeners(int count, bool canDispose)
         {
             var invokeCount = 0;
             var invokeComponentCount = 0;
             var validator = new Validator();
+            validator.CanDispose.ShouldBeTrue();
+            validator.CanDispose = canDispose;
 
             for (var i = 0; i < count; i++)
             {
@@ -45,11 +49,21 @@ namespace MugenMvvm.UnitTests.Validation
             validator.IsDisposed.ShouldBeFalse();
             validator.Metadata.Set(MetadataContextKey.FromKey<object?>("t"), "");
             validator.Dispose();
-            validator.IsDisposed.ShouldBeTrue();
-            invokeCount.ShouldEqual(count);
-            invokeComponentCount.ShouldEqual(count);
-            validator.Components.Count.ShouldEqual(0);
-            validator.Metadata.Count.ShouldEqual(0);
+            if (canDispose)
+            {
+                validator.IsDisposed.ShouldBeTrue();
+                invokeCount.ShouldEqual(count);
+                invokeComponentCount.ShouldEqual(count);
+                validator.Components.Count.ShouldEqual(0);
+                validator.Metadata.Count.ShouldEqual(0);
+            }
+            else
+            {
+                validator.IsDisposed.ShouldBeFalse();
+                invokeCount.ShouldEqual(0);
+                invokeComponentCount.ShouldEqual(0);
+                validator.Components.Count.ShouldEqual(count*2);
+            }
         }
 
         [Theory]

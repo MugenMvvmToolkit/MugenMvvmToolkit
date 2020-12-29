@@ -13,16 +13,19 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
-    public abstract class ValidatorComponentBase<TTarget> : MultiAttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IDisposable
+    public abstract class ValidatorComponentBase<TTarget> : MultiAttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IHasDisposeCondition
         where TTarget : class
     {
         #region Fields
 
-        private CancellationTokenSource? _disposeToken;
         private readonly Dictionary<string, object> _errors;
+
+        private CancellationTokenSource? _disposeToken;
         private int _state;
 
-        private const int DisposedState = 1;
+        private const int DefaultState = 0;
+        private const int NoDisposeState = 1;
+        private const int DisposedState = 2;
 
         #endregion
 
@@ -44,13 +47,25 @@ namespace MugenMvvm.Validation.Components
 
         public int Priority { get; set; }
 
+        public bool CanDispose
+        {
+            get => _state == DefaultState;
+            set
+            {
+                if (value)
+                    Interlocked.CompareExchange(ref _state, DefaultState, NoDisposeState);
+                else
+                    Interlocked.CompareExchange(ref _state, NoDisposeState, DefaultState);
+            }
+        }
+
         #endregion
 
         #region Implementation of interfaces
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _state, DisposedState) != DisposedState)
+            if (Interlocked.CompareExchange(ref _state, DisposedState, DefaultState) == DefaultState)
             {
                 OnDispose();
                 _disposeToken?.Cancel();

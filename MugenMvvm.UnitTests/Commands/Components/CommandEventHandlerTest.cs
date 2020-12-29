@@ -273,11 +273,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(1);
         }
 
-        [Fact]
-        public void DisposeShouldClearEventHandler()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void DisposeShouldClearEventHandler(bool canDispose)
         {
             var compositeCommand = new CompositeCommand();
             var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
+            conditionEventCommandComponent.CanDispose.ShouldBeTrue();
+            conditionEventCommandComponent.CanDispose = canDispose;
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) =>
@@ -290,7 +294,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(0);
             conditionEventCommandComponent.Dispose();
             conditionEventCommandComponent.RaiseCanExecuteChanged();
-            executed.ShouldEqual(0);
+            executed.ShouldEqual(canDispose ? 0 : 1);
         }
 
         [Fact(Skip = ReleaseTest)]

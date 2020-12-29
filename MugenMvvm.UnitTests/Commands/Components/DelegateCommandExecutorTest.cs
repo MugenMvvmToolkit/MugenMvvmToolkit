@@ -282,18 +282,22 @@ namespace MugenMvvm.UnitTests.Commands.Components
             task.Exception!.GetBaseException().ShouldEqual(exception);
         }
 
-        [Fact]
-        public async Task DisposeShouldClearDelegates()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task DisposeShouldClearDelegates(bool canDispose)
         {
             var cmd = new CompositeCommand();
             var executed = 0;
             Action execute = () => ++executed;
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
+            component.CanDispose.ShouldBeTrue();
+            component.CanDispose = canDispose;
             component.Dispose();
 
-            component.CanExecute(cmd, null, null).ShouldBeFalse();
+            component.CanExecute(cmd, null, null).ShouldEqual(!canDispose);
             await component.ExecuteAsync(cmd, null, null);
-            executed.ShouldEqual(0);
+            executed.ShouldEqual(canDispose ? 0 : 1);
         }
 
         #endregion

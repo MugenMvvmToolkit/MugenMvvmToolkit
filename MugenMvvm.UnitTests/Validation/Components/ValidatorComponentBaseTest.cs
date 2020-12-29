@@ -83,8 +83,10 @@ namespace MugenMvvm.UnitTests.Validation.Components
             task.IsCanceled.ShouldBeTrue();
         }
 
-        [Fact]
-        public async Task ValidateAsyncShouldBeCanceledDispose()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ValidateAsyncShouldBeCanceledDispose(bool canDispose)
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
@@ -96,6 +98,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     return new ValueTask<ValidationResult>(tcs.Task);
                 }
             };
+            component.CanDispose.ShouldBeTrue();
+            component.CanDispose = canDispose;
             var validator = new Validator();
             validator.AddComponent(component);
 
@@ -103,8 +107,16 @@ namespace MugenMvvm.UnitTests.Validation.Components
             task.IsCompleted.ShouldBeFalse();
 
             component.Dispose();
-            await task.WaitSafeAsync();
-            task.IsCanceled.ShouldBeTrue();
+            if (canDispose)
+            {
+                await task.WaitSafeAsync();
+                task.IsCanceled.ShouldBeTrue();
+            }
+            else
+            {
+                WaitCompletion();
+                tcs.Task.IsCompleted.ShouldBeFalse();
+            }
         }
 
         [Theory]

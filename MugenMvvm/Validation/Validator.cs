@@ -8,20 +8,23 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation
 {
-    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator, IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentAddingHandler
+    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator, IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentAddingHandler, IHasDisposeCondition
     {
         #region Fields
 
         private IReadOnlyMetadataContext? _metadata;
         private int _state;
 
-        private const int DisposedState = -1;
+        private const int DefaultState = 0;
+        private const int NoDisposeState = 1;
+        private const int DisposedState = 2;
 
         #endregion
 
@@ -44,6 +47,18 @@ namespace MugenMvvm.Validation
 
         public bool IsDisposed => _state == DisposedState;
 
+        public bool CanDispose
+        {
+            get => _state == DefaultState;
+            set
+            {
+                if (value)
+                    Interlocked.CompareExchange(ref _state, DefaultState, NoDisposeState);
+                else
+                    Interlocked.CompareExchange(ref _state, NoDisposeState, DefaultState);
+            }
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -64,12 +79,13 @@ namespace MugenMvvm.Validation
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
-                return;
-            base.GetComponents<IValidatorListener>().OnDisposed(this);
-            base.GetComponents<IDisposable>().Dispose();
-            this.ClearComponents();
-            this.ClearMetadata(true);
+            if (Interlocked.CompareExchange(ref _state, DisposedState, DefaultState) == DefaultState)
+            {
+                base.GetComponents<IValidatorListener>().OnDisposed(this);
+                base.GetComponents<IDisposable>().Dispose();
+                this.ClearComponents();
+                this.ClearMetadata(true);
+            }
         }
 
         public bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).HasErrors(this, memberName, metadata);
