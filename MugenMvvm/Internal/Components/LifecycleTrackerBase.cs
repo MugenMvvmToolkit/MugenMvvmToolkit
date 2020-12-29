@@ -4,10 +4,11 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public abstract class LifecycleTrackerBase<T, TTarget> : ILifecycleTrackerComponent<T> where TTarget : class
+    public abstract class LifecycleTrackerBase<T, TTarget> : ILifecycleTrackerComponent<T> where TTarget : class where T : class, IEnum
     {
         #region Fields
 

@@ -6,7 +6,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Internal.Internal
 {
-    public class TestLifecycleTrackerComponent<T> : ILifecycleTrackerComponent<T>, IHasPriority
+    public class TestLifecycleTrackerComponent<T> : ILifecycleTrackerComponent<T>, IHasPriority where T : class, IEnum
     {
         #region Fields
 

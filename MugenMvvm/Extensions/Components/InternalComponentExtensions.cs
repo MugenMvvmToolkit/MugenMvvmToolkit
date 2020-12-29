@@ -4,6 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
@@ -13,12 +14,12 @@ namespace MugenMvvm.Extensions.Components
         #region Methods
 
         public static bool IsInState<T>(this ILifecycleTrackerComponent<T>[] components, object owner, object target, T state, IReadOnlyMetadataContext? metadata)
+            where T : class, IEnum
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(target, nameof(target));
-            if (state == null)
-                Should.NotBeNull(state, nameof(state));
+            Should.NotBeNull(state, nameof(state));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].IsInState(owner, target, state, metadata))
