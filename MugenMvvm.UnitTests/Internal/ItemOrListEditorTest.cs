@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Internal
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
                 objects.Add(new object());
-            var itemOrList = ItemOrList.FromList(objects);
+            ItemOrList<object, List<object>> itemOrList = objects;
 
             var editor = new ItemOrListEditor<object, List<object>>(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<object>());
             editor.Count.ShouldEqual(objects.Count);
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Internal
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
                 objects.Add(new object());
-            var itemOrList = ItemOrList.FromList(objects);
+            ItemOrList<object, List<object>> itemOrList = objects;
 
             var editor = new ItemOrListEditor<object, List<object>>(null, null, false, () => new List<object>());
             editor.AddRange(itemOrList);
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Internal
             editor.AddRange(itemOrList);
             objects.AddRange(objects);
 
-            itemOrList = ItemOrList.FromList(objects);
+            itemOrList = objects;
             editorItemOrList = editor.ToItemOrList();
             editorItemOrList.Item.ShouldEqual(itemOrList.Item);
             editorItemOrList.List.ShouldEqual(itemOrList.List);
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Internal
                 editor.Add(o);
             }
 
-            var itemOrList = ItemOrList.FromList(objects);
+            ItemOrList<object, List<object>> itemOrList = objects;
             var editorItemOrList = editor.ToItemOrList();
             editorItemOrList.Item.ShouldEqual(itemOrList.Item);
             editorItemOrList.List.ShouldEqual(itemOrList.List);
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTests.Internal
                 objects.Remove(array[i]);
                 editor.Remove(array[i]);
 
-                itemOrList = ItemOrList.FromList(objects);
+                itemOrList = objects;
                 editorItemOrList = editor.ToItemOrList();
                 editorItemOrList.Item.ShouldEqual(itemOrList.Item);
                 editorItemOrList.List.ShouldEqual(itemOrList.List);
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTests.Internal
                 editor.Add(o);
             }
 
-            var itemOrList = ItemOrList.FromList(objects);
+            ItemOrList<object, List<object>> itemOrList = objects;
             var editorItemOrList = editor.ToItemOrList();
             editorItemOrList.Item.ShouldEqual(itemOrList.Item);
             editorItemOrList.List.ShouldEqual(itemOrList.List);
@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTests.Internal
                 objects.RemoveAt(0);
                 editor.RemoveAt(0);
 
-                itemOrList = ItemOrList.FromList(objects);
+                itemOrList = objects;
                 editorItemOrList = editor.ToItemOrList();
                 editorItemOrList.Item.ShouldEqual(itemOrList.Item);
                 editorItemOrList.List.ShouldEqual(itemOrList.List);

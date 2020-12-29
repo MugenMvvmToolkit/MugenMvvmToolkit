@@ -74,11 +74,7 @@ namespace MugenMvvm.Bindings.Members.Components
                     _members.Add(methodInfo);
             }
 
-            if (_members.Count == 0)
-                return default;
-            if (_members.Count == 1)
-                return ItemOrList.FromItem(_members[0]);
-            return ItemOrList.FromListToReadOnly(_members.ToArray());
+            return _members.ToItemOrList(true);
         }
 
         #endregion

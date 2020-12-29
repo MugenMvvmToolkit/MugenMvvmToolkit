@@ -59,15 +59,15 @@ namespace MugenMvvm.ViewModels.Components
             if (service == typeof(IMessenger))
             {
                 var messenger = new Messenger(_componentCollectionManager);
-                messenger.Components.Add(new MessagePublisher(_threadDispatcher), metadata);
-                messenger.Components.Add(new MessengerHandlerSubscriber(_reflectionManager), metadata);
+                messenger.Components.TryAdd(new MessagePublisher(_threadDispatcher), metadata);
+                messenger.Components.TryAdd(new MessengerHandlerSubscriber(_reflectionManager), metadata);
                 return messenger;
             }
 
             if (service == typeof(IBusyManager))
             {
                 var busyManager = new BusyManager(_componentCollectionManager);
-                busyManager.Components.Add(new BusyManagerComponent());
+                busyManager.Components.TryAdd(new BusyManagerComponent());
                 return busyManager;
             }
 

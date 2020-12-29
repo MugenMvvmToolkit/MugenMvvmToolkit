@@ -100,20 +100,20 @@ namespace MugenMvvm.UnitTests.Views.Components
             view = new View(new ViewMapping("1", typeof(IViewModelBase), rawView.GetType()), rawView, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
-            view.Components.Add(componentView);
+            view.Components.TryAdd(componentView);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(1);
 
             state = null;
             view.Components.Remove(componentView);
-            view.Components.Add(componentView, DefaultMetadata);
+            view.Components.TryAdd(componentView, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(2);
 
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, state, DefaultMetadata);
             view.Components.Remove(componentView);
-            view.Components.Add(componentView, DefaultMetadata);
+            view.Components.TryAdd(componentView, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(2);
         }

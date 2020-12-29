@@ -77,7 +77,7 @@ namespace MugenMvvm.Bindings.Members.Components
                 _cache[cacheKey] = members;
             }
 
-            return ItemOrList.FromRawValueReadonly<IMemberInfo>(members);
+            return ItemOrList.FromRawValueToReadonly<IMemberInfo>(members);
         }
 
         #endregion

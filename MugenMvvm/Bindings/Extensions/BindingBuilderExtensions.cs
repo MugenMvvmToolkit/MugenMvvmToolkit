@@ -219,7 +219,7 @@ namespace MugenMvvm.Bindings.Extensions
             int index = 0;
             foreach (var builder in expressions)
                 result[index++] = builder.Build(target, source, metadata);
-            return ItemOrList.FromListToReadOnly(result);
+            return result;
         }
 
         private static BindingBuilderTo<TTarget, TSource> BoolParameter<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, IExpressionNode parameter, bool value)

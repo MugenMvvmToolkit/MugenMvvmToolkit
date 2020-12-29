@@ -105,7 +105,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var index = 0;
             foreach (var pair in _selectorDictionary)
                 result[index++] = pair.Value.GetBestMember();
-            return ItemOrList.FromListToReadOnly(result);
+            return result;
         }
 
         #endregion

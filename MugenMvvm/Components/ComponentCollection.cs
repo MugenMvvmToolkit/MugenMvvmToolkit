@@ -65,7 +65,7 @@ namespace MugenMvvm.Components
 
         int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y) => MugenExtensions.GetComponentPriority(y!, Owner).CompareTo(MugenExtensions.GetComponentPriority(x!, Owner));
 
-        public bool Add(object component, IReadOnlyMetadataContext? metadata = null)
+        public bool TryAdd(object component, IReadOnlyMetadataContext? metadata = null)
         {
             if (!ComponentComponentExtensions.OnComponentAdding(this, component, metadata) || !_components.GetOrDefault<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
                 return false;
@@ -104,7 +104,7 @@ namespace MugenMvvm.Components
             return true;
         }
 
-        public bool Clear(IReadOnlyMetadataContext? metadata = null)
+        public void Clear(IReadOnlyMetadataContext? metadata = null)
         {
             var oldItems = Get<object>(metadata);
             lock (_items)
@@ -120,8 +120,6 @@ namespace MugenMvvm.Components
                 ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
                 changedListeners.OnRemoved(this, oldItem, metadata);
             }
-
-            return true;
         }
 
         public TComponent[] Get<TComponent>(IReadOnlyMetadataContext? metadata = null) where TComponent : class

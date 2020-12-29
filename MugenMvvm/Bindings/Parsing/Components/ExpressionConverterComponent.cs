@@ -62,7 +62,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
                 var result = new ExpressionParserResult[expressions.Count];
                 for (var i = 0; i < result.Length; i++)
                     result[i] = Parse(expressions[i], metadata).Item;
-                return ItemOrList.FromListToReadOnly(result);
+                return result;
             }
 
             return default;

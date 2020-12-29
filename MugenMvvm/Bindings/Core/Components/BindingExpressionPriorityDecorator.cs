@@ -64,7 +64,7 @@ namespace MugenMvvm.Bindings.Core.Components
             {
                 var result = list.ToArray();
                 Array.Sort(result, this);
-                return ItemOrList.FromListToReadOnly(result);
+                return result;
             }
 
             return expressions;

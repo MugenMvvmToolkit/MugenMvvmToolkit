@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
 
-            binding.AddComponent(components[0]).IsEmpty.ShouldBeTrue();
+            binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
             binding.GetComponents().AsList().ShouldBeEmpty();
         }
 
@@ -167,7 +167,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
 
-            binding.AddComponent(components[0]).IsEmpty.ShouldBeTrue();
+            binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
             binding.GetComponents().AsList().ShouldBeEmpty();
         }
 

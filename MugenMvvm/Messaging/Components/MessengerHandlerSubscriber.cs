@@ -130,7 +130,7 @@ namespace MugenMvvm.Messaging.Components
                     return new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode);
                 }
 
-                return ItemOrList.FromListToReadOnly(this.ToArray(subscriber => new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode)));
+                return this.ToArray(subscriber => new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode));
             }
         }
 

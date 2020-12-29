@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.App
                     },
                     Priority = -i
                 };
-                owner.Components.Add(component);
+                owner.Components.TryAdd(component);
             }
 
             owner.IsInState(state, DefaultMetadata).ShouldBeFalse();

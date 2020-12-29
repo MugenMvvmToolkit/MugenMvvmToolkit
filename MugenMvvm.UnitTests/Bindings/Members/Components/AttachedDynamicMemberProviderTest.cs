@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var owner = new MemberManager();
             var component = new AttachedDynamicMemberProvider();
             owner.AddComponent(component);
-            owner.Components.Add(hasCache);
+            owner.Components.TryAdd(hasCache);
             var list = new List<IMemberInfo>();
             var delegates = new List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>>();
             for (var i = 0; i < count; i++)

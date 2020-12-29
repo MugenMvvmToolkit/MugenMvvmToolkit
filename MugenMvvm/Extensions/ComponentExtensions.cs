@@ -16,15 +16,18 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IComponentCollection GetComponentCollection(this IComponentCollectionManager provider, object owner, IReadOnlyMetadataContext? metadata = null)
+        public static IComponentCollection GetComponentCollection(this IComponentCollectionManager componentCollectionManager, object owner, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(provider, nameof(provider));
+            Should.NotBeNull(componentCollectionManager, nameof(componentCollectionManager));
             Should.NotBeNull(owner, nameof(owner));
-            var collection = provider.TryGetComponentCollection(owner, metadata);
+            var collection = componentCollectionManager.TryGetComponentCollection(owner, metadata);
             if (collection == null)
-                ExceptionManager.ThrowRequestNotSupported<IComponentCollectionProviderComponent>(provider, owner, metadata);
+                ExceptionManager.ThrowRequestNotSupported<IComponentCollectionProviderComponent>(componentCollectionManager, owner, metadata);
             return collection;
         }
+
+        public static IComponentCollection EnsureInitialized(this IComponentCollectionManager? componentCollectionManager, [NotNull] ref IComponentCollection? item, object target,
+            IReadOnlyMetadataContext? metadata = null) => EnsureInitialized(ref item, componentCollectionManager.DefaultIfNull().GetComponentCollection(target, metadata));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IServiceProvider DefaultIfNull(this IServiceProvider? serviceProvider) => serviceProvider ?? MugenService.Instance<IServiceProvider>();
@@ -49,9 +52,17 @@ namespace MugenMvvm.Extensions
 
         public static ActionToken AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
+            var t = componentOwner.TryAddComponent(component, metadata);
+            if (t.IsEmpty)
+                ExceptionManager.ThrowCannotAddComponent(componentOwner.Components, component);
+            return t;
+        }
+
+        public static ActionToken TryAddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             Should.NotBeNull(component, nameof(component));
-            if (componentOwner.Components.Add(component, metadata))
+            if (componentOwner.Components.TryAdd(component, metadata))
                 return new ActionToken((owner, comp) => ((IComponentOwner) owner!).Components.Remove(comp!), componentOwner, component);
             return default;
         }
@@ -124,8 +135,13 @@ namespace MugenMvvm.Extensions
             return collection.Get<T>(metadata);
         }
 
-        public static IComponentCollection EnsureInitialized(this IComponentCollectionManager? componentCollectionManager, [NotNull] ref IComponentCollection? item, object target,
-            IReadOnlyMetadataContext? metadata = null) => EnsureInitialized(ref item, componentCollectionManager.DefaultIfNull().GetComponentCollection(target, metadata));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Add(this IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            if (!collection.TryAdd(component, metadata))
+                ExceptionManager.ThrowCannotAddComponent(collection, component);
+        }
 
         public static int GetPriority(this IComponent component, object? owner = null) => GetComponentPriority(component, owner);
 

@@ -107,6 +107,22 @@ namespace MugenMvvm.Extensions
         public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList) =>
             new ItemOrListEditor<TItem, List<TItem>>(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
 
+        internal static ItemOrList<T, IReadOnlyList<T>> ToItemOrList<T>(this List<T> list, bool clear)
+        {
+            if (list.Count == 1)
+            {
+                var r = list[0];
+                if (clear)
+                    list.Clear();
+                return r;
+            }
+
+            var array = list.ToArray();
+            if (clear)
+                list.Clear();
+            return array;
+        }
+
         #endregion
 
         #region Nested types

@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var owner = new MemberManager();
             var component = new AttachedMemberProvider();
             owner.AddComponent(component);
-            owner.Components.Add(hasCache);
+            owner.Components.TryAdd(hasCache);
 
             var member = new TestAccessorMemberInfo {Name = memberName, DeclaringType = requestType, MemberType = MemberType.Accessor};
             component.Register(member, name);

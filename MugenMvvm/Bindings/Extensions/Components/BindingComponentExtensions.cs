@@ -402,7 +402,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
                         MugenExtensions.AddOrdered(components!, component, size++, comparer);
                 }
 
-                return ItemOrList.FromList(components);
+                return components;
             }
 
             return default;

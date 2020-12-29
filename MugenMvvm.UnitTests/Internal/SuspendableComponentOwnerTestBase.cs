@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Internal
             for (var i = 0; i < componentCount; i++)
             {
                 var suspendableComponent = GetSuspendableComponent();
-                componentOwner.Components.Add(suspendableComponent);
+                componentOwner.Components.TryAdd(suspendableComponent);
             }
 
             componentOwner.IsSuspended.ShouldBeFalse();
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Internal
                     m.ShouldEqual(DefaultMetadata);
                     return new ActionToken((o, o1) => methodCallCount++);
                 };
-                componentOwner.Components.Add(suspendableComponent);
+                componentOwner.Components.TryAdd(suspendableComponent);
             }
 
             var actionToken = componentOwner.Suspend(this, DefaultMetadata);

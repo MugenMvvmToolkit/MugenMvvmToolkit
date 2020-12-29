@@ -65,7 +65,7 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             var members = ItemOrListEditor.Get<IMemberInfo>();
             foreach (var keyValuePair in _registeredMembers)
-                members.AddRange(ItemOrList.FromList(keyValuePair.Value));
+                members.AddRange(keyValuePair.Value);
             return members.ToItemOrList<IReadOnlyList<IMemberInfo>>();
         }
 

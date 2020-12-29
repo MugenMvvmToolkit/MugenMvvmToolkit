@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using static MugenMvvm.Constants.MessageConstant;
 using static MugenMvvm.Bindings.Constants.BindingMessageConstant;
@@ -95,11 +96,15 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowMementoRequiredContextKey() => throw new NotSupportedException(MultiplePresenterResultNotSupported);
+        public static void ThrowMementoRequiredContextKey() => throw new NotSupportedException(ShouldSetContextKeyMemento);
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowCanceledException() => throw new OperationCanceledException();
+
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowCannotAddComponent(IComponentCollection collection, object component) => throw new InvalidOperationException(CannotAddComponentFormat2.Format(collection.Owner, component));
 
 
         [DoesNotReturn]
@@ -118,7 +123,7 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowInvalidBindingMember(Type sourceType, string path) => throw new InvalidOperationException(string.Format(InvalidBindingMemberFormat2, path, sourceType));
+        public static void ThrowInvalidBindingMember(Type sourceType, string path) => throw new InvalidOperationException(InvalidBindingMemberFormat2.Format(path, sourceType));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -142,24 +147,24 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotResolveType(string typeName) => throw new InvalidOperationException(string.Format(CannotResolveTypeFormat1, typeName));
+        public static void ThrowCannotResolveType(string typeName) => throw new InvalidOperationException(CannotResolveTypeFormat1.Format(typeName));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotResolveResource(string resource) => throw new InvalidOperationException(string.Format(CannotResolveResourceFormat1, resource));
+        public static void ThrowCannotResolveResource(string resource) => throw new InvalidOperationException(CannotResolveResourceFormat1.Format(resource));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowCannotParseBindingParameter(string parameterName, object expectedValue, object currentValue) =>
-            throw new InvalidOperationException(string.Format(CannotParseBindingParameterFormat3, parameterName, expectedValue, currentValue));
+            throw new InvalidOperationException(CannotParseBindingParameterFormat3.Format(parameterName, expectedValue, currentValue));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotConvertType(object? value, Type type) => throw new InvalidOperationException(string.Format(CannotConvertTypeFormat2, value, type));
+        public static void ThrowCannotConvertType(object? value, Type type) => throw new InvalidOperationException(CannotConvertTypeFormat2.Format(value, type));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotUseExpressionClosure(object expression) => throw new InvalidOperationException(string.Format(CannotUseExpressionClosureFormat1, expression));
+        public static void ThrowCannotUseExpressionClosure(object expression) => throw new InvalidOperationException(CannotUseExpressionClosureFormat1.Format(expression));
 
         #endregion
     }

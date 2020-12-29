@@ -66,7 +66,7 @@ namespace MugenMvvm.Bindings.Core.Components
                     bindingExpressions[i] = new BindingBuilder(_context, result.Target, result.Source, result.Parameters.GetRawValue());
                 }
 
-                return ItemOrList.FromListToReadOnly(bindingExpressions);
+                return bindingExpressions;
             }
 
             var item = parserResult.Item;

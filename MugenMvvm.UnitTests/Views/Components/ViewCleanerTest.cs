@@ -96,8 +96,8 @@ namespace MugenMvvm.UnitTests.Views.Components
             };
             var viewModel = new TestCleanableViewModel();
             var view = new View(new ViewMapping("1", typeof(IViewModelBase), rawView.GetType()), rawView, viewModel);
-            view.Components.Add(componentView);
-            view.Components.Components.Add(this);
+            view.Components.TryAdd(componentView);
+            view.Components.Components.TryAdd(this);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner());
 
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             view.Components.Remove(componentView, DefaultMetadata);
             invokeCount.ShouldEqual(0);
             componentInvokeCount.ShouldEqual(1);
-            view.Components.Add(componentView, DefaultMetadata);
+            view.Components.TryAdd(componentView, DefaultMetadata);
             componentInvokeCount = 0;
             state = "t";
 

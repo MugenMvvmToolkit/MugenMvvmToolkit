@@ -172,7 +172,7 @@ namespace MugenMvvm.UnitTests.Commands
             for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestDisposable {Dispose = () => ++count};
-                compositeCommand.Components.Add(component);
+                compositeCommand.Components.TryAdd(component);
             }
 
             compositeCommand.IsDisposed.ShouldBeFalse();

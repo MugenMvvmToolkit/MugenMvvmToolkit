@@ -42,7 +42,7 @@ namespace MugenMvvm.Wrapping.Components
                 {
                     item = Components.TryWrap(wrapperManager, wrapperType, view.Target, metadata)!;
                     if (item != null)
-                        collection.Add(item);
+                        collection.TryAdd(item);
                 }
 
                 return item;

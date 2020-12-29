@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public abstract class AttachableComponentBase<T> : IAttachableComponent, IDetachableComponent where T : class
+    public abstract class AttachableComponentBase<T> : IAttachableComponent, IDetachableComponent where T : class//MultiAttachableComponentBase
     {
         #region Fields
 
@@ -76,7 +76,7 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => true;
+        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => OwnerOptional == null;
 
         protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {

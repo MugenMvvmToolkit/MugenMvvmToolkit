@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             rawView.ViewModel.ShouldBeNull();
 
             var rawViewComponent = new AwareView();
-            view.Components.Add(rawViewComponent);
+            view.Components.TryAdd(rawViewComponent);
             rawViewComponent.ViewModelBase.ShouldEqual(viewModel);
             rawViewComponent.ViewModel.ShouldBeNull();
 
@@ -99,7 +99,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
 
-            view.Components.Add(rawViewComponent);
+            view.Components.TryAdd(rawViewComponent);
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
         }
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             rawView.ViewModel.ShouldEqual(viewModel);
 
             var rawViewComponent = new AwareView();
-            view.Components.Add(rawViewComponent);
+            view.Components.TryAdd(rawViewComponent);
             rawViewComponent.ViewModelBase.ShouldEqual(viewModel);
             rawViewComponent.ViewModel.ShouldEqual(viewModel);
 
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
 
-            view.Components.Add(rawViewComponent);
+            view.Components.TryAdd(rawViewComponent);
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
         }

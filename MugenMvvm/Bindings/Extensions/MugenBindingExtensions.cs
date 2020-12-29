@@ -340,7 +340,7 @@ namespace MugenMvvm.Bindings.Extensions
                     expressionValues[i] = expressionValue;
                 }
 
-                values = ItemOrList.FromList(expressionValues);
+                values = expressionValues;
             }
             else
             {

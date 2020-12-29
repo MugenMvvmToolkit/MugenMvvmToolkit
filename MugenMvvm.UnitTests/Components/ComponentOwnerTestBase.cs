@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Components
             var componentOwner = GetComponentOwner();
             componentOwner.HasComponents.ShouldBeFalse();
 
-            componentOwner.Components.Add(this);
+            componentOwner.Components.TryAdd(this);
             componentOwner.HasComponents.ShouldBeTrue();
 
             componentOwner.Components.Remove(this);

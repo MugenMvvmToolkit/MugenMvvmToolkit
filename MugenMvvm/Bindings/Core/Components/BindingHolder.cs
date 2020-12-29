@@ -59,7 +59,7 @@ namespace MugenMvvm.Bindings.Core.Components
             int index = 0;
             foreach (var value in values)
                 bindings[index++] = (IBinding) value.Value!;
-            return ItemOrList.FromListToReadOnly(bindings);
+            return bindings;
         }
 
         public bool TryRegister(IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)

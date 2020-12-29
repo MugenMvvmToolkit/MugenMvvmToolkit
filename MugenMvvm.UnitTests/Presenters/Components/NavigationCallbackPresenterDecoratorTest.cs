@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     return null;
                 }
             });
-            navigationDispatcher.Components.Add(new TestSuspendableComponent
+            navigationDispatcher.Components.TryAdd(new TestSuspendableComponent
             {
                 Suspend = (o, arg3) =>
                 {
@@ -89,7 +89,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     return null;
                 }
             });
-            navigationDispatcher.Components.Add(new TestSuspendableComponent
+            navigationDispatcher.Components.TryAdd(new TestSuspendableComponent
             {
                 Suspend = (o, arg3) =>
                 {

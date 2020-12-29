@@ -35,7 +35,7 @@ namespace MugenMvvm.Internal.Components
                 {
                     if (dictionary.Count == 1)
                         return dictionary.FirstOrDefault();
-                    return ItemOrList.FromListToReadOnly(new List<KeyValuePair<string, object?>>(dictionary));
+                    return dictionary.ToArray();
                 }
 
                 var result = ItemOrListEditor.Get<KeyValuePair<string, object?>>();

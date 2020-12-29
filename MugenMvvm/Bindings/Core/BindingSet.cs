@@ -106,7 +106,7 @@ namespace MugenMvvm.Bindings.Core
                     //note post handler sorting expressions if need
                     var expressions = BindingManager.TryParseBindingExpression(builder.Value!, metadata);
                     if (expressions.IsEmpty)
-                        expressions = ItemOrList.FromRawValueReadonly<IBindingBuilder>(builder.Value);
+                        expressions = ItemOrList.FromRawValueToReadonly<IBindingBuilder>(builder.Value);
 
                     foreach (var exp in expressions)
                     {

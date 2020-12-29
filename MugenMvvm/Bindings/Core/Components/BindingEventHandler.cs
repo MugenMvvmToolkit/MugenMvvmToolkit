@@ -78,7 +78,7 @@ namespace MugenMvvm.Bindings.Core.Components
             var binding = (IBinding) owner;
             binding.UpdateTarget();
             if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
-                binding.Components.Add(OneTimeBindingMode.NonDisposeInstance);
+                binding.Components.TryAdd(OneTimeBindingMode.NonDisposeInstance);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;

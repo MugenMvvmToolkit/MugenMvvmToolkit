@@ -57,7 +57,8 @@ namespace MugenMvvm.Navigation
             lock (this)
             {
                 if (_callbacks is List<INavigationCallbackListener> callbacks)
-                    return ItemOrList.FromListToReadOnly(callbacks.ToArray());
+                    return callbacks.ToItemOrList(false);
+
                 return ItemOrList.FromItem((INavigationCallbackListener) _callbacks!);
             }
         }

@@ -70,16 +70,7 @@ namespace MugenMvvm.Bindings.Members.Components
             }
 
             Components.TryAddMembers(memberManager, _members, type, name, memberTypes, metadata);
-            if (_members.Count == 1)
-            {
-                var memberInfo = _members[0];
-                _members.Clear();
-                return ItemOrList.FromItem(memberInfo);
-            }
-
-            var result = _members.ToArray();
-            _members.Clear();
-            return ItemOrList.FromListToReadOnly(result);
+            return _members.ToItemOrList(true);
         }
 
         #endregion

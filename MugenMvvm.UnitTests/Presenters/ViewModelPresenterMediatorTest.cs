@@ -172,7 +172,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 OnNavigationCanceled = (context, token) => ++navigateCanceledCount
             });
             var viewManager = new ViewManager();
-            viewManager.Components.Add(new TestLifecycleTrackerComponent<ViewLifecycleState>
+            viewManager.Components.TryAdd(new TestLifecycleTrackerComponent<ViewLifecycleState>
             {
                 IsInState = (o, v, s, m) =>
                 {

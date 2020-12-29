@@ -218,6 +218,15 @@ namespace MugenMvvm.Extensions
         }
 
         [StringFormatMethod("format")]
+        public static string Format(this string format, object? arg0) => string.Format(format, arg0);
+
+        [StringFormatMethod("format")]
+        public static string Format(this string format, object? arg0, object? arg1) => string.Format(format, arg0, arg1);
+
+        [StringFormatMethod("format")]
+        public static string Format(this string format, object? arg0, object? arg1, object? arg2) => string.Format(format, arg0, arg1, arg2);
+
+        [StringFormatMethod("format")]
         public static string Format(this string format, params object?[] args) => string.Format(format, args);
 
         [Pure]

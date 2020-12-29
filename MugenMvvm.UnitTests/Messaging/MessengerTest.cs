@@ -231,7 +231,7 @@ namespace MugenMvvm.UnitTests.Messaging
             var messenger = new Messenger();
             var hasCache = new TestHasCache {Invalidate = (o, arg3) => { ++invokedCount; }};
             messenger.AddComponent(new MessengerHandlerSubscriber());
-            messenger.Components.Add(hasCache);
+            messenger.Components.TryAdd(hasCache);
 
             invokedCount.ShouldEqual(0);
             var handler = new TestMessengerHandler();

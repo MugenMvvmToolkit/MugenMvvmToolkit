@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.ViewModels
                     },
                     Priority = -i
                 };
-                owner.Components.Add(component);
+                owner.Components.TryAdd(component);
             }
 
             owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();

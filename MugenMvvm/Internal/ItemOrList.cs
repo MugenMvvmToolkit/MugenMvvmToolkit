@@ -25,22 +25,10 @@ namespace MugenMvvm.Internal
         public static ItemOrList<TItem, TList> FromItem<TItem, TList>([AllowNull] TItem item, bool hasItem) where TList : class, IEnumerable<TItem> => new ItemOrList<TItem, TList>(item, hasItem);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromListToReadOnly<TItem>(TItem[]? array) => new ItemOrList<TItem, IReadOnlyList<TItem>>(array);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromListToReadOnly<TItem>(List<TItem>? list) => new ItemOrList<TItem, IReadOnlyList<TItem>>(list);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, IReadOnlyList<TItem>> FromList<TItem>(IReadOnlyList<TItem>? readOnlyList) => new ItemOrList<TItem, IReadOnlyList<TItem>>(readOnlyList);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, TItem[]> FromList<TItem>(TItem[]? array) => new ItemOrList<TItem, TItem[]>(array);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, IList<TItem>> FromList<TItem>(IList<TItem>? iList) => new ItemOrList<TItem, IList<TItem>>(iList);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, List<TItem>> FromList<TItem>(List<TItem>? list) => new ItemOrList<TItem, List<TItem>>(list);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, TList> FromList<TItem, TList>(TList? enumerable)
@@ -57,7 +45,7 @@ namespace MugenMvvm.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromRawValueReadonly<TItem>(object? value) where TItem : class => FromRawValue<TItem, IReadOnlyList<TItem>>(value);
+        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromRawValueToReadonly<TItem>(object? value) where TItem : class => FromRawValue<TItem, IReadOnlyList<TItem>>(value);
 
         #endregion
     }

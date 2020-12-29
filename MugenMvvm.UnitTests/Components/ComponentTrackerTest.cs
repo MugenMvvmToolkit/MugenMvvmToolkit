@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Components
             }
 
             for (var i = 0; i < componentCount; i++)
-                componentCollection.Add(new TestAttachableComponent<object>());
+                componentCollection.TryAdd(new TestAttachableComponent<object>());
 
             expectedComponents = componentCollection.Get<IComponent>();
             componentTracker.Attach(componentCollection, DefaultMetadata);
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.Components
             {
                 ++expectedCount;
                 executed = 0;
-                componentCollection.Add(new TestAttachableComponent<object>(), DefaultMetadata);
+                componentCollection.TryAdd(new TestAttachableComponent<object>(), DefaultMetadata);
                 executed.ShouldEqual(listenersCount);
             }
         }
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Components
             var componentTracker = new ComponentTracker();
             var componentCollection = new ComponentCollection(this);
             for (var i = 0; i < componentCount; i++)
-                componentCollection.Add(new TestAttachableComponent<object>());
+                componentCollection.TryAdd(new TestAttachableComponent<object>());
             componentTracker.Attach(componentCollection, DefaultMetadata);
             var executed = 0;
             var expectedCount = componentCount;

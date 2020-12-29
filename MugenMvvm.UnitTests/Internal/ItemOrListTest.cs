@@ -18,57 +18,6 @@ namespace MugenMvvm.UnitTests.Internal
         public void FromItemShouldHandleSingleItem2() => AssertItem(ItemOrList.FromItem<ItemOrListTest, ItemOrListTest[]>(this), this);
 
         [Fact]
-        public void FromListToReadOnlyShouldHandleArray1() => AssertEmpty(ItemOrList.FromListToReadOnly<string>(array: null));
-
-        [Fact]
-        public void FromListToReadOnlyShouldHandleArray2()
-        {
-            var array = new[] {this};
-            AssertItem(ItemOrList.FromListToReadOnly(array), array[0]);
-        }
-
-        [Fact]
-        public void FromListToReadOnlyShouldHandleArray3()
-        {
-            var array = new[] {this, this};
-            AssertList(ItemOrList.FromListToReadOnly(array), array);
-        }
-
-        [Fact]
-        public void FromListToReadOnlyShouldHandleList1() => AssertEmpty(ItemOrList.FromListToReadOnly<string>(list: null));
-
-        [Fact]
-        public void FromListToReadOnlyShouldHandleList2()
-        {
-            var list = new[] {this}.ToList();
-            AssertItem(ItemOrList.FromListToReadOnly(list), list[0]);
-        }
-
-        [Fact]
-        public void FromListToReadOnlyShouldHandleList3()
-        {
-            var list = new[] {this, this}.ToList();
-            AssertList(ItemOrList.FromListToReadOnly(list), list);
-        }
-
-        [Fact]
-        public void FromListShouldHandleArray1() => AssertEmpty(ItemOrList.FromList<string>(array: null));
-
-        [Fact]
-        public void FromListShouldHandleArray2()
-        {
-            var array = new[] {this};
-            AssertItem(ItemOrList.FromList(array), array[0]);
-        }
-
-        [Fact]
-        public void FromListShouldHandleArray3()
-        {
-            var array = new[] {this, this};
-            AssertList(ItemOrList.FromList(array), array);
-        }
-
-        [Fact]
         public void FromListShouldHandleReadOnlyList1() => AssertEmpty(ItemOrList.FromList<string>(readOnlyList: null));
 
         [Fact]
@@ -99,23 +48,6 @@ namespace MugenMvvm.UnitTests.Internal
         public void FromListShouldHandleIList3()
         {
             IList<ItemOrListTest> list = new[] {this, this};
-            AssertList(ItemOrList.FromList(list), list);
-        }
-
-        [Fact]
-        public void FromListShouldHandleList1() => AssertEmpty(ItemOrList.FromList<string>(list: null));
-
-        [Fact]
-        public void FromListShouldHandleList2()
-        {
-            var list = new[] {this}.ToList();
-            AssertItem(ItemOrList.FromList(list), list[0]);
-        }
-
-        [Fact]
-        public void FromListShouldHandleList3()
-        {
-            var list = new[] {this, this}.ToList();
             AssertList(ItemOrList.FromList(list), list);
         }
 
