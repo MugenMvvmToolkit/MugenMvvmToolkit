@@ -7,7 +7,9 @@ using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.ViewModels;
 using Should;
 using Xunit;
 
@@ -16,6 +18,32 @@ namespace MugenMvvm.UnitTests.ViewModels
     public class ViewModelBaseTest : UnitTestBase
     {
         #region Methods
+
+        [Fact]
+        public void GetViewModelShouldPassParentViewModelParameter()
+        {
+            var type = typeof(TestViewModel);
+            var manager = new ViewModelManager();
+            int invokeCount = 0;
+            var vm = new TestViewModelBase(manager);
+            var result = new TestViewModel();
+            manager.AddComponent(new TestViewModelProviderComponent
+            {
+                TryGetViewModel = (o, context) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(type);
+                    context!.Get(ViewModelMetadata.ParentViewModel).ShouldEqual(vm);
+                    return result;
+                }
+            });
+
+            invokeCount.ShouldEqual(0);
+            vm.GetViewModel<TestViewModel>(DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(1);
+            vm.GetViewModel(typeof(TestViewModel), DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(2);
+        }
 
         [Theory]
         [InlineData(1)]

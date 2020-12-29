@@ -10,14 +10,16 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.ViewModels
 {
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IBusyManagerListener, IDisposable
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener, IDisposable
     {
         #region Fields
 
+        private readonly IViewModelManager? _viewModelManager;
         private IBusyManager? _busyManager;
         private List<ActionToken>? _disposeTokens;
         private IMetadataContext? _metadata;
@@ -26,9 +28,10 @@ namespace MugenMvvm.ViewModels
 
         #region Constructors
 
-        protected ViewModelBase()
+        protected ViewModelBase(IViewModelManager? viewModelManager = null)
         {
-            this.NotifyLifecycleChanged(ViewModelLifecycleState.Created);
+            _viewModelManager = viewModelManager;
+            this.NotifyLifecycleChanged(ViewModelLifecycleState.Created, manager: _viewModelManager);
         }
 
         #endregion
@@ -47,7 +50,13 @@ namespace MugenMvvm.ViewModels
 
         public bool IsDisposed { get; private set; }
 
+        protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
+
         IBusyManager IHasService<IBusyManager>.Service => BusyManager;
+
+        IViewModelManager IHasService<IViewModelManager>.Service => ViewModelManager;
+
+        IViewModelManager? IHasService<IViewModelManager>.ServiceOptional => _viewModelManager;
 
         IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
 
@@ -101,6 +110,11 @@ namespace MugenMvvm.ViewModels
                 token.Dispose();
         }
 
+        protected T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
+
+        protected virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null)
+            => ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
+
         protected virtual void OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
         }
@@ -117,11 +131,11 @@ namespace MugenMvvm.ViewModels
         {
             if (!disposing)
             {
-                this.NotifyLifecycleChanged(ViewModelLifecycleState.Finalized);
+                this.NotifyLifecycleChanged(ViewModelLifecycleState.Finalized, manager: ViewModelManager);
                 return;
             }
 
-            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposing);
+            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposing, manager: ViewModelManager);
             if (_disposeTokens != null)
             {
                 for (var i = 0; i < _disposeTokens.Count; i++)
@@ -130,7 +144,7 @@ namespace MugenMvvm.ViewModels
             }
 
             ClearPropertyChangedSubscribers();
-            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposed);
+            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposed, manager: ViewModelManager);
         }
 
         protected override void OnPropertyChangedInternal(PropertyChangedEventArgs args)

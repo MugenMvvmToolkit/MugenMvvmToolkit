@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
@@ -11,6 +13,7 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<string>? _id;
         private static IMetadataContextKey<IViewModelBase?>? _viewModel;
+        private static IMetadataContextKey<IViewModelBase?>? _parentViewModel;
 
         #endregion
 
@@ -28,6 +31,17 @@ namespace MugenMvvm.Metadata
         {
             get => _viewModel ??= GetBuilder(_viewModel, nameof(ViewModel)).Serializable().Build();
             set => _viewModel = value;
+        }
+
+        [AllowNull]
+        public static IMetadataContextKey<IViewModelBase?> ParentViewModel
+        {
+            get => _parentViewModel ??= GetBuilder(_parentViewModel, nameof(ParentViewModel))
+                .Getter((context, key, v) => (IViewModelBase?) ((IWeakReference?) v)?.Target)
+                .Setter((context, key, oldValue, v) => v.ToWeakReference())
+                .Serializable()
+                .Build();
+            set => _parentViewModel = value;
         }
 
         #endregion

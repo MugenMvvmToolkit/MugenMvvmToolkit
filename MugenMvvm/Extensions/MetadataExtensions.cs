@@ -20,6 +20,21 @@ namespace MugenMvvm.Extensions
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder)
+            where T : class =>
+            builder.WithValidation(_notNullValidateAction ??= (ctx, k, value) => Should.NotBeNull(value, nameof(value)));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IReadOnlyMetadataContext ToContext<T>(this IMetadataContextKey<T> key, T value) => new SingleValueMetadataContext(key.ToValue(value));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static KeyValuePair<IMetadataContextKey, object?> ToValue<T>(this IMetadataContextKey<T> key, T value)
+        {
+            Should.NotBeNull(key, nameof(key));
+            return new KeyValuePair<IMetadataContextKey, object?>(key, key.SetValue(Default.Metadata, null, value));
+        }
+
         public static IMetadataContext EnsureInitialized(ref IReadOnlyMetadataContext? metadata)
         {
             if (metadata is IMetadataContext m)
@@ -30,22 +45,8 @@ namespace MugenMvvm.Extensions
             return (IMetadataContext) metadata!;
         }
 
-        public static IReadOnlyMetadataContext ToContext<T>(this IMetadataContextKey<T> key, T value) => new SingleValueMetadataContext(key.ToValue(value));
-
-        public static KeyValuePair<IMetadataContextKey, object?> ToValue<T>(this IMetadataContextKey<T> key, T value)
-        {
-            Should.NotBeNull(key, nameof(key));
-            return new KeyValuePair<IMetadataContextKey, object?>(key, key.SetValue(Default.Metadata, null, value));
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty(this IReadOnlyMetadataContext? metadata) => metadata == null || metadata.Count == 0;
-
-        public static IReadOnlyMetadataContext GetMetadataOrDefault(this IMetadataOwner<IReadOnlyMetadataContext>? owner, IReadOnlyMetadataContext? defaultValue = null)
-        {
-            if (owner != null && owner.HasMetadata)
-                return owner.Metadata;
-            return defaultValue ?? Default.Metadata;
-        }
 
         public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata)
         {
@@ -54,21 +55,17 @@ namespace MugenMvvm.Extensions
             return new MetadataContext(metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata) => metadata ?? Default.Metadata;
 
-        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder)
-            where T : class =>
-            builder.WithValidation(_notNullValidateAction ??= (ctx, k, value) => Should.NotBeNull(value, nameof(value)));
-
-        public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext
+        public static IReadOnlyMetadataContext WithValue<T>(this IReadOnlyMetadataContext? metadata, IMetadataContextKey<T> key, T value)
         {
-            Should.NotBeNull(metadataOwner, nameof(metadataOwner));
-            if (metadataOwner.HasMetadata)
-            {
-                metadataOwner.Metadata.Clear();
-                if (clearComponents)
-                    metadataOwner.Metadata.ClearComponents();
-            }
+            if (metadata.IsNullOrEmpty())
+                return key.ToContext(value);
+
+            var ctx = metadata.ToNonReadonly();
+            ctx.Set(key, value);
+            return ctx;
         }
 
         //note nullable type generic issue
@@ -102,6 +99,20 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             metadataContext.TryGet(key, out var value, defaultValue!);
             return value;
+        }
+
+        public static string Dump(this IReadOnlyMetadataContext? metadata, string nullResult = "null")
+        {
+            if (metadata == null)
+                return nullResult;
+            var builder = new StringBuilder("(");
+            foreach (var item in metadata.GetValues())
+                builder.Append(item.Key).Append("=").Append(item.Value).Append(";");
+
+            if (builder.Length != 0)
+                builder.Remove(builder.Length - 1, 1);
+            builder.Append(")");
+            return builder.ToString();
         }
 
         public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, IMetadataContextKey<T>, T> valueFactory,
@@ -148,18 +159,22 @@ namespace MugenMvvm.Extensions
             return metadataContext.Remove(contextKey, out _);
         }
 
-        public static string Dump(this IReadOnlyMetadataContext? metadata, string nullResult = "null")
+        public static IReadOnlyMetadataContext GetMetadataOrDefault(this IMetadataOwner<IReadOnlyMetadataContext>? owner, IReadOnlyMetadataContext? defaultValue = null)
         {
-            if (metadata == null)
-                return nullResult;
-            var builder = new StringBuilder("(");
-            foreach (var item in metadata.GetValues())
-                builder.Append(item.Key).Append("=").Append(item.Value).Append(";");
+            if (owner != null && owner.HasMetadata)
+                return owner.Metadata;
+            return defaultValue ?? Default.Metadata;
+        }
 
-            if (builder.Length != 0)
-                builder.Remove(builder.Length - 1, 1);
-            builder.Append(")");
-            return builder.ToString();
+        public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext
+        {
+            Should.NotBeNull(metadataOwner, nameof(metadataOwner));
+            if (metadataOwner.HasMetadata)
+            {
+                metadataOwner.Metadata.Clear();
+                if (clearComponents)
+                    metadataOwner.Metadata.ClearComponents();
+            }
         }
 
         //note nullable type generic issue
