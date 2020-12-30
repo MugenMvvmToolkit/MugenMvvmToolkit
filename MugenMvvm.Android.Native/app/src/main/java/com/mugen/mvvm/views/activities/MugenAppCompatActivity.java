@@ -23,7 +23,7 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
     private Object _state;
 
     @Override
-    public Context getActivity() {
+    public Object getActivity() {
         return this;
     }
 

@@ -39,7 +39,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
 {
-    public static partial class MugenBindingExtensions
+    public static partial class BindingMugenExtensions
     {
         #region Methods
 

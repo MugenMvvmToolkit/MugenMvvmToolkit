@@ -13,7 +13,7 @@ public class ActivityWrapper implements IActivityView {
     }
 
     @Override
-    public Context getActivity() {
+    public Object getActivity() {
         return (Context) Target;
     }
 

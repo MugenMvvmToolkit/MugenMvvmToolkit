@@ -77,7 +77,7 @@ namespace MugenMvvm.Bindings.Core.Components
         {
             var binding = (IBinding) owner;
             binding.UpdateTarget();
-            if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
+            if (!BindingMugenExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
                 binding.Components.TryAdd(OneTimeBindingMode.NonDisposeInstance);
         }
 

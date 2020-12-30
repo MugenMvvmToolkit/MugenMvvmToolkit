@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using MugenMvvm.App.Components;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -29,6 +30,7 @@ using MugenMvvm.Presenters.Components;
 using MugenMvvm.Serialization;
 using MugenMvvm.Serialization.Components;
 using MugenMvvm.Threading;
+using MugenMvvm.Threading.Components;
 using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
 using MugenMvvm.ViewModels;
@@ -44,7 +46,8 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, IServiceProvider? serviceProvider = null)
+        public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, SynchronizationContext? synchronizationContext,
+            bool isOnMainThread = true, IServiceProvider? serviceProvider = null)
         {
             if (serviceProvider != null)
                 MugenService.Configuration.InitializeInstance(serviceProvider);
@@ -99,7 +102,10 @@ namespace MugenMvvm.Extensions
             configuration.WithAppService(new Serializer())
                 .WithComponent(new SerializationManager());
 
-            configuration.WithAppService(new ThreadDispatcher());
+            var threadDispatcher = new ThreadDispatcher();
+            if (synchronizationContext != null)
+                threadDispatcher.AddComponent(new SynchronizationContextThreadDispatcher(synchronizationContext, isOnMainThread));
+            configuration.WithAppService(threadDispatcher);
 
             configuration.WithAppService(new ValidationManager())
                 .WithComponent(new ValidatorProviderComponent());

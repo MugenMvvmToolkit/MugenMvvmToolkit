@@ -8,7 +8,7 @@ using UIKit;
 
 namespace MugenMvvm.Ios.Extensions
 {
-    public static partial class MugenIosExtensions
+    public static partial class IosMugenExtensions
     {
         #region Methods
 
@@ -109,7 +109,7 @@ namespace MugenMvvm.Ios.Extensions
                 }
             }
 
-            MugenBindingExtensions.ClearBindings(view, clearAttachedValues);
+            BindingMugenExtensions.ClearBindings(view, clearAttachedValues);
             if (disposeView)
                 view.Dispose();
         }

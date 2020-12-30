@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 return;
             DefaultComponentExtensions.Dispose(binding.GetComponents().GetRawValue());
             binding.Target.Dispose();
-            MugenBindingExtensions.DisposeBindingSource(binding.Source.GetRawValue());
+            BindingMugenExtensions.DisposeBindingSource(binding.Source.GetRawValue());
             binding.Components.Clear();
         }
 

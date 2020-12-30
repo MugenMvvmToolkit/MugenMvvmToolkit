@@ -59,7 +59,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         private bool Invoke(IBinding binding, bool attached)
         {
-            if (!binding.Target.IsAllMembersAvailable() || !MugenBindingExtensions.IsAllMembersAvailable(binding.Source))
+            if (!binding.Target.IsAllMembersAvailable() || !BindingMugenExtensions.IsAllMembersAvailable(binding.Source))
                 return false;
 
             binding.UpdateTarget();

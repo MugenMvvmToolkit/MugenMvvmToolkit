@@ -51,7 +51,7 @@ namespace MugenMvvm.Android.Bindings
             for (var i = 0; i < size; i++)
                 MenuItemTemplate.ClearMenuItem(menu.GetItem(i));
             menu.Clear();
-            MugenBindingExtensions.ClearBindings(menu, true);
+            BindingMugenExtensions.ClearBindings(menu, true);
         }
 
         #endregion

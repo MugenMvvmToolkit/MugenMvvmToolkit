@@ -47,7 +47,7 @@ namespace MugenMvvm.Bindings.Members.Components
             if (!memberTypes.HasFlag(MemberType.Accessor))
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
-            var methodArgsRaw = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
+            var methodArgsRaw = BindingMugenExtensions.GetMethodArgsRaw(name, out var methodName);
             if (methodArgsRaw == null)
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 

@@ -23,7 +23,7 @@ public class MugenActivity extends Activity implements INativeActivityView {
     private Object _state;
 
     @Override
-    public Context getActivity() {
+    public Object getActivity() {
         return this;
     }
 

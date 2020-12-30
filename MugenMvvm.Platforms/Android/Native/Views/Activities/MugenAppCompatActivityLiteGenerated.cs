@@ -59,15 +59,15 @@ namespace MugenMvvm.Android.Native.Views.Activities
 
         protected override Type ThresholdType => _members.ManagedPeerType;
 
-        public virtual unsafe Context Activity
+        public virtual unsafe Object Activity
         {
             // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/method[@name='getActivity' and count(parameter)=0]"
-            [Register("getActivity", "()Landroid/content/Context;", "GetGetActivityHandler")]
+            [Register("getActivity", "()Ljava/lang/Object;", "GetGetActivityHandler")]
             get
             {
-                const string __id = "getActivity.()Landroid/content/Context;";
+                const string __id = "getActivity.()Ljava/lang/Object;";
                 var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
-                return GetObject<Context>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+                return GetObject<Object>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
             }
         }
 

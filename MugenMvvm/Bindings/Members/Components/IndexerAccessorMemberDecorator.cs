@@ -72,7 +72,7 @@ namespace MugenMvvm.Bindings.Members.Components
             if (!memberTypes.HasFlag(MemberType.Accessor))
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
-            var indexerArgsRaw = MugenBindingExtensions.GetIndexerArgsRaw(name);
+            var indexerArgsRaw = BindingMugenExtensions.GetIndexerArgsRaw(name);
             if (indexerArgsRaw == null)
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 

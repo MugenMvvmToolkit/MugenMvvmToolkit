@@ -56,7 +56,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return null;
 
             var target = context.Build(memberExpression.Target);
-            var type = MugenBindingExtensions.GetTargetType(ref target);
+            var type = BindingMugenExtensions.GetTargetType(ref target);
             EnumFlags<MemberFlags> flags;
             if (target == null)
             {

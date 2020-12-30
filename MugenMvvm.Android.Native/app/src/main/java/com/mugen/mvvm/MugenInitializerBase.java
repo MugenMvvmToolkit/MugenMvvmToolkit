@@ -19,6 +19,7 @@ public abstract class MugenInitializerBase extends ContentProvider {
     @Override
     public final void attachInfo(Context context, ProviderInfo info) {
         super.attachInfo(context, info);
+        MugenUtils.setAppContext(context);
         initialize();
     }
 

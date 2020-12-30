@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Android.App;
-using Android.Content;
 using Android.Views;
 using MugenMvvm.Android.Bindings;
 using MugenMvvm.Android.Collections;
@@ -40,11 +38,9 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal.Components;
-using MugenMvvm.Threading.Components;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
@@ -53,7 +49,7 @@ using View = Android.Views.View;
 
 namespace MugenMvvm.Android.Extensions
 {
-    public static class MugenAndroidExtensions
+    public static class AndroidMugenExtensions
     {
         #region Fields
 
@@ -68,18 +64,15 @@ namespace MugenMvvm.Android.Extensions
         public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).Result;
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null,
-            bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
         {
-            MugenAndroidUtils.Initialize(context ?? Application.Context, new BindViewCallback(), rawViewTagMode);
+            MugenAndroidUtils.Initialize(new BindViewCallback(), rawViewTagMode);
             LifecycleMugenExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), nativeMode);
 
             if (nativeMode)
                 MugenAndroidUtils.SetNativeMode();
             if (disableFragmentState)
                 MugenAndroidUtils.DisableFragmentState();
-            configuration.ServiceConfiguration<IThreadDispatcher>()
-                .WithComponent(new SynchronizationContextThreadDispatcher(Application.SynchronizationContext));
 
             configuration.ServiceConfiguration<IAttachedValueManager>()
                 .WithComponent(new AndroidAttachedValueStorageProvider());
@@ -427,7 +420,8 @@ namespace MugenMvvm.Android.Extensions
 
                     var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);
                     if (providerType == ViewGroupMugenExtensions.ContentProviderType || providerType == ViewGroupMugenExtensions.ContentRawProviderType
-                                                                                     || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType && selector is IFragmentTemplateSelector fts && fts.HasFragments)
+                                                                                     || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType && selector is IFragmentTemplateSelector fts &&
+                                                                                     fts.HasFragments)
                         member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                 })
                 .NonObservable()

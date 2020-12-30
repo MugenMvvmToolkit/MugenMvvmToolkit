@@ -73,7 +73,7 @@ public final class ActivityMugenExtensions {
         if (activityClass == null)
             return false;
 
-        Context context = activityView == null ? MugenUtils.getAppContext() : activityView.getActivity();
+        Context context = activityView == null ? MugenUtils.getAppContext() : (Context) activityView.getActivity();
         Intent intent = new Intent(context, activityClass);
         if (activityView == null)
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

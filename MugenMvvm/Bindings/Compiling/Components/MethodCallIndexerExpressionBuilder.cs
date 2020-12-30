@@ -84,7 +84,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             }
 
             var target = context.Build(methodCallExpression.Target);
-            var type = MugenBindingExtensions.GetTargetType(ref target);
+            var type = BindingMugenExtensions.GetTargetType(ref target);
             return TryBuildExpression(context, methodCallExpression.Method, new TargetData(type, target), GetArguments(methodCallExpression, context),
                 _resourceResolver.GetTypes(methodCallExpression.TypeArgs, context.Metadata));
         }
@@ -98,7 +98,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             }
 
             var target = context.Build(indexExpression.Target);
-            var type = MugenBindingExtensions.GetTargetType(ref target);
+            var type = BindingMugenExtensions.GetTargetType(ref target);
 
             if (type.IsArray)
                 return Expression.ArrayIndex(target!, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
@@ -484,7 +484,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
         private static IMethodMemberInfo? TryInferGenericMethod(IMethodMemberInfo method, ArgumentData[] args, out bool hasUnresolved)
         {
             var parameters = method.GetParameters();
-            var inferredTypes = MugenBindingExtensions.TryInferGenericParameters(method.GetGenericArguments(), parameters, info => info.ParameterType, args, (data, i) => data[i].Type, args.Length, out hasUnresolved);
+            var inferredTypes = BindingMugenExtensions.TryInferGenericParameters(method.GetGenericArguments(), parameters, info => info.ParameterType, args, (data, i) => data[i].Type, args.Length, out hasUnresolved);
             if (inferredTypes == null)
                 return null;
             return method.MakeGenericMethod(inferredTypes);

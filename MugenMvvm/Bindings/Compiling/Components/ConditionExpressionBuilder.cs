@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             var ifTrue = context.Build(condition.IfTrue);
             var ifFalse = context.Build(condition.IfFalse);
-            MugenBindingExtensions.Convert(ref ifTrue, ref ifFalse, true);
+            BindingMugenExtensions.Convert(ref ifTrue, ref ifFalse, true);
             return Expression.Condition(context.Build(condition.Condition).ConvertIfNeed(typeof(bool), true), ifTrue, ifFalse);
         }
 

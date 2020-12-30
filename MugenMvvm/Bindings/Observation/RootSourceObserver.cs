@@ -85,7 +85,7 @@ namespace MugenMvvm.Bindings.Observation
         public object? Get(IReadOnlyMetadataContext? metadata) => Get(_targetRef.Target, metadata);
 
         [return: NotNullIfNotNull("target")]
-        public object? Get(object? target, IReadOnlyMetadataContext? metadata) => MugenBindingExtensions.GetRoot(target, metadata);
+        public object? Get(object? target, IReadOnlyMetadataContext? metadata) => BindingMugenExtensions.GetRoot(target, metadata);
 
         protected override void OnListenersAdded()
         {

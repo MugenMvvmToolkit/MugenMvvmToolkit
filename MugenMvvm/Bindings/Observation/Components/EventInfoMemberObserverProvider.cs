@@ -23,8 +23,8 @@ namespace MugenMvvm.Bindings.Observation.Components
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionManager? _reflectionManager;
 
-        private static readonly MethodInfo RaiseMethod = typeof(MugenBindingExtensions)
-            .GetMethodOrThrow(nameof(MugenBindingExtensions.Raise), BindingFlagsEx.StaticPublic);
+        private static readonly MethodInfo RaiseMethod = typeof(BindingMugenExtensions)
+            .GetMethodOrThrow(nameof(BindingMugenExtensions.Raise), BindingFlagsEx.StaticPublic);
 
         #endregion
 

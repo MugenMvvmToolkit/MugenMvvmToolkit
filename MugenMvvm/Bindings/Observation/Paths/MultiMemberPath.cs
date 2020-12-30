@@ -21,14 +21,14 @@ namespace MugenMvvm.Bindings.Observation.Paths
             Path = path;
             if (!hasIndexer)
             {
-                Members = path.Split(MugenBindingExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
+                Members = path.Split(BindingMugenExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
                 return;
             }
 
             var size = 0;
 #if SPAN_API
             var span = path.AsSpan();
-            var enumerator = span.Split(MugenBindingExtensions.DotChar);
+            var enumerator = span.Split(BindingMugenExtensions.DotChar);
             foreach (var range in enumerator)
             {
                 var s = span[range];
@@ -52,7 +52,7 @@ namespace MugenMvvm.Bindings.Observation.Paths
                 members[size++] = s.Slice(start, end - start + 1).Trim().ToString();
             }
 #else
-            var split = path.Split(MugenBindingExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
+            var split = path.Split(BindingMugenExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
             for (var index = 0; index < split.Length; index++)
             {
                 var s = split[index];

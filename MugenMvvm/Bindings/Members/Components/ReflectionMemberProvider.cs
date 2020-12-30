@@ -52,7 +52,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var hasField = hasProperty;
             var hasEvent = !memberTypes.HasFlag(MemberType.Event);
             var result = ItemOrListEditor.Get<IMemberInfo>();
-            var types = MugenBindingExtensions.SelfAndBaseTypes(type, types: _types);
+            var types = BindingMugenExtensions.SelfAndBaseTypes(type, types: _types);
             foreach (var t in types)
             {
                 if (!hasProperty)
@@ -71,7 +71,7 @@ namespace MugenMvvm.Bindings.Members.Components
             if (memberTypes.HasFlag(MemberType.Method))
             {
                 types.Clear();
-                foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type, false, types: types))
+                foreach (var t in BindingMugenExtensions.SelfAndBaseTypes(type, false, types: types))
                 {
                     var methods = t.GetMethods(BindingFlagsEx.All);
                     for (var index = 0; index < methods.Length; index++)

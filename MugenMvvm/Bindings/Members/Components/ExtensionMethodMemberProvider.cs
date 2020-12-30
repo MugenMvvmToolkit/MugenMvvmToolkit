@@ -113,7 +113,7 @@ namespace MugenMvvm.Bindings.Members.Components
             try
             {
                 _singleTypeBuffer[0] = type;
-                genericArguments = MugenBindingExtensions.TryInferGenericParameters(method.GetGenericArguments(),
+                genericArguments = BindingMugenExtensions.TryInferGenericParameters(method.GetGenericArguments(),
                     method.GetParameters(), info => info.ParameterType, _singleTypeBuffer, (data, i) => data[i], _singleTypeBuffer.Length, out _);
                 if (genericArguments == null)
                     return null;

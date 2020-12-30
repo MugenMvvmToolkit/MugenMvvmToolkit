@@ -1,5 +1,6 @@
 package com.mugen.mvvm;
 
+import android.annotation.SuppressLint;
 import android.app.UiModeManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -31,6 +32,7 @@ public final class MugenUtils {
 
     private static final int TabletCrossover = 600;
 
+    @SuppressLint("StaticFieldLeak")
     private static Context _context;
     private static boolean _compatSupported;
     private static boolean _materialSupported;
@@ -65,6 +67,10 @@ public final class MugenUtils {
         return _context;
     }
 
+    public static void setAppContext(Context context) {
+        _context = context.getApplicationContext();
+    }
+
     public static Context getCurrentContext() {
         Context currentActivity = ActivityMugenExtensions.getCurrentActivity();
         if (currentActivity != null)
@@ -72,8 +78,7 @@ public final class MugenUtils {
         return MugenUtils.getAppContext();
     }
 
-    public static void initialize(Context context, IBindViewCallback bindCallback, boolean rawViewTagMode) {
-        _context = context;
+    public static void initialize(IBindViewCallback bindCallback, boolean rawViewTagMode) {
         _rawViewTagMode = rawViewTagMode;
         ViewCleaner viewCleaner = new ViewCleaner();
         FragmentDispatcher fragmentDispatcher = new FragmentDispatcher();

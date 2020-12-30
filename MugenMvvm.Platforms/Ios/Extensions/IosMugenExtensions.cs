@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvm.App.Configuration;
@@ -16,7 +15,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Ios.App;
@@ -28,22 +26,17 @@ using MugenMvvm.Ios.Members;
 using MugenMvvm.Ios.Navigation;
 using MugenMvvm.Ios.Presenters;
 using MugenMvvm.Ios.Views;
-using MugenMvvm.Threading.Components;
 using ObjCRuntime;
 using UIKit;
 
 namespace MugenMvvm.Ios.Extensions
 {
-    public static partial class MugenIosExtensions
+    public static partial class IosMugenExtensions
     {
         #region Methods
 
         public static MugenApplicationConfiguration IosConfiguration(this MugenApplicationConfiguration configuration, bool shouldSaveAppState = true)
         {
-            configuration
-                .ServiceConfiguration<IThreadDispatcher>()
-                .WithComponent(new SynchronizationContextThreadDispatcher(SynchronizationContext.Current, true));
-
             configuration
                 .ServiceConfiguration<IWeakReferenceManager>()
                 .WithComponent(new IosWeakReferenceProvider());
@@ -244,7 +237,7 @@ namespace MugenMvvm.Ios.Extensions
 
             if (newValue is UIViewController viewController)
             {
-                var currentController = MugenBindingExtensions.TryFindParent<UIViewController>(target, metadata);
+                var currentController = BindingMugenExtensions.TryFindParent<UIViewController>(target, metadata);
                 if (currentController != null)
                 {
                     attachedValues.Set(IosInternalConstants.ContentViewControllerPath, viewController, out _);

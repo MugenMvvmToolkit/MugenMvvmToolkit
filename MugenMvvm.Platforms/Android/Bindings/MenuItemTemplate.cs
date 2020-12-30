@@ -79,7 +79,7 @@ namespace MugenMvvm.Android.Bindings
                 return;
             if (menuItem.HasSubMenu)
                 MenuTemplate.ClearMenu(menuItem.SubMenu);
-            MugenBindingExtensions.ClearBindings(menuItem, true);
+            BindingMugenExtensions.ClearBindings(menuItem, true);
         }
 
         #endregion

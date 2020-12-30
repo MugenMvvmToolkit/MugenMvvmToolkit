@@ -24,7 +24,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
     public Object getView(Object container, int resourceId, boolean trackLifecycle) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Context context;
         if (container instanceof IActivityView)
-            context = ((IActivityView) container).getActivity();
+            context = (Context) ((IActivityView) container).getActivity();
         else if (container instanceof View)
             context = ((View) container).getContext();
         else

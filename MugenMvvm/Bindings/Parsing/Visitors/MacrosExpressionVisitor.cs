@@ -27,9 +27,9 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         public MacrosExpressionVisitor()
         {
             _memberBuilder = new StringBuilder();
-            var target = ConstantExpressionNode.Get(typeof(MugenBindingExtensions), typeof(Type));
-            var bindingImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetBinding), Default.Array<IExpressionNode>(), null, Default.ReadOnlyDictionary<string, object?>());
-            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetEventArgs), Default.Array<IExpressionNode>(), null, Default.ReadOnlyDictionary<string, object?>());
+            var target = ConstantExpressionNode.Get(typeof(BindingMugenExtensions), typeof(Type));
+            var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), Default.Array<IExpressionNode>(), null, Default.ReadOnlyDictionary<string, object?>());
+            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), Default.Array<IExpressionNode>(), null, Default.ReadOnlyDictionary<string, object?>());
             Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>
             {
                 {MacrosConstant.Binding, context => bindingImpl},
