@@ -16,8 +16,8 @@ import androidx.fragment.app.DialogFragment;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.INativeFragmentView;
-import com.mugen.mvvm.views.LifecycleExtensions;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.LifecycleMugenExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class MugenDialogFragment extends DialogFragment implements INativeFragmentView, IDialogFragmentView {
     private Object _state;
@@ -29,7 +29,7 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
 
     @Override
     public int getViewId() {
-        return ViewExtensions.tryGetViewId(getClass(), null, 0);
+        return ViewMugenExtensions.tryGetViewId(getClass(), null, 0);
     }
 
     @Override
@@ -44,9 +44,9 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState)) {
             super.onCreate(savedInstanceState);
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
         }
     }
 
@@ -60,8 +60,8 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
         else
             view = inflater.inflate(viewId, container, false);
         if (view != null) {
-            ViewExtensions.onInitializingView(this, view);
-            ViewExtensions.onInitializedView(this, view);
+            ViewMugenExtensions.onInitializingView(this, view);
+            ViewMugenExtensions.onInitializedView(this, view);
         }
         return view;
     }
@@ -70,15 +70,15 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
     public void onDestroyView() {
         View view = getView();
         if (view != null)
-            ViewExtensions.onDestroyView(view);
+            ViewMugenExtensions.onDestroyView(view);
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
             super.onDestroy();
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
             if (_state != null)
                 _state = null;
         }
@@ -86,41 +86,41 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
 
     @Override
     public void onPause() {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Pause, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Pause, null)) {
             super.onPause();
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
         }
     }
 
     @Override
     public void onResume() {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Resume, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Resume, null)) {
             super.onResume();
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
         }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
             super.onSaveInstanceState(outState);
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
         }
     }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu)) {
             super.onCreateOptionsMenu(menu, inflater);
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.CreateOptionsMenu, menu);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.CreateOptionsMenu, menu);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.OptionsItemSelected, item)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.OptionsItemSelected, item)) {
             boolean result = super.onOptionsItemSelected(item);
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.OptionsItemSelected, item);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.OptionsItemSelected, item);
             return result;
         }
         return false;
@@ -128,41 +128,41 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
 
     @Override
     public void onStart() {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Start, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Start, null)) {
             super.onStart();
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
         }
     }
 
     @Override
     public void onStop() {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
             super.onStop();
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
         }
     }
 
     @Override
     public void dismiss() {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Dismiss, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Dismiss, null)) {
             super.dismiss();
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Dismiss, null);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Dismiss, null);
         }
     }
 
     @Override
     public void dismissAllowingStateLoss() {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.DismissAllowingStateLoss, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.DismissAllowingStateLoss, null)) {
             super.dismissAllowingStateLoss();
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.DismissAllowingStateLoss, null);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.DismissAllowingStateLoss, null);
         }
     }
 
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
-        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Cancel, dialog)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Cancel, dialog)) {
             super.onCancel(dialog);
-            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Cancel, dialog);
+            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Cancel, dialog);
         }
     }
 }

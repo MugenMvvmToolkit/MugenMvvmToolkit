@@ -28,6 +28,11 @@ public class ActivityWrapper implements IActivityView {
     }
 
     @Override
+    public void setContentView(int layoutResID) {
+        Target.setContentView(layoutResID);
+    }
+
+    @Override
     public void finish() {
         Target.finish();
     }

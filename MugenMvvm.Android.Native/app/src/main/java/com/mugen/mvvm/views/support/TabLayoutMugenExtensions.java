@@ -10,12 +10,12 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
-import com.mugen.mvvm.views.ViewGroupExtensions;
+import com.mugen.mvvm.views.ViewGroupMugenExtensions;
 
-public final class TabLayoutExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupExtensions.ContentRawProviderType;
+public final class TabLayoutMugenExtensions {
+    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ContentRawProviderType;
 
-    private TabLayoutExtensions() {
+    private TabLayoutMugenExtensions() {
     }
 
     public static boolean isSupported(View view) {
@@ -55,7 +55,7 @@ public final class TabLayoutExtensions {
     }
 
     public static void setupWithViewPager(final View view, final View viewPager) {
-        if (!ViewPager2Extensions.isSupported(viewPager)) {
+        if (!ViewPager2MugenExtensions.isSupported(viewPager)) {
             ((TabLayout) view).setupWithViewPager((ViewPager) viewPager);
             return;
         }
@@ -63,7 +63,7 @@ public final class TabLayoutExtensions {
         new TabLayoutMediator((TabLayout) view, (ViewPager2) viewPager, true, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                IItemsSourceProviderBase provider = ViewPager2Extensions.getItemsSourceProvider(viewPager);
+                IItemsSourceProviderBase provider = ViewPager2MugenExtensions.getItemsSourceProvider(viewPager);
                 if (provider != null)
                     tab.setText(provider.getItemTitle(position));
             }

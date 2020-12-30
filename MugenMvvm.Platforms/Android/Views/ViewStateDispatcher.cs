@@ -81,11 +81,11 @@ namespace MugenMvvm.Android.Views
 
             if (request == null)
             {
-                FragmentExtensions.ClearFragmentState(b);
+                FragmentMugenExtensions.ClearFragmentState(b);
                 if (view is IActivityView av)
                     Finish(av);
                 else if (view is IFragmentView f)
-                    FragmentExtensions.Remove(f);
+                    FragmentMugenExtensions.Remove(f);
             }
             else if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsEmpty)
             {
@@ -100,7 +100,7 @@ namespace MugenMvvm.Android.Views
 
         private void Finish(IActivityView activityView)
         {
-            if (!ActivityExtensions.IsTaskRoot(activityView) || _presenter.DefaultIfNull().Show(activityView).IsEmpty)
+            if (!ActivityMugenExtensions.IsTaskRoot(activityView) || _presenter.DefaultIfNull().Show(activityView).IsEmpty)
                 activityView.Finish();
         }
 
@@ -182,7 +182,7 @@ namespace MugenMvvm.Android.Views
             }
         }
 
-        private static string? GetViewModelId(object view) => view is IActivityView activityView ? ActivityExtensions.GetViewModelId(activityView) : null;
+        private static string? GetViewModelId(object view) => view is IActivityView activityView ? ActivityMugenExtensions.GetViewModelId(activityView) : null;
 
         #endregion
     }

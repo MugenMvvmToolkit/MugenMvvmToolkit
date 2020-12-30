@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -51,9 +51,9 @@ public class MugenLayoutInflater extends LayoutInflater {
 
     @Override
     public View inflate(int resource, ViewGroup root, boolean attachToRoot) {
-        ViewExtensions.onInflatingView(resource, getContext());
+        ViewMugenExtensions.onInflatingView(resource, getContext());
         View result = super.inflate(resource, root, attachToRoot);
-        ViewExtensions.onInflatedView(result, resource, getContext());
+        ViewMugenExtensions.onInflatedView(result, resource, getContext());
         return result;
     }
 
@@ -133,13 +133,13 @@ public class MugenLayoutInflater extends LayoutInflater {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public View onActivityCreateView(View parent, View view, String name, Context context, AttributeSet attrs) {
-        return ViewExtensions.onCreatedView(createCustomViewInternal(parent, view, name, context, attrs), context, attrs);
+        return ViewMugenExtensions.onCreatedView(createCustomViewInternal(parent, view, name, context, attrs), context, attrs);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull Context viewContext, @Nullable View parent, @NonNull String name, @Nullable AttributeSet attrs) throws ClassNotFoundException {
-        return ViewExtensions.onCreatedView(super.onCreateView(viewContext, parent, name, attrs), viewContext, attrs);
+        return ViewMugenExtensions.onCreatedView(super.onCreateView(viewContext, parent, name, attrs), viewContext, attrs);
     }
 
     /**
@@ -149,7 +149,7 @@ public class MugenLayoutInflater extends LayoutInflater {
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected View onCreateView(View parent, String name, AttributeSet attrs) throws ClassNotFoundException {
-        return ViewExtensions.onCreatedView(super.onCreateView(parent, name, attrs), getContext(), attrs);
+        return ViewMugenExtensions.onCreatedView(super.onCreateView(parent, name, attrs), getContext(), attrs);
     }
 
     /**
@@ -175,7 +175,7 @@ public class MugenLayoutInflater extends LayoutInflater {
 
         if (view == null)
             return null;
-        return ViewExtensions.onCreatedView(view, view.getContext(), attrs);
+        return ViewMugenExtensions.onCreatedView(view, view.getContext(), attrs);
     }
 
     /**
@@ -201,7 +201,7 @@ public class MugenLayoutInflater extends LayoutInflater {
         // significant difference to performance on Android 4.0+.
 
         if (view == null)
-            view = ViewExtensions.tryCreateCustomView(parent, name, viewContext, attrs);
+            view = ViewMugenExtensions.tryCreateCustomView(parent, name, viewContext, attrs);
         if (view == null && name.indexOf('.') > -1) {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                 if (mConstructorArgs == null) {
@@ -251,9 +251,9 @@ public class MugenLayoutInflater extends LayoutInflater {
         @Override
         public View onCreateView(String name, Context context, AttributeSet attrs) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                return ViewExtensions.onCreatedView(mInflater.createCustomViewInternal(null, mFactory.onCreateView(name, context, attrs), name, context, attrs), context, attrs);
+                return ViewMugenExtensions.onCreatedView(mInflater.createCustomViewInternal(null, mFactory.onCreateView(name, context, attrs), name, context, attrs), context, attrs);
             }
-            return ViewExtensions.onCreatedView(mFactory.onCreateView(name, context, attrs), context, attrs);
+            return ViewMugenExtensions.onCreatedView(mFactory.onCreateView(name, context, attrs), context, attrs);
         }
     }
 
@@ -270,12 +270,12 @@ public class MugenLayoutInflater extends LayoutInflater {
 
         @Override
         public View onCreateView(String name, Context context, AttributeSet attrs) {
-            return ViewExtensions.onCreatedView(mFactory2.onCreateView(name, context, attrs), context, attrs);
+            return ViewMugenExtensions.onCreatedView(mFactory2.onCreateView(name, context, attrs), context, attrs);
         }
 
         @Override
         public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-            return ViewExtensions.onCreatedView(mFactory2.onCreateView(parent, name, context, attrs), context, attrs);
+            return ViewMugenExtensions.onCreatedView(mFactory2.onCreateView(parent, name, context, attrs), context, attrs);
         }
     }
 
@@ -295,7 +295,7 @@ public class MugenLayoutInflater extends LayoutInflater {
 
         @Override
         public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-            return ViewExtensions.onCreatedView(mInflater.createCustomViewInternal(parent, mFactory2.onCreateView(parent, name, context, attrs), name, context, attrs), context, attrs);
+            return ViewMugenExtensions.onCreatedView(mInflater.createCustomViewInternal(parent, mFactory2.onCreateView(parent, name, context, attrs), name, context, attrs), context, attrs);
         }
     }
 }

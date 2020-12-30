@@ -13,14 +13,14 @@ import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenFragmentPager2Adapter;
 import com.mugen.mvvm.internal.support.MugenPager2Adapter;
-import com.mugen.mvvm.views.FragmentExtensions;
-import com.mugen.mvvm.views.ViewGroupExtensions;
+import com.mugen.mvvm.views.FragmentMugenExtensions;
+import com.mugen.mvvm.views.ViewGroupMugenExtensions;
 
-public final class ViewPager2Extensions {
-    public static final int ItemsSourceProviderType = ViewGroupExtensions.ResourceOrContentProviderType;
+public final class ViewPager2MugenExtensions {
+    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ResourceOrContentProviderType;
     private static boolean _supported;
 
-    private ViewPager2Extensions() {
+    private ViewPager2MugenExtensions() {
     }
 
     public static boolean isSupported(View view) {
@@ -69,8 +69,8 @@ public final class ViewPager2Extensions {
         if (provider == null)
             viewPager.setAdapter(null);
         else if (hasFragments) {
-            LifecycleOwner owner = (LifecycleOwner) FragmentExtensions.getFragmentOwner(view);
-            viewPager.setAdapter(new MugenFragmentPager2Adapter((IContentItemsSourceProvider) provider, (FragmentManager) FragmentExtensions.getFragmentManager(owner), owner.getLifecycle()));
+            LifecycleOwner owner = (LifecycleOwner) FragmentMugenExtensions.getFragmentOwner(view);
+            viewPager.setAdapter(new MugenFragmentPager2Adapter((IContentItemsSourceProvider) provider, (FragmentManager) FragmentMugenExtensions.getFragmentManager(owner), owner.getLifecycle()));
         } else
             viewPager.setAdapter(new MugenPager2Adapter(viewPager, (IResourceItemsSourceProvider) provider));
     }

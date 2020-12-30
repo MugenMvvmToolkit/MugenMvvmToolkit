@@ -9,7 +9,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.interfaces.views.IHasLifecycleView;
-import com.mugen.mvvm.views.LifecycleExtensions;
+import com.mugen.mvvm.views.LifecycleMugenExtensions;
 
 public class MugenPager2Adapter extends MugenRecyclerViewAdapter {
     private final ViewPager2 _viewPager;
@@ -70,14 +70,14 @@ public class MugenPager2Adapter extends MugenRecyclerViewAdapter {
             _selectedIndex = position;
 
             if (oldPage != null && oldPage != newPage && !(oldPage instanceof IHasLifecycleView)) {
-                LifecycleExtensions.onLifecycleChanging(oldPage, LifecycleState.Pause, null);
-                LifecycleExtensions.onLifecycleChanged(oldPage, LifecycleState.Pause, null);
+                LifecycleMugenExtensions.onLifecycleChanging(oldPage, LifecycleState.Pause, null);
+                LifecycleMugenExtensions.onLifecycleChanged(oldPage, LifecycleState.Pause, null);
             }
 
             if (newPage != null && !(newPage instanceof IHasLifecycleView)) {
                 _isFirstPageNotified = true;
-                LifecycleExtensions.onLifecycleChanging(newPage, LifecycleState.Resume, null);
-                LifecycleExtensions.onLifecycleChanged(newPage, LifecycleState.Resume, null);
+                LifecycleMugenExtensions.onLifecycleChanging(newPage, LifecycleState.Resume, null);
+                LifecycleMugenExtensions.onLifecycleChanged(newPage, LifecycleState.Resume, null);
             }
         }
 

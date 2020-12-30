@@ -49,7 +49,7 @@ namespace MugenMvvm.Android.Views
                             return new ValueTask<IView?>(v);
                     }
 
-                    var view = ViewExtensions.GetView(container, resourceId, true);
+                    var view = ViewMugenExtensions.GetView(container, resourceId, true);
                     viewMapping ??= new ResourceViewMapping(resourceId, viewRequest.ViewModel.GetType(), view.GetType(), metadata);
                     viewRequest.View = view;
                     mapping = viewMapping;

@@ -7,10 +7,10 @@ import com.mugen.mvvm.internal.NativeLifecycleDispatcherWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public final class LifecycleExtensions {
+public final class LifecycleMugenExtensions {
     private final static ArrayList<ILifecycleDispatcher> _lifecycleDispatchers = new ArrayList<>();
 
-    private LifecycleExtensions() {
+    private LifecycleMugenExtensions() {
     }
 
     public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher, boolean wrap) {

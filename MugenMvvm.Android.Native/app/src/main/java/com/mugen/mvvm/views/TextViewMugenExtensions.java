@@ -3,8 +3,8 @@ package com.mugen.mvvm.views;
 import android.view.View;
 import android.widget.TextView;
 
-public final class TextViewExtensions {
-    private TextViewExtensions() {
+public final class TextViewMugenExtensions {
+    private TextViewMugenExtensions() {
     }
 
     public static String getText(View view) {

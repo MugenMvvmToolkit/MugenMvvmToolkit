@@ -5,9 +5,9 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.TextView;
 
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
-public class ViewMemberListener implements ViewExtensions.IMemberListener, View.OnClickListener, TextWatcher, android.view.View.OnLongClickListener {
+public class ViewMemberListener implements ViewMugenExtensions.IMemberListener, View.OnClickListener, TextWatcher, android.view.View.OnLongClickListener {
     protected final View View;
     private short _clickListenerCount;
     private short _longClickListenerCount;
@@ -19,21 +19,21 @@ public class ViewMemberListener implements ViewExtensions.IMemberListener, View.
 
     @Override
     public void addListener(Object target, String memberName) {
-        if (ViewExtensions.ClickEventName.equals(memberName) && _clickListenerCount++ == 0)
+        if (ViewMugenExtensions.ClickEventName.equals(memberName) && _clickListenerCount++ == 0)
             View.setOnClickListener(this);
-        else if (ViewExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount++ == 0)
+        else if (ViewMugenExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount++ == 0)
             View.setOnLongClickListener(this);
-        else if (ViewExtensions.TextMemberName.equals(memberName) || ViewExtensions.TextEventName.equals(memberName) && _textChangedListenerCount++ == 0)
+        else if (ViewMugenExtensions.TextMemberName.equals(memberName) || ViewMugenExtensions.TextEventName.equals(memberName) && _textChangedListenerCount++ == 0)
             ((TextView) target).addTextChangedListener(this);
     }
 
     @Override
     public void removeListener(Object target, String memberName) {
-        if (ViewExtensions.ClickEventName.equals(memberName) && _clickListenerCount != 0 && --_clickListenerCount == 0)
+        if (ViewMugenExtensions.ClickEventName.equals(memberName) && _clickListenerCount != 0 && --_clickListenerCount == 0)
             View.setOnClickListener(null);
-        else if (ViewExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount != 0 && --_longClickListenerCount == 0)
+        else if (ViewMugenExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount != 0 && --_longClickListenerCount == 0)
             View.setOnLongClickListener(null);
-        else if (ViewExtensions.TextMemberName.equals(memberName) || ViewExtensions.TextEventName.equals(memberName) && _textChangedListenerCount != 0 && --_textChangedListenerCount == 0)
+        else if (ViewMugenExtensions.TextMemberName.equals(memberName) || ViewMugenExtensions.TextEventName.equals(memberName) && _textChangedListenerCount != 0 && --_textChangedListenerCount == 0)
             ((TextView) target).removeTextChangedListener(this);
     }
 
@@ -44,8 +44,8 @@ public class ViewMemberListener implements ViewExtensions.IMemberListener, View.
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        ViewExtensions.onMemberChanged(View, ViewExtensions.TextMemberName, null);
-        ViewExtensions.onMemberChanged(View, ViewExtensions.TextEventName, null);
+        ViewMugenExtensions.onMemberChanged(View, ViewMugenExtensions.TextMemberName, null);
+        ViewMugenExtensions.onMemberChanged(View, ViewMugenExtensions.TextEventName, null);
     }
 
     @Override
@@ -55,11 +55,11 @@ public class ViewMemberListener implements ViewExtensions.IMemberListener, View.
 
     @Override
     public void onClick(View v) {
-        ViewExtensions.onMemberChanged(v, ViewExtensions.ClickEventName, null);
+        ViewMugenExtensions.onMemberChanged(v, ViewMugenExtensions.ClickEventName, null);
     }
 
     @Override
     public boolean onLongClick(android.view.View v) {
-        return ViewExtensions.onMemberChanged(v, ViewExtensions.LongClickEventName, null);
+        return ViewMugenExtensions.onMemberChanged(v, ViewMugenExtensions.LongClickEventName, null);
     }
 }

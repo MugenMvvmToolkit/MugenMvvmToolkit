@@ -9,5 +9,7 @@ public interface IActivityView extends IResourceView, IHasStateView, IHasLifecyc
 
     boolean isDestroyed();
 
+    void setContentView(int layoutResID);
+
     void finish();
 }

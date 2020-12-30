@@ -6,8 +6,8 @@ import android.view.View;
 import com.google.android.material.tabs.TabLayout;
 import com.mugen.mvvm.MugenUtils;
 
-public abstract class TabLayoutTabExtensions {
-    private TabLayoutTabExtensions() {
+public abstract class TabLayoutTabMugenExtensions {
+    private TabLayoutTabMugenExtensions() {
     }
 
     public static boolean isSupported(Object view) {

@@ -10,14 +10,14 @@ import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.views.FragmentExtensions;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.FragmentMugenExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher {
     @Override
     public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
         if (MugenUtils.isFragmentStateDisabled() && lifecycle == LifecycleState.Create && state instanceof Bundle)
-            FragmentExtensions.clearFragmentState((Bundle) state);
+            FragmentMugenExtensions.clearFragmentState((Bundle) state);
         return true;
     }
 
@@ -36,8 +36,8 @@ public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher
 
     @Override
     public void onInitializing(Object owner, View view) {
-        if (FragmentExtensions.isSupported(owner))
-            ViewExtensions.getNativeAttachedValues(view, true).setFragment(owner);
+        if (FragmentMugenExtensions.isSupported(owner))
+            ViewMugenExtensions.getNativeAttachedValues(view, true).setFragment(owner);
     }
 
     @Override

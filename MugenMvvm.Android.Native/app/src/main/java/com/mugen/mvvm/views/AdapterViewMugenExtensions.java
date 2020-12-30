@@ -9,10 +9,10 @@ import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.MugenListAdapter;
 
-public abstract class AdapterViewExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupExtensions.ResourceProviderType;
+public abstract class AdapterViewMugenExtensions {
+    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ResourceProviderType;
 
-    private AdapterViewExtensions() {
+    private AdapterViewMugenExtensions() {
     }
 
     public static boolean isSupported(View view) {

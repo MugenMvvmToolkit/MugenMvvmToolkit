@@ -1,11 +1,11 @@
 package com.mugen.mvvm.internal;
 
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
 import java.util.HashMap;
 
-public class MemberChangedListenerWrapper extends HashMap<String, ViewExtensions.IMemberListener> implements IMemberChangedListener {
+public class MemberChangedListenerWrapper extends HashMap<String, ViewMugenExtensions.IMemberListener> implements IMemberChangedListener {
     private IMemberChangedListener _listener;
 
     public MemberChangedListenerWrapper() {

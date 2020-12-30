@@ -10,11 +10,11 @@ import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.views.AdapterViewExtensions;
-import com.mugen.mvvm.views.ViewExtensions;
-import com.mugen.mvvm.views.support.RecyclerViewExtensions;
-import com.mugen.mvvm.views.support.ViewPager2Extensions;
-import com.mugen.mvvm.views.support.ViewPagerExtensions;
+import com.mugen.mvvm.views.AdapterViewMugenExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
+import com.mugen.mvvm.views.support.RecyclerViewMugenExtensions;
+import com.mugen.mvvm.views.support.ViewPager2MugenExtensions;
+import com.mugen.mvvm.views.support.ViewPagerMugenExtensions;
 
 public class ViewCleaner implements ILifecycleDispatcher, IViewDispatcher {
     private static void clear(View view) {
@@ -25,15 +25,15 @@ public class ViewCleaner implements ILifecycleDispatcher, IViewDispatcher {
             }
         }
 
-        if (ViewPagerExtensions.isSupported(view))
-            ViewPagerExtensions.onDestroy(view);
-        else if (ViewPager2Extensions.isSupported(view))
-            ViewPager2Extensions.onDestroy(view);
-        else if (RecyclerViewExtensions.isSupported(view))
-            RecyclerViewExtensions.onDestroy(view);
-        else if (AdapterViewExtensions.isSupported(view))
-            AdapterViewExtensions.onDestroy(view);
-        ViewExtensions.setAttachedValues(view, null);
+        if (ViewPagerMugenExtensions.isSupported(view))
+            ViewPagerMugenExtensions.onDestroy(view);
+        else if (ViewPager2MugenExtensions.isSupported(view))
+            ViewPager2MugenExtensions.onDestroy(view);
+        else if (RecyclerViewMugenExtensions.isSupported(view))
+            RecyclerViewMugenExtensions.onDestroy(view);
+        else if (AdapterViewMugenExtensions.isSupported(view))
+            AdapterViewMugenExtensions.onDestroy(view);
+        ViewMugenExtensions.setAttachedValues(view, null);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ViewCleaner implements ILifecycleDispatcher, IViewDispatcher {
 
         View view = ((Activity) target).findViewById(android.R.id.content);
         if (view != null)
-            ViewExtensions.onDestroyView(view);
+            ViewMugenExtensions.onDestroyView(view);
     }
 
     @Override

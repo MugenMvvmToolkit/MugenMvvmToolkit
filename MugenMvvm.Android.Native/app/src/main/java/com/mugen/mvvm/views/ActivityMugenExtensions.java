@@ -17,7 +17,7 @@ import com.mugen.mvvm.views.activities.MainMugenAppCompatActivity;
 import com.mugen.mvvm.views.activities.MugenActivity;
 import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
-public final class ActivityExtensions {
+public final class ActivityMugenExtensions {
     public static final String ViewIdIntentKey = "~v_id!";
     public static final String ViewModelIdIntentKey = "~vm_id!";
     public static final String RequestIdIntentKey = "~r_id!";
@@ -25,7 +25,7 @@ public final class ActivityExtensions {
     @SuppressLint("StaticFieldLeak")
     private static Activity _currentActivity;
 
-    private ActivityExtensions() {
+    private ActivityMugenExtensions() {
     }
 
     public static boolean isTaskRoot(IActivityView activityView) {
@@ -54,12 +54,12 @@ public final class ActivityExtensions {
 
     @SuppressLint("NewApi")
     public static boolean setActionBar(IActivityView activityView, View toolbar) {
-        if (ToolbarExtensions.isSupportedCompat(toolbar)) {
+        if (ToolbarMugenExtensions.isSupportedCompat(toolbar)) {
             AppCompatActivity activity = (AppCompatActivity) activityView.getActivity();
             activity.setSupportActionBar((androidx.appcompat.widget.Toolbar) toolbar);
             return true;
         }
-        if (ToolbarExtensions.isSupported(toolbar)) {
+        if (ToolbarMugenExtensions.isSupported(toolbar)) {
             Activity activity = (Activity) activityView.getActivity();
             activity.setActionBar((Toolbar) toolbar);
             return true;
@@ -69,7 +69,7 @@ public final class ActivityExtensions {
 
     public static boolean startActivity(IActivityView activityView, Class activityClass, int requestId, String viewModelId, int resourceId, int flags) {
         if (activityClass == null)
-            activityClass = ViewExtensions.tryGetClassById(resourceId);
+            activityClass = ViewMugenExtensions.tryGetClassById(resourceId);
         if (activityClass == null)
             return false;
 
@@ -102,11 +102,11 @@ public final class ActivityExtensions {
     }
 
     public static void setMainActivityMapping(int resource, boolean isCompat) {
-        ViewExtensions.addViewMapping(isCompat ? MainMugenAppCompatActivity.class : MainMugenActivity.class, resource, false);
+        ViewMugenExtensions.addViewMapping(isCompat ? MainMugenAppCompatActivity.class : MainMugenActivity.class, resource, false);
     }
 
     public static void addCommonActivityMapping(int resource, boolean isCompat) {
-        ViewExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource, false);
+        ViewMugenExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource, false);
     }
 
 

@@ -54,7 +54,7 @@ namespace MugenMvvm.Internal
         #region Methods
 
         public static void AddConsoleLogger(ILogger logger) =>
-            logger.AddComponent(new DelegateLogger((level, s, e, _) => Console.Out.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}"), (level, context) => true));
+            logger.AddComponent(new DelegateLogger((level, s, e, _) => Console.Out.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}"), (_, _) => true));
 
         public static void TraceApp(IMugenApplication application) => application.AddComponent(new ApplicationTracer());
 
@@ -72,7 +72,11 @@ namespace MugenMvvm.Internal
 
         public static void TraceViewModel(IViewModelManager viewModelManager) => viewModelManager.AddComponent(new ViewModelTracer());
 
-        public static void TraceView(IViewManager viewManager) => viewManager.AddComponent(new ViewTracer());
+        public static void TraceView(IViewManager viewManager)
+        {
+            viewManager.AddComponent(new ViewTracer());
+            viewManager.AddComponent(new ViewMappingTracer());
+        }
 
         private static string Dump(INavigationDispatcher navigationDispatcher, INavigationContext context) =>
             $"mode={context.NavigationMode}, type={context.NavigationType}, target={context.Target}, provider={context.NavigationProvider}, metadata={context.GetMetadataOrDefault().Dump()}, prevTarget={GetPrevNavigationTarget(navigationDispatcher, context)}, id={context.NavigationId}";
@@ -95,7 +99,24 @@ namespace MugenMvvm.Internal
             {
                 string r = results.Count == 1 ? ", result=" : $", result_{count++}=";
                 builder.Append(
-                    $"{r}(type={result.NavigationType}, id={result.NavigationId}, target={result.Target}, provider={result.NavigationProvider}, metadata={result.GetMetadataOrDefault().Dump()})");
+                    $"{r}(type={result.NavigationType}, id={result.NavigationId}, target={result.Target}, provider={result.NavigationProvider}, metadata={result.GetMetadataOrDefault().Dump()}, raw={result})");
+            }
+
+            return builder.ToString();
+        }
+
+        private static string Dump(ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> results)
+        {
+            if (results.Count == 0)
+                return " result=empty";
+
+            var builder = new StringBuilder();
+            var count = 0;
+            foreach (var result in results)
+            {
+                string r = results.Count == 1 ? ", result=" : $", result_{count++}=";
+                builder.Append(
+                    $"{r}(viewmodel={result.ViewModelType}, view={result.ViewType}, metadata={result.GetMetadataOrDefault().Dump()}, raw={result})");
             }
 
             return builder.ToString();
@@ -124,12 +145,12 @@ namespace MugenMvvm.Internal
         }
 
         private static object? GetPrevNavigationTarget(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
-            navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
+            navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, _) =>
             {
                 if (entry.NavigationType == context.NavigationType && entry.Target != null && !Equals(entry.Target, context.Target))
                     return entry.Target;
                 return null;
-            }) ?? navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
+            }) ?? navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, _) =>
             {
                 if (entry.Target != null && !Equals(entry.Target, context.Target))
                     return entry.Target;
@@ -404,6 +425,29 @@ namespace MugenMvvm.Internal
                 else if (lifecycleState == ViewModelLifecycleState.Finalized)
                     ++_finalizedCount;
                 Logger.Trace()?.Log($"{ViewModelTag}created={_createdCount}, disposed={_disposedCount}, finalized={_finalizedCount}");
+            }
+
+            #endregion
+        }
+
+        private sealed class ViewMappingTracer : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent
+        {
+            #region Constructors
+
+            public ViewMappingTracer() : base(ComponentPriority.Max)
+            {
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+            {
+                var mappings = Components.TryGetMappings(viewManager, request, metadata);
+                var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
+                Logger.Trace()?.Log($"{ViewTag}mappings for ({request}, viewmodel={vm}, view={view}) {Dump(mappings)}, metadata={metadata.Dump()}");
+                return mappings;
             }
 
             #endregion

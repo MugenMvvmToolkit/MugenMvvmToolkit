@@ -9,7 +9,7 @@ import com.mugen.mvvm.R;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class BindViewDispatcher implements IViewDispatcher {
     private final static ViewAttributeAccessor _accessor = new ViewAttributeAccessor();
@@ -22,13 +22,13 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public void onParentChanged(View view) {
-        ViewExtensions.onMemberChanged(view, ViewExtensions.ParentMemberName, null);
-        ViewExtensions.onMemberChanged(view, ViewExtensions.ParentEventName, null);
+        ViewMugenExtensions.onMemberChanged(view, ViewMugenExtensions.ParentMemberName, null);
+        ViewMugenExtensions.onMemberChanged(view, ViewMugenExtensions.ParentEventName, null);
     }
 
     @Override
     public void onInitializing(Object owner, View view) {
-        _viewBindCallback.onSetView(ViewExtensions.tryWrap(owner), view);
+        _viewBindCallback.onSetView(ViewMugenExtensions.tryWrap(owner), view);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public View onCreated(View view, Context context, AttributeSet attrs) {
-        ViewAttachedValues attachedValues = ViewExtensions.getNativeAttachedValues(view, true);
+        ViewAttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(view, true);
         if (attachedValues.isBindHandled())
             return view;
         attachedValues.setBindHandled(true);

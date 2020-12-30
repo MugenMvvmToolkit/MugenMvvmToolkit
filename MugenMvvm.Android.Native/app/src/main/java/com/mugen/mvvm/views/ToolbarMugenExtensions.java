@@ -10,8 +10,8 @@ import android.widget.Toolbar;
 import com.mugen.mvvm.MugenUtils;
 
 @SuppressLint("NewApi")
-public final class ToolbarExtensions {
-    private ToolbarExtensions() {
+public final class ToolbarMugenExtensions {
+    private ToolbarMugenExtensions() {
     }
 
     public static boolean isSupportedCompat(View view) {

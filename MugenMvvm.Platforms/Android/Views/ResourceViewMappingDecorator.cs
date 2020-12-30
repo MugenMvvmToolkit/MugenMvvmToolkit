@@ -27,6 +27,9 @@ namespace MugenMvvm.Android.Views
         public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             var mappings = Components.TryGetMappings(viewManager, request, metadata);
+            if (mappings.IsEmpty)
+                return mappings;
+
             MugenExtensions.TryGetViewModelView(request, out IResourceView? view);
             if (view == null)
                 return mappings;

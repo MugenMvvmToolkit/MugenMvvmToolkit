@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -68,6 +69,9 @@ namespace MugenMvvm.Presenters.Components
                     }
                 }
             }
+
+            if (result.IsEmpty && canDisposeViewModel)
+                (viewModel as IDisposable)?.Dispose();
 
             return result;
         }

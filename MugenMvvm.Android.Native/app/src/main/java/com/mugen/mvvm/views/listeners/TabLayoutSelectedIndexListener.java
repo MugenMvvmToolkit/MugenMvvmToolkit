@@ -1,9 +1,9 @@
 package com.mugen.mvvm.views.listeners;
 
 import com.google.android.material.tabs.TabLayout;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
-public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedListener, ViewExtensions.IMemberListener {
+public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedListener, ViewMugenExtensions.IMemberListener {
     private final TabLayout _tabLayout;
     private short _selectedIndexChangedCount;
 
@@ -13,8 +13,8 @@ public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedLi
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        ViewExtensions.onMemberChanged(_tabLayout, ViewExtensions.SelectedIndexName, tab);
-        ViewExtensions.onMemberChanged(_tabLayout, ViewExtensions.SelectedIndexEventName, tab);
+        ViewMugenExtensions.onMemberChanged(_tabLayout, ViewMugenExtensions.SelectedIndexName, tab);
+        ViewMugenExtensions.onMemberChanged(_tabLayout, ViewMugenExtensions.SelectedIndexEventName, tab);
     }
 
     @Override
@@ -29,13 +29,13 @@ public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedLi
 
     @Override
     public void addListener(Object target, String memberName) {
-        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
+        if (ViewMugenExtensions.SelectedIndexName.equals(memberName) || ViewMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
             _tabLayout.addOnTabSelectedListener(this);
     }
 
     @Override
     public void removeListener(Object target, String memberName) {
-        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
+        if (ViewMugenExtensions.SelectedIndexName.equals(memberName) || ViewMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
             _tabLayout.removeOnTabSelectedListener(this);
     }
 }

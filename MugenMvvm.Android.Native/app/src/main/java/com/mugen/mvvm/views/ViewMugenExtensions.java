@@ -31,14 +31,14 @@ import com.mugen.mvvm.internal.ViewParentObserver;
 import com.mugen.mvvm.views.activities.ActivityWrapper;
 import com.mugen.mvvm.views.fragments.DialogFragmentWrapper;
 import com.mugen.mvvm.views.fragments.FragmentWrapper;
-import com.mugen.mvvm.views.support.TabLayoutTabExtensions;
+import com.mugen.mvvm.views.support.TabLayoutTabMugenExtensions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public final class ViewExtensions {
+public final class ViewMugenExtensions {
     public static final CharSequence ParentMemberName = "Parent";
     public static final CharSequence ParentEventName = "ParentChanged";
     public static final CharSequence ClickEventName = "Click";
@@ -56,7 +56,7 @@ public final class ViewExtensions {
     private final static ArrayList<IMemberListenerManager> ListenerManagers = new ArrayList<>();
     private static IViewFactory _viewFactory;
 
-    private ViewExtensions() {
+    private ViewMugenExtensions() {
     }
 
     public static void registerMemberListenerManager(IMemberListenerManager manager) {
@@ -179,15 +179,15 @@ public final class ViewExtensions {
     }
 
     public static boolean isMenuSupported(View view) {
-        return ToolbarExtensions.isSupported(view);
+        return ToolbarMugenExtensions.isSupported(view);
     }
 
     public static Menu getMenu(View view) {
-        return ToolbarExtensions.getMenu(view);
+        return ToolbarMugenExtensions.getMenu(view);
     }
 
     public static boolean isSupportAttachedValues(Object target) {
-        return target instanceof View || target instanceof IHasStateView || TabLayoutTabExtensions.isSupported(target) || ActionBarExtensions.isSupported(target);
+        return target instanceof View || target instanceof IHasStateView || TabLayoutTabMugenExtensions.isSupported(target) || ActionBarMugenExtensions.isSupported(target);
     }
 
     public static ViewAttachedValues getNativeAttachedValues(View view, boolean required) {
@@ -227,8 +227,8 @@ public final class ViewExtensions {
             return result;
         }
 
-        if (ActionBarExtensions.isSupported(target)) {
-            ActivityAttachedValues attachedValues = (ActivityAttachedValues) getNativeAttachedValues(ActivityExtensions.getActivity(ActionBarExtensions.getThemedContext(target)), true);
+        if (ActionBarMugenExtensions.isSupported(target)) {
+            ActivityAttachedValues attachedValues = (ActivityAttachedValues) getNativeAttachedValues(ActivityMugenExtensions.getActivity(ActionBarMugenExtensions.getThemedContext(target)), true);
             AttachedValues result = attachedValues.getActionBarAttachedValues();
             if (result != null || !required)
                 return result;
@@ -237,12 +237,12 @@ public final class ViewExtensions {
             return result;
         }
 
-        if (TabLayoutTabExtensions.isSupported(target)) {
-            AttachedValues result = (AttachedValues) TabLayoutTabExtensions.getTag(target);
+        if (TabLayoutTabMugenExtensions.isSupported(target)) {
+            AttachedValues result = (AttachedValues) TabLayoutTabMugenExtensions.getTag(target);
             if (result != null || !required)
                 return result;
             result = new AttachedValues();
-            TabLayoutTabExtensions.setTag(target, result);
+            TabLayoutTabMugenExtensions.setTag(target, result);
             return result;
         }
 
@@ -273,8 +273,8 @@ public final class ViewExtensions {
     }
 
     public static int tryGetViewId(Class viewClass, Intent intent, int defaultValue) {
-        if (intent != null && intent.hasExtra(ActivityExtensions.ViewIdIntentKey))
-            return intent.getIntExtra(ActivityExtensions.ViewIdIntentKey, defaultValue);
+        if (intent != null && intent.hasExtra(ActivityMugenExtensions.ViewIdIntentKey))
+            return intent.getIntExtra(ActivityMugenExtensions.ViewIdIntentKey, defaultValue);
         if (viewClass == null)
             return defaultValue;
         Integer value = _viewResourceMapping.get(viewClass);
@@ -284,7 +284,7 @@ public final class ViewExtensions {
     }
 
     public static Object getView(Object container, int resourceId, boolean trackLifecycle) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        return ViewExtensions.tryWrap(getViewFactory().getView(container, resourceId, trackLifecycle));
+        return ViewMugenExtensions.tryWrap(getViewFactory().getView(container, resourceId, trackLifecycle));
     }
 
     public static IViewFactory getViewFactory() {
@@ -295,10 +295,10 @@ public final class ViewExtensions {
 
     public static void setViewFactory(IViewFactory viewFactory) {
         if (_viewFactory instanceof ILifecycleDispatcher)
-            LifecycleExtensions.removeLifecycleDispatcher((ILifecycleDispatcher) _viewFactory);
+            LifecycleMugenExtensions.removeLifecycleDispatcher((ILifecycleDispatcher) _viewFactory);
         _viewFactory = viewFactory;
         if (_viewFactory instanceof ILifecycleDispatcher)
-            LifecycleExtensions.addLifecycleDispatcher((ILifecycleDispatcher) _viewFactory, false);
+            LifecycleMugenExtensions.addLifecycleDispatcher((ILifecycleDispatcher) _viewFactory, false);
     }
 
     public static void addViewDispatcher(IViewDispatcher viewDispatcher) {
@@ -371,7 +371,7 @@ public final class ViewExtensions {
             return target;
 
         if (target instanceof INativeActivityView) {
-            ActivityAttachedValues attachedValues = (ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(target, true);
+            ActivityAttachedValues attachedValues = (ActivityAttachedValues) ViewMugenExtensions.getNativeAttachedValues(target, true);
             Object wrapper = attachedValues.getWrapper();
             if (wrapper == null) {
                 wrapper = new ActivityWrapper((INativeActivityView) target);
@@ -381,7 +381,7 @@ public final class ViewExtensions {
         }
 
         if (target instanceof INativeFragmentView) {
-            FragmentAttachedValues attachedValues = (FragmentAttachedValues) ViewExtensions.getNativeAttachedValues(target, true);
+            FragmentAttachedValues attachedValues = (FragmentAttachedValues) ViewMugenExtensions.getNativeAttachedValues(target, true);
             Object wrapper = attachedValues.getWrapper();
             if (wrapper == null) {
                 if (target instanceof IDialogFragmentView)
@@ -397,7 +397,7 @@ public final class ViewExtensions {
 
     private static Object getParentRaw(View view) {
         if (view.getId() == android.R.id.content)
-            return tryWrap(ActivityExtensions.getActivity(view.getContext()));
+            return tryWrap(ActivityMugenExtensions.getActivity(view.getContext()));
 
         ViewAttachedValues attachedValues = getNativeAttachedValues(view, false);
         Object parent = attachedValues == null ? null : attachedValues.getParent();

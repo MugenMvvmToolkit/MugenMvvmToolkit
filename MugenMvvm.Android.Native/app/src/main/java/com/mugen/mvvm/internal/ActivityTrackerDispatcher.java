@@ -5,16 +5,16 @@ import android.app.Activity;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
-import com.mugen.mvvm.views.ActivityExtensions;
+import com.mugen.mvvm.views.ActivityMugenExtensions;
 
 public class ActivityTrackerDispatcher implements ILifecycleDispatcher {
 
     @Override
     public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
         if ((lifecycle == LifecycleState.Create || lifecycle == LifecycleState.Resume) && target instanceof Activity)
-            ActivityExtensions.setCurrentActivity((Activity) target);
+            ActivityMugenExtensions.setCurrentActivity((Activity) target);
         else if ((lifecycle == LifecycleState.Finish || lifecycle == LifecycleState.Destroy) && target instanceof Activity)
-            ActivityExtensions.clearCurrentActivity((Activity) target);
+            ActivityMugenExtensions.clearCurrentActivity((Activity) target);
         return true;
     }
 

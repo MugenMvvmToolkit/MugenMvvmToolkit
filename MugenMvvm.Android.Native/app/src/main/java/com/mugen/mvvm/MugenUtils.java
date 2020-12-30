@@ -13,14 +13,14 @@ import com.mugen.mvvm.internal.ActivityTrackerDispatcher;
 import com.mugen.mvvm.internal.BindViewDispatcher;
 import com.mugen.mvvm.internal.FragmentDispatcher;
 import com.mugen.mvvm.internal.ViewCleaner;
-import com.mugen.mvvm.views.ActivityExtensions;
-import com.mugen.mvvm.views.LifecycleExtensions;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ActivityMugenExtensions;
+import com.mugen.mvvm.views.LifecycleMugenExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 import com.mugen.mvvm.views.listeners.ViewMemberListenerManager;
-import com.mugen.mvvm.views.support.RecyclerViewExtensions;
-import com.mugen.mvvm.views.support.SwipeRefreshLayoutExtensions;
-import com.mugen.mvvm.views.support.ViewPager2Extensions;
-import com.mugen.mvvm.views.support.ViewPagerExtensions;
+import com.mugen.mvvm.views.support.RecyclerViewMugenExtensions;
+import com.mugen.mvvm.views.support.SwipeRefreshLayoutMugenExtensions;
+import com.mugen.mvvm.views.support.ViewPager2MugenExtensions;
+import com.mugen.mvvm.views.support.ViewPagerMugenExtensions;
 
 public final class MugenUtils {
     public static final int Tv = 1;
@@ -66,7 +66,7 @@ public final class MugenUtils {
     }
 
     public static Context getCurrentContext() {
-        Context currentActivity = ActivityExtensions.getCurrentActivity();
+        Context currentActivity = ActivityMugenExtensions.getCurrentActivity();
         if (currentActivity != null)
             return currentActivity;
         return MugenUtils.getAppContext();
@@ -77,14 +77,14 @@ public final class MugenUtils {
         _rawViewTagMode = rawViewTagMode;
         ViewCleaner viewCleaner = new ViewCleaner();
         FragmentDispatcher fragmentDispatcher = new FragmentDispatcher();
-        ViewExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
-        ViewExtensions.addViewDispatcher(viewCleaner);
-        ViewExtensions.addViewDispatcher(fragmentDispatcher);
-        LifecycleExtensions.addLifecycleDispatcher(viewCleaner, false);
-        LifecycleExtensions.addLifecycleDispatcher(fragmentDispatcher, false);
-        LifecycleExtensions.addLifecycleDispatcher(new ActionBarHomeClickListener(), false);
-        LifecycleExtensions.addLifecycleDispatcher(new ActivityTrackerDispatcher(), false);
-        ViewExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
+        ViewMugenExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
+        ViewMugenExtensions.addViewDispatcher(viewCleaner);
+        ViewMugenExtensions.addViewDispatcher(fragmentDispatcher);
+        LifecycleMugenExtensions.addLifecycleDispatcher(viewCleaner, false);
+        LifecycleMugenExtensions.addLifecycleDispatcher(fragmentDispatcher, false);
+        LifecycleMugenExtensions.addLifecycleDispatcher(new ActionBarHomeClickListener(), false);
+        LifecycleMugenExtensions.addLifecycleDispatcher(new ActivityTrackerDispatcher(), false);
+        ViewMugenExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
     }
 
     public static void withSupportLibs(boolean compat, boolean material, boolean recyclerView, boolean swipeRefresh, boolean viewPager, boolean viewPager2) {
@@ -93,13 +93,13 @@ public final class MugenUtils {
         if (material)
             _materialSupported = true;
         if (recyclerView)
-            RecyclerViewExtensions.setSupported();
+            RecyclerViewMugenExtensions.setSupported();
         if (swipeRefresh)
-            SwipeRefreshLayoutExtensions.setSupported();
+            SwipeRefreshLayoutMugenExtensions.setSupported();
         if (viewPager)
-            ViewPagerExtensions.setSupported();
+            ViewPagerMugenExtensions.setSupported();
         if (viewPager2)
-            ViewPager2Extensions.setSupported();
+            ViewPager2MugenExtensions.setSupported();
     }
 
     public static void setNativeMode() {

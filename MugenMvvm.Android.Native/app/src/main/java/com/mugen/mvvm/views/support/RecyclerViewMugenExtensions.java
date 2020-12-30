@@ -8,13 +8,13 @@ import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
-import com.mugen.mvvm.views.ViewGroupExtensions;
+import com.mugen.mvvm.views.ViewGroupMugenExtensions;
 
-public final class RecyclerViewExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupExtensions.ResourceProviderType;
+public final class RecyclerViewMugenExtensions {
+    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ResourceProviderType;
     private static boolean _supported;
 
-    private RecyclerViewExtensions() {
+    private RecyclerViewMugenExtensions() {
     }
 
     public static boolean isSupported(View view) {

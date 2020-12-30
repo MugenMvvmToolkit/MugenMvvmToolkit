@@ -91,7 +91,7 @@ namespace MugenMvvm.Android.Presenters
             if (lifecycleState != AndroidViewLifecycleState.Created && lifecycleState != AndroidViewLifecycleState.Starting || !(MugenExtensions.Unwrap(view) is IActivityView activity))
                 return false;
 
-            return requestId == ActivityExtensions.GetRequestId(activity);
+            return requestId == ActivityMugenExtensions.GetRequestId(activity);
         }
 
         protected virtual async Task RefreshActivityAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
@@ -108,7 +108,7 @@ namespace MugenMvvm.Android.Presenters
                 return;
 
             flags |= (int) ActivityFlags.ReorderToFront;
-            StartActivity(mediator, topActivity, ActivityExtensions.GetRequestId(view), flags, navigationContext);
+            StartActivity(mediator, topActivity, ActivityMugenExtensions.GetRequestId(view), flags, navigationContext);
         }
 
         protected virtual void StartActivity(IViewModelPresenterMediator mediator, IActivityView? topActivity, int requestId, int flags, INavigationContext navigationContext)
@@ -121,7 +121,7 @@ namespace MugenMvvm.Android.Presenters
             if (mapping is IResourceViewMapping m)
                 resourceId = m.ResourceId;
 
-            if (!ActivityExtensions.StartActivity(topActivity!, activityType!, requestId, mediator.ViewModel.GetId(), resourceId, flags))
+            if (!ActivityMugenExtensions.StartActivity(topActivity!, activityType!, requestId, mediator.ViewModel.GetId(), resourceId, flags))
                 ExceptionManager.ThrowPresenterCannotShowRequest(mediator.Mapping, navigationContext.GetMetadataOrDefault());
         }
 

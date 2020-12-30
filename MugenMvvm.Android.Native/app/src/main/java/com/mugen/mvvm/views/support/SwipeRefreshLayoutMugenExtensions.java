@@ -4,10 +4,10 @@ import android.view.View;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public final class SwipeRefreshLayoutExtensions {
+public final class SwipeRefreshLayoutMugenExtensions {
     private static boolean _supported;
 
-    private SwipeRefreshLayoutExtensions() {
+    private SwipeRefreshLayoutMugenExtensions() {
     }
 
     public static boolean isSupported(View view) {

@@ -35,24 +35,24 @@ namespace MugenMvvm.Android.Collections
             }
 
             var target = (View) collectionView;
-            var providerType = ViewGroupExtensions.GetItemSourceProviderType(target);
-            if (providerType == ViewGroupExtensions.NoneProviderType)
+            var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);
+            if (providerType == ViewGroupMugenExtensions.NoneProviderType)
                 ExceptionManager.ThrowInvalidBindingMember(target, BindableMembers.For<View>().ItemsSource());
             var itemTemplateSelector = target.BindableMembers().ItemTemplateSelector();
             if (itemTemplateSelector == null)
                 ExceptionManager.ThrowObjectNotInitialized(target, target.BindableMembers().Descriptor.ItemTemplateSelector());
 
-            var itemsSourceProvider = ViewGroupExtensions.GetItemsSourceProvider(target);
+            var itemsSourceProvider = ViewGroupMugenExtensions.GetItemsSourceProvider(target);
             var hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
-            if (providerType == ViewGroupExtensions.ContentRawProviderType)
+            if (providerType == ViewGroupMugenExtensions.ContentRawProviderType)
                 ContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector) itemTemplateSelector).Collection = value;
-            else if (providerType == ViewGroupExtensions.ContentProviderType || providerType == ViewGroupExtensions.ResourceOrContentProviderType && hasFragments)
+            else if (providerType == ViewGroupMugenExtensions.ContentProviderType || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType && hasFragments)
             {
                 if (!(itemsSourceProvider is ContentItemsSourceProvider provider))
                 {
-                    ViewExtensions.RemoveParentObserver(target);
+                    ViewMugenExtensions.RemoveParentObserver(target);
                     provider = new ContentItemsSourceProvider(target, (IContentTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
-                    ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
+                    ViewGroupMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                 }
 
                 provider.ItemsSource = value;
@@ -61,9 +61,9 @@ namespace MugenMvvm.Android.Collections
             {
                 if (!(itemsSourceProvider is ResourceItemsSourceProvider provider))
                 {
-                    ViewExtensions.RemoveParentObserver(target);
+                    ViewMugenExtensions.RemoveParentObserver(target);
                     provider = new ResourceItemsSourceProvider(target, (IResourceTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
-                    ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
+                    ViewGroupMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                 }
 
                 provider.ItemsSource = value;
@@ -72,13 +72,13 @@ namespace MugenMvvm.Android.Collections
 
         public virtual object? GetSelectedItem(object collectionView)
         {
-            if (!(collectionView is View target) || !ViewGroupExtensions.IsSelectedIndexSupported(target))
+            if (!(collectionView is View target) || !ViewGroupMugenExtensions.IsSelectedIndexSupported(target))
             {
                 ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<View>().SelectedItem());
                 return null;
             }
 
-            var index = ViewGroupExtensions.GetSelectedIndex(target);
+            var index = ViewGroupMugenExtensions.GetSelectedIndex(target);
             if (index < 0)
                 return null;
             var itemsSourceProvider = GetItemsSourceProvider(target);
@@ -104,7 +104,7 @@ namespace MugenMvvm.Android.Collections
                     index = ((BindableCollectionAdapter) itemsSourceProvider).IndexOf(value);
             }
 
-            if (!ViewGroupExtensions.SetSelectedIndex(target, index))
+            if (!ViewGroupMugenExtensions.SetSelectedIndex(target, index))
                 ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<View>().SelectedItem());
         }
 
@@ -118,7 +118,7 @@ namespace MugenMvvm.Android.Collections
 
         protected static object? GetItemsSourceProvider(View target)
         {
-            var itemsSourceProvider = ViewGroupExtensions.GetItemsSourceProvider(target);
+            var itemsSourceProvider = ViewGroupMugenExtensions.GetItemsSourceProvider(target);
             if (itemsSourceProvider != null)
                 return itemsSourceProvider;
             return ContentItemsSourceGenerator.TryGet(target);

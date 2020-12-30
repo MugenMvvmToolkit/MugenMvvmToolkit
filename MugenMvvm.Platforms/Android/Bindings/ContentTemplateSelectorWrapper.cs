@@ -46,7 +46,7 @@ namespace MugenMvvm.Android.Bindings
             if (item is IViewModelBase viewModel && container is Object c)
                 return viewModel.GetOrCreateView(c, template).Target;
             if (container is Object javaContainer)
-                return ViewExtensions.GetView(javaContainer, template, false);
+                return ViewMugenExtensions.GetView(javaContainer, template, false);
             ExceptionManager.ThrowNotSupported(nameof(container));
             return null;
         }

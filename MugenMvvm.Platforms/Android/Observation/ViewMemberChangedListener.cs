@@ -28,16 +28,16 @@ namespace MugenMvvm.Android.Observation
         public const string SelectedIndexName = "SelectedIndex";
         public const string SelectedIndexEventName = "SelectedIndexChanged";
 
-        public static readonly ICharSequence ParentMemberNameNative = ViewExtensions.ParentMemberName;
-        public static readonly ICharSequence ParentEventNameNative = ViewExtensions.ParentEventName;
-        public static readonly ICharSequence ClickEventNameNative = ViewExtensions.ClickEventName;
-        public static readonly ICharSequence LongClickEventNameNative = ViewExtensions.LongClickEventName;
-        public static readonly ICharSequence TextMemberNameNative = ViewExtensions.TextMemberName;
-        public static readonly ICharSequence TextEventNameNative = ViewExtensions.TextEventName;
-        public static readonly ICharSequence HomeButtonClickNative = ViewExtensions.HomeButtonClick;
-        public static readonly ICharSequence RefreshedEventNameNative = ViewExtensions.RefreshedEventName;
-        public static readonly ICharSequence SelectedIndexNameNative = ViewExtensions.SelectedIndexName;
-        public static readonly ICharSequence SelectedIndexEventNameNative = ViewExtensions.SelectedIndexEventName;
+        public static readonly ICharSequence ParentMemberNameNative = ViewMugenExtensions.ParentMemberName;
+        public static readonly ICharSequence ParentEventNameNative = ViewMugenExtensions.ParentEventName;
+        public static readonly ICharSequence ClickEventNameNative = ViewMugenExtensions.ClickEventName;
+        public static readonly ICharSequence LongClickEventNameNative = ViewMugenExtensions.LongClickEventName;
+        public static readonly ICharSequence TextMemberNameNative = ViewMugenExtensions.TextMemberName;
+        public static readonly ICharSequence TextEventNameNative = ViewMugenExtensions.TextEventName;
+        public static readonly ICharSequence HomeButtonClickNative = ViewMugenExtensions.HomeButtonClick;
+        public static readonly ICharSequence RefreshedEventNameNative = ViewMugenExtensions.RefreshedEventName;
+        public static readonly ICharSequence SelectedIndexNameNative = ViewMugenExtensions.SelectedIndexName;
+        public static readonly ICharSequence SelectedIndexEventNameNative = ViewMugenExtensions.SelectedIndexEventName;
 
         private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new(3);
         private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new(3);
@@ -63,10 +63,10 @@ namespace MugenMvvm.Android.Observation
 
         public static ActionToken Add(Object target, IEventListener listener, string memberName)
         {
-            if (!(ViewExtensions.GetMemberChangedListener(target) is ViewMemberChangedListener memberObserver))
+            if (!(ViewMugenExtensions.GetMemberChangedListener(target) is ViewMemberChangedListener memberObserver))
             {
                 memberObserver = new ViewMemberChangedListener(target);
-                ViewExtensions.SetMemberChangedListener(target, memberObserver);
+                ViewMugenExtensions.SetMemberChangedListener(target, memberObserver);
             }
 
             return memberObserver._listeners.Add(listener, memberName);
@@ -165,14 +165,14 @@ namespace MugenMvvm.Android.Observation
             {
                 if (_view.Handle == IntPtr.Zero)
                     return;
-                if (!ViewExtensions.AddMemberListener(_view, GetMember(memberName)))
+                if (!ViewMugenExtensions.AddMemberListener(_view, GetMember(memberName)))
                     ExceptionManager.ThrowInvalidBindingMember(_view, memberName);
             }
 
             protected override void OnListenerRemoved(string memberName)
             {
                 if (_view.Handle != IntPtr.Zero)
-                    ViewExtensions.RemoveMemberListener(_view, GetMember(memberName));
+                    ViewMugenExtensions.RemoveMemberListener(_view, GetMember(memberName));
             }
 
             #endregion

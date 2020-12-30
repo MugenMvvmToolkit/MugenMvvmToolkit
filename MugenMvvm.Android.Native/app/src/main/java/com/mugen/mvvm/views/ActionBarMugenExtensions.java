@@ -5,8 +5,8 @@ import android.content.Context;
 
 import com.mugen.mvvm.MugenUtils;
 
-public final class ActionBarExtensions {
-    private ActionBarExtensions() {
+public final class ActionBarMugenExtensions {
+    private ActionBarMugenExtensions() {
     }
 
     public static boolean isSupportedCompat(Object actionBar) {

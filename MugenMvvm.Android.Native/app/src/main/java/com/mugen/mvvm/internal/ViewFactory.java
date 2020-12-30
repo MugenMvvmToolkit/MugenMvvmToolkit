@@ -11,9 +11,9 @@ import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.interfaces.views.IHasStateView;
 import com.mugen.mvvm.interfaces.views.IViewFactory;
-import com.mugen.mvvm.views.ActivityExtensions;
-import com.mugen.mvvm.views.LifecycleExtensions;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ActivityMugenExtensions;
+import com.mugen.mvvm.views.LifecycleMugenExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -30,15 +30,15 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
         else
             context = (Context) container;
 
-        Class clazz = ViewExtensions.tryGetClassById(resourceId);
+        Class clazz = ViewMugenExtensions.tryGetClassById(resourceId);
         if (clazz != null && IFragmentView.class.isAssignableFrom(clazz))
             return clazz.getConstructor().newInstance();
 
         View view = LayoutInflater.from(context).inflate(resourceId, null);
         if (trackLifecycle) {
-            Context activity = ActivityExtensions.getActivity(context);
+            Context activity = ActivityMugenExtensions.getActivity(context);
             if (activity instanceof IHasStateView) {
-                ArrayList<Object> views = ((ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(activity, true)).getViews(true);
+                ArrayList<Object> views = ((ActivityAttachedValues) ViewMugenExtensions.getNativeAttachedValues(activity, true)).getViews(true);
                 views.add(view);
             }
         }
@@ -56,12 +56,12 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
         if (lifecycle != LifecycleState.Destroy || !(target instanceof IActivityView))
             return;
 
-        ArrayList<Object> views = ((ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(target, true)).getViews(false);
+        ArrayList<Object> views = ((ActivityAttachedValues) ViewMugenExtensions.getNativeAttachedValues(target, true)).getViews(false);
         if (views == null)
             return;
 
         for (Object view : views)
-            LifecycleExtensions.onLifecycleChanged(view, LifecycleState.Destroy, null);
+            LifecycleMugenExtensions.onLifecycleChanged(view, LifecycleState.Destroy, null);
     }
 
     @Override

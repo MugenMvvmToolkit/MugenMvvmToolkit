@@ -59,7 +59,7 @@ namespace MugenMvvm.Android.Views
             if (target is IFragmentView fragment)
             {
                 if (state == ViewLifecycleState.Closed || state == AndroidViewLifecycleState.Destroyed)
-                    return FragmentExtensions.IsDestroyed(fragment);
+                    return FragmentMugenExtensions.IsDestroyed(fragment);
             }
 
             return false;

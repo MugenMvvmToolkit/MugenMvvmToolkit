@@ -17,8 +17,8 @@ import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.internal.ViewAttachedValues;
 
-public final class FragmentExtensions {
-    private FragmentExtensions() {
+public final class FragmentMugenExtensions {
+    private FragmentMugenExtensions() {
     }
 
     public static boolean isSupported(Object fragment) {
@@ -40,20 +40,20 @@ public final class FragmentExtensions {
     public static Object getFragmentOwner(View container) {
         View v = container;
         while (v != null) {
-            ViewAttachedValues attachedValues = ViewExtensions.getNativeAttachedValues(v, false);
+            ViewAttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(v, false);
             if (attachedValues != null) {
                 Fragment fragment = attachedValues.getFragment();
                 if (fragment != null)
                     return fragment;
             }
-            Object parent = ViewExtensions.getParent(v);
+            Object parent = ViewMugenExtensions.getParent(v);
             if (parent instanceof View)
                 v = (View) parent;
             else
                 v = null;
         }
 
-        return ActivityExtensions.getActivity(container.getContext());
+        return ActivityMugenExtensions.getActivity(container.getContext());
     }
 
     public static Object getFragmentManager(Object owner) {

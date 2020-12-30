@@ -11,14 +11,14 @@ import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.internal.support.MugenFragmentPagerAdapter;
 import com.mugen.mvvm.internal.support.MugenPagerAdapter;
-import com.mugen.mvvm.views.FragmentExtensions;
-import com.mugen.mvvm.views.ViewGroupExtensions;
+import com.mugen.mvvm.views.FragmentMugenExtensions;
+import com.mugen.mvvm.views.ViewGroupMugenExtensions;
 
-public final class ViewPagerExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupExtensions.ContentProviderType;
+public final class ViewPagerMugenExtensions {
+    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ContentProviderType;
     private static boolean _supported;
 
-    private ViewPagerExtensions() {
+    private ViewPagerMugenExtensions() {
     }
 
     public static boolean isSupported(View view) {
@@ -62,7 +62,7 @@ public final class ViewPagerExtensions {
                 ((IMugenAdapter) adapter).detach();
             viewPager.setAdapter(null);
         } else if (hasFragments)
-            viewPager.setAdapter(new MugenFragmentPagerAdapter(provider, (FragmentManager) FragmentExtensions.getFragmentManager(view)));
+            viewPager.setAdapter(new MugenFragmentPagerAdapter(provider, (FragmentManager) FragmentMugenExtensions.getFragmentManager(view)));
         else
             viewPager.setAdapter(new MugenPagerAdapter(provider));
     }

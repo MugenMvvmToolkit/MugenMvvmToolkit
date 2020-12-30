@@ -2,9 +2,9 @@ package com.mugen.mvvm.views.listeners;
 
 import androidx.viewpager.widget.ViewPager;
 
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.ViewMugenExtensions;
 
-public class ViewPagerSelectedIndexListener implements ViewExtensions.IMemberListener, ViewPager.OnPageChangeListener {
+public class ViewPagerSelectedIndexListener implements ViewMugenExtensions.IMemberListener, ViewPager.OnPageChangeListener {
     private final ViewPager _viewPager;
     private short _selectedIndexChangedCount;
 
@@ -19,8 +19,8 @@ public class ViewPagerSelectedIndexListener implements ViewExtensions.IMemberLis
 
     @Override
     public void onPageSelected(int position) {
-        ViewExtensions.onMemberChanged(_viewPager, ViewExtensions.SelectedIndexName, null);
-        ViewExtensions.onMemberChanged(_viewPager, ViewExtensions.SelectedIndexEventName, null);
+        ViewMugenExtensions.onMemberChanged(_viewPager, ViewMugenExtensions.SelectedIndexName, null);
+        ViewMugenExtensions.onMemberChanged(_viewPager, ViewMugenExtensions.SelectedIndexEventName, null);
     }
 
     @Override
@@ -30,13 +30,13 @@ public class ViewPagerSelectedIndexListener implements ViewExtensions.IMemberLis
 
     @Override
     public void addListener(Object target, String memberName) {
-        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
+        if (ViewMugenExtensions.SelectedIndexName.equals(memberName) || ViewMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
             _viewPager.addOnPageChangeListener(this);
     }
 
     @Override
     public void removeListener(Object target, String memberName) {
-        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
+        if (ViewMugenExtensions.SelectedIndexName.equals(memberName) || ViewMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
             _viewPager.removeOnPageChangeListener(this);
     }
 }

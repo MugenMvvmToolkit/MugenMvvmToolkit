@@ -54,43 +54,43 @@ namespace MugenMvvm.Android.Collections
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
             base.OnAdded(item, index, batchUpdate, version);
-            ViewGroupExtensions.Add(View, GetItem(item)!, index, false);
+            ViewGroupMugenExtensions.Add(View, GetItem(item)!, index, false);
         }
 
         protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
         {
             base.OnMoved(item, oldIndex, newIndex, batchUpdate, version);
-            var selected = ViewGroupExtensions.GetSelectedIndex(View) == oldIndex;
-            if (TabLayoutExtensions.IsSupported(View))
+            var selected = ViewGroupMugenExtensions.GetSelectedIndex(View) == oldIndex;
+            if (TabLayoutMugenExtensions.IsSupported(View))
             {
-                ViewGroupExtensions.Remove(View, oldIndex);
-                ViewGroupExtensions.Add(View, GetItem(item)!, newIndex, selected);
+                ViewGroupMugenExtensions.Remove(View, oldIndex);
+                ViewGroupMugenExtensions.Add(View, GetItem(item)!, newIndex, selected);
             }
             else
             {
-                var target = ViewGroupExtensions.Get(View, oldIndex);
-                ViewGroupExtensions.Remove(View, oldIndex);
-                ViewGroupExtensions.Add(View, target, newIndex, selected);
+                var target = ViewGroupMugenExtensions.Get(View, oldIndex);
+                ViewGroupMugenExtensions.Remove(View, oldIndex);
+                ViewGroupMugenExtensions.Add(View, target, newIndex, selected);
             }
         }
 
         protected override void OnRemoved(object? item, int index, bool batchUpdate, int version)
         {
             base.OnRemoved(item, index, batchUpdate, version);
-            ViewGroupExtensions.Remove(View, index);
+            ViewGroupMugenExtensions.Remove(View, index);
         }
 
         protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version)
         {
             base.OnReplaced(oldItem, newItem, index, batchUpdate, version);
-            ViewGroupExtensions.Remove(View, index);
-            ViewGroupExtensions.Add(View, GetItem(newItem)!, index, false);
+            ViewGroupMugenExtensions.Remove(View, index);
+            ViewGroupMugenExtensions.Add(View, GetItem(newItem)!, index, false);
         }
 
         protected override void OnClear(bool batchUpdate, int version)
         {
             base.OnClear(batchUpdate, version);
-            ViewGroupExtensions.Clear(View);
+            ViewGroupMugenExtensions.Clear(View);
         }
 
         private Object? GetItem(object? item)
