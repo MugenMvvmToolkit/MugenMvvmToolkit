@@ -57,7 +57,7 @@
     <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />
   </ItemGroup>
 
-  <Target Name="BuildAndroidNative" BeforeTargets="_CreateBindingResourceArchive" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <Target Name="AndroidNativeBuild" BeforeTargets="_CreateBindingResourceArchive" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Exec Command="..\MugenMvvm.Android.Native\build.bat" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
 </Project>
