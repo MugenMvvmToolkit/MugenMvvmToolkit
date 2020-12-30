@@ -133,7 +133,7 @@ namespace MugenMvvm.Bindings.Members.Components
             if (flags == default)
                 return default;
 
-            int priority = 0;
+            var priority = 0;
             foreach (var f in ArgumentFlags.GetAll())
             {
                 if (flags.HasFlag(f))

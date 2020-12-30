@@ -32,12 +32,12 @@ namespace MugenMvvm.Bindings.Members.Descriptors
         #region Methods
 
         [Pure]
-        public BindablePropertyDescriptor<TNewTarget, TValue> Override<TNewTarget>() where TNewTarget : class => new BindablePropertyDescriptor<TNewTarget, TValue>(Name);
+        public BindablePropertyDescriptor<TNewTarget, TValue> Override<TNewTarget>() where TNewTarget : class => new(Name);
 
         [Pure]
-        public BindablePropertyDescriptor<TTarget, TNewType> ChangeType<TNewType>() => new BindablePropertyDescriptor<TTarget, TNewType>(Name);
+        public BindablePropertyDescriptor<TTarget, TNewType> ChangeType<TNewType>() => new(Name);
 
-        public static implicit operator BindablePropertyDescriptor<TTarget, TValue>(string name) => new BindablePropertyDescriptor<TTarget, TValue>(name);
+        public static implicit operator BindablePropertyDescriptor<TTarget, TValue>(string name) => new(name);
 
         public static implicit operator string(BindablePropertyDescriptor<TTarget, TValue> member) => member.Name;
 

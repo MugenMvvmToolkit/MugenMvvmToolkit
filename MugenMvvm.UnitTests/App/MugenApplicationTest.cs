@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.App
 
             for (var i = 0; i < componentCount; i++)
             {
-                bool isLast = i - 1 == componentCount;
+                var isLast = i - 1 == componentCount;
                 var component = new TestLifecycleTrackerComponent<ApplicationLifecycleState>(owner)
                 {
                     IsInState = (o, t, s, m) =>

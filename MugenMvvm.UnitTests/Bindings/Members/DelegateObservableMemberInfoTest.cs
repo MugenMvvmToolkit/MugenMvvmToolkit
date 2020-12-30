@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             Type declaringType = typeof(int);
             Type memberType = typeof(object);
             var accessModifiers = MemberFlags.Dynamic;
-            object underlyingMember = new object();
+            object underlyingMember = new();
             var state = (this, "");
             TryObserveDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> tryObserve = (member, target, listener, metadata) => default;
             RaiseDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> raise = (member, target, message, metadata) => { };
@@ -119,10 +119,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(1);
         }
 
-        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, in TState state,
+        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
+            in TState state,
             bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
             where TTarget : class? =>
-            new DelegateObservableMemberInfo<TTarget, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
+            new(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
 
         #endregion
     }

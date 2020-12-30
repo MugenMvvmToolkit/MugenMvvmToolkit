@@ -12,34 +12,34 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Fields
 
-        public static readonly MemberExpressionNode Action = new MemberExpressionNode(null, MacrosConstant.Action, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode EventArgs = new MemberExpressionNode(null, MacrosConstant.EventArgs, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstant.Source, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstant.Target, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstant.Context, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstant.Binding, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode Empty = new MemberExpressionNode(null, string.Empty, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode Action = new(null, MacrosConstant.Action, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode EventArgs = new(null, MacrosConstant.EventArgs, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode Source = new(null, MacrosConstant.Source, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode Self = new(null, MacrosConstant.Target, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode Context = new(null, MacrosConstant.Context, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode Binding = new(null, MacrosConstant.Binding, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode Empty = new(null, string.Empty, Default.ReadOnlyDictionary<string, object?>());
 
-        public static readonly MemberExpressionNode NoneMode = new MemberExpressionNode(null, BindingModeNameConstant.None, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode OneTimeMode = new MemberExpressionNode(null, BindingModeNameConstant.OneTime, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode OneWayMode = new MemberExpressionNode(null, BindingModeNameConstant.OneWay, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode OneWayToSourceMode = new MemberExpressionNode(null, BindingModeNameConstant.OneWayToSource, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode TwoWayMode = new MemberExpressionNode(null, BindingModeNameConstant.TwoWay, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode NoneMode = new(null, BindingModeNameConstant.None, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode OneTimeMode = new(null, BindingModeNameConstant.OneTime, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode OneWayMode = new(null, BindingModeNameConstant.OneWay, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode OneWayToSourceMode = new(null, BindingModeNameConstant.OneWayToSource, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode TwoWayMode = new(null, BindingModeNameConstant.TwoWay, Default.ReadOnlyDictionary<string, object?>());
 
-        public static readonly MemberExpressionNode OptionalParameter = new MemberExpressionNode(null, BindingParameterNameConstant.Optional, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode HasStablePathParameter = new MemberExpressionNode(null, BindingParameterNameConstant.HasStablePath, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode ObservableParameter = new MemberExpressionNode(null, BindingParameterNameConstant.Observable, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode ToggleEnabledParameter = new MemberExpressionNode(null, BindingParameterNameConstant.ToggleEnabled, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode SuppressMethodAccessorsParameter = new MemberExpressionNode(null, BindingParameterNameConstant.SuppressMethodAccessors, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode SuppressIndexAccessorsParameter = new MemberExpressionNode(null, BindingParameterNameConstant.SuppressIndexAccessors, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode ObservableMethodsParameter = new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethods, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode ConverterParameter = new MemberExpressionNode(null, BindingParameterNameConstant.Converter, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode ConverterParameterParameter = new MemberExpressionNode(null, BindingParameterNameConstant.ConverterParameter, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode FallbackParameter = new MemberExpressionNode(null, BindingParameterNameConstant.Fallback, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode TargetNullValueParameter = new MemberExpressionNode(null, BindingParameterNameConstant.TargetNullValue, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode CommandParameterParameter = new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode DelayParameter = new MemberExpressionNode(null, BindingParameterNameConstant.Delay, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly MemberExpressionNode TargetDelayParameter = new MemberExpressionNode(null, BindingParameterNameConstant.TargetDelay, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode OptionalParameter = new(null, BindingParameterNameConstant.Optional, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode HasStablePathParameter = new(null, BindingParameterNameConstant.HasStablePath, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode ObservableParameter = new(null, BindingParameterNameConstant.Observable, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode ToggleEnabledParameter = new(null, BindingParameterNameConstant.ToggleEnabled, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode SuppressMethodAccessorsParameter = new(null, BindingParameterNameConstant.SuppressMethodAccessors, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode SuppressIndexAccessorsParameter = new(null, BindingParameterNameConstant.SuppressIndexAccessors, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode ObservableMethodsParameter = new(null, BindingParameterNameConstant.ObservableMethods, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode ConverterParameter = new(null, BindingParameterNameConstant.Converter, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode ConverterParameterParameter = new(null, BindingParameterNameConstant.ConverterParameter, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode FallbackParameter = new(null, BindingParameterNameConstant.Fallback, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode TargetNullValueParameter = new(null, BindingParameterNameConstant.TargetNullValue, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode CommandParameterParameter = new(null, BindingParameterNameConstant.CommandParameter, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode DelayParameter = new(null, BindingParameterNameConstant.Delay, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly MemberExpressionNode TargetDelayParameter = new(null, BindingParameterNameConstant.TargetDelay, Default.ReadOnlyDictionary<string, object?>());
 
         #endregion
 
@@ -135,7 +135,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 }
             }
 
-            return new MemberExpressionNode(target, member, null);
+            return new MemberExpressionNode(target, member);
         }
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)

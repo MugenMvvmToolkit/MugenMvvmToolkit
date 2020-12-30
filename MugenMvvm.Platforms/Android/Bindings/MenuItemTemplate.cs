@@ -112,9 +112,9 @@ namespace MugenMvvm.Android.Bindings
 
             #region Methods
 
-            public static MenuBindInfo Item(string? bind) => new MenuBindInfo(null, null, bind, false);
+            public static MenuBindInfo Item(string? bind) => new(null, null, bind, false);
 
-            public static MenuBindInfo SubMenu(IMenuItemTemplate? itemTemplate, string? subMenuBind, string? itemBind) => new MenuBindInfo(itemTemplate, subMenuBind, itemBind, true);
+            public static MenuBindInfo SubMenu(IMenuItemTemplate? itemTemplate, string? subMenuBind, string? itemBind) => new(itemTemplate, subMenuBind, itemBind, true);
 
             #endregion
         }

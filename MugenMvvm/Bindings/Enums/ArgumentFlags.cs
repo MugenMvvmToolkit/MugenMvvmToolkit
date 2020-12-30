@@ -13,10 +13,10 @@ namespace MugenMvvm.Bindings.Enums
     {
         #region Fields
 
-        public static readonly ArgumentFlags Metadata = new ArgumentFlags(1 << 0, -1);
-        public static readonly ArgumentFlags Optional = new ArgumentFlags(1 << 4, -2);
-        public static readonly ArgumentFlags ParamArray = new ArgumentFlags(1 << 1, -3);
-        public static readonly ArgumentFlags EmptyParamArray = new ArgumentFlags((byte) (ParamArray.Value | 1 << 2), -4);
+        public static readonly ArgumentFlags Metadata = new(1 << 0, -1);
+        public static readonly ArgumentFlags Optional = new(1 << 4, -2);
+        public static readonly ArgumentFlags ParamArray = new(1 << 1, -3);
+        public static readonly ArgumentFlags EmptyParamArray = new((byte) (ParamArray.Value | 1 << 2), -4);
 
         #endregion
 

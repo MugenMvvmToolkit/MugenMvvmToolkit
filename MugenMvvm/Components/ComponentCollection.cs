@@ -268,7 +268,7 @@ namespace MugenMvvm.Components
             #region Methods
 
             public static ComponentTracker Get<TComponent>(TComponent[] components) where TComponent : class =>
-                new ComponentTracker(components, typeof(TComponent), (o, decorator) => o is TComponent || decorator is IComponentCollectionDecorator<TComponent>);
+                new(components, typeof(TComponent), (o, decorator) => o is TComponent || decorator is IComponentCollectionDecorator<TComponent>);
 
             #endregion
         }

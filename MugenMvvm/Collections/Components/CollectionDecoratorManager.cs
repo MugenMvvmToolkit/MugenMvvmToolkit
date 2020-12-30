@@ -16,8 +16,8 @@ namespace MugenMvvm.Collections.Components
     {
         #region Fields
 
-        private static readonly CollectionDecoratorManager Instance = new CollectionDecoratorManager();
-        private static readonly Dictionary<Type, ICollectionDecoratorManagerComponent> GenericManagers = new Dictionary<Type, ICollectionDecoratorManagerComponent>();
+        private static readonly CollectionDecoratorManager Instance = new();
+        private static readonly Dictionary<Type, ICollectionDecoratorManagerComponent> GenericManagers = new();
 
         #endregion
 

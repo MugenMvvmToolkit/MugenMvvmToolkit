@@ -28,11 +28,11 @@ namespace MugenMvvm.Models
 
         [NonSerialized]
         [IgnoreDataMember]
-        private int _suspendCount;
+        private MemberListenerCollection? _memberListeners;
 
         [NonSerialized]
         [IgnoreDataMember]
-        private MemberListenerCollection? _memberListeners;
+        private int _suspendCount;
 
         #endregion
 

@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTests.Serialization
             executeCount.ShouldEqual(count);
         }
 
-        protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Serializer(collectionProvider);
+        protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

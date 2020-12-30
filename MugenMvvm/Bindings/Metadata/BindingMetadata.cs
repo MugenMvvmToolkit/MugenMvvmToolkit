@@ -9,8 +9,8 @@ namespace MugenMvvm.Bindings.Metadata
     {
         #region Fields
 
-        public static object UnsetValue = new object();
-        public static object DoNothing = new object();
+        public static object UnsetValue = new();
+        public static object DoNothing = new();
 
         private static IMetadataContextKey<IBinding>? _binding;
         private static IMetadataContextKey<object>? _eventArgs;

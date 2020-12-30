@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Parsing.Visitors;

@@ -12,16 +12,16 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly NavigationType Undefined = new NavigationType(nameof(Undefined));
+        public static readonly NavigationType Undefined = new(nameof(Undefined));
 
-        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) {IsNestedNavigation = true};
-        public static readonly NavigationType Window = new NavigationType(nameof(Window)) {IsRootNavigation = true};
-        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) {IsRootNavigation = true};
-        public static readonly NavigationType Page = new NavigationType(nameof(Page)) {IsRootNavigation = true};
+        public static readonly NavigationType Tab = new(nameof(Tab)) {IsNestedNavigation = true};
+        public static readonly NavigationType Window = new(nameof(Window)) {IsRootNavigation = true};
+        public static readonly NavigationType Popup = new(nameof(Popup)) {IsRootNavigation = true};
+        public static readonly NavigationType Page = new(nameof(Page)) {IsRootNavigation = true};
 
-        public static readonly NavigationType Background = new NavigationType(nameof(Background));
-        public static readonly NavigationType Alert = new NavigationType(nameof(Alert));
-        public static readonly NavigationType Toast = new NavigationType(nameof(Toast));
+        public static readonly NavigationType Background = new(nameof(Background));
+        public static readonly NavigationType Alert = new(nameof(Alert));
+        public static readonly NavigationType Toast = new(nameof(Toast));
 
         #endregion
 

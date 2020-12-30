@@ -52,13 +52,13 @@ namespace MugenMvvm.Enums
         public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue>? value) => ReferenceEquals(value, null) ? default : new EnumFlags<TEnum>(value.Flag);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<TEnum> operator |(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new EnumFlags<TEnum>(left.Flag | right.Flag);
+        public static EnumFlags<TEnum> operator |(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new(left.Flag | right.Flag);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<TEnum> operator &(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new EnumFlags<TEnum>(left.Flag & right.Flag);
+        public static EnumFlags<TEnum> operator &(FlagsEnumBase<TEnum, TValue> left, FlagsEnumBase<TEnum, TValue> right) => new(left.Flag & right.Flag);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<TEnum> operator ~(FlagsEnumBase<TEnum, TValue> value) => new EnumFlags<TEnum>(~value.Flag);
+        public static EnumFlags<TEnum> operator ~(FlagsEnumBase<TEnum, TValue> value) => new(~value.Flag);
 
         private static long ConvertValue(TValue value)
         {
@@ -84,7 +84,7 @@ namespace MugenMvvm.Enums
         private static T Cast<T>(TValue value) => MugenExtensions.CastGeneric<TValue, T>(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EnumFlags<TEnum> AsFlags() => new EnumFlags<TEnum>(Flag);
+        public EnumFlags<TEnum> AsFlags() => new(Flag);
 
         #endregion
     }

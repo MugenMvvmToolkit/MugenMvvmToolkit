@@ -27,7 +27,8 @@ namespace MugenMvvm.Bindings.Members
 
         #region Constructors
 
-        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType, IObservationManager? observationManager)
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType,
+            IObservationManager? observationManager)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));

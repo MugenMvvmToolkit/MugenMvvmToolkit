@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Enums;
@@ -17,18 +16,18 @@ namespace MugenMvvm.Bindings.Members.Builders
         #region Methods
 
         public static EventBuilder<TTarget> Event<TTarget>(string name, Type? declaringType = null, Type? eventType = null) where TTarget : class? =>
-            new EventBuilder<TTarget>(name, declaringType ?? typeof(TTarget), eventType ?? typeof(EventHandler));
+            new(name, declaringType ?? typeof(TTarget), eventType ?? typeof(EventHandler));
 
         public static PropertyBuilder<TTarget, TValue> Property<TTarget, TValue>(string name, Type? declaringType = null, Type? propertyType = null)
             where TTarget : class? =>
-            new PropertyBuilder<TTarget, TValue>(name, declaringType ?? typeof(TTarget), propertyType ?? typeof(TValue));
+            new(name, declaringType ?? typeof(TTarget), propertyType ?? typeof(TValue));
 
         public static MethodBuilder<TTarget, TReturn> Method<TTarget, TReturn>(string name, Type? declaringType = null, Type? returnType = null) where TTarget : class? =>
-            new MethodBuilder<TTarget, TReturn>(name, declaringType ?? typeof(TTarget), returnType ?? typeof(TReturn));
+            new(name, declaringType ?? typeof(TTarget), returnType ?? typeof(TReturn));
 
-        public static ParameterBuilder Parameter<TType>(string? name = null) => new ParameterBuilder(name ?? "", typeof(TType));
+        public static ParameterBuilder Parameter<TType>(string? name = null) => new(name ?? "", typeof(TType));
 
-        public static ParameterBuilder Parameter(string name, Type type) => new ParameterBuilder(name, type);
+        public static ParameterBuilder Parameter(string name, Type type) => new(name, type);
 
         public static EventBuilder<TTarget> GetBuilder<TTarget>(this BindableEventDescriptor<TTarget> descriptor, Type? eventType = null) where TTarget : class
         {

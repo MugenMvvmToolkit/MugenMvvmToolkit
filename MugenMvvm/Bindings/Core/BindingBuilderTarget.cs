@@ -23,23 +23,23 @@ namespace MugenMvvm.Bindings.Core
 
         #region Methods
 
-        public BindingBuilderFrom<TTarget, TSource> For(string path) => new BindingBuilderFrom<TTarget, TSource>(path);
+        public BindingBuilderFrom<TTarget, TSource> For(string path) => new(path);
 
-        public BindingBuilderFrom<TTarget, TSource> For(IExpressionNode expression) => new BindingBuilderFrom<TTarget, TSource>(expression);
+        public BindingBuilderFrom<TTarget, TSource> For(IExpressionNode expression) => new(expression);
 
-        public BindingBuilderFrom<TTarget, TSource> For<TValue>(Expression<Func<TTarget, TValue>> expression) => new BindingBuilderFrom<TTarget, TSource>(expression);
+        public BindingBuilderFrom<TTarget, TSource> For<TValue>(Expression<Func<TTarget, TValue>> expression) => new(expression);
 
         public BindingBuilderTo<TTarget, TSource> Action(Expression<Func<IBindingBuilderContext<TTarget, TSource>, object?>> expression) => Action<TSource>(expression);
 
         public BindingBuilderTo<TTarget, T> Action<T>(Expression<Func<IBindingBuilderContext<TTarget, T>, object?>> expression)
             where T : class =>
-            new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(MemberExpressionNode.Action), expression, default);
+            new(new BindingBuilderFrom<TTarget, T>(MemberExpressionNode.Action), expression, default);
 
         public BindingBuilderTo<TTarget, TSource> Action(Expression<Action<IBindingBuilderContext<TTarget, TSource>>> expression) => Action<TSource>(expression);
 
         public BindingBuilderTo<TTarget, T> Action<T>(Expression<Action<IBindingBuilderContext<TTarget, T>>> expression)
             where T : class =>
-            new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(MemberExpressionNode.Action), expression, default);
+            new(new BindingBuilderFrom<TTarget, T>(MemberExpressionNode.Action), expression, default);
 
         #endregion
     }

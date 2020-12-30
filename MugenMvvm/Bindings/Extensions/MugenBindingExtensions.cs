@@ -264,7 +264,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(visitor, nameof(visitor));
             var parameters = context.ParameterExpressions.Editor();
-            for (int i = 0; i < parameters.Count; i++)
+            for (var i = 0; i < parameters.Count; i++)
                 parameters[i] = parameters[i].Accept(visitor, metadata);
             context.ParameterExpressions = parameters.ToItemOrList();
         }
@@ -559,9 +559,9 @@ namespace MugenMvvm.Bindings.Extensions
             return result;
         }
 
-        public static WeakEventListener ToWeak(this IEventListener listener) => new WeakEventListener(listener);
+        public static WeakEventListener ToWeak(this IEventListener listener) => new(listener);
 
-        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state) => new WeakEventListener<TState>(listener, state);
+        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state) => new(listener, state);
 
         public static string[]? GetIndexerArgsRaw(string path)
         {

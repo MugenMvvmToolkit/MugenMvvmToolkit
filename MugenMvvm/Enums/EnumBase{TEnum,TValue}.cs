@@ -20,7 +20,7 @@ namespace MugenMvvm.Enums
 
         private string? _name;
         private static Dictionary<TValue, TEnum> _enumerations = Init();
-        private static Dictionary<string, TEnum> _enumerationNames = new Dictionary<string, TEnum>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, TEnum> _enumerationNames = new(StringComparer.OrdinalIgnoreCase);
         private static TEnum[]? _values;
 
         #endregion

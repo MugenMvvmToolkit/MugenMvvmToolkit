@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Enums;

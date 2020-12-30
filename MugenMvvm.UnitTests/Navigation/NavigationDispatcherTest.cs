@@ -330,7 +330,7 @@ namespace MugenMvvm.UnitTests.Navigation
             invokeCount.ShouldEqual(count);
         }
 
-        protected override NavigationDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new NavigationDispatcher(collectionProvider);
+        protected override NavigationDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

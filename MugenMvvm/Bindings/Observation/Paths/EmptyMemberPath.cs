@@ -9,7 +9,7 @@ namespace MugenMvvm.Bindings.Observation.Paths
     {
         #region Fields
 
-        public static readonly EmptyMemberPath Instance = new EmptyMemberPath();
+        public static readonly EmptyMemberPath Instance = new();
 
         #endregion
 

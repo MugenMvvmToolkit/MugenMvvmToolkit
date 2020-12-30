@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Members
         public static BindableMembersDescriptor<T> For<T>() where T : class => default;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindableMembersTargetDescriptor<T> For<T>(T target) where T : class => new BindableMembersTargetDescriptor<T>(target);
+        public static BindableMembersTargetDescriptor<T> For<T>(T target) where T : class => new(target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindablePropertyDescriptor<T, object?> Root<T>(this BindableMembersDescriptor<T> _) where T : class => nameof(Root);
@@ -71,7 +71,7 @@ namespace MugenMvvm.Bindings.Members
         [BindingMember(nameof(Parent))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? Parent<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Parent<T>(_: default).GetValue(descriptor.Target);
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetParent<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class => Parent<T>(_: default).SetValue(descriptor.Target, value);
 

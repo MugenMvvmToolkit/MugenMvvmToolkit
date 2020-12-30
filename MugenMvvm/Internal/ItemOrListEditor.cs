@@ -12,7 +12,7 @@ namespace MugenMvvm.Internal
         public static ItemOrListEditor<TItem, List<TItem>> Get<TItem>() => Get<TItem, List<TItem>>(() => new List<TItem>());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrListEditor<TItem, TList> Get<TItem, TList>(Func<TList> getNewList) where TList : class, IList<TItem> => new ItemOrListEditor<TItem, TList>(getNewList);
+        public static ItemOrListEditor<TItem, TList> Get<TItem, TList>(Func<TList> getNewList) where TList : class, IList<TItem> => new(getNewList);
 
         #endregion
     }

@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
     {
         #region Fields
 
-        private static readonly BindingExpressionRequest ConverterRequest = new BindingExpressionRequest("", null, null);
+        private static readonly BindingExpressionRequest ConverterRequest = new("", null, null);
         private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
         #endregion

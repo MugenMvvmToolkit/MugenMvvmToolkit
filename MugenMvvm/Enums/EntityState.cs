@@ -11,11 +11,11 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly EntityState Unchanged = new EntityState(1 << 0, nameof(Unchanged));
-        public static readonly EntityState Added = new EntityState(1 << 1, nameof(Added));
-        public static readonly EntityState Deleted = new EntityState(1 << 2, nameof(Deleted));
-        public static readonly EntityState Modified = new EntityState(1 << 3, nameof(Modified));
-        public static readonly EntityState Detached = new EntityState(1 << 4, nameof(Detached));
+        public static readonly EntityState Unchanged = new(1 << 0, nameof(Unchanged));
+        public static readonly EntityState Added = new(1 << 1, nameof(Added));
+        public static readonly EntityState Deleted = new(1 << 2, nameof(Deleted));
+        public static readonly EntityState Modified = new(1 << 3, nameof(Modified));
+        public static readonly EntityState Detached = new(1 << 4, nameof(Detached));
 
         #endregion
 

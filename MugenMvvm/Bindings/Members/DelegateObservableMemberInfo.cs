@@ -15,10 +15,11 @@ namespace MugenMvvm.Bindings.Members
     {
         #region Fields
 
+        private readonly ushort _modifiers;
+
         private readonly RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _raise;
         private readonly TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _tryObserve;
         public readonly TState State;
-        private readonly ushort _modifiers;
         private MemberObserver _observer;
 
         #endregion
@@ -57,7 +58,7 @@ namespace MugenMvvm.Bindings.Members
 
         public virtual MemberType MemberType => MemberType.Event;
 
-        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
+        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
         #endregion
 

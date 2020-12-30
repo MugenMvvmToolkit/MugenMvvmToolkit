@@ -47,7 +47,7 @@ namespace MugenMvvm.Bindings.Members.Descriptors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(MemberTypesRequest request) =>
-            new BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(request);
+            new(request);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator MemberTypesRequest(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) => member.Request!;
@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Members.Descriptors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator BindableMethodDescriptor<TTarget, TReturn>(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) =>
-            new BindableMethodDescriptor<TTarget, TReturn>(member.Request!);
+            new(member.Request!);
 
         public override string ToString() => Request?.ToString() ?? "";
 

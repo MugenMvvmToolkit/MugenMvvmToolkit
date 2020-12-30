@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Validation
             ShouldThrow<InvalidOperationException>(() => provider.GetValidator(this, DefaultMetadata));
         }
 
-        protected override ValidationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ValidationManager(collectionProvider);
+        protected override ValidationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

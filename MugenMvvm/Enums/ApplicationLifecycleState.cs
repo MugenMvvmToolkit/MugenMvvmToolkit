@@ -11,12 +11,12 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly ApplicationLifecycleState Initializing = new ApplicationLifecycleState(nameof(Initializing));
-        public static readonly ApplicationLifecycleState Initialized = new ApplicationLifecycleState(nameof(Initialized));
-        public static readonly ApplicationLifecycleState Activating = new ApplicationLifecycleState(nameof(Activating));
-        public static readonly ApplicationLifecycleState Activated = new ApplicationLifecycleState(nameof(Activated));
-        public static readonly ApplicationLifecycleState Deactivating = new ApplicationLifecycleState(nameof(Deactivating));
-        public static readonly ApplicationLifecycleState Deactivated = new ApplicationLifecycleState(nameof(Deactivated));
+        public static readonly ApplicationLifecycleState Initializing = new(nameof(Initializing));
+        public static readonly ApplicationLifecycleState Initialized = new(nameof(Initialized));
+        public static readonly ApplicationLifecycleState Activating = new(nameof(Activating));
+        public static readonly ApplicationLifecycleState Activated = new(nameof(Activated));
+        public static readonly ApplicationLifecycleState Deactivating = new(nameof(Deactivating));
+        public static readonly ApplicationLifecycleState Deactivated = new(nameof(Deactivated));
 
         #endregion
 

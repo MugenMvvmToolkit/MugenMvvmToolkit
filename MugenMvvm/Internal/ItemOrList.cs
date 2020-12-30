@@ -11,28 +11,28 @@ namespace MugenMvvm.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, IReadOnlyList<TItem>> FromItem<TItem>([AllowNull] TItem item)
             where TItem : class
-            => new ItemOrList<TItem, IReadOnlyList<TItem>>(item, item != null);
+            => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromItem<TItem>([AllowNull] TItem item, bool hasItem) => new ItemOrList<TItem, IReadOnlyList<TItem>>(item, hasItem);
+        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromItem<TItem>([AllowNull] TItem item, bool hasItem) => new(item, hasItem);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, TList> FromItem<TItem, TList>([AllowNull] TItem item)
             where TItem : class?
-            where TList : class, IEnumerable<TItem> => new ItemOrList<TItem, TList>(item, item != null);
+            where TList : class, IEnumerable<TItem> => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, TList> FromItem<TItem, TList>([AllowNull] TItem item, bool hasItem) where TList : class, IEnumerable<TItem> => new ItemOrList<TItem, TList>(item, hasItem);
+        public static ItemOrList<TItem, TList> FromItem<TItem, TList>([AllowNull] TItem item, bool hasItem) where TList : class, IEnumerable<TItem> => new(item, hasItem);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromList<TItem>(IReadOnlyList<TItem>? readOnlyList) => new ItemOrList<TItem, IReadOnlyList<TItem>>(readOnlyList);
+        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromList<TItem>(IReadOnlyList<TItem>? readOnlyList) => new(readOnlyList);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<TItem, IList<TItem>> FromList<TItem>(IList<TItem>? iList) => new ItemOrList<TItem, IList<TItem>>(iList);
+        public static ItemOrList<TItem, IList<TItem>> FromList<TItem>(IList<TItem>? iList) => new(iList);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, TList> FromList<TItem, TList>(TList? enumerable)
-            where TList : class, IEnumerable<TItem> => new ItemOrList<TItem, TList>(enumerable);
+            where TList : class, IEnumerable<TItem> => new(enumerable);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, TList> FromRawValue<TItem, TList>(object? value)

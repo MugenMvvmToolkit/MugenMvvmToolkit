@@ -24,8 +24,8 @@ namespace MugenMvvm.Views.Components
         private readonly IReflectionManager? _reflectionManager;
         private readonly IWrapperManager? _wrapperManager;
 
-        private static readonly Dictionary<Type, object?> UpdateViewDelegates = new Dictionary<Type, object?>(7, InternalEqualityComparer.Type);
-        private static readonly Dictionary<Type, object?> UpdateViewModelDelegates = new Dictionary<Type, object?>(7, InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, object?> UpdateViewDelegates = new(7, InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, object?> UpdateViewModelDelegates = new(7, InternalEqualityComparer.Type);
         private static readonly MethodInfo UpdateViewMethodInfo = typeof(ViewModelViewAwareInitializer).GetMethodOrThrow(nameof(TryUpdateView), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo UpdateViewModelMethodInfo = typeof(ViewModelViewAwareInitializer).GetMethodOrThrow(nameof(TryUpdateViewModel), BindingFlagsEx.InstancePublic);
 

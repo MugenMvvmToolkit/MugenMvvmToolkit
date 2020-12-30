@@ -31,21 +31,21 @@ namespace MugenMvvm.Bindings.Core
 
         public BindingBuilderTo<TTarget, TSource> To(string path) => To<TSource>(path);
 
-        public BindingBuilderTo<TTarget, T> To<T>(string path) where T : class => new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(PathOrExpression), path, default);
+        public BindingBuilderTo<TTarget, T> To<T>(string path) where T : class => new(new BindingBuilderFrom<TTarget, T>(PathOrExpression), path, default);
 
         public BindingBuilderTo<TTarget, TSource> To(IExpressionNode expression) => To<TSource>(expression);
 
-        public BindingBuilderTo<TTarget, T> To<T>(IExpressionNode expression) where T : class => new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
+        public BindingBuilderTo<TTarget, T> To<T>(IExpressionNode expression) where T : class => new(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
 
         public BindingBuilderTo<TTarget, TSource> To(Expression<Func<IBindingBuilderContext<TTarget, TSource>, object?>> expression) => To<TSource>(expression);
 
         public BindingBuilderTo<TTarget, T> To<T>(Expression<Func<IBindingBuilderContext<TTarget, T>, object?>> expression) where T : class =>
-            new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
+            new(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
 
         public BindingBuilderTo<TTarget, TSource> To(Expression<Action<IBindingBuilderContext<TTarget, TSource>>> expression) => To<TSource>(expression);
 
         public BindingBuilderTo<TTarget, T> To<T>(Expression<Action<IBindingBuilderContext<TTarget, T>>> expression) where T : class =>
-            new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
+            new(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
 
         #endregion
     }

@@ -654,7 +654,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 
             var changedCount = 0;
             var parentValue = new object();
-            object defaultValue = new object();
+            object defaultValue = new();
             var memberInfo = new PropertyBuilder<object, object>("t", typeof(object), typeof(object)).Inherits().DefaultValue(defaultValue).Build();
             memberInfo.GetValue(target).ShouldEqual(defaultValue);
             memberInfo.TryObserve(target, new TestWeakEventListener

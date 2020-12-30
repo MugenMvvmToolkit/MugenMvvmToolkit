@@ -13,7 +13,7 @@ namespace MugenMvvm.Internal
     {
         #region Fields
 
-        private static readonly InternalEqualityComparer Comparer = new InternalEqualityComparer();
+        private static readonly InternalEqualityComparer Comparer = new();
         public static readonly IEqualityComparer<MemberInfo> MemberInfo = Comparer;
         public static readonly IEqualityComparer<(object, object?)> ValueTupleReference = Comparer;
         public static readonly IEqualityComparer<object> Reference = Comparer;

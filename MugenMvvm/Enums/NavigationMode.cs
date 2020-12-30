@@ -12,11 +12,11 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly NavigationMode Undefined = new NavigationMode(nameof(Undefined));
-        public static readonly NavigationMode New = new NavigationMode(nameof(New)) {IsNew = true};
-        public static readonly NavigationMode Refresh = new NavigationMode(nameof(Refresh)) {IsRefresh = true};
-        public static readonly NavigationMode Restore = new NavigationMode(nameof(Restore)) {IsRefresh = true, IsRestore = true};
-        public static readonly NavigationMode Close = new NavigationMode(nameof(Close)) {IsClose = true};
+        public static readonly NavigationMode Undefined = new(nameof(Undefined));
+        public static readonly NavigationMode New = new(nameof(New)) {IsNew = true};
+        public static readonly NavigationMode Refresh = new(nameof(Refresh)) {IsRefresh = true};
+        public static readonly NavigationMode Restore = new(nameof(Restore)) {IsRefresh = true, IsRestore = true};
+        public static readonly NavigationMode Close = new(nameof(Close)) {IsClose = true};
 
         #endregion
 

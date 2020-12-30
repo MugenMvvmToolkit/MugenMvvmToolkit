@@ -9,10 +9,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
     {
         #region Methods
 
-        protected override MultiPathObserver GetObserver(object target) => new MultiPathObserver(target, DefaultPath, MemberFlags.All, false, false);
+        protected override MultiPathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.All, false, false);
 
         protected override MultiPathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional) =>
-            new MultiPathObserver(target, path, memberFlags, hasStablePath, optional);
+            new(target, path, memberFlags, hasStablePath, optional);
 
         #endregion
     }

@@ -335,13 +335,13 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             public EnumFlags<BindingMemberExpressionFlags> BindingMemberFlags
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => new EnumFlags<BindingMemberExpressionFlags>(BindingMemberFlagsField);
+                get => new(BindingMemberFlagsField);
             }
 
             public EnumFlags<MemberFlags> MemberFlags
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => new EnumFlags<MemberFlags>(MemberFlagsField);
+                get => new(MemberFlagsField);
             }
 
             #endregion

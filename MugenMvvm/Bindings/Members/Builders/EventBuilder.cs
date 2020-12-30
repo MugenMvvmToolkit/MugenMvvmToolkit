@@ -118,7 +118,7 @@ namespace MugenMvvm.Bindings.Members.Builders
 
         private DelegateObservableMemberInfo<TTarget, TState> Event<TState>(in TState state, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget> tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise = null) =>
-            new DelegateObservableMemberInfo<TTarget, TState>(_name, _declaringType, _eventType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember, state, false, tryObserve, raise);
+            new(_name, _declaringType, _eventType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember, state, false, tryObserve, raise);
 
         #endregion
     }

@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
             if (expression is BinaryExpression binary && Mapping.TryGetValue(binary.NodeType, out var func))
-                return new BinaryExpressionNode(func(binary), context.Convert(binary.Left), context.Convert(binary.Right), null);
+                return new BinaryExpressionNode(func(binary), context.Convert(binary.Left), context.Convert(binary.Right));
 
             return null;
         }

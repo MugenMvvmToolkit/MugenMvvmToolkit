@@ -7,7 +7,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
     {
         #region Methods
 
-        protected override object GetSupportedItem() => new object();
+        protected override object GetSupportedItem() => new();
 
         protected override IAttachedValueStorageProviderComponent GetComponent() => new ConditionalWeakTableAttachedValueStorage();
 

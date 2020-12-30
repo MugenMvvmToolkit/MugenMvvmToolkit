@@ -3,7 +3,6 @@ using Android.Views;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Members;
 using MugenMvvm.Android.Native.Views;
-using MugenMvvm.Bindings;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Collections;

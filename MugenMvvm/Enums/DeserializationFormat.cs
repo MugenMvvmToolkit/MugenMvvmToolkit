@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Serialization;
 #if SPAN_API
 using System;
 
@@ -24,10 +24,6 @@ namespace MugenMvvm.Enums
         #endregion
 
         #region Constructors
-
-        protected DeserializationFormat()
-        {
-        }
 
         #endregion
     }

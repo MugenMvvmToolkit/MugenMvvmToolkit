@@ -16,9 +16,9 @@ namespace MugenMvvm.Enums
         private readonly Action<ICommand, object?>? _afterExecute;
         private readonly Func<ICommand, object?, bool>? _beforeExecute;
 
-        public static readonly CommandExecutionBehavior None = new CommandExecutionBehavior(0, null, null);
-        public static readonly CommandExecutionBehavior CheckCanExecute = new CommandExecutionBehavior(1, CheckCanExecuteIml, null);
-        public static readonly CommandExecutionBehavior CheckCanExecuteThrow = new CommandExecutionBehavior(2, CheckCanExecuteThrowImpl, null);
+        public static readonly CommandExecutionBehavior None = new(0, null, null);
+        public static readonly CommandExecutionBehavior CheckCanExecute = new(1, CheckCanExecuteIml, null);
+        public static readonly CommandExecutionBehavior CheckCanExecuteThrow = new(2, CheckCanExecuteThrowImpl, null);
 
         #endregion
 

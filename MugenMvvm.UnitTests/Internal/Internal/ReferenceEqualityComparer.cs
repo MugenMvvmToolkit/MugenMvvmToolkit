@@ -1,5 +1,4 @@
 ﻿#if !NET5_0
-
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 

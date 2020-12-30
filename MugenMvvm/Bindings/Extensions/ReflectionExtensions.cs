@@ -16,7 +16,7 @@ namespace MugenMvvm.Bindings.Extensions
     {
         #region Fields
 
-        private static readonly Dictionary<Type, object?> DefaultValueCache = new Dictionary<Type, object?>(23, InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, object?> DefaultValueCache = new(23, InternalEqualityComparer.Type);
 
         #endregion
 

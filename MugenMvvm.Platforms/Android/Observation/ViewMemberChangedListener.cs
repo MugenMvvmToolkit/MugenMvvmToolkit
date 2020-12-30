@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Java.Lang;
 using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Android.Native.Views;
-using MugenMvvm.Bindings;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
@@ -40,8 +39,8 @@ namespace MugenMvvm.Android.Observation
         public static readonly ICharSequence SelectedIndexNameNative = ViewExtensions.SelectedIndexName;
         public static readonly ICharSequence SelectedIndexEventNameNative = ViewExtensions.SelectedIndexEventName;
 
-        private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new Dictionary<string, ICharSequence>(3);
-        private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new Dictionary<ICharSequence, string>(3);
+        private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new(3);
+        private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new(3);
 
         #endregion
 

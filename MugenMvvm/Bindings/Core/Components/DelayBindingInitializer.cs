@@ -30,7 +30,7 @@ namespace MugenMvvm.Bindings.Core.Components
             if (context.Components.ContainsKey(parameterName))
                 return;
 
-            var delay = context.TryGetParameterValue<int?>(parameterName, null);
+            var delay = context.TryGetParameterValue<int?>(parameterName);
             if (delay != null)
             {
                 var builder = parameterName == BindingParameterNameConstant.Delay

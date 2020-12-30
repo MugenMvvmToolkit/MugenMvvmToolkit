@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override WeakReferenceManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new WeakReferenceManager(collectionProvider);
+        protected override WeakReferenceManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

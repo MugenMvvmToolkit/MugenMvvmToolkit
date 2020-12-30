@@ -171,7 +171,7 @@ namespace MugenMvvm.Bindings.Members.Builders
         private DelegateMethodMemberInfo<TTarget, TReturn, TState> Method<TState>(in TState state, InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturn, TState>, TTarget, TReturn> invoke,
             Func<DelegateMethodMemberInfo<TTarget, TReturn, TState>, IReadOnlyList<IParameterInfo>>? getParameters, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
-            new DelegateMethodMemberInfo<TTarget, TReturn, TState>(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
+            new(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
                 state, invoke, getParameters, _tryGetAccessor, !_isNonObservable, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
 
         #endregion

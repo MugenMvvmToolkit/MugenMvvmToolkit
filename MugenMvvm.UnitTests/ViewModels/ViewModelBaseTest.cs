@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         {
             var type = typeof(TestViewModel);
             var manager = new ViewModelManager();
-            int invokeCount = 0;
+            var invokeCount = 0;
             var vm = new TestViewModelBase(manager);
             var result = new TestViewModel();
             manager.AddComponent(new TestViewModelProviderComponent

@@ -39,7 +39,7 @@ namespace MugenMvvm.Bindings.Observation
         public EnumFlags<MemberFlags> MemberFlags
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new EnumFlags<MemberFlags>(_memberFlags);
+            get => new(_memberFlags);
             protected set => _memberFlags = value.Value();
         }
 

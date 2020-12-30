@@ -56,8 +56,9 @@ namespace MugenMvvm.Android.Views
         {
             #region Fields
 
-            private readonly IActivityViewRequest _request;
             private readonly CancellationToken _cancellationToken;
+
+            private readonly IActivityViewRequest _request;
 
             #endregion
 

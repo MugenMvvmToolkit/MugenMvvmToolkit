@@ -9,7 +9,7 @@ namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
         ExpressionNodeType ExpressionType { get; }
 
         bool HasMetadata { get; }
-        
+
         IDictionary<string, object?> Metadata { get; }
 
         IExpressionNode Accept(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata = null);

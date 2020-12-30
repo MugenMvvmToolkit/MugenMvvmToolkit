@@ -11,9 +11,9 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly MessengerResult Handled = new MessengerResult(1);
-        public static readonly MessengerResult Ignored = new MessengerResult(2);
-        public static readonly MessengerResult Invalid = new MessengerResult(3);
+        public static readonly MessengerResult Handled = new(1);
+        public static readonly MessengerResult Ignored = new(2);
+        public static readonly MessengerResult Invalid = new(3);
 
         #endregion
 

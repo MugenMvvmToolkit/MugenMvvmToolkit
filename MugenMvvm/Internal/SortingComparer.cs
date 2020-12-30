@@ -41,9 +41,9 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        public static Builder Ascending<TValue>(Func<T, TValue> expression) => new Builder(SortingInfo.Create(expression, true));
+        public static Builder Ascending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, true));
 
-        public static Builder Descending<TValue>(Func<T, TValue> expression) => new Builder(SortingInfo.Create(expression, false));
+        public static Builder Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, false));
 
         #endregion
 

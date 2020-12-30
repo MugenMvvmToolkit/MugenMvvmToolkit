@@ -17,7 +17,7 @@ namespace MugenMvvm.Extensions
         public static readonly object FalseObject = false;
         private static readonly MethodInfo GenericBoxMethodInfo = Initialize(out CanBoxMethodInfo);
         private static readonly MethodInfo? CanBoxMethodInfo;
-        private static readonly Dictionary<Type, Func<bool>> CanBoxCache = new Dictionary<Type, Func<bool>>(InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, Func<bool>> CanBoxCache = new(InternalEqualityComparer.Type);
         private static Dictionary<Type, MethodInfo>? _boxMethods;
 
         #endregion

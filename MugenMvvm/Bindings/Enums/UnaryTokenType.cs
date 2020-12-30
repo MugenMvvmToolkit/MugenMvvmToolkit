@@ -12,12 +12,12 @@ namespace MugenMvvm.Bindings.Enums
     {
         #region Fields
 
-        public static readonly UnaryTokenType DynamicExpression = new UnaryTokenType("$") {IsSingleExpression = true};
-        public static readonly UnaryTokenType StaticExpression = new UnaryTokenType("$$") {IsSingleExpression = true};
-        public static readonly UnaryTokenType Minus = new UnaryTokenType("-");
-        public static readonly UnaryTokenType Plus = new UnaryTokenType("+");
-        public static readonly UnaryTokenType LogicalNegation = new UnaryTokenType("!");
-        public static readonly UnaryTokenType BitwiseNegation = new UnaryTokenType("~");
+        public static readonly UnaryTokenType DynamicExpression = new("$") {IsSingleExpression = true};
+        public static readonly UnaryTokenType StaticExpression = new("$$") {IsSingleExpression = true};
+        public static readonly UnaryTokenType Minus = new("-");
+        public static readonly UnaryTokenType Plus = new("+");
+        public static readonly UnaryTokenType LogicalNegation = new("!");
+        public static readonly UnaryTokenType BitwiseNegation = new("~");
 
         #endregion
 

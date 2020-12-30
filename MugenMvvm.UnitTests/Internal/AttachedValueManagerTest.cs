@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new AttachedValueManager(collectionProvider);
+        protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

@@ -8,7 +8,7 @@ namespace MugenMvvm.Android.Bindings
         #region Fields
 
         private readonly int _templateId;
-        private static readonly Dictionary<int, SingleResourceTemplateSelector> Cache = new Dictionary<int, SingleResourceTemplateSelector>();
+        private static readonly Dictionary<int, SingleResourceTemplateSelector> Cache = new();
 
         #endregion
 

@@ -25,10 +25,10 @@ namespace MugenMvvm.Bindings.Compiling
         private readonly IExpressionNode _expression;
         private readonly Dictionary<IExpressionNode, Expression?> _expressions;
         private readonly IReadOnlyMetadataContext? _inputMetadata;
+        private readonly object?[] _values;
 
         private IExpressionBuilderComponent[] _expressionBuilders;
         private IMetadataContext? _metadata;
-        private object?[] _values;
 
         private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
 

@@ -97,7 +97,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(1);
         }
 
-        protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, in TState state,
+        protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
+            in TState state,
             bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
             new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, args, metadata) => "",
                 null, null, tryObserveByMember, tryObserve, raise);

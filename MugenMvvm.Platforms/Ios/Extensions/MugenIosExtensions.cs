@@ -286,8 +286,8 @@ namespace MugenMvvm.Ios.Extensions
                 .Event<UIView>(nameof(UITextField.Text) + BindingInternalConstant.ChangedEventPostfix)
                 .Build();
 
-            public static readonly Selector OnTextChangedSelector = new Selector("t:");
-            public static readonly TextChangedObserver Instance = new TextChangedObserver();
+            public static readonly Selector OnTextChangedSelector = new("t:");
+            public static readonly TextChangedObserver Instance = new();
 
             #endregion
 
@@ -313,7 +313,7 @@ namespace MugenMvvm.Ios.Extensions
             #region Fields
 
             private readonly WeakEventListener _eventListener;
-            public static readonly Selector OnClickSelector = new Selector("c:");
+            public static readonly Selector OnClickSelector = new("c:");
 
             #endregion
 

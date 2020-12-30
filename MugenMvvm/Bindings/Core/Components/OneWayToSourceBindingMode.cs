@@ -15,7 +15,7 @@ namespace MugenMvvm.Bindings.Core.Components
     {
         #region Fields
 
-        public static readonly OneWayToSourceBindingMode Instance = new OneWayToSourceBindingMode();
+        public static readonly OneWayToSourceBindingMode Instance = new();
 
         #endregion
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.Bindings.Core.Components
         {
             #region Fields
 
-            public static readonly OneTimeHandlerComponent Instance = new OneTimeHandlerComponent();
+            public static readonly OneTimeHandlerComponent Instance = new();
 
             #endregion
 

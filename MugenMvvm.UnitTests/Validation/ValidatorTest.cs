@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Validation
                 validator.IsDisposed.ShouldBeFalse();
                 invokeCount.ShouldEqual(0);
                 invokeComponentCount.ShouldEqual(0);
-                validator.Components.Count.ShouldEqual(count*2);
+                validator.Components.Count.ShouldEqual(count * 2);
             }
         }
 
@@ -243,7 +243,7 @@ namespace MugenMvvm.UnitTests.Validation
             count.ShouldEqual(componentCount);
         }
 
-        protected override Validator GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Validator(null, collectionProvider);
+        protected override Validator GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(null, collectionProvider);
 
         #endregion
     }

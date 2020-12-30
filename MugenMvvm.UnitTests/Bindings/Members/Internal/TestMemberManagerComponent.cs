@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         private readonly IMemberManager? _memberManager;
 
-        public static readonly TestMemberManagerComponent Selector = new TestMemberManagerComponent
+        public static readonly TestMemberManagerComponent Selector = new()
         {
             TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(arg4)
         };
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberManagerComponent.TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, 
+        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberManagerComponent.TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes,
             EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata)
         {
             _memberManager?.ShouldEqual(memberManager);

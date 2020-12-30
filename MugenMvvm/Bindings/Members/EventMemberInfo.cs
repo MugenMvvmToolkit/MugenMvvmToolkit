@@ -17,8 +17,8 @@ namespace MugenMvvm.Bindings.Members
         #region Fields
 
         private readonly EventInfo _eventInfo;
-        private readonly MemberObserver _observer;
         private readonly ushort _modifiers;
+        private readonly MemberObserver _observer;
 
         #endregion
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Event;
 
-        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
+        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
         #endregion
 

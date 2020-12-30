@@ -32,9 +32,9 @@ namespace MugenMvvm.Bindings.Members.Descriptors
         #region Methods
 
         [Pure]
-        public BindableEventDescriptor<TNewTarget> Override<TNewTarget>() where TNewTarget : class => new BindableEventDescriptor<TNewTarget>(Name);
+        public BindableEventDescriptor<TNewTarget> Override<TNewTarget>() where TNewTarget : class => new(Name);
 
-        public static implicit operator BindableEventDescriptor<TTarget>(string name) => new BindableEventDescriptor<TTarget>(name);
+        public static implicit operator BindableEventDescriptor<TTarget>(string name) => new(name);
 
         public static implicit operator string(BindableEventDescriptor<TTarget> member) => member.Name;
 

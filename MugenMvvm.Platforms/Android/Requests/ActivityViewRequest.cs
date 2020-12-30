@@ -20,7 +20,7 @@ namespace MugenMvvm.Android.Requests
 
         #region Constructors
 
-        public ActivityViewRequest(IViewModelBase viewModel, IViewMapping mapping, Action<TState> startActivity, 
+        public ActivityViewRequest(IViewModelBase viewModel, IViewMapping mapping, Action<TState> startActivity,
             Func<object, ViewLifecycleState, object?, TState, IReadOnlyMetadataContext?, bool> isTargetActivity, TState state)
             : base(viewModel, null)
         {

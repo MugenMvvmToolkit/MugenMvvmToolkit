@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
 
-        protected override MethodEmptyPathObserver GetObserver(object target) => new MethodEmptyPathObserver(MethodName, target, MemberFlags.All);
+        protected override MethodEmptyPathObserver GetObserver(object target) => new(MethodName, target, MemberFlags.All);
 
         #endregion
     }

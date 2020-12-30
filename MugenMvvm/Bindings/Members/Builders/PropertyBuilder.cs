@@ -155,7 +155,7 @@ namespace MugenMvvm.Bindings.Members.Builders
         internal DelegateAccessorMemberInfo<TTarget, TValue, TState> Property<TState>(in TState state,
             GetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? getValue, SetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? setValue,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
-            new DelegateAccessorMemberInfo<TTarget, TValue, TState>(Name, DeclaringType, PropertyType,
+            new(Name, DeclaringType, PropertyType,
                 AttachedMemberBuilder.GetFlags(IsStatic), UnderlyingMemberField, state, getValue, setValue, !IsNonObservable, IsNonObservable ? null : tryObserve, raise);
 
         #endregion
@@ -190,7 +190,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             private EnumFlags<MemberFlags> Flags
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => new EnumFlags<MemberFlags>(_flags);
+                get => new(_flags);
                 set => _flags = value.Value();
             }
 

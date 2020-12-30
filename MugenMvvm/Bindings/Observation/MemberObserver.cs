@@ -12,7 +12,7 @@ namespace MugenMvvm.Bindings.Observation
     {
         #region Fields
 
-        public static readonly MemberObserver NoDo = new MemberObserver((_, __, ___, ____) => default, Default.Metadata);
+        public static readonly MemberObserver NoDo = new((_, __, ___, ____) => default, Default.Metadata);
 
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>? _handler;
         private readonly object? _member;

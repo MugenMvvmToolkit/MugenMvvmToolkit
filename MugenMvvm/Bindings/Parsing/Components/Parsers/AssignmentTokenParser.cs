@@ -40,7 +40,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             var right = context.MoveNext().TryParseWhileNotNull();
             if (right == null)
                 return null;
-            return new BinaryExpressionNode(BinaryTokenType.Assignment, expression, right, null);
+            return new BinaryExpressionNode(BinaryTokenType.Assignment, expression, right);
         }
 
         #endregion

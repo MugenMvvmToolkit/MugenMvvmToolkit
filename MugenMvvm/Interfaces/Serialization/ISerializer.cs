@@ -8,10 +8,10 @@ namespace MugenMvvm.Interfaces.Serialization
     {
         bool IsSupported<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request = default, IReadOnlyMetadataContext? metadata = null);
 
-        bool TrySerialize<TRequest, TResult>(ISerializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true), AllowNull] ref TResult result,
+        bool TrySerialize<TRequest, TResult>(ISerializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] [AllowNull] ref TResult result,
             IReadOnlyMetadataContext? metadata = null);
 
-        bool TryDeserialize<TRequest, TResult>(IDeserializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true), AllowNull] ref TResult result,
+        bool TryDeserialize<TRequest, TResult>(IDeserializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] [AllowNull] ref TResult result,
             IReadOnlyMetadataContext? metadata = null);
     }
 }

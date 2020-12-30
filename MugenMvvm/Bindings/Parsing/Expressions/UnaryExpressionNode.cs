@@ -12,12 +12,12 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Fields
 
-        public static readonly UnaryExpressionNode ActionMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Action, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly UnaryExpressionNode EventArgsMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.EventArgs, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly UnaryExpressionNode TargetMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly UnaryExpressionNode SourceMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Source, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly UnaryExpressionNode ContextMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context, Default.ReadOnlyDictionary<string, object?>());
-        public static readonly UnaryExpressionNode BindingMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Binding, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly UnaryExpressionNode ActionMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Action, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly UnaryExpressionNode EventArgsMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.EventArgs, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly UnaryExpressionNode TargetMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly UnaryExpressionNode SourceMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Source, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly UnaryExpressionNode ContextMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly UnaryExpressionNode BindingMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Binding, Default.ReadOnlyDictionary<string, object?>());
 
         #endregion
 
@@ -68,7 +68,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 }
             }
 
-            return new UnaryExpressionNode(token, operand, null);
+            return new UnaryExpressionNode(token, operand);
         }
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)

@@ -37,7 +37,7 @@ namespace MugenMvvm.Bindings.Members.Descriptors
         #region Methods
 
         [Pure]
-        public BindableMethodDescriptor<TNewTarget, TReturn> Override<TNewTarget>() where TNewTarget : class => new BindableMethodDescriptor<TNewTarget, TReturn>(Request!);
+        public BindableMethodDescriptor<TNewTarget, TReturn> Override<TNewTarget>() where TNewTarget : class => new(Request!);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator string(BindableMethodDescriptor<TTarget, TReturn> member) => member.Request?.Name ?? "";

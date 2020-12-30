@@ -43,7 +43,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(operationType, nameof(operationType));
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
                 components[i].GetValues(context, operationType, ref values);
         }
 

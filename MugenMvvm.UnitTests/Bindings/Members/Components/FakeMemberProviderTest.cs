@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
-using MugenMvvm.Extensions;
 using Should;
 using Xunit;
 

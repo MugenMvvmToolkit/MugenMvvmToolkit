@@ -13,7 +13,7 @@ namespace MugenMvvm.Extensions
     {
         #region Fields
 
-        private static readonly Dictionary<Type, bool> HasClosureDictionary = new Dictionary<Type, bool>(47, InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, bool> HasClosureDictionary = new(47, InternalEqualityComparer.Type);
 
         #endregion
 

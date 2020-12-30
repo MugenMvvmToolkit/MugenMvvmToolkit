@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using MugenMvvm.Bindings.Interfaces.Observation;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;

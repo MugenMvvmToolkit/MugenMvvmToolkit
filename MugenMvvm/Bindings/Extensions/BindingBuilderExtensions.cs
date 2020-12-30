@@ -216,7 +216,7 @@ namespace MugenMvvm.Bindings.Extensions
                 return ItemOrList.FromItem(expressions.Item.Build(target, source, metadata));
 
             var result = new IBinding[expressions.Count];
-            int index = 0;
+            var index = 0;
             foreach (var builder in expressions)
                 result[index++] = builder.Build(target, source, metadata);
             return result;
@@ -228,7 +228,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (value)
                 return builder.BindingParameter(null, parameter);
-            return builder.BindingParameter(null, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, parameter, null));
+            return builder.BindingParameter(null, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, parameter));
         }
 
         #endregion

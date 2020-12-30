@@ -35,7 +35,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, 
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
             object request, IReadOnlyMetadataContext? metadata)
         {
             if (!(request is string name))

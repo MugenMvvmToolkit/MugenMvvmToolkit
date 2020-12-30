@@ -34,13 +34,13 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             {
                 {MacrosConstant.Binding, context => bindingImpl},
                 {MacrosConstant.EventArgs, context => eventArgsImpl},
-                {MacrosConstant.Action, context => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString(), null)}
+                {MacrosConstant.Action, context => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString())}
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
             {
-                {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), Default.Array<IExpressionNode>(), null, null)},
-                {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), Default.Array<IExpressionNode>(), null, null)},
-                {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), Default.Array<IExpressionNode>(), null, null)}
+                {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), Default.Array<IExpressionNode>())},
+                {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), Default.Array<IExpressionNode>())},
+                {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), Default.Array<IExpressionNode>())}
             };
             ConstantParametersMethods = new Dictionary<string, string>
             {

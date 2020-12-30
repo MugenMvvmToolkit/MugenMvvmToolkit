@@ -22,9 +22,10 @@ namespace MugenMvvm.Android.Presenters
     {
         #region Fields
 
-        private static int _counter;
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IPresenter? _presenter;
+
+        private static int _counter;
 
         #endregion
 

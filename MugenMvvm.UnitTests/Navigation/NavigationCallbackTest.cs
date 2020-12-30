@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Navigation
     {
         #region Fields
 
-        private static readonly NavigationContext DefaultContext = new NavigationContext(null, Default.NavigationProvider, "f", NavigationType.Popup, NavigationMode.Close);
+        private static readonly NavigationContext DefaultContext = new(null, Default.NavigationProvider, "f", NavigationType.Popup, NavigationMode.Close);
 
         #endregion
 

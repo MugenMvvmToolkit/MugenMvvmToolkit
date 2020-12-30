@@ -8,7 +8,7 @@ namespace MugenMvvm.Navigation
     {
         #region Fields
 
-        public static readonly NavigationCallbackDelegateListener DisposeTargetCallback = new NavigationCallbackDelegateListener((context, exception, arg3) => (context.Target as IDisposable)?.Dispose(), true);
+        public static readonly NavigationCallbackDelegateListener DisposeTargetCallback = new((context, exception, arg3) => (context.Target as IDisposable)?.Dispose(), true);
 
         #endregion
 

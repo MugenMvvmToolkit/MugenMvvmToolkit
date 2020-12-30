@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;

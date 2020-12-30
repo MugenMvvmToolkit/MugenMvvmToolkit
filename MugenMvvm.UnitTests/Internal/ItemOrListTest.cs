@@ -118,16 +118,10 @@ namespace MugenMvvm.UnitTests.Internal
         }
 
         [Fact]
-        public void ShouldHandleNull()
-        {
-            AssertEmpty(new ItemOrList<object, object[]>(null));
-        }
+        public void ShouldHandleNull() => AssertEmpty(new ItemOrList<object, object[]>(null));
 
         [Fact]
-        public void ShouldHandleSingleItem()
-        {
-            AssertItem(new ItemOrList<object, object[]>(this, true), this);
-        }
+        public void ShouldHandleSingleItem() => AssertItem(new ItemOrList<object, object[]>(this, true), this);
 
         [Fact]
         public void ShouldHandleList1()

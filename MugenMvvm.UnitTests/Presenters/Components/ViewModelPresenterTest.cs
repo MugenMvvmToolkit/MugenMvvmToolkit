@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Presenters;
 using MugenMvvm.Presenters.Components;

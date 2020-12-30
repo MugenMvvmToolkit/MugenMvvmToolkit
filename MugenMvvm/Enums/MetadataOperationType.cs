@@ -11,9 +11,9 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public new static readonly MetadataOperationType Get = new MetadataOperationType(1);
-        public static readonly MetadataOperationType Set = new MetadataOperationType(2);
-        public static readonly MetadataOperationType Remove = new MetadataOperationType(3);
+        public new static readonly MetadataOperationType Get = new(1);
+        public static readonly MetadataOperationType Set = new(2);
+        public static readonly MetadataOperationType Remove = new(3);
 
         #endregion
 

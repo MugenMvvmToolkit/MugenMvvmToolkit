@@ -156,7 +156,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
             v.NewValue.ShouldEqual(GuidValue);
         }
 
-        private static EntityStateModel GetModel() => new EntityStateModel {Guid = GuidValue, Int = IntValue, String = StringValue};
+        private static EntityStateModel GetModel() => new() {Guid = GuidValue, Int = IntValue, String = StringValue};
 
         private static void AssertModel(EntityStateModel model)
         {

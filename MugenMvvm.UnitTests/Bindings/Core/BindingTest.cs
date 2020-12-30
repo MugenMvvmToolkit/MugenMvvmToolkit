@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -20,7 +21,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Core
 {
-    public class BindingTest : ComponentOwnerTestBase<MugenMvvm.Bindings.Core.Binding>
+    public class BindingTest : ComponentOwnerTestBase<Binding>
     {
         #region Methods
 
@@ -351,7 +352,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
-            var binding = new MugenMvvm.Bindings.Core.Binding(EmptyPathObserver.Empty, this);
+            var binding = new Binding(EmptyPathObserver.Empty, this);
             binding.Target.ShouldEqual(EmptyPathObserver.Empty);
             binding.Source.ShouldEqual(this);
             binding.State.ShouldEqual(BindingState.Valid);
@@ -372,7 +373,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void UpdateTargetSourceShouldUseObserverValue()
         {
-            MugenMvvm.Bindings.Core.Binding? binding = null;
+            Binding? binding = null;
             var targetObj = new object();
             var sourceObj = new object();
             object targetValue = "1";
@@ -526,7 +527,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var updateFailed = 0;
             var updateCanceled = 0;
             var updated = 0;
-            var binding = new MugenMvvm.Bindings.Core.Binding(target, source);
+            var binding = new Binding(target, source);
             for (var i = 0; i < count; i++)
             {
                 binding.AddComponent(new TestBindingTargetListener
@@ -621,7 +622,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var updateFailed = 0;
             var updateCanceled = 0;
             var updated = 0;
-            var binding = new MugenMvvm.Bindings.Core.Binding(target, source);
+            var binding = new Binding(target, source);
             for (var i = 0; i < count; i++)
             {
                 binding.AddComponent(new TestBindingSourceListener
@@ -682,7 +683,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void UpdateTargetShouldUseTargetValueInterceptor(int count)
         {
-            MugenMvvm.Bindings.Core.Binding? binding = null;
+            Binding? binding = null;
             var targetObj = new object();
             var sourceObj = new object();
             object targetValue = 0;
@@ -765,7 +766,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void UpdateSourceShouldUseSourceValueInterceptor(int count)
         {
-            MugenMvvm.Bindings.Core.Binding? binding = null;
+            Binding? binding = null;
             var targetObj = new object();
             var sourceObj = new object();
             object targetValue = 0;
@@ -848,7 +849,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void UpdateTargetShouldUseTargetSetter(int count)
         {
-            MugenMvvm.Bindings.Core.Binding? binding = null;
+            Binding? binding = null;
             var targetObj = new object();
             var sourceObj = new object();
             object targetValue = 0;
@@ -930,7 +931,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void UpdateSourceShouldUseSourceSetter(int count)
         {
-            MugenMvvm.Bindings.Core.Binding? binding = null;
+            Binding? binding = null;
             var targetObj = new object();
             var sourceObj = new object();
             object targetValue = 0;
@@ -1324,9 +1325,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
         }
 
-        protected virtual MugenMvvm.Bindings.Core.Binding GetBinding(IMemberPathObserver? target = null, object? source = null) => new MugenMvvm.Bindings.Core.Binding(target ?? EmptyPathObserver.Empty, source);
+        protected virtual Binding GetBinding(IMemberPathObserver? target = null, object? source = null) => new(target ?? EmptyPathObserver.Empty, source);
 
-        protected override MugenMvvm.Bindings.Core.Binding GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => GetBinding();
+        protected override Binding GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => GetBinding();
 
         #endregion
     }

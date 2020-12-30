@@ -145,7 +145,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
         private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrListEditor<IExpressionNode, List<IExpressionNode>> result, IReadOnlyMetadataContext? metadata)
         {
             if (parameter.Key != null)
-                result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, metadata), null));
+                result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, metadata)));
             else if (parameter.Value != null)
                 result.Add(Convert(parameter.Value, metadata));
         }

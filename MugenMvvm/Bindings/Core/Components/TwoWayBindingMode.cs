@@ -13,7 +13,7 @@ namespace MugenMvvm.Bindings.Core.Components
     {
         #region Fields
 
-        public static readonly TwoWayBindingMode Instance = new TwoWayBindingMode();
+        public static readonly TwoWayBindingMode Instance = new();
 
         #endregion
 

@@ -20,7 +20,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingMemberExpressionNode(string path, IObservationManager? observationManager = null, IDictionary<string, object?>? metadata = null) 
+        public BindingMemberExpressionNode(string path, IObservationManager? observationManager = null, IDictionary<string, object?>? metadata = null)
             : base(path, observationManager, metadata)
         {
         }

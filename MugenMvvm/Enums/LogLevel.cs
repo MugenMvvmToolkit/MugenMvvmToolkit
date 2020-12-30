@@ -11,12 +11,12 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly LogLevel Trace = new LogLevel(nameof(Trace));
-        public static readonly LogLevel Debug = new LogLevel(nameof(Debug));
-        public static readonly LogLevel Info = new LogLevel(nameof(Info));
-        public static readonly LogLevel Warning = new LogLevel(nameof(Warning));
-        public static readonly LogLevel Error = new LogLevel(nameof(Error));
-        public static readonly LogLevel Fatal = new LogLevel(nameof(Fatal));
+        public static readonly LogLevel Trace = new(nameof(Trace));
+        public static readonly LogLevel Debug = new(nameof(Debug));
+        public static readonly LogLevel Info = new(nameof(Info));
+        public static readonly LogLevel Warning = new(nameof(Warning));
+        public static readonly LogLevel Error = new(nameof(Error));
+        public static readonly LogLevel Fatal = new(nameof(Fatal));
 
         #endregion
 

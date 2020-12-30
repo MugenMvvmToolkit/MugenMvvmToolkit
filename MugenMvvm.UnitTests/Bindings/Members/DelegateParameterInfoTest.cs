@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         {
             string name = "n";
             Type type = typeof(int);
-            object underlyingMember = new object();
+            object underlyingMember = new();
             var hasDefaultValue = true;
             object defaultValue = "";
             var state = (this, "");

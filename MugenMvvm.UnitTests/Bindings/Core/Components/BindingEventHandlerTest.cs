@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Bindings;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
@@ -91,7 +90,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
             if (addOneTimeMode)
-                binding.Source = ItemOrList.FromItem<object?, object?[]>(new TestMemberPathObserver { GetLastMember = metadata => default });
+                binding.Source = ItemOrList.FromItem<object?, object?[]>(new TestMemberPathObserver {GetLastMember = metadata => default});
             IAttachableComponent component = BindingEventHandler.Get(default, false, true);
             component.OnAttached(binding, DefaultMetadata);
             updateCount.ShouldEqual(1);

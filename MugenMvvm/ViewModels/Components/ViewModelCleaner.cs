@@ -25,7 +25,7 @@ namespace MugenMvvm.ViewModels.Components
         private readonly IReflectionManager? _reflectionManager;
         private readonly IViewManager? _viewManager;
 
-        private static readonly Dictionary<Type, object?> TypesToCommandsProperties = new Dictionary<Type, object?>(59, InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, object?> TypesToCommandsProperties = new(59, InternalEqualityComparer.Type);
 
         #endregion
 

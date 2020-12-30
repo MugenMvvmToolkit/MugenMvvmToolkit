@@ -14,16 +14,16 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     {
         #region Fields
 
-        public static readonly ConstantExpressionNode True = new ConstantExpressionNode(BoxingExtensions.TrueObject, typeof(bool),
+        public static readonly ConstantExpressionNode True = new(BoxingExtensions.TrueObject, typeof(bool),
             MugenExtensions.TrueConstantExpression, Default.ReadOnlyDictionary<string, object?>());
 
-        public static readonly ConstantExpressionNode False = new ConstantExpressionNode(BoxingExtensions.FalseObject, typeof(bool),
+        public static readonly ConstantExpressionNode False = new(BoxingExtensions.FalseObject, typeof(bool),
             MugenExtensions.FalseConstantExpression, Default.ReadOnlyDictionary<string, object?>());
 
-        public static readonly ConstantExpressionNode Null = new ConstantExpressionNode(null, typeof(object),
+        public static readonly ConstantExpressionNode Null = new(null, typeof(object),
             MugenExtensions.NullConstantExpression, Default.ReadOnlyDictionary<string, object?>());
 
-        public static readonly ConstantExpressionNode EmptyString = new ConstantExpressionNode("", typeof(string),
+        public static readonly ConstantExpressionNode EmptyString = new("", typeof(string),
             Expression.Constant(""), Default.ReadOnlyDictionary<string, object?>());
 
         #endregion
@@ -76,7 +76,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             else if (value < BoxingExtensions.CacheSize)
                 return IntCache.Positive[value];
 
-            return new ConstantExpressionNode(value, typeof(int), null, null);
+            return new ConstantExpressionNode(value, typeof(int));
         }
 
         public static ConstantExpressionNode Get(object? value, Type? type = null)
@@ -85,7 +85,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 return Null;
             if (value is bool b)
                 return Get(b);
-            return new ConstantExpressionNode(value, type, null, null);
+            return new ConstantExpressionNode(value, type);
         }
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
@@ -138,7 +138,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             #region Fields
 
             public static readonly ConstantExpressionNode TypeConstant =
-                new ConstantExpressionNode(typeof(TType), typeof(TType).GetType(), Expression.Constant(typeof(TType)), Default.ReadOnlyDictionary<string, object?>());
+                new(typeof(TType), typeof(TType).GetType(), Expression.Constant(typeof(TType)), Default.ReadOnlyDictionary<string, object?>());
 
             #endregion
         }

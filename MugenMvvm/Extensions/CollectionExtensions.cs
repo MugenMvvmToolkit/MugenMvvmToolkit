@@ -144,7 +144,7 @@ namespace MugenMvvm.Extensions
 
         internal static int IndexOf<T>(T[] items, T item) where T : class
         {
-            for (int i = 0; i < items.Length; i++)
+            for (var i = 0; i < items.Length; i++)
             {
                 if (items[i] == item)
                     return i;
@@ -255,7 +255,7 @@ namespace MugenMvvm.Extensions
 #if SPAN_API
         //https://github.com/dotnet/runtime/pull/295
         internal static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, char separator)
-            => new SpanSplitEnumerator<char>(span, separator);
+            => new(span, separator);
 #endif
 
         #endregion
@@ -282,7 +282,7 @@ namespace MugenMvvm.Extensions
 
             public SpanSplitEnumerator<T> GetEnumerator() => this;
 
-            public Range Current => new Range(_startCurrent, _endCurrent);
+            public Range Current => new(_startCurrent, _endCurrent);
 
             internal SpanSplitEnumerator(ReadOnlySpan<T> span, ReadOnlySpan<T> separators)
             {

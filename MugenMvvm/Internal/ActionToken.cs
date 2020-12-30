@@ -68,7 +68,7 @@ namespace MugenMvvm.Internal
 
         public readonly bool IsEmpty => _handler == null;
 
-        public static ActionToken NoDoToken => new ActionToken((_, __) => { });
+        public static ActionToken NoDoToken => new((_, __) => { });
 
         #endregion
 

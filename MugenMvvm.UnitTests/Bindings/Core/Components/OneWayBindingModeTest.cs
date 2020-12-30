@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;

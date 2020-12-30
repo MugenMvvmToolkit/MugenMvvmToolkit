@@ -248,7 +248,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (args.List == null)
                 return new ConstantExpressionNode(st, typeof(string));
             args.List.Insert(0, new ConstantExpressionNode(st, typeof(string)));
-            return new MethodCallExpressionNode(StringType, "Format", args.List, null, null);
+            return new MethodCallExpressionNode(StringType, "Format", args.List);
         }
 
         private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, ref StringBuilder? builder, object? param = null)

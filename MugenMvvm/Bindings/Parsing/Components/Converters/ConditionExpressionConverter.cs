@@ -22,7 +22,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
             if (expression is ConditionalExpression c)
-                return new ConditionExpressionNode(context.Convert(c.Test), context.Convert(c.IfTrue), context.Convert(c.IfFalse), null);
+                return new ConditionExpressionNode(context.Convert(c.Test), context.Convert(c.IfTrue), context.Convert(c.IfFalse));
             return null;
         }
 

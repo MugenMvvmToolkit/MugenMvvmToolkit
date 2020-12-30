@@ -396,7 +396,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), ConstantExpressionNode.Get(nameof(Test))));
 
 
-            item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty, 
+            item = parser.TryParse(new BindingExpressionRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
                 new KeyValuePair<string?, object>(null, nameof(Test))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
@@ -471,7 +471,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             item.Parameters.Item.ShouldEqual(expectedResult);
         }
 
-        protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ExpressionParser(collectionProvider);
+        protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         private void ValidateExpression<TTarget, TSource>(string targetName, Expression<Func<TTarget, object?>> target, Expression<Func<TSource, object?>> source, IExpressionNode expectedResult, int count,
             int parameterCount)

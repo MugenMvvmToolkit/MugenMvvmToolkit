@@ -264,7 +264,7 @@ namespace MugenMvvm.Collections
 
         #region Methods
 
-        public Enumerator GetEnumerator() => new Enumerator(this);
+        public Enumerator GetEnumerator() => new(this);
 
         protected virtual void CopyToInternal(Array array, int index) => ((ICollection) Items).CopyTo(array, index);
 

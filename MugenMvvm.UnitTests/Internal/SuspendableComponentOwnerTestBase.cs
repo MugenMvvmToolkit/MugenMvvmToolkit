@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Internal
             methodCallCount.ShouldEqual(componentCount);
         }
 
-        protected virtual TestSuspendableComponent GetSuspendableComponent() => new TestSuspendableComponent();
+        protected virtual TestSuspendableComponent GetSuspendableComponent() => new();
 
         #endregion
     }

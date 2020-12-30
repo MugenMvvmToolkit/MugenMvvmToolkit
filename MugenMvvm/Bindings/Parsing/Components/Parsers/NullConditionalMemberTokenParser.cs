@@ -43,7 +43,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 if (context.IsToken('.', position) || context.IsToken('[', position))
                 {
                     context.MoveNext();
-                    return context.TryParse(new NullConditionalMemberExpressionNode(expression, null));
+                    return context.TryParse(new NullConditionalMemberExpressionNode(expression));
                 }
             }
 

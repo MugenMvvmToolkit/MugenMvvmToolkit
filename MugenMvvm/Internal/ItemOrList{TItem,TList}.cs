@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -157,21 +156,21 @@ namespace MugenMvvm.Internal
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>(TItem item) => new ItemOrList<TItem, TList>(item, item != null); //note all value types will hasItem = true
+        public static implicit operator ItemOrList<TItem, TList>(TItem item) => new(item, item != null); //note all value types will hasItem = true
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>(TList? items) => new ItemOrList<TItem, TList>(items);
+        public static implicit operator ItemOrList<TItem, TList>(TList? items) => new(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrList<TItem, IEnumerable<TItem>>(ItemOrList<TItem, TList> itemOrList)
-            => new ItemOrList<TItem, IEnumerable<TItem>>(itemOrList.Item!, itemOrList.List, itemOrList._fixedCount);
+            => new(itemOrList.Item!, itemOrList.List, itemOrList._fixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Enumerator GetEnumerator() => new Enumerator(this);
+        public Enumerator GetEnumerator() => new(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList<TItem, TNewList> Cast<TNewList>() where TNewList : class, IEnumerable<TItem>
-            => new ItemOrList<TItem, TNewList>(Item!, (TNewList?) (object?) List, _fixedCount);
+            => new(Item!, (TNewList?) (object?) List, _fixedCount);
 
         #endregion
 

@@ -45,7 +45,7 @@ namespace MugenMvvm.Serialization
         #region Methods
 
         public static DelegateSurrogateProvider<TFrom, TSurrogate> Get(Func<TFrom?, ISerializationContext, TSurrogate?> getObjectToSerialize, Func<TSurrogate?, ISerializationContext, TFrom?> getDeserializedObject)
-            => new DelegateSurrogateProvider<TFrom, TSurrogate>(getObjectToSerialize, getDeserializedObject);
+            => new(getObjectToSerialize, getDeserializedObject);
 
         #endregion
     }

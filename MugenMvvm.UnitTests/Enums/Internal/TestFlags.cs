@@ -6,8 +6,8 @@ namespace MugenMvvm.UnitTests.Enums.Internal
     {
         #region Fields
 
-        public static readonly TestFlags Flag1 = new TestFlags(1 << 1, nameof(Flag1));
-        public static readonly TestFlags Flag2 = new TestFlags(1 << 2, nameof(Flag2));
+        public static readonly TestFlags Flag1 = new(1 << 1, nameof(Flag1));
+        public static readonly TestFlags Flag2 = new(1 << 2, nameof(Flag2));
 
         #endregion
 

@@ -10,9 +10,9 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        private static readonly Dictionary<Type, Func<IEnum[]>> TypeToEnums = new Dictionary<Type, Func<IEnum[]>>(InternalEqualityComparer.Type);
-        private static readonly Dictionary<Type, Func<string?, IEnum?, bool, IEnum?>> TypeToNameResolver = new Dictionary<Type, Func<string?, IEnum?, bool, IEnum?>>(InternalEqualityComparer.Type);
-        private static readonly Dictionary<Type, Delegate> TypeToValueResolver = new Dictionary<Type, Delegate>(InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, Func<IEnum[]>> TypeToEnums = new(InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, Func<string?, IEnum?, bool, IEnum?>> TypeToNameResolver = new(InternalEqualityComparer.Type);
+        private static readonly Dictionary<Type, Delegate> TypeToValueResolver = new(InternalEqualityComparer.Type);
 
         #endregion
 

@@ -251,7 +251,7 @@ namespace MugenMvvm.UnitTests.Messaging
             invokedCount.ShouldEqual(1);
         }
 
-        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Messenger(collectionProvider);
+        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

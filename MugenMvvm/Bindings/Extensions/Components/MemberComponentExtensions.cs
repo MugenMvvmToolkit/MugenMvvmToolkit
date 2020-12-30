@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -14,7 +13,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
     {
         #region Methods
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, 
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes,
             EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

@@ -19,7 +19,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
         #region Implementation of interfaces
 
         public ICompiledExpression TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata) => new CompiledExpression(expression, metadata)
-            {ExpressionBuilders = compiler.GetComponents<IExpressionBuilderComponent>(metadata) };
+            {ExpressionBuilders = compiler.GetComponents<IExpressionBuilderComponent>(metadata)};
 
         #endregion
     }

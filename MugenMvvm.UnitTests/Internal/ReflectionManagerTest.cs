@@ -281,7 +281,7 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override ReflectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ReflectionManager(collectionProvider);
+        protected override ReflectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

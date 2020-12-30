@@ -11,13 +11,13 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly PlatformType Android = new PlatformType(nameof(Android));
-        public static readonly PlatformType iOS = new PlatformType(nameof(iOS));
-        public static readonly PlatformType WinForms = new PlatformType(nameof(WinForms));
-        public static readonly PlatformType UWP = new PlatformType(nameof(UWP));
-        public static readonly PlatformType WPF = new PlatformType(nameof(WPF));
-        public static readonly PlatformType WinPhone = new PlatformType(nameof(WinPhone));
-        public static readonly PlatformType UnitTest = new PlatformType(nameof(UnitTest));
+        public static readonly PlatformType Android = new(nameof(Android));
+        public static readonly PlatformType iOS = new(nameof(iOS));
+        public static readonly PlatformType WinForms = new(nameof(WinForms));
+        public static readonly PlatformType UWP = new(nameof(UWP));
+        public static readonly PlatformType WPF = new(nameof(WPF));
+        public static readonly PlatformType WinPhone = new(nameof(WinPhone));
+        public static readonly PlatformType UnitTest = new(nameof(UnitTest));
 
         #endregion
 

@@ -16,9 +16,10 @@ namespace MugenMvvm.Bindings.Members
     {
         #region Fields
 
+        private readonly ushort _modifiers;
+
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
-        private readonly ushort _modifiers;
         private Func<object?, object?> _getterFunc;
 
         private MemberObserver _observer;
@@ -79,7 +80,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
+        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
         public bool CanRead { get; }
 

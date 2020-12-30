@@ -17,8 +17,8 @@ namespace MugenMvvm.Bindings.Core.Components
 
         private readonly bool _disposeBinding;
 
-        public static readonly OneTimeBindingMode Instance = new OneTimeBindingMode(true);
-        public static readonly OneTimeBindingMode NonDisposeInstance = new OneTimeBindingMode(false);
+        public static readonly OneTimeBindingMode Instance = new(true);
+        public static readonly OneTimeBindingMode NonDisposeInstance = new(false);
 
         #endregion
 

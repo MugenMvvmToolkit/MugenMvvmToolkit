@@ -43,14 +43,14 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         public EnumFlags<BindingMemberExpressionFlags> Flags
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new EnumFlags<BindingMemberExpressionFlags>(_flags);
+            get => new(_flags);
             set => _flags = value.Value();
         }
 
         public EnumFlags<MemberFlags> MemberFlags
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new EnumFlags<MemberFlags>(_memberFlags);
+            get => new(_memberFlags);
             set => _memberFlags = value.Value();
         }
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
 
         protected MemberPathObserverRequest GetObserverRequest(string path, IReadOnlyMetadataContext? metadata) =>
-            new MemberPathObserverRequest(ObservationManager.DefaultIfNull().GetMemberPath(path, metadata), MemberFlags,
+            new(ObservationManager.DefaultIfNull().GetMemberPath(path, metadata), MemberFlags,
                 Flags.HasFlag(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlag(BindingMemberExpressionFlags.StablePath),
                 Flags.HasFlag(BindingMemberExpressionFlags.Observable), Flags.HasFlag(BindingMemberExpressionFlags.StablePath), this);
 

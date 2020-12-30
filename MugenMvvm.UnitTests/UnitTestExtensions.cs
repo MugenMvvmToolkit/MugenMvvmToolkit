@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTests
         {
             #region Fields
 
-            public static readonly ExpressionNodeEqualityComparer Instance = new ExpressionNodeEqualityComparer();
+            public static readonly ExpressionNodeEqualityComparer Instance = new();
 
             #endregion
 

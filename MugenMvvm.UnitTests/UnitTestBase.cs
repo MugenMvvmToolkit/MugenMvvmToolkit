@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests
         protected const string ReleaseTest = null;
 #endif
 
-        protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new SerializationContext<object?, object?>(new SerializationFormat<object?, object?>(1, ""), null);
+        protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(1, ""), null);
         protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
 
         #endregion

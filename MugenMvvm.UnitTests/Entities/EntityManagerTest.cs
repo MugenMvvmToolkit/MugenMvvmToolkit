@@ -152,7 +152,7 @@ namespace MugenMvvm.UnitTests.Entities
             ShouldThrow<InvalidOperationException>(() => entityManager.GetTrackingCollection(entityManager, DefaultMetadata));
         }
 
-        protected override EntityManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new EntityManager(collectionProvider);
+        protected override EntityManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

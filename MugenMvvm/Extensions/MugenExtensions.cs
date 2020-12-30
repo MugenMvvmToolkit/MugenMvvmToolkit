@@ -135,7 +135,7 @@ namespace MugenMvvm.Extensions
 
         public static ThreadSwitcherAwaitable SwitchToBackgroundAsync(this IThreadDispatcher? threadDispatcher) => threadDispatcher.SwitchToAsync(ThreadExecutionMode.Background);
 
-        public static ThreadSwitcherAwaitable SwitchToAsync(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode) => new ThreadSwitcherAwaitable(threadDispatcher.DefaultIfNull(), executionMode);
+        public static ThreadSwitcherAwaitable SwitchToAsync(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode) => new(threadDispatcher.DefaultIfNull(), executionMode);
 
         public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,

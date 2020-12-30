@@ -56,7 +56,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 return ItemOrList.FromItem((IBinding) values.Item.Value!);
 
             var bindings = new IBinding[count];
-            int index = 0;
+            var index = 0;
             foreach (var value in values)
                 bindings[index++] = (IBinding) value.Value!;
             return bindings;

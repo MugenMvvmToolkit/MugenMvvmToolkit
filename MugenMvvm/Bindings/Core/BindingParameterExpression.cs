@@ -37,7 +37,7 @@ namespace MugenMvvm.Bindings.Core
         #region Methods
 
         public BindingParameterValue ToBindingParameter(object target, object? source, IReadOnlyMetadataContext? metadata) =>
-            new BindingParameterValue(MugenBindingExtensions.ToBindingSource(_value, target, source, metadata), _compiledExpression);
+            new(MugenBindingExtensions.ToBindingSource(_value, target, source, metadata), _compiledExpression);
 
         #endregion
     }

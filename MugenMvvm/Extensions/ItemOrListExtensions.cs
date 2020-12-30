@@ -101,11 +101,11 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList) =>
-            new ItemOrListEditor<TItem, IList<TItem>>(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
+            new(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList) =>
-            new ItemOrListEditor<TItem, List<TItem>>(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
+            new(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
 
         internal static ItemOrList<T, IReadOnlyList<T>> ToItemOrList<T>(this List<T> list, bool clear)
         {

@@ -64,7 +64,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 
         protected override SinglePathObserver GetObserver(object target) => new MethodSinglePathObserver(MethodName, target, DefaultPath, MemberFlags.InstancePublic, true);
 
-        protected override SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) => new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
+        protected override SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) =>
+            new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
 
         #endregion
     }

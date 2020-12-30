@@ -274,7 +274,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             return expressionCompiler;
         }
 
-        protected override ExpressionCompiler GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ExpressionCompiler(collectionProvider);
+        protected override ExpressionCompiler GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

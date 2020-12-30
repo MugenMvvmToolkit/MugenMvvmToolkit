@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
                 .ToArray();
 
-            var binding = new MugenMvvm.Bindings.Core.Binding(target, source);
+            var binding = new Binding(target, source);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);
@@ -138,7 +138,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
 
             var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
-            var binding = new MultiBinding(target, sources: new ItemOrList<object?, object?[]>(source, true), expression: expression);
+            var binding = new MultiBinding(target, new ItemOrList<object?, object?[]>(source, true), expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);

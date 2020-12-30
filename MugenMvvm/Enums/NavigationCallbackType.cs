@@ -11,9 +11,9 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly NavigationCallbackType Showing = new NavigationCallbackType(1);
-        public static readonly NavigationCallbackType Closing = new NavigationCallbackType(2);
-        public static readonly NavigationCallbackType Close = new NavigationCallbackType(3);
+        public static readonly NavigationCallbackType Showing = new(1);
+        public static readonly NavigationCallbackType Closing = new(2);
+        public static readonly NavigationCallbackType Close = new(3);
 
         #endregion
 

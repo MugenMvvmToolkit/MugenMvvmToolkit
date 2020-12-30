@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         {
             string name = "n";
             Type type = typeof(int);
-            object underlyingMember = new object();
+            object underlyingMember = new();
             var hasDefaultValue = true;
             object defaultValue = "";
             var requestType = typeof(int);

@@ -2,8 +2,6 @@
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.Presenters;
@@ -171,7 +169,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             });
             presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
-            ((NavigationCallback)callback).SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
+            callback.SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(disposeViewModel ? 1 : 0);
         }
 
@@ -226,7 +224,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             });
             presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
-            ((NavigationCallback)callback).SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
+            callback.SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(0);
         }
 

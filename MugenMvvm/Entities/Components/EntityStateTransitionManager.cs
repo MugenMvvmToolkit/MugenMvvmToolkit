@@ -11,7 +11,7 @@ namespace MugenMvvm.Entities.Components
     {
         #region Fields
 
-        public static readonly EntityStateTransitionManager Instance = new EntityStateTransitionManager();
+        public static readonly EntityStateTransitionManager Instance = new();
 
         #endregion
 

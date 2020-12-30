@@ -16,10 +16,11 @@ namespace MugenMvvm.Bindings.Observation.Observers
     {
         #region Fields
 
-        private object? _listeners;
-        private object? _target;
         private readonly ushort _flags;
+
+        private object? _listeners;
         private byte _state;
+        private object? _target;
 
         protected const byte UpdatingFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
@@ -71,7 +72,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         public EnumFlags<MemberFlags> MemberFlags
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new EnumFlags<MemberFlags>(_flags);
+            get => new(_flags);
         }
 
         public bool HasStablePath

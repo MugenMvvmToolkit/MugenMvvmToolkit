@@ -22,8 +22,8 @@ namespace MugenMvvm.Bindings.Extensions
     {
         #region Fields
 
-        private static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> {',', ';', ' '};
-        private static readonly HashSet<char> BindingDelimiters = new HashSet<char> {',', ';'};
+        private static readonly HashSet<char> BindingTargetDelimiters = new() {',', ';', ' '};
+        private static readonly HashSet<char> BindingDelimiters = new() {',', ';'};
 
         #endregion
 
@@ -82,7 +82,7 @@ namespace MugenMvvm.Bindings.Extensions
                     typeArgs[i] = genericArguments[i].AssemblyQualifiedName!;
             }
 
-            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs, null);
+            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs);
         }
 
         public static IExpressionNode Convert<T>(this IExpressionConverterContext<T> context, T expression) where T : class

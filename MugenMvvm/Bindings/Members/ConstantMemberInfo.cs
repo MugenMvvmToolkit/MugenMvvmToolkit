@@ -15,11 +15,11 @@ namespace MugenMvvm.Bindings.Members
 
         private readonly object? _result;
 
-        private static readonly object TargetObj = new object();
+        private static readonly object TargetObj = new();
 
-        public static readonly ConstantMemberInfo Target = new ConstantMemberInfo("", TargetObj, false);
-        public static readonly ConstantMemberInfo Null = new ConstantMemberInfo("", null, false);
-        public static readonly ConstantMemberInfo Unset = new ConstantMemberInfo("", BindingMetadata.UnsetValue, false);
+        public static readonly ConstantMemberInfo Target = new("", TargetObj, false);
+        public static readonly ConstantMemberInfo Null = new("", null, false);
+        public static readonly ConstantMemberInfo Unset = new("", BindingMetadata.UnsetValue, false);
 
         public static readonly IMemberInfo[] NullArray = {Null};
         public static readonly IMemberInfo[] TargetArray = {Target};

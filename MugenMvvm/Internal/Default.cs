@@ -21,12 +21,12 @@ namespace MugenMvvm.Internal
 
         private static int _counter;
 
-        internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
-        internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
-        internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new PropertyChangedEventArgs(InternalConstant.IndexerName);
-        internal static readonly PropertyChangedEventArgs IsBusyPropertyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
-        internal static readonly PropertyChangedEventArgs BusyTokenPropertyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.BusyToken));
-        internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+        internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new(string.Empty);
+        internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new(nameof(IList.Count));
+        internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new(InternalConstant.IndexerName);
+        internal static readonly PropertyChangedEventArgs IsBusyPropertyChangedArgs = new(nameof(ViewModelBase.IsBusy));
+        internal static readonly PropertyChangedEventArgs BusyTokenPropertyChangedArgs = new(nameof(ViewModelBase.BusyToken));
+        internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new(NotifyCollectionChangedAction.Reset);
 
         public static readonly IReadOnlyMetadataContext Metadata = EmptyContext.Instance;
         public static readonly IDisposable Disposable = EmptyContext.Instance;
@@ -88,7 +88,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly EmptyContext Instance = new EmptyContext();
+            public static readonly EmptyContext Instance = new();
 
             #endregion
 
@@ -148,7 +148,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            public static readonly ReadOnlyDictionary<TKey, TValue> Instance = new ReadOnlyDictionary<TKey, TValue>(new Dictionary<TKey, TValue>());
+            public static readonly ReadOnlyDictionary<TKey, TValue> Instance = new(new Dictionary<TKey, TValue>());
 
             #endregion
         }

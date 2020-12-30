@@ -18,14 +18,14 @@ namespace MugenMvvm.Bindings.Enums
         private const int ExtensionPriority = -1000;
         private const int DynamicPriority = -10000;
 
-        public static readonly MemberFlags Public = new MemberFlags(1 << 0, 10);
-        public static readonly MemberFlags NonPublic = new MemberFlags(1 << 1, 0);
+        public static readonly MemberFlags Public = new(1 << 0, 10);
+        public static readonly MemberFlags NonPublic = new(1 << 1, 0);
 
-        public static readonly MemberFlags Static = new MemberFlags(1 << 2, DefaultPriority);
-        public static readonly MemberFlags Instance = new MemberFlags(1 << 3, DefaultPriority);
-        public static readonly MemberFlags Attached = new MemberFlags(1 << 4, AttachedPriority);
-        public static readonly MemberFlags Dynamic = new MemberFlags(1 << 5, DynamicPriority);
-        public static readonly MemberFlags Extension = new MemberFlags((ushort) (Instance.Value | 1 << 6), ExtensionPriority);
+        public static readonly MemberFlags Static = new(1 << 2, DefaultPriority);
+        public static readonly MemberFlags Instance = new(1 << 3, DefaultPriority);
+        public static readonly MemberFlags Attached = new(1 << 4, AttachedPriority);
+        public static readonly MemberFlags Dynamic = new(1 << 5, DynamicPriority);
+        public static readonly MemberFlags Extension = new((ushort) (Instance.Value | 1 << 6), ExtensionPriority);
 
         public static readonly EnumFlags<MemberFlags> InstancePublic = Instance | Public;
         public static readonly EnumFlags<MemberFlags> InstanceNonPublic = Instance | NonPublic;

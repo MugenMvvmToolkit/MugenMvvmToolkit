@@ -11,16 +11,16 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(nameof(Created));
-        public static readonly ViewModelLifecycleState Initializing = new ViewModelLifecycleState(nameof(Initializing));
-        public static readonly ViewModelLifecycleState Initialized = new ViewModelLifecycleState(nameof(Initialized));
-        public static readonly ViewModelLifecycleState Disposing = new ViewModelLifecycleState(nameof(Disposing));
-        public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(nameof(Disposed));
-        public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(nameof(Finalized));
-        public static readonly ViewModelLifecycleState Preserving = new ViewModelLifecycleState(nameof(Preserving));
-        public static readonly ViewModelLifecycleState Preserved = new ViewModelLifecycleState(nameof(Preserved));
-        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(nameof(Restoring));
-        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(nameof(Restored));
+        public static readonly ViewModelLifecycleState Created = new(nameof(Created));
+        public static readonly ViewModelLifecycleState Initializing = new(nameof(Initializing));
+        public static readonly ViewModelLifecycleState Initialized = new(nameof(Initialized));
+        public static readonly ViewModelLifecycleState Disposing = new(nameof(Disposing));
+        public static readonly ViewModelLifecycleState Disposed = new(nameof(Disposed));
+        public static readonly ViewModelLifecycleState Finalized = new(nameof(Finalized));
+        public static readonly ViewModelLifecycleState Preserving = new(nameof(Preserving));
+        public static readonly ViewModelLifecycleState Preserved = new(nameof(Preserved));
+        public static readonly ViewModelLifecycleState Restoring = new(nameof(Restoring));
+        public static readonly ViewModelLifecycleState Restored = new(nameof(Restored));
 
         #endregion
 

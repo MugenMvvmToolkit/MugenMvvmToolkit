@@ -68,13 +68,13 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (context.MoveNext().SkipWhitespaces().IsToken(')'))
             {
                 context.MoveNext();
-                return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), Default.Array<IExpressionNode>(), typeArgs, null);
+                return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), Default.Array<IExpressionNode>(), typeArgs);
             }
 
             var args = context.ParseArguments(")");
             if (args == null)
                 return null;
-            return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), args, typeArgs, null);
+            return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), args, typeArgs);
         }
 
         #endregion

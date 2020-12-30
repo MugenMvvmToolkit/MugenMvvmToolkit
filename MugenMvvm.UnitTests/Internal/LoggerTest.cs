@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override Logger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new Logger(collectionProvider);
+        protected override Logger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

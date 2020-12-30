@@ -688,7 +688,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             #region Methods
 
-            public ArgumentData UpdateExpression(Expression expression) => new ArgumentData(Node, expression, Type);
+            public ArgumentData UpdateExpression(Expression expression) => new(Node, expression, Type);
 
             #endregion
         }

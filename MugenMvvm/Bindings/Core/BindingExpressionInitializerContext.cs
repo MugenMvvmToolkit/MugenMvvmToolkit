@@ -82,7 +82,7 @@ namespace MugenMvvm.Bindings.Core
                 {
                     if (constant.Value is TValue value)
                         return value;
-                    return (TValue)MugenService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
+                    return (TValue) MugenService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
                 }
 
                 if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)

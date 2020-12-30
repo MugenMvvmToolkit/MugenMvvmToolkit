@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.ViewModels
     public class ViewModelManagerTest : ComponentOwnerTestBase<ViewModelManager>
     {
         #region Methods
-        
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.ViewModels
 
             for (var i = 0; i < componentCount; i++)
             {
-                bool isLast = i - 1 == componentCount;
+                var isLast = i - 1 == componentCount;
                 var component = new TestLifecycleTrackerComponent<ViewModelLifecycleState>(owner)
                 {
                     IsInState = (o, t, s, m) =>
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
         }
-        
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             executeCount.ShouldEqual(count);
         }
 
-        protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ViewModelManager(collectionProvider);
+        protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

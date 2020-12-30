@@ -13,26 +13,26 @@ namespace MugenMvvm.Bindings.Enums
     {
         #region Fields
 
-        public static readonly BinaryTokenType Multiplication = new BinaryTokenType("*", 990);
-        public static readonly BinaryTokenType Division = new BinaryTokenType("/", 990);
-        public static readonly BinaryTokenType Remainder = new BinaryTokenType("%", 990, "mod");
-        public static readonly BinaryTokenType Addition = new BinaryTokenType("+", 980);
-        public static readonly BinaryTokenType Subtraction = new BinaryTokenType("-", 980);
-        public static readonly BinaryTokenType LeftShift = new BinaryTokenType("<<", 970);
-        public static readonly BinaryTokenType RightShift = new BinaryTokenType(">>", 970);
-        public static readonly BinaryTokenType LessThan = new BinaryTokenType("<", 960, "&lt;");
-        public static readonly BinaryTokenType GreaterThan = new BinaryTokenType(">", 960, "&gt;");
-        public static readonly BinaryTokenType LessThanOrEqual = new BinaryTokenType("<=", 960);
-        public static readonly BinaryTokenType GreaterThanOrEqual = new BinaryTokenType(">=", 960);
-        public static readonly BinaryTokenType Equality = new BinaryTokenType("==", 950);
-        public static readonly BinaryTokenType NotEqual = new BinaryTokenType("!=", 950);
-        public static readonly BinaryTokenType LogicalAnd = new BinaryTokenType("&", 940, "&amp;");
-        public static readonly BinaryTokenType LogicalXor = new BinaryTokenType("^", 930);
-        public static readonly BinaryTokenType LogicalOr = new BinaryTokenType("|", 920);
-        public static readonly BinaryTokenType ConditionalAnd = new BinaryTokenType("&&", 910, "and");
-        public static readonly BinaryTokenType ConditionalOr = new BinaryTokenType("||", 900, "or");
-        public static readonly BinaryTokenType NullCoalescing = new BinaryTokenType("??", 890);
-        public static readonly BinaryTokenType Assignment = new BinaryTokenType("=", 880);
+        public static readonly BinaryTokenType Multiplication = new("*", 990);
+        public static readonly BinaryTokenType Division = new("/", 990);
+        public static readonly BinaryTokenType Remainder = new("%", 990, "mod");
+        public static readonly BinaryTokenType Addition = new("+", 980);
+        public static readonly BinaryTokenType Subtraction = new("-", 980);
+        public static readonly BinaryTokenType LeftShift = new("<<", 970);
+        public static readonly BinaryTokenType RightShift = new(">>", 970);
+        public static readonly BinaryTokenType LessThan = new("<", 960, "&lt;");
+        public static readonly BinaryTokenType GreaterThan = new(">", 960, "&gt;");
+        public static readonly BinaryTokenType LessThanOrEqual = new("<=", 960);
+        public static readonly BinaryTokenType GreaterThanOrEqual = new(">=", 960);
+        public static readonly BinaryTokenType Equality = new("==", 950);
+        public static readonly BinaryTokenType NotEqual = new("!=", 950);
+        public static readonly BinaryTokenType LogicalAnd = new("&", 940, "&amp;");
+        public static readonly BinaryTokenType LogicalXor = new("^", 930);
+        public static readonly BinaryTokenType LogicalOr = new("|", 920);
+        public static readonly BinaryTokenType ConditionalAnd = new("&&", 910, "and");
+        public static readonly BinaryTokenType ConditionalOr = new("||", 900, "or");
+        public static readonly BinaryTokenType NullCoalescing = new("??", 890);
+        public static readonly BinaryTokenType Assignment = new("=", 880);
 
         #endregion
 

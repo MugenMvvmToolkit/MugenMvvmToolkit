@@ -551,17 +551,17 @@ namespace MugenMvvm.Collections
 
             #region Methods
 
-            public static CollectionChangedEvent Changed(object? item, int index, object? args) => new CollectionChangedEvent(CollectionChangedAction.Changed, item, args, index, index);
+            public static CollectionChangedEvent Changed(object? item, int index, object? args) => new(CollectionChangedAction.Changed, item, args, index, index);
 
-            public static CollectionChangedEvent Add(object? item, int index) => new CollectionChangedEvent(CollectionChangedAction.Add, item, item, index, index);
+            public static CollectionChangedEvent Add(object? item, int index) => new(CollectionChangedAction.Add, item, item, index, index);
 
-            public static CollectionChangedEvent Replace(object? oldItem, object? newItem, int index) => new CollectionChangedEvent(CollectionChangedAction.Replace, oldItem, newItem, index, index);
+            public static CollectionChangedEvent Replace(object? oldItem, object? newItem, int index) => new(CollectionChangedAction.Replace, oldItem, newItem, index, index);
 
-            public static CollectionChangedEvent Move(object? item, int oldIndex, int newIndex) => new CollectionChangedEvent(CollectionChangedAction.Move, item, item, oldIndex, newIndex);
+            public static CollectionChangedEvent Move(object? item, int oldIndex, int newIndex) => new(CollectionChangedAction.Move, item, item, oldIndex, newIndex);
 
-            public static CollectionChangedEvent Remove(object? item, int index) => new CollectionChangedEvent(CollectionChangedAction.Remove, item, item, index, index);
+            public static CollectionChangedEvent Remove(object? item, int index) => new(CollectionChangedAction.Remove, item, item, index, index);
 
-            public static CollectionChangedEvent Reset(IEnumerable<object?>? items) => new CollectionChangedEvent(CollectionChangedAction.Reset, null, items, -1, -1);
+            public static CollectionChangedEvent Reset(IEnumerable<object?>? items) => new(CollectionChangedAction.Reset, null, items, -1, -1);
 
             #endregion
         }

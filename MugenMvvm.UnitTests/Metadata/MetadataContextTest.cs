@@ -717,7 +717,7 @@ namespace MugenMvvm.UnitTests.Metadata
             CurrentSetterOldValue.ShouldEqual(int.MinValue);
         }
 
-        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null) => new MetadataContext(values);
+        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null) => new(values);
 
         #endregion
     }

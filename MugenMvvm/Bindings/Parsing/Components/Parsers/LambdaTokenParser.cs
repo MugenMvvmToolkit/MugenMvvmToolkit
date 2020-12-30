@@ -80,7 +80,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
                 args = new IParameterExpressionNode[stringArgs.Length];
                 for (var i = 0; i < args.Length; i++)
-                    args[i] = new ParameterExpressionNode(stringArgs[i], null);
+                    args[i] = new ParameterExpressionNode(stringArgs[i]);
             }
             else
             {
@@ -94,7 +94,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                     return null;
                 }
 
-                args = new IParameterExpressionNode[] {new ParameterExpressionNode(context.GetValue(context.Position, end), null)};
+                args = new IParameterExpressionNode[] {new ParameterExpressionNode(context.GetValue(context.Position, end))};
                 context.Position = position;
             }
 
@@ -126,7 +126,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                     return null;
                 }
 
-                return new LambdaExpressionNode(body, args, null);
+                return new LambdaExpressionNode(body, args);
             }
             finally
             {

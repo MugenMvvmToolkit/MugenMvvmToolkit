@@ -17,7 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent, 
+    public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent,
         IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IHasDisposeCondition, IHasPriority
     {
         #region Fields

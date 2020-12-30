@@ -8,7 +8,7 @@ namespace MugenMvvm.Ios.Bindings
     {
         #region Fields
 
-        public static readonly DefaultContentTemplateSelector Instance = new DefaultContentTemplateSelector();
+        public static readonly DefaultContentTemplateSelector Instance = new();
 
         #endregion
 

@@ -71,10 +71,6 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator() => GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
         public ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetValues()
         {
             var components = GetComponents();
@@ -340,6 +336,10 @@ namespace MugenMvvm.Metadata
                 listeners.OnRemoved(this, pair.Key, pair.Value);
             }
         }
+
+        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator() => GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 

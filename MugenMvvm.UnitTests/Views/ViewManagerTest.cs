@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Views
 
             for (var i = 0; i < componentCount; i++)
             {
-                bool isLast = i - 1 == componentCount;
+                var isLast = i - 1 == componentCount;
                 var component = new TestLifecycleTrackerComponent<ViewLifecycleState>(owner)
                 {
                     IsInState = (o, t, s, m) =>
@@ -226,7 +226,7 @@ namespace MugenMvvm.UnitTests.Views
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ViewManager(collectionProvider);
+        protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
         #endregion
     }

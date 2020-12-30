@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
@@ -215,7 +214,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         }
 
         private static TestAccessorMemberInfo GetAccessorInfo(Type declaringType, MemberType type, EnumFlags<MemberFlags> flags) =>
-            new TestAccessorMemberInfo
+            new()
             {
                 DeclaringType = declaringType,
                 AccessModifiers = flags,

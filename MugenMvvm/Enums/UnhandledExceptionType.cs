@@ -11,8 +11,8 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly UnhandledExceptionType Binding = new UnhandledExceptionType(1);
-        public static readonly UnhandledExceptionType System = new UnhandledExceptionType(2);
+        public static readonly UnhandledExceptionType Binding = new(1);
+        public static readonly UnhandledExceptionType System = new(2);
 
         #endregion
 

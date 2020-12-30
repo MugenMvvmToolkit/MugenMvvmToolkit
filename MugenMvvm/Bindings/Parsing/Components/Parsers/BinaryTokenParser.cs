@@ -134,7 +134,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             {
                 token = tokens[index];
                 tokens.RemoveAt(index);
-                nodes[index] = new BinaryExpressionNode(token, nodes[index], nodes[index + 1], null);
+                nodes[index] = new BinaryExpressionNode(token, nodes[index], nodes[index + 1]);
                 nodes.RemoveAt(index + 1);
                 index = GetMaxPriorityTokenIndex(tokens);
             }

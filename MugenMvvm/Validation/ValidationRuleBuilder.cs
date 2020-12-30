@@ -29,7 +29,7 @@ namespace MugenMvvm.Validation
 
         #region Methods
 
-        public static ValidationRuleBuilder<T> Get() => new ValidationRuleBuilder<T>(true);
+        public static ValidationRuleBuilder<T> Get() => new(true);
 
         public ValidationRuleBuilder<T> AddValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
             Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)

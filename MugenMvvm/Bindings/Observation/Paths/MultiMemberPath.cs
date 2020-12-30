@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Observation.Paths
                 return;
             }
 
-            int size = 0;
+            var size = 0;
 #if SPAN_API
             var span = path.AsSpan();
             var enumerator = span.Split(MugenBindingExtensions.DotChar);

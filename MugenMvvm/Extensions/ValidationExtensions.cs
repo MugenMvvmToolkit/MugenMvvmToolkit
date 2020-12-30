@@ -60,7 +60,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static ValidationRuleMemberBuilder<T, TMember> For<T, TMember>(this ValidationRuleBuilder<T> builder, string memberName, Func<T, TMember> memberAccessor) where T : class
-            => new ValidationRuleMemberBuilder<T, TMember>(memberName, memberAccessor, builder);
+            => new(memberName, memberAccessor, builder);
 
         public static ValidationRuleMemberBuilder<T, TMember> For<T, TOldMember, TMember>(this ValidationRuleMemberBuilder<T, TOldMember> builder, Expression<Func<T, TMember>> member) where T : class
         {
@@ -69,7 +69,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static ValidationRuleMemberBuilder<T, TMember> For<T, TOldMember, TMember>(this ValidationRuleMemberBuilder<T, TOldMember> builder, string memberName, Func<T, TMember> memberAccessor) where T : class
-            => new ValidationRuleMemberBuilder<T, TMember>(memberName, memberAccessor, builder.Builder);
+            => new(memberName, memberAccessor, builder.Builder);
 
         public static void AddRulesTo<T>(this ValidationRuleBuilder<T> builder, RuleValidatorProviderComponent ruleValidatorProvider) where T : class
         {

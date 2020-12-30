@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         protected const string MemberPath1 = "Test1";
         protected const string MemberPath2 = "Test2";
         protected const string MemberPath3 = "Test3";
-        protected static readonly MultiMemberPath DefaultPath = new MultiMemberPath($"{MemberPath1}.{MemberPath2}.{MemberPath3}");
+        protected static readonly MultiMemberPath DefaultPath = new($"{MemberPath1}.{MemberPath2}.{MemberPath3}");
 
         #endregion
 

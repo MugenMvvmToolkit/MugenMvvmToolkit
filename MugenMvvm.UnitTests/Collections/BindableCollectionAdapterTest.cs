@@ -314,7 +314,7 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.ShouldEqual(observableCollection);
         }
 
-        protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new BindableCollectionAdapter(source);
+        protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new(source);
 
         #endregion
 

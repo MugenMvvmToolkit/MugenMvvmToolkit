@@ -13,7 +13,7 @@ namespace MugenMvvm.Bindings.Attributes
     {
         #region Fields
 
-        private static readonly Dictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?> Cache = new Dictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?>(23, InternalEqualityComparer.MemberInfo);
+        private static readonly Dictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?> Cache = new(23, InternalEqualityComparer.MemberInfo);
 
         #endregion
 

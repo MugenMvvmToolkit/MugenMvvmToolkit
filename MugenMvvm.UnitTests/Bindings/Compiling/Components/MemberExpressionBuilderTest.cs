@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Bindings.Compiling.Components;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Parsing.Expressions;
@@ -181,7 +180,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(StaticProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestAccessorMemberInfo result = new TestAccessorMemberInfo
+            TestAccessorMemberInfo result = new()
             {
                 GetValue = (o, context) =>
                 {
@@ -215,7 +214,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(StaticProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestAccessorMemberInfo result = new TestAccessorMemberInfo
+            TestAccessorMemberInfo result = new()
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };

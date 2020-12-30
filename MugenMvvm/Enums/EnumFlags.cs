@@ -47,13 +47,13 @@ namespace MugenMvvm.Enums
         public static bool operator !=(EnumFlags<T> left, EnumFlags<T> right) => left.Flags != right.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<T> operator |(EnumFlags<T> left, EnumFlags<T> right) => new EnumFlags<T>(left.Flags | right.Flags);
+        public static EnumFlags<T> operator |(EnumFlags<T> left, EnumFlags<T> right) => new(left.Flags | right.Flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<T> operator &(EnumFlags<T> left, EnumFlags<T> right) => new EnumFlags<T>(left.Flags & right.Flags);
+        public static EnumFlags<T> operator &(EnumFlags<T> left, EnumFlags<T> right) => new(left.Flags & right.Flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EnumFlags<T> operator ~(EnumFlags<T> flag) => new EnumFlags<T>(~flag.Flags);
+        public static EnumFlags<T> operator ~(EnumFlags<T> flag) => new(~flag.Flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(EnumFlags<T> other) => Flags.CompareTo(other.Flags);

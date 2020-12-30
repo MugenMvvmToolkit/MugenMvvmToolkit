@@ -30,12 +30,12 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
                 for (var i = 0; i < expressions.Count; i++)
                 {
                     var parameterExpression = expressions[i];
-                    var parameterExpressionNode = new ParameterExpressionNode(parameterExpression.Name ?? "", null);
+                    var parameterExpressionNode = new ParameterExpressionNode(parameterExpression.Name ?? "");
                     parameters[i] = parameterExpressionNode;
                     context.SetExpression(parameterExpression, parameterExpressionNode);
                 }
 
-                return new LambdaExpressionNode(context.Convert(lambda.Body), parameters, null);
+                return new LambdaExpressionNode(context.Convert(lambda.Body), parameters);
             }
             finally
             {

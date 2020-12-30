@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
     {
         #region Fields
 
-        protected static readonly SingleMemberPath DefaultPath = new SingleMemberPath("test");
+        protected static readonly SingleMemberPath DefaultPath = new("test");
 
         #endregion
 
@@ -212,9 +212,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
         }
 
-        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) => new SinglePathObserver(target, path, memberFlags, optional);
+        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) => new(target, path, memberFlags, optional);
 
-        protected override SinglePathObserver GetObserver(object target) => new SinglePathObserver(target, DefaultPath, MemberFlags.InstancePublic, true);
+        protected override SinglePathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.InstancePublic, true);
 
         #endregion
     }

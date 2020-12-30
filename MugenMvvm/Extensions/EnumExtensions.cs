@@ -107,6 +107,8 @@ namespace MugenMvvm.Extensions
             return editor.ToItemOrList<List<T>>();
         }
 
+        #endregion
+
 #if SPAN_API
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetFlags<T>(this EnumFlags<T> flags, Span<T> values, byte _ = 0) where T : FlagsEnumBase<T, byte> => GetFlags<T, byte>(flags, values);
@@ -136,7 +138,7 @@ namespace MugenMvvm.Extensions
             where T : FlagsEnumBase<T, TValue>
             where TValue : IComparable<TValue>, IEquatable<TValue>, IConvertible
         {
-            int count = 0;
+            var count = 0;
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
             {
                 if (flags.HasFlag(value))
@@ -146,7 +148,5 @@ namespace MugenMvvm.Extensions
             return count;
         }
 #endif
-
-        #endregion
     }
 }

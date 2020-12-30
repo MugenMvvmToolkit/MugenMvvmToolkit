@@ -19,9 +19,9 @@ namespace MugenMvvm.Bindings.Members
 
         private readonly Type[]? _genericArguments;
         private readonly MethodInfo _method;
+        private readonly ushort _modifiers;
         private readonly IParameterInfo[] _parameters;
         private readonly Type _reflectedType;
-        private readonly ushort _modifiers;
         private Func<object?, object?[], object?> _invoker;
         private MemberObserver _observer;
 
@@ -91,7 +91,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Method;
 
-        public EnumFlags<MemberFlags> AccessModifiers => new EnumFlags<MemberFlags>(_modifiers);
+        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
         public bool IsGenericMethod => _method.IsGenericMethod;
 

@@ -11,7 +11,7 @@ namespace MugenMvvm.Validation
     {
         #region Fields
 
-        public static readonly ValidationResult NoErrors = new ValidationResult(null, Default.ReadOnlyDictionary<string, object?>());
+        public static readonly ValidationResult NoErrors = new(null, Default.ReadOnlyDictionary<string, object?>());
 
         public readonly object? RawErrors;
         public readonly string? SingleMemberName;

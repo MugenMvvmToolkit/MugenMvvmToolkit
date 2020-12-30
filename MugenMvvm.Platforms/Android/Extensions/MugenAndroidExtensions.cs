@@ -21,7 +21,6 @@ using MugenMvvm.Android.Presenters;
 using MugenMvvm.Android.Requests;
 using MugenMvvm.Android.Views;
 using MugenMvvm.App.Configuration;
-using MugenMvvm.Bindings;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;

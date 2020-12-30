@@ -31,7 +31,7 @@ namespace MugenMvvm.Threading
 
         #region Methods
 
-        public ThreadSwitcherAwaiter GetAwaiter() => new ThreadSwitcherAwaiter(_threadDispatcher, _executionMode);
+        public ThreadSwitcherAwaiter GetAwaiter() => new(_threadDispatcher, _executionMode);
 
         #endregion
 

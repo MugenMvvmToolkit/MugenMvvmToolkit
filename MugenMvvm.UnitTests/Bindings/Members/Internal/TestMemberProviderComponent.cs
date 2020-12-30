@@ -38,7 +38,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberProviderComponent.TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberProviderComponent.TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+            IReadOnlyMetadataContext? metadata)
         {
             _memberManager?.ShouldEqual(memberManager);
             return TryGetMembers?.Invoke(type, name, memberTypes, metadata) ?? default;

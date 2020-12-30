@@ -14,11 +14,11 @@ namespace MugenMvvm.Collections
             var oldSize = cb.GetOldListSize();
             var newSize = cb.GetNewListSize();
 
-            List<Diagonal> diagonals = new List<Diagonal>();
+            List<Diagonal> diagonals = new();
 
             // instead of a recursive implementation, we keep our own stack to avoid potential stack
             // overflow exceptions
-            List<Range> stack = new List<Range>();
+            List<Range> stack = new();
 
             stack.Add(new Range(0, oldSize, 0, newSize));
 
@@ -30,7 +30,7 @@ namespace MugenMvvm.Collections
             var backward = new CenteredArray(max * 2 + 1);
 
             // We pool the ranges to avoid allocations for each recursive call.
-            List<Range> rangePool = new List<Range>();
+            List<Range> rangePool = new();
             while (stack.Count != 0)
             {
                 var range = RemoveAt(stack, stack.Count - 1);
@@ -302,7 +302,7 @@ namespace MugenMvvm.Collections
             public readonly int StartX;
             public readonly int StartY;
 
-            public static readonly Snake Undefined = new Snake(int.MinValue, int.MinValue, int.MinValue, int.MinValue, false);
+            public static readonly Snake Undefined = new(int.MinValue, int.MinValue, int.MinValue, int.MinValue, false);
 
             #endregion
 
@@ -560,7 +560,7 @@ namespace MugenMvvm.Collections
                 // Later when we find the match of that move, we dispatch the update
                 var currentListSize = _oldListSize;
                 // list of postponed moves
-                List<PostponedUpdate> postponedUpdates = new List<PostponedUpdate>();
+                List<PostponedUpdate> postponedUpdates = new();
                 // posX and posY are exclusive
                 var posX = _oldListSize;
                 var posY = _newListSize;
@@ -832,7 +832,7 @@ namespace MugenMvvm.Collections
         {
             #region Fields
 
-            public static readonly PostponedUpdate Undefined = new PostponedUpdate(int.MinValue, int.MinValue, false);
+            public static readonly PostponedUpdate Undefined = new(int.MinValue, int.MinValue, false);
 
             public readonly bool Removal;
             public readonly int PosInOwnerList;
