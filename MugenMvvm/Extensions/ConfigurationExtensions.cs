@@ -47,7 +47,7 @@ namespace MugenMvvm.Extensions
         #region Methods
 
         public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, SynchronizationContext? synchronizationContext,
-            bool isOnMainThread = true, IServiceProvider? serviceProvider = null)
+            IServiceProvider? serviceProvider = null, bool isOnMainThread = true)
         {
             if (serviceProvider != null)
                 MugenService.Configuration.InitializeInstance(serviceProvider);
