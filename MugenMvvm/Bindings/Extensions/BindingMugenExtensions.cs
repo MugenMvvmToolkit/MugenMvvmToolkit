@@ -225,40 +225,6 @@ namespace MugenMvvm.Bindings.Extensions
             }
         }
 
-        public static EnumFlags<T> GetFlags<T>(this IExpressionNode expression, string key, EnumFlags<T> defaultFlags) where T : class, IFlagsEnum
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            Should.NotBeNull(key, nameof(key));
-            EnumFlags<T> flags = default;
-            while (expression != null)
-            {
-                flags |= expression.TryGetMetadataValue(key, default(EnumFlags<T>));
-                expression = (expression as IHasTargetExpressionNode<IExpressionNode>)?.Target!;
-            }
-
-            if (flags.Flags == 0)
-                return defaultFlags;
-            return flags;
-        }
-
-        public static IDictionary<string, object?>? TryGetMetadata(this IExpressionNode expression)
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            if (expression.HasMetadata)
-                return expression.Metadata;
-            return null;
-        }
-
-        [return: MaybeNull]
-        public static TValue TryGetMetadataValue<TValue>(this IExpressionNode expression, string key, TValue defaultValue = default)
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            Should.NotBeNull(key, nameof(key));
-            if (expression.HasMetadata && expression.Metadata.TryGetValue(key, out var v))
-                return (TValue) v!;
-            return defaultValue;
-        }
-
         public static void VisitParameterExpressions(this IBindingExpressionInitializerContext context, IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(context, nameof(context));
@@ -284,7 +250,7 @@ namespace MugenMvvm.Bindings.Extensions
             if (expression is IBindingMemberExpressionNode)
                 return new BindingParameterExpression(expression, null);
 
-            var collect = memberExpressionCollectorVisitor.Collect(expression, metadata);
+            var collect = memberExpressionCollectorVisitor.Collect(ref expression, metadata);
             var compiledExpression = compiler.DefaultIfNull().Compile(expression, metadata);
             if (collect.Item == null && collect.List == null)
                 return new BindingParameterExpression(compiledExpression.Invoke(default, metadata), null);

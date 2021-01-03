@@ -10,27 +10,20 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {
-    public sealed class ConstantExpressionNode : ExpressionNodeBase, IConstantExpressionNode
+    public sealed class ConstantExpressionNode : ExpressionNodeBase<IConstantExpressionNode>, IConstantExpressionNode
     {
         #region Fields
 
-        public static readonly ConstantExpressionNode True = new(BoxingExtensions.TrueObject, typeof(bool),
-            MugenExtensions.TrueConstantExpression, Default.ReadOnlyDictionary<string, object?>());
-
-        public static readonly ConstantExpressionNode False = new(BoxingExtensions.FalseObject, typeof(bool),
-            MugenExtensions.FalseConstantExpression, Default.ReadOnlyDictionary<string, object?>());
-
-        public static readonly ConstantExpressionNode Null = new(null, typeof(object),
-            MugenExtensions.NullConstantExpression, Default.ReadOnlyDictionary<string, object?>());
-
-        public static readonly ConstantExpressionNode EmptyString = new("", typeof(string),
-            Expression.Constant(""), Default.ReadOnlyDictionary<string, object?>());
+        public static readonly ConstantExpressionNode True = new(BoxingExtensions.TrueObject, typeof(bool), MugenExtensions.TrueConstantExpression);
+        public static readonly ConstantExpressionNode False = new(BoxingExtensions.FalseObject, typeof(bool), MugenExtensions.FalseConstantExpression);
+        public static readonly ConstantExpressionNode Null = new(null, typeof(object), MugenExtensions.NullConstantExpression);
+        public static readonly ConstantExpressionNode EmptyString = new("", typeof(string), Expression.Constant(""));
 
         #endregion
 
         #region Constructors
 
-        public ConstantExpressionNode(object? value, Type? type = null, ConstantExpression? constantExpression = null, IDictionary<string, object?>? metadata = null) : base(metadata)
+        public ConstantExpressionNode(object? value, Type? type = null, ConstantExpression? constantExpression = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             if (type == null)
                 type = value == null ? typeof(object) : value.GetType();
@@ -89,6 +82,12 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         }
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
+
+        protected override IConstantExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new ConstantExpressionNode(Value, Type, ConstantExpression, metadata);
+
+        protected override bool Equals(IConstantExpressionNode other, IExpressionEqualityComparer? comparer) => Type == other.Type && Equals(Value, other.Value);
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => HashCode.Combine(hashCode, Type, Value);
 
         public override string ToString()
         {

@@ -2,19 +2,21 @@
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 {
-    public sealed class BindingResourceMemberExpressionNode : BindingMemberExpressionNodeBase
+    public sealed class BindingResourceMemberExpressionNode : BindingMemberExpressionNodeBase<BindingResourceMemberExpressionNode>
     {
         #region Fields
 
-        private readonly IResourceResolver? _resourceResolver;
         private MemberPathObserverRequest? _request;
         private MemberPathObserverRequest? _requestResource;
 
@@ -22,13 +24,11 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingResourceMemberExpressionNode(string resourceName, string path, IObservationManager? observationManager = null,
-            IResourceResolver? resourceResolver = null, IDictionary<string, object?>? metadata = null)
-            : base(path, observationManager, metadata)
+        public BindingResourceMemberExpressionNode(string resourceName, string path, int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName = null,
+            IExpressionNode? expression = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(path, index, flags, memberFlags, observableMethodName, expression, metadata)
         {
             Should.NotBeNull(resourceName, nameof(resourceName));
             ResourceName = resourceName;
-            _resourceResolver = resourceResolver;
         }
 
         #endregion
@@ -57,12 +57,12 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
             if (resource == null)
                 ExceptionManager.ThrowCannotResolveResource(ResourceName);
 
-            return ObservationManager.DefaultIfNull().GetMemberPathObserver(resource, request, metadata);
+            return MugenService.ObservationManager.GetMemberPathObserver(resource, request, metadata);
         }
 
         private object? GetResource(object target, IReadOnlyMetadataContext? metadata, out MemberPathObserverRequest? request)
         {
-            var resource = _resourceResolver.DefaultIfNull().TryGetResource(ResourceName, target, metadata);
+            var resource = MugenService.ResourceResolver.TryGetResource(ResourceName, target, metadata);
             if (!resource.IsResolved)
                 ExceptionManager.ThrowCannotResolveResource(ResourceName);
 
@@ -84,6 +84,14 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
             return resource.Resource;
         }
+
+        protected override bool Equals(BindingResourceMemberExpressionNode other, IExpressionEqualityComparer? comparer) =>
+            ResourceName.Equals(other.ResourceName) && base.Equals(other, comparer);
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => base.GetHashCode(hashCode * 397 ^ ResourceName.GetHashCode(), comparer);
+
+        protected override BindingResourceMemberExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) =>
+            new(ResourceName, Path, Index, Flags, MemberFlags, ObservableMethodName, Expression, metadata);
 
         #endregion
     }

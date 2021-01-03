@@ -183,7 +183,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 TryInitializeAsync = (m, r, meta, token) =>
                 {
                     ++invokeCount;
-                    m.Id.ShouldEqual($"a{request.ViewModel!.GetType().FullName}{typeof(int).FullName}");
+                    m.Id.ShouldEqual($"a{request.ViewModel!.GetType().Name}{typeof(int).Name}");
                     m.ViewModelType.ShouldEqual(request.ViewModel.GetType());
                     m.ViewType.ShouldEqual(typeof(int));
                     m.Metadata.ShouldEqual(DefaultMetadata);

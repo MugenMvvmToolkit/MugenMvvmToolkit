@@ -2,25 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {
-    public abstract class ExpressionNodeBase : IExpressionNode
+    public abstract class ExpressionNodeBase<TExpression> : IExpressionNode
+        where TExpression : class, IExpressionNode
     {
-        #region Fields
-
-        protected IDictionary<string, object?>? MetadataRaw;
-
-        #endregion
-
         #region Constructors
 
-        protected ExpressionNodeBase(IDictionary<string, object?>? metadata)
+        protected ExpressionNodeBase(IReadOnlyDictionary<string, object?>? metadata)
         {
-            MetadataRaw = metadata;
+            Metadata = metadata ?? Default.ReadOnlyDictionary<string, object?>();
         }
 
         #endregion
@@ -29,9 +26,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public abstract ExpressionNodeType ExpressionType { get; }
 
-        public bool HasMetadata => MetadataRaw != null && MetadataRaw.Count != 0;
-
-        public IDictionary<string, object?> Metadata => MetadataRaw ??= new Dictionary<string, object?>(StringComparer.Ordinal);
+        public IReadOnlyDictionary<string, object?> Metadata { get; }
 
         #endregion
 
@@ -41,38 +36,53 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         {
             Should.NotBeNull(visitor, nameof(visitor));
             var node = AcceptInternal(visitor, metadata);
-            if (node == this)
-                return node;
-            return node.Accept(visitor, metadata);
+            return ReferenceEquals(node, this) ? node : node.Accept(visitor, metadata);
         }
+
+        public IExpressionNode UpdateMetadata(IReadOnlyDictionary<string, object?>? metadata) => this.MetadataEquals(metadata ??= Default.ReadOnlyDictionary<string, object?>()) ? this : Clone(metadata);
+
+        public bool Equals(IExpressionNode? other, IExpressionEqualityComparer? comparer)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            var equals = comparer?.Equals(this, other);
+            if (equals.HasValue)
+                return equals.Value;
+            return ExpressionType == other.ExpressionType && other is TExpression exp && this.MetadataEquals(other.Metadata) && Equals(exp, comparer);
+        }
+
+        public int GetHashCode(IExpressionEqualityComparer? comparer)
+        {
+            var hash = comparer?.GetHashCode(this);
+            if (hash.HasValue)
+                return hash.Value;
+            return GetHashCode(ExpressionType.Value * 397 ^ Metadata.Count, comparer);
+        }
+
+        public bool Equals(IExpressionNode? other) => Equals(other, null);
 
         #endregion
 
         #region Methods
 
-        private IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
-        {
-            IExpressionNode? node;
-            var changed = false;
-            if (!visitor.IsPostOrder)
-            {
-                node = VisitWithCheck(visitor, this, true, ref changed, metadata);
-                if (changed)
-                    return node;
-            }
-
-            node = Visit(visitor, metadata);
-            if (visitor.IsPostOrder)
-                return VisitWithCheck(visitor, node, true, ref changed, metadata);
-            return node;
-        }
-
         protected abstract IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata);
+
+        protected abstract TExpression Clone(IReadOnlyDictionary<string, object?> metadata);
+
+        protected abstract bool Equals(TExpression other, IExpressionEqualityComparer? comparer);
+
+        protected abstract int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer);
+
+        public sealed override bool Equals(object? obj) => Equals(obj as IExpressionNode);
+
+        public sealed override int GetHashCode() => GetHashCode(null);
 
         protected T VisitWithCheck<T>(IExpressionVisitor visitor, T node, bool notNull, ref bool changed, IReadOnlyMetadataContext? metadata)
             where T : class, IExpressionNode
         {
-            var result = this == node ? visitor.Visit(node, metadata) : node.Accept(visitor, metadata);
+            var result = ReferenceEquals(this, node) ? visitor.Visit(node, metadata) : node.Accept(visitor, metadata);
             if (!changed && result != node)
                 changed = true;
             if (notNull && result == null)
@@ -97,6 +107,55 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             if (!changed && newArgs != null)
                 changed = true;
             return newArgs ?? nodes;
+        }
+
+        protected static bool Equals(IExpressionNode? x1, IExpressionNode? x2, IExpressionEqualityComparer? comparer)
+        {
+            if (ReferenceEquals(x1, x2))
+                return true;
+            if (ReferenceEquals(x1, null) || ReferenceEquals(x2, null))
+                return false;
+
+            return x1.Equals(x2, comparer);
+        }
+
+        protected static bool Equals(IReadOnlyList<IExpressionNode> x1, IReadOnlyList<IExpressionNode> x2, IExpressionEqualityComparer? comparer)
+        {
+            if (ReferenceEquals(x1, x2))
+                return true;
+            if (x1.Count != x2.Count)
+                return false;
+            for (int i = 0; i < x1.Count; i++)
+            {
+                if (!x1[i].Equals(x2[i], comparer))
+                    return false;
+            }
+
+            return true;
+        }
+
+        protected static int GetHashCode(int hashCode, IExpressionNode? target, IReadOnlyList<IExpressionNode> args, IExpressionEqualityComparer? comparer)
+        {
+            if (target == null)
+                return HashCode.Combine(hashCode, args.Count);
+            return HashCode.Combine(hashCode, args.Count, target.GetHashCode(comparer));
+        }
+
+        private IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        {
+            IExpressionNode? node;
+            var changed = false;
+            if (!visitor.IsPostOrder)
+            {
+                node = VisitWithCheck<IExpressionNode>(visitor, this, true, ref changed, metadata);
+                if (changed)
+                    return node;
+            }
+
+            node = Visit(visitor, metadata);
+            if (visitor.IsPostOrder)
+                return VisitWithCheck(visitor, node, true, ref changed, metadata);
+            return node;
         }
 
         #endregion

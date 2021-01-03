@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
+using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -124,7 +125,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         [Fact]
         public void GetIntShouldUseCache()
         {
-            var nodes = new HashSet<ConstantExpressionNode>();
+            var nodes = new HashSet<ConstantExpressionNode>(ReferenceEqualityComparer.Instance);
             for (var i = -BoxingExtensions.CacheSize; i < BoxingExtensions.CacheSize; i++)
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
@@ -142,6 +143,38 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             nodes.Add(ConstantExpressionNode.Get(BoxingExtensions.CacheSize + 1));
             nodes.Add(ConstantExpressionNode.Get(BoxingExtensions.CacheSize + 1));
             nodes.Count.ShouldEqual(2);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
+        {
+            var node = new ConstantExpressionNode("1", null, null, EmptyDictionary);
+            if (equal)
+                node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
+            else
+            {
+                var metadata = new Dictionary<string, object?> {{"k", null}};
+                var updated = (ConstantExpressionNode) node.UpdateMetadata(metadata);
+                updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
+                updated.Metadata.ShouldEqual(metadata);
+                updated.Type.ShouldEqual(node.Type);
+                updated.Value.ShouldEqual(node.Value);
+                updated.ConstantExpression.ShouldEqual(node.ConstantExpression);
+            }
+        }
+
+        [Fact]
+        public void GetHashCodeEqualsShouldBeValid()
+        {
+            var exp1 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
+            var exp2 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
+            HashCode.Combine(GetBaseHashCode(exp1), exp1.Type, exp1.Value).ShouldEqual(exp1.GetHashCode());
+
+            exp1.Equals(exp2).ShouldBeTrue();
+            exp1.Equals(exp2.UpdateMetadata(null)).ShouldBeFalse();
+            exp1.Equals(new ConstantExpressionNode("2", metadata: exp1.Metadata)).ShouldBeFalse();
         }
 
         #endregion

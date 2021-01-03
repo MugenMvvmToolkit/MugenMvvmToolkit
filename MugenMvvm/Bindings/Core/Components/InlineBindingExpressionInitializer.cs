@@ -40,7 +40,9 @@ namespace MugenMvvm.Bindings.Core.Components
             if (context.Components.ContainsKey(BindingParameterNameConstant.EventHandler) || context.Components.ContainsKey(BindingParameterNameConstant.Mode) || !context.ParameterExpressions.IsEmpty)
                 return;
 
-            var collect = _memberExpressionCollectorVisitor.Collect(context.SourceExpression);
+            var expression = context.SourceExpression;
+            var collect = _memberExpressionCollectorVisitor.Collect(ref expression, context.GetMetadataOrDefault());
+            context.SourceExpression = expression;
             var canInline = collect.Count == 0;
             if (!canInline && UseOneTimeModeForStaticMembersImplicit)
             {

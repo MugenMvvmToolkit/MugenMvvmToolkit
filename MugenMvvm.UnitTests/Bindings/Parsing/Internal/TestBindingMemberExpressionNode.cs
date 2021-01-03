@@ -10,11 +10,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
-    public class TestBindingMemberExpressionNode : ExpressionNodeBase, IBindingMemberExpressionNode
+    public class TestBindingMemberExpressionNode : ExpressionNodeBase<TestBindingMemberExpressionNode>, IBindingMemberExpressionNode
     {
         #region Constructors
 
-        public TestBindingMemberExpressionNode(string? path = null, IDictionary<string, object?>? metadata = null) : base(metadata)
+        public TestBindingMemberExpressionNode(string? path = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Path = path!;
         }
@@ -33,13 +33,23 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         public string Path { get; set; }
 
-        public IExpressionNode? OriginalExpression { get; set; }
+        public string? ObservableMethodName { get; set; }
+
+        public IExpressionNode? Expression { get; set; }
 
         public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath)>? GetSource { get; set; }
 
         public Func<object, object?, IReadOnlyMetadataContext?, object?>? GetBindingSource { get; set; }
 
         public Func<IExpressionVisitor, IReadOnlyMetadataContext?, IExpressionNode?>? VisitHandler { get; set; }
+
+        public Func<IReadOnlyDictionary<string, object?>, TestBindingMemberExpressionNode>? CloneHandler { get; set; }
+
+        public Func<TestBindingMemberExpressionNode, IExpressionEqualityComparer?, bool>? EqualsHandler { get; set; }
+
+        public Func<int, IExpressionEqualityComparer?, int>? GetHashCodeHandler { get; set; }
+
+        public Func<int, EnumFlags<BindingMemberExpressionFlags>, EnumFlags<MemberFlags>, string?, IBindingMemberExpressionNode>? Update { get; set; }
 
         #endregion
 
@@ -54,11 +64,25 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         object? IBindingMemberExpressionNode.GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata) => GetBindingSource?.Invoke(target, source, metadata)!;
 
+        IBindingMemberExpressionNode IBindingMemberExpressionNode.Update(int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName) =>
+            Update?.Invoke(index, flags, memberFlags, observableMethodName) ?? this;
+
         #endregion
 
         #region Methods
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => VisitHandler?.Invoke(visitor, metadata) ?? this;
+
+        protected override TestBindingMemberExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => CloneHandler?.Invoke(metadata) ?? this;
+
+        protected override bool Equals(TestBindingMemberExpressionNode other, IExpressionEqualityComparer? comparer)
+        {
+            if (EqualsHandler == null)
+                return Path == other.Path && Index == other.Index;
+            return EqualsHandler.Invoke(other, comparer);
+        }
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => GetHashCodeHandler?.Invoke(hashCode, comparer) ?? hashCode;
 
         public override string ToString() => Path ?? base.ToString()!;
 

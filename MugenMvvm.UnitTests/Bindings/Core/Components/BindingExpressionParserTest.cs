@@ -232,9 +232,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 TryCompile = (node, context) =>
                 {
-                    var expected = GetBindingSourceExpression(count, out var n1, out var n2);
-                    n1.Index = 0;
-                    n2.Index = 1;
+                    var expected = GetBindingSourceExpression(count, out _, out _);
                     node.ShouldEqual(expected);
                     context.ShouldEqual(DefaultMetadata);
                     return exp;

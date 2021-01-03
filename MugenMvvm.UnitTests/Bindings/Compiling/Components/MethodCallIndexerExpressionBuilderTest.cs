@@ -707,7 +707,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                         break;
                     }
 
-                    target = new BindingInstanceMemberExpressionNode(instance!, "") {Index = 0};
+                    target = new BindingInstanceMemberExpressionNode(instance!, "", 0, default, default);
                     parameters.Add(Expression.Parameter(instance!.GetType()));
                     compilingArgs = compilingArgs.InsertFirstArg(instance);
                     break;
@@ -724,7 +724,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                         arg = ConstantExpressionNode.Get(args[i]);
                         break;
                     default:
-                        arg = new BindingInstanceMemberExpressionNode(args[i], "") {Index = parameters.Count};
+                        arg = new BindingInstanceMemberExpressionNode(args[i], "", parameters.Count, default, default);
                         parameters.Add(Expression.Parameter(args[i].GetType(), i.ToString()));
                         break;
                 }
@@ -765,7 +765,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             public object This() => this;
 
-            private void SetMethod(Expression<Action> expression, params object?[] args)
+            private static void SetMethod(Expression<Action> expression, params object?[] args)
             {
                 LastMethod = GetMethodInfo(expression);
                 var objects = new List<object>();

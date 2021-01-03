@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using MugenMvvm.Bindings.Convert;
 using MugenMvvm.Bindings.Convert.Components;
@@ -8,6 +9,8 @@ using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
@@ -30,8 +33,10 @@ using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
 using MugenMvvm.Serialization;
 using MugenMvvm.Threading;
+using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using MugenMvvm.ViewModels;
+using Should;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -49,6 +54,7 @@ namespace MugenMvvm.UnitTests
         protected const string ReleaseTest = null;
 #endif
 
+        protected static readonly ReadOnlyDictionary<string, object?> EmptyDictionary = new(new Dictionary<string, object?>());
         protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(1, ""), null);
         protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
 
@@ -134,6 +140,27 @@ namespace MugenMvvm.UnitTests
             GC.WaitForFullGCComplete();
             GC.Collect();
         }
+
+        protected TestExpressionNode GetTestEqualityExpression(IExpressionEqualityComparer? comparer, int hash)
+        {
+            return new()
+            {
+                EqualsHandler = (x, y, equalityComparer) =>
+                {
+                    equalityComparer.ShouldEqual(comparer);
+                    return x.Id == y.Id;
+                },
+                GetHashCodeHandler = (e, h, c) =>
+                {
+                    GetBaseHashCode(e).ShouldEqual(h);
+                    c.ShouldEqual(comparer);
+                    return hash;
+                },
+                Id = hash
+            };
+        }
+
+        protected int GetBaseHashCode(IExpressionNode expression) => expression.ExpressionType.Value * 397 ^ expression.Metadata.Count;
 
         #endregion
     }

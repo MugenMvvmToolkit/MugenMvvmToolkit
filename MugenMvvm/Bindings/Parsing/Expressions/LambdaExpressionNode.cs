@@ -7,11 +7,11 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {
-    public sealed class LambdaExpressionNode : ExpressionNodeBase, ILambdaExpressionNode
+    public sealed class LambdaExpressionNode : ExpressionNodeBase<ILambdaExpressionNode>, ILambdaExpressionNode
     {
         #region Constructors
 
-        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpressionNode>? parameters, IDictionary<string, object?>? metadata = null) : base(metadata)
+        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpressionNode>? parameters, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(body, nameof(body));
             Body = body;
@@ -38,9 +38,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             var body = VisitWithCheck(visitor, Body, true, ref changed, metadata);
             var newParams = VisitWithCheck(visitor, Parameters, ref changed, metadata);
             if (changed)
-                return new LambdaExpressionNode(body, newParams, MetadataRaw);
+                return new LambdaExpressionNode(body, newParams, Metadata);
             return this;
         }
+
+        protected override ILambdaExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new LambdaExpressionNode(Body, Parameters, metadata);
+
+        protected override bool Equals(ILambdaExpressionNode other, IExpressionEqualityComparer? comparer) => Body.Equals(other.Body, comparer) && Equals(Parameters, other.Parameters, comparer);
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => GetHashCode(hashCode, Body, Parameters, comparer);
 
         public override string ToString()
         {

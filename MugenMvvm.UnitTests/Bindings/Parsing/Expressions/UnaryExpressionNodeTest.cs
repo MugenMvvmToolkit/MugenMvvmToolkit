@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
+using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -110,6 +112,61 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             node.ShouldNotEqual(UnaryExpressionNode.SourceMacros);
             node.Operand.ShouldEqual(MemberExpressionNode.Source);
             node.Token.ShouldEqual(UnaryTokenType.LogicalNegation);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
+        {
+            var target = new ConstantExpressionNode("1");
+            var node = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target, EmptyDictionary);
+            if (equal)
+                node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
+            else
+            {
+                var metadata = new Dictionary<string, object?> {{"k", null}};
+                var updated = (UnaryExpressionNode) node.UpdateMetadata(metadata);
+                updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
+                updated.Metadata.ShouldEqual(metadata);
+                updated.Token.ShouldEqual(node.Token);
+                updated.Operand.ShouldEqual(node.Operand);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GetHashCodeEqualsShouldBeValid(bool withComparer)
+        {
+            var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
+            var exp1 = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> {{"k", null}});
+            var exp2 = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> {{"k", null}});
+            HashCode.Combine(GetBaseHashCode(exp1), UnaryTokenType.BitwiseNegation.GetHashCode(), 1).ShouldEqual(exp1.GetHashCode(comparer));
+            ((TestExpressionNode) exp1.Operand).GetHashCodeCount.ShouldEqual(1);
+
+            exp1.Equals(exp2, comparer).ShouldBeTrue();
+            ((TestExpressionNode) exp1.Operand).EqualsCount.ShouldEqual(1);
+
+            exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
+            ((TestExpressionNode) exp1.Operand).EqualsCount.ShouldEqual(1);
+
+            if (comparer == null)
+                return;
+            comparer.GetHashCode = node =>
+            {
+                ReferenceEquals(node, exp1).ShouldBeTrue();
+                return int.MaxValue;
+            };
+            comparer.Equals = (x1, x2) =>
+            {
+                ReferenceEquals(x1, exp1).ShouldBeTrue();
+                ReferenceEquals(x2, exp2).ShouldBeTrue();
+                return false;
+            };
+            exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
+            exp1.Equals(exp2, comparer).ShouldBeFalse();
+            ((TestExpressionNode) exp1.Operand).EqualsCount.ShouldEqual(1);
         }
 
         #endregion

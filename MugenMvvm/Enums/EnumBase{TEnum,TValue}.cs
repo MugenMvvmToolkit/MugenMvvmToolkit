@@ -20,7 +20,7 @@ namespace MugenMvvm.Enums
 
         private string? _name;
         private static Dictionary<TValue, TEnum> _enumerations = Init();
-        private static Dictionary<string, TEnum> _enumerationNames = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, TEnum> EnumerationNamesField = new(StringComparer.OrdinalIgnoreCase);
         private static TEnum[]? _values;
 
         #endregion
@@ -41,7 +41,7 @@ namespace MugenMvvm.Enums
             if (!_enumerations.ContainsKey(value))
             {
                 _enumerations[value] = (TEnum) this;
-                _enumerationNames[Name] = (TEnum) this;
+                EnumerationNamesField[Name] = (TEnum) this;
                 _values = null;
             }
         }
@@ -85,9 +85,9 @@ namespace MugenMvvm.Enums
         {
             get
             {
-                if (_enumerationNames.Count == 0)
+                if (EnumerationNamesField.Count == 0)
                     RuntimeHelpers.RunClassConstructor(typeof(TEnum).TypeHandle);
-                return _enumerationNames;
+                return EnumerationNamesField;
             }
         }
 
@@ -139,6 +139,7 @@ namespace MugenMvvm.Enums
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator TValue(EnumBase<TEnum, TValue> value) => value.Value;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TEnum[] GetAll() => _values ??= Enumerations.Values.ToArray();
 
         public static TEnum Get(TValue value)
@@ -193,16 +194,16 @@ namespace MugenMvvm.Enums
                 return false;
             }
 
-            return EnumerationNames.TryGetValue(value, out result) && (ignoreCase || value.Equals(result.Name, StringComparison.Ordinal));
+            return EnumerationNames.TryGetValue(value, out result) && (ignoreCase || value.Equals(result.Name));
         }
 
         public static void SetEnums(Dictionary<TValue, TEnum> enumerations)
         {
             Should.NotBeNull(enumerations, nameof(enumerations));
             _enumerations = enumerations;
-            _enumerationNames.Clear();
+            EnumerationNamesField.Clear();
             foreach (var enumeration in enumerations)
-                _enumerationNames[enumeration.Value.Name] = enumeration.Value;
+                EnumerationNamesField[enumeration.Value.Name] = enumeration.Value;
             _values = null;
         }
 
@@ -210,7 +211,7 @@ namespace MugenMvvm.Enums
         {
             Should.NotBeNull(enumeration, nameof(enumeration));
             _enumerations[value] = enumeration;
-            _enumerationNames[enumeration.Name] = enumeration;
+            EnumerationNamesField[enumeration.Name] = enumeration;
             _values = null;
         }
 

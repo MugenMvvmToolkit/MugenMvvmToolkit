@@ -31,6 +31,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         private readonly Dictionary<CacheKey, IExpressionNode> _members;
         private readonly IObservationManager? _observationManager;
         private readonly IResourceResolver? _resourceResolver;
+        private int _currentIndex;
 
         #endregion
 
@@ -95,6 +96,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         {
             if (expression == null)
                 return null;
+            _currentIndex = -1;
             Flags = Flags.SetTargetFlags(isTargetExpression);
             _members.Clear();
             expression = expression.Accept(this, metadata);
@@ -230,14 +232,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, memberFlags.SetInstanceOrStaticFlags(false), flags, null, type);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingMemberExpressionNode(key.Path, _observationManager)
-                {
-                    ObservableMethodName = methodName,
-                    Flags = key.BindingMemberFlags,
-                    MemberFlags = key.MemberFlags,
-                    OriginalExpression = expression
-                };
-
+                node = new BindingMemberExpressionNode(key.Path, ++_currentIndex, key.BindingMemberFlags, key.MemberFlags, methodName, expression);
                 _members[key] = node;
             }
 
@@ -249,14 +244,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, flags, expression.GetFlags(BindingParameterNameConstant.BindingMemberFlags, Flags), instance, BindingMemberType.Instance);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingInstanceMemberExpressionNode(instance, key.Path, _observationManager)
-                {
-                    ObservableMethodName = methodName,
-                    Flags = key.BindingMemberFlags,
-                    MemberFlags = key.MemberFlags,
-                    OriginalExpression = expression
-                };
-
+                node = new BindingInstanceMemberExpressionNode(instance, key.Path, ++_currentIndex, key.BindingMemberFlags, key.MemberFlags, methodName, expression);
                 _members[key] = node;
             }
 
@@ -268,14 +256,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, flags, expression.GetFlags(BindingParameterNameConstant.BindingMemberFlags, Flags), null, BindingMemberType.Resource);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingResourceMemberExpressionNode(resourceName, key.Path, _observationManager, _resourceResolver)
-                {
-                    ObservableMethodName = methodName,
-                    Flags = key.BindingMemberFlags,
-                    MemberFlags = key.MemberFlags,
-                    OriginalExpression = expression
-                };
-
+                node = new BindingResourceMemberExpressionNode(resourceName, key.Path, ++_currentIndex, key.BindingMemberFlags, key.MemberFlags, methodName, expression);
                 _members[key] = node;
             }
 

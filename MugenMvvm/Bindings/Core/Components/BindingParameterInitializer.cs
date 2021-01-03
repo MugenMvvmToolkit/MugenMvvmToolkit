@@ -76,8 +76,7 @@ namespace MugenMvvm.Bindings.Core.Components
             if (!converter.IsEmpty || !converterParameter.IsEmpty || !fallback.IsEmpty || !targetNullValue.IsEmpty)
             {
                 var state = (converter, converterParameter, fallback, targetNullValue);
-                var provider =
-                    new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
+                var provider = new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
                 context.Components[BindingParameterNameConstant.ParameterHandler] = provider;
             }
         }

@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [Fact]
         public void SetClearExpressionShouldUpdateExpression()
         {
-            var member1 = new BindingMemberExpressionNode("test") {Index = 0};
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
             var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
 
             var expressionNode = ConstantExpressionNode.False;
@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [Fact]
         public void InvokeShouldThrowNoComponents()
         {
-            var member1 = new BindingMemberExpressionNode("test") {Index = 0};
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
             var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
             ShouldThrow<InvalidOperationException>(() => compiledExpression.Invoke(new ParameterValue(typeof(object), 1), DefaultMetadata));
         }
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [Fact]
         public void ShouldThrowNotInitializedBindingExpression()
         {
-            var member1 = new BindingMemberExpressionNode("test");
+            var member1 = new BindingMemberExpressionNode("test", -1, default, default);
             var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
             ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
         }
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         public void CompileShouldReturnValueForBindingExpression1(int count)
         {
             var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test") {Index = 0};
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
             var value1 = "test";
             var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
             var compiledExpression = new CompiledExpression(expressionNode);
@@ -93,8 +93,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         public void CompileShouldReturnValueForBindingExpression2(int count)
         {
             var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test1") {Index = 0};
-            var member2 = new BindingMemberExpressionNode("test2") {Index = 1};
+            var member1 = new BindingMemberExpressionNode("test1", 0, default, default);
+            var member2 = new BindingMemberExpressionNode("test2", 1, default, default);
             var value1 = 1;
             var value2 = -2;
             var result = value1 + value2;
@@ -163,7 +163,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         public void InvokeShouldCacheExpression1()
         {
             var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test") {Index = 0};
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
             var valueSt = "test";
             var valueInt = 1;
             var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
@@ -198,8 +198,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         public void InvokeShouldCacheExpression2()
         {
             var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test1") {Index = 0};
-            var member2 = new BindingMemberExpressionNode("test2") {Index = 1};
+            var member1 = new BindingMemberExpressionNode("test1", 0, default, default);
+            var member2 = new BindingMemberExpressionNode("test2", 1, default, default);
             var valueInt1 = 1;
             var valueInt2 = -2;
             var valueFloat1 = 1.5f;
@@ -245,16 +245,18 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             var value1 = 1;
             var value2 = "test";
             var inputMetadata = key1.ToContext(value1);
-            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1") {Index = 0}, inputMetadata);
-            compiledExpression.ExpressionBuilders = new[]
+            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1", 0, default, default), inputMetadata)
             {
-                new TestExpressionBuilderComponent
+                ExpressionBuilders = new[]
                 {
-                    TryBuild = (context, node) =>
+                    new TestExpressionBuilderComponent
                     {
-                        ++compileCount;
-                        context.Metadata.Set(key2, value2);
-                        return Expression.Constant(1);
+                        TryBuild = (context, node) =>
+                        {
+                            ++compileCount;
+                            context.Metadata.Set(key2, value2);
+                            return Expression.Constant(1);
+                        }
                     }
                 }
             };
@@ -269,13 +271,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         {
             var compileCount = 0;
             var result = Expression.Constant(1);
-            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1") {Index = 0});
-            compiledExpression.ExpressionBuilders = new[]
+            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1", 0, default, default))
             {
-                new TestExpressionBuilderComponent
-                {
-                    TryBuild = (context, node) => result
-                }
+                ExpressionBuilders = new[] {new TestExpressionBuilderComponent {TryBuild = (context, node) => result}}
             };
 
             ILambdaExpressionCompiler compiler = new TestLambdaExpressionCompiler

@@ -172,7 +172,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 {
                     if (sourceExpression == null)
                         ExceptionManager.ThrowExpressionNodeCannotBeNull(typeof(BindingBuilder));
-                    _sourceExpression = component._expressionCollectorVisitor.Collect(sourceExpression, metadata).GetRawValue()!;
+                    _sourceExpression = component._expressionCollectorVisitor.Collect(ref sourceExpression, metadata).GetRawValue()!;
                     _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
                 }
 

@@ -47,21 +47,19 @@ namespace MugenMvvm.Navigation.Components
                 return null;
 
             var targetMetadata = (IMetadataContext?) GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, false);
-            if (targetMetadata != null)
-            {
-                var callback = TryFindCallback(callbackType, navigationId, navigationType, key, targetMetadata);
-                if (callback == null)
-                {
-                    callback = new NavigationCallback(callbackType, navigationId, navigationType);
-                    AddCallback(key, callback, targetMetadata);
-                }
+            if (targetMetadata == null)
+                return null;
 
-                if (request is IMetadataOwner<IReadOnlyMetadataContext> owner && owner.Metadata is IMetadataContext m && m != targetMetadata)
-                    AddCallback(key, callback, m);
-                return callback;
+            var callback = TryFindCallback(callbackType, navigationId, navigationType, key, targetMetadata);
+            if (callback == null)
+            {
+                callback = new NavigationCallback(callbackType, navigationId, navigationType);
+                AddCallback(key, callback, targetMetadata);
             }
 
-            return null;
+            if (request is IMetadataOwner<IReadOnlyMetadataContext> owner && owner.Metadata is IMetadataContext m && m != targetMetadata)
+                AddCallback(key, callback, m);
+            return callback;
         }
 
         public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata) =>

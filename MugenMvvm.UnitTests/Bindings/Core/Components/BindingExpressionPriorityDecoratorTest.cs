@@ -91,11 +91,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
         #region Nested types
 
-        private sealed class HasPriorityExpressionNode : ExpressionNodeBase, IHasPriority, IMemberExpressionNode
+        private sealed class HasPriorityExpressionNode : ExpressionNodeBase<HasPriorityExpressionNode>, IHasPriority, IMemberExpressionNode
         {
             #region Constructors
 
-            public HasPriorityExpressionNode(IDictionary<string, object?>? metadata = null) : base(metadata)
+            public HasPriorityExpressionNode(IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
             {
             }
 
@@ -122,6 +122,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             #region Methods
 
             protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
+
+            protected override HasPriorityExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => throw new NotSupportedException();
+
+            protected override bool Equals(HasPriorityExpressionNode other, IExpressionEqualityComparer? comparer) => throw new NotSupportedException();
+
+            protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => throw new NotSupportedException();
 
             #endregion
         }

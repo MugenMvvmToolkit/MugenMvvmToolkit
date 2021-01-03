@@ -92,7 +92,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     if (method.Method == methodName)
                         return method;
-                    return new MethodCallExpressionNode(method.Target, methodName, Default.Array<IExpressionNode>(), method.TypeArgs, method.TryGetMetadata());
+                    return new MethodCallExpressionNode(method.Target, methodName, Default.Array<IExpressionNode>(), method.TypeArgs, method.Metadata);
                 }
 
                 if (method.Method == methodName && arguments.All(n => n is IConstantExpressionNode))
@@ -114,7 +114,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                     args[i] = ConstantExpressionNode.Get(_memberBuilder.GetPath(), typeof(string));
                 }
 
-                return new MethodCallExpressionNode(method.Target, methodName, args, method.TypeArgs, method.TryGetMetadata());
+                return new MethodCallExpressionNode(method.Target, methodName, args, method.TypeArgs, method.Metadata);
             }
 
             if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())

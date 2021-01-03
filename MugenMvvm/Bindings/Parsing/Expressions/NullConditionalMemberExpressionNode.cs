@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
@@ -6,11 +7,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {
-    public sealed class NullConditionalMemberExpressionNode : ExpressionNodeBase, IHasTargetExpressionNode<NullConditionalMemberExpressionNode>
+    public sealed class NullConditionalMemberExpressionNode : ExpressionNodeBase<NullConditionalMemberExpressionNode>, IHasTargetExpressionNode<NullConditionalMemberExpressionNode>
     {
         #region Constructors
 
-        public NullConditionalMemberExpressionNode(IExpressionNode target, IDictionary<string, object?>? metadata = null) : base(metadata)
+        public NullConditionalMemberExpressionNode(IExpressionNode target, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
@@ -22,7 +23,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Member;
 
-        public IExpressionNode? Target { get; }
+        public IExpressionNode Target { get; }
 
         #endregion
 
@@ -30,9 +31,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public NullConditionalMemberExpressionNode UpdateTarget(IExpressionNode? target)
         {
-            if (target == Target)
-                return this;
-            return new NullConditionalMemberExpressionNode(target!, MetadataRaw);
+            Should.NotBeNull(target, nameof(target));
+            return Target.Equals(target) ? this : new NullConditionalMemberExpressionNode(target, Metadata);
         }
 
         #endregion
@@ -41,14 +41,18 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
-            if (Target == null)
-                return this;
             var changed = false;
             var node = VisitWithCheck(visitor, Target, false, ref changed, metadata);
             if (changed)
-                return new NullConditionalMemberExpressionNode(node, MetadataRaw);
+                return new NullConditionalMemberExpressionNode(node, Metadata);
             return this;
         }
+
+        protected override NullConditionalMemberExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new(Target, metadata);
+
+        protected override bool Equals(NullConditionalMemberExpressionNode other, IExpressionEqualityComparer? comparer) => Target.Equals(other.Target, comparer);
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => HashCode.Combine(hashCode, Target.GetHashCode(comparer));
 
         public override string ToString() => Target + "?";
 

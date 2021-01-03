@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
+using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -29,7 +32,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         {
             var target = new ConstantExpressionNode("1");
             var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var newArgs = new IExpressionNode[] {new ConstantExpressionNode("2")};
+            var newArgs = new IExpressionNode[] {new ConstantExpressionNode("3")};
             var exp = new IndexExpressionNode(target, args);
             exp.UpdateArguments(args).ShouldEqual(exp);
 
@@ -127,6 +130,77 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 Visit = (node, context) => target
             };
             new IndexExpressionNode(target, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
+            var node = new IndexExpressionNode(target, args, EmptyDictionary);
+            if (equal)
+                node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
+            else
+            {
+                var metadata = new Dictionary<string, object?> {{"k", null}};
+                var updated = (IndexExpressionNode) node.UpdateMetadata(metadata);
+                updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
+                updated.Metadata.ShouldEqual(metadata);
+                updated.Target.ShouldEqual(node.Target);
+                updated.Arguments.ShouldEqual(node.Arguments);
+            }
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void GetHashCodeEqualsShouldBeValid(bool withComparer, bool hasTarget)
+        {
+            var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
+            var exp1 = new IndexExpressionNode(hasTarget ? GetTestEqualityExpression(comparer, 1) : null, new IExpressionNode[] {GetTestEqualityExpression(comparer, 2), GetTestEqualityExpression(comparer, 3)},
+                new Dictionary<string, object?> {{"k", null}});
+            var exp2 = new IndexExpressionNode(hasTarget ? GetTestEqualityExpression(comparer, 1) : null, new IExpressionNode[] {GetTestEqualityExpression(comparer, 2), GetTestEqualityExpression(comparer, 3)},
+                new Dictionary<string, object?> {{"k", null}});
+            ;
+            if (hasTarget)
+            {
+                HashCode.Combine(GetBaseHashCode(exp1), exp1.Arguments.Count, 1).ShouldEqual(exp1.GetHashCode(comparer));
+                ((TestExpressionNode) exp1.Target!).GetHashCodeCount.ShouldEqual(1);
+            }
+            else
+                HashCode.Combine(GetBaseHashCode(exp1), exp1.Arguments.Count).ShouldEqual(exp1.GetHashCode(comparer));
+
+            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.GetHashCodeCount == 0).ShouldBeTrue();
+
+            exp1.Equals(exp2, comparer).ShouldBeTrue();
+            ((TestExpressionNode?) exp1.Target)?.EqualsCount.ShouldEqual(1);
+            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
+
+            exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
+            ((TestExpressionNode?) exp1.Target)?.EqualsCount.ShouldEqual(1);
+            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
+
+            if (comparer == null || !hasTarget)
+                return;
+            comparer.GetHashCode = node =>
+            {
+                ReferenceEquals(node, exp1).ShouldBeTrue();
+                return int.MaxValue;
+            };
+            comparer.Equals = (x1, x2) =>
+            {
+                ReferenceEquals(x1, exp1).ShouldBeTrue();
+                ReferenceEquals(x2, exp2).ShouldBeTrue();
+                return false;
+            };
+            exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
+            exp1.Equals(exp2, comparer).ShouldBeFalse();
+            ((TestExpressionNode) exp1.Target!).EqualsCount.ShouldEqual(1);
+            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
         }
 
         #endregion

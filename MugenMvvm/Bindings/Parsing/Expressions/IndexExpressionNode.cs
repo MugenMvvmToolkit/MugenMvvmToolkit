@@ -6,11 +6,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {
-    public sealed class IndexExpressionNode : ExpressionNodeBase, IIndexExpressionNode
+    public sealed class IndexExpressionNode : ExpressionNodeBase<IIndexExpressionNode>, IIndexExpressionNode
     {
         #region Constructors
 
-        public IndexExpressionNode(IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments, IDictionary<string, object?>? metadata = null) : base(metadata)
+        public IndexExpressionNode(IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(arguments, nameof(arguments));
             Target = target;
@@ -34,12 +34,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         public IIndexExpressionNode UpdateArguments(IReadOnlyList<IExpressionNode> arguments)
         {
             Should.NotBeNull(arguments, nameof(arguments));
-            if (ReferenceEquals(arguments, Arguments))
-                return this;
-            return new IndexExpressionNode(Target, arguments, MetadataRaw);
+            return Equals(Arguments, arguments, null) ? this : new IndexExpressionNode(Target, arguments, Metadata);
         }
 
-        public IIndexExpressionNode UpdateTarget(IExpressionNode? target) => target == Target ? this : new IndexExpressionNode(target, Arguments, MetadataRaw);
+        public IIndexExpressionNode UpdateTarget(IExpressionNode? target) => Equals(target, Target) ? this : new IndexExpressionNode(target, Arguments, Metadata);
 
         #endregion
 
@@ -53,9 +51,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 target = VisitWithCheck(visitor, Target, false, ref changed, metadata);
             var newArgs = VisitWithCheck(visitor, Arguments, ref changed, metadata);
             if (changed)
-                return new IndexExpressionNode(target, newArgs, MetadataRaw);
+                return new IndexExpressionNode(target, newArgs, Metadata);
             return this;
         }
+
+        protected override IIndexExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new IndexExpressionNode(Target, Arguments, metadata);
+
+        protected override bool Equals(IIndexExpressionNode other, IExpressionEqualityComparer? comparer) => Equals(Target, other.Target, comparer) && Equals(Arguments, other.Arguments, comparer);
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => GetHashCode(hashCode, Target, Arguments, comparer);
 
         public override string ToString()
         {

@@ -7,18 +7,22 @@ namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
     public interface IBindingMemberExpressionNode : IExpressionNode
     {
-        EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
+        EnumFlags<BindingMemberExpressionFlags> Flags { get; }
 
         EnumFlags<MemberFlags> MemberFlags { get; }
 
-        int Index { get; set; }
+        int Index { get; }
 
         string Path { get; }
 
-        IExpressionNode? OriginalExpression { get; }
+        string? ObservableMethodName { get; }
+
+        IExpressionNode? Expression { get; }
 
         object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path);
 
         object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
+
+        IBindingMemberExpressionNode Update(int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName);
     }
 }

@@ -90,7 +90,7 @@ namespace MugenMvvm.Bindings.Core.Components
             if (!IsEvent(context.Target, context.Source, context.TargetExpression, metadata))
             {
                 if (context.TargetExpression is IBindingMemberExpressionNode member && BindableMembers.For<object>().DataContext() == member.Path)
-                    _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.DataContextPath;
+                    _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.ParentDataContext;
                 context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
                 return;
             }
@@ -102,10 +102,12 @@ namespace MugenMvvm.Bindings.Core.Components
             context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
             if (context.SourceExpression is IBindingMemberExpressionNode memberExpression)
             {
+                var f = memberExpression.Flags;
                 if (flags.HasFlag(BindingMemberExpressionFlags.Observable))
-                    memberExpression.Flags |= BindingMemberExpressionFlags.Observable;
+                    f |= BindingMemberExpressionFlags.Observable;
                 if (flags.HasFlag(BindingMemberExpressionFlags.ObservableMethods))
-                    memberExpression.Flags |= BindingMemberExpressionFlags.ObservableMethods;
+                    f |= BindingMemberExpressionFlags.ObservableMethods;
+                context.SourceExpression = memberExpression.Update(memberExpression.Index, f, memberExpression.MemberFlags, memberExpression.ObservableMethodName);
             }
 
             _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.Observable;

@@ -39,7 +39,7 @@ namespace MugenMvvm.Views.Components
                             v = null;
                         else
                             viewType = v?.GetType()!;
-                        var mappingId = mappings.Item?.Id ?? $"a{viewModel.GetType().FullName}{viewType.FullName}";
+                        var mappingId = mappings.Item?.Id ?? $"a{viewModel.GetType().Name}{viewType.Name}";
                         foreach (var view in viewManager.GetViews(viewModel, metadata))
                         {
                             if (view.Mapping.Id == mappingId && (v == null || Equals(v, view.Target)))

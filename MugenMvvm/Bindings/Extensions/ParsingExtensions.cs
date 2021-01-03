@@ -13,7 +13,9 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
@@ -29,6 +31,50 @@ namespace MugenMvvm.Bindings.Extensions
 
         #region Methods
 
+        public static EnumFlags<T> GetFlags<T>(this IExpressionNode expression, string key, EnumFlags<T> defaultFlags) where T : class, IFlagsEnum
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            Should.NotBeNull(key, nameof(key));
+            EnumFlags<T> flags = default;
+            while (expression != null)
+            {
+                flags |= expression.TryGetMetadataValue(key, default(EnumFlags<T>));
+                expression = (expression as IHasTargetExpressionNode<IExpressionNode>)?.Target!;
+            }
+
+            if (flags.Flags == 0)
+                return defaultFlags;
+            return flags;
+        }
+
+        [return: MaybeNull]
+        public static TValue TryGetMetadataValue<TValue>(this IExpressionNode expression, string key, TValue defaultValue = default)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            Should.NotBeNull(key, nameof(key));
+            if (expression.Metadata.TryGetValue(key, out var v))
+                return (TValue) v!;
+            return defaultValue;
+        }
+
+        public static bool MetadataEquals(this IExpressionNode expression, IReadOnlyDictionary<string, object?> otherMetadata)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            var metadata = expression.Metadata;
+            if (ReferenceEquals(metadata, otherMetadata))
+                return true;
+            if (metadata.Count != otherMetadata.Count)
+                return false;
+
+            foreach (var pair in metadata)
+            {
+                if (!otherMetadata.TryGetValue(pair.Key, out var v) || !Equals(v, pair.Value))
+                    return false;
+            }
+
+            return true;
+        }
+
         public static bool TryConvertExtension(this IExpressionConverterContext<Expression> context, MemberInfo member, Expression? expression, out IExpressionNode? result)
         {
             var attribute = BindingSyntaxExtensionAttributeBase.TryGet(member);
@@ -42,7 +88,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (!context.TryConvertExtension(member.DeclaringType ?? typeof(object), expression, out var result))
                 result = context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
-            if (result == ConstantExpressionNode.Null || result == MemberExpressionNode.Empty)
+            if (ReferenceEquals(result, ConstantExpressionNode.Null) || ReferenceEquals(result, MemberExpressionNode.Empty))
                 result = null;
             return result;
         }
