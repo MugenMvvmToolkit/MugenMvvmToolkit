@@ -3,9 +3,9 @@ SET projectPath=%localPath%
 SET copyFromPath=%projectPath%\app\build\outputs\aar
 SET copyToPath=%localPath%..\MugenMvvm.Platforms\Android\Jars
 
-SET buildTask=assembleRelease
+SET buildTask=assembleDebug
 
 CD %projectPath%
-call gradlew clean %buildTask%
+call gradlew %buildTask%
 
-copy /y %copyFromPath%\app-release.aar %copyToPath%\mugenmvvm-core.aar
+copy /y %copyFromPath%\app-debug.aar %copyToPath%\mugenmvvm-core.aar
