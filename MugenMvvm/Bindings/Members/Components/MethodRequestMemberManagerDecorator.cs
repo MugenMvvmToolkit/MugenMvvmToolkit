@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MethodRequestMemberManagerDecorator(int priority = MemberComponentPriority.RequestHandler)
+        public MethodRequestMemberManagerDecorator(int priority = MemberComponentPriority.RequestHandlerDecorator)
             : base(priority)
         {
             _members = new List<IMemberInfo>();

@@ -87,7 +87,7 @@ namespace MugenMvvm.Bindings.Members
 
         public Type Type => _method.ReturnType;
 
-        public object? UnderlyingMember => _method;
+        public object UnderlyingMember => _method;
 
         public MemberType MemberType => MemberType.Method;
 

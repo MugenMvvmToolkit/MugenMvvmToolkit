@@ -33,7 +33,7 @@ namespace MugenMvvm.Internal.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionDelegateProviderCache(int priority = ComponentPriority.Cache) : base(priority)
+        public ReflectionDelegateProviderCache(int priority = InternalComponentPriority.DelegateProviderCache) : base(priority)
         {
             _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
             _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();

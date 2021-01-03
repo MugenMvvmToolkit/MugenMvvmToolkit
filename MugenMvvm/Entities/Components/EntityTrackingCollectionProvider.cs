@@ -34,7 +34,7 @@ namespace MugenMvvm.Entities.Components
 
         #region Implementation of interfaces
 
-        public IEntityTrackingCollection? TryGetTrackingCollection(IEntityManager entityManager, object? request, IReadOnlyMetadataContext? metadata)
+        public IEntityTrackingCollection TryGetTrackingCollection(IEntityManager entityManager, object? request, IReadOnlyMetadataContext? metadata)
         {
             var collection = new EntityTrackingCollection(request as IEqualityComparer<object>, _componentCollectionManager);
             collection.AddComponent(EntityStateTransitionManager.Instance);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Extensions.Components;
@@ -9,7 +10,6 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Bindings.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null, int priority = ComponentPriority.Decorator)
+        public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null, int priority = MemberComponentPriority.MethodAccessorDecorator)
             : base(priority)
         {
             _globalValueConverter = globalValueConverter;

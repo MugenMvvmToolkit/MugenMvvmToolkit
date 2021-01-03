@@ -36,7 +36,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ObserverComponentPriority.Event;
+        public int Priority { get; set; } = ObserverComponentPriority.EventObserverProvider;
 
         public Func<Type, object, IReadOnlyMetadataContext?, IObservableMemberInfo?>? EventFinder { get; set; }
 

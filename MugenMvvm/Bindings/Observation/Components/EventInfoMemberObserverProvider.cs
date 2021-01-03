@@ -43,7 +43,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ObserverComponentPriority.Event;
+        public int Priority { get; set; } = ObserverComponentPriority.EventObserverProvider;
 
         #endregion
 

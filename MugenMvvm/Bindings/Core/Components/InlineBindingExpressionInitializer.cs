@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = BindingComponentPriority.BindingParameterInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.ParameterInitializer;
 
         public bool UseOneTimeModeForStaticMembersImplicit { get; set; } = true;
 

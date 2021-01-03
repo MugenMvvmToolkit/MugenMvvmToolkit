@@ -9,7 +9,7 @@ namespace MugenMvvm.Bindings.Core.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = BindingComponentPriority.BindingParameterPostInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.ParameterPostInitializer;
 
         #endregion
 

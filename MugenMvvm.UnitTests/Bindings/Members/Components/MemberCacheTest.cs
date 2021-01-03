@@ -8,7 +8,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
-    public class MemberManagerCacheTest : UnitTestBase
+    public class MemberCacheTest : UnitTestBase
     {
         #region Methods
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     return result;
                 }
             });
-            memberManager.AddComponent(new MemberManagerCache());
+            memberManager.AddComponent(new MemberCache());
 
             memberManager.TryGetMembers(type, memberType, memberFlags, this, DefaultMetadata).ShouldEqual(result);
             memberManager.TryGetMembers(type, memberType, memberFlags, this, DefaultMetadata).ShouldEqual(result);
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     return result;
                 }
             });
-            memberManager.AddComponent(new MemberManagerCache());
+            memberManager.AddComponent(new MemberCache());
 
             memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
             memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     return result;
                 }
             });
-            memberManager.AddComponent(new MemberManagerCache());
+            memberManager.AddComponent(new MemberCache());
 
             memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
             memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     return result;
                 }
             });
-            memberManager.AddComponent(new MemberManagerCache());
+            memberManager.AddComponent(new MemberCache());
 
             memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
             memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
@@ -164,7 +164,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var request1 = "test1";
             var request2 = "test2";
             var result = new TestAccessorMemberInfo();
-            var cacheComponent = new MemberManagerCache();
+            var cacheComponent = new MemberCache();
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {

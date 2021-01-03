@@ -50,7 +50,7 @@ namespace MugenMvvm.Bindings.Members
 
         public Type Type => _fieldInfo.FieldType;
 
-        public object? UnderlyingMember => _fieldInfo;
+        public object UnderlyingMember => _fieldInfo;
 
         public MemberType MemberType => MemberType.Accessor;
 

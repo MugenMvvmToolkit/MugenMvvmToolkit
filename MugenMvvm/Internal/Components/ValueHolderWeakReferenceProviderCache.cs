@@ -11,7 +11,7 @@ namespace MugenMvvm.Internal.Components
     {
         #region Constructors
 
-        public ValueHolderWeakReferenceProviderCache(int priority = ComponentPriority.Cache) : base(priority)
+        public ValueHolderWeakReferenceProviderCache(int priority = InternalComponentPriority.ValueHolderWeakReferenceCache) : base(priority)
         {
         }
 

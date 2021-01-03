@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Observation.Components;
@@ -21,7 +22,7 @@ namespace MugenMvvm.Bindings.Observation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MemberPathProviderCache(int priority = ComponentPriority.Cache)
+        public MemberPathProviderCache(int priority = ObserverComponentPriority.PathProviderCache)
             : base(priority)
         {
             _cache = new Dictionary<string, IMemberPath?>(59, StringComparer.Ordinal);

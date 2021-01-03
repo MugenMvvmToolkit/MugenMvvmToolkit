@@ -1,4 +1,6 @@
-﻿namespace MugenMvvm.Bindings.Constants
+﻿using MugenMvvm.Constants;
+
+namespace MugenMvvm.Bindings.Constants
 {
     public static class MemberComponentPriority
     {
@@ -9,7 +11,10 @@
         public const int Extension = -10;
         public const int Dynamic = -20;
 
-        public const int RequestHandler = 100;
+        public const int RequestHandlerDecorator = 100;
+        public const int Cache = ComponentPriority.Cache;
+        public const int IndexerAccessorDecorator = 100;
+        public const int MethodAccessorDecorator = 100;
         public const int Selector = 0;
 
         #endregion

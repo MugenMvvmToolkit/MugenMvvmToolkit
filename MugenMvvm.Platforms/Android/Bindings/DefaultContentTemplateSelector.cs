@@ -29,7 +29,7 @@ namespace MugenMvvm.Android.Bindings
 
         #region Implementation of interfaces
 
-        public object? SelectTemplate(object container, object? item)
+        public object SelectTemplate(object container, object? item)
         {
             if (item is IViewModelBase viewModel && container is Object c)
                 return viewModel.GetOrCreateView(c, 0).Target;

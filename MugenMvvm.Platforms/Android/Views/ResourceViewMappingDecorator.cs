@@ -16,7 +16,7 @@ namespace MugenMvvm.Android.Views
     {
         #region Constructors
 
-        public ResourceViewMappingDecorator(int priority = ViewComponentPriority.MappingProvider + 1) : base(priority)
+        public ResourceViewMappingDecorator(int priority = ViewComponentPriority.ResourceMappingDecorator) : base(priority)
         {
         }
 

@@ -24,7 +24,7 @@ namespace MugenMvvm.Bindings.Members
 
         #region Properties
 
-        public object? UnderlyingParameter => _parameterInfo;
+        public object UnderlyingParameter => _parameterInfo;
 
         public string Name => _parameterInfo.Name ?? "";
 

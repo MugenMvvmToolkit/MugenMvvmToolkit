@@ -19,7 +19,7 @@ namespace MugenMvvm.Android.Views
     {
         #region Constructors
 
-        public ActivityViewRequestManager(int priority = ViewComponentPriority.ExecutionModeDecorator + 1) : base(priority)
+        public ActivityViewRequestManager(int priority = ViewComponentPriority.ActivityRequestDecorator) : base(priority)
         {
         }
 

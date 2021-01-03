@@ -11,7 +11,7 @@ namespace MugenMvvm.Navigation.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = NavigationComponentPriority.EntryUpdater;
+        public int Priority { get; set; } = NavigationComponentPriority.EntryTracker;
 
         #endregion
 

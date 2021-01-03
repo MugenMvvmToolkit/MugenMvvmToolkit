@@ -4,7 +4,7 @@
     {
         #region Fields
 
-        public const int BackgroundDispatcher = 0;
+        public const int LifecycleTracker = 0;
 
         #endregion
     }

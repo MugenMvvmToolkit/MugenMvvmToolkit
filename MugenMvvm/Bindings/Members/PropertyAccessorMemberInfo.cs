@@ -76,7 +76,7 @@ namespace MugenMvvm.Bindings.Members
 
         public Type Type { get; }
 
-        public object? UnderlyingMember => _propertyInfo;
+        public object UnderlyingMember => _propertyInfo;
 
         public MemberType MemberType => MemberType.Accessor;
 

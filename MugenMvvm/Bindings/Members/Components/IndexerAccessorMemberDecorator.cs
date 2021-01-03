@@ -12,7 +12,6 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -34,7 +33,7 @@ namespace MugenMvvm.Bindings.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null, int priority = ComponentPriority.Decorator)
+        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null, int priority = MemberComponentPriority.IndexerAccessorDecorator)
             : base(priority)
         {
             _globalValueConverter = globalValueConverter;

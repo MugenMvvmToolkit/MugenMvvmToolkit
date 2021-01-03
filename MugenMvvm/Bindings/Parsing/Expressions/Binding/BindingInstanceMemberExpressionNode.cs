@@ -37,13 +37,13 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
+        public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
             path = Request(metadata).Path;
             return Instance;
         }
 
-        public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata) => MugenService.ObservationManager.GetMemberPathObserver(Instance, Request(metadata), metadata);
+        public override object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata) => MugenService.ObservationManager.GetMemberPathObserver(Instance, Request(metadata), metadata);
 
         private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata) => _request ??= GetObserverRequest(Path, metadata);
 

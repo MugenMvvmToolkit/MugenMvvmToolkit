@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
-    public sealed class MemberManagerCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IEqualityComparer<MemberManagerCache.CacheKey>
+    public sealed class MemberCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IEqualityComparer<MemberCache.CacheKey>
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MemberManagerCache(int priority = ComponentPriority.Cache)
+        public MemberCache(int priority = MemberComponentPriority.Cache)
             : base(priority)
         {
             _cache = new Dictionary<CacheKey, object?>(59, this);

@@ -23,7 +23,7 @@ namespace MugenMvvm.Bindings.Core.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingExpressionPriorityDecorator(int priority = BindingComponentPriority.ExpressionPriorityDecorator) : base(priority)
+        public BindingExpressionPriorityDecorator(int priority = BindingComponentPriority.BuilderPriorityDecorator) : base(priority)
         {
             BindingMemberPriorities = new Dictionary<string, int>
             {

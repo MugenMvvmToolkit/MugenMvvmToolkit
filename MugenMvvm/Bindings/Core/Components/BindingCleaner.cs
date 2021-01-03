@@ -14,7 +14,7 @@ namespace MugenMvvm.Bindings.Core.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = BindingComponentPriority.PostInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.LifecyclePostInitializer;
 
         #endregion
 

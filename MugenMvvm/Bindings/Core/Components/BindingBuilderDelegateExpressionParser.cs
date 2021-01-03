@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -28,7 +28,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Constructors
 
-        public BindingBuilderDelegateExpressionParser(int priority = ComponentPriority.Cache)
+        public BindingBuilderDelegateExpressionParser(int priority = BindingComponentPriority.BuilderCache)
             : base(priority)
         {
             _singleValueArray = new object[1];

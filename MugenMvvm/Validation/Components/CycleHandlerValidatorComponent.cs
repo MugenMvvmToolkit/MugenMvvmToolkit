@@ -24,7 +24,7 @@ namespace MugenMvvm.Validation.Components
 
         #region Constructors
 
-        public CycleHandlerValidatorComponent(int priority = ComponentPriority.Decorator) : base(priority)
+        public CycleHandlerValidatorComponent(int priority = ValidationComponentPriority.CycleHandlerDecorator) : base(priority)
         {
             _validatingTasks = new Dictionary<string, CancellationTokenSource>(3, StringComparer.Ordinal);
             _validatingMembers = new HashSet<string>(StringComparer.Ordinal);

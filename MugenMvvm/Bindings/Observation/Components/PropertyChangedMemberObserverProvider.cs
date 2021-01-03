@@ -41,7 +41,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ObserverComponentPriority.PropertyChanged;
+        public int Priority { get; set; } = ObserverComponentPriority.PropertyChangedObserverProvider;
 
         #endregion
 

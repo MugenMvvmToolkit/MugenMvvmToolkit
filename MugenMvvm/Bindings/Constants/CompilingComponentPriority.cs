@@ -1,4 +1,6 @@
-﻿namespace MugenMvvm.Bindings.Constants
+﻿using MugenMvvm.Constants;
+
+namespace MugenMvvm.Bindings.Constants
 {
     public static class CompilingComponentPriority
     {
@@ -13,6 +15,7 @@
         public const int Constant = 940;
 
         public const int LinqCompiler = 0;
+        public const int Cache = ComponentPriority.Cache;
 
         #endregion
     }

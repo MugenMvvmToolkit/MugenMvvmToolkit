@@ -48,7 +48,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = BindingComponentPriority.BindingParameterInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.ParameterInitializer;
 
         public EnumFlags<MemberFlags> MemberFlags
         {

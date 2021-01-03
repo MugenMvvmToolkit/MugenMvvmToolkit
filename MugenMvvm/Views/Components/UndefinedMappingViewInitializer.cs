@@ -6,18 +6,17 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Requests;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class UndefinedMappingViewInitializer : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
+    public sealed class UndefinedMappingViewInitializer : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
         #region Constructors
 
-        public UndefinedMappingViewInitializer(int priority = ViewComponentPriority.ViewModelViewProviderDecorator + 1) : base(priority)
+        public UndefinedMappingViewInitializer(int priority = ViewComponentPriority.UndefinedMappingDecorator) : base(priority)
         {
         }
 

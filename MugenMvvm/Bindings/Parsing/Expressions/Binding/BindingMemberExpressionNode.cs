@@ -31,7 +31,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
+        public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
             if (Flags.HasFlag(BindingMemberExpressionFlags.Target))
             {
@@ -49,7 +49,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
             return source;
         }
 
-        public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public override object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             if (Flags.HasFlag(BindingMemberExpressionFlags.Target))
                 return GetObserver(target, metadata);

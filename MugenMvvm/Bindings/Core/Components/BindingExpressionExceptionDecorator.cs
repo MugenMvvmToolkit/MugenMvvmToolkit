@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -15,7 +15,7 @@ namespace MugenMvvm.Bindings.Core.Components
     {
         #region Constructors
 
-        public BindingExpressionExceptionDecorator(int priority = ComponentPriority.Decorator) : base(priority)
+        public BindingExpressionExceptionDecorator(int priority = BindingComponentPriority.BuilderExceptionDecorator) : base(priority)
         {
         }
 

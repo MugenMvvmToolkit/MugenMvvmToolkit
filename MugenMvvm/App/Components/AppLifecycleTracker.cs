@@ -40,7 +40,7 @@ namespace MugenMvvm.App.Components
 
         #region Properties
 
-        public int Priority { get; set; } = AppComponentPriority.BackgroundDispatcher;
+        public int Priority { get; set; } = AppComponentPriority.LifecycleTracker;
 
         #endregion
 

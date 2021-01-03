@@ -33,7 +33,7 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        public IComponentCollection? TryGetComponentCollection(object owner, IReadOnlyMetadataContext? metadata = null)
+        public IComponentCollection TryGetComponentCollection(object owner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(owner, nameof(owner));
             var result = GetComponentCollectionInternal(owner, metadata);

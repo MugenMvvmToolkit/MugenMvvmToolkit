@@ -42,7 +42,7 @@ namespace MugenMvvm.Android.Bindings
 
         #region Implementation of interfaces
 
-        public IExpressionNode? Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (!(expression is IMemberExpressionNode member) || !(member.Target is IUnaryExpressionNode unaryExpression) || !unaryExpression.IsMacros() ||
                 !(unaryExpression.Operand is IMemberExpressionNode resourceMember) || !Resources.TryGetValue(resourceMember.Member, out var resolver))

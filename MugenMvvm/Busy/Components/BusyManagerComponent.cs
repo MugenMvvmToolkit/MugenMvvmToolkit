@@ -32,7 +32,7 @@ namespace MugenMvvm.Busy.Components
 
         #region Implementation of interfaces
 
-        public IBusyToken? TryBeginBusy(IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
+        public IBusyToken TryBeginBusy(IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
             var delay = 0;
             if (request is DelayBusyRequest delayBusyRequest)

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Constructors
 
-        public BindingExpressionParserCache(int priority = ComponentPriority.Cache)
+        public BindingExpressionParserCache(int priority = BindingComponentPriority.BuilderCache)
             : base(priority)
         {
             _cache = new Dictionary<string, object?>(59, StringComparer.Ordinal);

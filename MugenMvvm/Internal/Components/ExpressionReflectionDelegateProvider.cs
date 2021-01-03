@@ -41,7 +41,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        Func<object?[], object>? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor) => GetActivator(constructor);
+        Func<object?[], object> IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor) => GetActivator(constructor);
 
         Delegate? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType) => TryGetActivator(constructor, delegateType);
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Internal.Components
 
         Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberSetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType) => TryGetMemberSetter(member, delegateType);
 
-        Func<object?, object?[], object?>? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method) => GetMethodInvoker(method);
+        Func<object?, object?[], object?> IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method) => GetMethodInvoker(method);
 
         Delegate? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method, Type delegateType) => TryGetMethodInvoker(method, delegateType);
 

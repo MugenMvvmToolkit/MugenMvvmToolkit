@@ -31,7 +31,7 @@ namespace MugenMvvm.Presenters.Components
         #region Constructors
 
         public ViewPresenterDecorator(IViewManager? viewManager = null, IViewModelManager? viewModelManager = null, INavigationDispatcher? navigationDispatcher = null,
-            int priority = PresenterComponentPriority.ViewModelProviderDecorator)
+            int priority = PresenterComponentPriority.ViewPresenterDecorator)
             : base(priority)
         {
             _viewManager = viewManager;
