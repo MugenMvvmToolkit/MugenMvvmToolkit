@@ -16,25 +16,10 @@ namespace MugenMvvm.Enums
         {
         }
 
-        protected FlagsEnumBase(TValue value, string? name)
-            : this(value, name, ConvertValue(value))
-        {
-        }
-
-        protected FlagsEnumBase(TValue value)
-            : this(value, ConvertValue(value))
-        {
-        }
-
-        protected FlagsEnumBase(TValue value, string? name, long flag)
+        protected FlagsEnumBase(TValue value, string? name = null, long? flag = null)
             : base(value, name)
         {
-            Flag = flag;
-        }
-
-        protected FlagsEnumBase(TValue value, long flag) : base(value)
-        {
-            Flag = flag;
+            Flag = flag ?? ConvertValue(value);
         }
 
         #endregion

@@ -25,9 +25,5 @@ namespace MugenMvvm.Enums
 #endif
 
         #endregion
-
-        #region Constructors
-
-        #endregion
     }
 }

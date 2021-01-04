@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Compiling;
@@ -67,7 +68,7 @@ namespace MugenMvvm.Bindings.Compiling
             }
         }
 
-        bool IExpressionVisitor.IsPostOrder => false;
+        ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Preorder;
 
         #endregion
 

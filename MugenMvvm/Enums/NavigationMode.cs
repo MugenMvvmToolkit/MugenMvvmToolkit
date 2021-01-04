@@ -28,7 +28,7 @@ namespace MugenMvvm.Enums
         }
 
 
-        public NavigationMode(string value) : base(value, value)
+        public NavigationMode(string value, string? name = null) : base(value, name)
         {
         }
 

@@ -34,7 +34,7 @@ namespace MugenMvvm.Android.Bindings
 
         #region Properties
 
-        public bool IsPostOrder => false;
+        public ExpressionTraversalType TraversalType => ExpressionTraversalType.Preorder;
 
         public Dictionary<string, (Func<string, object?> resolver, Delegate genericResolver)> Resources { get; }
 

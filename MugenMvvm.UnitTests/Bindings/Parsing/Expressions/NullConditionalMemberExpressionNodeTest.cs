@@ -39,12 +39,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AcceptShouldVisitWithCorrectOrder(bool isPostOrder)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldVisitWithCorrectOrder(int value)
         {
             var nodes = new List<IExpressionNode>();
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (node, context) =>
                 {
@@ -52,26 +53,27 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                     context.ShouldEqual(DefaultMetadata);
                     return node;
                 },
-                IsPostOrder = isPostOrder
+                TraversalType = ExpressionTraversalType.Get(value)
             };
 
             var target = new ConstantExpressionNode("1");
             var exp = new NullConditionalMemberExpressionNode(target);
 
-            var result = isPostOrder ? new IExpressionNode[] {target, exp} : new IExpressionNode[] {exp, target};
-            exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
+            var result = visitor.TraversalType == ExpressionTraversalType.Preorder ? new IExpressionNode[] {exp, target} : new IExpressionNode[] {target, exp};
+            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
             result.ShouldEqual(nodes);
         }
 
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AcceptShouldCreateNewNode1(bool isPostOrder)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldCreateNewNode1(int value)
         {
             var target = new ConstantExpressionNode("1");
             var targetChanged = new ConstantExpressionNode("1-");
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (node, context) =>
                 {
@@ -79,10 +81,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                         return targetChanged;
                     return node;
                 },
-                IsPostOrder = isPostOrder
+                TraversalType = ExpressionTraversalType.Get(value)
             };
             var exp = new NullConditionalMemberExpressionNode(target);
-            var expressionNode = (NullConditionalMemberExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
+            var expressionNode = (NullConditionalMemberExpressionNode) exp.Accept(visitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
         }

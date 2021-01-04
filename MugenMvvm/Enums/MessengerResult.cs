@@ -24,7 +24,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public MessengerResult(int value) : base(value)
+        public MessengerResult(int value, string? name = null) : base(value, name)
         {
         }
 

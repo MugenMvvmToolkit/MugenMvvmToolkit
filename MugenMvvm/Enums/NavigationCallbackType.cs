@@ -24,7 +24,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public NavigationCallbackType(int value) : base(value)
+        public NavigationCallbackType(int value, string? name = null) : base(value, name)
         {
         }
 

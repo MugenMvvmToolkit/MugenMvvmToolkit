@@ -13,10 +13,10 @@ namespace MugenMvvm.Bindings.Enums
     {
         #region Fields
 
-        public static readonly ArgumentFlags Metadata = new(1 << 0, nameof(Metadata), -1);
-        public static readonly ArgumentFlags Optional = new(1 << 4, nameof(Optional), -2);
-        public static readonly ArgumentFlags ParamArray = new(1 << 1, nameof(ParamArray), -3);
-        public static readonly ArgumentFlags EmptyParamArray = new((byte) (ParamArray.Value | 1 << 2), nameof(EmptyParamArray), -4);
+        public static readonly ArgumentFlags Metadata = new(1 << 0, -1, nameof(Metadata));
+        public static readonly ArgumentFlags Optional = new(1 << 4, -2, nameof(Optional));
+        public static readonly ArgumentFlags ParamArray = new(1 << 1, -3, nameof(ParamArray));
+        public static readonly ArgumentFlags EmptyParamArray = new((byte) (ParamArray.Value | 1 << 2), -4, nameof(EmptyParamArray));
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Enums
         {
         }
 
-        public ArgumentFlags(int value, string name, int priority) : base(value, name)
+        public ArgumentFlags(int value, int priority, string? name = null, long? flag = null) : base(value, name, flag)
         {
             Priority = priority;
         }

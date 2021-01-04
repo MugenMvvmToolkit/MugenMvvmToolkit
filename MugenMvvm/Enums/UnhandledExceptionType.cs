@@ -23,7 +23,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public UnhandledExceptionType(int value) : base(value)
+        public UnhandledExceptionType(int value, string? name = null) : base(value, name)
         {
         }
 

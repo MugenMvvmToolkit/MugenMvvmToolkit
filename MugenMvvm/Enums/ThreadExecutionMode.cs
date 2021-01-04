@@ -26,7 +26,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public ThreadExecutionMode(int value) : base(value)
+        public ThreadExecutionMode(int value, string? name = null) : base(value, name)
         {
         }
 

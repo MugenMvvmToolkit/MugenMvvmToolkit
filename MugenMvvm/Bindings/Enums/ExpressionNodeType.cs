@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly ExpressionNodeType Unary = new(7);
         public static readonly ExpressionNodeType Lambda = new(8);
         public static readonly ExpressionNodeType Parameter = new(9);
-        public static readonly ExpressionNodeType BindingMember = new(10);
+        public static readonly ExpressionNodeType BindingParameter = new(10);
 
         #endregion
 
@@ -32,11 +32,7 @@ namespace MugenMvvm.Bindings.Enums
         {
         }
 
-        public ExpressionNodeType(int value) : base(value)
-        {
-        }
-
-        public ExpressionNodeType(int value, string name) : base(value, name)
+        public ExpressionNodeType(int value, string? name = null) : base(value, name)
         {
         }
 

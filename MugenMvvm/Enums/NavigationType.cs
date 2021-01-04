@@ -32,7 +32,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public NavigationType(string value) : base(value)
+        public NavigationType(string value, string? name = null) : base(value, name)
         {
         }
 
@@ -45,10 +45,10 @@ namespace MugenMvvm.Enums
         public bool IsUndefined => Undefined == this;
 
         [DataMember(Name = "r")]
-        public bool IsRootNavigation { get; protected set; }
+        public bool IsRootNavigation { get; set; }
 
         [DataMember(Name = "n")]
-        public bool IsNestedNavigation { get; protected set; }
+        public bool IsNestedNavigation { get; set; }
 
         #endregion
     }

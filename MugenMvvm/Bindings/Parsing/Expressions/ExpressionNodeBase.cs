@@ -79,6 +79,23 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public sealed override int GetHashCode() => GetHashCode(null);
 
+        protected virtual IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        {
+            IExpressionNode? node;
+            var changed = false;
+            if (visitor.TraversalType == ExpressionTraversalType.Preorder)
+            {
+                node = VisitWithCheck<IExpressionNode>(visitor, this, true, ref changed, metadata);
+                if (changed)
+                    return node;
+            }
+
+            node = Visit(visitor, metadata);
+            if (visitor.TraversalType != ExpressionTraversalType.Preorder)
+                return VisitWithCheck(visitor, node, true, ref changed, metadata);
+            return node;
+        }
+
         protected T VisitWithCheck<T>(IExpressionVisitor visitor, T node, bool notNull, ref bool changed, IReadOnlyMetadataContext? metadata)
             where T : class, IExpressionNode
         {
@@ -139,23 +156,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             if (target == null)
                 return HashCode.Combine(hashCode, args.Count);
             return HashCode.Combine(hashCode, args.Count, target.GetHashCode(comparer));
-        }
-
-        private IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
-        {
-            IExpressionNode? node;
-            var changed = false;
-            if (!visitor.IsPostOrder)
-            {
-                node = VisitWithCheck<IExpressionNode>(visitor, this, true, ref changed, metadata);
-                if (changed)
-                    return node;
-            }
-
-            node = Visit(visitor, metadata);
-            if (visitor.IsPostOrder)
-                return VisitWithCheck(visitor, node, true, ref changed, metadata);
-            return node;
         }
 
         #endregion

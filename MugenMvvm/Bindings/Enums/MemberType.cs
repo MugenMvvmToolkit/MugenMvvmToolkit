@@ -12,9 +12,9 @@ namespace MugenMvvm.Bindings.Enums
     {
         #region Fields
 
-        public static readonly MemberType Accessor = new(1 << 0);
-        public static readonly MemberType Method = new(1 << 1);
-        public static readonly MemberType Event = new(1 << 2);
+        public static readonly MemberType Accessor = new(1 << 0, nameof(Accessor));
+        public static readonly MemberType Method = new(1 << 1, nameof(Method));
+        public static readonly MemberType Event = new(1 << 2, nameof(Event));
         public static readonly EnumFlags<MemberType> All = Accessor | Method | Event;
 
         #endregion
@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Enums
         {
         }
 
-        public MemberType(ushort value) : base(value)
+        public MemberType(ushort value, string? name = null, long? flag = null) : base(value, name, flag)
         {
         }
 

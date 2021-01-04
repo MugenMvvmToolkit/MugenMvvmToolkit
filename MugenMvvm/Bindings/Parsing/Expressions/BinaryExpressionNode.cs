@@ -37,6 +37,23 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         #region Methods
 
+        protected override IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        {
+            if (visitor.TraversalType != ExpressionTraversalType.Inorder)
+                return base.AcceptInternal(visitor, metadata);
+
+            var changed = false;
+            var left = VisitWithCheck(visitor, Left, true, ref changed, metadata);
+            changed = false;
+            var currentNode = VisitWithCheck<IExpressionNode>(visitor, changed ? new BinaryExpressionNode(Token, left, Right, Metadata) : this, true, ref changed, metadata);
+            if (changed)
+                return currentNode;
+            var right = VisitWithCheck(visitor, Right, true, ref changed, metadata);
+            if (changed)
+                return new BinaryExpressionNode(Token, left, right, Metadata);
+            return currentNode;
+        }
+
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             var changed = false;

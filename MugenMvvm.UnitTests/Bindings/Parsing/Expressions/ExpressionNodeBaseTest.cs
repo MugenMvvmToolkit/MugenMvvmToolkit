@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Xunit;
@@ -10,9 +11,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         #region Methods
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AcceptShouldRevisitNewExpression(bool isPostOrder)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldRevisitNewExpression(int value)
         {
             const string member1 = "m1";
             const string member2 = "m2";
@@ -20,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 
             var visitor = new TestExpressionVisitor
             {
-                IsPostOrder = isPostOrder,
+                TraversalType = ExpressionTraversalType.Get(value),
                 Visit = (expressionNode, context) =>
                 {
                     var memberExpressionNode = (IMemberExpressionNode) expressionNode;

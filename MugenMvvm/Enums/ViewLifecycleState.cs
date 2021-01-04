@@ -31,8 +31,8 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public ViewLifecycleState(string value)
-            : base(value)
+        public ViewLifecycleState(string value, string? name = null)
+            : base(value, name)
         {
         }
 

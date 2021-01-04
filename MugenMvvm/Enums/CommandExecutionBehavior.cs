@@ -29,7 +29,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public CommandExecutionBehavior(int value, Func<ICommand, object?, bool>? beforeExecute, Action<ICommand, object?>? afterExecute) : base(value)
+        public CommandExecutionBehavior(int value, Func<ICommand, object?, bool>? beforeExecute, Action<ICommand, object?>? afterExecute, string? name = null) : base(value, name)
         {
             _beforeExecute = beforeExecute;
             _afterExecute = afterExecute;

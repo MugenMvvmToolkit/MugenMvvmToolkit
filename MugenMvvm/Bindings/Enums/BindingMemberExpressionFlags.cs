@@ -28,11 +28,7 @@ namespace MugenMvvm.Bindings.Enums
         {
         }
 
-        public BindingMemberExpressionFlags(ushort value, string? name) : base(value, name)
-        {
-        }
-
-        public BindingMemberExpressionFlags(ushort value) : base(value)
+        public BindingMemberExpressionFlags(ushort value, string? name = null, long? flag = null) : base(value, name, flag)
         {
         }
 

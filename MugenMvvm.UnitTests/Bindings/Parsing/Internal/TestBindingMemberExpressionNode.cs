@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         #region Properties
 
-        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingMember;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingParameter;
 
         public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 

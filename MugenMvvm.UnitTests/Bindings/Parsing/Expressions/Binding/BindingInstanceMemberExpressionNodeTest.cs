@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var e = ConstantExpressionNode.EmptyString;
             var observableMethodName = nameof(memberFlags);
             var exp = new BindingInstanceMemberExpressionNode(this, Path, index, flags, memberFlags, observableMethodName, e, EmptyDictionary);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.BindingMember);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.BindingParameter);
             exp.Instance.ShouldEqual(this);
             exp.Path.ShouldEqual(Path);
             exp.Index.ShouldEqual(index);

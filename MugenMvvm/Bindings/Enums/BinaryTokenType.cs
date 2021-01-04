@@ -44,13 +44,17 @@ namespace MugenMvvm.Bindings.Enums
         }
 
         public BinaryTokenType(string value, int priority)
-            : this(value, priority, null)
+            : this(value, null, priority, null)
         {
-            Priority = priority;
         }
 
         public BinaryTokenType(string value, int priority, params string[]? aliases)
-            : base(value)
+            : this(value, null, priority, aliases)
+        {
+        }
+
+        public BinaryTokenType(string value, string? name, int priority, params string[]? aliases)
+            : base(value, name)
         {
             Priority = priority;
             Aliases = aliases;

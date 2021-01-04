@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -26,7 +27,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         #region Properties
 
-        bool IExpressionVisitor.IsPostOrder => false;
+        ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Preorder;
 
         #endregion
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,9 +10,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
     {
         #region Properties
 
-        public bool IsPostOrder { get; set; }
-
         public Func<IExpressionNode, IReadOnlyMetadataContext?, IExpressionNode?>? Visit { get; set; }
+
+        public ExpressionTraversalType TraversalType { get; set; } = ExpressionTraversalType.Preorder;
 
         #endregion
 

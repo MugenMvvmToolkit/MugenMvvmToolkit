@@ -41,7 +41,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         #region Properties
 
-        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingMember;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingParameter;
 
         public EnumFlags<BindingMemberExpressionFlags> Flags
         {

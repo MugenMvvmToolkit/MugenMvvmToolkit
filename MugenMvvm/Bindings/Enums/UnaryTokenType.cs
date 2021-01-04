@@ -28,8 +28,8 @@ namespace MugenMvvm.Bindings.Enums
         {
         }
 
-        public UnaryTokenType(string value)
-            : base(value)
+        public UnaryTokenType(string value, string? name = null)
+            : base(value, name)
         {
         }
 
@@ -37,7 +37,7 @@ namespace MugenMvvm.Bindings.Enums
 
         #region Properties
 
-        public bool IsSingleExpression { get; protected internal set; }
+        public bool IsSingleExpression { get; set; }
 
         #endregion
     }

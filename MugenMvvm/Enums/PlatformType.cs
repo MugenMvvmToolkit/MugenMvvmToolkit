@@ -28,8 +28,8 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public PlatformType(string id)
-            : base(id)
+        public PlatformType(string id, string? name = null)
+            : base(id, name)
         {
         }
 

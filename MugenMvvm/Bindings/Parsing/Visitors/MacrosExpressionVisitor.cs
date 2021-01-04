@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
@@ -69,7 +70,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         #region Properties
 
-        bool IExpressionVisitor.IsPostOrder => true;
+        public ExpressionTraversalType TraversalType => ExpressionTraversalType.Postorder;
 
         public Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>> Macros { get; }
 

@@ -715,6 +715,9 @@ namespace MugenMvvm.Bindings.Extensions
                 return new ParameterValue(value?.GetType() ?? members.Member.Type, value);
             }
 
+            if (sourceRaw is IConstantExpressionNode constant)
+                return new ParameterValue(constant.Type, constant.Value);
+
             return new ParameterValue(sourceRaw.GetType(), sourceRaw);
         }
 

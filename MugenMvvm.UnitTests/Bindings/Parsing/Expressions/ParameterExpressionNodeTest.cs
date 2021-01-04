@@ -30,12 +30,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AcceptShouldVisitWithCorrectOrder(bool isPostOrder)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldVisitWithCorrectOrder(int value)
         {
             var nodes = new List<IExpressionNode>();
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (node, context) =>
                 {
@@ -43,12 +44,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                     context.ShouldEqual(DefaultMetadata);
                     return node;
                 },
-                IsPostOrder = isPostOrder
+                TraversalType = ExpressionTraversalType.Get(value)
             };
 
             var exp = new ParameterExpressionNode(Name);
             var result = new IExpressionNode[] {exp};
-            exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
+            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
             result.ShouldEqual(nodes);
         }
 
@@ -56,11 +57,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         public void AcceptShouldCreateNewNode2()
         {
             var newNode = new ParameterExpressionNode(Name);
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (node, context) => newNode
             };
-            new ParameterExpressionNode("1").Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(newNode);
+            new ParameterExpressionNode("1").Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
         }
 
         [Theory]

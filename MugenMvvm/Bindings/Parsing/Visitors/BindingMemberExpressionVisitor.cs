@@ -51,7 +51,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         #region Properties
 
-        bool IExpressionVisitor.IsPostOrder => false;
+        ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Preorder;
 
         public EnumFlags<MemberFlags> MemberFlags { get; set; }
 

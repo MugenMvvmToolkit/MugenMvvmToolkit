@@ -26,7 +26,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public EntityState(int value, string name) : base(value, name)
+        public EntityState(int value, string? name = null, long? flag = null) : base(value, name, flag)
         {
         }
 

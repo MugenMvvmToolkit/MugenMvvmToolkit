@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
@@ -30,12 +29,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AcceptShouldVisitWithCorrectOrder(bool isPostOrder)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldVisitWithCorrectOrder(int value)
         {
             var nodes = new List<IExpressionNode>();
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (node, context) =>
                 {
@@ -43,28 +43,35 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                     context.ShouldEqual(DefaultMetadata);
                     return node;
                 },
-                IsPostOrder = isPostOrder
+                TraversalType = ExpressionTraversalType.Get(value)
             };
 
-            var left = new ConstantExpressionNode("1");
-            var right = new ConstantExpressionNode("2");
-            var exp = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
+            var exp5 = new ConstantExpressionNode("5");
+            var exp4 = new ConstantExpressionNode("4");
+            var exp3 = new ConstantExpressionNode("3");
+            var exp2 = new BinaryExpressionNode(BinaryTokenType.Equality, exp4, exp5);
+            var exp1 = new BinaryExpressionNode(BinaryTokenType.Addition, exp2, exp3);
 
-            var result = isPostOrder ? new IExpressionNode[] {left, right, exp} : new IExpressionNode[] {exp, left, right};
-            exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
-            result.ShouldEqual(nodes);
+            exp1.Accept(visitor, DefaultMetadata).ShouldEqual(exp1);
+            if (visitor.TraversalType == ExpressionTraversalType.Inorder)
+                nodes.ShouldEqual(new IExpressionNode[] {exp4, exp2, exp5, exp1, exp3});
+            else if (visitor.TraversalType == ExpressionTraversalType.Preorder)
+                nodes.ShouldEqual(new IExpressionNode[] {exp1, exp2, exp4, exp5, exp3});
+            else if (visitor.TraversalType == ExpressionTraversalType.Postorder)
+                nodes.ShouldEqual(new IExpressionNode[] {exp4, exp5, exp2, exp3, exp1});
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AcceptShouldCreateNewNode1(bool isPostOrder)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldCreateNewNode1(int value)
         {
             var left = new ConstantExpressionNode("1");
             var right = new ConstantExpressionNode("2");
             var leftChanged = new ConstantExpressionNode("-");
             var rightChanged = new ConstantExpressionNode("--");
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (node, context) =>
                 {
@@ -74,10 +81,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                         return rightChanged;
                     return node;
                 },
-                IsPostOrder = isPostOrder
+                TraversalType = ExpressionTraversalType.Get(value)
             };
             var exp = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
-            var expressionNode = (BinaryExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
+            var expressionNode = (BinaryExpressionNode) exp.Accept(visitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Left.ShouldEqual(leftChanged);
             expressionNode.Right.ShouldEqual(rightChanged);
@@ -127,16 +134,16 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var exp1 = new BinaryExpressionNode(BinaryTokenType.Addition, GetTestEqualityExpression(comparer, 0), GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> {{"k", null}});
             var exp2 = new BinaryExpressionNode(BinaryTokenType.Addition, GetTestEqualityExpression(comparer, 0), GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> {{"k", null}});
             HashCode.Combine(GetBaseHashCode(exp1), exp1.Token.GetHashCode(), 0, 1).ShouldEqual(exp1.GetHashCode(comparer));
-            ((TestExpressionNode)exp1.Left).GetHashCodeCount.ShouldEqual(1);
-            ((TestExpressionNode)exp1.Right).GetHashCodeCount.ShouldEqual(1);
-            
+            ((TestExpressionNode) exp1.Left).GetHashCodeCount.ShouldEqual(1);
+            ((TestExpressionNode) exp1.Right).GetHashCodeCount.ShouldEqual(1);
+
             exp1.Equals(exp2, comparer).ShouldBeTrue();
-            ((TestExpressionNode)exp1.Left).EqualsCount.ShouldEqual(1);
-            ((TestExpressionNode)exp1.Right).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode) exp1.Left).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode) exp1.Right).EqualsCount.ShouldEqual(1);
 
             exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
-            ((TestExpressionNode)exp1.Left).EqualsCount.ShouldEqual(1);
-            ((TestExpressionNode)exp1.Right).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode) exp1.Left).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode) exp1.Right).EqualsCount.ShouldEqual(1);
 
             if (comparer == null)
                 return;
@@ -153,8 +160,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             };
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
-            ((TestExpressionNode)exp1.Left).EqualsCount.ShouldEqual(1);
-            ((TestExpressionNode)exp1.Right).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode) exp1.Left).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode) exp1.Right).EqualsCount.ShouldEqual(1);
         }
 
         #endregion

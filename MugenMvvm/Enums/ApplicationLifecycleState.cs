@@ -27,7 +27,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public ApplicationLifecycleState(string value) : base(value)
+        public ApplicationLifecycleState(string value, string? name = null) : base(value, name)
         {
         }
 

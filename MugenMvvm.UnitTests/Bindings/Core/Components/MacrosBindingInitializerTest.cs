@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
@@ -27,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new MacrosBindingInitializer();
             initializer.TargetVisitors.Add(new TestExpressionVisitor
             {
-                IsPostOrder = true,
+                TraversalType = ExpressionTraversalType.Postorder,
                 Visit = (node, context) =>
                 {
                     if (node == newNode)
@@ -57,7 +58,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new MacrosBindingInitializer();
             initializer.SourceVisitors.Add(new TestExpressionVisitor
             {
-                IsPostOrder = true,
+                TraversalType = ExpressionTraversalType.Postorder,
                 Visit = (node, context) =>
                 {
                     if (node == newNode)
@@ -88,7 +89,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new MacrosBindingInitializer();
             initializer.ParameterVisitors.Add(new TestExpressionVisitor
             {
-                IsPostOrder = true,
+                TraversalType = ExpressionTraversalType.Postorder,
                 Visit = (node, context) =>
                 {
                     if (node == newNode)

@@ -27,7 +27,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public LogLevel(string value) : base(value)
+        public LogLevel(string value, string? name = null) : base(value, name)
         {
         }
 

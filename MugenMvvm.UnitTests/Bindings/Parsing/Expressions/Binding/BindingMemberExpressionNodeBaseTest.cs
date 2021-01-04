@@ -24,12 +24,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         #region Methods
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AcceptShouldVisitWithCorrectOrder(bool isPostOrder)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldVisitWithCorrectOrder(int value)
         {
             var nodes = new List<IExpressionNode>();
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (node, context) =>
                 {
@@ -37,12 +38,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     context.ShouldEqual(DefaultMetadata);
                     return node;
                 },
-                IsPostOrder = isPostOrder
+                TraversalType = ExpressionTraversalType.Get(value)
             };
 
             var exp = GetExpression();
             var result = new IExpressionNode[] {exp};
-            exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
+            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
             result.ShouldEqual(nodes);
         }
 
@@ -50,11 +51,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         public void AcceptShouldCreateNewNode2()
         {
             var newNode = new ParameterExpressionNode("");
-            var testExpressionVisitor = new TestExpressionVisitor
+            var visitor = new TestExpressionVisitor
             {
                 Visit = (_, _) => newNode
             };
-            GetExpression().Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(newNode);
+            GetExpression().Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
         }
 
         [Fact]

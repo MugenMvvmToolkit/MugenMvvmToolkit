@@ -27,7 +27,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public PlatformIdiom(string id) : base(id)
+        public PlatformIdiom(string id, string? name = null) : base(id, name)
         {
         }
 

@@ -25,8 +25,7 @@ namespace MugenMvvm.Bindings.Enums
         {
         }
 
-        public BindingState(int value)
-            : base(value)
+        public BindingState(int value, string? name = null) : base(value, name)
         {
         }
 

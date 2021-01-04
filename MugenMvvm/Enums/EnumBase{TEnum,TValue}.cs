@@ -34,7 +34,7 @@ namespace MugenMvvm.Enums
         }
 #pragma warning restore CS8618
 
-        protected EnumBase(TValue value, string? name)
+        protected EnumBase(TValue value, string? name = null)
         {
             Value = value;
             _name = name;
@@ -44,11 +44,6 @@ namespace MugenMvvm.Enums
                 EnumerationNamesField[Name] = (TEnum) this;
                 _values = null;
             }
-        }
-
-        protected EnumBase(TValue value)
-            : this(value, null)
-        {
         }
 
         #endregion

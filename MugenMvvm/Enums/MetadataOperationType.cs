@@ -24,7 +24,7 @@ namespace MugenMvvm.Enums
         {
         }
 
-        public MetadataOperationType(int value) : base(value)
+        public MetadataOperationType(int value, string? name = null) : base(value, name)
         {
         }
 
