@@ -119,7 +119,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         {
             if (Expression == null)
                 return $"bind{Index}({Path})";
-            return $"bind{Index}({Path}, {Expression})";
+            return $"bind{Index}({Expression})";
         }
 
         #endregion
