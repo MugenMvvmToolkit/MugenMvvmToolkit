@@ -19,6 +19,7 @@ namespace MugenMvvm.Threading
 
         #region Constructors
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ThreadSwitcherAwaitable(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
@@ -31,6 +32,7 @@ namespace MugenMvvm.Threading
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ThreadSwitcherAwaiter GetAwaiter() => new(_threadDispatcher, _executionMode);
 
         #endregion
@@ -59,20 +61,27 @@ namespace MugenMvvm.Threading
 
             #region Properties
 
-            public bool IsCompleted => _threadDispatcher == null || _threadDispatcher.CanExecuteInline(_executionMode!);
+            public bool IsCompleted
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _threadDispatcher == null || _threadDispatcher.CanExecuteInline(_executionMode!);
+            }
 
             #endregion
 
             #region Implementation of interfaces
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnCompleted(Action continuation) => OnCompletedInternal(continuation);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UnsafeOnCompleted(Action continuation) => OnCompletedInternal(continuation);
 
             #endregion
 
             #region Methods
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void GetResult()
             {
             }

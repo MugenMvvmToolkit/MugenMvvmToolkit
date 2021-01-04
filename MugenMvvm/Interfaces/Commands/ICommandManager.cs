@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Commands
 {
     public interface ICommandManager : IComponentOwner<ICommandManager>
     {
-        ICompositeCommand? TryGetCommand<TParameter>(object request, IReadOnlyMetadataContext? metadata = null);
+        ICompositeCommand? TryGetCommand<TParameter>(object? owner, object request, IReadOnlyMetadataContext? metadata = null);
     }
 }

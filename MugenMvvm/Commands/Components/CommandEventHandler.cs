@@ -34,18 +34,16 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public CommandEventHandler(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, IReadOnlyList<object> notifiers, Func<object, bool>? canNotify)
+        public CommandEventHandler(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, ItemOrList<object, IReadOnlyList<object>> notifiers, Func<object, bool>? canNotify)
         {
             Should.NotBeNull(eventExecutionMode, nameof(eventExecutionMode));
-            Should.NotBeNull(notifiers, nameof(notifiers));
             _threadDispatcher = threadDispatcher;
             _eventExecutionMode = eventExecutionMode;
             _canNotify = canNotify;
             _subscriber = new Subscriber(this);
             IsDisposable = true;
-            for (var index = 0; index < notifiers.Count; index++)
+            foreach (var notifier in notifiers)
             {
-                var notifier = notifiers[index];
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
                     hasMessenger.Service.TrySubscribe(_subscriber, eventExecutionMode);

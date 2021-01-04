@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         #region Methods
 
         [Fact]
-        public void TryGetCommandShouldReturnNullNotSupportedType() => _component.TryGetCommand<object>(new CommandManager(), _component, DefaultMetadata).ShouldBeNull();
+        public void TryGetCommandShouldReturnNullNotSupportedType() => _component.TryGetCommand<object>(null!, this, _component, DefaultMetadata).ShouldBeNull();
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var canExecuteValue = true;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             Action execute = () => { ++executedCount; };
-            var canExecute = hasCanExecute ? () => { return canExecuteValue; } : (Func<bool>?) null;
+            var canExecute = hasCanExecute ? () => canExecuteValue : (Func<bool>?) null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
             var request = DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify);
 
-            var command = _component.TryGetCommand<object>(new CommandManager(), request, metadata)!;
+            var command = _component.TryGetCommand<object>(null!, this, request, metadata)!;
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateCommandExecutor<object>>();

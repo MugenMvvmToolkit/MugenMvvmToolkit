@@ -22,11 +22,11 @@ namespace MugenMvvm.Commands
 
         #region Implementation of interfaces
 
-        public ICompositeCommand? TryGetCommand<TParameter>(object request, IReadOnlyMetadataContext? metadata = null)
+        public ICompositeCommand? TryGetCommand<TParameter>(object? owner, object request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand<TParameter>(this, request, metadata);
+            var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand<TParameter>(this, owner, request, metadata);
             if (result != null)
-                GetComponents<ICommandManagerListener>(metadata).OnCommandCreated<TParameter>(this, result, request, metadata);
+                GetComponents<ICommandManagerListener>(metadata).OnCommandCreated<TParameter>(this, result, owner, request, metadata);
             return result;
         }
 

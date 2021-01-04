@@ -1,15 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands
 {
     public class DelegateCommandRequest
     {
+        #region Fields
+
+        private object? _notifiers;
+
+        #endregion
+
         #region Constructors
 
         public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
-            ThreadExecutionMode? eventThreadMode, IReadOnlyList<object>? notifiers, Func<object, bool>? canNotify)
+            ThreadExecutionMode? eventThreadMode, ItemOrList<object, IReadOnlyList<object>> notifiers, Func<object, bool>? canNotify)
         {
             Should.NotBeNull(execute, nameof(execute));
             Execute = execute;
@@ -17,7 +25,7 @@ namespace MugenMvvm.Commands
             AllowMultipleExecution = allowMultipleExecution;
             ExecutionMode = executionMode;
             EventThreadMode = eventThreadMode;
-            Notifiers = notifiers;
+            _notifiers = notifiers.GetRawValue();
             CanNotify = canNotify;
         }
 
@@ -37,14 +45,18 @@ namespace MugenMvvm.Commands
 
         public CommandExecutionBehavior? ExecutionMode { get; protected set; }
 
-        public IReadOnlyList<object>? Notifiers { get; protected set; }
+        public ItemOrList<object, IReadOnlyList<object>> Notifiers
+        {
+            get => ItemOrList.FromItem<object>(_notifiers);
+            protected set => _notifiers = value.GetRawValue();
+        }
 
         #endregion
 
         #region Methods
 
         public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
-            ThreadExecutionMode? eventThreadMode, IReadOnlyList<object>? notifiers, Func<object, bool>? canNotify)
+            ThreadExecutionMode? eventThreadMode, ItemOrList<object, IReadOnlyList<object>> notifiers, Func<object, bool>? canNotify)
         {
             if (canExecute == null && allowMultipleExecution == null && executionMode == null && eventThreadMode == null)
                 return execute;

@@ -25,16 +25,16 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Properties
 
-        public Action<object?, ICompositeCommand, IReadOnlyMetadataContext?>? OnCommandCreated { get; set; }
+        public Action<object?, object, ICompositeCommand, IReadOnlyMetadataContext?>? OnCommandCreated { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void ICommandManagerListener.OnCommandCreated<TParameter>(ICommandManager provider, ICompositeCommand command, object request, IReadOnlyMetadataContext? metadata)
+        void ICommandManagerListener.OnCommandCreated<TParameter>(ICommandManager provider, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
             _commandManager?.ShouldEqual(provider);
-            OnCommandCreated?.Invoke(request, command, metadata);
+            OnCommandCreated?.Invoke(owner, request, command, metadata);
         }
 
         #endregion

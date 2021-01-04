@@ -103,6 +103,7 @@ namespace MugenMvvm.Extensions
             return buffer;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IWeakReference GetWeakReference(this IWeakReferenceManager weakReferenceManager, object? item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(weakReferenceManager, nameof(weakReferenceManager));
@@ -131,36 +132,39 @@ namespace MugenMvvm.Extensions
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state, IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, handler, state, metadata);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ThreadSwitcherAwaitable SwitchToMainAsync(this IThreadDispatcher? threadDispatcher) => threadDispatcher.SwitchToAsync(ThreadExecutionMode.Main);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ThreadSwitcherAwaitable SwitchToBackgroundAsync(this IThreadDispatcher? threadDispatcher) => threadDispatcher.SwitchToAsync(ThreadExecutionMode.Background);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ThreadSwitcherAwaitable SwitchToAsync(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode) => new(threadDispatcher.DefaultIfNull(), executionMode);
 
-        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
-            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
+        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, object? owner, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
+            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, ItemOrList<object, IReadOnlyList<object>> notifiers = default, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
+            commandManager.DefaultIfNull().GetCommand<object>(owner, DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
-        public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
-            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
+        public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, object? owner, Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
+            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, ItemOrList<object, IReadOnlyList<object>> notifiers = default, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
+            commandManager.DefaultIfNull().GetCommand<T>(owner, DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
-        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
-            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
+        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, object? owner, Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
+            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, ItemOrList<object, IReadOnlyList<object>> notifiers = default, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
+            commandManager.DefaultIfNull().GetCommand<object>(owner, DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
-        public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
-            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
+        public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, object? owner, Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
+            CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, ItemOrList<object, IReadOnlyList<object>> notifiers = default, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
+            commandManager.DefaultIfNull().GetCommand<T>(owner, DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
 
-        public static ICompositeCommand GetCommand<TParameter>(this ICommandManager commandManager, object request, IReadOnlyMetadataContext? metadata = null)
+        public static ICompositeCommand GetCommand<TParameter>(this ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(commandManager, nameof(commandManager));
-            var result = commandManager.TryGetCommand<TParameter>(request, metadata);
+            var result = commandManager.TryGetCommand<TParameter>(owner, request, metadata);
             if (result == null)
                 ExceptionManager.ThrowRequestNotSupported<ICommandProviderComponent>(commandManager, request, metadata);
             return result;
@@ -210,6 +214,7 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
@@ -245,6 +250,7 @@ namespace MugenMvvm.Extensions
         public static T EnsureInitialized<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
             => Volatile.Read(ref item!) ?? Interlocked.CompareExchange(ref item, value, null!) ?? item;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

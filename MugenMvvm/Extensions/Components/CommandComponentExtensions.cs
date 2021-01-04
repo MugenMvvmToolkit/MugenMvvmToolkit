@@ -10,14 +10,14 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static ICompositeCommand? TryGetCommand<TParameter>(this ICommandProviderComponent[] components, ICommandManager commandManager, object request, IReadOnlyMetadataContext? metadata)
+        public static ICompositeCommand? TryGetCommand<TParameter>(this ICommandProviderComponent[] components, ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(commandManager, nameof(commandManager));
             Should.NotBeNull(request, nameof(request));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryGetCommand<TParameter>(commandManager, request, metadata);
+                var result = components[i].TryGetCommand<TParameter>(commandManager, owner, request, metadata);
                 if (result != null)
                     return result;
             }
@@ -25,13 +25,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnCommandCreated<TParameter>(this ICommandManagerListener[] listeners, ICommandManager commandManager, ICompositeCommand command, object request, IReadOnlyMetadataContext? metadata)
+        public static void OnCommandCreated<TParameter>(this ICommandManagerListener[] listeners, ICommandManager commandManager, ICompositeCommand command, object? owner, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(commandManager, nameof(commandManager));
             Should.NotBeNull(command, nameof(command));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCommandCreated<TParameter>(commandManager, command, request, metadata);
+                listeners[i].OnCommandCreated<TParameter>(commandManager, command, owner, request, metadata);
         }
 
         public static bool HasCanExecute(this ICommandConditionComponent[] components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
@@ -90,7 +91,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
-            return components.InvokeAllAsync((command, parameter), default, metadata, (component, s, c, m) => component.ExecuteAsync(s.command, s.parameter, m));
+            return components.InvokeAllAsync((command, parameter), default, metadata, (component, s, _, m) => component.ExecuteAsync(s.command, s.parameter, m));
         }
 
         #endregion

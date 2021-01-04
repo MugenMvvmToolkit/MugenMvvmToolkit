@@ -48,7 +48,7 @@ namespace MugenMvvm.Commands.Components
 
         #region Implementation of interfaces
 
-        public ICompositeCommand? TryGetCommand<TParameter>(ICommandManager commandManager, object request, IReadOnlyMetadataContext? metadata)
+        public ICompositeCommand? TryGetCommand<TParameter>(ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
             if (request is Delegate execute)
             {
@@ -62,8 +62,13 @@ namespace MugenMvvm.Commands.Components
                 var command = new CompositeCommand(metadata, _componentCollectionManager);
                 command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode ?? CommandExecutionBehavior,
                     commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
-                if (commandRequest.CanExecute != null && commandRequest.Notifiers != null && commandRequest.Notifiers.Count > 0)
-                    command.AddComponent(new CommandEventHandler(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, commandRequest.Notifiers, commandRequest.CanNotify));
+                if (commandRequest.CanExecute != null)
+                {
+                    var notifiers = commandRequest.Notifiers;
+                    if (notifiers.Count > 0 || owner != null)
+                        command.AddComponent(new CommandEventHandler(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, notifiers.Count > 0 ? notifiers : owner, commandRequest.CanNotify));
+                }
+
                 return command;
             }
 

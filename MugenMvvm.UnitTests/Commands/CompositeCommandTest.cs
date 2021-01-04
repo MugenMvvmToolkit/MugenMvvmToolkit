@@ -226,6 +226,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void CreateShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
+            var owner = new object();
             Action execute = () => { };
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
@@ -237,16 +238,17 @@ namespace MugenMvvm.UnitTests.Commands
             object? r = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, m) =>
                 {
+                    s.ShouldEqual(owner);
                     r = o;
-                    arg3.ShouldEqual(metadata);
+                    m.ShouldEqual(metadata);
                     return new CompositeCommand();
                 }
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.Create(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
+            CompositeCommand.Create(owner, execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -262,36 +264,11 @@ namespace MugenMvvm.UnitTests.Commands
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void CreateShouldGenerateValidRequest2(bool addNotifiers)
-        {
-            Action execute = () => { };
-            var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
-
-            DelegateCommandRequest? request = null;
-            var component = new TestCommandProviderComponent
-            {
-                TryGetCommand = (o, arg3) =>
-                {
-                    request = (DelegateCommandRequest) o!;
-                    return new CompositeCommand();
-                }
-            };
-            using var t = MugenService.AddComponent(component);
-
-            CompositeCommand.Create(execute, canExecute!, notifiers!);
-            request!.Execute.ShouldEqual(execute);
-            request.CanExecute.ShouldEqual(canExecute);
-            request.Notifiers.ShouldEqual(notifiers);
-        }
-
-        [Theory]
         [InlineData(false, false)]
         [InlineData(true, true)]
-        public void CreateShouldGenerateValidRequest3(bool allowMultipleExecution, bool addNotifiers)
+        public void CreateShouldGenerateValidRequest2(bool allowMultipleExecution, bool addNotifiers)
         {
+            var owner = new object();
             Action execute = () => { };
             var canExecute = GetCanExecuteNoObject(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -299,15 +276,16 @@ namespace MugenMvvm.UnitTests.Commands
             DelegateCommandRequest? request = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, _) =>
                 {
+                    s.ShouldEqual(owner);
                     request = (DelegateCommandRequest) o!;
                     return new CompositeCommand();
                 }
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.Create(execute, allowMultipleExecution, canExecute!, notifiers!);
+            CompositeCommand.Create(owner, execute, canExecute!, notifiers!, allowMultipleExecution);
             request!.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
             request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
@@ -317,9 +295,10 @@ namespace MugenMvvm.UnitTests.Commands
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
         [InlineData(true, true, 1, true, true, true, true)] //CommandExecutionBehavior.CheckCanExecute
-        public void CreateShouldGenerateValidRequest4(bool hasCanExecute, bool? allowMultipleExecution,
+        public void CreateShouldGenerateValidRequest3(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
+            var owner = new object();
             Action<object> execute = t => { };
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
@@ -331,16 +310,17 @@ namespace MugenMvvm.UnitTests.Commands
             object? r = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, m) =>
                 {
+                    s.ShouldEqual(owner);
                     r = o;
-                    arg3.ShouldEqual(metadata);
+                    m.ShouldEqual(metadata);
                     return new CompositeCommand();
                 }
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.Create(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
+            CompositeCommand.Create(owner, execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -356,36 +336,11 @@ namespace MugenMvvm.UnitTests.Commands
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void CreateShouldGenerateValidRequest5(bool addNotifiers)
-        {
-            Action<object> execute = t => { };
-            var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
-
-            DelegateCommandRequest? request = null;
-            var component = new TestCommandProviderComponent
-            {
-                TryGetCommand = (o, arg3) =>
-                {
-                    request = (DelegateCommandRequest) o!;
-                    return new CompositeCommand();
-                }
-            };
-            using var t = MugenService.AddComponent(component);
-
-            CompositeCommand.Create(execute, canExecute!, notifiers!);
-            request!.Execute.ShouldEqual(execute);
-            request.CanExecute.ShouldEqual(canExecute);
-            request.Notifiers.ShouldEqual(notifiers);
-        }
-
-        [Theory]
         [InlineData(false, false)]
         [InlineData(true, true)]
-        public void CreateShouldGenerateValidRequest6(bool allowMultipleExecution, bool addNotifiers)
+        public void CreateShouldGenerateValidRequest4(bool allowMultipleExecution, bool addNotifiers)
         {
+            var owner = new object();
             Action<object> execute = t => { };
             var canExecute = GetCanExecute(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -393,15 +348,16 @@ namespace MugenMvvm.UnitTests.Commands
             DelegateCommandRequest? request = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, _) =>
                 {
+                    s.ShouldEqual(owner);
                     request = (DelegateCommandRequest) o!;
                     return new CompositeCommand();
                 }
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.Create(execute, allowMultipleExecution, canExecute!, notifiers!);
+            CompositeCommand.Create(owner, execute, canExecute!, notifiers!, allowMultipleExecution);
             request!.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
             request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
@@ -414,6 +370,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
+            var owner = new object();
             Func<Task> execute = () => Default.CompletedTask;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
@@ -425,8 +382,9 @@ namespace MugenMvvm.UnitTests.Commands
             object? r = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, arg3) =>
                 {
+                    s.ShouldEqual(owner);
                     r = o;
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -434,7 +392,7 @@ namespace MugenMvvm.UnitTests.Commands
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.CreateFromTask(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -450,36 +408,11 @@ namespace MugenMvvm.UnitTests.Commands
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void CreateFromTaskShouldGenerateValidRequest2(bool addNotifiers)
-        {
-            Func<Task> execute = () => Default.CompletedTask;
-            var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
-
-            DelegateCommandRequest? request = null;
-            var component = new TestCommandProviderComponent
-            {
-                TryGetCommand = (o, arg3) =>
-                {
-                    request = (DelegateCommandRequest) o!;
-                    return new CompositeCommand();
-                }
-            };
-            using var t = MugenService.AddComponent(component);
-
-            CompositeCommand.CreateFromTask(execute, canExecute!, notifiers!);
-            request!.Execute.ShouldEqual(execute);
-            request.CanExecute.ShouldEqual(canExecute);
-            request.Notifiers.ShouldEqual(notifiers);
-        }
-
-        [Theory]
         [InlineData(false, false)]
         [InlineData(true, true)]
-        public void CreateFromTaskShouldGenerateValidRequest3(bool allowMultipleExecution, bool addNotifiers)
+        public void CreateFromTaskShouldGenerateValidRequest2(bool allowMultipleExecution, bool addNotifiers)
         {
+            var owner = new object();
             Func<Task> execute = () => Default.CompletedTask;
             var canExecute = GetCanExecuteNoObject(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -487,15 +420,16 @@ namespace MugenMvvm.UnitTests.Commands
             DelegateCommandRequest? request = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, _) =>
                 {
+                    s.ShouldEqual(owner);
                     request = (DelegateCommandRequest) o!;
                     return new CompositeCommand();
                 }
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute!, notifiers!);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute!, notifiers!, allowMultipleExecution);
             request!.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
             request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
@@ -505,9 +439,10 @@ namespace MugenMvvm.UnitTests.Commands
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
         [InlineData(true, true, 1, true, true, true, true)] //CommandExecutionBehavior.CheckCanExecute
-        public void CreateFromTaskShouldGenerateValidRequest4(bool hasCanExecute, bool? allowMultipleExecution,
+        public void CreateFromTaskShouldGenerateValidRequest3(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
+            var owner = new object();
             Func<object?, Task> execute = item => Default.CompletedTask;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
@@ -519,8 +454,9 @@ namespace MugenMvvm.UnitTests.Commands
             object? r = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, arg3) =>
                 {
+                    s.ShouldEqual(owner);
                     r = o;
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -528,7 +464,7 @@ namespace MugenMvvm.UnitTests.Commands
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.CreateFromTask(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -544,36 +480,11 @@ namespace MugenMvvm.UnitTests.Commands
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void CreateFromTaskShouldGenerateValidRequest5(bool addNotifiers)
-        {
-            Func<object?, Task> execute = item => Default.CompletedTask;
-            var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
-
-            DelegateCommandRequest? request = null;
-            var component = new TestCommandProviderComponent
-            {
-                TryGetCommand = (o, arg3) =>
-                {
-                    request = (DelegateCommandRequest) o!;
-                    return new CompositeCommand();
-                }
-            };
-            using var t = MugenService.AddComponent(component);
-
-            CompositeCommand.CreateFromTask(execute, canExecute!, notifiers!);
-            request!.Execute.ShouldEqual(execute);
-            request.CanExecute.ShouldEqual(canExecute);
-            request.Notifiers.ShouldEqual(notifiers);
-        }
-
-        [Theory]
         [InlineData(false, false)]
         [InlineData(true, true)]
-        public void CreateFromTaskShouldGenerateValidRequest6(bool allowMultipleExecution, bool addNotifiers)
+        public void CreateFromTaskShouldGenerateValidRequest4(bool allowMultipleExecution, bool addNotifiers)
         {
+            var owner = new object();
             Func<object?, Task> execute = item => Default.CompletedTask;
             var canExecute = GetCanExecute(true);
             var notifiers = addNotifiers ? new[] {new object()} : null;
@@ -581,15 +492,16 @@ namespace MugenMvvm.UnitTests.Commands
             DelegateCommandRequest? request = null;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, arg3) =>
+                TryGetCommand = (s, o, _) =>
                 {
+                    owner.ShouldEqual(s);
                     request = (DelegateCommandRequest) o!;
                     return new CompositeCommand();
                 }
             };
             using var t = MugenService.AddComponent(component);
 
-            CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute!, notifiers!);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute!, notifiers!, allowMultipleExecution);
             request!.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
             request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
