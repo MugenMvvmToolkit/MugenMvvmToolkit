@@ -43,7 +43,7 @@ namespace MugenMvvm.Bindings.Extensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration DefaultBindingConfiguration(this MugenApplicationConfiguration configuration)
+        public static MugenApplicationConfiguration DefaultBindingConfiguration(this MugenApplicationConfiguration configuration, bool cacheResources = true)
         {
             configuration.WithAppService(new ExpressionCompiler())
                 .WithComponent(new ExpressionCompilerCache())
@@ -65,6 +65,9 @@ namespace MugenMvvm.Bindings.Extensions
             macrosBindingInitializer.TargetVisitors.Add(macrosVisitor);
             macrosBindingInitializer.SourceVisitors.Add(macrosVisitor);
             macrosBindingInitializer.ParameterVisitors.Add(macrosVisitor);
+            var constantToBindingParameterVisitor = new ConstantToBindingParameterVisitor();
+            macrosBindingInitializer.SourceVisitors.Add(constantToBindingParameterVisitor);
+            macrosBindingInitializer.ParameterVisitors.Add(constantToBindingParameterVisitor);
 
             configuration.WithAppService(new BindingManager())
                 .WithComponent(macrosBindingInitializer)
@@ -94,13 +97,15 @@ namespace MugenMvvm.Bindings.Extensions
                 .WithComponent(new NameRequestMemberManagerDecorator())
                 .WithComponent(new ReflectionMemberProvider());
 
-            configuration.WithAppService(new ObservationManager())
+            var cfg = configuration.WithAppService(new ObservationManager())
                 .WithComponent(new EventInfoMemberObserverProvider())
                 .WithComponent(new EventMemberObserverProvider())
                 .WithComponent(new MemberPathObserverProvider())
                 .WithComponent(new MemberPathProvider())
                 .WithComponent(new MemberPathProviderCache())
                 .WithComponent(new PropertyChangedMemberObserverProvider());
+            if (cacheResources)
+                cfg.WithComponent(new ResourceMemberPathObserverCache());
 
             configuration.WithAppService(new ExpressionParser())
                 .WithComponent(new ExpressionParserComponent())

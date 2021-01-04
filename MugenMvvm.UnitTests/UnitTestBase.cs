@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests
     {
         #region Fields
 
-#if DEBUG || NET5_0
+#if DEBUG
         protected const string ReleaseTest = "NOT SUPPORTED IN DEBUG";
 #else
         protected const string ReleaseTest = null;

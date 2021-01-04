@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new ResourceMemberPathObserverCache());
-            observationManager.AddComponent(new TestMemberPathObserverProviderComponent
+            observationManager.AddComponent(new TestMemberPathObserverProviderComponent(observationManager)
             {
                 TryGetMemberPathObserver = (t, r, m) =>
                 {
@@ -57,6 +57,31 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             memberPathObserver1.ShouldNotEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
             memberPathObserver1.IsDisposable.ShouldBeTrue();
             memberPathObserver2.IsDisposable.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldNotCacheNonResourceRequest()
+        {
+            var resource = new object();
+            var request = new object();
+
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new ResourceMemberPathObserverCache());
+            observationManager.AddComponent(new TestMemberPathObserverProviderComponent
+            {
+                TryGetMemberPathObserver = (t, r, m) =>
+                {
+                    t.ShouldEqual(resource);
+                    r.ShouldEqual(request);
+                    m.ShouldEqual(DefaultMetadata);
+                    return new TestMemberPathObserver();
+                }
+            });
+            var memberPathObserver1 = observationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
+            var memberPathObserver2 = observationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
+            memberPathObserver1.ShouldNotEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
+            memberPathObserver1.IsDisposable.ShouldBeTrue();
+            memberPathObserver2.IsDisposable.ShouldBeTrue();
         }
 
         #endregion

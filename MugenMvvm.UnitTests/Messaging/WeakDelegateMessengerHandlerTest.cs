@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Messaging
             var msg2 = "test";
             var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
 
-            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl().Handle);
+            var subscriber = ShouldBeWeekImpl1();
             GcCollect();
             subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Invalid);
         }
@@ -117,10 +117,14 @@ namespace MugenMvvm.UnitTests.Messaging
             var msg2 = "test";
             var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
 
-            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(new HandlerImpl(), (impl, o, arg3, arg4) => { });
+            var subscriber = ShouldBeWeekImpl2();
             GcCollect();
             subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Invalid);
         }
+
+        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl1() => new(new HandlerImpl().Handle);
+
+        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl2() => new(new HandlerImpl(), (impl, o, arg3, arg4) => { });
 
         #endregion
 

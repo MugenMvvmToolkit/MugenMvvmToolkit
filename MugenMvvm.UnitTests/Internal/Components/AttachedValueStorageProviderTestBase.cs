@@ -291,16 +291,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var item = GetSupportedItem();
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
-
-            var value = new object();
-            var weakReference = new WeakReference(value);
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-            attachedValues.Set(TestPath, value, out _);
-            attachedValues.Remove(TestPath, out value);
-            attachedValues = default;
-            value = null;
+            var weakReference = ClearShouldNotKeepRefImpl(item, manager);
             GcCollect();
-
             weakReference.IsAlive.ShouldBeFalse();
         }
 
@@ -311,14 +303,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
 
-            var value = new object();
-            var weakReference = new WeakReference(value);
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-            attachedValues.Set(TestPath, value, out _);
-
-            attachedValues = default;
+            var weakReference = ShouldBeEphemeronImpl1(item, manager);
             item = null;
-            value = null;
             GcCollect();
 
             weakReference.IsAlive.ShouldBeFalse();
@@ -340,6 +326,23 @@ namespace MugenMvvm.UnitTests.Internal.Components
             GcCollect();
 
             weakReference.IsAlive.ShouldBeFalse();
+        }
+
+        private WeakReference ClearShouldNotKeepRefImpl(object item, AttachedValueManager manager)
+        {
+            var value = new object();
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.Set(TestPath, value, out _);
+            attachedValues.Remove(TestPath, out value);
+            return new WeakReference(value);
+        }
+
+        private WeakReference ShouldBeEphemeronImpl1(object item, AttachedValueManager manager)
+        {
+            var value = new object();
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.Set(TestPath, value, out _);
+            return new WeakReference(value);
         }
 
         #endregion

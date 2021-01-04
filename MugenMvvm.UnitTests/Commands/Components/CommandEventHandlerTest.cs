@@ -301,6 +301,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldListenPropertyChangedWeak()
         {
             var propertyChangedModel = new TestNotifyPropertyChangedModel();
+            var reference = ShouldListenPropertyChangedWeakImpl(propertyChangedModel);
+            GcCollect();
+            propertyChangedModel.OnPropertyChanged("test");
+            reference.IsAlive.ShouldBeFalse();
+        }
+
+        private static WeakReference ShouldListenPropertyChangedWeakImpl(TestNotifyPropertyChangedModel propertyChangedModel)
+        {
             var compositeCommand = new CompositeCommand();
             var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, new[] {propertyChangedModel}, null);
             compositeCommand.AddComponent(conditionEventCommandComponent);
@@ -312,15 +320,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             propertyChangedModel.OnPropertyChanged("test");
             executed.ShouldEqual(1);
 
-            var reference = new WeakReference(conditionEventCommandComponent);
-            compositeCommand = null;
-            conditionEventCommandComponent = null;
-            GcCollect();
-
-            propertyChangedModel.OnPropertyChanged("test");
-            compositeCommand.ShouldBeNull();
-            conditionEventCommandComponent.ShouldBeNull();
-            reference.IsAlive.ShouldBeFalse();
+            return new WeakReference(conditionEventCommandComponent);
         }
 
         #endregion
