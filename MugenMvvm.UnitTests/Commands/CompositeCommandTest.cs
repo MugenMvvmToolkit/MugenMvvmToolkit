@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Enums;
@@ -198,16 +199,18 @@ namespace MugenMvvm.UnitTests.Commands
         [InlineData(10)]
         public void ExecuteShouldBeHandledByComponents(int componentCount)
         {
+            var cts = new CancellationTokenSource().Token;
             var compositeCommand = GetComponentOwner();
             var tcs = new List<TaskCompletionSource<object>>();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandExecutorComponent
+                var component = new TestCommandExecutorComponent(compositeCommand)
                 {
-                    ExecuteAsync = (c, o) =>
+                    ExecuteAsync = (p, c, m) =>
                     {
-                        c.ShouldEqual(compositeCommand);
-                        o.ShouldEqual(compositeCommand);
+                        p.ShouldEqual(compositeCommand);
+                        c.ShouldEqual(cts);
+                        m.ShouldEqual(DefaultMetadata);
                         var t = new TaskCompletionSource<object>();
                         tcs.Add(t);
                         return t.Task;
@@ -216,7 +219,7 @@ namespace MugenMvvm.UnitTests.Commands
                 compositeCommand.AddComponent(component);
             }
 
-            compositeCommand.Execute(compositeCommand);
+            compositeCommand.ExecuteAsync(compositeCommand, cts, DefaultMetadata);
             tcs.Count.ShouldEqual(componentCount);
         }
 

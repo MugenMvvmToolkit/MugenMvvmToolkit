@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface ICommandManagerListener : IComponent<ICommandManager>
     {
-        void OnCommandCreated<TParameter>(ICommandManager provider, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata);
+        void OnCommandCreated<TParameter>(ICommandManager commandManager, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata);
     }
 }

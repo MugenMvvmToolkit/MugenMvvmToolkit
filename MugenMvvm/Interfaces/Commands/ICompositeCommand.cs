@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using MugenMvvm.Interfaces.Components;
@@ -13,6 +14,6 @@ namespace MugenMvvm.Interfaces.Commands
 
         void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null);
 
-        Task ExecuteAsync(object? parameter);
+        Task ExecuteAsync(object? parameter, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
     }
 }

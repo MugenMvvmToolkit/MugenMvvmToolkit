@@ -31,9 +31,9 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         #region Implementation of interfaces
 
-        void ICommandManagerListener.OnCommandCreated<TParameter>(ICommandManager provider, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata)
+        void ICommandManagerListener.OnCommandCreated<TParameter>(ICommandManager commandManager, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
-            _commandManager?.ShouldEqual(provider);
+            _commandManager?.ShouldEqual(commandManager);
             OnCommandCreated?.Invoke(owner, request, command, metadata);
         }
 

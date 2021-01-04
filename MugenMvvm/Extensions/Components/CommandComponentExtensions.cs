@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
@@ -87,11 +88,11 @@ namespace MugenMvvm.Extensions.Components
                 components[i].RaiseCanExecuteChanged(command, metadata);
         }
 
-        public static Task ExecuteAsync(this ICommandExecutorComponent[] components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+        public static Task ExecuteAsync(this ICommandExecutorComponent[] components, ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(command, nameof(command));
-            return components.InvokeAllAsync((command, parameter), default, metadata, (component, s, _, m) => component.ExecuteAsync(s.command, s.parameter, m));
+            return components.InvokeAllAsync((command, parameter), cancellationToken, metadata, (component, s, c, m) => component.ExecuteAsync(s.command, s.parameter, c, m));
         }
 
         #endregion

@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateCommandExecutor<object>>();
-            await component.ExecuteAsync(command, null, null);
+            await component.ExecuteAsync(command, null, default, null);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
             {

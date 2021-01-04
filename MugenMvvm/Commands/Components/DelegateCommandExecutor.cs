@@ -60,21 +60,22 @@ namespace MugenMvvm.Commands.Components
             return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
         }
 
-        public async Task ExecuteAsync(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+        public async Task ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
                 if (_allowMultipleExecution)
                 {
-                    await ExecuteInternalAsync(command, parameter).ConfigureAwait(false);
+                    await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
                     return;
                 }
 
                 if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
                     return;
 
+                cancellationToken.ThrowIfCancellationRequested();
                 command.RaiseCanExecuteChanged();
-                await ExecuteInternalAsync(command, parameter).ConfigureAwait(false);
+                await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
                 _executingCommand = null;
                 command.RaiseCanExecuteChanged();
             }
@@ -98,10 +99,10 @@ namespace MugenMvvm.Commands.Components
 
         #region Methods
 
-        private async Task ExecuteInternalAsync(ICommand command, object? parameter)
+        private async Task ExecuteInternalAsync(ICommand command, object? parameter, CancellationToken cancellationToken)
         {
             var executeAction = _execute;
-            if (executeAction == null)
+            if (executeAction == null || cancellationToken.IsCancellationRequested)
                 return;
 
             if (!_executionBehavior.BeforeExecute(command, parameter))

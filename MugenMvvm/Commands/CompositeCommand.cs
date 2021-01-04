@@ -78,7 +78,8 @@ namespace MugenMvvm.Commands
 
         public void Execute(object? parameter) => ExecuteAsync(parameter);
 
-        public Task ExecuteAsync(object? parameter) => GetComponents<ICommandExecutorComponent>().ExecuteAsync(this, parameter, null);
+        public Task ExecuteAsync(object? parameter, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<ICommandExecutorComponent>().ExecuteAsync(this, parameter, cancellationToken, metadata);
 
         public void Dispose()
         {

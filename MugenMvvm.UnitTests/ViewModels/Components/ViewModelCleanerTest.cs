@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Windows.Input;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
-using MugenMvvm.Commands;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
@@ -96,19 +94,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             viewModel.Value.Target.ShouldBeNull();
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ShouldDisposeViewModels(bool dispose)
-        {
-            var manager = new ViewModelManager();
-            manager.AddComponent(new ViewModelCleaner(new ViewManager()) {CleanupCommands = dispose});
-            var viewModel = new TestCleanerViewModel {Command1 = new CompositeCommand(), Command2 = new CompositeCommand()};
-            manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            ((CompositeCommand) viewModel.Command1).IsDisposed.ShouldEqual(dispose);
-            ((CompositeCommand) viewModel.Command2).IsDisposed.ShouldEqual(dispose);
-        }
-
         [Fact]
         public void ShouldClearViews()
         {
@@ -148,10 +133,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         private sealed class TestCleanerViewModel : TestViewModel, IHasService<IBusyManager>, IHasService<IMessenger>, IValueHolder<IWeakReference>
         {
             #region Properties
-
-            public ICommand? Command1 { get; set; }
-
-            public ICommand? Command2 { get; set; }
 
             public IBusyManager? BusyManager { get; set; }
 

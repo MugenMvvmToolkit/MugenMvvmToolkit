@@ -15,7 +15,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.ViewModels
 {
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener, IDisposable
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener, IHasDisposeCallback
     {
         #region Fields
 
@@ -82,10 +82,6 @@ namespace MugenMvvm.ViewModels
             OnDispose(true);
         }
 
-        #endregion
-
-        #region Methods
-
         public void RegisterDisposeToken(ActionToken token)
         {
             if (IsDisposed)
@@ -109,6 +105,10 @@ namespace MugenMvvm.ViewModels
             if (inline)
                 token.Dispose();
         }
+
+        #endregion
+
+        #region Methods
 
         protected T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
 
