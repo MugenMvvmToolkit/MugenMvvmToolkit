@@ -87,7 +87,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             get => CheckFlag(OptionalFlag);
         }
 
-        public bool CanDispose
+        public bool IsDisposable
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => !CheckFlag(NoDisposeFlag);
@@ -118,7 +118,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         public void Dispose()
         {
-            if (_listeners == DisposedItems || !CanDispose)
+            if (_listeners == DisposedItems || !IsDisposable)
                 return;
             _listeners = DisposedItems;
             _target = null;

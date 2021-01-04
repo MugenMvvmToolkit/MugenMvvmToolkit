@@ -47,7 +47,7 @@ namespace MugenMvvm.Validation.Components
 
         public int Priority { get; set; }
 
-        public bool CanDispose
+        public bool IsDisposable
         {
             get => _state == DefaultState;
             set

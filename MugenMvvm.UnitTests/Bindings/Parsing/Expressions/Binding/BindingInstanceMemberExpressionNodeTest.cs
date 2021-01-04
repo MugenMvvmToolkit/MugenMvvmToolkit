@@ -103,6 +103,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(observer);
         }
 
+        [Fact]
+        public void GetBindingSourceShouldReturnRawInstanceEmptyPath()
+        {
+            var exp = new BindingInstanceMemberExpressionNode(this, "", 0, default, default);
+            exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(this);
+        }
+
         [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]

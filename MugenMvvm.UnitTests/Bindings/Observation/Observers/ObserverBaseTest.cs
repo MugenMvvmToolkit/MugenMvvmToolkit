@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var memberPathObserver = GetObserver(this);
             memberPathObserver.IsAlive.ShouldBeTrue();
             memberPathObserver.Target.ShouldEqual(this);
-            ((IHasDisposeCondition) memberPathObserver).CanDispose = canDispose;
+            ((IHasDisposeCondition) memberPathObserver).IsDisposable = canDispose;
 
             memberPathObserver.Dispose();
             if (canDispose)

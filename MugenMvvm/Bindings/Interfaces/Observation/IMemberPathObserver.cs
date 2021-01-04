@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Interfaces.Observation
 {
-    public interface IMemberPathObserver : IWeakItem, IDisposable
+    public interface IMemberPathObserver : IWeakItem, IHasDisposeCondition
     {
         object? Target { get; }
 

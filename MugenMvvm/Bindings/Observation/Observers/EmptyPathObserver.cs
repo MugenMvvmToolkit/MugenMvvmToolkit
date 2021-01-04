@@ -25,6 +25,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             Should.NotBeNull(target, nameof(target));
             _target = target;
+            IsDisposable = true;
         }
 
         #endregion
@@ -52,6 +53,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
         }
 
         public IMemberPath Path => EmptyMemberPath.Instance;
+
+        public bool IsDisposable { get; set; }
 
         #endregion
 
@@ -85,7 +88,11 @@ namespace MugenMvvm.Bindings.Observation.Observers
             return new MemberPathLastMember(target, ConstantMemberInfo.Target);
         }
 
-        public void Dispose() => _target = Disposed;
+        public void Dispose()
+        {
+            if (IsDisposable)
+                _target = Disposed;
+        }
 
         #endregion
     }

@@ -33,7 +33,7 @@ namespace MugenMvvm.Commands.Components
             _canExecute = canExecute;
             _executionBehavior = executionBehavior;
             _allowMultipleExecution = allowMultipleExecution;
-            CanDispose = true;
+            IsDisposable = true;
         }
 
         #endregion
@@ -42,7 +42,7 @@ namespace MugenMvvm.Commands.Components
 
         public int Priority => CommandComponentPriority.Executor;
 
-        public bool CanDispose { get; set; }
+        public bool IsDisposable { get; set; }
 
         #endregion
 
@@ -87,7 +87,7 @@ namespace MugenMvvm.Commands.Components
 
         public void Dispose()
         {
-            if (CanDispose)
+            if (IsDisposable)
             {
                 _canExecute = null;
                 _execute = null;

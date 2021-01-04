@@ -42,7 +42,7 @@ namespace MugenMvvm.Commands.Components
             _eventExecutionMode = eventExecutionMode;
             _canNotify = canNotify;
             _subscriber = new Subscriber(this);
-            CanDispose = true;
+            IsDisposable = true;
             for (var index = 0; index < notifiers.Count; index++)
             {
                 var notifier = notifiers[index];
@@ -73,7 +73,7 @@ namespace MugenMvvm.Commands.Components
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
 
-        public bool CanDispose { get; set; }
+        public bool IsDisposable { get; set; }
 
         #endregion
 
@@ -105,7 +105,7 @@ namespace MugenMvvm.Commands.Components
 
         public void Dispose()
         {
-            if (CanDispose)
+            if (IsDisposable)
             {
                 _subscriber?.OnDispose();
                 _canExecuteChanged = null;

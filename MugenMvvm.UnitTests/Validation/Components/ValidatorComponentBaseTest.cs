@@ -98,8 +98,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     return new ValueTask<ValidationResult>(tcs.Task);
                 }
             };
-            component.CanDispose.ShouldBeTrue();
-            component.CanDispose = canDispose;
+            component.IsDisposable.ShouldBeTrue();
+            component.IsDisposable = canDispose;
             var validator = new Validator();
             validator.AddComponent(component);
 

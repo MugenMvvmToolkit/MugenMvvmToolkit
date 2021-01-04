@@ -47,7 +47,7 @@ namespace MugenMvvm.Validation
 
         public bool IsDisposed => _state == DisposedState;
 
-        public bool CanDispose
+        public bool IsDisposable
         {
             get => _state == DefaultState;
             set

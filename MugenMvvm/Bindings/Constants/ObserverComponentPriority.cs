@@ -10,7 +10,7 @@ namespace MugenMvvm.Bindings.Constants
         public const int PropertyChangedObserverProvider = 0;
         public const int MemberPathObserverProvider = 0;
         public const int PathProvider = 0;
-        public const int PathProviderCache = ComponentPriority.Cache;
+        public const int Cache = ComponentPriority.Cache;
 
         #endregion
     }

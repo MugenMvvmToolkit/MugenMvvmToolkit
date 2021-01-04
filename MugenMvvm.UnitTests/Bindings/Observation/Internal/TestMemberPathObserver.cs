@@ -29,6 +29,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 
         public GetLastMemberDelegate? GetLastMember { get; set; }
 
+        public bool IsDisposable { get; set; } = true;
+
         #endregion
 
         #region Implementation of interfaces

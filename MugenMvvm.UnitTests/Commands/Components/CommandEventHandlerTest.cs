@@ -280,8 +280,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var compositeCommand = new CompositeCommand();
             var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
-            conditionEventCommandComponent.CanDispose.ShouldBeTrue();
-            conditionEventCommandComponent.CanDispose = canDispose;
+            conditionEventCommandComponent.IsDisposable.ShouldBeTrue();
+            conditionEventCommandComponent.IsDisposable = canDispose;
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) =>

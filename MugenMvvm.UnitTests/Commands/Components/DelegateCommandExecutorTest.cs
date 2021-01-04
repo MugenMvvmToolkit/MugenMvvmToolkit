@@ -291,8 +291,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var executed = 0;
             Action execute = () => ++executed;
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            component.CanDispose.ShouldBeTrue();
-            component.CanDispose = canDispose;
+            component.IsDisposable.ShouldBeTrue();
+            component.IsDisposable = canDispose;
             component.Dispose();
 
             component.CanExecute(cmd, null, null).ShouldEqual(!canDispose);

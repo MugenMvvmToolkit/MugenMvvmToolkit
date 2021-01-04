@@ -4,6 +4,6 @@ namespace MugenMvvm.Interfaces.Models
 {
     public interface IHasDisposeCondition : IDisposable
     {
-        bool CanDispose { get; set; }
+        bool IsDisposable { get; set; }
     }
 }

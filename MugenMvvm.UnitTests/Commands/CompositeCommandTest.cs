@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTests.Commands
         {
             var count = 0;
             var compositeCommand = GetComponentOwner();
-            compositeCommand.CanDispose = canDispose;
+            compositeCommand.IsDisposable = canDispose;
             for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestDisposable {Dispose = () => ++count};

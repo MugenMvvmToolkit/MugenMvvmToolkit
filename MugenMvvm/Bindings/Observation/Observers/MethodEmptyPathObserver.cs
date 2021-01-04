@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             Should.NotBeNull(method, nameof(method));
             _method = method;
-            CanDispose = true;
+            IsDisposable = true;
         }
 
         #endregion

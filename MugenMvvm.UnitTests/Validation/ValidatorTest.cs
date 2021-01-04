@@ -27,8 +27,8 @@ namespace MugenMvvm.UnitTests.Validation
             var invokeCount = 0;
             var invokeComponentCount = 0;
             var validator = new Validator();
-            validator.CanDispose.ShouldBeTrue();
-            validator.CanDispose = canDispose;
+            validator.IsDisposable.ShouldBeTrue();
+            validator.IsDisposable = canDispose;
 
             for (var i = 0; i < count; i++)
             {
