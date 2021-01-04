@@ -1,5 +1,7 @@
 ﻿using System;
 using MugenMvvm.Attributes;
+using MugenMvvm.Bindings.Convert.Components;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Convert.Components;
@@ -15,6 +17,7 @@ namespace MugenMvvm.Bindings.Convert
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
+        private GlobalValueConverterComponent? _component;
         private IGlobalValueConverterComponent[] _components;
 
         #endregion
@@ -26,14 +29,27 @@ namespace MugenMvvm.Bindings.Convert
         {
             _components = Default.Array<IGlobalValueConverterComponent>();
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IGlobalValueConverterComponent, GlobalValueConverter>((components, state, _) => state._components = components, this);
+            _componentTracker.AddListener<IGlobalValueConverterComponent, GlobalValueConverter>((components, state, _) =>
+            {
+                state._components = components;
+                if (components.Length == 1 && components[0] is GlobalValueConverterComponent c)
+                    state._component = c;
+                else
+                    state._component = null;
+            }, this);
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public bool TryConvert(ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata) => _components.TryConvert(this, ref value, targetType, member, metadata);
+        public bool TryConvert(ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
+        {
+            var component = _component;
+            if (component == null)
+                return _components.TryConvert(this, ref value, targetType, member, metadata);
+            return BindingMugenExtensions.TryConvert(ref value, targetType, component.FormatProvider);
+        }
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
 

@@ -20,40 +20,8 @@ namespace MugenMvvm.Bindings.Convert.Components
 
         #region Implementation of interfaces
 
-        public bool TryConvert(IGlobalValueConverter converter, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
-        {
-            if (value == null)
-            {
-                value = targetType.GetDefaultValue();
-                return true;
-            }
-
-            if (targetType.IsInstanceOfType(value))
-                return true;
-            if (targetType == typeof(string))
-            {
-                value = FormatProvider == null
-                    ? value.ToString()
-                    : System.Convert.ToString(value, FormatProvider.Invoke());
-                return true;
-            }
-
-            if (targetType.IsEnum)
-            {
-                value = Enum.Parse(targetType, value.ToString()!);
-                return true;
-            }
-
-            if (value is IConvertible)
-            {
-                value = FormatProvider == null
-                    ? System.Convert.ChangeType(value, targetType.GetNonNullableType())
-                    : System.Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider.Invoke());
-                return true;
-            }
-
-            return false;
-        }
+        public bool TryConvert(IGlobalValueConverter converter, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata) =>
+            BindingMugenExtensions.TryConvert(ref value, targetType, FormatProvider);
 
         #endregion
     }

@@ -29,7 +29,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
@@ -316,6 +315,41 @@ namespace MugenMvvm.Bindings.Extensions
             }
 
             return expression.Invoke(values, metadata);
+        }
+
+        public static bool TryConvert(ref object? value, Type targetType, Func<IFormatProvider>? formatProvider)
+        {
+            if (value == null)
+            {
+                value = targetType.GetDefaultValue();
+                return true;
+            }
+
+            if (targetType.IsInstanceOfType(value))
+                return true;
+            if (targetType == typeof(string))
+            {
+                value = formatProvider == null
+                    ? value.ToString()
+                    : System.Convert.ToString(value, formatProvider());
+                return true;
+            }
+
+            if (targetType.IsEnum)
+            {
+                value = Enum.Parse(targetType, value.ToString()!);
+                return true;
+            }
+
+            if (value is IConvertible)
+            {
+                value = formatProvider == null
+                    ? System.Convert.ChangeType(value, targetType.GetNonNullableType())
+                    : System.Convert.ChangeType(value, targetType.GetNonNullableType(), formatProvider());
+                return true;
+            }
+
+            return false;
         }
 
         public static object? ToBindingSource(object? sourceExpression, object target, object? source, IReadOnlyMetadataContext? metadata)

@@ -8,7 +8,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
     {
         #region Properties
 
-        public Func<IExpressionNode, IExpressionNode, bool?>? Equals { get; set; }
+        public new Func<IExpressionNode, IExpressionNode, bool?>? Equals { get; set; }
 
         public new Func<IExpressionNode, int?>? GetHashCode { get; set; }
 
