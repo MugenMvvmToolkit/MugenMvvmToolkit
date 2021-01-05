@@ -17,7 +17,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         #region Implementation of interfaces
 
         public IExpressionNode Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata) =>
-            expression is IConstantExpressionNode ? new BindingInstanceMemberExpressionNode(expression, "", -1, default, default, null, expression, expression.Metadata) : expression;
+            expression is IConstantExpressionNode ? new BindingInstanceMemberExpressionNode(expression, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata) : expression;
 
         #endregion
     }
