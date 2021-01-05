@@ -225,7 +225,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)] //CommandExecutionBehavior.CheckCanExecute
+        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
         public void CreateShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
@@ -297,7 +297,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)] //CommandExecutionBehavior.CheckCanExecute
+        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
         public void CreateShouldGenerateValidRequest3(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
@@ -369,7 +369,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)] //CommandExecutionBehavior.CheckCanExecute
+        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
         public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
@@ -441,7 +441,7 @@ namespace MugenMvvm.UnitTests.Commands
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, 1, true, true, true, true)] //CommandExecutionBehavior.CheckCanExecute
+        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
         public void CreateFromTaskShouldGenerateValidRequest3(bool hasCanExecute, bool? allowMultipleExecution,
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {

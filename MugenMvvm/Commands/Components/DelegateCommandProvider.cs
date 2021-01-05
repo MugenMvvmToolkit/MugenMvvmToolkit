@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -9,6 +10,8 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
 {
@@ -57,23 +60,35 @@ namespace MugenMvvm.Commands.Components
                 return compositeCommand;
             }
 
-            if (request is DelegateCommandRequest commandRequest)
-            {
-                var command = new CompositeCommand(metadata, _componentCollectionManager);
-                command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode ?? CommandExecutionBehavior,
-                    commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
-                if (commandRequest.CanExecute != null)
-                {
-                    var notifiers = commandRequest.Notifiers;
-                    if (notifiers.Count > 0 || owner != null)
-                        command.AddComponent(new CommandEventHandler(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, notifiers.Count > 0 ? notifiers : owner, commandRequest.CanNotify));
-                }
+            if (request is not DelegateCommandRequest commandRequest)
+                return null;
 
-                return command;
+            var command = new CompositeCommand(metadata, _componentCollectionManager);
+            command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode ?? CommandExecutionBehavior,
+                commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
+            if (commandRequest.CanExecute != null)
+            {
+                var notifiers = commandRequest.Notifiers;
+                if (notifiers.Count > 0)
+                    command.AddComponent(GetCommandEventHandler(commandRequest, notifiers));
+                else if (owner != null)
+                {
+                    if (owner is IMetadataOwner<IMetadataContext> ctx)
+                        command.AddComponent(ctx.Metadata.GetOrAdd(InternalMetadata.CommandEventHandler, (this, commandRequest, owner), (_, _, s) => s.Item1.GetCommandEventHandler(s.commandRequest, s.owner)));
+                    else
+                        command.AddComponent(GetCommandEventHandler(commandRequest, owner));
+                }
             }
 
-            return null;
+            return command;
         }
+
+        #endregion
+
+        #region Methods
+
+        private CommandEventHandler GetCommandEventHandler(DelegateCommandRequest commandRequest, ItemOrList<object, IReadOnlyList<object>> notifiers) =>
+            new(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, notifiers, commandRequest.CanNotify);
 
         #endregion
     }

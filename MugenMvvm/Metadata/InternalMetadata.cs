@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Views;
@@ -20,10 +21,14 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<List<NavigationCallback?>>? _closingCallbacks;
         private static IMetadataContextKey<List<NavigationCallback?>>? _closeCallbacks;
         private static IMetadataContextKey<SortedList<string, object?>>? _attachedValuesKey;
+        private static IMetadataContextKey<CommandEventHandler>? _commandEventHandler;
 
         #endregion
 
         #region Properties
+
+        public static IMetadataContextKey<CommandEventHandler> CommandEventHandler
+            => _commandEventHandler ??= GetBuilder(_commandEventHandler, nameof(CommandEventHandler)).Build();
 
         public static IMetadataContextKey<HashSet<string>> OpenedNavigationProviders
             => _openedNavigationProviders ??= GetBuilder(_openedNavigationProviders, nameof(OpenedNavigationProviders)).Serializable().Build();
