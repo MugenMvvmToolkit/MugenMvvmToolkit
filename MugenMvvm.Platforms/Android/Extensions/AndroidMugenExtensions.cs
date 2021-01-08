@@ -64,15 +64,10 @@ namespace MugenMvvm.Android.Extensions
         public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).Result;
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, EnumFlags<AndroidInitializationFlags> flags, IBindViewCallback? bindViewCallback = null)
         {
-            MugenAndroidUtils.Initialize(new BindViewCallback(), rawViewTagMode);
-            LifecycleMugenExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), nativeMode);
-
-            if (nativeMode)
-                MugenAndroidUtils.SetNativeMode();
-            if (disableFragmentState)
-                MugenAndroidUtils.DisableFragmentState();
+            MugenAndroidUtils.Initialize(bindViewCallback ?? BindViewCallback.Instance, flags.Value());
+            LifecycleMugenExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), flags.HasFlag(AndroidInitializationFlags.NativeMode));
 
             configuration.ServiceConfiguration<IAttachedValueManager>()
                 .WithComponent(new AndroidAttachedValueStorageProvider());
@@ -127,12 +122,6 @@ namespace MugenMvvm.Android.Extensions
             macrosBindingInitializer.SourceVisitors.Add(resourceVisitor);
             macrosBindingInitializer.ParameterVisitors.Add(resourceVisitor);
 
-            return configuration;
-        }
-
-        public static MugenApplicationConfiguration WithSupportLibs(this MugenApplicationConfiguration configuration, bool compat, bool material, bool recyclerView, bool swipeRefresh, bool viewPager, bool viewPager2)
-        {
-            MugenAndroidUtils.WithSupportLibs(compat, material, recyclerView, swipeRefresh, viewPager, viewPager2);
             return configuration;
         }
 

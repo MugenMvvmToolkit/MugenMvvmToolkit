@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 
+import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.internal.ActionBarHomeClickListener;
 import com.mugen.mvvm.internal.ActivityTrackerDispatcher;
@@ -34,33 +35,33 @@ public final class MugenUtils {
 
     @SuppressLint("StaticFieldLeak")
     private static Context _context;
-    private static boolean _compatSupported;
-    private static boolean _materialSupported;
-    private static boolean _rawViewTagMode;
-    private static boolean _isNativeMode;
-    private static boolean _isFragmentStateDisabled;
+    private static int _stateFlags;
 
     private MugenUtils() {
     }
 
     public static boolean isFragmentStateDisabled() {
-        return _isFragmentStateDisabled;
+        return hasFlag(MugenInitializationFlags.FragmentStateDisabled);
     }
 
     public static boolean isNativeMode() {
-        return _isNativeMode;
+        return hasFlag(MugenInitializationFlags.NativeMode);
     }
 
     public static boolean isCompatSupported() {
-        return _compatSupported;
+        return hasFlag(MugenInitializationFlags.CompatLib);
     }
 
     public static boolean isMaterialSupported() {
-        return _materialSupported;
+        return hasFlag(MugenInitializationFlags.MaterialLib);
     }
 
     public static boolean isRawViewTagMode() {
-        return _rawViewTagMode;
+        return !hasFlag(MugenInitializationFlags.RawViewTagModeDisabled);
+    }
+
+    public static boolean hasFlag(int flag) {
+        return (_stateFlags & flag) == flag;
     }
 
     public static Context getAppContext() {
@@ -78,11 +79,10 @@ public final class MugenUtils {
         return MugenUtils.getAppContext();
     }
 
-    public static void initialize(IBindViewCallback bindCallback, boolean rawViewTagMode) {
-        _rawViewTagMode = rawViewTagMode;
+    public static void initializeCore(Context context) {
+        setAppContext(context);
         ViewCleaner viewCleaner = new ViewCleaner();
         FragmentDispatcher fragmentDispatcher = new FragmentDispatcher();
-        ViewMugenExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
         ViewMugenExtensions.addViewDispatcher(viewCleaner);
         ViewMugenExtensions.addViewDispatcher(fragmentDispatcher);
         LifecycleMugenExtensions.addLifecycleDispatcher(viewCleaner, false);
@@ -92,27 +92,17 @@ public final class MugenUtils {
         ViewMugenExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
     }
 
-    public static void withSupportLibs(boolean compat, boolean material, boolean recyclerView, boolean swipeRefresh, boolean viewPager, boolean viewPager2) {
-        if (compat)
-            _compatSupported = true;
-        if (material)
-            _materialSupported = true;
-        if (recyclerView)
+    public static void initialize(IBindViewCallback bindCallback, int stateFlags) {
+        _stateFlags = stateFlags;
+        ViewMugenExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
+        if (hasFlag(MugenInitializationFlags.RecyclerViewLib))
             RecyclerViewMugenExtensions.setSupported();
-        if (swipeRefresh)
+        if (hasFlag(MugenInitializationFlags.SwipeRefreshLib))
             SwipeRefreshLayoutMugenExtensions.setSupported();
-        if (viewPager)
+        if (hasFlag(MugenInitializationFlags.ViewPagerLib))
             ViewPagerMugenExtensions.setSupported();
-        if (viewPager2)
+        if (hasFlag(MugenInitializationFlags.ViewPager2Lib))
             ViewPager2MugenExtensions.setSupported();
-    }
-
-    public static void setNativeMode() {
-        _isNativeMode = true;
-    }
-
-    public static void disableFragmentState() {
-        _isFragmentStateDisabled = true;
     }
 
     public static String appVersion() {

@@ -16,7 +16,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly ArgumentFlags Metadata = new(1 << 0, -1, nameof(Metadata));
         public static readonly ArgumentFlags Optional = new(1 << 4, -2, nameof(Optional));
         public static readonly ArgumentFlags ParamArray = new(1 << 1, -3, nameof(ParamArray));
-        public static readonly ArgumentFlags EmptyParamArray = new((byte) (ParamArray.Value | 1 << 2), -4, nameof(EmptyParamArray));
+        public static readonly ArgumentFlags EmptyParamArray = new(ParamArray.Value | 1 << 2, -4, nameof(EmptyParamArray));
 
         #endregion
 

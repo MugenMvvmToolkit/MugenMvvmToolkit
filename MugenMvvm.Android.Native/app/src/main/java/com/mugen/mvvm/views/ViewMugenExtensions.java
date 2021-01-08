@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.R;
+import com.mugen.mvvm.interfaces.IAttachedValueProvider;
 import com.mugen.mvvm.interfaces.IHasPriority;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
@@ -55,6 +56,7 @@ public final class ViewMugenExtensions {
     private final static ArrayList<IViewDispatcher> _viewDispatchers = new ArrayList<>();
     private final static ArrayList<IMemberListenerManager> ListenerManagers = new ArrayList<>();
     private static IViewFactory _viewFactory;
+    private static IAttachedValueProvider _attachedValueProvider;
 
     private ViewMugenExtensions() {
     }
@@ -158,7 +160,7 @@ public final class ViewMugenExtensions {
         if (oldParent == parent)
             return;
 
-        getNativeAttachedValues(view, true).setParent(parent);
+        getNativeAttachedValues(view, true).setParent(parent == null ? NullParent : parent);
         onMemberChanged(view, ParentMemberName, null);
     }
 
@@ -186,26 +188,27 @@ public final class ViewMugenExtensions {
         return ToolbarMugenExtensions.getMenu(view);
     }
 
+    public static IAttachedValueProvider getAttachedValueProvider() {
+        return _attachedValueProvider;
+    }
+
+    public static void setAttachedValueProvider(IAttachedValueProvider provider) {
+        _attachedValueProvider = provider;
+    }
+
     public static boolean isSupportAttachedValues(Object target) {
         return target instanceof View || target instanceof IHasStateView || TabLayoutTabMugenExtensions.isSupported(target) || ActionBarMugenExtensions.isSupported(target);
     }
 
-    public static ViewAttachedValues getNativeAttachedValues(View view, boolean required) {
-        if (MugenUtils.isRawViewTagMode()) {
-            ViewAttachedValues result = (ViewAttachedValues) view.getTag();
-            if (result != null || !required)
-                return result;
-            result = new ViewAttachedValues();
-            view.setTag(result);
-            return result;
-        }
+    public static Object getAttachedValues(Object view) {
+        AttachedValues values = getNativeAttachedValues(view, false);
+        if (values == null)
+            return null;
+        return values.getAttachedValues();
+    }
 
-        ViewAttachedValues result = (ViewAttachedValues) view.getTag(R.id.attachedValues);
-        if (result != null || !required)
-            return result;
-        result = new ViewAttachedValues();
-        view.setTag(R.id.attachedValues, result);
-        return result;
+    public static void setAttachedValues(Object view, Object values) {
+        getNativeAttachedValues(view, true).setAttachedValues(values);
     }
 
     public static AttachedValues getNativeAttachedValues(Object target, boolean required) {
@@ -246,18 +249,27 @@ public final class ViewMugenExtensions {
             return result;
         }
 
+        if (_attachedValueProvider != null)
+            return _attachedValueProvider.getAttachedValues(target, required);
         throw new UnsupportedOperationException("Object not supported " + target);
     }
 
-    public static Object getAttachedValues(Object view) {
-        AttachedValues values = getNativeAttachedValues(view, false);
-        if (values == null)
-            return null;
-        return values.getAttachedValues();
-    }
+    public static ViewAttachedValues getNativeAttachedValues(View view, boolean required) {
+        if (MugenUtils.isRawViewTagMode()) {
+            ViewAttachedValues result = (ViewAttachedValues) view.getTag();
+            if (result != null || !required)
+                return result;
+            result = new ViewAttachedValues();
+            view.setTag(result);
+            return result;
+        }
 
-    public static void setAttachedValues(Object view, Object values) {
-        getNativeAttachedValues(view, true).setAttachedValues(values);
+        ViewAttachedValues result = (ViewAttachedValues) view.getTag(R.id.attachedValues);
+        if (result != null || !required)
+            return result;
+        result = new ViewAttachedValues();
+        view.setTag(R.id.attachedValues, result);
+        return result;
     }
 
     public static void addViewMapping(Class viewClass, int resourceId, boolean rewrite) {

@@ -12,10 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.interfaces.views.IActivityView;
-import com.mugen.mvvm.views.activities.MainMugenActivity;
-import com.mugen.mvvm.views.activities.MainMugenAppCompatActivity;
-import com.mugen.mvvm.views.activities.MugenActivity;
-import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
 public final class ActivityMugenExtensions {
     public static final String ViewIdIntentKey = "~v_id!";
@@ -100,15 +96,6 @@ public final class ActivityMugenExtensions {
             return null;
         }
     }
-
-    public static void setMainActivityMapping(int resource, boolean isCompat) {
-        ViewMugenExtensions.addViewMapping(isCompat ? MainMugenAppCompatActivity.class : MainMugenActivity.class, resource, false);
-    }
-
-    public static void addCommonActivityMapping(int resource, boolean isCompat) {
-        ViewMugenExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource, false);
-    }
-
 
     public static Context getCurrentActivity() {
         return _currentActivity;

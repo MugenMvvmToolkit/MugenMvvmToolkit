@@ -10,7 +10,29 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public abstract class MugenInitializerBase extends ContentProvider {
+public abstract class MugenInitializerBase extends ContentProvider implements Runnable {
+    private static Thread _initThread;
+
+    public MugenInitializerBase() {
+        _initThread = new Thread(this);
+        _initThread.start();
+    }
+
+    public static void ensureInitialized() {
+        if (_initThread != null)
+            waitInit();
+    }
+
+    private static void waitInit() {
+        Thread initThread = _initThread;
+        if (initThread == null)
+            return;
+        try {
+            initThread.join();
+        } catch (InterruptedException ignored) {
+        }
+    }
+
     @Override
     public final boolean onCreate() {
         return true;
@@ -18,9 +40,7 @@ public abstract class MugenInitializerBase extends ContentProvider {
 
     @Override
     public final void attachInfo(Context context, ProviderInfo info) {
-        super.attachInfo(context, info);
-        MugenUtils.setAppContext(context);
-        initialize();
+        MugenUtils.initializeCore(context);
     }
 
     @Nullable
@@ -55,6 +75,12 @@ public abstract class MugenInitializerBase extends ContentProvider {
     public final void onTrimMemory(int level) {
         super.onTrimMemory(level);
         onTrimMemoryInternal(level);
+    }
+
+    @Override
+    public final void run() {
+        initialize();
+        _initThread = null;
     }
 
     protected abstract void initialize();

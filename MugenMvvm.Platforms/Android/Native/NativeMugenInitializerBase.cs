@@ -12,7 +12,6 @@ namespace MugenMvvm.Android.Native
         #region Fields
 
         private static readonly JniPeerMembers _members = new XAPeerMembers("com/mugen/mvvm/MugenInitializerBase", typeof(NativeMugenInitializerBase));
-
         private static Delegate cb_initialize;
         private static Delegate cb_onTrimMemoryInternal_I;
 
@@ -61,7 +60,7 @@ namespace MugenMvvm.Android.Native
 
         // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm']/class[@name='MugenInitializerBase']/method[@name='onTrimMemoryInternal' and count(parameter)=1 and parameter[1][@type='int']]"
         [Register("onTrimMemoryInternal", "(I)V", "GetOnTrimMemoryInternal_IHandler")]
-        protected abstract void OnTrimMemory(int p0);
+        protected abstract void OnTrimMemory(int level);
 
         #endregion
 

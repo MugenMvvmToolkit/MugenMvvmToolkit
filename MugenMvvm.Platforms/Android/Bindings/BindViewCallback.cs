@@ -12,6 +12,7 @@ namespace MugenMvvm.Android.Bindings
 
         private IViewAttributeAccessor _accessor = null!;
 
+        public static readonly BindViewCallback Instance = new();
         private static readonly BindablePropertyDescriptor<object, object?> ItemTemplateSelector = nameof(ItemTemplateSelector);
 
         #endregion
