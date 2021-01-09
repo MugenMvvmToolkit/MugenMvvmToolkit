@@ -45,6 +45,8 @@ namespace MugenMvvm.Commands.Components
 
         public ThreadExecutionMode EventThreadMode { get; set; }
 
+        public bool CacheCommandEventHandler { get; set; } = true;
+
         public int Priority { get; set; } = CommandComponentPriority.CommandProvider;
 
         #endregion
@@ -63,23 +65,11 @@ namespace MugenMvvm.Commands.Components
             if (request is not DelegateCommandRequest commandRequest)
                 return null;
 
-            var command = new CompositeCommand(metadata, _componentCollectionManager);
+            var command = new CompositeCommand(null, _componentCollectionManager);
             command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode ?? CommandExecutionBehavior,
                 commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
-            if (commandRequest.CanExecute != null)
-            {
-                var notifiers = commandRequest.Notifiers;
-                if (notifiers.Count > 0)
-                    command.AddComponent(GetCommandEventHandler(commandRequest, notifiers));
-                else if (owner != null)
-                {
-                    if (owner is IMetadataOwner<IMetadataContext> ctx)
-                        command.AddComponent(ctx.Metadata.GetOrAdd(InternalMetadata.CommandEventHandler, (this, commandRequest, owner), (_, _, s) => s.Item1.GetCommandEventHandler(s.commandRequest, s.owner)));
-                    else
-                        command.AddComponent(GetCommandEventHandler(commandRequest, owner));
-                }
-            }
-
+            if (command.HasCanExecute(metadata))
+                command.AddComponent(GetCommandEventHandler(owner, commandRequest, metadata), metadata);
             return command;
         }
 
@@ -87,8 +77,23 @@ namespace MugenMvvm.Commands.Components
 
         #region Methods
 
-        private CommandEventHandler GetCommandEventHandler(DelegateCommandRequest commandRequest, ItemOrList<object, IReadOnlyList<object>> notifiers) =>
-            new(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode, notifiers, commandRequest.CanNotify);
+        private CommandEventHandler GetCommandEventHandler(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        {
+            if (CacheCommandEventHandler && commandRequest.CanNotify == null && commandRequest.Notifiers.Count == 0 && owner is IMetadataOwner<IMetadataContext> m)
+                return m.Metadata.GetOrAdd(InternalMetadata.CommandEventHandler, (this, owner, commandRequest, metadata), (_, _, s) => s.Item1.GetCommandEventHandlerInternal(s.owner, s.commandRequest, s.metadata));
+
+            return GetCommandEventHandlerInternal(owner, commandRequest, metadata);
+        }
+
+        private CommandEventHandler GetCommandEventHandlerInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        {
+            var handler = new CommandEventHandler(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode) {CanNotify = commandRequest.CanNotify};
+            ItemOrList<object, IReadOnlyList<object>> notifiers = commandRequest.Notifiers.IsEmpty ? owner! : commandRequest.Notifiers;
+            foreach (var notifier in notifiers)
+                handler.AddNotifier(notifier, metadata);
+
+            return handler;
+        }
 
         #endregion
     }

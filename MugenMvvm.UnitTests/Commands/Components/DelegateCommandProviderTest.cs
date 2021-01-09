@@ -68,16 +68,22 @@ namespace MugenMvvm.UnitTests.Commands.Components
             }
         }
 
-        [Fact]
-        public void ShouldCacheCommandEventHandler()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldCacheCommandEventHandler(bool cache)
         {
+            _component.CacheCommandEventHandler = cache;
             var metadataOwner = new TestMetadataOwner<IMetadataContext> {Metadata = new MetadataContext()};
             Action execute = () => { };
             Func<bool> canExecute = () => true;
             var request = DelegateCommandRequest.Get(execute, canExecute, null, null, null, default, null);
             var command1 = _component.TryGetCommand<object>(null!, metadataOwner, request, null)!;
             var command2 = _component.TryGetCommand<object>(null!, metadataOwner, request, null)!;
-            command1.GetComponent<CommandEventHandler>().ShouldEqual(command2.GetComponent<CommandEventHandler>());
+            if (cache)
+                command1.GetComponent<CommandEventHandler>().ShouldEqual(command2.GetComponent<CommandEventHandler>());
+            else
+                command1.GetComponent<CommandEventHandler>().ShouldNotEqual(command2.GetComponent<CommandEventHandler>());
 
             var command3 = _component.TryGetCommand<object>(null!, this, request, null)!;
             var command4 = _component.TryGetCommand<object>(null!, this, request, null)!;
@@ -88,10 +94,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             command1.GetComponent<CommandEventHandler>().ShouldNotEqual(command2.GetComponent<CommandEventHandler>());
         }
 
-        private static Func<object, bool>? GetHasCanNotify(bool value)
+        private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
         {
             if (value)
-                return i => true;
+                return (_, _) => true;
             return null;
         }
 

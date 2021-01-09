@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(threadDispatcher, executionMode, Default.Array<object>(), null);
+            var conditionEventCommandComponent = new CommandEventHandler(threadDispatcher, executionMode);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, executionMode, Default.Array<object>(), null);
+            var conditionEventCommandComponent = new CommandEventHandler(null, executionMode);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldSubscribeUnsubscribeRaiseEventHandler()
         {
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) =>
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldSuspendNotifications()
         {
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
@@ -146,18 +146,32 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(5)]
         public void ShouldListenPropertyChangedEvent(int listenersCount)
         {
-            var models = new List<TestNotifyPropertyChangedModel>();
-            for (var i = 0; i < listenersCount; i++)
-                models.Add(new TestNotifyPropertyChangedModel());
-
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, models, null);
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
             compositeCommand.AddComponent(conditionEventCommandComponent);
+
+            var models = new List<TestNotifyPropertyChangedModel>();
+            var tokens = new List<ActionToken>();
+            for (var i = 0; i < listenersCount; i++)
+            {
+                var notifier = new TestNotifyPropertyChangedModel();
+                models.Add(notifier);
+                var token = compositeCommand.AddNotifier(notifier);
+                token.IsEmpty.ShouldBeFalse();
+                tokens.Add(token);
+            }
+
             var executed = 0;
-            EventHandler handler = (sender, args) => ++executed;
+            EventHandler handler = (_, _) => ++executed;
             conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
 
             executed.ShouldEqual(0);
+            foreach (var model in models)
+                model.OnPropertyChanged("Test");
+            executed.ShouldEqual(listenersCount);
+
+            foreach (var token in tokens)
+                token.Dispose();
             foreach (var model in models)
                 model.OnPropertyChanged("Test");
             executed.ShouldEqual(listenersCount);
@@ -171,37 +185,52 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldSubscribeMessenger(int listenersCount, bool hasService)
         {
             var subscribedCount = 0;
-            IMessengerHandler? handlerRaw = null;
-            var list = new List<object>();
+            var compositeCommand = new CompositeCommand();
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
+            compositeCommand.AddComponent(conditionEventCommandComponent);
+            IMessengerHandler messengerHandler = conditionEventCommandComponent;
+
+            var tokens = new List<ActionToken>();
             for (var i = 0; i < listenersCount; i++)
             {
                 var messenger = new Messenger();
                 var component = new TestMessengerSubscriberComponent
                 {
-                    TrySubscribe = (o, arg3, arg4) =>
+                    TrySubscribe = (o, _, _) =>
                     {
                         ++subscribedCount;
-                        handlerRaw = (IMessengerHandler?) o;
+                        o.ShouldEqual(conditionEventCommandComponent);
+                        return true;
+                    },
+                    TryUnsubscribe = (o, _) =>
+                    {
+                        --subscribedCount;
+                        o.ShouldEqual(conditionEventCommandComponent);
                         return true;
                     }
                 };
                 messenger.AddComponent(component);
-                list.Add(hasService ? (object) new TestHasServiceModel<IMessenger> {Service = messenger} : messenger);
+
+                var notifier = hasService ? (object) new TestHasServiceModel<IMessenger> {Service = messenger} : messenger;
+                var token = compositeCommand.AddNotifier(notifier);
+                token.IsEmpty.ShouldBeFalse();
+                tokens.Add(token);
             }
 
-            var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, list, null);
-            compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
-            EventHandler handler = (sender, args) => ++executed;
+            EventHandler handler = (_, _) => ++executed;
             conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
 
             subscribedCount.ShouldEqual(listenersCount);
             executed.ShouldEqual(0);
-            handlerRaw!.ShouldNotBeNull();
-            handlerRaw!.CanHandle(typeof(object)).ShouldBeTrue();
-            handlerRaw!.Handle(new MessageContext(this, this, DefaultMetadata));
+            messengerHandler.ShouldNotBeNull();
+            messengerHandler.CanHandle(typeof(object)).ShouldBeTrue();
+            messengerHandler.Handle(new MessageContext(this, this, DefaultMetadata));
             executed.ShouldEqual(1);
+
+            foreach (var token in tokens)
+                token.Dispose();
+            subscribedCount.ShouldEqual(0);
         }
 
         [Theory]
@@ -210,39 +239,40 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldSubscribeMessengerCanNotify(bool hasService)
         {
             IMessengerHandler? handlerRaw = null;
-            var list = new List<object>();
             var messenger = new Messenger();
             var component = new TestMessengerSubscriberComponent
             {
-                TrySubscribe = (o, arg3, arg4) =>
+                TrySubscribe = (o, _, _) =>
                 {
                     handlerRaw = (IMessengerHandler?) o;
                     return true;
                 }
             };
             messenger.AddComponent(component);
-            list.Add(hasService ? (object) new TestHasServiceModel<IMessenger> {Service = messenger} : messenger);
 
             var canNotifyValue = false;
-            Func<object?, bool> canNotify = o =>
+            Func<object?, object?, bool> canNotify = (s, o) =>
             {
-                o.ShouldEqual(this);
+                s.ShouldEqual(this);
+                o.ShouldEqual(messenger);
                 return canNotifyValue;
             };
 
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, list, canNotify);
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current) {CanNotify = canNotify};
             compositeCommand.AddComponent(conditionEventCommandComponent);
+            compositeCommand.AddNotifier(hasService ? (object) new TestHasServiceModel<IMessenger> {Service = messenger} : messenger);
+
             var executed = 0;
-            EventHandler handler = (sender, args) => ++executed;
+            EventHandler handler = (_, _) => ++executed;
             conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
 
             executed.ShouldEqual(0);
-            handlerRaw!.Handle(new MessageContext(this, this, DefaultMetadata));
+            handlerRaw!.Handle(new MessageContext(this, messenger, DefaultMetadata));
             executed.ShouldEqual(0);
 
             canNotifyValue = true;
-            handlerRaw.Handle(new MessageContext(this, this, DefaultMetadata));
+            handlerRaw.Handle(new MessageContext(this, messenger, DefaultMetadata));
             executed.ShouldEqual(1);
         }
 
@@ -252,16 +282,19 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var propertyChangedModel = new TestNotifyPropertyChangedModel();
             var canNotifyValue = false;
             var propertyName = "test";
-            Func<object?, bool> canNotify = o =>
+            Func<object?, object?, bool> canNotify = (s, o) =>
             {
+                s.ShouldEqual(propertyChangedModel);
                 ((PropertyChangedEventArgs) o!).PropertyName.ShouldEqual(propertyName);
                 return canNotifyValue;
             };
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, new[] {propertyChangedModel}, canNotify);
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current) {CanNotify = canNotify};
             compositeCommand.AddComponent(conditionEventCommandComponent);
+            compositeCommand.AddNotifier(propertyChangedModel);
+
             var executed = 0;
-            EventHandler handler = (sender, args) => ++executed;
+            EventHandler handler = (_, _) => ++executed;
             conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
 
             executed.ShouldEqual(0);
@@ -279,48 +312,18 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void DisposeShouldClearEventHandler(bool canDispose)
         {
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
             conditionEventCommandComponent.IsDisposable.ShouldBeTrue();
             conditionEventCommandComponent.IsDisposable = canDispose;
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
-            EventHandler handler = (sender, args) =>
-            {
-                sender.ShouldEqual(compositeCommand);
-                ++executed;
-            };
+            EventHandler handler = (_, _) => ++executed;
             conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
 
             executed.ShouldEqual(0);
             conditionEventCommandComponent.Dispose();
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(canDispose ? 0 : 1);
-        }
-
-        [Fact(Skip = ReleaseTest)]
-        public void ShouldListenPropertyChangedWeak()
-        {
-            var propertyChangedModel = new TestNotifyPropertyChangedModel();
-            var reference = ShouldListenPropertyChangedWeakImpl(propertyChangedModel);
-            GcCollect();
-            propertyChangedModel.OnPropertyChanged("test");
-            reference.IsAlive.ShouldBeFalse();
-        }
-
-        private static WeakReference ShouldListenPropertyChangedWeakImpl(TestNotifyPropertyChangedModel propertyChangedModel)
-        {
-            var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current, new[] {propertyChangedModel}, null);
-            compositeCommand.AddComponent(conditionEventCommandComponent);
-            var executed = 0;
-            EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
-
-            executed.ShouldEqual(0);
-            propertyChangedModel.OnPropertyChanged("test");
-            executed.ShouldEqual(1);
-
-            return new WeakReference(conditionEventCommandComponent);
         }
 
         #endregion

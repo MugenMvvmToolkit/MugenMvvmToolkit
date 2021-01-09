@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using MugenMvvm.Components;
@@ -18,52 +17,35 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Commands.Components
 {
     public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent,
-        IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IHasDisposeCondition, IHasPriority
+        IMessengerHandler, IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IHasDisposeCondition, IHasPriority
     {
         #region Fields
 
-        private readonly Func<object, bool>? _canNotify;
-        private readonly ThreadExecutionMode _eventExecutionMode;
         private readonly IThreadDispatcher? _threadDispatcher;
         private EventHandler? _canExecuteChanged;
+        private PropertyChangedEventHandler? _handler;
         private bool _isNotificationsDirty;
-        private Subscriber? _subscriber;
         private int _suspendCount;
 
         #endregion
 
         #region Constructors
 
-        public CommandEventHandler(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, ItemOrList<object, IReadOnlyList<object>> notifiers, Func<object, bool>? canNotify)
+        public CommandEventHandler(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode)
         {
             Should.NotBeNull(eventExecutionMode, nameof(eventExecutionMode));
             _threadDispatcher = threadDispatcher;
-            _eventExecutionMode = eventExecutionMode;
-            _canNotify = canNotify;
-            _subscriber = new Subscriber(this);
+            EventExecutionMode = eventExecutionMode;
             IsDisposable = true;
-            foreach (var notifier in notifiers)
-            {
-                if (notifier is IHasService<IMessenger> hasMessenger)
-                {
-                    hasMessenger.Service.TrySubscribe(_subscriber, eventExecutionMode);
-                    continue;
-                }
-
-                if (notifier is IMessenger messenger)
-                {
-                    messenger.TrySubscribe(_subscriber, eventExecutionMode);
-                    continue;
-                }
-
-                if (notifier is INotifyPropertyChanged propertyChanged)
-                    propertyChanged.PropertyChanged += _subscriber.GetPropertyChangedEventHandler();
-            }
         }
 
         #endregion
 
         #region Properties
+
+        public ThreadExecutionMode EventExecutionMode { get; }
+
+        public Func<object?, object?, bool>? CanNotify { get; set; }
 
         public bool IsSuspended => _suspendCount != 0;
 
@@ -77,15 +59,9 @@ namespace MugenMvvm.Commands.Components
 
         #region Implementation of interfaces
 
-        public void AddCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
-        {
-            if (_subscriber != null)
-                _canExecuteChanged += handler;
-        }
+        public void AddCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata) => _canExecuteChanged += handler;
 
-        public void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata) =>
-            // ReSharper disable once DelegateSubtraction
-            _canExecuteChanged -= handler;
+        public void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata) => _canExecuteChanged -= handler;
 
         public void RaiseCanExecuteChanged(ICompositeCommand? command = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -93,22 +69,26 @@ namespace MugenMvvm.Commands.Components
                 return;
 
             if (IsSuspended)
-            {
                 _isNotificationsDirty = true;
-                return;
-            }
-
-            _threadDispatcher.DefaultIfNull().Execute(_eventExecutionMode, this, null);
+            else
+                _threadDispatcher.DefaultIfNull().Execute(EventExecutionMode, this, null);
         }
 
         public void Dispose()
         {
             if (IsDisposable)
             {
-                _subscriber?.OnDispose();
                 _canExecuteChanged = null;
-                _subscriber = null;
+                _handler = null;
             }
+        }
+
+        bool IMessengerHandler.CanHandle(Type messageType) => true;
+
+        MessengerResult IMessengerHandler.Handle(IMessageContext messageContext)
+        {
+            Handle(messageContext.Sender, messageContext.Message);
+            return MessengerResult.Handled;
         }
 
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
@@ -127,79 +107,46 @@ namespace MugenMvvm.Commands.Components
 
         #region Methods
 
+        public ActionToken AddNotifier(object? notifier, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (notifier is IHasService<IMessenger> hasMessenger)
+                return AddNotifier(hasMessenger.Service, metadata);
+
+            if (notifier is IMessenger messenger)
+                return AddNotifier(messenger, metadata);
+
+            if (notifier is INotifyPropertyChanged propertyChanged)
+            {
+                propertyChanged.PropertyChanged += GetPropertyChangedEventHandler();
+                return new ActionToken((n, h) => ((INotifyPropertyChanged) n!).PropertyChanged -= ((CommandEventHandler) h!).GetPropertyChangedEventHandler(), notifier, this);
+            }
+
+            return default;
+        }
+
+        public ActionToken AddNotifier(IMessenger messenger, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(messenger, nameof(messenger));
+            if (!messenger.TrySubscribe(this, EventExecutionMode, metadata))
+                return default;
+            return new ActionToken((m, h) => ((IMessenger) m!).TryUnsubscribe(h!), messenger, this);
+        }
+
+        private PropertyChangedEventHandler GetPropertyChangedEventHandler() => _handler ??= Handle;
+
         private void EndSuspendNotifications()
         {
             if (Interlocked.Decrement(ref _suspendCount) == 0 && _isNotificationsDirty)
                 RaiseCanExecuteChanged();
         }
 
-        private void Handle(object message)
+        private void Handle(object? sender, object? message)
         {
-            if (_canNotify == null || _canNotify(message))
-                RaiseCanExecuteChanged();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class Subscriber : IMessengerHandler
-        {
-            #region Fields
-
-            private PropertyChangedEventHandler? _handler;
-            private IWeakReference? _reference;
-
-            #endregion
-
-            #region Constructors
-
-            public Subscriber(CommandEventHandler component)
+            if (CanNotify == null || CanNotify(sender, message))
             {
-                _reference = component.ToWeakReference();
+                foreach (var owner in Owners)
+                    owner.RaiseCanExecuteChanged();
             }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public bool CanHandle(Type messageType) => true;
-
-            public MessengerResult Handle(IMessageContext messageContext)
-            {
-                var mediator = (CommandEventHandler?) _reference?.Target;
-                if (mediator == null)
-                    return MessengerResult.Invalid;
-                mediator.Handle(messageContext.Message);
-                return MessengerResult.Handled;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public PropertyChangedEventHandler GetPropertyChangedEventHandler() => _handler ??= OnPropertyChanged;
-
-            public void OnDispose()
-            {
-                _reference?.Release();
-                _reference = null;
-            }
-
-            private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-            {
-                var component = (CommandEventHandler?) _reference?.Target;
-                if (component == null)
-                {
-                    if (sender is INotifyPropertyChanged propertyChanged)
-                        propertyChanged.PropertyChanged -= _handler;
-                    return;
-                }
-
-                component.Handle(e);
-            }
-
-            #endregion
         }
 
         #endregion
