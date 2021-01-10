@@ -11,6 +11,7 @@ using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -49,20 +50,19 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             var expressions = Components.TryParseBindingExpression(bindingManager, expression, metadata);
-            var list = expressions.List;
-            if (expressions.Item != null || list == null)
+            if (expressions.Item != null || expressions.List == null)
                 return expressions;
 
-            if (list is IBindingBuilder[] array)
+            if (expressions.List is IBindingBuilder[] array)
                 Array.Sort(array, this);
-            else if (list is List<IBindingBuilder> l)
+            else if (expressions.List is List<IBindingBuilder> l)
                 l.Sort(this);
             else
             {
-                var result = list.ToArray();
+                var result = expressions.List.ToArray();
                 Array.Sort(result, this);
                 return result;
             }

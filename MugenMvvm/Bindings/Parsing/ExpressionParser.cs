@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -32,7 +33,7 @@ namespace MugenMvvm.Bindings.Parsing
 
         #region Implementation of interfaces
 
-        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(object expression, IReadOnlyMetadataContext? metadata = null) => _components.TryParse(this, expression, metadata);
+        public ItemOrIReadOnlyList<ExpressionParserResult> TryParse(object expression, IReadOnlyMetadataContext? metadata = null) => _components.TryParse(this, expression, metadata);
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
 

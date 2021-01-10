@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -39,7 +40,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is Delegate del)
             {
@@ -50,7 +51,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 }
 
                 if (value != this)
-                    return ItemOrList.FromRawValueToReadonly<IBindingBuilder>(value);
+                    return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
             }
 
             return Components.TryParseBindingExpression(bindingManager, expression, metadata);

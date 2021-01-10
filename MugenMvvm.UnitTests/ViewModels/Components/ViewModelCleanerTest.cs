@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 {
                     o.ShouldEqual(viewModel);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IView>(view);
+                    return view;
                 }
             });
             var cleanupCount = 0;

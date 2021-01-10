@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -11,10 +10,25 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<T>(this ItemOrArray<T> itemOrList)
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<T>(this ItemOrIEnumerable<T> itemOrList)
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<T>(this ItemOrIReadOnlyList<T> itemOrList)
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<T>(this ItemOrListEditor<T> editor)
+            where T : class? => editor.GetRawValueInternal();
+
         [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TItem FirstOrDefault<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TList : class, IEnumerable<TItem>
+        public static T FirstOrDefault<T>(this ItemOrIEnumerable<T> itemOrList)
         {
             if (itemOrList.List != null)
             {
@@ -26,88 +40,42 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item;
         }
 
-        public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TList : class, IEnumerable<TItem>
-        {
-            if (itemOrList.IsEmpty)
-                return Default.Array<TItem>();
-            var items = new TItem[itemOrList.Count];
-            var index = 0;
-            foreach (var item in itemOrList)
-                items[index++] = item;
-            return items;
-        }
-
+        [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<TItem> AsEnumerable<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TList : class, IEnumerable<TItem>
+        public static T FirstOrDefault<T>(this ItemOrArray<T> itemOrList)
         {
             if (itemOrList.List != null)
-                return itemOrList.List;
-            if (itemOrList.HasItem)
-                return new[] {itemOrList.Item}!;
-            return Enumerable.Empty<TItem>();
+            {
+                foreach (var item in itemOrList)
+                    return item;
+                return default;
+            }
+
+            return itemOrList.Item;
         }
 
+        [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IList<TItem> AsList<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
-            => itemOrList.AsList(ListClosure<TItem>.DefaultList, ListClosure<TItem>.ItemList);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TItem[] AsList<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
-            => itemOrList.AsList(ListClosure<TItem>.DefaultList, ListClosure<TItem>.ItemList);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IReadOnlyList<TItem> AsList<TItem>(this ItemOrList<TItem, IReadOnlyList<TItem>> itemOrList)
-            => itemOrList.AsList(ListClosure<TItem>.DefaultList, ListClosure<TItem>.ItemList);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IReadOnlyCollection<TItem> AsList<TItem>(this ItemOrList<TItem, IReadOnlyCollection<TItem>> itemOrList)
-            => itemOrList.AsList(ListClosure<TItem>.DefaultList, ListClosure<TItem>.ItemList);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TList AsList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TList> getDefaultList, Func<TItem, TList> getItemList)
-            where TList : class, IEnumerable<TItem>
+        public static T FirstOrDefault<T>(this ItemOrIReadOnlyList<T> itemOrList)
         {
-            Should.NotBeNull(getDefaultList, nameof(getItemList));
-            Should.NotBeNull(getItemList, nameof(getItemList));
             if (itemOrList.List != null)
-                return itemOrList.List;
-            if (itemOrList.HasItem)
-                return getItemList(itemOrList.Item!);
-            return getDefaultList();
+            {
+                foreach (var item in itemOrList)
+                    return item;
+                return default;
+            }
+
+            return itemOrList.Item;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem> =>
-            (object?) itemOrList.Item ?? itemOrList.List;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetRawValue<TItem, TList>(this ItemOrListEditor<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IList<TItem> =>
-            itemOrList.GetRawValueInternal();
-
-        public static ItemOrListEditor<TItem, TList> AddIfNotNull<TItem, TList>(this ref ItemOrListEditor<TItem, TList> editor, [AllowNull] TItem value)
-            where TItem : class?
-            where TList : class, IList<TItem>
+        public static void AddIfNotNull<T>(this ref ItemOrListEditor<T> editor, T? item) where T : class
         {
-            if (value != null)
-                return editor.Add(value);
-            return editor;
+            if (item != null)
+                editor.Add(item);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList) =>
-            new(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList) =>
-            new(itemOrList.Item, itemOrList.List, itemOrList.HasItem, () => new List<TItem>());
-
-        internal static ItemOrList<T, IReadOnlyList<T>> ToItemOrList<T>(this List<T> list, bool clear)
+        internal static ItemOrIReadOnlyList<T> ToItemOrList<T>(this List<T> list, bool clear)
         {
             if (list.Count == 1)
             {
@@ -121,20 +89,6 @@ namespace MugenMvvm.Extensions
             if (clear)
                 list.Clear();
             return array;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private static class ListClosure<T>
-        {
-            #region Fields
-
-            public static readonly Func<T[]> DefaultList = Default.Array<T>;
-            public static readonly Func<T, T[]> ItemList = arg => new[] {arg};
-
-            #endregion
         }
 
         #endregion

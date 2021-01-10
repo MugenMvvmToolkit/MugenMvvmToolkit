@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -23,7 +24,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 
         public Action<IMemberPathObserverListener>? RemoveListener { get; set; }
 
-        public Func<ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>>>? GetListeners { get; set; }
+        public Func<ItemOrIReadOnlyList<IMemberPathObserverListener>>? GetListeners { get; set; }
 
         public GetMembersDelegate? GetMembers { get; set; }
 
@@ -41,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 
         void IMemberPathObserver.RemoveListener(IMemberPathObserverListener listener) => RemoveListener?.Invoke(listener);
 
-        ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> IMemberPathObserver.GetListeners() => GetListeners?.Invoke() ?? default;
+        ItemOrIReadOnlyList<IMemberPathObserverListener> IMemberPathObserver.GetListeners() => GetListeners?.Invoke() ?? default;
 
         MemberPathMembers IMemberPathObserver.GetMembers(IReadOnlyMetadataContext? metadata)
         {

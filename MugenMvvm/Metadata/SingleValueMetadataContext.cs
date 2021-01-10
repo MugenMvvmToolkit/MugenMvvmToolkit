@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -31,7 +32,7 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetValues() => _value;
+        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => _value;
 
         public bool Contains(IMetadataContextKey contextKey) => _value.Key.Equals(contextKey);
 

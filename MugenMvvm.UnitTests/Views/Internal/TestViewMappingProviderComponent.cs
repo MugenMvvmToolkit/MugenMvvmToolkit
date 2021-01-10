@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
@@ -28,7 +29,7 @@ namespace MugenMvvm.UnitTests.Views.Internal
 
         #region Properties
 
-        public Func<object, IReadOnlyMetadataContext?, ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>>>? TryGetMappings { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<IViewMapping>>? TryGetMappings { get; set; }
 
         public int Priority { get; set; }
 
@@ -36,7 +37,7 @@ namespace MugenMvvm.UnitTests.Views.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> IViewMappingProviderComponent.TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<IViewMapping> IViewMappingProviderComponent.TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             _viewManager?.ShouldEqual(viewManager);
             return TryGetMappings?.Invoke(request!, metadata) ?? default;

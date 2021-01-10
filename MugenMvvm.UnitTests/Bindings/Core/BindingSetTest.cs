@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
@@ -16,7 +17,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
     {
         #region Fields
 
-        private static readonly BindingExpressionRequest ConverterRequest = new("", null, null);
+        private static readonly BindingExpressionRequest ConverterRequest = new("", null, default);
         private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
         #endregion
@@ -48,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
+                    return testBuilder;
                 }
             });
 
@@ -83,7 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
+                    return testBuilder;
                 }
             });
 
@@ -120,7 +121,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     ++invokeCount;
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
+                    return testBuilder;
                 }
             });
 
@@ -156,7 +157,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     ++invokeCount;
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
+                    return testBuilder;
                 }
             });
 
@@ -204,10 +205,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
-                        return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
+                        return ItemOrIReadOnlyList.FromList(builders);
                     }
 
-                    return ItemOrList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
+                    return ItemOrIReadOnlyList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
                 }
             });
 
@@ -267,10 +268,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
-                        return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
+                        return ItemOrIReadOnlyList.FromList(builders);
                     }
 
-                    return ItemOrList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
+                    return ItemOrIReadOnlyList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
                 }
             });
 
@@ -325,10 +326,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
-                        return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
+                        return ItemOrIReadOnlyList.FromList(builders);
                     }
 
-                    return ItemOrList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
+                    return ItemOrIReadOnlyList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
                 }
             });
 

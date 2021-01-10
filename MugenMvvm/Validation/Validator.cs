@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -90,7 +91,7 @@ namespace MugenMvvm.Validation
 
         public bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).HasErrors(this, memberName, metadata);
 
-        public ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, memberName, metadata);
+        public ItemOrIReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, memberName, metadata);
 
         public IReadOnlyDictionary<string, object> GetErrors(IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, metadata) ?? Default.ReadOnlyDictionary<string, object>();

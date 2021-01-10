@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -47,9 +48,9 @@ namespace MugenMvvm.Bindings.Core
 
         public IExpressionNode? SourceExpression { get; set; }
 
-        public ItemOrList<IExpressionNode, IList<IExpressionNode>> ParameterExpressions
+        public ItemOrIReadOnlyList<IExpressionNode> ParameterExpressions
         {
-            get => ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parameterExpressions);
+            get => ItemOrIReadOnlyList.FromRawValue<IExpressionNode>(_parameterExpressions);
             set
             {
                 _parameterExpressions = value.GetRawValue();
@@ -101,8 +102,7 @@ namespace MugenMvvm.Bindings.Core
 
         #region Methods
 
-        public void Initialize(object target, object? source, IExpressionNode targetExpression, IExpressionNode? sourceExpression,
-            ItemOrList<IExpressionNode, IList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
+        public void Initialize(object target, object? source, IExpressionNode targetExpression, IExpressionNode? sourceExpression, ItemOrIReadOnlyList<IExpressionNode> parameters, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(targetExpression, nameof(targetExpression));
@@ -132,18 +132,12 @@ namespace MugenMvvm.Bindings.Core
             MetadataRaw?.Clear();
         }
 
-        private void InitializeParameters(ItemOrList<IExpressionNode, IList<IExpressionNode>> parameters)
+        private void InitializeParameters(ItemOrIReadOnlyList<IExpressionNode> parameters)
         {
             InlineParameters.Clear();
             AssignmentParameters.Clear();
-            var list = parameters.List;
-            if (list != null)
-            {
-                for (var i = 0; i < list.Count; i++)
-                    AddParameter(list[i]);
-            }
-            else if (parameters.Item != null)
-                AddParameter(parameters.Item);
+            foreach (var parameter in parameters)
+                AddParameter(parameter);
         }
 
         private void AddParameter(IExpressionNode expression)

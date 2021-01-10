@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -63,7 +64,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks(this INavigationCallbackManagerComponent[] components,
+        public static ItemOrIReadOnlyList<INavigationCallback> TryGetNavigationCallbacks(this INavigationCallbackManagerComponent[] components,
             INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -71,10 +72,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(request, nameof(request));
             if (components.Length == 1)
                 return components[0].TryGetNavigationCallbacks(navigationDispatcher, request, metadata);
-            var result = ItemOrListEditor.Get<INavigationCallback>();
+            var result = new ItemOrListEditor<INavigationCallback>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetNavigationCallbacks(navigationDispatcher, request, metadata));
-            return result.ToItemOrList<IReadOnlyList<INavigationCallback>>();
+            return result.ToItemOrList();
         }
 
         public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType,
@@ -147,17 +148,16 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, INavigationDispatcher navigationDispatcher,
-            IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<INavigationEntry> TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             if (components.Length == 1)
                 return components[0].TryGetNavigationEntries(navigationDispatcher, metadata);
-            var result = ItemOrListEditor.Get<INavigationEntry>();
+            var result = new ItemOrListEditor<INavigationEntry>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetNavigationEntries(navigationDispatcher, metadata));
-            return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
+            return result.ToItemOrList();
         }
 
         public static async Task<bool> OnNavigatingAsync(this INavigationConditionComponent[] components, INavigationListener[] listeners,

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
@@ -37,8 +38,8 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnRemoved(context, key, oldValue);
         }
 
-        public static void GetValues(this IMetadataContextValueManagerComponent[] components, IMetadataContext context,
-            MetadataOperationType operationType, ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>, List<KeyValuePair<IMetadataContextKey, object?>>> values)
+        public static void GetValues(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, 
+            MetadataOperationType operationType, ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));

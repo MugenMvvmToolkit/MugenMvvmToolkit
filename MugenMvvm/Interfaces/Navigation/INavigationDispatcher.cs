@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -14,9 +15,9 @@ namespace MugenMvvm.Interfaces.Navigation
         INavigationContext? TryGetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null);
+        ItemOrIReadOnlyList<INavigationEntry> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks(object request, IReadOnlyMetadataContext? metadata = null);
+        ItemOrIReadOnlyList<INavigationCallback> GetNavigationCallbacks(object request, IReadOnlyMetadataContext? metadata = null);
 
         void OnNavigating(INavigationContext navigationContext);
 

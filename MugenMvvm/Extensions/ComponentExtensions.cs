@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -178,7 +179,7 @@ namespace MugenMvvm.Extensions
             if (components.Length == 1)
                 return GetResult(components[0]);
 
-            var tasks = ItemOrListEditor.Get<Task>();
+            var tasks = new ItemOrListEditor<Task>();
             for (var i = 0; i < components.Length; i++)
             {
                 var result = GetResult(components[i]);

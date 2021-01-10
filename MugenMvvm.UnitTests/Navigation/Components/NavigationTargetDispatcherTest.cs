@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
-                TryGetNavigationEntries = m => ItemOrList.FromItem<INavigationEntry>(prevEntry)
+                TryGetNavigationEntries = m => prevEntry
             });
 
             dispatcher.OnNavigating(context);
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
-                TryGetNavigationEntries = m => ItemOrList.FromItem<INavigationEntry>(prevEntry)
+                TryGetNavigationEntries = m => prevEntry
             });
 
             dispatcher.OnNavigating(context);
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
-                TryGetNavigationEntries = m => ItemOrList.FromItem<INavigationEntry>(prevEntry)
+                TryGetNavigationEntries = m => prevEntry
             });
 
             dispatcher.OnNavigated(context);
@@ -157,7 +157,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             dispatcher.AddComponent(new NavigationTargetDispatcher());
             dispatcher.AddComponent(new TestNavigationEntryProviderComponent
             {
-                TryGetNavigationEntries = m => ItemOrList.FromItem<INavigationEntry>(prevEntry)
+                TryGetNavigationEntries = m => prevEntry
             });
 
             dispatcher.OnNavigated(context);
@@ -208,7 +208,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 TryGetNavigationEntries = m =>
                 {
                     if (includePrevTarget)
-                        return ItemOrList.FromItem<INavigationEntry>(prevEntry);
+                        return prevEntry;
                     return default;
                 }
             });
@@ -278,7 +278,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 TryGetNavigationEntries = m =>
                 {
                     if (includePrevTarget)
-                        return ItemOrList.FromItem<INavigationEntry>(prevEntry);
+                        return prevEntry;
                     return default;
                 }
             });

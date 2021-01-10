@@ -9,6 +9,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -49,12 +50,12 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (!memberTypes.HasFlag(MemberType.Method))
                 return default;
 
-            var members = ItemOrListEditor.Get<IMemberInfo>();
+            var members = new ItemOrListEditor<IMemberInfo>();
             foreach (var exType in _types)
             {
                 var methods = exType.GetMethods(BindingFlagsEx.StaticOnly);
@@ -87,7 +88,7 @@ namespace MugenMvvm.Bindings.Members.Components
                 }
             }
 
-            return members.ToItemOrList<IReadOnlyList<IMemberInfo>>();
+            return members.ToItemOrList();
         }
 
         #endregion

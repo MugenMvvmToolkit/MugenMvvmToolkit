@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -70,41 +71,41 @@ namespace MugenMvvm.Extensions
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => GetFlags<T, byte>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => GetFlags<T, byte>(flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags, sbyte _ = 0) where T : FlagsEnumBase<T, sbyte> => GetFlags<T, sbyte>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, sbyte _ = 0) where T : FlagsEnumBase<T, sbyte> => GetFlags<T, sbyte>(flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags, short _ = 0) where T : FlagsEnumBase<T, short> => GetFlags<T, short>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, short _ = 0) where T : FlagsEnumBase<T, short> => GetFlags<T, short>(flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags, ushort _ = 0) where T : FlagsEnumBase<T, ushort> => GetFlags<T, ushort>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, ushort _ = 0) where T : FlagsEnumBase<T, ushort> => GetFlags<T, ushort>(flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags) where T : FlagsEnumBase<T, int> => GetFlags<T, int>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags) where T : FlagsEnumBase<T, int> => GetFlags<T, int>(flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags, uint _ = 0) where T : FlagsEnumBase<T, uint> => GetFlags<T, uint>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, uint _ = 0) where T : FlagsEnumBase<T, uint> => GetFlags<T, uint>(flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags, long _ = 0) where T : FlagsEnumBase<T, long> => GetFlags<T, long>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, long _ = 0) where T : FlagsEnumBase<T, long> => GetFlags<T, long>(flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrList<T, List<T>> GetFlags<T>(this EnumFlags<T> flags, ulong _ = 0) where T : FlagsEnumBase<T, ulong> => GetFlags<T, ulong>(flags);
+        public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, ulong _ = 0) where T : FlagsEnumBase<T, ulong> => GetFlags<T, ulong>(flags);
 
-        private static ItemOrList<T, List<T>> GetFlags<T, TValue>(this EnumFlags<T> flags)
+        private static ItemOrIReadOnlyList<T> GetFlags<T, TValue>(this EnumFlags<T> flags)
             where T : FlagsEnumBase<T, TValue>
             where TValue : IComparable<TValue>, IEquatable<TValue>, IConvertible
         {
-            var editor = ItemOrListEditor.Get<T>();
+            var editor = new ItemOrListEditor<T>();
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
             {
                 if (flags.HasFlag(value.Flag))
                     editor.Add(value);
             }
 
-            return editor.ToItemOrList<List<T>>();
+            return editor.ToItemOrList();
         }
 
         #endregion

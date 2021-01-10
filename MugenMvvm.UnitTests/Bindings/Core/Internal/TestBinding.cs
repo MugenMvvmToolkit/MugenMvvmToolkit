@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -29,11 +30,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         public IMemberPathObserver Target { get; set; } = null!;
 
-        public ItemOrList<object?, object?[]> Source { get; set; }
+        public ItemOrArray<object?> Source { get; set; }
 
         public Action? Dispose { get; set; }
 
-        public Func<ItemOrList<object, object[]>>? GetComponents { get; set; }
+        public Func<ItemOrArray<object>>? GetComponents { get; set; }
 
         public Action? UpdateTarget { get; set; }
 
@@ -45,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         void IDisposable.Dispose() => Dispose?.Invoke();
 
-        ItemOrList<object, object[]> IBinding.GetComponents() => GetComponents?.Invoke() ?? default;
+        ItemOrArray<object> IBinding.GetComponents() => GetComponents?.Invoke() ?? default;
 
         void IBinding.UpdateTarget() => UpdateTarget?.Invoke();
 

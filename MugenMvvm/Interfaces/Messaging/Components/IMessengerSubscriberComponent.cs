@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -16,8 +16,8 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 
         bool TryUnsubscribeAll(IMessenger messenger, IReadOnlyMetadataContext? metadata);
 
-        ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata);
+        ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata);
 
-        ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata);
+        ItemOrIReadOnlyList<MessengerSubscriberInfo> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata);
     }
 }

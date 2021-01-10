@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -157,10 +158,9 @@ namespace MugenMvvm.Metadata
             public Builder<T> WithBuildCallback(Action<IMetadataContextKey<T>> callback)
             {
                 Should.NotBeNull(callback, nameof(callback));
-                _buildCallbacks = ItemOrList.FromRawValue<Action<IMetadataContextKey<T>>, List<Action<IMetadataContextKey<T>>>>(_buildCallbacks)
-                    .Editor()
-                    .Add(callback)
-                    .GetRawValueInternal();
+                var list = ItemOrListEditor<Action<IMetadataContextKey<T>>>.FromRawValue(_buildCallbacks);
+                list.Add(callback);
+                _buildCallbacks = list.GetRawValueInternal();
                 return this;
             }
 
@@ -235,7 +235,7 @@ namespace MugenMvvm.Metadata
                 };
                 if (_buildCallbacks != null)
                 {
-                    foreach (var action in ItemOrList.FromRawValue<Action<IMetadataContextKey<T>>, List<Action<IMetadataContextKey<T>>>>(_buildCallbacks))
+                    foreach (var action in ItemOrIReadOnlyList.FromRawValue<Action<IMetadataContextKey<T>>>(_buildCallbacks))
                         action(key);
                 }
 

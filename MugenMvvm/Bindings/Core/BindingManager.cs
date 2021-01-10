@@ -3,6 +3,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -39,10 +40,10 @@ namespace MugenMvvm.Bindings.Core
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(object expression, IReadOnlyMetadataContext? metadata = null) =>
+        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(object expression, IReadOnlyMetadataContext? metadata = null) =>
             _expressionBuilderComponents.TryParseBindingExpression(this, expression, metadata);
 
-        public ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null) => _holderComponents.TryGetBindings(this, target, path, metadata);
+        public ItemOrIReadOnlyList<IBinding> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null) => _holderComponents.TryGetBindings(this, target, path, metadata);
 
         public void OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null) =>
             _stateDispatcherComponents.OnLifecycleChanged(this, binding, lifecycleState, state, metadata);

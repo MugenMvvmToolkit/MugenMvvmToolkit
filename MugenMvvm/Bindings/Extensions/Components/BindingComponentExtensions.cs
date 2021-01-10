@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -13,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions.Components
 {
-    public static class BindingComponentExtensions
+    public static class BindingComponentExtensions//todo review
     {
         #region Methods
 
@@ -304,7 +305,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
                 components[i].OnEventError(bindingManager, exception, sender, message, metadata);
         }
 
-        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(this IBindingExpressionParserComponent[] components,
+        public static ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(this IBindingExpressionParserComponent[] components,
             IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -317,7 +318,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
                     return result;
             }
 
-            return ItemOrList.FromList(expression as IReadOnlyList<IBindingBuilder>);
+            return new ItemOrIReadOnlyList<IBindingBuilder>(expression as IReadOnlyList<IBindingBuilder>);
         }
 
         public static void Initialize(this IBindingExpressionInitializerComponent[] components, IBindingManager bindingManager, IBindingExpressionInitializerContext context)
@@ -328,8 +329,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
                 components[i].Initialize(bindingManager, context);
         }
 
-        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, IBindingManager bindingManager, object target, string? path,
-            IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<IBinding> TryGetBindings(this IBindingHolderComponent[] components, IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
@@ -337,10 +337,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetBindings(bindingManager, target, path, metadata);
 
-            var result = ItemOrListEditor.Get<IBinding>();
+            var result = new ItemOrListEditor<IBinding>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetBindings(bindingManager, target, path, metadata));
-            return result.ToItemOrList<IReadOnlyList<IBinding>>();
+            return result.ToItemOrList();
         }
 
         public static bool TryRegister(this IBindingHolderComponent[] components, IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
@@ -382,15 +382,15 @@ namespace MugenMvvm.Bindings.Extensions.Components
                 components[i].OnLifecycleChanged(bindingManager, binding, lifecycleState, state, metadata);
         }
 
-        public static ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]> TryGetBindingComponents(object?[] bindingComponents, IComparer<IComponent<IBinding>?> comparer,
+        public static ItemOrArray<IComponent<IBinding>?> TryGetBindingComponents(object?[] bindingComponents, IComparer<IComponent<IBinding>?> comparer,
             IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(bindingComponents, nameof(bindingComponents));
             Should.NotBeNull(comparer, nameof(comparer));
             Should.NotBeNull(binding, nameof(binding));
             Should.NotBeNull(target, nameof(target));
-            if (bindingComponents!.Length == 1)
-                return ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(TryGetBindingComponent(bindingComponents[0], binding, target, source, metadata));
+            if (bindingComponents.Length == 1)
+                return ItemOrArray.FromItem(TryGetBindingComponent(bindingComponents[0], binding, target, source, metadata));
             if (bindingComponents.Length != 0)
             {
                 var components = new IComponent<IBinding>?[bindingComponents.Length];

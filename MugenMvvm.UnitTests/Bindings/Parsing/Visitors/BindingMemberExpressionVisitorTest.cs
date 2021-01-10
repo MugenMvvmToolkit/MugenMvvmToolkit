@@ -371,14 +371,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                     {
                         t.ShouldEqual(returnType);
                         f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(true));
-                        return ItemOrList.FromItem<IMemberInfo>(member1);
+                        return member1;
                     }
 
                     if (r.Equals(MemberName2))
                     {
                         t.ShouldEqual(member1Result.GetType());
                         f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
-                        return ItemOrList.FromItem<IMemberInfo>(member2);
+                        return member2;
                     }
 
                     throw new NotSupportedException();
@@ -492,7 +492,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                     {
                         t.ShouldEqual(resource.GetType());
                         f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
-                        return ItemOrList.FromItem<IMemberInfo>(member);
+                        return member;
                     }
 
                     throw new NotSupportedException();

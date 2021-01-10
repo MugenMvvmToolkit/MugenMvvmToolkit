@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces.Views;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -24,7 +25,7 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IViewMapping> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             var mappings = Components.TryGetMappings(viewManager, request, metadata);
             if (mappings.IsEmpty)
@@ -38,7 +39,7 @@ namespace MugenMvvm.Android.Views
             if (viewId == 0)
                 return mappings;
 
-            var result = ItemOrListEditor.Get<IViewMapping>();
+            var result = new ItemOrListEditor<IViewMapping>();
             foreach (var mapping in mappings)
             {
                 if (!mapping.ViewType.IsInterface && mapping.ViewType.IsInstanceOfType(view))
@@ -47,7 +48,7 @@ namespace MugenMvvm.Android.Views
                     result.Add(mapping);
             }
 
-            return result.ToItemOrList<IReadOnlyList<IViewMapping>>();
+            return result.ToItemOrList();
         }
 
         #endregion

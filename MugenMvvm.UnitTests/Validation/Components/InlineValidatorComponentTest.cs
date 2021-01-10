@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             validator.TryGetErrors(null!, memberName).AsList().ShouldContain(errors);
 
-            validator.SetErrors(memberName, null, DefaultMetadata);
+            validator.SetErrors(memberName, default, DefaultMetadata);
             validator.HasErrors(null!, memberName, null).ShouldBeFalse();
             validator.HasErrors(null!, null, null).ShouldBeFalse();
             validator.TryGetErrors(null!).ShouldBeEmpty();
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.HasErrors().ShouldBeTrue();
             validator.GetErrors(memberName).AsList().ShouldContain(errors);
 
-            validator.SetErrors(this, memberName, null, DefaultMetadata);
+            validator.SetErrors(this, memberName, default, DefaultMetadata);
             validator.HasErrors(memberName).ShouldBeFalse();
             validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.GetErrors(memberName).AsList().ShouldContain(errors);
             validator.GetComponents<InlineValidatorComponent>().Length.ShouldEqual(2);
 
-            validator.SetErrors(validator, memberName, null, DefaultMetadata);
+            validator.SetErrors(validator, memberName, default, DefaultMetadata);
             validator.HasErrors(memberName).ShouldBeFalse();
             validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();

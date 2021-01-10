@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -52,7 +53,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         #region Methods
 
-        public ItemOrList<IBindingMemberExpressionNode, IReadOnlyList<IBindingMemberExpressionNode>> Collect([NotNullIfNotNull("expression")] ref IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrIReadOnlyList<IBindingMemberExpressionNode> Collect([NotNullIfNotNull("expression")] ref IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)
                 return default;
@@ -65,7 +66,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             {
                 var r = _members[0].Item2;
                 _members.Clear();
-                return new ItemOrList<IBindingMemberExpressionNode, IReadOnlyList<IBindingMemberExpressionNode>>(r, true);
+                return new ItemOrIReadOnlyList<IBindingMemberExpressionNode>(r, true);
             }
 
             var nodes = new IBindingMemberExpressionNode[count];

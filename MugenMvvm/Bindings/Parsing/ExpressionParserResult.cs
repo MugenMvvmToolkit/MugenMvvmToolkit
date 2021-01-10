@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -21,17 +23,22 @@ namespace MugenMvvm.Bindings.Parsing
 
         #region Constructors
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata = null)
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, object? parametersRaw, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(source, nameof(source));
             Target = target;
             Source = source;
-            _parametersRaw = parameters.GetRawValue();
+            _parametersRaw = parametersRaw;
             Metadata = metadata ?? Default.Metadata;
         }
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IMetadataOwner<IReadOnlyMetadataContext> context)
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrIReadOnlyList<IExpressionNode> parameters, IReadOnlyMetadataContext? metadata = null)
+            : this(target, source, parameters.GetRawValue(), metadata)
+        {
+        }
+
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrIReadOnlyList<IExpressionNode> parameters, IMetadataOwner<IReadOnlyMetadataContext> context)
             : this(target, source, parameters, context.GetMetadataOrDefault())
         {
         }
@@ -42,7 +49,11 @@ namespace MugenMvvm.Bindings.Parsing
 
         public bool IsEmpty => Target == null;
 
-        public ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> Parameters => ItemOrList.FromRawValueToReadonly<IExpressionNode>(_parametersRaw);
+        public ItemOrIReadOnlyList<IExpressionNode> Parameters
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ItemOrIReadOnlyList.FromRawValue<IExpressionNode>(_parametersRaw);
+        }
 
         #endregion
     }

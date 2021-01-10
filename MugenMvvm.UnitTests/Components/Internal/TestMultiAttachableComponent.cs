@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,7 +19,7 @@ namespace MugenMvvm.UnitTests.Components.Internal
 
         public Func<T, IReadOnlyMetadataContext?, bool>? OnDetachingHandler { get; set; }
 
-        public new ItemOrList<T, T[]> Owners => base.Owners;
+        public new ItemOrArray<T> Owners => base.Owners;
 
         #endregion
 

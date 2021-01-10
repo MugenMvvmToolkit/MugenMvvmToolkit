@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -23,10 +24,10 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(object request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+        public ItemOrIReadOnlyList<IPresenterResult> TryShow(object request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IPresenterComponent>(metadata).TryShow(this, request, cancellationToken, metadata);
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(object request, CancellationToken cancellationToken = default,
+        public ItemOrIReadOnlyList<IPresenterResult> TryClose(object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IPresenterComponent>(metadata).TryClose(this, request, cancellationToken, metadata);
 

@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
@@ -150,7 +151,7 @@ namespace MugenMvvm.Extensions
         public static void Merge(this IMetadataContext metadataContext, IEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            metadataContext.Merge(ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>(values));
+            metadataContext.Merge(ItemOrIEnumerable.FromList(values));
         }
 
         public static bool Remove(this IMetadataContext metadataContext, IMetadataContextKey contextKey)

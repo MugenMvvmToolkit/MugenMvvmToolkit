@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -15,7 +16,7 @@ using MugenMvvm.ViewModels;
 
 namespace MugenMvvm.Internal
 {
-    public static class Default
+    public static class Default//todo review
     {
         #region Fields
 
@@ -84,7 +85,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider, IWeakReference
+        private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider, IWeakReference//todo move
         {
             #region Fields
 
@@ -118,7 +119,7 @@ namespace MugenMvvm.Internal
             {
             }
 
-            public ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetValues() => default;
+            public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => default;
 
             public bool Contains(IMetadataContextKey contextKey) => false;
 

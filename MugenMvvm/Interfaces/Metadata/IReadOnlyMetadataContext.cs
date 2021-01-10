@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Collections;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Metadata
@@ -8,7 +9,7 @@ namespace MugenMvvm.Interfaces.Metadata
     {
         int Count { get; }
 
-        ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetValues();
+        ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues();
 
         bool Contains(IMetadataContextKey contextKey);
 

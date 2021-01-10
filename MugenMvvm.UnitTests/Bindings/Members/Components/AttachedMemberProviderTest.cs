@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             var component = new AttachedMemberProvider();
             component.TryGetMembers(null!, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            component.GetAttachedMembers(DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.GetAttachedMembers().IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             component.TryGetMembers(null!, requestType, name ?? memberName, MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
-            members = component.GetAttachedMembers(DefaultMetadata);
+            members = component.GetAttachedMembers();
             members.Count.ShouldEqual(1);
             members.Item.ShouldEqual(member);
 
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             else
                 component.Unregister(member);
             component.TryGetMembers(null!, requestType, name ?? memberName, MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            component.GetAttachedMembers(DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.GetAttachedMembers().IsEmpty.ShouldBeTrue();
             invalidateCount.ShouldEqual(1);
         }
 

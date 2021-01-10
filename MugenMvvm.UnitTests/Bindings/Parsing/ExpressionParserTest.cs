@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;
-                        return null;
+                        return default;
                     }
                 };
                 parser.AddComponent(component);

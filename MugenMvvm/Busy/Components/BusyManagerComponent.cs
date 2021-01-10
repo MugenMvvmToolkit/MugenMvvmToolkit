@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -49,7 +50,7 @@ namespace MugenMvvm.Busy.Components
         public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata) =>
             _busyTail?.TryGetToken(filter, state, metadata);
 
-        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IBusyToken> TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
             var busyToken = _busyTail;
             if (busyToken == null)
@@ -154,7 +155,7 @@ namespace MugenMvvm.Busy.Components
                     {
                         if (!IsCompleted)
                         {
-                            var editor = GetListeners().Editor();
+                            var editor = GetListenersEditor();
                             editor.Add(callback);
                             _listeners = editor.GetRawValue();
 
@@ -179,7 +180,7 @@ namespace MugenMvvm.Busy.Components
 
             public void Dispose()
             {
-                ItemOrList<IBusyTokenCallback, List<IBusyTokenCallback>> listeners;
+                ItemOrIReadOnlyList<IBusyTokenCallback> listeners;
                 lock (Locker)
                 {
                     listeners = GetListeners();
@@ -229,9 +230,9 @@ namespace MugenMvvm.Busy.Components
                 return null;
             }
 
-            public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens()
+            public ItemOrIReadOnlyList<IBusyToken> GetTokens()
             {
-                var tokens = ItemOrListEditor.Get<IBusyToken>();
+                var tokens = new ItemOrListEditor<IBusyToken>();
                 lock (Locker)
                 {
                     var token = Owner._busyTail;
@@ -242,7 +243,7 @@ namespace MugenMvvm.Busy.Components
                     }
                 }
 
-                return tokens.ToItemOrList<IReadOnlyList<IBusyToken>>();
+                return tokens.ToItemOrList();
             }
 
             public bool Combine()
@@ -293,17 +294,24 @@ namespace MugenMvvm.Busy.Components
             {
                 lock (Locker)
                 {
-                    var list = GetListeners().Editor();
+                    var list = GetListenersEditor();
                     list.Remove(callback);
                     _listeners = list.GetRawValue();
                 }
             }
 
-            private ItemOrList<IBusyTokenCallback, List<IBusyTokenCallback>> GetListeners()
+            private ItemOrListEditor<IBusyTokenCallback> GetListenersEditor()
             {
                 if (IsCompleted)
                     return default;
-                return ItemOrList.FromRawValue<IBusyTokenCallback, List<IBusyTokenCallback>>(_listeners);
+                return ItemOrListEditor<IBusyTokenCallback>.FromRawValue(_listeners);
+            }
+
+            private ItemOrIReadOnlyList<IBusyTokenCallback> GetListeners()
+            {
+                if (IsCompleted)
+                    return default;
+                return ItemOrIReadOnlyList.FromRawValue<IBusyTokenCallback>(_listeners);
             }
 
             #endregion

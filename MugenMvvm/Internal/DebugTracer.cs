@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -88,7 +89,7 @@ namespace MugenMvvm.Internal
             return $"sender={context.Sender}, receiver={subscriber}, message={context.Message}, metadata={context.GetMetadataOrDefault().Dump()}";
         }
 
-        private static string Dump(ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results)
+        private static string Dump(ItemOrIReadOnlyList<IPresenterResult> results)
         {
             if (results.Count == 0)
                 return " result=empty";
@@ -105,7 +106,7 @@ namespace MugenMvvm.Internal
             return builder.ToString();
         }
 
-        private static string Dump(ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> results)
+        private static string Dump(ItemOrIReadOnlyList<IViewMapping> results)
         {
             if (results.Count == 0)
                 return " result=empty";
@@ -124,16 +125,15 @@ namespace MugenMvvm.Internal
 
         private static string Dump(IBinding binding) => $"target={binding.Target.Target}, targetPath={binding.Target.Path.Path}{Dump(binding.Source)}, state={binding.State}";
 
-        private static string Dump(ItemOrList<object?, object?[]> source)
+        private static string Dump(ItemOrIReadOnlyList<object?> source)
         {
-            var list = source.List;
-            if (source.Item == null && list == null)
+            if (source.Item == null && source.List == null)
                 return ", source=null";
             if (source.Item != null)
                 return $", source={GetTarget(source.Item)}";
             var builder = new StringBuilder();
-            for (var i = 0; i < list!.Length; i++)
-                builder.Append($", source_{i}={GetTarget(list[i])}");
+            for (var i = 0; i < source.List.Count; i++)
+                builder.Append($", source_{i}={GetTarget(source.List[i])}");
             return builder.ToString();
         }
 
@@ -337,9 +337,9 @@ namespace MugenMvvm.Internal
             public bool TryUnsubscribeAll(IMessenger messenger, IReadOnlyMetadataContext? metadata)
                 => Components.TryUnsubscribeAll(messenger, metadata);
 
-            public ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
+            public ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
             {
-                var editor = ItemOrListEditor.Get<MessengerHandler>();
+                var editor = new ItemOrListEditor<MessengerHandler>();
                 var handlers = Components.TryGetMessengerHandlers(messenger, messageType, metadata);
                 foreach (var messengerHandler in handlers)
                 {
@@ -353,10 +353,10 @@ namespace MugenMvvm.Internal
                     }, subscriber!, mode, state));
                 }
 
-                return editor.ToItemOrList<IReadOnlyList<MessengerHandler>>();
+                return editor.ToItemOrList();
             }
 
-            public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
+            public ItemOrIReadOnlyList<MessengerSubscriberInfo> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
                 => Components.TryGetSubscribers(messenger, metadata);
 
             #endregion
@@ -374,7 +374,7 @@ namespace MugenMvvm.Internal
 
             #region Implementation of interfaces
 
-            public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 Logger.Trace()?.Log($"{PresentationTag}showing request={request}, metadata={metadata.Dump()}");
                 var result = Components.TryShow(presenter, request, cancellationToken, metadata);
@@ -382,7 +382,7 @@ namespace MugenMvvm.Internal
                 return result;
             }
 
-            public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 Logger.Trace()?.Log($"{PresentationTag}closing request={request}, metadata={metadata.Dump()}");
                 var result = Components.TryClose(presenter, request, cancellationToken, metadata);
@@ -442,7 +442,7 @@ namespace MugenMvvm.Internal
 
             #region Implementation of interfaces
 
-            public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+            public ItemOrIReadOnlyList<IViewMapping> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
             {
                 var mappings = Components.TryGetMappings(viewManager, request, metadata);
                 var vm = MugenExtensions.TryGetViewModelView(request, out object? view);

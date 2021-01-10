@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
@@ -65,10 +66,10 @@ namespace MugenMvvm.Entities
 
         #region Implementation of interfaces
 
-        public ItemOrList<TrackingEntity, IReadOnlyList<TrackingEntity>> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate)
+        public ItemOrIReadOnlyList<TrackingEntity> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate)
         {
             Should.NotBeNull(predicate, nameof(predicate));
-            var editor = ItemOrListEditor.Get<TrackingEntity>();
+            var editor = new ItemOrListEditor<TrackingEntity>();
             lock (_dictionary)
             {
                 foreach (var pair in _dictionary)
@@ -79,7 +80,7 @@ namespace MugenMvvm.Entities
                 }
             }
 
-            return editor.ToItemOrList<IReadOnlyList<TrackingEntity>>();
+            return editor.ToItemOrList();
         }
 
         public EntityState GetState(object entity, IReadOnlyMetadataContext? metadata = null)

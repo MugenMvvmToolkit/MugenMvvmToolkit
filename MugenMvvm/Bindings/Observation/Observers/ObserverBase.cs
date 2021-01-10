@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -153,11 +154,11 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 OnListenersRemoved();
         }
 
-        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners()
+        public ItemOrIReadOnlyList<IMemberPathObserverListener> GetListeners()
         {
             if (IsDisposed)
                 return default;
-            return ItemOrList.FromRawValueToReadonly<IMemberPathObserverListener>(_listeners);
+            return ItemOrIReadOnlyList.FromRawValue<IMemberPathObserverListener>(_listeners);
         }
 
         public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);

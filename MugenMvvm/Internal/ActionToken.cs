@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MugenMvvm.Collections;
 
 namespace MugenMvvm.Internal
 {
@@ -26,7 +27,7 @@ namespace MugenMvvm.Internal
             _state2 = state2;
         }
 
-        public ActionToken(ItemOrList<ActionToken, IReadOnlyList<ActionToken>> tokens)
+        public ActionToken(ItemOrIEnumerable<ActionToken> tokens)
         {
             if (tokens.HasItem)
             {
@@ -39,9 +40,8 @@ namespace MugenMvvm.Internal
             {
                 _handler = new Action<object?, object?>((o, _) =>
                 {
-                    var list = (ActionToken[]) o!;
-                    for (var i = 0; i < list.Length; i++)
-                        list[i].Dispose();
+                    foreach (var t in ItemOrIEnumerable.FromRawValue<ActionToken>(o))
+                        t.Dispose();
                 });
                 _state1 = tokens.List;
                 _state2 = null;

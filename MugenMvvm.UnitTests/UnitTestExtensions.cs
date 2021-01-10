@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -36,8 +37,7 @@ namespace MugenMvvm.UnitTests
             }
         }
 
-        public static ItemOrList<object, IReadOnlyList<object>> AsItemOrList(this object? item) =>
-            ItemOrList.FromRawValue<object, IReadOnlyList<object>>(item);
+        public static ItemOrIReadOnlyList<object> AsItemOrList(this object? item) => ItemOrIReadOnlyList.FromRawValue<object>(item);
 
         public static object? Invoke(this Expression expression, params object?[] args) => Expression.Lambda(expression).Compile().DynamicInvoke(args);
 
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests
             if (!ReferenceEquals(x1, x2))
             {
                 if (x1 != null && x2 != null)
-                    x1.GetValues().AsEnumerable().ShouldEqual(x2.GetValues().AsEnumerable());
+                    x1.GetValues().AsList().ShouldEqual(x2.GetValues().AsList());
                 else
                     ObjectAssertExtensions.ShouldEqual(x1, x2);
             }
@@ -96,19 +96,6 @@ namespace MugenMvvm.UnitTests
                 return false;
             return x1.Equals(x2);
         }
-
-        public static TList AsList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem> =>
-            itemOrList.AsList(() =>
-            {
-                if (typeof(TList) == typeof(List<TItem>))
-                    return (TList) (object) new List<TItem>();
-                return (TList) (object) Default.Array<TItem>();
-            }, item =>
-            {
-                if (typeof(TList) == typeof(List<TItem>))
-                    return (TList) (object) new List<TItem> {item};
-                return (TList) (object) new[] {item};
-            });
 
         #endregion
 

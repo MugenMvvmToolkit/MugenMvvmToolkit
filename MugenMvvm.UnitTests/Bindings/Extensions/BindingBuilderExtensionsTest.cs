@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
     {
         #region Fields
 
-        private static readonly BindingExpressionRequest ConverterRequest = new("", null, null);
+        private static readonly BindingExpressionRequest ConverterRequest = new("", null, default);
         private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
         #endregion
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
+                    return testBuilder;
                 }
             });
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
+                    return testBuilder;
                 }
             });
 
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     ++invokeCount;
                     o.ShouldEqual(del);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testBuilder);
+                    return testBuilder;
                 }
             });
 

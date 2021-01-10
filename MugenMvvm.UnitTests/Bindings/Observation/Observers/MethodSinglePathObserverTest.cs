@@ -50,10 +50,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         t.ShouldEqual(lastMemberTarget.GetType());
                         m.ShouldEqual(MemberType.Method);
                         f.ShouldEqual(MemberFlags.All.ClearInstanceOrStaticFlags(false));
-                        return ItemOrList.FromItem<IMemberInfo>(methodMember);
+                        return methodMember;
                     }
 
-                    return ItemOrList.FromItem<IMemberInfo>(accessorInfo);
+                    return accessorInfo;
                 }
             };
             using var _ = MugenService.AddComponent(component);

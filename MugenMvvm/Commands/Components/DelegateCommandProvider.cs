@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -88,7 +89,7 @@ namespace MugenMvvm.Commands.Components
         private CommandEventHandler GetCommandEventHandlerInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
             var handler = new CommandEventHandler(_threadDispatcher, commandRequest.EventThreadMode ?? EventThreadMode) {CanNotify = commandRequest.CanNotify};
-            ItemOrList<object, IReadOnlyList<object>> notifiers = commandRequest.Notifiers.IsEmpty ? owner! : commandRequest.Notifiers;
+            ItemOrIEnumerable<object> notifiers = commandRequest.Notifiers.IsEmpty ? owner! : commandRequest.Notifiers;
             foreach (var notifier in notifiers)
                 handler.AddNotifier(notifier, metadata);
 

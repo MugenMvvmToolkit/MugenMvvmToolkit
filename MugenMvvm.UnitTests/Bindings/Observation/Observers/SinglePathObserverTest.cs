@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     t.ShouldEqual(GetType());
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(path.Path);
-                    return ItemOrList.FromItem<IMemberInfo>(accessorInfo);
+                    return accessorInfo;
                 }
             };
 
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     t.ShouldEqual(GetType());
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(path.Path);
-                    return ItemOrList.FromItem<IMemberInfo>(accessorInfo);
+                    return accessorInfo;
                 }
             };
 
@@ -188,7 +188,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, meta) => ItemOrList.FromItem<IMemberInfo>(accessorInfo)
+                TryGetMembers = (t, m, f, r, meta) => accessorInfo
             };
             using var _ = MugenService.AddComponent(component);
 

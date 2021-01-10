@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
@@ -577,7 +578,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                     arg3.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(isStatic));
                     wrappedMember.Name.ShouldEqual(arg4);
                     arg6.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(wrappedMember);
+                    return ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(wrappedMember);
                 }
             });
             var listener = new TestWeakEventListener
@@ -647,7 +648,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
-                        return ItemOrList.FromItem<IMemberInfo>(parentMember);
+                        return ItemOrIReadOnlyList.FromItem<IMemberInfo>(parentMember);
                     return default;
                 }
             });

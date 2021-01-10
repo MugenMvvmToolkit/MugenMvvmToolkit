@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
-                        return ItemOrList.FromItem<IMemberInfo>(parentMember);
+                        return parentMember;
                     return default;
                 }
             });
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
-                        return ItemOrList.FromItem<IMemberInfo>(parentMember);
+                        return parentMember;
                     return default;
                 }
             });

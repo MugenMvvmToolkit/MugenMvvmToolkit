@@ -11,6 +11,7 @@ using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Compiling.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -74,30 +75,29 @@ namespace MugenMvvm.Bindings.Compiling
 
         #region Implementation of interfaces
 
-        public object? Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata)
+        public object? Invoke(ItemOrArray<ParameterValue> values, IReadOnlyMetadataContext? metadata)
         {
-            var list = values.List;
-            var key = list ?? values.Item.Type ?? (object) Default.Array<ParameterValue>();
+            var key = values.List ?? values.Item.Type ?? (object) Default.Array<ParameterValue>();
             if (!_cache.TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);
-                if (list == null)
+                if (values.List == null)
                     _cache[key] = invoker;
                 else
                 {
-                    var types = new Type[list.Length];
-                    for (var i = 0; i < list.Length; i++)
-                        types[i] = list[i].Type;
+                    var types = new Type[values.List.Length];
+                    for (var i = 0; i < values.List.Length; i++)
+                        types[i] = values.List[i].Type;
                     _cache[types] = invoker;
                 }
             }
 
-            if (list == null)
+            if (values.List == null)
                 _values[0] = values.Item.Value;
             else
             {
-                for (var i = 0; i < list.Length; i++)
-                    _values[i] = list[i].Value;
+                for (var i = 0; i < values.List.Length; i++)
+                    _values[i] = values.List[i].Value;
             }
 
             _values[_values.Length - 1] = metadata;
@@ -219,26 +219,18 @@ namespace MugenMvvm.Bindings.Compiling
 
         #region Methods
 
-        private Func<object?[], object?> CompileExpression(ItemOrList<ParameterValue, ParameterValue[]> values)
+        private Func<object?[], object?> CompileExpression(ItemOrArray<ParameterValue> values)
         {
             try
             {
-                var expressionValues = values.List;
-                var memberValues = ItemOrListEditor.Get<KeyValuePair<IBindingMemberExpressionNode, Expression>>();
+                var memberValues = new ItemOrListEditor<KeyValuePair<IBindingMemberExpressionNode, Expression>>();
                 foreach (var value in _expressions)
                 {
                     if (!(value.Key is IBindingMemberExpressionNode memberExpression))
                         continue;
 
                     var index = MugenExtensions.GetIndexExpression(memberExpression.Index);
-                    if (expressionValues == null)
-                    {
-                        if (memberExpression.Index != 0)
-                            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(values));
-                        memberValues.Add(new KeyValuePair<IBindingMemberExpressionNode, Expression>(memberExpression, index.ConvertIfNeed(values.Item.Type, false)));
-                    }
-                    else
-                        memberValues.Add(new KeyValuePair<IBindingMemberExpressionNode, Expression>(memberExpression, index.ConvertIfNeed(expressionValues[memberExpression.Index].Type, false)));
+                    memberValues.Add(new KeyValuePair<IBindingMemberExpressionNode, Expression>(memberExpression, index.ConvertIfNeed(values[memberExpression.Index].Type, false)));
                 }
 
                 foreach (var pair in memberValues.ToItemOrList())

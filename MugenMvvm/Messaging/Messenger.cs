@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -53,7 +54,7 @@ namespace MugenMvvm.Messaging
             return result;
         }
 
-        public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> GetSubscribers(IReadOnlyMetadataContext? metadata = null) =>
+        public ItemOrIReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IMessengerSubscriberComponent>(metadata).TryGetSubscribers(this, metadata);
 
         #endregion

@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 TryGetMembers = (type, s, t, arg3) =>
                 {
                     if (t == MemberType.Method)
-                        return ItemOrList.FromItem<IMemberInfo>(method);
+                        return method;
                     return default;
                 }
             });

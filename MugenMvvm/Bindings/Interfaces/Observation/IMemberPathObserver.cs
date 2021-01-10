@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -17,7 +18,7 @@ namespace MugenMvvm.Bindings.Interfaces.Observation
 
         void RemoveListener(IMemberPathObserverListener listener);
 
-        ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners();
+        ItemOrIReadOnlyList<IMemberPathObserverListener> GetListeners();
 
         MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
 

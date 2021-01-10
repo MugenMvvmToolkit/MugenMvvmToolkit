@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -38,7 +39,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(navigationTarget, nameof(navigationTarget));
             IReadOnlyMetadataContext? closeMetadata = null;
-            var callbacks = ItemOrListEditor.Get<Task>();
+            var callbacks = new ItemOrListEditor<Task>();
             foreach (var navigationEntry in navigationDispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && navigationEntry.IsPending)
@@ -98,14 +99,14 @@ namespace MugenMvvm.Extensions
             var entries = navigationDispatcher.GetNavigationEntries(metadata);
             if (entries.Item != null)
                 return predicate(entries.Item, state, metadata);
-            var list = entries.List;
-            if (list == null)
-                return null;
-            foreach (var navigationEntry in list.OrderByDescending(entry => entry.GetOrDefault(NavigationMetadata.NavigationDate)))
+            if (entries.List != null)
             {
-                var result = predicate(navigationEntry, state, metadata);
-                if (result != null)
-                    return result;
+                foreach (var navigationEntry in entries.List.OrderByDescending(entry => entry.GetOrDefault(NavigationMetadata.NavigationDate)))
+                {
+                    var result = predicate(navigationEntry, state, metadata);
+                    if (result != null)
+                        return result;
+                }
             }
 
             return null;
@@ -146,7 +147,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
-            var tasks = ItemOrListEditor.Get<Task>();
+            var tasks = new ItemOrListEditor<Task>();
             foreach (var t in dispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && t.IsPending)

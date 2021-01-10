@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
-    public interface IExpressionNode : IEquatable<IExpressionNode>
+    public interface IExpressionNode : IEquatable<IExpressionNode>//todo itemorlist
     {
         ExpressionNodeType ExpressionType { get; }
 

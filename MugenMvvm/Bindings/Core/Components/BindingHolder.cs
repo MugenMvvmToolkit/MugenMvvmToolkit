@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -40,7 +41,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IBinding> TryGetBindings(IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
@@ -53,7 +54,7 @@ namespace MugenMvvm.Bindings.Core.Components
             if (count == 0)
                 return default;
             if (count == 1)
-                return ItemOrList.FromItem((IBinding) values.Item.Value!);
+                return new ItemOrIReadOnlyList<IBinding>((IBinding) values.Item.Value!, true);
 
             var bindings = new IBinding[count];
             var index = 0;

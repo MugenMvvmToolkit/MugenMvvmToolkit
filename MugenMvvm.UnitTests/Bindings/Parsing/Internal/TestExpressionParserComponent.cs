@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -31,13 +32,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         public int Priority { get; set; }
 
-        public Func<object, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>>? TryParse { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<ExpressionParserResult>>? TryParse { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<ExpressionParserResult> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
         {
             _parser?.ShouldEqual(parser);
             return TryParse?.Invoke(expression, metadata) ?? default;

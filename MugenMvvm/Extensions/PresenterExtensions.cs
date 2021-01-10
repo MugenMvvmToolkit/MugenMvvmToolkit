@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -17,7 +18,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show(this IPresenter presenter, object request, CancellationToken cancellationToken = default,
+        public static ItemOrIReadOnlyList<IPresenterResult> Show(this IPresenter presenter, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(presenter, nameof(presenter));
@@ -45,7 +46,7 @@ namespace MugenMvvm.Extensions
         public static Task<bool> CloseAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default, bool isSerializable = true,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            var tasks = ItemOrListEditor.Get<Task<bool>>();
+            var tasks = new ItemOrListEditor<Task<bool>>();
             foreach (var result in presenter.DefaultIfNull().TryClose(viewModel, cancellationToken, metadata))
             {
                 foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata))
@@ -79,7 +80,7 @@ namespace MugenMvvm.Extensions
             }, TaskContinuationOptions.ExecuteSynchronously);
 
 
-        private static void TryGetShowPresenterResult(ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> result, INavigationDispatcher? navigationDispatcher, IReadOnlyMetadataContext? metadata,
+        private static void TryGetShowPresenterResult(ItemOrIReadOnlyList<IPresenterResult> result, INavigationDispatcher? navigationDispatcher, IReadOnlyMetadataContext? metadata,
             out INavigationCallback? showingCallback, out INavigationCallback closeCallback, out IPresenterResult presenterResult)
         {
             if (result.List != null || result.Item == null)

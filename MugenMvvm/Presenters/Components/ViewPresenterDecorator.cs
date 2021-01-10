@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -49,7 +50,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = TryGetViewModel(request, cancellationToken, metadata, out var view, out var canDisposeViewModel);
             if (viewModel == null)
@@ -76,18 +77,18 @@ namespace MugenMvvm.Presenters.Components
             return result;
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (vm == null && view != null)
             {
                 var views = _viewManager.DefaultIfNull().GetViews(request, metadata);
-                var result = ItemOrListEditor.Get<IPresenterResult>();
+                var result = new ItemOrListEditor<IPresenterResult>();
                 foreach (var v in views)
                     result.AddRange(Components.TryClose(presenter, v.ViewModel, cancellationToken, metadata));
 
                 if (views.Count != 0)
-                    return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
+                    return result.ToItemOrList();
             }
 
             return Components.TryClose(presenter, request, cancellationToken, metadata);

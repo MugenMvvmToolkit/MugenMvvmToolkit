@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -13,7 +14,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
     {
         #region Methods
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes,
+        public static ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes,
             EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -44,7 +45,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             }
         }
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+        public static ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -53,10 +54,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             Should.NotBeNull(name, nameof(name));
             if (components.Length == 1)
                 return components[0].TryGetMembers(memberManager, type, name, memberTypes, metadata);
-            var result = ItemOrListEditor.Get<IMemberInfo>();
+            var result = new ItemOrListEditor<IMemberInfo>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMembers(memberManager, type, name, memberTypes, metadata));
-            return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();
+            return result.ToItemOrList();
         }
 
         #endregion

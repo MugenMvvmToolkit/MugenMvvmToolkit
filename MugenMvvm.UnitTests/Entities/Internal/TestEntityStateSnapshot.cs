@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Entities;
 using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Metadata;
@@ -17,7 +18,7 @@ namespace MugenMvvm.UnitTests.Entities.Internal
 
         public Action<object, IReadOnlyMetadataContext?>? Restore { get; set; }
 
-        public Func<object, IReadOnlyMetadataContext?, ItemOrList<EntityStateValue, IReadOnlyList<EntityStateValue>>>? Dump { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<EntityStateValue>>? Dump { get; set; }
 
         #endregion
 
@@ -27,7 +28,7 @@ namespace MugenMvvm.UnitTests.Entities.Internal
 
         void IEntityStateSnapshot.Restore(object entity, IReadOnlyMetadataContext? metadata) => Restore?.Invoke(entity, metadata);
 
-        ItemOrList<EntityStateValue, IReadOnlyList<EntityStateValue>> IEntityStateSnapshot.Dump(object entity, IReadOnlyMetadataContext? metadata) => Dump?.Invoke(entity, metadata) ?? Default.Array<EntityStateValue>();
+        ItemOrIReadOnlyList<EntityStateValue> IEntityStateSnapshot.Dump(object entity, IReadOnlyMetadataContext? metadata) => Dump?.Invoke(entity, metadata) ?? Default.Array<EntityStateValue>();
 
         #endregion
     }

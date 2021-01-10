@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Entities;
@@ -179,7 +180,7 @@ namespace MugenMvvm.Entities.Components
                     pair.Value.SetValue(entity, pair.Value.Value);
             }
 
-            public ItemOrList<EntityStateValue, IReadOnlyList<EntityStateValue>> Dump(object entity, IReadOnlyMetadataContext? metadata = null)
+            public ItemOrIReadOnlyList<EntityStateValue> Dump(object entity, IReadOnlyMetadataContext? metadata = null)
             {
                 Should.BeOfType(entity, EntityType, nameof(entity));
                 if (Count == 0)

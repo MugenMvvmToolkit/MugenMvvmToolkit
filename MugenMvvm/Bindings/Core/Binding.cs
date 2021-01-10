@@ -11,6 +11,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -100,13 +101,13 @@ namespace MugenMvvm.Bindings.Core
 
         public IMemberPathObserver Target { get; private set; }
 
-        public ItemOrList<object?, object?[]> Source
+        public ItemOrArray<object?> Source
         {
             get
             {
                 if (SourceRaw is object?[] objects)
-                    return new ItemOrList<object?, object?[]>(objects);
-                return new ItemOrList<object?, object?[]>(SourceRaw, CheckFlag(HasItem));
+                    return new ItemOrArray<object?>(objects);
+                return new ItemOrArray<object?>(SourceRaw, CheckFlag(HasItem));
             }
         }
 
@@ -133,7 +134,7 @@ namespace MugenMvvm.Bindings.Core
             SourceRaw = null;
         }
 
-        public ItemOrList<object, object[]> GetComponents() => ItemOrList.FromRawValue<object, object[]>(_components);
+        public ItemOrArray<object> GetComponents() => ItemOrArray.FromRawValue<object>(_components);
 
         public void UpdateTarget()
         {
@@ -275,7 +276,7 @@ namespace MugenMvvm.Bindings.Core
                 BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
         }
 
-        ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> IReadOnlyMetadataContext.GetValues() => GetMetadataValues();
+        ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> IReadOnlyMetadataContext.GetValues() => GetMetadataValues();
 
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
 
@@ -285,7 +286,7 @@ namespace MugenMvvm.Bindings.Core
 
         #region Methods
 
-        public void Initialize(ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]> components, IReadOnlyMetadataContext? metadata)
+        public void Initialize(ItemOrArray<IComponent<IBinding>?> components, IReadOnlyMetadataContext? metadata)
         {
             if (CheckFlag(DisposedFlag))
                 return;
@@ -321,14 +322,15 @@ namespace MugenMvvm.Bindings.Core
             {
                 _components = list[0];
                 OnComponentAdded(list[0]!, metadata);
-                return;
             }
-
-            if (list.Length != currentLength)
-                Array.Resize(ref list, currentLength);
-            _components = list;
-            for (var i = 0; i < list.Length; i++)
-                OnComponentAdded(list[i]!, metadata);
+            else
+            {
+                if (list.Length != currentLength)
+                    Array.Resize(ref list, currentLength);
+                _components = list;
+                for (var i = 0; i < list.Length; i++)
+                    OnComponentAdded(list[i]!, metadata);
+            }
         }
 
         protected virtual object? GetTargetValue(MemberPathLastMember sourceMember) => Target.GetLastMember(this).GetValueOrThrow(this);
@@ -400,8 +402,7 @@ namespace MugenMvvm.Bindings.Core
 
         protected virtual int GetMetadataCount() => 1;
 
-        protected virtual ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetMetadataValues()
-            => BindingMetadata.Binding.ToValue(this);
+        protected virtual ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() => BindingMetadata.Binding.ToValue(this);
 
         protected virtual bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {

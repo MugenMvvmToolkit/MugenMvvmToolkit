@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -23,7 +24,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -31,23 +32,20 @@ namespace MugenMvvm.Bindings.Core.Components
                 if (result.Item != null)
                     return ExceptionWrapperBindingBuilder.Wrap(result.Item);
 
-                var items = result.List;
-                if (items != null)
-                {
-                    var expressions = new IBindingBuilder[items.Count];
-                    for (var i = 0; i < expressions.Length; i++)
-                        expressions[i] = ExceptionWrapperBindingBuilder.Wrap(items[i]);
-                    return expressions;
-                }
+                var count = result.Count;
+                if (count == 0)
+                    ExceptionManager.ThrowCannotParseExpression(expression);
 
-                ExceptionManager.ThrowCannotParseExpression(expression);
+                var expressions = new IBindingBuilder[count];
+                int index = 0;
+                foreach (var item in result)
+                    expressions[index++] = ExceptionWrapperBindingBuilder.Wrap(item);
+                return expressions;
             }
             catch (Exception e)
             {
                 return new InvalidBinding(e);
             }
-
-            return default;
         }
 
         #endregion

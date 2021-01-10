@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -7,6 +7,6 @@ namespace MugenMvvm.Bindings.Interfaces.Core.Components
 {
     public interface IBindingExpressionParserComponent : IComponent<IBindingManager>
     {
-        ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata);
+        ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata);
     }
 }

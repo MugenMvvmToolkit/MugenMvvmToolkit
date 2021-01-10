@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -68,7 +69,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
         }
 
-        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners() => default;
+        public ItemOrIReadOnlyList<IMemberPathObserverListener> GetListeners() => default;
 
         public MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {

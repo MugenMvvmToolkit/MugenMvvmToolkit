@@ -188,7 +188,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         f.ShouldEqual(MemberFlags.StaticPublic);
                         t.ShouldEqual(typeof(string));
                         m.ShouldEqual(MemberType.Accessor);
-                        return ItemOrList.FromItem<IMemberInfo>(new TestAccessorMemberInfo
+                        return new TestAccessorMemberInfo
                         {
                             CanRead = true,
                             GetValue = (o1, metadataContext) =>
@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                                 metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                                 return this;
                             }
-                        });
+                        };
                     }
 
                     if (r.Equals(targetPath.Members[1]))
@@ -205,10 +205,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         f.ShouldEqual(MemberFlags.InstancePublic);
                         t.ShouldEqual(GetType());
                         m.ShouldEqual(MemberType.Event);
-                        return ItemOrList.FromItem<IMemberInfo>(new TestEventInfo
+                        return new TestEventInfo
                         {
                             MemberType = MemberType.Event
-                        });
+                        };
                     }
 
                     throw new NotSupportedException();

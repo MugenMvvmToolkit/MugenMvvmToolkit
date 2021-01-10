@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new DelayBindingInitializer();
             var context = new BindingExpressionInitializerContext(this);
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Delay), ConstantExpressionNode.Get(delay));
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(parameter), DefaultMetadata);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
             if (ignore)
                 context.Components[BindingParameterNameConstant.Delay] = null;
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var initializer = new DelayBindingInitializer();
             var context = new BindingExpressionInitializerContext(this);
             var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetDelay), ConstantExpressionNode.Get(delay));
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, ItemOrList.FromItem<IExpressionNode, IList<IExpressionNode>>(parameter), DefaultMetadata);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
             if (ignore)
                 context.Components[BindingParameterNameConstant.TargetDelay] = null;
 

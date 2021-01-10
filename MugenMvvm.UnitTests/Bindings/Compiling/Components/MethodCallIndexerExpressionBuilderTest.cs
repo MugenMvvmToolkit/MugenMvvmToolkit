@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.ShouldEqual(MemberType.Method);
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.ShouldEqual(MemberType.Method);
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
@@ -228,7 +228,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.ShouldEqual(MemberType.Method);
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.Array<IExpressionNode>());
@@ -255,7 +255,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.ShouldEqual(MemberType.Method);
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.Array<IExpressionNode>());
@@ -626,7 +626,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.ShouldEqual(MemberType.Method);
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(this), new[] {ConstantExpressionNode.False});

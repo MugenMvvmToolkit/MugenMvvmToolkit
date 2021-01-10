@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -31,7 +32,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             if (!(expression is string s))
                 return Components.TryParseBindingExpression(bindingManager, expression, metadata);
@@ -42,7 +43,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 _cache[s] = value;
             }
 
-            return ItemOrList.FromRawValueToReadonly<IBindingBuilder>(value);
+            return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
         }
 
         #endregion

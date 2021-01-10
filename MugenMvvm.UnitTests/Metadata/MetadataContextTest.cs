@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
@@ -25,7 +26,7 @@ namespace MugenMvvm.UnitTests.Metadata
         [Fact]
         public void TryGetShouldUseCustomGetter()
         {
-            var context = new MetadataContext(new ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
+            var context = new MetadataContext(new ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
             TryGetGetterTest(context);
         }
 
@@ -73,7 +74,7 @@ namespace MugenMvvm.UnitTests.Metadata
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>) values);
+            var context = new MetadataContext((ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>) values);
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -84,7 +85,7 @@ namespace MugenMvvm.UnitTests.Metadata
         public void ConstructorShouldInitializeContext3()
         {
             var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
-            var context = new MetadataContext(default(ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>));
+            var context = new MetadataContext(default(ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>));
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
         }
@@ -96,7 +97,7 @@ namespace MugenMvvm.UnitTests.Metadata
         {
             var contextKey = MetadataContextKey.FromKey<int>(intValue.ToString());
             var value = contextKey.ToValue(intValue);
-            var context = new MetadataContext(new ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>(value, true));
+            var context = new MetadataContext(value);
             EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             TryGetTest(context, contextKey, intValue);

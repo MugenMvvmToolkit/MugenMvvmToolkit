@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -17,11 +18,11 @@ namespace MugenMvvm.Components
 
         #region Properties
 
-        protected ItemOrList<T, T[]> Owners
+        protected ItemOrArray<T> Owners
         {
             // ReSharper disable once InconsistentlySynchronizedField
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ItemOrList.FromRawValue<T, T[]>(_owners);
+            get => ItemOrArray.FromRawValue<T>(_owners);
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -30,7 +31,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         #region Properties
 
-        public Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>>? TryGetMembers { get; set; }
+        public Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<IMemberInfo>>? TryGetMembers { get; set; }
 
         public int Priority { get; set; }
 
@@ -38,8 +39,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberProviderComponent.TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
-            IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<IMemberInfo> IMemberProviderComponent.TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             _memberManager?.ShouldEqual(memberManager);
             return TryGetMembers?.Invoke(type, name, memberTypes, metadata) ?? default;

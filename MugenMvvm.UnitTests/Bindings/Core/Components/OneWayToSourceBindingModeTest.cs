@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
@@ -26,7 +27,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 UpdateTarget = () => throw new NotSupportedException(),
                 UpdateSource = () => ++updateCount,
-                Source = ItemOrList.FromItem<object?, object?[]>(new TestMemberPathObserver
+                Source = ItemOrArray.FromItem<object?>(new TestMemberPathObserver
                 {
                     GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
                 })
@@ -58,7 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 UpdateTarget = () => throw new NotSupportedException(),
                 UpdateSource = () => ++updateCount,
-                Source = ItemOrList.FromItem<object?, object?[]>(new TestMemberPathObserver
+                Source = ItemOrArray.FromItem<object?>(new TestMemberPathObserver
                 {
                     GetLastMember = metadata =>
                     {

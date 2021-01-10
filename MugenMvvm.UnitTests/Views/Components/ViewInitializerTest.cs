@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
@@ -33,7 +34,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
             using var t = MugenService.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(accessorMemberInfo)
+                TryGetMembers = (type, memberType, arg3, arg4, arg5) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
             });
 
             var viewModel = new TestInitializableViewModel {Service = new Messenger()};

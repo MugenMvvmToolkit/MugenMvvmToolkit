@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -11,7 +12,7 @@ namespace MugenMvvm.Interfaces.Validation.Components
     {
         bool HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata);
 
-        ItemOrList<object, IReadOnlyList<object>> TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata);
+        ItemOrIReadOnlyList<object> TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata);
 
         IReadOnlyDictionary<string, object>? TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata);
 

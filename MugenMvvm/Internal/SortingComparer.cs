@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections;
 
 namespace MugenMvvm.Internal
 {
@@ -9,13 +10,13 @@ namespace MugenMvvm.Internal
     {
         #region Fields
 
-        private readonly ItemOrList<SortingInfo, List<SortingInfo>> _sortInfo;
+        private readonly ItemOrIReadOnlyList<SortingInfo> _sortInfo;
 
         #endregion
 
         #region Constructors
 
-        private SortingComparer(ItemOrList<SortingInfo, List<SortingInfo>> sortInfo)
+        private SortingComparer(ItemOrIReadOnlyList<SortingInfo> sortInfo)
         {
             _sortInfo = sortInfo;
         }
@@ -54,7 +55,7 @@ namespace MugenMvvm.Internal
         {
             #region Fields
 
-            private ItemOrListEditor<SortingInfo, List<SortingInfo>> _sortInfo;
+            private ItemOrListEditor<SortingInfo> _sortInfo;
 
             #endregion
 
@@ -62,7 +63,7 @@ namespace MugenMvvm.Internal
 
             internal Builder(SortingInfo sortingInfo)
             {
-                _sortInfo = ItemOrListEditor.Get<SortingInfo, List<SortingInfo>>(() => new List<SortingInfo>(2));
+                _sortInfo = new ItemOrListEditor<SortingInfo>();
                 _sortInfo.Add(sortingInfo);
             }
 

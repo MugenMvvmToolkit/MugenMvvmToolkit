@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -41,12 +42,12 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (!_registeredMembers.TryGetValue(name, out var members))
                 return default;
 
-            var result = ItemOrListEditor.Get<IMemberInfo>();
+            var result = new ItemOrListEditor<IMemberInfo>();
             for (var index = 0; index < members.Count; index++)
             {
                 var memberInfo = members[index];
@@ -54,19 +55,19 @@ namespace MugenMvvm.Bindings.Members.Components
                     result.Add(memberInfo);
             }
 
-            return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();
+            return result.ToItemOrList();
         }
 
         #endregion
 
         #region Methods
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> GetAttachedMembers()
         {
-            var members = ItemOrListEditor.Get<IMemberInfo>();
+            var members = new ItemOrListEditor<IMemberInfo>();
             foreach (var keyValuePair in _registeredMembers)
-                members.AddRange(keyValuePair.Value);
-            return members.ToItemOrList<IReadOnlyList<IMemberInfo>>();
+                members.AddRange(new ItemOrIEnumerable<IMemberInfo>(keyValuePair.Value));
+            return members.ToItemOrList();
         }
 
         public void Register(IMemberInfo member, string? name = null)

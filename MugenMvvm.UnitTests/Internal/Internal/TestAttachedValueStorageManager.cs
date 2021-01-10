@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -10,7 +11,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
     {
         #region Properties
 
-        public Func<object, object?, object?, Func<object, string, object?, object?, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues { get; set; }
+        public Func<object, object?, object?, Func<object, string, object?, object?, bool>?, ItemOrIReadOnlyList<KeyValuePair<string, object?>>>? TryGetValues { get; set; }
 
         public Func<object, object?, int>? GetCount { get; set; }
 
@@ -40,7 +41,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 
         int IAttachedValueStorageManager.GetCount(object item, ref object? internalState) => GetCount!.Invoke(item, internalState);
 
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueStorageManager.GetValues<TState>(object item, TState state,
+        ItemOrIReadOnlyList<KeyValuePair<string, object?>> IAttachedValueStorageManager.GetValues<TState>(object item, TState state,
             Func<object, string, object?, TState, bool>? predicate, ref object? internalState) =>
             TryGetValues!.Invoke(item, internalState, state, predicate == null ? null : new Func<object, string, object?, object?, bool>((o, key, value, arg3) => predicate(o, key, value, (TState) arg3!)));
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -30,7 +31,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         public int Priority { get; set; }
 
-        public Func<object, string?, IReadOnlyMetadataContext?, ItemOrList<IBinding, IReadOnlyList<IBinding>>>? TryGetBindings { get; set; }
+        public Func<object, string?, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<IBinding>>? TryGetBindings { get; set; }
 
         public Func<object?, IBinding, IReadOnlyMetadataContext?, bool>? TryRegister { get; set; }
 
@@ -40,7 +41,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IBinding, IReadOnlyList<IBinding>> IBindingHolderComponent.TryGetBindings(IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<IBinding> IBindingHolderComponent.TryGetBindings(IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             _bindingManager?.ShouldEqual(bindingManager);
             return TryGetBindings?.Invoke(target, path, metadata) ?? default;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MugenMvvm.Busy;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -14,13 +15,13 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static Task WhenAll<TList>(this ItemOrListEditor<Task, TList> itemOrList) where TList : class, IList<Task>
+        public static Task WhenAll(this ItemOrListEditor<Task> editor)
         {
-            if (itemOrList.Count == 0)
+            if (editor.Count == 0)
                 return Default.CompletedTask;
-            if (itemOrList.Count == 1)
-                return itemOrList[0];
-            return Task.WhenAll((IList<Task>) itemOrList.GetRawValue()!);
+            if (editor.Count == 1)
+                return editor[0];
+            return Task.WhenAll((IList<Task>) editor.GetRawValue()!);
         }
 
         public static TTask WithBusyIndicator<TTask>(this TTask task, IHasService<IBusyManager> busyManager,

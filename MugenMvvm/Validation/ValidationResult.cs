@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -34,13 +35,13 @@ namespace MugenMvvm.Validation
 
         public bool HasResult => RawErrors != null;
 
-        public ItemOrList<object, IReadOnlyList<object>> SingleMemberErrors
+        public ItemOrIReadOnlyList<object> SingleMemberErrors
         {
             get
             {
                 if (SingleMemberName == null)
                     return default;
-                return ItemOrList.FromRawValue<object, IReadOnlyList<object>>(RawErrors);
+                return ItemOrIReadOnlyList.FromRawValue<object>(RawErrors);
             }
         }
 
@@ -56,7 +57,7 @@ namespace MugenMvvm.Validation
             return new ValidationResult(null, errors, metadata);
         }
 
-        public static ValidationResult Get(string member, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
+        public static ValidationResult Get(string member, ItemOrIReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(member, nameof(member));
             return new ValidationResult(member, errors.GetRawValue(), metadata);

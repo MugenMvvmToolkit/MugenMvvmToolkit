@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Busy;
@@ -28,7 +29,7 @@ namespace MugenMvvm.Busy
         public IBusyToken? TryGetToken<TState>(TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IBusyManagerComponent>(metadata).TryGetToken(this, filter, state, metadata);
 
-        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens(IReadOnlyMetadataContext? metadata = null) => GetComponents<IBusyManagerComponent>(metadata).TryGetTokens(this, metadata);
+        public ItemOrIReadOnlyList<IBusyToken> GetTokens(IReadOnlyMetadataContext? metadata = null) => GetComponents<IBusyManagerComponent>(metadata).TryGetTokens(this, metadata);
 
         #endregion
     }

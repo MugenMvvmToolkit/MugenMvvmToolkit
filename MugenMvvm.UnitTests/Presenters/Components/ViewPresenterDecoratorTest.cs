@@ -206,7 +206,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                 {
                     o.ShouldEqual(presenterResult);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<INavigationCallback>(callback);
+                    return callback;
                 }
             });
             var presenter = new Presenter();

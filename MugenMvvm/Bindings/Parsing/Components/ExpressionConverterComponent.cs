@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -47,7 +48,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
 
         #region Implementation of interfaces
 
-        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<ExpressionParserResult> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is BindingExpressionRequest request)
                 return Parse(request, metadata);
@@ -61,7 +62,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
 
                 var result = new ExpressionParserResult[expressions.Count];
                 for (var i = 0; i < result.Length; i++)
-                    result[i] = Parse(expressions[i], metadata).Item;
+                    result[i] = Parse(expressions[i], metadata);
                 return result;
             }
 
@@ -84,23 +85,16 @@ namespace MugenMvvm.Bindings.Parsing.Components
             _componentTracker.Detach(owner, metadata);
         }
 
-        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(BindingExpressionRequest expression, IReadOnlyMetadataContext? metadata)
+        private ExpressionParserResult Parse(BindingExpressionRequest expression, IReadOnlyMetadataContext? metadata)
         {
             _context.Initialize(metadata);
             var target = Convert(expression.Target, metadata);
             var source = Convert(expression.Source, metadata);
+            var parameters = new ItemOrListEditor<IExpressionNode>();
+            foreach (var parameter in expression.Parameters)
+                AddParameter(parameter, ref parameters, metadata);
 
-            var list = expression.Parameters.List;
-            var parameters = ItemOrListEditor.Get<IExpressionNode>();
-            if (list != null)
-            {
-                for (var i = 0; i < list.Count; i++)
-                    AddParameter(list[i], ref parameters, metadata);
-            }
-            else
-                AddParameter(expression.Parameters.Item, ref parameters, metadata);
-
-            return new ExpressionParserResult(target, source, parameters.ToItemOrList<IReadOnlyList<IExpressionNode>>());
+            return new ExpressionParserResult(target, source, parameters.ToItemOrList());
         }
 
         private IExpressionNode Convert(object? expression, IReadOnlyMetadataContext? metadata = null)
@@ -142,7 +136,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
             return null!;
         }
 
-        private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrListEditor<IExpressionNode, List<IExpressionNode>> result, IReadOnlyMetadataContext? metadata)
+        private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrListEditor<IExpressionNode> result, IReadOnlyMetadataContext? metadata)
         {
             if (parameter.Key != null)
                 result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, metadata)));

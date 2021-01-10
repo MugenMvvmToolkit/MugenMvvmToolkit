@@ -10,6 +10,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -38,7 +39,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(exp);
+                    return exp;
                 }
             });
             bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
@@ -80,7 +81,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             bindingManager.AddComponent(decorator);
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, arg3) => ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(result)
+                TryParseBindingExpression = (o, arg3) => ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(result)
             });
 
             var bindingExpressions = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
@@ -55,7 +56,7 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
         }
 
         void IMetadataContextValueManagerComponent.GetValues(IMetadataContext context, MetadataOperationType operationType,
-            ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>, List<KeyValuePair<IMetadataContextKey, object?>>> values)
+            ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             var array = GetValues?.Invoke() ?? Default.Array<KeyValuePair<IMetadataContextKey, object?>>();

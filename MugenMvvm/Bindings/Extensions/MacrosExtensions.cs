@@ -10,6 +10,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -39,15 +40,9 @@ namespace MugenMvvm.Bindings.Extensions
             if (binding == null)
                 return metadata?.Get(BindingMetadata.EventArgs);
 
-            var itemOrList = binding.GetComponents();
-            var components = itemOrList.List;
-            var component = itemOrList.Item;
-            if (components == null)
-                return (component as IHasEventArgsComponent)?.EventArgs;
-
-            for (var i = 0; i < components.Length; i++)
+            foreach (object component in binding.GetComponents())
             {
-                var args = (components[i] as IHasEventArgsComponent)?.EventArgs;
+                var args = (component as IHasEventArgsComponent)?.EventArgs;
                 if (args != null)
                     return args;
             }
@@ -120,7 +115,7 @@ namespace MugenMvvm.Bindings.Extensions
                 var validator = hasValidator.ServiceOptional;
                 if (validator != null)
                 {
-                    var editor = ItemOrListEditor.Get<object>();
+                    var editor = new ItemOrListEditor<object>();
                     for (var i = 0; i < members.Length; i++)
                         editor.AddRange(validator.GetErrors(members[i]));
 

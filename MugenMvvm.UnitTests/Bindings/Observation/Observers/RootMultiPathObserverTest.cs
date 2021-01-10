@@ -43,11 +43,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
                     if (t == target2.GetType())
-                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
+                        return accessorInfo3;
                     if (t == root.GetType())
-                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
+                        return accessorInfo1;
                     if (t == target1.GetType())
-                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
+                        return accessorInfo2;
                     throw new NotSupportedException();
                 }
             };

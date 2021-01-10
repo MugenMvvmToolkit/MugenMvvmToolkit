@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -13,9 +14,9 @@ namespace MugenMvvm.Bindings.Interfaces.Core
 
         IMemberPathObserver Target { get; }
 
-        ItemOrList<object?, object?[]> Source { get; }
+        ItemOrArray<object?> Source { get; }
 
-        ItemOrList<object, object[]> GetComponents();
+        ItemOrArray<object> GetComponents();
 
         void UpdateTarget();
 

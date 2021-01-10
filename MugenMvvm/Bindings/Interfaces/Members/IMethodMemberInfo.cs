@@ -22,6 +22,6 @@ namespace MugenMvvm.Bindings.Interfaces.Members
 
         IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null);
 
-        object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);
+        object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);//todo args to itemorlist?
     }
 }

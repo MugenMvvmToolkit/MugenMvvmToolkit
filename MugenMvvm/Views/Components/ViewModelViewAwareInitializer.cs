@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -120,8 +121,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            foreach (var t in ItemOrList
-                .FromRawValue<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>(delegates))
+            foreach (var t in ItemOrIReadOnlyList.FromRawValue<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>(delegates))
                 t.Invoke(this, view, clear, metadata);
         }
 
@@ -139,13 +139,13 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            foreach (var t in ItemOrList.FromRawValue<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>, List<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>>(delegates))
+            foreach (var t in ItemOrIReadOnlyList.FromRawValue<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>(delegates))
                 t.Invoke(this, view, viewModel);
         }
 
-        private ItemOrList<TInvoker, List<TInvoker>> GetDelegates<TInvoker>(Type targetType, Type interfaceType, string propertyName, MethodInfo method) where TInvoker : Delegate
+        private ItemOrIReadOnlyList<TInvoker> GetDelegates<TInvoker>(Type targetType, Type interfaceType, string propertyName, MethodInfo method) where TInvoker : Delegate
         {
-            var result = ItemOrListEditor.Get<TInvoker>();
+            var result = new ItemOrListEditor<TInvoker>();
             var interfaces = targetType.GetInterfaces();
             for (var index = 0; index < interfaces.Length; index++)
             {

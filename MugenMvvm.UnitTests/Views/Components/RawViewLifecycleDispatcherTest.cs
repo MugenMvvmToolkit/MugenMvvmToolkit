@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IView>(view);
+                    return view;
                 }
             });
             viewManager.AddComponent(new TestViewLifecycleListener

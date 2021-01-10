@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -29,7 +30,7 @@ namespace MugenMvvm.Bindings.Core
             _expression = expression;
         }
 
-        public MultiBinding(IMemberPathObserver target, ItemOrList<object?, object?[]> sources, ICompiledExpression expression)
+        public MultiBinding(IMemberPathObserver target, ItemOrArray<object?> sources, ICompiledExpression expression)
             : base(target, sources.GetRawValue())
         {
             Should.NotBeNull(expression, nameof(expression));
@@ -65,8 +66,7 @@ namespace MugenMvvm.Bindings.Core
 
         protected override int GetMetadataCount() => 2;
 
-        protected override ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetMetadataValues()
-            => new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true)};
+        protected override ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() => new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true)};
 
         protected override bool ContainsMetadata(IMetadataContextKey contextKey) => base.ContainsMetadata(contextKey) || BindingMetadata.IsMultiBinding.Equals(contextKey);
 

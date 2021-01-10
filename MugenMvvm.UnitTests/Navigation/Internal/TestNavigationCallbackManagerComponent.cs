@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -34,7 +35,7 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         public Func<NavigationCallbackType, string, NavigationType, object, IReadOnlyMetadataContext?, INavigationCallback?>? TryAddNavigationCallback { get; set; }
 
-        public Func<object, IReadOnlyMetadataContext?, ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>>>? TryGetNavigationCallbacks { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<INavigationCallback>>? TryGetNavigationCallbacks { get; set; }
 
         public Func<NavigationCallbackType, INavigationContext, bool>? TryInvokeNavigationCallbacks { get; set; }
 
@@ -54,7 +55,7 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
             return TryAddNavigationCallback?.Invoke(callbackType, navigationId, navigationType, request, metadata);
         }
 
-        ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> INavigationCallbackManagerComponent.TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request,
+        ItemOrIReadOnlyList<INavigationCallback> INavigationCallbackManagerComponent.TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request,
             IReadOnlyMetadataContext? metadata)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);

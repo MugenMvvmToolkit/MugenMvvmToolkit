@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
@@ -62,17 +63,17 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnDisposed(validator);
         }
 
-        public static ItemOrList<object, IReadOnlyList<object>> TryGetErrors(this IValidatorComponent[] components, IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<object> TryGetErrors(this IValidatorComponent[] components, IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(validator, nameof(validator));
             if (components.Length == 1)
                 return components[0].TryGetErrors(validator, memberName, metadata);
 
-            var result = ItemOrListEditor.Get<object>();
+            var result = new ItemOrListEditor<object>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetErrors(validator, memberName, metadata));
-            return result.ToItemOrList<IReadOnlyList<object>>();
+            return result.ToItemOrList();
         }
 
         public static IReadOnlyDictionary<string, object>? TryGetErrors(this IValidatorComponent[] components, IValidator validator, IReadOnlyMetadataContext? metadata)

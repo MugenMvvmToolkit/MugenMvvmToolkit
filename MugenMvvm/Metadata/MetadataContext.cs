@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -23,7 +24,7 @@ namespace MugenMvvm.Metadata
 
         #region Constructors
 
-        public MetadataContext(ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> values)
+        public MetadataContext(ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             _dictionary = new Dictionary<IMetadataContextKey, object?>(3, InternalEqualityComparer.MetadataContextKey);
             foreach (var value in values)
@@ -44,7 +45,7 @@ namespace MugenMvvm.Metadata
         }
 
         public MetadataContext(IEnumerable<KeyValuePair<IMetadataContextKey, object?>>? values = null)
-            : this(ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>(values))
+            : this(new ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>>(values))
         {
         }
 
@@ -71,12 +72,12 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> GetValues()
+        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues()
         {
             var components = GetComponents();
             lock (_dictionary)
             {
-                var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>();
+                var contextValues = new ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>>();
                 foreach (var keyValuePair in _dictionary)
                     contextValues.Add(keyValuePair);
                 components.GetValues(this, MetadataOperationType.Get, ref contextValues);
@@ -251,7 +252,7 @@ namespace MugenMvvm.Metadata
             return hasOldValue;
         }
 
-        public void Merge(ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>> values)
+        public void Merge(ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             var components = GetComponents();
             var listeners = GetListeners();
@@ -265,7 +266,7 @@ namespace MugenMvvm.Metadata
             }
             else
             {
-                var oldValues = ItemOrListEditor.Get<KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>>();
+                var oldValues = new ItemOrListEditor<KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>>();
                 lock (_dictionary)
                 {
                     foreach (var item in values)
@@ -319,7 +320,7 @@ namespace MugenMvvm.Metadata
                 return;
             }
 
-            var oldValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>();
+            var oldValues = new ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>>();
             lock (_dictionary)
             {
                 foreach (var pair in _dictionary)
@@ -345,7 +346,7 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        public ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IEnumerable<KeyValuePair<IMetadataContextKey, object?>>>.Enumerator GetEnumerator() => GetValues().GetEnumerator();
+        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>>.Enumerator GetEnumerator() => GetValues().GetEnumerator();
 
         public void Add<T>(IMetadataContextKey<T> contextKey, T value) => Set(contextKey, value, out _);
 

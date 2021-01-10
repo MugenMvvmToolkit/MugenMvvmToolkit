@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
@@ -52,14 +53,14 @@ namespace MugenMvvm.Navigation
 
         #region Implementation of interfaces
 
-        public ItemOrList<INavigationCallbackListener, IReadOnlyList<INavigationCallbackListener>> GetCallbacks()
+        public ItemOrIReadOnlyList<INavigationCallbackListener> GetCallbacks()
         {
             lock (this)
             {
                 if (_callbacks is List<INavigationCallbackListener> callbacks)
                     return callbacks.ToItemOrList(false);
 
-                return ItemOrList.FromItem((INavigationCallbackListener) _callbacks!);
+                return ItemOrIReadOnlyList.FromItem((INavigationCallbackListener) _callbacks!);
             }
         }
 
@@ -72,7 +73,7 @@ namespace MugenMvvm.Navigation
                 {
                     if (!IsCompleted)
                     {
-                        var editor = GetCallbacksRaw().Editor();
+                        var editor = GetCallbacksEditorRaw();
                         editor.Add(callback);
                         _callbacks = editor.GetRawValue();
                         return;
@@ -87,7 +88,7 @@ namespace MugenMvvm.Navigation
         {
             lock (this)
             {
-                var list = GetCallbacksRaw().Editor();
+                var list = GetCallbacksEditorRaw();
                 list.Remove(callback);
                 _callbacks = list.GetRawValue();
             }
@@ -121,7 +122,7 @@ namespace MugenMvvm.Navigation
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             var completed = false;
-            ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> callbacks = default;
+            ItemOrIReadOnlyList<INavigationCallbackListener> callbacks = default;
             if (!IsCompleted)
             {
                 lock (this)
@@ -167,7 +168,9 @@ namespace MugenMvvm.Navigation
             }
         }
 
-        private ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> GetCallbacksRaw() => ItemOrList.FromRawValue<INavigationCallbackListener, List<INavigationCallbackListener>>(_callbacks);
+        private ItemOrIReadOnlyList<INavigationCallbackListener> GetCallbacksRaw() => ItemOrIReadOnlyList.FromRawValue<INavigationCallbackListener>(_callbacks);
+
+        private ItemOrListEditor<INavigationCallbackListener> GetCallbacksEditorRaw() => ItemOrListEditor<INavigationCallbackListener>.FromRawValue(_callbacks);
 
         #endregion
     }

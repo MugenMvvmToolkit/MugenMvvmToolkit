@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     ++invokeCount;
                     o.ShouldEqual(ConverterRequest);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IBindingBuilder>(testExp);
+                    return testExp;
                 }
             };
             bindingManager.AddComponent(cache);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -85,10 +86,10 @@ namespace MugenMvvm.Messaging.Components
             return unsubscribed;
         }
 
-        public ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
-            var result = ItemOrListEditor.Get<MessengerHandler>();
-            var toRemove = ItemOrListEditor.Get<object>();
+            var result = new ItemOrListEditor<MessengerHandler>();
+            var toRemove = new ItemOrListEditor<object>();
             lock (this)
             {
                 if (Count == 0)
@@ -115,10 +116,10 @@ namespace MugenMvvm.Messaging.Components
             for (var i = 0; i < count; i++)
                 messenger.TryUnsubscribe(toRemove[i], metadata);
 
-            return result.ToItemOrList<IReadOnlyList<MessengerHandler>>();
+            return result.ToItemOrList();
         }
 
-        public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<MessengerSubscriberInfo> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
         {
             lock (this)
             {

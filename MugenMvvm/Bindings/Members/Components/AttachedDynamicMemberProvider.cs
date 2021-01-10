@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -40,14 +41,14 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (_dynamicMembers.Count == 0)
                 return default;
-            var members = ItemOrListEditor.Get<IMemberInfo>();
+            var members = new ItemOrListEditor<IMemberInfo>();
             for (var i = 0; i < _dynamicMembers.Count; i++)
                 members.AddIfNotNull(_dynamicMembers[i].Invoke(type, name, memberTypes, metadata)!);
-            return members.ToItemOrList<IReadOnlyList<IMemberInfo>>();
+            return members.ToItemOrList();
         }
 
         #endregion

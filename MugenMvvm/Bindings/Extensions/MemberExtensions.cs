@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members.Descriptors;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -158,7 +159,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TReturn? SingleOrDefault<TReturn>(this ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> itemOrList) where TReturn : class, IMemberInfo
+        private static TReturn? SingleOrDefault<TReturn>(this ItemOrIReadOnlyList<IMemberInfo> itemOrList) where TReturn : class, IMemberInfo
         {
             if (itemOrList.List != null)
                 ExceptionManager.ThrowAmbiguousMatchFound();

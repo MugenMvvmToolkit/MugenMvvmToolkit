@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 
@@ -14,6 +14,6 @@ namespace MugenMvvm.Interfaces.Navigation
 
         void RemoveCallback(INavigationCallbackListener callback);
 
-        ItemOrList<INavigationCallbackListener, IReadOnlyList<INavigationCallbackListener>> GetCallbacks();
+        ItemOrIReadOnlyList<INavigationCallbackListener> GetCallbacks();
     }
 }

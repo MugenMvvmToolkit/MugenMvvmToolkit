@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -43,7 +44,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             _types.Clear();
             if (type == typeof(string) && name == BindingInternalConstant.IndexerGetterName)
@@ -51,7 +52,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var hasProperty = !memberTypes.HasFlag(MemberType.Accessor);
             var hasField = hasProperty;
             var hasEvent = !memberTypes.HasFlag(MemberType.Event);
-            var result = ItemOrListEditor.Get<IMemberInfo>();
+            var result = new ItemOrListEditor<IMemberInfo>();
             var types = BindingMugenExtensions.SelfAndBaseTypes(type, types: _types);
             foreach (var t in types)
             {
@@ -83,14 +84,14 @@ namespace MugenMvvm.Bindings.Members.Components
                 }
             }
 
-            return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();
+            return result.ToItemOrList();
         }
 
         #endregion
 
         #region Methods
 
-        private bool AddEvents(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result, IReadOnlyMetadataContext? metadata)
+        private bool AddEvents(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result, IReadOnlyMetadataContext? metadata)
         {
             var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
             if (eventInfo == null)
@@ -104,7 +105,7 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        private static bool AddFields(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result)
+        private static bool AddFields(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
         {
             var field = t.GetField(name, BindingFlagsEx.All);
             if (field == null)
@@ -114,7 +115,7 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        private static bool AddProperties(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result)
+        private static bool AddProperties(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
         {
             var property = t.GetProperty(name, BindingFlagsEx.All);
             if (property == null)

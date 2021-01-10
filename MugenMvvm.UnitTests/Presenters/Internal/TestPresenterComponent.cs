@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
@@ -29,9 +30,9 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         #region Properties
 
-        public Func<object, IReadOnlyMetadataContext?, CancellationToken, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>>>? TryClose { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, CancellationToken, ItemOrIReadOnlyList<IPresenterResult>>? TryClose { get; set; }
 
-        public Func<object, IReadOnlyMetadataContext?, CancellationToken, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>>>? TryShow { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, CancellationToken, ItemOrIReadOnlyList<IPresenterResult>>? TryShow { get; set; }
 
         public int Priority { get; set; }
 
@@ -39,13 +40,13 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> IPresenterComponent.TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<IPresenterResult> IPresenterComponent.TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _presenter?.ShouldEqual(presenter);
             return TryShow?.Invoke(request, metadata, cancellationToken) ?? default;
         }
 
-        ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> IPresenterComponent.TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<IPresenterResult> IPresenterComponent.TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _presenter?.ShouldEqual(presenter);
             return TryClose?.Invoke(request, metadata, cancellationToken) ?? default;

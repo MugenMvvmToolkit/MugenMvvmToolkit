@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -40,16 +41,16 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<INavigationEntry> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
-            var result = ItemOrListEditor.Get<INavigationEntry>();
+            var result = new ItemOrListEditor<INavigationEntry>();
             lock (_navigationEntries)
             {
                 foreach (var t in _navigationEntries)
-                    result.AddRange(t.Value);
+                    result.AddRange(new ItemOrIEnumerable<INavigationEntry>(t.Value));
             }
 
-            return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
+            return result.ToItemOrList();
         }
 
         public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
@@ -76,7 +77,7 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var result = Components.TryShow(presenter, request, cancellationToken, metadata);
             foreach (var r in result)
@@ -84,7 +85,7 @@ namespace MugenMvvm.Navigation.Components
             return result;
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             => Components.TryClose(presenter, request, cancellationToken, metadata);
 
         #endregion

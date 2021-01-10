@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         t.ShouldEqual(lastMemberTarget.GetType());
                         m.ShouldEqual(MemberType.Method);
                         f.ShouldEqual(flags);
-                        return ItemOrList.FromItem<IMemberInfo>(methodMember);
+                        return methodMember;
                     }
 
                     throw new NotSupportedException();

@@ -270,7 +270,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     o.ShouldEqual(request.ViewModel);
                     context.ShouldEqual(DefaultMetadata);
-                    return ItemOrList.FromItem<IView>(new View(viewMapping, oldView, request.ViewModel!));
+                    return new View(viewMapping, oldView, request.ViewModel!);
                 }
             });
             viewManager.AddComponent(new TestViewManagerComponent

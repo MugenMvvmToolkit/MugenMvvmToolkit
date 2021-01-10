@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -75,7 +76,7 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request,
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request,
             IReadOnlyMetadataContext? metadata)
         {
             if (!(request is IReadOnlyList<IMemberInfo> members))
@@ -100,7 +101,7 @@ namespace MugenMvvm.Bindings.Members.Components
             if (_selectorDictionary.Count == 0)
                 return default;
             if (_selectorDictionary.Count == 1)
-                return ItemOrList.FromItem(_selectorDictionary.FirstOrDefault().Value.GetBestMember());
+                return ItemOrIReadOnlyList.FromItem(_selectorDictionary.FirstOrDefault().Value.GetBestMember());
             var result = new IMemberInfo[_selectorDictionary.Count];
             var index = 0;
             foreach (var pair in _selectorDictionary)

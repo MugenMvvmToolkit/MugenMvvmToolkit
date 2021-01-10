@@ -64,15 +64,15 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         t.ShouldEqual(target3.GetType());
                         m.ShouldEqual(MemberType.Method);
                         f.ShouldEqual(MemberFlags.All.ClearInstanceOrStaticFlags(false));
-                        return ItemOrList.FromItem<IMemberInfo>(methodMember);
+                        return methodMember;
                     }
 
                     if (t == target2.GetType())
-                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo3);
+                        return accessorInfo3;
                     if (t == root.GetType())
-                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo1);
+                        return accessorInfo1;
                     if (t == target1.GetType())
-                        return ItemOrList.FromItem<IMemberInfo>(accessorInfo2);
+                        return accessorInfo2;
                     throw new NotSupportedException();
                 }
             };

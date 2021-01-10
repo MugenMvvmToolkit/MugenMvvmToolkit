@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Entities;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -14,6 +14,6 @@ namespace MugenMvvm.Interfaces.Entities
 
         void Restore(object entity, IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrList<EntityStateValue, IReadOnlyList<EntityStateValue>> Dump(object entity, IReadOnlyMetadataContext? metadata = null);
+        ItemOrIReadOnlyList<EntityStateValue> Dump(object entity, IReadOnlyMetadataContext? metadata = null);
     }
 }

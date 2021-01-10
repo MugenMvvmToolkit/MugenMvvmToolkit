@@ -12,6 +12,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -53,26 +54,20 @@ namespace MugenMvvm.Bindings.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             var parserResult = _parser.DefaultIfNull().TryParse(expression, metadata);
-            var list = parserResult.List;
-            if (list != null)
-            {
-                var bindingExpressions = new IBindingBuilder[list.Count];
-                for (var i = 0; i < bindingExpressions.Length; i++)
-                {
-                    var result = list[i];
-                    bindingExpressions[i] = new BindingBuilder(_context, result.Target, result.Source, result.Parameters.GetRawValue());
-                }
-
-                return bindingExpressions;
-            }
-
-            var item = parserResult.Item;
-            if (item.IsEmpty)
+            var count = parserResult.Count;
+            if (count == 0)
                 return default;
-            return new BindingBuilder(_context, item.Target, item.Source, item.Parameters.GetRawValue());
+            if (count == 1)
+                return new BindingBuilder(_context, parserResult.Item.Target, parserResult.Item.Source, parserResult.Item.Parameters.GetRawValue());
+
+            var bindingExpressions = new IBindingBuilder[count];
+            int index = 0;
+            foreach (var result in parserResult)
+                bindingExpressions[index++] = new BindingBuilder(_context, result.Target, result.Source, result.Parameters.GetRawValue());
+            return bindingExpressions;
         }
 
         #endregion
@@ -141,10 +136,7 @@ namespace MugenMvvm.Bindings.Core.Components
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
-                    {
-                        binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)),
-                            metadata);
-                    }
+                        binding.Initialize(ItemOrArray.FromItem(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)), metadata);
                 }
 
                 if (binding.State == BindingState.Valid)
@@ -176,7 +168,7 @@ namespace MugenMvvm.Bindings.Core.Components
                     _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
                 }
 
-                var components = ItemOrListEditor.Get<object>();
+                var components = new ItemOrListEditor<object>();
                 foreach (var componentPair in _context.Components)
                     components.AddIfNotNull(componentPair.Value!);
 
@@ -185,13 +177,13 @@ namespace MugenMvvm.Bindings.Core.Components
                 _context.Clear();
             }
 
-            private ItemOrList<IExpressionNode, IList<IExpressionNode>> GetParameters()
+            private ItemOrIReadOnlyList<IExpressionNode> GetParameters()
             {
                 if (_parametersRaw == null)
                     return default;
                 if (_parametersRaw is IReadOnlyList<IExpressionNode> parameters)
-                    return ItemOrList.FromList(iList: parameters.ToList());
-                return ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parametersRaw);
+                    return new ItemOrIReadOnlyList<IExpressionNode>(parameters.ToList());
+                return new ItemOrIReadOnlyList<IExpressionNode>((IExpressionNode) _parametersRaw, true);
             }
 
             #endregion

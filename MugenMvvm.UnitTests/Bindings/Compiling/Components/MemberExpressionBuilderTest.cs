@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            IMemberInfo? result = null;
+            TestAccessorMemberInfo? result = null;
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.HasFlag(MemberType.Accessor).ShouldBeTrue();
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem(result!);
+                return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.HasFlag(MemberType.Accessor).ShouldBeTrue();
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.HasFlag(MemberType.Accessor).ShouldBeTrue();
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
@@ -225,7 +225,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 m.HasFlag(MemberType.Accessor).ShouldBeTrue();
                 f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 meta.ShouldEqual(metadataContext);
-                return ItemOrList.FromItem<IMemberInfo>(result);
+                return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);

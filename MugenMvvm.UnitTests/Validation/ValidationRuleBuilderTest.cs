@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Validation
             var value = "";
             var error = "error";
             var invokeCount = 0;
-            var builder = ValidationRuleBuilder<object>.Get();
+            var builder = new ValidationRuleBuilder<object>();
             var rule = builder.AddValidator(memberName, o => value, this, (o, s, state, m) =>
             {
                 ++invokeCount;
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Validation
             var errorTcs = new TaskCompletionSource<object?>();
             var invokeCount = 0;
             var cts = new CancellationTokenSource();
-            var rule = ValidationRuleBuilder<object>.Get().AddAsyncValidator(memberName, o => value, this, (o, s, state, ct, m) =>
+            var rule = new ValidationRuleBuilder<object>().AddAsyncValidator(memberName, o => value, this, (o, s, state, ct, m) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(target);
@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTests.Validation
             var value = "";
             var error = "error";
             var invokeCount = 0;
-            var builder = ValidationRuleBuilder<object>.Get();
+            var builder = new ValidationRuleBuilder<object>();
             var rule = builder.AddValidator(memberName, o => value, this, (o, s, state, m) =>
             {
                 ++invokeCount;
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var invokeCount = 0;
             var canValidate = true;
-            var builder = ValidationRuleBuilder<object>.Get();
+            var builder = new ValidationRuleBuilder<object>();
             var rule = builder.AddValidator(memberName, o => value, this, (o, s, state, m) =>
             {
                 ++invokeCount;
@@ -193,7 +193,7 @@ namespace MugenMvvm.UnitTests.Validation
         public void ForExtensionShouldBeCorrect1()
         {
             var validationModel = new ValidationModel {Property = "G"};
-            var builder = ValidationRuleBuilder<ValidationModel>.Get();
+            var builder = new ValidationRuleBuilder<ValidationModel>();
             var memberBuilder = builder.For(model => model.Property);
             memberBuilder.MemberName.ShouldEqual(nameof(ValidationModel.Property));
             memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
@@ -203,7 +203,7 @@ namespace MugenMvvm.UnitTests.Validation
         public void ForExtensionShouldBeCorrect2()
         {
             var validationModel = new ValidationModel {Property = "G"};
-            var builder = ValidationRuleBuilder<ValidationModel>.Get();
+            var builder = new ValidationRuleBuilder<ValidationModel>();
             var memberBuilder = builder.For(nameof(validationModel.Property), model => model.Property);
             memberBuilder.MemberName.ShouldEqual(nameof(ValidationModel.Property));
             memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
@@ -215,7 +215,7 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => model.Property).NotNull(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotNull(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -234,7 +234,7 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => model.Property).Null(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Null(error).Build().Item!;
 
             validationModel.Property = "test";
             var errors = new Dictionary<string, object?>();
@@ -254,7 +254,7 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => model.Property).NotEmpty(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotEmpty(error).Build().Item!;
 
             validationModel.Property = "";
             var errors = new Dictionary<string, object?>();
@@ -275,7 +275,7 @@ namespace MugenMvvm.UnitTests.Validation
             var propertyName = nameof(ValidationModel.Property);
             var value = 0;
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).NotEmpty(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -295,7 +295,7 @@ namespace MugenMvvm.UnitTests.Validation
             var propertyName = nameof(ValidationModel.Property);
             var value = new string[0];
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).NotEmpty(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -314,7 +314,7 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => model.Property).Empty(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Empty(error).Build().Item!;
 
             validationModel.Property = "test";
             var errors = new Dictionary<string, object?>();
@@ -335,7 +335,7 @@ namespace MugenMvvm.UnitTests.Validation
             var propertyName = nameof(ValidationModel.Property);
             var value = 1;
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).Empty(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -355,7 +355,7 @@ namespace MugenMvvm.UnitTests.Validation
             var propertyName = nameof(ValidationModel.Property);
             var value = new[] {""};
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => value).Empty(error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -374,7 +374,7 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get().For(propertyName, model => model.Property).Length(1, 5, error).Build().Item!;
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Length(1, 5, error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -401,7 +401,7 @@ namespace MugenMvvm.UnitTests.Validation
             var canValidate = true;
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get()
+            var rule = new ValidationRuleBuilder<ValidationModel>()
                 .For(propertyName, model => model.Property).Must((model, s, m) =>
                 {
                     m.ShouldEqual(DefaultMetadata);
@@ -445,7 +445,7 @@ namespace MugenMvvm.UnitTests.Validation
             var validationModel = new ValidationModel();
             var tcs = new TaskCompletionSource<bool>();
             var cts = new CancellationTokenSource();
-            var rule = ValidationRuleBuilder<ValidationModel>.Get()
+            var rule = new ValidationRuleBuilder<ValidationModel>()
                 .For(propertyName, model => model.Property).MustAsync((model, s, c, m) =>
                 {
                     model.ShouldEqual(validationModel);

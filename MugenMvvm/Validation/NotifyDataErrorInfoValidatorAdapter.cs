@@ -44,7 +44,7 @@ namespace MugenMvvm.Validation
 
         #region Implementation of interfaces
 
-        public IEnumerable GetErrors(string? propertyName) => _validator.GetErrors(propertyName ?? "").AsEnumerable();
+        public IEnumerable GetErrors(string? propertyName) => _validator.GetErrors(propertyName ?? "").AsList();
 
         void IValidatorListener.OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
             => ErrorsChanged?.Invoke(_owner ?? this, new DataErrorsChangedEventArgs(memberName));

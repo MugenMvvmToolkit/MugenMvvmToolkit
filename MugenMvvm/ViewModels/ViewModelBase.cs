@@ -15,7 +15,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.ViewModels
 {
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener, IHasDisposeCallback
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener, IHasDisposeCallback//todo inherit service behavior
     {
         #region Fields
 

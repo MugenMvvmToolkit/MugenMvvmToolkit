@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -41,16 +42,16 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(this IBusyManagerComponent[] components, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<IBusyToken> TryGetTokens(this IBusyManagerComponent[] components, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(busyManager, nameof(busyManager));
             if (components.Length == 1)
                 return components[0].TryGetTokens(busyManager, metadata);
-            var result = ItemOrListEditor.Get<IBusyToken>();
+            var result = new ItemOrListEditor<IBusyToken>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetTokens(busyManager, metadata));
-            return result.ToItemOrList<IReadOnlyList<IBusyToken>>();
+            return result.ToItemOrList();
         }
 
         public static void OnBeginBusy(this IBusyManagerListener[] listeners, IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)

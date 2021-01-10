@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -43,26 +44,26 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (viewModel == null)
                 return default;
 
-            var result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = new ItemOrListEditor<IPresenterResult>();
             foreach (var mediator in TryGetMediators(presenter, viewModel, request, metadata))
                 result.AddIfNotNull(mediator.TryShow(view, cancellationToken, metadata)!);
 
-            return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
+            return result.ToItemOrList();
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (viewModel == null)
                 return default;
 
-            var result = ItemOrListEditor.Get<IPresenterResult>();
+            var result = new ItemOrListEditor<IPresenterResult>();
             lock (_locker)
             {
                 var dictionary = viewModel.GetOrDefault(InternalMetadata.Mediators);
@@ -71,7 +72,7 @@ namespace MugenMvvm.Presenters.Components
 
                 foreach (var mediator in dictionary)
                     result.AddIfNotNull(mediator.Value.TryClose(view, cancellationToken, metadata)!);
-                return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
+                return result.ToItemOrList();
             }
         }
 
@@ -79,9 +80,9 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
-        private ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> TryGetMediators(IPresenter presenter, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
+        private ItemOrIReadOnlyList<IViewModelPresenterMediator> TryGetMediators(IPresenter presenter, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
-            var result = ItemOrListEditor.Get<IViewModelPresenterMediator>();
+            var result = new ItemOrListEditor<IViewModelPresenterMediator>();
             lock (_locker)
             {
                 var components = presenter.GetComponents<IViewModelPresenterMediatorProviderComponent>(metadata);

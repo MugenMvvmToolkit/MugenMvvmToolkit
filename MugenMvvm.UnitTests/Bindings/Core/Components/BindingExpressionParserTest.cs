@@ -9,6 +9,7 @@ using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
@@ -88,8 +89,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var results = new ExpressionParserResult[expressionCount];
             for (var i = 0; i < results.Length; i++)
             {
-                results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"), new TestBindingMemberExpressionNode("0_"),
-                    ItemOrList.FromRawValue<IExpressionNode, IReadOnlyList<IExpressionNode>>(ConstantExpressionNode.Get(0)));
+                results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"), new TestBindingMemberExpressionNode("0_"), ConstantExpressionNode.Get(0));
             }
 
             var parser = new ExpressionParser();
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                                 return sourceObserver;
                             }
                         };
-                        var itemOrList = context.ParameterExpressions.Editor();
+                        var itemOrList = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
                         context.ParameterExpressions = itemOrList.ToItemOrList();
 
@@ -222,10 +222,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var sourceObserver2 = new TestMemberPathObserver();
             var results = new ExpressionParserResult[expressionCount];
             for (var i = 0; i < results.Length; i++)
-            {
-                results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"),
-                    GetBindingSourceExpression(0, out _, out _), ItemOrList.FromRawValue<IExpressionNode, IReadOnlyList<IExpressionNode>>(ConstantExpressionNode.Get(0)));
-            }
+                results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"), GetBindingSourceExpression(0, out _, out _), ConstantExpressionNode.Get(0));
 
             var compiler = new ExpressionCompiler();
             compiler.AddComponent(new TestExpressionCompilerComponent
@@ -296,7 +293,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                             return sourceObserver2;
                         };
 
-                        var itemOrList = context.ParameterExpressions.Editor();
+                        var itemOrList = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
                         context.ParameterExpressions = itemOrList.ToItemOrList();
 

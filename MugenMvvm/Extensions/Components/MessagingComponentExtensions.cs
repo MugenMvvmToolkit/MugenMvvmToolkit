@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
@@ -87,31 +88,30 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        public static ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(this IMessengerSubscriberComponent[] components, IMessenger messenger,
+        public static ItemOrIReadOnlyList<MessengerSubscriberInfo> TryGetSubscribers(this IMessengerSubscriberComponent[] components, IMessenger messenger,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messenger, nameof(messenger));
             if (components.Length == 1)
                 return components[0].TryGetSubscribers(messenger, metadata);
-            var subscribers = ItemOrListEditor.Get<MessengerSubscriberInfo>();
+            var subscribers = new ItemOrListEditor<MessengerSubscriberInfo>();
             for (var i = 0; i < components.Length; i++)
                 subscribers.AddRange(components[i].TryGetSubscribers(messenger, metadata));
-            return subscribers.ToItemOrList<IReadOnlyList<MessengerSubscriberInfo>>();
+            return subscribers.ToItemOrList();
         }
 
-        public static ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, IMessenger messenger, Type messageType,
-            IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(messageType, nameof(messageType));
             if (components.Length == 1)
                 return components[0].TryGetMessengerHandlers(messenger, messageType, metadata);
-            var handlers = ItemOrListEditor.Get<MessengerHandler>();
+            var handlers = new ItemOrListEditor<MessengerHandler>();
             for (var i = 0; i < components.Length; i++)
                 handlers.AddRange(components[i].TryGetMessengerHandlers(messenger, messageType, metadata));
-            return handlers.ToItemOrList<IReadOnlyList<MessengerHandler>>();
+            return handlers.ToItemOrList();
         }
 
         #endregion

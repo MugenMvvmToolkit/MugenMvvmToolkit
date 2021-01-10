@@ -25,6 +25,7 @@ using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -66,7 +67,7 @@ namespace MugenMvvm.Bindings.Extensions
             return result;
         }
 
-        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> ParseBindingExpression(this IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata = null)
+        public static ItemOrIReadOnlyList<IBindingBuilder> ParseBindingExpression(this IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             var result = bindingManager.TryParseBindingExpression(expression, metadata);
@@ -228,7 +229,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(visitor, nameof(visitor));
-            var parameters = context.ParameterExpressions.Editor();
+            var parameters = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
             for (var i = 0; i < parameters.Count; i++)
                 parameters[i] = parameters[i].Accept(visitor, metadata);
             context.ParameterExpressions = parameters.ToItemOrList();
@@ -251,7 +252,7 @@ namespace MugenMvvm.Bindings.Extensions
 
             var collect = memberExpressionCollectorVisitor.Collect(ref expression, metadata);
             var compiledExpression = compiler.DefaultIfNull().Compile(expression, metadata);
-            if (collect.Item == null && collect.List == null)
+            if (collect.IsEmpty)
                 return new BindingParameterExpression(compiledExpression.Invoke(default, metadata), null);
             return new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
         }
@@ -291,7 +292,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (expression == null)
                 return BindingMetadata.UnsetValue;
-            ItemOrList<ParameterValue, ParameterValue[]> values;
+            ItemOrArray<ParameterValue> values;
             if (sourceRaw == null)
                 values = default;
             else if (sourceRaw is object?[] sources)
@@ -379,15 +380,11 @@ namespace MugenMvvm.Bindings.Extensions
             }
         }
 
-        public static bool IsAllMembersAvailable(ItemOrList<object?, object?[]> observers)
+        public static bool IsAllMembersAvailable(ItemOrArray<object?> observers)
         {
-            var list = observers.List;
-            if (list == null)
-                return !(observers.Item is IMemberPathObserver observer) || observer.IsAllMembersAvailable();
-
-            for (var i = 0; i < list.Length; i++)
+            foreach (var item in observers)
             {
-                if (list[i] is IMemberPathObserver observer && !observer.IsAllMembersAvailable())
+                if (item is IMemberPathObserver observer && !observer.IsAllMembersAvailable())
                     return false;
             }
 

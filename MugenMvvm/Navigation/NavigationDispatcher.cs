@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -33,10 +34,10 @@ namespace MugenMvvm.Navigation
             IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(this, target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
 
-        public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null) =>
+        public ItemOrIReadOnlyList<INavigationEntry> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(this, metadata);
 
-        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks(object request, IReadOnlyMetadataContext? metadata = null) =>
+        public ItemOrIReadOnlyList<INavigationCallback> GetNavigationCallbacks(object request, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(this, request, metadata);
 
         public void OnNavigating(INavigationContext navigationContext) => GetComponents<INavigationListener>(navigationContext.GetMetadataOrDefault()).OnNavigating(this, navigationContext);

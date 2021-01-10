@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
@@ -24,7 +25,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
         }
 
-        public static ItemOrList<IView, IReadOnlyList<IView>> TryGetViews(this IViewProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<IView> TryGetViews(this IViewProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
@@ -32,13 +33,13 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetViews(viewManager, request, metadata);
 
-            var result = ItemOrListEditor.Get<IView>();
+            var result = new ItemOrListEditor<IView>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetViews(viewManager, request, metadata));
-            return result.ToItemOrList<IReadOnlyList<IView>>();
+            return result.ToItemOrList();
         }
 
-        public static ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(this IViewMappingProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<IViewMapping> TryGetMappings(this IViewMappingProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
@@ -46,10 +47,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetMappings(viewManager, request, metadata);
 
-            var result = ItemOrListEditor.Get<IViewMapping>();
+            var result = new ItemOrListEditor<IViewMapping>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMappings(viewManager, request, metadata));
-            return result.ToItemOrList<IReadOnlyList<IViewMapping>>();
+            return result.ToItemOrList();
         }
 
         public static async ValueTask<IView?> TryInitializeAsync(this IViewManagerComponent[] components, IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
@@ -76,7 +77,7 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
-            var editor = ItemOrListEditor.Get<Task<bool>>();
+            var editor = new ItemOrListEditor<Task<bool>>();
             for (var i = 0; i < components.Length; i++)
                 editor.Add(components[i].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata));
             if (editor.Count == 0)

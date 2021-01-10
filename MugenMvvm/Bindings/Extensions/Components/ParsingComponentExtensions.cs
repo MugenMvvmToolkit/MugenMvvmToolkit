@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -28,7 +29,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(this IExpressionParserComponent[] components, IExpressionParser parser, object expression,
+        public static ItemOrIReadOnlyList<ExpressionParserResult> TryParse(this IExpressionParserComponent[] components, IExpressionParser parser, object expression,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -37,7 +38,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryParse(parser, expression, metadata);
-                if (!result.Item.IsEmpty || result.List != null)
+                if (!result.IsEmpty)
                     return result;
             }
 

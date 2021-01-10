@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -54,7 +55,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, key.MemberFlags, key.Types.Length);
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
             object request, IReadOnlyMetadataContext? metadata)
         {
             var name = request as string;
@@ -77,7 +78,7 @@ namespace MugenMvvm.Bindings.Members.Components
                 _cache[cacheKey] = members;
             }
 
-            return ItemOrList.FromRawValueToReadonly<IMemberInfo>(members);
+            return ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(members);
         }
 
         #endregion
@@ -88,7 +89,7 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             if (state is Type type)
             {
-                var keys = ItemOrListEditor.Get<CacheKey>();
+                var keys = new ItemOrListEditor<CacheKey>();
                 foreach (var pair in _cache)
                 {
                     if (pair.Key.Type == type)

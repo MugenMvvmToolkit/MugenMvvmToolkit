@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -62,7 +63,7 @@ namespace MugenMvvm.Navigation.Components
             return callback;
         }
 
-        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata) =>
+        public ItemOrIReadOnlyList<INavigationCallback> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata) =>
             GetCallbacks((request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault(), (request as IHasTarget<object?>)?.Target ?? request);
 
         public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext) =>
@@ -88,7 +89,7 @@ namespace MugenMvvm.Navigation.Components
             if (callbacks == null)
                 return false;
 
-            var toInvoke = ItemOrListEditor.Get<NavigationCallback>();
+            var toInvoke = new ItemOrListEditor<NavigationCallback>();
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
@@ -150,10 +151,10 @@ namespace MugenMvvm.Navigation.Components
             return null;
         }
 
-        private ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext? metadata, object target)
+        private ItemOrIReadOnlyList<INavigationCallback> GetCallbacks(IReadOnlyMetadataContext? metadata, object target)
         {
             var canMoveNext = true;
-            var list = ItemOrListEditor.Get<INavigationCallback>();
+            var list = new ItemOrListEditor<INavigationCallback>();
             while (true)
             {
                 AddCallbacks(InternalMetadata.ShowingCallbacks, metadata, ref list);
@@ -167,10 +168,10 @@ namespace MugenMvvm.Navigation.Components
                 canMoveNext = false;
             }
 
-            return list.ToItemOrList<IReadOnlyList<INavigationCallback>>();
+            return list.ToItemOrList();
         }
 
-        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext? metadata, ref ItemOrListEditor<INavigationCallback, List<INavigationCallback>> list)
+        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext? metadata, ref ItemOrListEditor<INavigationCallback> editor)
         {
             var callbacks = metadata?.Get(key);
             if (callbacks == null)
@@ -179,7 +180,7 @@ namespace MugenMvvm.Navigation.Components
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
-                    list.AddIfNotNull(callbacks[i]!);
+                    editor.AddIfNotNull(callbacks[i]!);
             }
         }
 

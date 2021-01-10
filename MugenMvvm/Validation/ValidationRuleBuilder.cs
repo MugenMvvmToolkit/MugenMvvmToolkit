@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Internal;
@@ -14,22 +15,11 @@ namespace MugenMvvm.Validation
     {
         #region Fields
 
-        private ItemOrListEditor<IValidationRule, List<IValidationRule>> _rules;
-
-        #endregion
-
-        #region Constructors
-
-        private ValidationRuleBuilder(bool _)
-        {
-            _rules = ItemOrListEditor.Get<IValidationRule>();
-        }
+        private ItemOrListEditor<IValidationRule> _rules;
 
         #endregion
 
         #region Methods
-
-        public static ValidationRuleBuilder<T> Get() => new(true);
 
         public ValidationRuleBuilder<T> AddValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
             Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
@@ -46,7 +36,7 @@ namespace MugenMvvm.Validation
             return this;
         }
 
-        public ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> Build() => _rules.ToItemOrList<IReadOnlyList<IValidationRule>>();
+        public ItemOrIReadOnlyList<IValidationRule> Build() => _rules.ToItemOrList();
 
         #endregion
 

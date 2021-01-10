@@ -143,7 +143,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 {
                     set.Add((string) r);
                     if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
-                        return ItemOrList.FromItem<IMemberInfo>(result);
+                        return result;
                     return default;
                 }
             });
@@ -194,7 +194,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     f.ShouldEqual(flags);
                     set.Add((string) r);
                     if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
-                        return ItemOrList.FromItem<IMemberInfo>(result);
+                        return result;
                     return default;
                 }
             });
@@ -245,7 +245,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     f.ShouldEqual(flags);
                     set.Add((string) r);
                     if (r.Equals(member))
-                        return ItemOrList.FromItem<IMemberInfo>(result);
+                        return result;
                     return default;
                 }
             });

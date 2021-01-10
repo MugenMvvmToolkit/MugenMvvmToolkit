@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -14,9 +15,9 @@ namespace MugenMvvm.Interfaces.Views
 
         void OnLifecycleChanged(object view, ViewLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrList<IView, IReadOnlyList<IView>> GetViews(object request, IReadOnlyMetadataContext? metadata = null);
+        ItemOrIReadOnlyList<IView> GetViews(object request, IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> GetMappings(object request, IReadOnlyMetadataContext? metadata = null);
+        ItemOrIReadOnlyList<IViewMapping> GetMappings(object request, IReadOnlyMetadataContext? metadata = null);
 
         ValueTask<IView?> TryInitializeAsync(IViewMapping mapping, object request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 

@@ -10,6 +10,7 @@ using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -20,7 +21,7 @@ namespace MugenMvvm.Bindings.Extensions
     {
         #region Methods
 
-        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> ParseBindingExpression<TTarget, TSource>(this IBindingManager? bindingManager,
+        public static ItemOrIReadOnlyList<IBindingBuilder> ParseBindingExpression<TTarget, TSource>(this IBindingManager? bindingManager,
             BindingBuilderDelegate<TTarget, TSource> getBuilder, IReadOnlyMetadataContext? metadata)
             where TTarget : class
             where TSource : class =>
@@ -28,18 +29,18 @@ namespace MugenMvvm.Bindings.Extensions
                 .DefaultIfNull()
                 .ParseBindingExpression(expression: getBuilder, metadata);
 
-        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> Bind<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, object> getBuilder, IReadOnlyMetadataContext? metadata = null,
+        public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, object> getBuilder, IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null)
             where TTarget : class =>
             bindingManager.BindInternal(getBuilder, target, null, metadata);
 
-        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> Bind<TTarget, TSource>(this TTarget target, TSource? source, BindingBuilderDelegate<TTarget, TSource> getBuilder,
+        public static ItemOrIReadOnlyList<IBinding> Bind<TTarget, TSource>(this TTarget target, TSource? source, BindingBuilderDelegate<TTarget, TSource> getBuilder,
             IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
             where TTarget : class
             where TSource : class =>
             bindingManager.BindInternal(getBuilder, target, source, metadata);
 
-        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> Bind<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null,
+        public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null, bool includeResult = true)
             where TTarget : class
         {
@@ -205,7 +206,7 @@ namespace MugenMvvm.Bindings.Extensions
                 bindingBuilder.Build(target, source, metadata);
         }
 
-        private static ItemOrList<IBinding, IReadOnlyList<IBinding>> BindInternal(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static ItemOrIReadOnlyList<IBinding> BindInternal(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             var expressions = bindingManager
@@ -213,7 +214,7 @@ namespace MugenMvvm.Bindings.Extensions
                 .ParseBindingExpression(request, metadata);
 
             if (expressions.Item != null)
-                return ItemOrList.FromItem(expressions.Item.Build(target, source, metadata));
+                return ItemOrIReadOnlyList.FromItem(expressions.Item.Build(target, source, metadata));
 
             var result = new IBinding[expressions.Count];
             var index = 0;

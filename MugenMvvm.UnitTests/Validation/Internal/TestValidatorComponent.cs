@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
@@ -18,7 +19,7 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 
         public Action? Dispose { get; set; }
 
-        public Func<IValidator, string?, IReadOnlyMetadataContext?, ItemOrList<object, IReadOnlyList<object>>>? GetErrors { get; set; }
+        public Func<IValidator, string?, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<object>>? GetErrors { get; set; }
 
         public Func<IValidator, IReadOnlyMetadataContext?, IReadOnlyDictionary<string, object>>? GetAllErrors { get; set; }
 
@@ -36,7 +37,7 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 
         bool IValidatorComponent.HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => HasErrors?.Invoke(validator, memberName, metadata) ?? false;
 
-        ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) =>
+        ItemOrIReadOnlyList<object> IValidatorComponent.TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) =>
             GetErrors?.Invoke(validator, memberName, metadata) ?? default;
 
         IReadOnlyDictionary<string, object> IValidatorComponent.TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata) =>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -33,7 +34,7 @@ namespace MugenMvvm.UnitTests.Busy.Internal
 
         public Func<Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool>, object?, IReadOnlyMetadataContext?, IBusyToken?>? TryGetToken { get; set; }
 
-        public Func<IReadOnlyMetadataContext?, ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>>>? TryGetTokens { get; set; }
+        public Func<IReadOnlyMetadataContext?, ItemOrIReadOnlyList<IBusyToken>>? TryGetTokens { get; set; }
 
         public int Priority { get; set; }
 
@@ -53,7 +54,7 @@ namespace MugenMvvm.UnitTests.Busy.Internal
             return TryGetToken?.Invoke((o, token, arg3) => filter((TState) o!, token, arg3), state, metadata);
         }
 
-        ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> IBusyManagerComponent.TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<IBusyToken> IBusyManagerComponent.TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
             _owner?.ShouldEqual(busyManager);
             return TryGetTokens?.Invoke(metadata) ?? default;

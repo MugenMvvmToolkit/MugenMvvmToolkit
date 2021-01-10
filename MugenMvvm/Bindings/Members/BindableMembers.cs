@@ -60,7 +60,7 @@ namespace MugenMvvm.Bindings.Members
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, string[], IReadOnlyList<object>> GetErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), Default.Types<string[]>());
+            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), Default.Types<string[]>());//todo item or list
 
 
         [BindingMember(nameof(Root))]

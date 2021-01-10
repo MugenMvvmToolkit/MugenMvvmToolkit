@@ -13,6 +13,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
@@ -414,9 +415,9 @@ namespace MugenMvvm.Bindings.Extensions
             return result;
         }
 
-        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseExpression(this ITokenParserContext context)
+        public static ItemOrIReadOnlyList<ExpressionParserResult> ParseExpression(this ITokenParserContext context)
         {
-            var result = ItemOrListEditor.Get<ExpressionParserResult>();
+            var result = new ItemOrListEditor<ExpressionParserResult>();
             while (!context.IsEof())
             {
                 var r = TryParseNext(context);
@@ -425,7 +426,7 @@ namespace MugenMvvm.Bindings.Extensions
                 context.SkipWhitespaces();
             }
 
-            return result.ToItemOrList<IReadOnlyList<ExpressionParserResult>>();
+            return result.ToItemOrList();
         }
 
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)
@@ -456,7 +457,7 @@ namespace MugenMvvm.Bindings.Extensions
                 errors?.Clear();
             }
 
-            var parameters = ItemOrListEditor.Get<IExpressionNode>();
+            var parameters = new ItemOrListEditor<IExpressionNode>();
             while (context.IsToken(','))
             {
                 parameters.Add(context.MoveNext().ParseWhileAnyOf(BindingDelimiters));
@@ -468,8 +469,8 @@ namespace MugenMvvm.Bindings.Extensions
                 if (context.IsToken(';'))
                     context.MoveNext();
                 if (isActionToken)
-                    return new ExpressionParserResult(UnaryExpressionNode.ActionMacros, target, parameters.ToItemOrList<IReadOnlyList<IExpressionNode>>());
-                return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters.ToItemOrList<IReadOnlyList<IExpressionNode>>());
+                    return new ExpressionParserResult(UnaryExpressionNode.ActionMacros, target, parameters.GetRawValueInternal());
+                return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters.GetRawValueInternal());
             }
 
             context.ThrowCannotParse(context);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -82,7 +83,7 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        public ItemOrList<object, IReadOnlyList<object>> TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrIReadOnlyList<object> TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata = null)
         {
             lock (_errors)
             {
@@ -91,14 +92,14 @@ namespace MugenMvvm.Validation.Components
 
                 if (string.IsNullOrEmpty(memberName))
                 {
-                    var errors = ItemOrListEditor.Get<object>();
+                    var errors = new ItemOrListEditor<object>();
                     foreach (var error in _errors)
-                        errors.AddRange(ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value));
-                    return errors.ToItemOrList<IReadOnlyList<object>>();
+                        errors.AddRange(ItemOrIEnumerable.FromRawValue<object>(error.Value));
+                    return errors.ToItemOrList();
                 }
 
                 if (_errors.TryGetValue(memberName!, out var value))
-                    return ItemOrList.FromRawValue<object, IReadOnlyList<object>>(value);
+                    return ItemOrIReadOnlyList.FromRawValue<object>(value);
             }
 
             return default;
@@ -129,7 +130,7 @@ namespace MugenMvvm.Validation.Components
                 return;
             if (string.IsNullOrEmpty(memberName))
             {
-                var keys = ItemOrListEditor.Get<string>();
+                var keys = new ItemOrListEditor<string>();
                 lock (_errors)
                 {
                     foreach (var error in _errors)

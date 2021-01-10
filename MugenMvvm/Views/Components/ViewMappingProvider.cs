@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -38,13 +39,13 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IViewMapping> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
             var type = view as Type;
             var id = view as string;
 
-            var mappings = ItemOrListEditor.Get<IViewMapping>();
+            var mappings = new ItemOrListEditor<IViewMapping>();
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
@@ -78,7 +79,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            return mappings.ToItemOrList<IReadOnlyList<IViewMapping>>();
+            return mappings.ToItemOrList();
         }
 
         #endregion

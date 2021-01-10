@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Parsing;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 
@@ -14,25 +16,27 @@ namespace MugenMvvm.Bindings.Core
         #region Fields
 
         private readonly BindingBuilderFrom<TTarget, TSource> _fromBuilder;
-        private ItemOrListEditor<KeyValuePair<string?, object>, List<KeyValuePair<string?, object>>> _parameters;
+        private ItemOrListEditor<KeyValuePair<string?, object>> _parameters;
         private readonly object _pathOrExpression;
 
         #endregion
 
         #region Constructors
 
-        public BindingBuilderTo(BindingBuilderFrom<TTarget, TSource> from, object pathOrExpression, ItemOrList<KeyValuePair<string?, object>, List<KeyValuePair<string?, object>>> parameters)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BindingBuilderTo(BindingBuilderFrom<TTarget, TSource> from, object pathOrExpression, ItemOrIReadOnlyList<KeyValuePair<string?, object>> parameters)
         {
             Should.NotBeNull(pathOrExpression, nameof(pathOrExpression));
             _fromBuilder = from;
             _pathOrExpression = pathOrExpression;
-            _parameters = parameters.Editor();
+            _parameters = new ItemOrListEditor<KeyValuePair<string?, object>>(parameters);
         }
 
         #endregion
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingBuilderTo<TTarget, TSource> BindingParameter(string? parameterName, object value)
         {
             Should.NotBeNull(value, nameof(value));
@@ -40,8 +44,8 @@ namespace MugenMvvm.Bindings.Core
             return this;
         }
 
-        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder) => new(builder._fromBuilder.PathOrExpression, builder._pathOrExpression,
-            builder._parameters.ToItemOrList<IReadOnlyList<KeyValuePair<string?, object>>>());
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder) => new(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.ToItemOrList());
 
         #endregion
     }

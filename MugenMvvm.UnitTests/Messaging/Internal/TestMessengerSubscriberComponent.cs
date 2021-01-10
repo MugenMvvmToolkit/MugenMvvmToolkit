@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
@@ -36,9 +37,9 @@ namespace MugenMvvm.UnitTests.Messaging.Internal
 
         public Func<IReadOnlyMetadataContext?, bool>? TryUnsubscribeAll { get; set; }
 
-        public Func<Type, IReadOnlyMetadataContext?, ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>>>? TryGetMessengerHandlers { get; set; }
+        public Func<Type, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<MessengerHandler>>? TryGetMessengerHandlers { get; set; }
 
-        public Func<IReadOnlyMetadataContext?, ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>>>? TryGetSubscribers { get; set; }
+        public Func<IReadOnlyMetadataContext?, ItemOrIReadOnlyList<MessengerSubscriberInfo>>? TryGetSubscribers { get; set; }
 
         public int Priority { get; set; }
 
@@ -64,13 +65,13 @@ namespace MugenMvvm.UnitTests.Messaging.Internal
             return TryUnsubscribeAll?.Invoke(metadata) ?? false;
         }
 
-        ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> IMessengerSubscriberComponent.TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<MessengerHandler> IMessengerSubscriberComponent.TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             _messenger?.ShouldEqual(messenger);
             return TryGetMessengerHandlers?.Invoke(messageType, metadata) ?? default;
         }
 
-        ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> IMessengerSubscriberComponent.TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
+        ItemOrIReadOnlyList<MessengerSubscriberInfo> IMessengerSubscriberComponent.TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
         {
             _messenger?.ShouldEqual(messenger);
             return TryGetSubscribers?.Invoke(metadata) ?? default;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing
@@ -7,7 +8,7 @@ namespace MugenMvvm.Bindings.Parsing
     {
         #region Constructors
 
-        public BindingExpressionRequest(object target, object? source, ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> parameters)
+        public BindingExpressionRequest(object target, object? source, ItemOrIReadOnlyList<KeyValuePair<string?, object>> parameters)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
@@ -19,7 +20,7 @@ namespace MugenMvvm.Bindings.Parsing
 
         #region Properties
 
-        public ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> Parameters { get; protected set; }
+        public ItemOrIReadOnlyList<KeyValuePair<string?, object>> Parameters { get; protected set; }
 
         public object? Source { get; protected set; }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Internal
@@ -52,9 +53,9 @@ namespace MugenMvvm.Internal
             return _storageManager.GetCount(_item, ref _state);
         }
 
-        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues() => GetValues<object?>(null, null);
+        public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues() => GetValues<object?>(null, null);
 
-        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(TState state, Func<object, string, object?, TState, bool>? predicate)
+        public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(TState state, Func<object, string, object?, TState, bool>? predicate)
         {
             EnsureInitialized();
             return _storageManager.GetValues(_item, state, predicate, ref _state);

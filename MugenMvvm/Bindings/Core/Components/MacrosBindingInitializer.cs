@@ -4,8 +4,11 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
@@ -51,7 +54,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
             if (ParameterVisitors.Count != 0)
             {
-                var parameters = context.ParameterExpressions.Editor();
+                var parameters = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
                 for (var i = 0; i < ParameterVisitors.Count; i++)
                 {
                     var visitor = ParameterVisitors[i];

@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
@@ -28,7 +29,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static void SetErrors(this IValidator validator, object target, string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
+        public static void SetErrors(this IValidator validator, object target, string memberName, ItemOrIReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(target, nameof(target));
@@ -158,7 +159,7 @@ namespace MugenMvvm.Extensions
 
             #region Methods
 
-            public ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> Build() => Builder.Build();
+            public ItemOrIReadOnlyList<IValidationRule> Build() => Builder.Build();
 
             public ValidationRuleMemberBuilder<T, TMember> Must(Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, object error,
                 Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)

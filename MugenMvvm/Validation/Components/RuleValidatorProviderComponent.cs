@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -58,9 +59,9 @@ namespace MugenMvvm.Validation.Components
 
         #region Methods
 
-        public void AddRule(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition) => AddRules(ItemOrList.FromItem(rule), condition);
+        public void AddRule(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition) => AddRules(ItemOrIReadOnlyList.FromItem(rule), condition);
 
-        public void AddRules(ItemOrList<IValidationRule, IReadOnlyList<IValidationRule>> rules, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)
+        public void AddRules(ItemOrIReadOnlyList<IValidationRule> rules, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)
         {
             Should.NotBeNull(condition, nameof(condition));
             foreach (var rule in rules)
@@ -72,7 +73,7 @@ namespace MugenMvvm.Validation.Components
             if (target == null)
                 return null;
 
-            var rules = ItemOrListEditor.Get<IValidationRule>();
+            var rules = new ItemOrListEditor<IValidationRule>();
             for (var i = 0; i < _rules.Count; i++)
             {
                 if (_rules[i].condition(validator, target, metadata))
@@ -81,7 +82,7 @@ namespace MugenMvvm.Validation.Components
 
             if (rules.Count == 0)
                 return null;
-            return new RuleValidatorComponent(target, rules.ToItemOrList<IReadOnlyList<IValidationRule>>());
+            return new RuleValidatorComponent(target, rules.ToItemOrList());
         }
 
         #endregion

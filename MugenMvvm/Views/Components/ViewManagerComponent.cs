@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -79,7 +80,7 @@ namespace MugenMvvm.Views.Components
             return Default.TrueTask;
         }
 
-        public ItemOrList<IView, IReadOnlyList<IView>> TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IView> TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (viewModel != null)
@@ -99,14 +100,14 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        private static ItemOrList<IView, IReadOnlyList<IView>> GetViews(List<IView>? views)
+        private static ItemOrIReadOnlyList<IView> GetViews(List<IView>? views)
         {
             if (views == null)
                 return default;
-            var result = ItemOrListEditor.Get<IView>();
+            var result = new ItemOrListEditor<IView>();
             for (var i = 0; i < views.Count; i++)
                 result.Add(views[i]);
-            return result.ToItemOrList<IReadOnlyList<IView>>();
+            return result.ToItemOrList();
         }
 
         private IView InitializeView<TList>(IViewManager viewManager, IViewMapping mapping, IViewModelBase viewModel, object rawView,

@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
@@ -138,7 +139,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
 
             var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
-            var binding = new MultiBinding(target, new ItemOrList<object?, object?[]>(source, true), expression);
+            var binding = new MultiBinding(target, new ItemOrArray<object?>(source, true), expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);

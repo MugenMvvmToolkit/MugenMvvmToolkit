@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -20,7 +21,7 @@ namespace MugenMvvm.Internal.Components
             return ((IDictionary<string, object?>) internalState).Count;
         }
 
-        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TState>(object item, TState state,
+        public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(object item, TState state,
             Func<object, string, object?, TState, bool>? predicate, ref object? internalState)
         {
             if (internalState == null)
@@ -38,14 +39,14 @@ namespace MugenMvvm.Internal.Components
                     return dictionary.ToArray();
                 }
 
-                var result = ItemOrListEditor.Get<KeyValuePair<string, object?>>();
+                var result = new ItemOrListEditor<KeyValuePair<string, object?>>();
                 foreach (var keyValue in dictionary)
                 {
                     if (predicate(item, keyValue.Key, keyValue.Value, state))
                         result.Add(keyValue);
                 }
 
-                return result.ToItemOrList<IReadOnlyList<KeyValuePair<string, object?>>>();
+                return result.ToItemOrList();
             }
         }
 
