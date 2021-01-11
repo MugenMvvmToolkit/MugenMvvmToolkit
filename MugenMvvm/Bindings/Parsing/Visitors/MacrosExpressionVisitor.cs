@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;

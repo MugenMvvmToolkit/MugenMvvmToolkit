@@ -310,7 +310,7 @@ namespace MugenMvvm.Metadata
                 return SetValueFunc(metadataContext, this, oldValue, newValue);
             }
 
-            public T GetDefaultValue(IReadOnlyMetadataContext metadataContext, [AllowNull] T defaultValue)
+            public T GetDefaultValue(IReadOnlyMetadataContext metadataContext, T? defaultValue)
             {
                 if (GetDefaultValueFunc == null)
                     return HasDefaultValue ? DefaultValue : defaultValue!;

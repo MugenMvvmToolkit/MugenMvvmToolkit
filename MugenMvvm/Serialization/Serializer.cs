@@ -21,16 +21,16 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public bool IsSupported<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request = default, IReadOnlyMetadataContext? metadata = null)
+        public bool IsSupported<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, TRequest? request = default, IReadOnlyMetadataContext? metadata = null)
             => GetComponents<ISerializationManagerComponent>(metadata).IsSupported(this, format, request, metadata);
 
-        public bool TrySerialize<TRequest, TResult>(ISerializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] [AllowNull] ref TResult result, IReadOnlyMetadataContext? metadata = null)
+        public bool TrySerialize<TRequest, TResult>(ISerializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] ref TResult? result, IReadOnlyMetadataContext? metadata = null)
         {
             using var ctx = GetContext(format, request, metadata);
             return GetComponents<ISerializationManagerComponent>(metadata).TrySerialize(this, format, request, ctx, ref result);
         }
 
-        public bool TryDeserialize<TRequest, TResult>(IDeserializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] [AllowNull] ref TResult result, IReadOnlyMetadataContext? metadata = null)
+        public bool TryDeserialize<TRequest, TResult>(IDeserializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] ref TResult? result, IReadOnlyMetadataContext? metadata = null)
         {
             using var ctx = GetContext(format, request, metadata);
             return GetComponents<ISerializationManagerComponent>(metadata).TryDeserialize(this, format, request, ctx, ref result);

@@ -16,7 +16,7 @@ namespace MugenMvvm
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
-            object? argumentValue, [InvokerParameterName] string paramName)//todo add T
+            object? argumentValue, [InvokerParameterName] string paramName) //todo add T
         {
             if (argumentValue == null)
                 ExceptionManager.ThrowNullArgument(paramName);

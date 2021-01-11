@@ -14,10 +14,7 @@ namespace MugenMvvm.Collections
         #region Fields
 
         private readonly int _fixedCount;
-
-        [MaybeNull]
-        public readonly T Item;
-
+        public readonly T? Item;
         public readonly IReadOnlyList<T>? List;
 
         #endregion
@@ -25,7 +22,7 @@ namespace MugenMvvm.Collections
         #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList([AllowNull] T item, bool hasItem)
+        public ItemOrIReadOnlyList(T? item, bool hasItem)
         {
             List = null;
             if (hasItem)
@@ -113,7 +110,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ItemOrIReadOnlyList([AllowNull] T item, IReadOnlyList<T>? list, int fixedCount)
+        internal ItemOrIReadOnlyList(T? item, IReadOnlyList<T>? list, int fixedCount)
         {
             Item = item!;
             List = list;
@@ -172,7 +169,7 @@ namespace MugenMvvm.Collections
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIReadOnlyList<T>([AllowNull] T item) => new(item, item != null);
+        public static implicit operator ItemOrIReadOnlyList<T>(T? item) => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(T[]? items) => new(items);

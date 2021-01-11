@@ -49,7 +49,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             var m = Method<TTarget, TReturn>(descriptor.Request!.Name, typeof(TTarget), typeof(TReturn));
             if (addParameters)
             {
-                var types = descriptor.Request.Types;
+                var types = descriptor.Request!.Types;
                 var parameters = ItemOrArray.Get<IParameterInfo>(types.Count);
                 for (var i = 0; i < types.Count; i++)
                     parameters.SetAt(i, Parameter("", types[i]).Build());

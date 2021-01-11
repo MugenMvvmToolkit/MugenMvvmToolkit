@@ -70,7 +70,7 @@ namespace MugenMvvm.Bindings.Core.Components
             return expressions;
         }
 
-        int IComparer<IBindingBuilder>.Compare([AllowNull] IBindingBuilder x, [AllowNull] IBindingBuilder y) => TryGetPriority(y!).CompareTo(TryGetPriority(x!));
+        int IComparer<IBindingBuilder>.Compare(IBindingBuilder? x, IBindingBuilder? y) => TryGetPriority(y!).CompareTo(TryGetPriority(x!));
 
         #endregion
 

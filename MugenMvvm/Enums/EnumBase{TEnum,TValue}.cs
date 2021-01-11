@@ -153,7 +153,7 @@ namespace MugenMvvm.Enums
             return defaultValue;
         }
 
-        public static bool TryGet([AllowNull] TValue value, [NotNullWhen(true)] out TEnum? result)
+        public static bool TryGet(TValue? value, [NotNullWhen(true)] out TEnum? result)
         {
             if (value == null)
             {

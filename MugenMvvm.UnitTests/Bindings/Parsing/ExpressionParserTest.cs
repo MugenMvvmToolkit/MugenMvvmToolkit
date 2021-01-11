@@ -572,7 +572,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             return expressionParser;
         }
 
-        private static Expression<Func<T, TResult>> GetExpression<T, TResult>([AllowNull] T t, Expression<Func<T, TResult>> expression) => expression;
+        private static Expression<Func<T, TResult>> GetExpression<T, TResult>(T? t, Expression<Func<T, TResult>> expression) => expression;
 
         #endregion
     }

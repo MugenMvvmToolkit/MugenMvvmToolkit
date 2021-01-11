@@ -18,14 +18,14 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 
         #region Implementation of interfaces
 
-        bool IEqualityComparer<T>.Equals([AllowNull] T x, [AllowNull] T y)
+        bool IEqualityComparer<T>.Equals(T? x, T? y)
         {
             if (Equals == null)
                 return object.Equals(x, y);
             return Equals(x!, y!);
         }
 
-        int IEqualityComparer<T>.GetHashCode([AllowNull] T obj)
+        int IEqualityComparer<T>.GetHashCode(T obj)
         {
             if (GetHashCode == null)
                 return obj!.GetHashCode();

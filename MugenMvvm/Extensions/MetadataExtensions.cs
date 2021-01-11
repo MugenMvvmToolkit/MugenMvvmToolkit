@@ -69,15 +69,8 @@ namespace MugenMvvm.Extensions
             return ctx;
         }
 
-        //note nullable type generic issue
-        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.TryGet(contextKey, out value, default!);
-        }
-
         public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
-            out T value, [AllowNull] T defaultValue)
+            out T value, T? defaultValue = default)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             if (metadataContext.TryGetRaw(contextKey, out var rawValue))
@@ -91,11 +84,8 @@ namespace MugenMvvm.Extensions
         }
 
         [return: MaybeNull]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key) => metadataContext.Get(key, default!);
-
-        [return: MaybeNull]
         [return: NotNullIfNotNull("defaultValue")]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, T? defaultValue = default)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             metadataContext.TryGet(key, out var value, defaultValue!);
@@ -178,13 +168,8 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        //note nullable type generic issue
         [return: MaybeNull]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key) => owner.GetOrDefault(key, default!);
-
-        [return: MaybeNull]
-        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
+        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key, T? defaultValue = default)
         {
             if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue!))
                 return v;

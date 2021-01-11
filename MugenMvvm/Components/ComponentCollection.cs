@@ -47,7 +47,7 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        int IComparer<IComponentCollectionDecorator>.Compare([AllowNull] IComponentCollectionDecorator x, [AllowNull] IComponentCollectionDecorator y)
+        int IComparer<IComponentCollectionDecorator>.Compare(IComponentCollectionDecorator? x, IComponentCollectionDecorator? y)
         {
             var result = MugenExtensions.GetComponentPriority(x!, this).CompareTo(MugenExtensions.GetComponentPriority(y!, this));
             if (result == 0)
@@ -63,7 +63,7 @@ namespace MugenMvvm.Components
             return result;
         }
 
-        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y) => MugenExtensions.GetComponentPriority(y!, Owner).CompareTo(MugenExtensions.GetComponentPriority(x!, Owner));
+        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!, Owner).CompareTo(MugenExtensions.GetComponentPriority(x!, Owner));
 
         public bool TryAdd(object component, IReadOnlyMetadataContext? metadata = null)
         {

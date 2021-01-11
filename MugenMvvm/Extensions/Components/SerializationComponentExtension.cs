@@ -109,7 +109,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool IsSupported<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request,
+        public static bool IsSupported<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, TRequest? request,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -125,7 +125,7 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool TrySerialize<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
-            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
+            ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
@@ -142,7 +142,7 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool TryDeserialize<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
-            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
+            ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
@@ -159,7 +159,7 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool IsSupported<TRequest, TResult>(this ISerializerComponent<TRequest, TResult>[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format,
-            [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
+            TRequest? request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
@@ -174,7 +174,7 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool TrySerialize<TRequest, TResult>(this ISerializerComponent<TRequest, TResult>[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
-            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
+            ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
@@ -191,7 +191,7 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool IsSupported<TRequest, TResult>(this IDeserializerComponent<TRequest, TResult>[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format,
-            [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
+            TRequest? request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
@@ -206,7 +206,7 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static bool TryDeserialize<TRequest, TResult>(this IDeserializerComponent<TRequest, TResult>[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
-            ISerializationContext serializationContext, [NotNullWhen(true)] [AllowNull] ref TResult result)
+            ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));

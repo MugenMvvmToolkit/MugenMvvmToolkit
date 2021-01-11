@@ -111,14 +111,14 @@ namespace MugenMvvm.Bindings.Compiling
             }
         }
 
-        int IEqualityComparer<IExpressionNode>.GetHashCode([AllowNull] IExpressionNode key)
+        int IEqualityComparer<IExpressionNode>.GetHashCode(IExpressionNode key)
         {
             if (key is IBindingMemberExpressionNode member)
                 return HashCode.Combine(member.Index, member.Path);
             return RuntimeHelpers.GetHashCode(key!);
         }
 
-        bool IEqualityComparer<IExpressionNode>.Equals([AllowNull] IExpressionNode x, [AllowNull] IExpressionNode y) =>
+        bool IEqualityComparer<IExpressionNode>.Equals(IExpressionNode? x, IExpressionNode? y) =>
             x == y || x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP && xP.Index == yP.Index && xP.Path == yP.Path;
 
         bool IEqualityComparer<object>.Equals(object? x, object? y)

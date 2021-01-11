@@ -44,14 +44,14 @@ namespace MugenMvvm.Bindings.Members.Components
 
         #region Implementation of interfaces
 
-        int IEqualityComparer<IMemberInfo>.GetHashCode([AllowNull] IMemberInfo key)
+        int IEqualityComparer<IMemberInfo>.GetHashCode(IMemberInfo key)
         {
             if (key is IMethodMemberInfo method)
                 return HashCode.Combine((int) key.MemberType, method.GetParameters().Count);
             return HashCode.Combine((int) key!.MemberType);
         }
 
-        bool IEqualityComparer<IMemberInfo>.Equals([AllowNull] IMemberInfo x, [AllowNull] IMemberInfo y)
+        bool IEqualityComparer<IMemberInfo>.Equals(IMemberInfo? x, IMemberInfo? y)
         {
             if (x == y)
                 return true;

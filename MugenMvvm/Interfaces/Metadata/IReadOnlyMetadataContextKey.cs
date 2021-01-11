@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Metadata
         T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue, T value);
 
         [return: NotNullIfNotNull("defaultValue")]
-        T GetDefaultValue(IReadOnlyMetadataContext metadataContext, [AllowNull] T defaultValue);
+        T GetDefaultValue(IReadOnlyMetadataContext metadataContext, T? defaultValue);
     }
 }

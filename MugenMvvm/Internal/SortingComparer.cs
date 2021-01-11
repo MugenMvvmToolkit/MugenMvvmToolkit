@@ -25,7 +25,7 @@ namespace MugenMvvm.Internal
 
         #region Implementation of interfaces
 
-        public int Compare([AllowNull] T x, [AllowNull] T y)
+        public int Compare(T? x, T? y)
         {
             foreach (var item in _sortInfo)
             {

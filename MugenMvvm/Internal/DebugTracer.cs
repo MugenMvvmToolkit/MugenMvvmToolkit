@@ -482,7 +482,7 @@ namespace MugenMvvm.Internal
                 if (views.Count == 0)
                     return $"view={view}";
                 if (views.Count == 1)
-                    return $"view={views.Item}, viewmodel={views.Item.ViewModel}";
+                    return $"view={views.Item}, viewmodel={views.Item!.ViewModel}";
                 var stringBuilder = new StringBuilder();
                 var count = 0;
                 foreach (var v in views)

@@ -69,7 +69,7 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
         [Preserve(Conditional = true)]
-        public static object? Box<T>([AllowNull] T value)
+        public static object? Box<T>(T? value)
         {
             var box = BoxingType<T>.BoxDelegate;
             if (box == null)
@@ -209,7 +209,7 @@ namespace MugenMvvm.Extensions
             #endregion
         }
 
-        public delegate object? BoxingDelegate<T>([AllowNull] T value);
+        public delegate object? BoxingDelegate<T>(T? value);
 
         #endregion
     }

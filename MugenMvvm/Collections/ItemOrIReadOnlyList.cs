@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace MugenMvvm.Collections
 {
-    public static class ItemOrIReadOnlyList //todo check readonlylist interface usages
+    public static class ItemOrIReadOnlyList
     {
         #region Methods
 
@@ -12,7 +12,7 @@ namespace MugenMvvm.Collections
         public static ItemOrIReadOnlyList<T> FromItem<T>(T item) where T : class? => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrIReadOnlyList<T> FromItem<T>([AllowNull] T item, bool hasItem) => new(item, hasItem);
+        public static ItemOrIReadOnlyList<T> FromItem<T>(T? item, bool hasItem) => new(item, hasItem);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIReadOnlyList<T> FromList<T>(T[]? array) => new(array);

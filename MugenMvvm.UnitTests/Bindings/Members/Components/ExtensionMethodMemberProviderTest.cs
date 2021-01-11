@@ -24,11 +24,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             var method = typeof(ExtensionMethodMemberProviderComponentExtTest).GetMethod(nameof(ExtensionMethodMemberProviderComponentExtTest.Method), new[] {typeof(string)});
             var itemOrList = provider.TryGetMembers(null!, typeof(string), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
-            itemOrList.Item.UnderlyingMember.ShouldEqual(method);
+            itemOrList.Item!.UnderlyingMember.ShouldEqual(method);
 
             method = typeof(ExtensionMethodMemberProviderComponentExtTest).GetMethod(nameof(ExtensionMethodMemberProviderComponentExtTest.Method), new[] {typeof(int)});
             itemOrList = provider.TryGetMembers(null!, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
-            itemOrList.Item.UnderlyingMember.ShouldEqual(method);
+            itemOrList.Item!.UnderlyingMember.ShouldEqual(method);
 
             provider.Remove(typeof(ExtensionMethodMemberProviderComponentExtTest));
             itemOrList = provider.TryGetMembers(null!, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);

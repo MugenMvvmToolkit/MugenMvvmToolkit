@@ -12,9 +12,7 @@ namespace MugenMvvm.Collections
     {
         #region Fields
 
-        [MaybeNull]
-        public readonly T Item;
-
+        public readonly T? Item;
         public readonly T[]? List;
 
         #endregion
@@ -22,7 +20,7 @@ namespace MugenMvvm.Collections
         #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrArray([AllowNull] T item, bool hasItem)
+        public ItemOrArray(T? item, bool hasItem)
         {
             List = null;
             if (hasItem)
@@ -60,7 +58,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private ItemOrArray([AllowNull] T item, T[]? list, int count)
+        private ItemOrArray(T? item, T[]? list, int count)
         {
             Item = item!;
             List = list;
@@ -108,7 +106,7 @@ namespace MugenMvvm.Collections
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrArray<T>([AllowNull] T item) => new(item, item != null);
+        public static implicit operator ItemOrArray<T>(T? item) => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrArray<T>(T[]? items) => new(items);

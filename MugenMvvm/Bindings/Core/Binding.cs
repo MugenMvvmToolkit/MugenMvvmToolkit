@@ -190,7 +190,7 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
-        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y) => MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
+        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
 
         bool IComponentCollection.TryAdd(object component, IReadOnlyMetadataContext? metadata)
         {

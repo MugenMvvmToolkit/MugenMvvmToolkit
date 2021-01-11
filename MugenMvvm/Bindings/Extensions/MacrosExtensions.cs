@@ -78,17 +78,16 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
 
-        public static object? GetError(object target, string[] members)
+        public static object? GetError(object target, object? membersRaw)
         {
-            Should.NotBeNull(members, nameof(members));
             if (target is IHasService<IValidator> hasValidator)
             {
                 var validator = hasValidator.ServiceOptional;
                 if (validator != null)
                 {
-                    for (var i = 0; i < members.Length; i++)
+                    foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
                     {
-                        var error = validator.GetErrors(members[i]).FirstOrDefault();
+                        var error = validator.GetErrors(member).FirstOrDefault();
                         if (error != null)
                             return error;
                     }
@@ -96,9 +95,9 @@ namespace MugenMvvm.Bindings.Extensions
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)
             {
-                for (var i = 0; i < members.Length; i++)
+                foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
                 {
-                    var error = dataErrorInfo.GetErrors(members[i]).FirstOrDefault();
+                    var error = dataErrorInfo.GetErrors(member).FirstOrDefault();
                     if (error != null)
                         return error;
                 }
@@ -107,17 +106,16 @@ namespace MugenMvvm.Bindings.Extensions
             return null;
         }
 
-        public static IReadOnlyList<object> GetErrors(object target, string[] members)
+        public static IReadOnlyList<object> GetErrors(object target, object? membersRaw)
         {
-            Should.NotBeNull(members, nameof(members));
             if (target is IHasService<IValidator> hasValidator)
             {
                 var validator = hasValidator.ServiceOptional;
                 if (validator != null)
                 {
                     var editor = new ItemOrListEditor<object>();
-                    for (var i = 0; i < members.Length; i++)
-                        editor.AddRange(validator.GetErrors(members[i]));
+                    foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
+                        editor.AddRange(validator.GetErrors(member));
 
                     if (editor.Count != 0)
                         return editor.ToItemOrList().ToArray();
@@ -127,9 +125,9 @@ namespace MugenMvvm.Bindings.Extensions
             {
                 IReadOnlyList<object>? errors = null;
                 var isList = false;
-                for (var i = 0; i < members.Length; i++)
+                foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
                 {
-                    var list = dataErrorInfo.GetErrors(members[i]).ToReadOnlyList();
+                    var list = dataErrorInfo.GetErrors(member).ToReadOnlyList();
                     if (list == null || list.Count == 0)
                         continue;
                     if (errors == null)
@@ -150,7 +148,7 @@ namespace MugenMvvm.Bindings.Extensions
                     return errors;
             }
 
-            return default;//todo fix
+            return Default.Array<object>();
         }
 
         [return: NotNullIfNotNull("target")]

@@ -12,7 +12,7 @@ namespace MugenMvvm.Collections
         public static ItemOrIEnumerable<T> FromItem<T>(T item) where T : class? => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrIEnumerable<T> FromItem<T>([AllowNull] T item, bool hasItem) => new(item, hasItem);
+        public static ItemOrIEnumerable<T> FromItem<T>(T? item, bool hasItem) => new(item, hasItem);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIEnumerable<T> FromList<T>(T[]? array) => new(array);

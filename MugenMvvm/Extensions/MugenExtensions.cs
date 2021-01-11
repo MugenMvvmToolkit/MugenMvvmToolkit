@@ -73,7 +73,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static TResult Serialize<TRequest, TResult>(this ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
-            [AllowNull] TResult buffer, IReadOnlyMetadataContext? metadata = null)
+            TResult? buffer = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
             if (!serializer.TrySerialize(format, request, ref buffer, metadata))
@@ -81,23 +81,12 @@ namespace MugenMvvm.Extensions
             return buffer;
         }
 
-        //note nullable type generic issue
-        public static TResult Serialize<TRequest, TResult>(this ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata = null)
-            => serializer.Serialize(format, request, default!, metadata);
-
-        public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata = null)
-            => serializer.Deserialize(format, request, default!, metadata);
-
-        public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, object?> dynamicFormat, TRequest request, IReadOnlyMetadataContext? metadata = null)
-            where TResult : class =>
-            serializer.Deserialize<TRequest, TResult>(format: dynamicFormat, request: request, buffer: default!, metadata: metadata);
-
         public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, object?> dynamicFormat, TRequest request,
-            [AllowNull] TResult buffer, IReadOnlyMetadataContext? metadata = null) where TResult : class =>
+            TResult? buffer = default, IReadOnlyMetadataContext? metadata = null) where TResult : class =>
             serializer.Deserialize<TRequest, TResult>(format: dynamicFormat, request: request, buffer, metadata: metadata);
 
         public static TResult Deserialize<TRequest, TResult>(this ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
-            [AllowNull] TResult buffer, IReadOnlyMetadataContext? metadata = null)
+            TResult? buffer = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
             if (!serializer.TryDeserialize(format, request, ref buffer, metadata))

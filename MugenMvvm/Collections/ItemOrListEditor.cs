@@ -67,7 +67,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor([AllowNull] T item, List<T>? list, bool hasItem)
+        public ItemOrListEditor(T? item, List<T>? list, bool hasItem)
         {
             _item = item!;
             _list = list;

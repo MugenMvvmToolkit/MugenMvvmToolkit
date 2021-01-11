@@ -111,7 +111,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 var expressions = ToExpressions(context, indexExpression.Arguments, null, typeof(int));
                 if (expressions.List != null)
                     return Expression.ArrayIndex(target!, expressions.List);
-                return Expression.ArrayIndex(target!, expressions.Item);
+                return Expression.ArrayIndex(target!, expressions.Item!);
             }
 
             return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), default);

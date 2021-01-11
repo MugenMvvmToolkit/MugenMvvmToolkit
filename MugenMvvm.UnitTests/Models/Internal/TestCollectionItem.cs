@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Models.Internal
         {
             #region Implementation of interfaces
 
-            public bool Equals([AllowNull] TestCollectionItem x, [AllowNull] TestCollectionItem y)
+            public bool Equals(TestCollectionItem? x, TestCollectionItem? y)
             {
                 if (ReferenceEquals(x, y)) return true;
                 if (ReferenceEquals(x, null)) return false;
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Models.Internal
                 return x.Id == y.Id;
             }
 
-            public int GetHashCode([AllowNull] TestCollectionItem obj) => obj!.Id;
+            public int GetHashCode(TestCollectionItem obj) => obj!.Id;
 
             #endregion
         }

@@ -75,9 +75,9 @@ namespace MugenMvvm.UnitTests
             }
         }
 
-        public static void ShouldEqual<T>([AllowNull] this IEnumerable<T> enumerable, [AllowNull] IEnumerable<T> value) => enumerable.ShouldEqual(value, EqualityComparer<T>.Default);
+        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value) => enumerable.ShouldEqual(value, EqualityComparer<T>.Default);
 
-        public static void ShouldEqual<T>([AllowNull] this IEnumerable<T> enumerable, [AllowNull] IEnumerable<T> value, IEqualityComparer<T> comparer)
+        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value, IEqualityComparer<T> comparer)
         {
             if (EqualityComparer<IEnumerable<T>?>.Default.Equals(enumerable, value))
                 return;
