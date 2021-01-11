@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Bindings.Observation
 {
@@ -13,25 +14,24 @@ namespace MugenMvvm.Bindings.Observation
     {
         #region Fields
 
-        private readonly IReadOnlyList<IMemberInfo>? _members;
+        private readonly object? _membersRaw;
         private readonly object? _target;
 
         #endregion
 
         #region Constructors
 
-        public MemberPathMembers(object? target, IReadOnlyList<IMemberInfo> members)
+        public MemberPathMembers(object? target, ItemOrIReadOnlyList<IMemberInfo> members)
         {
-            Should.NotBeNull(members, nameof(members));
             _target = target;
-            _members = members;
+            _membersRaw = members.GetRawValue();
         }
 
         public MemberPathMembers(Exception exception)
         {
             Should.NotBeNull(exception, nameof(exception));
             _target = exception;
-            _members = null;
+            _membersRaw = null;
         }
 
         #endregion
@@ -41,7 +41,7 @@ namespace MugenMvvm.Bindings.Observation
         public bool IsAvailable
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _members != null;
+            get => _membersRaw != null;
         }
 
         public Exception? Error
@@ -49,7 +49,7 @@ namespace MugenMvvm.Bindings.Observation
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (_members == null)
+                if (_membersRaw == null)
                     return (Exception?) _target;
                 return null;
             }
@@ -60,16 +60,16 @@ namespace MugenMvvm.Bindings.Observation
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (_members == null)
+                if (_membersRaw == null)
                     return BindingMetadata.UnsetValue;
                 return _target;
             }
         }
 
-        public IReadOnlyList<IMemberInfo> Members
+        public ItemOrIReadOnlyList<IMemberInfo> Members
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _members ?? ConstantMemberInfo.UnsetArray;
+            get => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(_membersRaw ?? ConstantMemberInfo.Unset);
         }
 
         #endregion
@@ -79,7 +79,7 @@ namespace MugenMvvm.Bindings.Observation
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ThrowIfError()
         {
-            if (_members == null)
+            if (_membersRaw == null)
             {
                 if (_target is Exception e)
                     throw e;

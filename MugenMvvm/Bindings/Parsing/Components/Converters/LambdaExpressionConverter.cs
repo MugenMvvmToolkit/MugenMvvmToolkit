@@ -5,6 +5,8 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Parsing.Components.Converters
@@ -26,12 +28,12 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
             var expressions = lambda.Parameters;
             try
             {
-                var parameters = new IParameterExpressionNode[expressions.Count];
+                var parameters = ItemOrArray.Get<IParameterExpressionNode>(expressions.Count);
                 for (var i = 0; i < expressions.Count; i++)
                 {
                     var parameterExpression = expressions[i];
                     var parameterExpressionNode = new ParameterExpressionNode(parameterExpression.Name ?? "");
-                    parameters[i] = parameterExpressionNode;
+                    parameters.SetAt(i, parameterExpressionNode);
                     context.SetExpression(parameterExpression, parameterExpressionNode);
                 }
 

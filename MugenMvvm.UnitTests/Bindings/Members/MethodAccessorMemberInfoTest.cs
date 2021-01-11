@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     {
                         ++getValueCount;
                         target.ShouldEqual(this);
-                        checkGetterArgs.ShouldEqual(args);
+                        checkGetterArgs.ShouldEqual(args.AsList());
                         metadata.ShouldEqual(DefaultMetadata);
                         return getValue;
                     },
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     {
                         ++setValueCount;
                         target.ShouldEqual(this);
-                        checkSetterArgs.ShouldEqual(args);
+                        checkSetterArgs.ShouldEqual(args.AsList());
                         metadata.ShouldEqual(DefaultMetadata);
                         return null;
                     },

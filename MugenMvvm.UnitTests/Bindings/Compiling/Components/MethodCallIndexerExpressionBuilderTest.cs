@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(this);
-                    objects.ShouldBeEmpty();
+                    objects.IsEmpty.ShouldBeTrue();
                     arg3.ShouldEqual(DefaultMetadata);
                     return this;
                 }
@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(this);
-                    objects.ShouldBeEmpty();
+                    objects.IsEmpty.ShouldBeTrue();
                     arg3.ShouldEqual(DefaultMetadata);
                     return this;
                 }
@@ -217,7 +217,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     ++invokeCount;
                     o.ShouldBeNull();
-                    objects.ShouldBeEmpty();
+                    objects.IsEmpty.ShouldBeTrue();
                     arg3.ShouldEqual(DefaultMetadata);
                     return this;
                 }
@@ -614,7 +614,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 Invoke = (o, objects, arg3) =>
                 {
                     o.ShouldEqual(this);
-                    objects.Single().ShouldEqual(false);
+                    objects.Item.ShouldEqual(false);
                     arg3.ShouldEqual(DefaultMetadata);
                     return this;
                 }
@@ -662,7 +662,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     methodInfo.Invoke = (o, objects, arg3) =>
                     {
                         arg3.ShouldEqual(DefaultMetadata);
-                        return member.Invoke(o, objects);
+                        return member.Invoke(o, objects.AsList());
                     };
                 }
 

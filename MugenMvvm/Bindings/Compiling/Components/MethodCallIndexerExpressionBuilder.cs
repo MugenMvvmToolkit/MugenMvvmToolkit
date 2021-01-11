@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -24,7 +23,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Compiling.Components
 {
-    public sealed class MethodCallIndexerExpressionBuilder : IExpressionBuilderComponent, IHasPriority
+    public sealed class MethodCallIndexerExpressionBuilder : IExpressionBuilderComponent, IHasPriority, IEqualityComparer<MethodCallIndexerExpressionBuilder.MethodInvokerKey>
     {
         #region Fields
 
@@ -38,6 +37,8 @@ namespace MugenMvvm.Bindings.Compiling.Components
         private const float NotExactlyEqualUnsafeCastWeight = 1000f;
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
+        private static readonly ConstructorInfo ItemOrArrayItemConstructor = typeof(ItemOrArray<object>).GetConstructorOrThrow(BindingFlagsEx.InstancePublic, new[] {typeof(object), typeof(bool)});
+        private static readonly ConstructorInfo ItemOrArrayListConstructor = typeof(ItemOrArray<object>).GetConstructorOrThrow(BindingFlagsEx.InstancePublic, new[] {typeof(object[])});
         private static readonly MethodInfo InvokeMethod = typeof(IMethodMemberInfo).GetMethodOrThrow(nameof(IMethodMemberInfo.Invoke), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
 
@@ -63,6 +64,10 @@ namespace MugenMvvm.Bindings.Compiling.Components
         #endregion
 
         #region Implementation of interfaces
+
+        bool IEqualityComparer<MethodInvokerKey>.Equals(MethodInvokerKey x, MethodInvokerKey y) => x.Equals(y);
+
+        int IEqualityComparer<MethodInvokerKey>.GetHashCode(MethodInvokerKey key) => key.GetHashCode();
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression) =>
             expression switch
@@ -108,13 +113,15 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     return Expression.ArrayIndex(target!, expressions.List);
                 return Expression.ArrayIndex(target!, expressions.Item);
             }
-            return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), Default.Array<Type>());
+
+            return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), default);
         }
 
-        private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, ItemOrArray<Type> typeArgs)
+        private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ItemOrArray<ArgumentData> args, ItemOrArray<Type> typeArgs)
         {
-            var methods = GetBestMethodCandidates(GetMethods(targetData.Type, methodName, targetData.IsStatic, typeArgs, context.GetMetadataOrDefault()), args);
-            var expression = TryGenerateMethodCall(context, methods, targetData, args);
+            var methods = GetMethods(targetData.Type, methodName, targetData.IsStatic, typeArgs, context.GetMetadataOrDefault());
+            GetBestMethodCandidates(ref methods, args);
+            var expression = TryGenerateMethodCall(context, ref methods, targetData, ref args);
             if (expression != null)
                 return expression;
 
@@ -124,8 +131,8 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return null;
             }
 
-            var arrayArgs = new Expression[args.Length];
-            for (var i = 0; i < args.Length; i++)
+            var arrayArgs = ItemOrArray.Get<Expression>(args.Count);
+            for (var i = 0; i < args.Count; i++)
             {
                 var data = args[i];
                 if (data.IsLambda || data.Expression == null)
@@ -134,14 +141,14 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     return null;
                 }
 
-                arrayArgs[i] = data.Expression.ConvertIfNeed(typeof(object), false);
+                arrayArgs.SetAt(i, data.Expression.ConvertIfNeed(typeof(object), false));
             }
 
             try
             {
                 ExpressionCallBuffer[0] = targetData.Expression;
                 ExpressionCallBuffer[1] = Expression.Constant(methodName);
-                ExpressionCallBuffer[2] = Expression.NewArrayInit(typeof(object), arrayArgs);
+                ExpressionCallBuffer[2] = ToItemOrList(arrayArgs);
                 ExpressionCallBuffer[3] = Expression.Constant(typeArgs.GetRawValue());
                 ExpressionCallBuffer[4] = context.MetadataExpression;
                 return Expression.Call(Expression.Constant(new MethodInvoker(this)), MethodInvokerInvokeMethod, ExpressionCallBuffer);
@@ -152,9 +159,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
             }
         }
 
-        private static MethodData[] GetBestMethodCandidates(MethodData[] methods, ArgumentData[] arguments)
+        private static void GetBestMethodCandidates(ref ItemOrArray<MethodData> methods, ItemOrArray<ArgumentData> arguments)
         {
-            for (var index = 0; index < methods.Length; index++)
+            for (var index = 0; index < methods.Count; index++)
             {
                 try
                 {
@@ -162,7 +169,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     if (methodInfo.IsEmpty)
                         continue;
 
-                    methods[index] = default;
+                    methods.SetAt(index, default);
                     var methodData = TryInferMethod(methodInfo.Method, arguments);
                     if (methodData.IsEmpty)
                         continue;
@@ -178,11 +185,11 @@ namespace MugenMvvm.Bindings.Compiling.Components
                             requiredCount -= 1;
                     }
 
-                    if (requiredCount > arguments.Length)
+                    if (requiredCount > arguments.Count)
                         continue;
-                    if (parameters.Count < arguments.Length && !hasParams)
+                    if (parameters.Count < arguments.Count && !hasParams)
                         continue;
-                    var count = parameters.Count > arguments.Length ? arguments.Length : parameters.Count;
+                    var count = parameters.Count > arguments.Count ? arguments.Count : parameters.Count;
                     var valid = true;
                     for (var i = 0; i < count; i++)
                     {
@@ -194,23 +201,21 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     }
 
                     if (valid)
-                        methods[index] = methodData;
+                        methods.SetAt(index, methodData);
                 }
                 catch
                 {
                     ;
                 }
             }
-
-            return methods;
         }
 
-        private static Expression? TryGenerateMethodCall(IExpressionBuilderContext context, MethodData[] methods, in TargetData target, ArgumentData[] arguments)
+        private static Expression? TryGenerateMethodCall(IExpressionBuilderContext context, ref ItemOrArray<MethodData> methods, in TargetData target, ref ItemOrArray<ArgumentData> arguments)
         {
-            if (methods.Length == 0)
+            if (methods.IsEmpty)
                 return null;
 
-            for (var i = 0; i < methods.Length; i++)
+            for (var i = 0; i < methods.Count; i++)
             {
                 try
                 {
@@ -218,8 +223,8 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     if (method.IsEmpty)
                         continue;
 
-                    var expressions = new Expression[arguments.Length];
-                    for (var index = 0; index < arguments.Length; index++)
+                    var expressions = ItemOrArray.Get<Expression>(arguments.Count);
+                    for (var index = 0; index < arguments.Count; index++)
                     {
                         var data = arguments[index];
                         if (data.IsLambda)
@@ -238,17 +243,17 @@ namespace MugenMvvm.Bindings.Compiling.Components
                                     context.Metadata.Set(CompilingMetadata.LambdaParameter, oldLambdaParameter, out _);
                             }
 
-                            arguments[index] = data;
+                            arguments.SetAt(index, data);
                         }
 
-                        expressions[index] = data.Expression!;
+                        expressions.SetAt(index, data.Expression!);
                     }
 
-                    methods[i] = method.TryResolve(arguments, expressions);
+                    methods.SetAt(i, method.TryResolve(arguments, expressions));
                 }
                 catch
                 {
-                    methods[i] = default;
+                    methods.SetAt(i, default);
                 }
             }
 
@@ -269,24 +274,27 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 else
                     targetExp = target.Expression;
 
-                return Expression.Call(targetExp, m, resultArgs);
+                return Expression.Call(targetExp, m, resultArgs.AsList());
             }
+
+            for (var i = 0; i < resultArgs.Count; i++)
+                resultArgs.SetAt(i, resultArgs[i].ConvertIfNeed(typeof(object), false));
 
             var invokeArgs = new Expression[3];
             invokeArgs[0] = target.Expression.ConvertIfNeed(typeof(object), false) ?? MugenExtensions.NullConstantExpression;
-            invokeArgs[1] = Expression.NewArrayInit(typeof(object), resultArgs.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
+            invokeArgs[1] = ToItemOrList(resultArgs);
             invokeArgs[2] = context.MetadataExpression;
             return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs).ConvertIfNeed(result.Method.Type, true);
         }
 
-        private static int TrySelectMethod(MethodData[] methods, ArgumentData[]? args, out bool resultHasParams)
+        private static int TrySelectMethod(ItemOrArray<MethodData> methods, ItemOrArray<ArgumentData> args, out bool resultHasParams)
         {
             var result = -1;
             resultHasParams = true;
             var resultUseParams = true;
             var resultNotExactlyEqual = float.MaxValue;
             var resultUsageCount = int.MinValue;
-            for (var i = 0; i < methods.Length; i++)
+            for (var i = 0; i < methods.Count; i++)
             {
                 var methodInfo = methods[i];
                 if (methodInfo.IsEmpty)
@@ -384,13 +392,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 }
             }
 
-            if (result != -1 && args != null && resultNotExactlyEqual >= NotExactlyEqualUnsafeCastWeight && args.All(data => !data.IsLambda))
+            if (result != -1 && resultNotExactlyEqual >= NotExactlyEqualUnsafeCastWeight && args.All(data => !data.IsLambda))
                 return -1;
 
             return result;
         }
 
-        private static bool CheckParamsCompatible(int startIndex, int lastIndex, IReadOnlyList<IParameterInfo> parameters, in MethodData method, ref float notExactlyEqual)
+        private static bool CheckParamsCompatible(int startIndex, int lastIndex, ItemOrIReadOnlyList<IParameterInfo> parameters, in MethodData method, ref float notExactlyEqual)
         {
             float weight = 0;
             var elementType = parameters[lastIndex].ParameterType.GetElementType()!;
@@ -418,27 +426,27 @@ namespace MugenMvvm.Bindings.Compiling.Components
             return true;
         }
 
-        private static Expression[] ConvertParameters(IExpressionBuilderContext context, in MethodData method, bool hasParams)
+        private static ItemOrArray<Expression> ConvertParameters(IExpressionBuilderContext context, in MethodData method, bool hasParams)
         {
             var parameters = method.Parameters;
-            var args = (Expression[]) method.Args!;
-            var result = new Expression[parameters.Count];
+            var args = method.Expressions;
+            var result = ItemOrArray.Get<Expression>(parameters.Count);
             for (var i = 0; i < parameters.Count; i++)
             {
                 //optional or params
-                if (i > args.Length - 1)
+                if (i > args.Count - 1)
                 {
                     for (var j = i; j < parameters.Count; j++)
                     {
                         var parameter = parameters[j];
                         if (j == parameters.Count - 1 && hasParams)
-                            result[j] = Expression.NewArrayInit(parameter.ParameterType.GetElementType()!, Default.Array<Expression>());
+                            result.SetAt(j, Expression.NewArrayInit(parameter.ParameterType.GetElementType()!, Default.Array<Expression>()));
                         else
                         {
                             if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
-                                result[j] = context.MetadataExpression;
+                                result.SetAt(j, context.MetadataExpression);
                             else
-                                result[j] = Expression.Constant(parameter.DefaultValue).ConvertIfNeed(parameter.ParameterType, false);
+                                result.SetAt(j, Expression.Constant(parameter.DefaultValue).ConvertIfNeed(parameter.ParameterType, false));
                         }
                     }
 
@@ -448,34 +456,34 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 if (i == parameters.Count - 1 && hasParams && !args[i].Type.IsCompatibleWith(parameters[i].ParameterType))
                 {
                     var arrayType = parameters[i].ParameterType.GetElementType()!;
-                    var arrayArgs = new Expression[args.Length - i];
-                    for (var j = i; j < args.Length; j++)
+                    var arrayArgs = new Expression[args.Count - i];
+                    for (var j = i; j < args.Count; j++)
                         arrayArgs[j - i] = args[j].ConvertIfNeed(arrayType, false);
-                    result[i] = Expression.NewArrayInit(arrayType, arrayArgs);
+                    result.SetAt(i, Expression.NewArrayInit(arrayType, arrayArgs));
                 }
                 else
-                    result[i] = args[i].ConvertIfNeed(parameters[i].ParameterType, false);
+                    result.SetAt(i, args[i].ConvertIfNeed(parameters[i].ParameterType, false));
             }
 
             return result;
         }
 
-        private static ArgumentData[] GetArguments(IHasArgumentsExpressionNode<IExpressionNode> hasArguments, IExpressionBuilderContext context)
+        private static ItemOrArray<ArgumentData> GetArguments(IHasArgumentsExpressionNode<IExpressionNode> hasArguments, IExpressionBuilderContext context)
         {
             var arguments = hasArguments.Arguments;
             if (arguments.Count == 0)
-                return Default.Array<ArgumentData>();
-            var args = new ArgumentData[arguments.Count];
-            for (var i = 0; i < args.Length; i++)
+                return default;
+            var args = ItemOrArray.Get<ArgumentData>(arguments.Count);
+            for (var i = 0; i < args.Count; i++)
             {
                 var node = arguments[i];
-                args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(node), null);
+                args.SetAt(i, new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(node), null));
             }
 
             return args;
         }
 
-        private static MethodData TryInferMethod(IMethodMemberInfo method, ArgumentData[] args)
+        private static MethodData TryInferMethod(IMethodMemberInfo method, ItemOrArray<ArgumentData> args)
         {
             if (!method.IsGenericMethodDefinition)
                 return new MethodData(method);
@@ -487,18 +495,18 @@ namespace MugenMvvm.Bindings.Compiling.Components
             return new MethodData(genericMethod);
         }
 
-        private static IMethodMemberInfo? TryInferGenericMethod(IMethodMemberInfo method, ArgumentData[] args, out bool hasUnresolved)
+        private static IMethodMemberInfo? TryInferGenericMethod(IMethodMemberInfo method, ItemOrArray<ArgumentData> args, out bool hasUnresolved)
         {
-            var parameters = method.GetParameters();
-            var inferredTypes = BindingMugenExtensions.TryInferGenericParameters(method.GetGenericArguments(), parameters, info => info.ParameterType, args, (data, i) => data[i].Type, args.Length, out hasUnresolved);
-            if (inferredTypes == null)
+            var inferredTypes = BindingMugenExtensions.TryInferGenericParameters(method.GetGenericArguments(), method.GetParameters(), info => info.ParameterType, args, (data, i) => data[i].Type, args.Count,
+                out hasUnresolved);
+            if (inferredTypes.IsEmpty)
                 return null;
             return method.MakeGenericMethod(inferredTypes);
         }
 
-        private static IMethodMemberInfo? ApplyTypeArgs(IMethodMemberInfo m, Type[] typeArgs)
+        private static IMethodMemberInfo? ApplyTypeArgs(IMethodMemberInfo m, ItemOrArray<Type> typeArgs)
         {
-            if (typeArgs.Length == 0)
+            if (typeArgs.IsEmpty)
             {
                 if (!m.IsGenericMethodDefinition)
                     return m;
@@ -507,7 +515,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             {
                 if (m.IsGenericMethod && !m.IsGenericMethodDefinition)
                     m = m.GetGenericMethodDefinition();
-                if (m.IsGenericMethodDefinition && m.GetGenericArguments().Count == typeArgs.Length)
+                if (m.IsGenericMethodDefinition && m.GetGenericArguments().Count == typeArgs.Count)
                     return m.MakeGenericMethod(typeArgs);
             }
 
@@ -533,39 +541,46 @@ namespace MugenMvvm.Bindings.Compiling.Components
         private static ItemOrArray<Expression> ToExpressions(IExpressionBuilderContext context, ItemOrIReadOnlyList<IExpressionNode> args, IMethodMemberInfo? method, Type? convertType)
         {
             var count = args.Count;
-            var parameters = method?.GetParameters();
-            var expressions = count == 1 ? null : new Expression[count];
-            int index = 0;
+            var parameters = method?.GetParameters() ?? default;
+            var expressions = ItemOrArray.Get<Expression>(count);
+            var index = 0;
             foreach (var arg in args)
             {
                 var expression = context.Build(arg);
                 if (convertType != null)
                     expression = expression.ConvertIfNeed(convertType, true);
-                else if (parameters != null && parameters.Count > index)
+                else if (parameters.Count > index)
                     expression = expression.ConvertIfNeed(parameters[index].ParameterType, true);
-                if (expressions == null)
-                    return expression;
-                expressions[index++] = expression;
+                expressions.SetAt(index++, expression);
             }
 
             return expressions;
         }
 
-        private MethodData[] GetMethods(Type type, string methodName, bool isStatic, ItemOrArray<Type> typeArgs, IReadOnlyMetadataContext? metadata)
+        private static Expression ToItemOrList(ItemOrArray<Expression> args)
+        {
+            if (args.IsEmpty)
+                return Expression.Default(typeof(ItemOrArray<object>));
+            if (args.HasItem)
+                return Expression.New(ItemOrArrayItemConstructor, args.Item!, MugenExtensions.TrueConstantExpression);
+            return Expression.New(ItemOrArrayListConstructor, Expression.NewArrayInit(typeof(object), args.List!));
+        }
+
+        private ItemOrArray<MethodData> GetMethods(Type type, string methodName, bool isStatic, ItemOrArray<Type> typeArgs, IReadOnlyMetadataContext? metadata)
         {
             var members = _memberManager
                 .DefaultIfNull()
                 .TryGetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
 
-            var methods = new MethodData[members.Count];
+            var methods = ItemOrArray.Get<MethodData>(members.Count);
             var count = 0;
             foreach (var member in members)
             {
                 if (member is IMethodMemberInfo method)
                 {
-                    var m = typeArgs.IsEmpty ? method : ApplyTypeArgs(method, typeArgs.AsList());//todo fix all arrays
+                    var m = typeArgs.IsEmpty ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
-                        methods[count++] = new MethodData(m);
+                        methods.SetAt(count++, new MethodData(m));
                 }
             }
 
@@ -576,63 +591,148 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         #region Nested types
 
-        [Preserve(AllMembers = true, Conditional = true)]
-        private sealed class MethodInvoker : Dictionary<Type[], MethodData>
+        [StructLayout(LayoutKind.Auto)]
+        internal readonly struct MethodInvokerKey
         {
             #region Fields
 
-            private readonly MethodCallIndexerExpressionBuilder _component;
-            private Type? _type;
+            public readonly object? Args;
+            public readonly Type Type;
 
             #endregion
 
             #region Constructors
 
-            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3, InternalEqualityComparer.TypeArray)
+            public MethodInvokerKey(Type type, ItemOrArray<object?> args)
             {
-                _component = component;
+                Type = type;
+                if (args.IsEmpty)
+                    Args = null;
+                else if (args.HasItem)
+                    Args = GetValueType(args.Item);
+                else
+                    Args = args.GetRawValue();
             }
 
             #endregion
 
             #region Methods
 
-            public object? Invoke(object? target, string methodName, object?[] args, object? typeArgs, IReadOnlyMetadataContext? metadata)
+            public bool Equals(MethodInvokerKey other)
+            {
+                if (Type != other.Type)
+                    return false;
+                if (ReferenceEquals(Args, other.Args))
+                    return true;
+                if (Args == null || other.Args == null)
+                    return false;
+
+                if (Args is Type t)
+                {
+                    if (other.Args is Type oT)
+                        return t == oT;
+                    return false;
+                }
+
+                var typesX = Args as Type[];
+                var typesY = other.Args as Type[];
+                if (typesX == null && typesY == null)
+                    return false;
+
+                if (typesX == null)
+                    return Equals(typesY!, (object?[]) Args);
+                if (typesY == null)
+                    return Equals(typesX!, (object?[]) other.Args);
+                return InternalEqualityComparer.Equals(typesX, typesY);
+            }
+
+            public override int GetHashCode()
+            {
+                if (Args == null)
+                    return Type.GetHashCode();
+                if (Args is Type t)
+                    return HashCode.Combine(Type, t);
+
+                var hashCode = new HashCode();
+                hashCode.Add(Type);
+                if (Args is Type[] types)
+                {
+                    foreach (var type in types)
+                        hashCode.Add(type);
+                }
+                else
+                {
+                    foreach (var value in (object[]) Args)
+                        hashCode.Add(GetValueType(value));
+                }
+
+                return hashCode.ToHashCode();
+            }
+
+            public MethodInvokerKey ToKey(ItemOrArray<object?> args)
+            {
+                if (args.Count < 2)
+                    return this;
+
+                var result = new Type[args.Count];
+                for (var i = 0; i < args.Count; i++)
+                    result[i] = GetValueType(args[i]);
+                return new MethodInvokerKey(Type, result);
+            }
+
+            private static bool Equals(Type[] types, object?[] values)
+            {
+                if (values.Length != types.Length)
+                    return false;
+                for (var i = 0; i < values.Length; i++)
+                {
+                    if (GetValueType(values[i]) != types[i])
+                        return false;
+                }
+
+                return true;
+            }
+
+            private static Type GetValueType(object? value) => value == null ? typeof(object) : value.GetType();
+
+            #endregion
+        }
+
+        [Preserve(AllMembers = true, Conditional = true)]
+        private sealed class MethodInvoker : Dictionary<MethodInvokerKey, MethodData>
+        {
+            #region Constructors
+
+            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3, component)
+            {
+            }
+
+            #endregion
+
+            private MethodCallIndexerExpressionBuilder Component => (MethodCallIndexerExpressionBuilder) Comparer;
+
+            #region Methods
+
+            public object? Invoke(object? target, string methodName, ItemOrArray<object?> args, object? typeArgs, IReadOnlyMetadataContext? metadata)
             {
                 if (target.IsNullOrUnsetValue())
                     return BindingMetadata.UnsetValue;
 
-                var type = target.GetType();
-                var types = GetArgTypes(args);
-                if (type != _type || TryGetValue(types, out var method))
+                var key = new MethodInvokerKey(target.GetType(), args);
+                if (!TryGetValue(key, out var method))
                 {
-                    _type = type;
-                    var methods = _component.GetMethods(type, methodName, false, ItemOrArray.FromRawValue<Type>(typeArgs), metadata);
-                    Type[]? instanceArgs = null;
-                    for (var i = 0; i < methods.Length; i++)
-                        methods[i] = methods[i].WithArgs(args, ref instanceArgs);
-                    var resultIndex = TrySelectMethod(methods, null, out _);
+                    var methods = Component.GetMethods(key.Type, methodName, false, ItemOrArray.FromRawValue<Type>(typeArgs), metadata);
+                    ItemOrArray<Type> instanceArgs = default;
+                    for (var i = 0; i < methods.Count; i++)
+                        methods.SetAt(i, methods[i].WithArgs(args, ref instanceArgs));
+                    var resultIndex = TrySelectMethod(methods, default, out _);
                     method = resultIndex >= 0 ? methods[resultIndex] : default;
-                    this[types] = method;
+                    this[key.ToKey(args)] = method;
                 }
 
                 if (method.IsEmpty)
-                    ExceptionManager.ThrowInvalidBindingMember(type, methodName);
-                return method.Method.Invoke(target, _component._globalValueConverter.TryGetInvokeArgs(method.Parameters, args, metadata)!, metadata);
-            }
-
-            private static Type[] GetArgTypes(object?[]? args)
-            {
-                if (args == null || args.Length == 0)
-                    return Default.Array<Type>();
-                var result = new Type[args.Length];
-                for (var i = 0; i < args.Length; i++)
-                {
-                    var o = args[i];
-                    result[i] = o == null ? typeof(object) : o.GetType();
-                }
-
-                return result;
+                    ExceptionManager.ThrowInvalidBindingMember(key.Type, methodName);
+                return method.Method!.Invoke(target, Component._globalValueConverter.TryGetInvokeArgs(method.Parameters, args, metadata)!, metadata);
             }
 
             #endregion
@@ -708,10 +808,10 @@ namespace MugenMvvm.Bindings.Compiling.Components
         {
             #region Fields
 
+            private readonly object? _parametersRaw;
             private readonly IMethodMemberInfo? _unresolvedMethod;
             public readonly IMethodMemberInfo Method;
-            public readonly IReadOnlyList<IParameterInfo> Parameters;
-            public readonly object? Args;
+            private readonly object? _args;
 
             #endregion
 
@@ -726,9 +826,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public MethodData(IMethodMemberInfo method, IMethodMemberInfo? unresolvedMethod, object? args = null)
             {
                 Method = method;
-                Parameters = method.GetParameters();
+                _parametersRaw = method.GetParameters().GetRawValue();
                 _unresolvedMethod = unresolvedMethod;
-                Args = args;
+                _args = args;
             }
 
             #endregion
@@ -741,13 +841,19 @@ namespace MugenMvvm.Bindings.Compiling.Components
             {
                 get
                 {
-                    if (Args == null)
+                    if (_args == null)
                         return 0;
-                    if (Args is Expression[] expressions)
+                    if (_args is Expression || _args is Type)
+                        return 1;
+                    if (_args is Expression[] expressions)
                         return expressions.Length;
-                    return ((Type[]) Args!).Length;
+                    return ((Type[]) _args).Length;
                 }
             }
+
+            public ItemOrArray<Expression> Expressions => ItemOrArray.FromRawValue<Expression>(_args);
+
+            public ItemOrIReadOnlyList<IParameterInfo> Parameters => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parametersRaw);
 
             #endregion
 
@@ -755,39 +861,51 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             public Type GetExpectedParameterType(int index)
             {
-                if (Args is Expression[] expressions)
+                if (_args is Expression exp)
+                {
+                    Should.BeValid(index == 0, nameof(index));
+                    return exp.Type;
+                }
+
+                if (_args is Type t)
+                {
+                    Should.BeValid(index == 0, nameof(index));
+                    return t;
+                }
+
+                if (_args is Expression[] expressions)
                     return expressions[index].Type;
-                return ((Type[]) Args!)[index];
+                return ((Type[]) _args!)[index];
             }
 
-            public MethodData WithArgs(object?[] args, ref Type[]? instanceArgs)
+            public MethodData WithArgs(ItemOrArray<object?> args, ref ItemOrArray<Type> instanceArgs)
             {
                 if (IsEmpty)
                     return default;
-                if (instanceArgs == null)
+                if (instanceArgs.IsEmpty)
                 {
-                    if (args.Length == 0)
-                        instanceArgs = Default.Array<Type>();
+                    if (args.Count == 0)
+                        instanceArgs = default;
                     else
                     {
-                        instanceArgs = new Type[args.Length];
-                        for (var i = 0; i < args.Length; i++)
-                            instanceArgs[i] = args[i]?.GetType() ?? typeof(object);
+                        instanceArgs = ItemOrArray.Get<Type>(args.Count);
+                        for (var i = 0; i < args.Count; i++)
+                            instanceArgs.SetAt(i, args[i]?.GetType() ?? typeof(object));
                     }
                 }
 
-                return new MethodData(Method, null, instanceArgs);
+                return new MethodData(Method, null, instanceArgs.GetRawValue());
             }
 
-            public MethodData TryResolve(ArgumentData[] args, Expression[] expressions)
+            public MethodData TryResolve(ItemOrArray<ArgumentData> args, ItemOrArray<Expression> expressions)
             {
                 if (_unresolvedMethod == null)
-                    return new MethodData(Method, null, expressions);
+                    return new MethodData(Method, null, expressions.GetRawValue());
 
                 var method = TryInferGenericMethod(_unresolvedMethod, args, out var unresolved);
                 if (method == null || unresolved)
                     return default;
-                return new MethodData(method!, null, expressions);
+                return new MethodData(method!, null, expressions.GetRawValue());
             }
 
             #endregion

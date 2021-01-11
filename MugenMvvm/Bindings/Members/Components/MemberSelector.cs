@@ -79,7 +79,7 @@ namespace MugenMvvm.Bindings.Members.Components
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request,
             IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is IReadOnlyList<IMemberInfo> members))
+            if ((request is not IReadOnlyList<IMemberInfo> members))
                 return default;
 
             _selectorDictionary.Clear();
@@ -100,12 +100,11 @@ namespace MugenMvvm.Bindings.Members.Components
 
             if (_selectorDictionary.Count == 0)
                 return default;
-            if (_selectorDictionary.Count == 1)
-                return ItemOrIReadOnlyList.FromItem(_selectorDictionary.FirstOrDefault().Value.GetBestMember());
-            var result = new IMemberInfo[_selectorDictionary.Count];
+
+            var result = ItemOrArray.Get<IMemberInfo>(_selectorDictionary.Count);
             var index = 0;
             foreach (var pair in _selectorDictionary)
-                result[index++] = pair.Value.GetBestMember();
+                result.SetAt(index++, pair.Value.GetBestMember());
             return result;
         }
 

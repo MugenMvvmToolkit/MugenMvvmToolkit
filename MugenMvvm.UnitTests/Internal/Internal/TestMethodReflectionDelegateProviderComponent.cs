@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Models;
@@ -26,7 +27,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 
         #region Properties
 
-        public Func<MethodInfo, Func<object?, object?[], object?>?>? TryGetMethodInvoker { get; set; }
+        public Func<MethodInfo, Func<object?, ItemOrArray<object?>, object?>?>? TryGetMethodInvoker { get; set; }
 
         public Func<MethodInfo, Type, Delegate?>? TryGetMethodInvoker1 { get; set; }
 
@@ -36,7 +37,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 
         #region Implementation of interfaces
 
-        Func<object?, object?[], object?>? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method)
+        Func<object?, ItemOrArray<object?>, object?>? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method)
         {
             _reflectionManager?.ShouldEqual(reflectionManager);
             return TryGetMethodInvoker?.Invoke(method);

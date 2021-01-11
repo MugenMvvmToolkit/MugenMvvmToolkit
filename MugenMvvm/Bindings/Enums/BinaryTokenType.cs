@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 
@@ -44,16 +45,16 @@ namespace MugenMvvm.Bindings.Enums
         }
 
         public BinaryTokenType(string value, int priority)
-            : this(value, null, priority, null)
+            : this(value, null, priority, default)
         {
         }
 
-        public BinaryTokenType(string value, int priority, params string[]? aliases)
+        public BinaryTokenType(string value, int priority, ItemOrArray<string> aliases)
             : this(value, null, priority, aliases)
         {
         }
 
-        public BinaryTokenType(string value, string? name, int priority, params string[]? aliases)
+        public BinaryTokenType(string value, string? name, int priority, ItemOrArray<string> aliases)
             : base(value, name)
         {
             Priority = priority;
@@ -68,7 +69,7 @@ namespace MugenMvvm.Bindings.Enums
         public int Priority { get; set; }
 
         [DataMember(Name = "A")]
-        public string[]? Aliases { get; set; }
+        public ItemOrArray<string> Aliases { get; set; }
 
         #endregion
     }

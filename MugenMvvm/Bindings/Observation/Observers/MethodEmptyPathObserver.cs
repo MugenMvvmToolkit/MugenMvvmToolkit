@@ -3,7 +3,6 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -34,7 +33,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         #region Properties
 
-        public override IMemberPath Path => EmptyMemberPath.Instance;
+        public override IMemberPath Path => MemberPath.Empty;
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
@@ -58,7 +57,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             if (target == null)
                 return default;
 
-            return new MemberPathMembers(target, ConstantMemberInfo.TargetArray);
+            return new MemberPathMembers(target, ConstantMemberInfo.Target);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)

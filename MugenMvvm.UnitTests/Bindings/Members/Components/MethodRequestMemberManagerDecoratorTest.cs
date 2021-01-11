@@ -115,9 +115,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var members = methods.Concat(additionMembers).ToArray();
             return new[]
             {
-                new object[] {members, methods[0].GetParameters().Select(info => info.ParameterType).ToArray(), new[] {methods[0]}.Concat(additionMembers)},
-                new object[] {members, methods[1].GetParameters().Select(info => info.ParameterType).ToArray(), new[] {methods[1]}.Concat(additionMembers)},
-                new object[] {members, methods[2].GetParameters().Select(info => info.ParameterType).ToArray(), new[] {methods[2], methods[3]}.Concat(additionMembers)},
+                new object[] {members, methods[0].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[0]}.Concat(additionMembers)},
+                new object[] {members, methods[1].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[1]}.Concat(additionMembers)},
+                new object[] {members, methods[2].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[2], methods[3]}.Concat(additionMembers)},
                 new object[] {members, Default.Array<Type>(), additionMembers},
                 new object[] {members, new[] {typeof(Guid)}, additionMembers}
             };

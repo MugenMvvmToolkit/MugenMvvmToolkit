@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -16,7 +15,7 @@ namespace MugenMvvm.Bindings.Members
     {
         #region Fields
 
-        private readonly object?[] _args;
+        private readonly ItemOrArray<object?> _args;
         private readonly IMethodMemberInfo? _getMethod;
         private readonly IObservationManager? _observationManager;
         private readonly Type _reflectedType;
@@ -27,11 +26,10 @@ namespace MugenMvvm.Bindings.Members
 
         #region Constructors
 
-        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType,
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType,
             IObservationManager? observationManager)
         {
             Should.NotBeNull(name, nameof(name));
-            Should.NotBeNull(args, nameof(args));
             if (getMethod == null)
                 Should.NotBeNull(setMethod, nameof(setMethod));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
@@ -95,12 +93,18 @@ namespace MugenMvvm.Bindings.Members
         {
             if (_getMethod == null)
                 ExceptionManager.ThrowBindingMemberMustBeReadable(this);
-            object?[] args;
+            ItemOrArray<object?> args;
             if (ArgumentFlags.HasFlag(Enums.ArgumentFlags.Metadata))
             {
-                args = new object?[_args.Length];
-                Array.Copy(_args, args, _args.Length);
-                args[args.Length - 1] = metadata;
+                if (_args.Count == 1)
+                    args = new ItemOrArray<object?>(metadata, true);
+                else
+                {
+                    var argsArray = new object?[_args.List!.Length];
+                    Array.Copy(_args.List!, argsArray, argsArray.Length);
+                    argsArray[argsArray.Length - 1] = metadata;
+                    args = argsArray;
+                }
             }
             else
                 args = _args;
@@ -112,15 +116,18 @@ namespace MugenMvvm.Bindings.Members
         {
             if (_setMethod == null)
                 ExceptionManager.ThrowBindingMemberMustBeWritable(this);
-            var args = new object?[_args.Length + 1];
-            Array.Copy(_args, args, _args.Length);
+            var args = new object?[_args.Count + 1];
+            if (_args.HasItem)
+                args[0] = _args.Item;
+            else
+                Array.Copy(_args.List!, args, _args.Count);
             args[args.Length - 1] = value;
             if (ArgumentFlags.HasFlag(Enums.ArgumentFlags.Metadata))
                 args[args.Length - 2] = metadata;
             _setMethod.Invoke(target, args, metadata);
         }
 
-        public IReadOnlyList<object?> GetArgs() => _args;
+        public ItemOrIReadOnlyList<object?> GetArgs() => _args;
 
         #endregion
     }

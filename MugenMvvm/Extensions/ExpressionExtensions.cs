@@ -2,6 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Extensions
 {
@@ -12,7 +14,12 @@ namespace MugenMvvm.Extensions
         public static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
         public static readonly ConstantExpression TrueConstantExpression = Expression.Constant(BoxingExtensions.TrueObject);
         public static readonly ConstantExpression FalseConstantExpression = Expression.Constant(BoxingExtensions.FalseObject);
-        private static readonly Expression[] ArrayIndexesCache = GenerateArrayIndexes(25);
+
+        private static readonly Expression ItemOrArrayListFieldExpression =
+            Expression.Field(GetParameterExpression<ItemOrArray<object>>(), typeof(ItemOrArray<object>).GetFieldOrThrow(nameof(ItemOrArray<object>.List), BindingFlagsEx.InstancePublic));
+
+        private static readonly Expression[] ArrayIndexesCache = GenerateArrayIndexes(10);
+        private static readonly Expression[] ItemOrArrayIndexesCache = GenerateItemOrArrayIndexes(10);
 
         #endregion
 
@@ -73,11 +80,26 @@ namespace MugenMvvm.Extensions
             return Expression.ArrayIndex(GetParameterExpression<object[]>(), GetConstantExpression(index));
         }
 
-        internal static Expression[] GenerateArrayIndexes(int length)
+        internal static Expression GetItemOrArrayIndexExpression(int index)
+        {
+            if (index >= 0 && index < ItemOrArrayIndexesCache.Length)
+                return ItemOrArrayIndexesCache[index];
+            return Expression.ArrayIndex(ItemOrArrayListFieldExpression, GetConstantExpression(index));
+        }
+
+        private static Expression[] GenerateArrayIndexes(int length)
         {
             var expressions = new Expression[length];
             for (var i = 0; i < length; i++)
                 expressions[i] = Expression.ArrayIndex(GetParameterExpression<object[]>(), GetConstantExpression(i));
+            return expressions;
+        }
+
+        private static Expression[] GenerateItemOrArrayIndexes(int length)
+        {
+            var expressions = new Expression[length];
+            for (var i = 0; i < length; i++)
+                expressions[i] = Expression.ArrayIndex(ItemOrArrayListFieldExpression, GetConstantExpression(i));
             return expressions;
         }
 

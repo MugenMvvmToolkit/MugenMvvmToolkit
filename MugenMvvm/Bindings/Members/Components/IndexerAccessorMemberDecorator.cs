@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
@@ -26,7 +27,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
-        private readonly Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, EnumFlags<ArgumentFlags> flags)> _membersDictionary;
+        private readonly Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> flags)> _membersDictionary;
         private readonly IObservationManager? _observationManager;
 
         #endregion
@@ -40,7 +41,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _globalValueConverter = globalValueConverter;
             _observationManager = observationManager;
             _members = new List<IMemberInfo>();
-            _membersDictionary = new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, EnumFlags<ArgumentFlags> flags)>(this);
+            _membersDictionary = new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> flags)>(this);
         }
 
         #endregion
@@ -56,9 +57,11 @@ namespace MugenMvvm.Bindings.Members.Components
             if (xCount != y.ParametersCount)
                 return false;
 
+            var xParameters = x.Parameters;
+            var yParameters = y.Parameters;
             for (var i = 0; i < xCount; i++)
             {
-                if (x.Parameters[i].ParameterType != y.Parameters[i].ParameterType)
+                if (xParameters[i].ParameterType != yParameters[i].ParameterType)
                     return false;
             }
 
@@ -73,7 +76,7 @@ namespace MugenMvvm.Bindings.Members.Components
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
             var indexerArgsRaw = BindingMugenExtensions.GetIndexerArgsRaw(name);
-            if (indexerArgsRaw == null)
+            if (indexerArgsRaw.IsEmpty)
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
             string getterName;
@@ -104,7 +107,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
                 var parameters = method.GetParameters();
                 var args = _globalValueConverter.TryGetInvokeArgs(parameters, indexerArgsRaw, metadata, out var flags);
-                if (args == null || args.Length == 0)
+                if (args.IsEmpty)
                     continue;
 
                 var key = new MemberKey(method.DeclaringType, method.Type, parameters, false);
@@ -135,8 +138,8 @@ namespace MugenMvvm.Bindings.Members.Components
                     var key = new MemberKey(method.DeclaringType, lastParameter.ParameterType, parameters, true);
                     if (!_membersDictionary.TryGetValue(key, out var value))
                     {
-                        var args = _globalValueConverter.TryGetInvokeArgs(parameters.Take(parameters.Count - 1).ToList(), indexerArgsRaw, metadata, out var flags);
-                        if (args == null || args.Length == 0)
+                        var args = _globalValueConverter.TryGetInvokeArgs(parameters, parameters.Count - 1, indexerArgsRaw, metadata, out var flags);
+                        if (args.IsEmpty)
                             continue;
 
                         value = (null, new List<IMethodMemberInfo>(), args, flags);
@@ -180,19 +183,19 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             #region Fields
 
-            public readonly IReadOnlyList<IParameterInfo> Parameters;
-
             public readonly Type ReturnType;
             public readonly bool Setter;
             public readonly Type Type;
+
+            private readonly object? _parametersRaw;
 
             #endregion
 
             #region Constructors
 
-            public MemberKey(Type type, Type returnType, IReadOnlyList<IParameterInfo> parameters, bool setter)
+            public MemberKey(Type type, Type returnType, ItemOrIReadOnlyList<IParameterInfo> parameters, bool setter)
             {
-                Parameters = parameters;
+                _parametersRaw = parameters.GetRawValue();
                 Type = type;
                 ReturnType = returnType;
                 Setter = setter;
@@ -201,6 +204,12 @@ namespace MugenMvvm.Bindings.Members.Components
             #endregion
 
             #region Properties
+
+            public  ItemOrIReadOnlyList<IParameterInfo> Parameters
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parametersRaw);
+            }
 
             public int ParametersCount => Setter ? Parameters.Count - 1 : Parameters.Count;
 

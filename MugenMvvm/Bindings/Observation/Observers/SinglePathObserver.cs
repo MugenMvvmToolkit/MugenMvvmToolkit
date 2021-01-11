@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -62,7 +63,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 var target = Target;
                 if (target == null)
                     return default;
-                return new MemberPathMembers(target, new[] {member});
+                return new MemberPathMembers(target, new ItemOrIReadOnlyList<IMemberInfo>(member, true));
             }
 
             if (_lastMemberOrException is Exception e)

@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -17,12 +17,12 @@ namespace MugenMvvm.Bindings.Members
     {
         #region Fields
 
-        private readonly Type[]? _genericArguments;
+        private Type[]? _genericArguments;
         private readonly MethodInfo _method;
         private readonly ushort _modifiers;
-        private readonly IParameterInfo[] _parameters;
+        private readonly object? _parameters;
         private readonly Type _reflectedType;
-        private Func<object?, object?[], object?> _invoker;
+        private Func<object?, ItemOrArray<object?>, object?> _invoker;
         private MemberObserver _observer;
 
         #endregion
@@ -60,20 +60,21 @@ namespace MugenMvvm.Bindings.Members
             _modifiers = _method.GetAccessModifiers(isExtensionMethodSupported, ref parameterInfos).Value();
             DeclaringType = AccessModifiers.HasFlag(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType ?? typeof(object);
             if (parameterInfos.Length == 0)
-            {
-                _parameters = Default.Array<IParameterInfo>();
                 return;
-            }
 
             var startIndex = AccessModifiers.HasFlag(MemberFlags.Extension) ? 1 : 0;
             var length = parameterInfos.Length - startIndex;
             if (length == 0)
-                _parameters = Default.Array<IParameterInfo>();
+                return;
+
+            if (length == 1)
+                _parameters = new ParameterInfoImpl(parameterInfos[startIndex]);
             else
             {
-                _parameters = new IParameterInfo[length];
-                for (var i = 0; i < _parameters.Length; i++)
-                    _parameters[i] = new ParameterInfoImpl(parameterInfos[i + startIndex]);
+                var parameters = new IParameterInfo[length];
+                for (var i = 0; i < parameters.Length; i++)
+                    parameters[i] = new ParameterInfoImpl(parameterInfos[i + startIndex]);
+                _parameters = parameters;
             }
         }
 
@@ -108,24 +109,24 @@ namespace MugenMvvm.Bindings.Members
             return _observer.TryObserve(target, listener, metadata);
         }
 
-        public IReadOnlyList<IParameterInfo> GetParameters() => _parameters;
+        public ItemOrIReadOnlyList<IParameterInfo> GetParameters() => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parameters);
 
-        public IReadOnlyList<Type> GetGenericArguments() => _genericArguments ?? _method.GetGenericArguments();
+        public ItemOrIReadOnlyList<Type> GetGenericArguments() => _genericArguments ??= _method.GetGenericArguments();
 
         public IMethodMemberInfo GetGenericMethodDefinition()
             => new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlag(MemberFlags.Extension), _reflectedType);
 
-        public IMethodMemberInfo MakeGenericMethod(Type[] types)
+        public IMethodMemberInfo MakeGenericMethod(ItemOrArray<Type> types)
         {
             var method = _method;
             if (IsGenericMethodDefinition)
                 method = _method.GetGenericMethodDefinition();
-            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlag(MemberFlags.Extension), _reflectedType);
+            return new MethodMemberInfo(Name, method.MakeGenericMethod(types.AsList()), AccessModifiers.HasFlag(MemberFlags.Extension), _reflectedType);
         }
 
-        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => null;
+        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, ItemOrIReadOnlyList<object?> args, IReadOnlyMetadataContext? metadata = null) => null;
 
-        public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
+        public object? Invoke(object? target, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata = null)
         {
             if (target != null && AccessModifiers.HasFlag(MemberFlags.Extension))
                 return _invoker(null, args.InsertFirstArg(target));
@@ -136,7 +137,7 @@ namespace MugenMvvm.Bindings.Members
 
         #region Methods
 
-        private object? CompileMethod(object? target, object?[] args)
+        private object? CompileMethod(object? target, ItemOrArray<object?> args)
         {
             _invoker = _method.GetMethodInvoker();
             return Invoke(target, args);

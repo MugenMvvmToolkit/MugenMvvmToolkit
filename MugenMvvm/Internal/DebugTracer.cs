@@ -127,13 +127,13 @@ namespace MugenMvvm.Internal
 
         private static string Dump(ItemOrIReadOnlyList<object?> source)
         {
-            if (source.Item == null && source.List == null)
+            if (source.IsEmpty)
                 return ", source=null";
             if (source.Item != null)
                 return $", source={GetTarget(source.Item)}";
             var builder = new StringBuilder();
-            for (var i = 0; i < source.List.Count; i++)
-                builder.Append($", source_{i}={GetTarget(source.List[i])}");
+            for (var i = 0; i < source.List!.Count; i++)
+                builder.Append($", source_{i}={GetTarget(source.List![i])}");
             return builder.ToString();
         }
 

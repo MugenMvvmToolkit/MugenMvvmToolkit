@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Collections;
 
 namespace MugenMvvm.Bindings.Members
 {
@@ -6,10 +7,9 @@ namespace MugenMvvm.Bindings.Members
     {
         #region Constructors
 
-        public MemberTypesRequest(string name, Type[] types)
+        public MemberTypesRequest(string name, ItemOrArray<Type> types)
         {
             Should.NotBeNull(name, nameof(name));
-            Should.NotBeNull(types, nameof(types));
             Name = name;
             Types = types;
         }
@@ -20,7 +20,7 @@ namespace MugenMvvm.Bindings.Members
 
         public string Name { get; protected set; }
 
-        public Type[] Types { get; protected set; }
+        public ItemOrArray<Type> Types { get; protected set; }
 
         #endregion
 
@@ -28,9 +28,9 @@ namespace MugenMvvm.Bindings.Members
 
         public override string ToString()
         {
-            if (Types.Length == 0)
+            if (Types.IsEmpty)
                 return Name;
-            return $"{Name}({string.Join(",", (object[]) Types)})";
+            return $"{Name}({string.Join(",", (object[]) Types.AsList())})";
         }
 
         #endregion

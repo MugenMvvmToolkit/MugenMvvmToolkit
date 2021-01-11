@@ -69,7 +69,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (context.MoveNext().SkipWhitespaces().IsToken(')'))
             {
                 context.MoveNext();
-                return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), Default.Array<IExpressionNode>(), typeArgs);
+                return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), default, typeArgs);
             }
 
             var args = context.ParseArguments(")");

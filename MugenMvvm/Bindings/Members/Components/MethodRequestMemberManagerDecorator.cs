@@ -59,11 +59,11 @@ namespace MugenMvvm.Bindings.Members.Components
                 }
 
                 var parameters = methodInfo.GetParameters();
-                if (parameters.Count != types.Length)
+                if (parameters.Count != types.Count)
                     continue;
 
                 var isValid = true;
-                for (var j = 0; j < types.Length; j++)
+                for (var j = 0; j < types.Count; j++)
                 {
                     if (parameters[j].ParameterType != types[j])
                     {

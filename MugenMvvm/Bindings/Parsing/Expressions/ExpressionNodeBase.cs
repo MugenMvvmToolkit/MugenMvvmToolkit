@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -111,7 +111,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         protected ItemOrIReadOnlyList<T> VisitWithCheck<T>(IExpressionVisitor visitor, ItemOrIReadOnlyList<T> nodes, ref bool changed, IReadOnlyMetadataContext? metadata)
             where T : class, IExpressionNode
         {
-            T[]? newArgs = null;
+            ItemOrArray<T> newArgs = default;
             for (var i = 0; i < nodes.Count; i++)
             {
                 var itemsChanged = false;
@@ -119,13 +119,16 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 if (!itemsChanged)
                     continue;
 
-                newArgs ??= nodes.ToArray();
-                newArgs[i] = node;
+                if (newArgs.IsEmpty)
+                    newArgs = nodes.Count == 1 ? new ItemOrArray<T>(null!, true) : nodes.ToArray();
+                newArgs.SetAt(i, node);
             }
 
-            if (!changed && newArgs != null)
+            if (!changed && !newArgs.IsEmpty)
                 changed = true;
-            return newArgs ?? nodes;
+            if (newArgs.IsEmpty)
+                return nodes;
+            return newArgs;
         }
 
         protected static bool Equals(IExpressionNode? x1, IExpressionNode? x2, IExpressionEqualityComparer? comparer)

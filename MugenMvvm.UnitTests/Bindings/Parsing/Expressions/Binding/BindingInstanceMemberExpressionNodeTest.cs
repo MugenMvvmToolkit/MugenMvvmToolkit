@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Enums;
@@ -42,7 +41,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         [Fact]
         public void GetSourceShouldReturnInstance()
         {
-            var path = new SingleMemberPath(Path);
+            var path = MemberPath.Get(Path);
             using var t = MugenService.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, arg3) =>
@@ -67,7 +66,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         [Fact]
         public void GetBindingSourceShouldReturnInstanceObserver()
         {
-            var path = new SingleMemberPath(Path);
+            var path = MemberPath.Get(Path);
             var observer = EmptyPathObserver.Empty;
 
             var exp = new BindingInstanceMemberExpressionNode(this, Path, 0,

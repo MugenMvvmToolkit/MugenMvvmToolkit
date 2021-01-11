@@ -10,6 +10,8 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -29,8 +31,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         {
             _memberBuilder = new StringBuilder();
             var target = ConstantExpressionNode.Get(typeof(BindingMugenExtensions), typeof(Type));
-            var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), Default.Array<IExpressionNode>(), default, Default.ReadOnlyDictionary<string, object?>());
-            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), Default.Array<IExpressionNode>(), default, Default.ReadOnlyDictionary<string, object?>());
+            var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), default, default, Default.ReadOnlyDictionary<string, object?>());
+            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), default, default, Default.ReadOnlyDictionary<string, object?>());
             Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>
             {
                 {MacrosConstant.Binding, context => bindingImpl},
@@ -39,9 +41,9 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
             {
-                {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), Default.Array<IExpressionNode>())},
-                {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), Default.Array<IExpressionNode>())},
-                {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), Default.Array<IExpressionNode>())}
+                {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), default)},
+                {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), default)},
+                {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), default)}
             };
             ConstantParametersMethods = new Dictionary<string, string>
             {
@@ -93,26 +95,26 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {
                     if (method.Method == methodName)
                         return method;
-                    return new MethodCallExpressionNode(method.Target, methodName, Default.Array<IExpressionNode>(), method.TypeArgs, method.Metadata);
+                    return new MethodCallExpressionNode(method.Target, methodName, default, method.TypeArgs, method.Metadata);
                 }
 
                 if (method.Method == methodName && arguments.IsAllConstants())
                     return method;
 
-                var args = new IExpressionNode[arguments.Count];
-                for (var i = 0; i < args.Length; i++)
+                var args = ItemOrArray.Get<IExpressionNode>(arguments.Count);
+                for (var i = 0; i < args.Count; i++)
                 {
                     var expressionNode = arguments[i];
                     if (expressionNode is IConstantExpressionNode)
                     {
-                        args[i] = expressionNode;
+                        args.SetAt(i, expressionNode);
                         continue;
                     }
 
                     if (!expressionNode.TryBuildBindingMemberPath(_memberBuilder, n => n is IMemberExpressionNode, out _))
                         return expression;
 
-                    args[i] = ConstantExpressionNode.Get(_memberBuilder.GetPath(), typeof(string));
+                    args.SetAt(i, ConstantExpressionNode.Get(_memberBuilder.GetPath(), typeof(string)));
                 }
 
                 return new MethodCallExpressionNode(method.Target, methodName, args, method.TypeArgs, method.Metadata);

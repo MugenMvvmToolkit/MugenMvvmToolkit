@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         {
             var observer = new EmptyPathObserver(this);
             var members = observer.GetMembers(DefaultMetadata);
-            members.Members.ShouldEqual(ConstantMemberInfo.TargetArray);
+            members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
             members.Target.ShouldEqual(this);
         }
 

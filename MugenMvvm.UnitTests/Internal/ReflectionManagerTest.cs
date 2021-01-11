@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
@@ -109,9 +110,8 @@ namespace MugenMvvm.UnitTests.Internal
         public void GetActivatorShouldBeHandledByComponents1(int count)
         {
             var invokeCount = 0;
-            var delType = typeof(Action);
             var delegateProvider = new ReflectionManager();
-            Func<object?[], object>? result = objects => objects;
+            Func<ItemOrArray<object?>, object>? result = objects => objects;
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
@@ -168,9 +168,8 @@ namespace MugenMvvm.UnitTests.Internal
         public void GetMethodInvokerShouldBeHandledByComponents1(int count)
         {
             var invokeCount = 0;
-            var delType = typeof(Action);
             var delegateProvider = new ReflectionManager();
-            Func<object?, object?[], object?> result = (o, objects) => o;
+            Func<object?, ItemOrArray<object?>, object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
@@ -197,7 +196,6 @@ namespace MugenMvvm.UnitTests.Internal
         public void GetMethodInvokerShouldBeHandledByComponents2(int count)
         {
             var invokeCount = 0;
-            var delType = typeof(Action);
             var delegateProvider = new ReflectionManager();
             Func<object?, object?[], object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)
@@ -227,7 +225,6 @@ namespace MugenMvvm.UnitTests.Internal
         public void GetMemberGetterShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
-            var delType = typeof(Action);
             var delegateProvider = new ReflectionManager();
             Func<object?, object?[], object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)
@@ -257,7 +254,6 @@ namespace MugenMvvm.UnitTests.Internal
         public void GetMemberSetterShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
-            var delType = typeof(Action);
             var delegateProvider = new ReflectionManager();
             Func<object?, object?[], object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)

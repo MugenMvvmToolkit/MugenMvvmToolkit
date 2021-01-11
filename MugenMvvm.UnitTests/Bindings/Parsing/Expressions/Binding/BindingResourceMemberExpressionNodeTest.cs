@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Bindings.Resources;
@@ -45,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         [Fact]
         public void GetSourceShouldReturnResource()
         {
-            var path = new SingleMemberPath(Path);
+            var path = MemberPath.Get(Path);
             var t = "r";
             var src = new object();
             var resource = new object();
@@ -101,7 +100,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 {
                     o.ShouldEqual("");
                     arg3.ShouldEqual(DefaultMetadata);
-                    return EmptyMemberPath.Instance;
+                    return MemberPath.Empty;
                 }
             });
 
@@ -113,7 +112,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         [Fact]
         public void GetBindingSourceShouldReturnResourceObserver()
         {
-            var path = new SingleMemberPath(Path);
+            var path = MemberPath.Get(Path);
             var observer = EmptyPathObserver.Empty;
             var t = "r";
             var src = new object();
@@ -168,7 +167,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         [Fact]
         public void GetBindingSourceShouldReturnResourceObserverDynamic()
         {
-            var path = new SingleMemberPath(Path);
+            var path = MemberPath.Get(Path);
             var observer = EmptyPathObserver.Empty;
             var t = "r";
             var src = new object();

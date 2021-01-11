@@ -173,15 +173,11 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                     return token;
                 }
 
-                var aliases = token.Aliases;
-                if (aliases == null)
-                    continue;
-
-                for (var j = 0; j < aliases.Length; j++)
+                foreach (var t in token.Aliases)
                 {
-                    if (context.IsToken(aliases[j]))
+                    if (context.IsToken(t))
                     {
-                        context.MoveNext(aliases[j].Length);
+                        context.MoveNext(t.Length);
                         return token;
                     }
                 }

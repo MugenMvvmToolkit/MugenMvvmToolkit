@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
@@ -40,38 +41,28 @@ namespace MugenMvvm.Bindings.Members.Components
 
         bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y)
         {
-            if (x.MemberType != y.MemberType || x.MemberFlags != y.MemberFlags || !x.Key.Equals(y.Key) || x.Type != y.Type || x.Types.Length != y.Types.Length)
-                return false;
-            if (x.Types == y.Types)
-                return true;
-            for (var i = 0; i < x.Types.Length; i++)
-            {
-                if (x.Types[i] != y.Types[i])
-                    return false;
-            }
-
-            return true;
+            return x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type && InternalEqualityComparer.Equals(x.Types, y.Types);
         }
 
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, key.MemberFlags, key.Types.Length);
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, key.MemberFlags, key.Types.Count);
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
             object request, IReadOnlyMetadataContext? metadata)
         {
             var name = request as string;
-            Type[]? types;
+            ItemOrArray<Type> types;
             if (name == null && request is MemberTypesRequest r)
             {
                 name = r.Name;
                 types = r.Types;
             }
             else
-                types = Default.Array<Type>();
+                types = default;
 
             if (name == null)
                 return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
 
-            var cacheKey = new CacheKey(type, name, memberTypes, flags, types!);
+            var cacheKey = new CacheKey(type, name, memberTypes, flags, types);
             if (!_cache.TryGetValue(cacheKey, out var members))
             {
                 members = Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata).GetRawValue();
@@ -121,19 +112,29 @@ namespace MugenMvvm.Bindings.Members.Components
             public readonly Type Type;
             public readonly ushort MemberType;
             public readonly ushort MemberFlags;
-            public readonly Type[] Types;
+            private readonly object? _typesRaw;
 
             #endregion
 
             #region Constructors
 
-            public CacheKey(Type type, string key, EnumFlags<MemberType> memberType, EnumFlags<MemberFlags> memberFlags, Type[] types)
+            public CacheKey(Type type, string key, EnumFlags<MemberType> memberType, EnumFlags<MemberFlags> memberFlags, ItemOrArray<Type> types)
             {
                 Type = type;
                 Key = key;
                 MemberType = memberType.Value();
                 MemberFlags = memberFlags.Value();
-                Types = types;
+                _typesRaw = types.GetRawValue();
+            }
+
+            #endregion
+
+            #region Properties
+
+            public ItemOrArray<Type> Types
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => ItemOrArray.FromRawValue<Type>(_typesRaw);
             }
 
             #endregion

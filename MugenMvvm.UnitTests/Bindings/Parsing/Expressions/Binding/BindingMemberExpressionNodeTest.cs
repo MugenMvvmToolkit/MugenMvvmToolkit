@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Enums;
@@ -46,7 +45,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         public void GetSourceShouldRespectTargetType(string inputPath, string dataContextInputPath)
         {
             var expectedPath = inputPath;
-            var path = new SingleMemberPath(Path);
+            var path = MemberPath.Get(Path);
 
             using var t = MugenService.AddComponent(new TestMemberPathProviderComponent
             {
@@ -82,7 +81,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         [Fact]
         public void GetBindingSourceShouldRespectTargetType()
         {
-            var path = new SingleMemberPath(Path);
+            var path = MemberPath.Get(Path);
             var observer = EmptyPathObserver.Empty;
             var t = "r";
             var src = new object();

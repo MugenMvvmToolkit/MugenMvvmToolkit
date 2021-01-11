@@ -9,7 +9,6 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
@@ -78,15 +77,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 if (stringArgs.IsEmpty)
                     return null;
 
-                if (stringArgs.Item == null)
-                {
-                    var items = new IParameterExpressionNode[stringArgs.Count];
-                    for (var i = 0; i < items.Length; i++)
-                        items[i] = new ParameterExpressionNode(stringArgs[i]);
-                    args = items;
-                }
-                else
-                    args = new ParameterExpressionNode(stringArgs[0]);
+                args = ItemOrArray.Get<IParameterExpressionNode>(stringArgs.Count);
+                for (var i = 0; i < stringArgs.Count; i++)
+                    args.SetAt(i, new ParameterExpressionNode(stringArgs[i]));
             }
             else
             {
@@ -100,7 +93,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                     return null;
                 }
 
-                args = new IParameterExpressionNode[] {new ParameterExpressionNode(context.GetValue(context.Position, end))};
+                args = new ParameterExpressionNode(context.GetValue(context.Position, end));
                 context.Position = position;
             }
 

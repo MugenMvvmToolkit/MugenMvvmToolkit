@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -44,7 +45,7 @@ namespace MugenMvvm.Extensions.Components
             return default;
         }
 
-        public static Func<object?[], object>? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, ConstructorInfo constructor)
+        public static Func<ItemOrArray<object?>, object>? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
@@ -107,7 +108,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Func<object?, object?[], object?>? TryGetMethodInvoker(this IMethodReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, MethodInfo method)
+        public static Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(this IMethodReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, MethodInfo method)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));

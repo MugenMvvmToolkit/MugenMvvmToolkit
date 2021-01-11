@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Parsing.Components.Converters
@@ -25,7 +26,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
                 return null;
 
             return new MethodCallExpressionNode(ConstantExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayInit),
-                context.Convert(newArrayExpression.Expressions), new[] {expression.Type.GetElementType()!.AssemblyQualifiedName!});
+                context.Convert(new ItemOrIReadOnlyList<Expression>(newArrayExpression.Expressions)), expression.Type.GetElementType()!.AssemblyQualifiedName!);
         }
 
         #endregion

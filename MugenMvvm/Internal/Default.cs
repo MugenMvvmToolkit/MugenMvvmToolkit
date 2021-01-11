@@ -48,10 +48,6 @@ namespace MugenMvvm.Internal
 
         public static T[] Array<T>() => EmptyArrayImpl<T>.Instance;
 
-        public static Type[] Types<T1>() => TypeCache<T1>.Types;
-
-        public static Type[] Types<T1, T2>() => TypeCache<T1, T2>.Types;
-
         public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>() where TKey : notnull => EmptyDictionaryImpl<TKey, TValue>.Instance;//todo itemorlist
 
         internal static PropertyChangedEventArgs GetOrCreatePropertyChangedArgs(string propertyName)
@@ -66,24 +62,6 @@ namespace MugenMvvm.Internal
         #endregion
 
         #region Nested types
-
-        private static class TypeCache<T1>
-        {
-            #region Fields
-
-            public static readonly Type[] Types = {typeof(T1)};
-
-            #endregion
-        }
-
-        private static class TypeCache<T1, T2>
-        {
-            #region Fields
-
-            public static readonly Type[] Types = {typeof(T1), typeof(T2)};
-
-            #endregion
-        }
 
         private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider, IWeakReference//todo move
         {

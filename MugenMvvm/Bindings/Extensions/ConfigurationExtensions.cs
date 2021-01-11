@@ -168,7 +168,7 @@ namespace MugenMvvm.Bindings.Extensions
                 .RelativeSourceMethod()
                 .RawMethod
                 .GetBuilder(false)
-                .WithParameters(AttachedMemberBuilder.Parameter<string>().Build(), AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build())
+                .WithParameters(new []{AttachedMemberBuilder.Parameter<string>().Build(), AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build()})
                 .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string) args[0]!, (int) args[1]!, metadata))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());

@@ -182,16 +182,11 @@ namespace MugenMvvm.Entities.Components
                 Should.BeOfType(entity, EntityType, nameof(entity));
                 if (Count == 0)
                     return default;
-                if (Count == 1)
-                {
-                    var pair = this.FirstOrDefault();
-                    return new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity));
-                }
 
-                var values = new EntityStateValue[Count];
+                var values = ItemOrArray.Get<EntityStateValue>(Count);
                 var index = 0;
                 foreach (var pair in this)
-                    values[index++] = new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity));
+                    values.SetAt(index++, new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity)));
                 return values;
             }
 

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
@@ -46,16 +47,14 @@ namespace MugenMvvm.Bindings.Extensions
             return parameter.IsDefined(typeof(ParamArrayAttribute));
         }
 
-        public static Type[]? TryInferGenericParameters<TParameter, TArg>(IReadOnlyList<Type> genericArguments, IReadOnlyList<TParameter> parameters,
+        public static ItemOrArray<Type> TryInferGenericParameters<TParameter, TArg>(ItemOrIReadOnlyList<Type> genericArguments, ItemOrIReadOnlyList<TParameter> parameters,
             Func<TParameter, Type> getParameterType, TArg args, Func<TArg, int, Type?> getArgumentType, int argsLength, out bool hasUnresolved)
         {
-            Should.NotBeNull(genericArguments, nameof(genericArguments));
-            Should.NotBeNull(parameters, nameof(parameters));
             Should.NotBeNull(getParameterType, nameof(getParameterType));
             Should.NotBeNull(getArgumentType, nameof(getArgumentType));
             hasUnresolved = false;
             var count = parameters.Count > argsLength ? argsLength : parameters.Count;
-            var inferredTypes = new Type[genericArguments.Count];
+            var inferredTypes = ItemOrArray.Get<Type>(genericArguments.Count);
             for (var i = 0; i < genericArguments.Count; i++)
             {
                 var argument = genericArguments[i];
@@ -82,7 +81,7 @@ namespace MugenMvvm.Bindings.Extensions
                     hasUnresolved = true;
                 }
 
-                inferredTypes[i] = inferred;
+                inferredTypes.SetAt(i, inferred);
             }
 
             for (var i = 0; i < genericArguments.Count; i++)
@@ -92,12 +91,12 @@ namespace MugenMvvm.Bindings.Extensions
                 if (inferredType == arg)
                     continue;
                 if (!IsCompatible(inferredType, arg.GenericParameterAttributes))
-                    return null;
+                    return default;
                 var constraints = arg.GetGenericParameterConstraints();
                 for (var j = 0; j < constraints.Length; j++)
                 {
                     if (!constraints[j].IsAssignableFrom(inferredType))
-                        return null;
+                        return default;
                 }
             }
 

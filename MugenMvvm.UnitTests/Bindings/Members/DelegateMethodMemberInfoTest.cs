@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         {
             var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null,
                 null);
-            memberInfo.GetParameters().ShouldBeEmpty();
+            memberInfo.GetParameters().IsEmpty.ShouldBeTrue();
 
             var invokeCount = 0;
             var parameters = new List<IParameterInfo> {null!};
@@ -88,7 +88,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 ++invokeCount;
                 member.ShouldEqual(m);
                 target.ShouldEqual(t);
-                objects.ShouldEqual(args);
+                objects.ShouldEqual(args.AsList());
                 metadata.ShouldEqual(DefaultMetadata);
                 return result;
             }, null, null, false, null, null);

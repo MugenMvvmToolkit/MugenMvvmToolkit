@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -116,19 +117,19 @@ namespace MugenMvvm.Navigation.Components
 
         private void EndSuspend()
         {
-            (INavigationDispatcher dispatcher, INavigationContext context, object? exceptionOrNavigatingFlag, CancellationToken? cancellationToken)[] events;
+            ItemOrArray<(INavigationDispatcher dispatcher, INavigationContext context, object? exceptionOrNavigatingFlag, CancellationToken? cancellationToken)> events;
             lock (_suspendedEvents)
             {
                 if (--_suspendCount != 0)
                     return;
-                events = _suspendedEvents.ToArray();
+                events = _suspendedEvents.Count == 1 ? _suspendedEvents[0] : _suspendedEvents.ToArray();
                 _suspendedEvents.Clear();
             }
 
             OnEndSuspend();
 
-            for (var i = 0; i < events.Length; i++)
-                InvokeEvent(events[i]);
+            foreach (var t in events)
+                InvokeEvent(t);
         }
 
         #endregion

@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
@@ -17,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void TryGetMemberPathShouldCacheStringRequest()
         {
             var invokeCount = 0;
-            var path = new SingleMemberPath("test");
+            var path = MemberPath.Get("test");
             var provider = new ObservationManager();
             var decorator = new MemberPathProviderCache();
             var testPathProvider = new TestMemberPathProviderComponent

@@ -15,7 +15,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
@@ -23,7 +22,6 @@ namespace MugenMvvm.Bindings.Members.Components
     {
         #region Fields
 
-        private readonly Type[] _singleTypeBuffer;
         private readonly HashSet<Type> _types;
 
         #endregion
@@ -33,7 +31,6 @@ namespace MugenMvvm.Bindings.Members.Components
         [Preserve(Conditional = true)]
         public ExtensionMethodMemberProvider()
         {
-            _singleTypeBuffer = new Type[1];
             _types = new HashSet<Type>
             {
                 typeof(Enumerable)
@@ -113,10 +110,9 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             try
             {
-                _singleTypeBuffer[0] = type;
-                genericArguments = BindingMugenExtensions.TryInferGenericParameters(method.GetGenericArguments(),
-                    method.GetParameters(), info => info.ParameterType, _singleTypeBuffer, (data, i) => data[i], _singleTypeBuffer.Length, out _);
-                if (genericArguments == null)
+                genericArguments = BindingMugenExtensions.TryInferGenericParameters<ParameterInfo, Type>(method.GetGenericArguments(),
+                    method.GetParameters(), info => info.ParameterType, type, (data, i) => data, 1, out _).AsList();
+                if (genericArguments.Length == 0)
                     return null;
                 return method.MakeGenericMethod(genericArguments);
             }

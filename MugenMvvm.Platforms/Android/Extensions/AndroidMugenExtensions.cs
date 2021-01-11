@@ -223,7 +223,7 @@ namespace MugenMvvm.Android.Extensions
                 .RelativeSourceMethod()
                 .RawMethod
                 .GetBuilder()
-                .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build())
+                .WithParameters(new []{AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build()})
                 .InvokeHandler((member, target, args, metadata) => ViewMugenExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());

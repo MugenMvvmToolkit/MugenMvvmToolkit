@@ -121,18 +121,16 @@ namespace MugenMvvm.Bindings.Compiling
         bool IEqualityComparer<IExpressionNode>.Equals([AllowNull] IExpressionNode x, [AllowNull] IExpressionNode y) =>
             x == y || x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP && xP.Index == yP.Index && xP.Path == yP.Path;
 
-        bool IEqualityComparer<object>.Equals([AllowNull] object x, [AllowNull] object y)
+        bool IEqualityComparer<object>.Equals(object? x, object? y)
         {
             if (x == y)
                 return true;
 
-            var typeX = x as Type;
-            var typeY = y as Type;
-            if (typeX != null || typeY != null)
+            if (x is Type t)
             {
-                if (typeX == null || typeY == null)
-                    return false;
-                return typeX == typeY;
+                if (y is Type yT)
+                    return t == yT;
+                return false;
             }
 
             var typesX = x as Type[];
@@ -144,19 +142,10 @@ namespace MugenMvvm.Bindings.Compiling
                 return Equals(typesY!, (ParameterValue[]) x!);
             if (typesY == null)
                 return Equals(typesX!, (ParameterValue[]) y!);
-
-            if (typesX.Length != typesY.Length)
-                return false;
-            for (var i = 0; i < typesX.Length; i++)
-            {
-                if (typesX[i] != typesY[i])
-                    return false;
-            }
-
-            return true;
+            return InternalEqualityComparer.Equals(typesX, typesY);
         }
 
-        int IEqualityComparer<object>.GetHashCode([AllowNull] object key)
+        int IEqualityComparer<object>.GetHashCode(object key)
         {
             if (key is Type type)
                 return type.GetHashCode();
@@ -169,9 +158,8 @@ namespace MugenMvvm.Bindings.Compiling
             }
             else
             {
-                var types = (Type[]) key!;
-                for (var index = 0; index < types.Length; index++)
-                    hashCode.Add(types[index]);
+                foreach (var t in (Type[]) key!)
+                    hashCode.Add(t);
             }
 
             return hashCode.ToHashCode();

@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members
 {
@@ -14,7 +13,7 @@ namespace MugenMvvm.Bindings.Members
     {
         #region Fields
 
-        private readonly Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, IReadOnlyList<IParameterInfo>>? _getParameters;
+        private readonly Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, ItemOrIReadOnlyList<IParameterInfo>>? _getParameters;
         private readonly InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, TTarget, TReturnValue> _invoke;
         private readonly TryGetAccessorDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>>? _tryGetAccessor;
 
@@ -24,7 +23,7 @@ namespace MugenMvvm.Bindings.Members
 
         public DelegateMethodMemberInfo(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, TState state,
             InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, TTarget, TReturnValue> invoke,
-            Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, IReadOnlyList<IParameterInfo>>? getParameters,
+            Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, ItemOrIReadOnlyList<IParameterInfo>>? getParameters,
             TryGetAccessorDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>>? tryGetAccessor, bool tryObserveByMember,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
             : base(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise)
@@ -49,12 +48,17 @@ namespace MugenMvvm.Bindings.Members
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IParameterInfo> GetParameters() => _getParameters?.Invoke(this) ?? Default.Array<IParameterInfo>();
+        public ItemOrIReadOnlyList<IParameterInfo> GetParameters()
+        {
+            if (_getParameters == null)
+                return default;
+            return _getParameters(this);
+        }
 
-        public IReadOnlyList<Type> GetGenericArguments()
+        public ItemOrIReadOnlyList<Type> GetGenericArguments()
         {
             Should.MethodBeSupported(false, nameof(GetGenericArguments));
-            return null!;
+            return default;
         }
 
         public IMethodMemberInfo GetGenericMethodDefinition()
@@ -63,15 +67,15 @@ namespace MugenMvvm.Bindings.Members
             return null!;
         }
 
-        public IMethodMemberInfo MakeGenericMethod(Type[] types)
+        public IMethodMemberInfo MakeGenericMethod(ItemOrArray<Type> types)
         {
             Should.MethodBeSupported(false, nameof(MakeGenericMethod));
             return null!;
         }
 
-        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null) => _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
+        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, ItemOrIReadOnlyList<object?> args, IReadOnlyMetadataContext? metadata = null) => _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
 
-        public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null) => BoxingExtensions.Box(_invoke(this, (TTarget) target!, args, metadata));
+        public object? Invoke(object? target, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata = null) => BoxingExtensions.Box(_invoke(this, (TTarget) target!, args, metadata));
 
         #endregion
     }

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -53,7 +52,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             }
         }
 
-        public IMemberPath Path => EmptyMemberPath.Instance;
+        public IMemberPath Path => MemberPath.Empty;
 
         public bool IsDisposable { get; set; }
 
@@ -77,7 +76,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             if (target == null)
                 return default;
 
-            return new MemberPathMembers(target, ConstantMemberInfo.TargetArray);
+            return new MemberPathMembers(target, ConstantMemberInfo.Target);
         }
 
         public MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)

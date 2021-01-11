@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Bindings.Parsing.Visitors;
@@ -392,11 +391,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 {
                     var path = (string) o!;
                     if (path == "")
-                        return EmptyMemberPath.Instance;
+                        return MemberPath.Empty;
                     if (path == MemberName)
-                        return new SingleMemberPath(MemberName);
+                        return MemberPath.Get(MemberName);
                     if (path == $"{MemberName}.{MemberName2}")
-                        return new MultiMemberPath(path);
+                        return MemberPath.Get(path);
                     throw new NotSupportedException();
                 }
             });
@@ -506,9 +505,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 {
                     var path = (string) o!;
                     if (path == "")
-                        return EmptyMemberPath.Instance;
+                        return MemberPath.Empty;
                     if (path == MemberName)
-                        return new MultiMemberPath(path);
+                        return MemberPath.Get(path);
                     throw new NotSupportedException();
                 }
             });
@@ -605,7 +604,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) => EmptyMemberPath.Instance
+                TryGetMemberPath = (o, arg3) => MemberPath.Empty
             });
 
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)),
@@ -626,7 +625,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) => EmptyMemberPath.Instance
+                TryGetMemberPath = (o, arg3) => MemberPath.Empty
             });
 
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)),

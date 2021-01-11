@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.Bindings.Observation.Paths;
 using Should;
 using Xunit;
 
@@ -19,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var observable = true;
             var observableMethodName = "Fds";
             var optional = true;
-            IMemberPath path = EmptyMemberPath.Instance;
+            IMemberPath path = MemberPath.Empty;
 
             var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional, null);
             request.HasStablePath.ShouldEqual(hasStablePath);
@@ -38,7 +37,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var observable = false;
             var observableMethodName = "Fds";
             var optional = true;
-            IMemberPath path = EmptyMemberPath.Instance;
+            IMemberPath path = MemberPath.Empty;
 
             var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional, null);
             request.HasStablePath.ShouldEqual(hasStablePath);

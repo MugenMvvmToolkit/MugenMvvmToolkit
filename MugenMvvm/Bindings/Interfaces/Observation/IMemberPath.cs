@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using MugenMvvm.Collections;
 
 namespace MugenMvvm.Bindings.Interfaces.Observation
 {
@@ -6,6 +6,6 @@ namespace MugenMvvm.Bindings.Interfaces.Observation
     {
         string Path { get; }
 
-        IReadOnlyList<string> Members { get; }
+        ItemOrIReadOnlyList<string> Members { get; }
     }
 }

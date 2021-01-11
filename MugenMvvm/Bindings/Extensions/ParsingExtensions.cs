@@ -97,10 +97,9 @@ namespace MugenMvvm.Bindings.Extensions
         [return: NotNullIfNotNull("expression")]
         public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression) => expression == null ? null : context.Convert(expression);
 
-        [return: NotNullIfNotNull("expression")]
-        public static List<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, IReadOnlyList<Expression> expressions)
+        public static ItemOrListEditor<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, ItemOrIReadOnlyList<Expression> expressions)
         {
-            var nodes = new List<IExpressionNode>(expressions.Count);
+            var nodes = new ItemOrListEditor<IExpressionNode>();
             for (var i = 0; i < expressions.Count; i++)
                 nodes.Add(context.Convert(expressions[i]));
             return nodes;
@@ -111,7 +110,7 @@ namespace MugenMvvm.Bindings.Extensions
             var method = methodCallExpression.Method;
             ParameterInfo[]? parameters = null;
             IExpressionNode? target;
-            var args = context.Convert(methodCallExpression.Arguments);
+            var args = context.Convert(new ItemOrIReadOnlyList<Expression>(methodCallExpression.Arguments));
             if (method.GetAccessModifiers(true, ref parameters).HasFlag(MemberFlags.Extension))
             {
                 target = args[0];
@@ -120,13 +119,13 @@ namespace MugenMvvm.Bindings.Extensions
             else
                 target = context.ConvertTarget(methodCallExpression.Object, method);
 
-            string[]? typeArgs = null;
+            ItemOrArray<string> typeArgs = default;
             if (method.IsGenericMethod)
             {
                 var genericArguments = method.GetGenericArguments();
-                typeArgs = new string[genericArguments.Length];
-                for (var i = 0; i < typeArgs.Length; i++)
-                    typeArgs[i] = genericArguments[i].AssemblyQualifiedName!;
+                typeArgs = ItemOrArray.Get<string>(genericArguments.Length);
+                for (var i = 0; i < genericArguments.Length; i++)
+                    typeArgs.SetAt(i, genericArguments[i].AssemblyQualifiedName!);
             }
 
             return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs);
@@ -219,22 +218,7 @@ namespace MugenMvvm.Bindings.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null) => !context.IsEof(position) && tokens.Contains(context.TokenAt(position));
 
-        public static bool IsAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null)
-        {
-            if (context.IsEof(position))
-                return false;
-            for (var i = 0; i < tokens.Count; i++)
-            {
-                if (context.IsToken(tokens[i], position))
-                    return true;
-            }
-
-            return false;
-        }
-
         public static bool IsEofOrAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null) => context.IsEof(position) || tokens != null && context.IsAnyOf(tokens, position);
-
-        public static bool IsEofOrAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null) => context.IsEof(position) || context.IsAnyOf(tokens, position);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int? position = null) => context.IsIdentifier(out endPosition, context.GetPosition(position));
@@ -404,17 +388,12 @@ namespace MugenMvvm.Bindings.Extensions
 
             if (args.IsEmpty)
                 return default;
-            if (args.Count == 1)
-            {
-                var item = args[0];
-                return context.GetValue(item.start, item.end);
-            }
-
-            var result = new string[args.Count];
-            for (var i = 0; i < result.Length; i++)
+            
+            var result = ItemOrArray.Get<string>(args.Count);
+            for (var i = 0; i < result.Count; i++)
             {
                 var t = args[i];
-                result[i] = context.GetValue(t.start, t.end);
+                result.SetAt(i, context.GetValue(t.start, t.end));
             }
 
             return result;

@@ -119,45 +119,43 @@ namespace MugenMvvm.Bindings.Extensions
         public static ItemOrArray<Type> GetTypes(this IResourceResolver? resourceResolver, ItemOrIReadOnlyList<string> types, IReadOnlyMetadataContext? metadata = null)
         {
             if (types.IsEmpty)
-                return Default.Array<Type>();
+                return default;
             resourceResolver = resourceResolver.DefaultIfNull();
-            var typeArgs = types.Count == 1 ? null : new Type[types.Count];
+            var typeArgs = ItemOrArray.Get<Type>(types.Count);
             int index = 0;
             foreach (var t in types)
             {
                 var type = resourceResolver.TryGetType(t, null, metadata);
                 if (type == null)
                     ExceptionManager.ThrowCannotResolveType(t);
-                if (typeArgs == null)
-                    return type;
-                typeArgs[index++] = type;
+                typeArgs.SetAt(index++, type);
             }
 
             return typeArgs;
         }
 
-        public static object?[]? TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, TState state, int argsLength,
-            Func<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out EnumFlags<ArgumentFlags> flags)
+        public static ItemOrArray<object?> TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount, TState state, int argsLength,
+            Func<TState, int, IParameterInfo, object?> getValue, ItemOrArray<object?> arguments, out EnumFlags<ArgumentFlags> flags)
         {
             flags = default;
             var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
-            object?[] result;
-            if (arguments != null && argsLength == parameters.Count)
+            ItemOrArray<object?> result;
+            if (!arguments.IsEmpty && argsLength == parametersCount)
                 result = arguments;
             else
-                result = new object?[parameters.Count];
-            for (var i = 0; i < parameters.Count; i++)
+                result = ItemOrArray.Get<object?>(parametersCount);
+            for (var i = 0; i < parametersCount; i++)
             {
                 //optional or params
                 if (i > argsLength - 1)
                 {
-                    for (var j = i; j < parameters.Count; j++)
+                    for (var j = i; j < parametersCount; j++)
                     {
                         var parameter = parameters[j];
-                        if (j == parameters.Count - 1 && hasParams)
+                        if (j == parametersCount - 1 && hasParams)
                         {
                             ArraySize[0] = 0;
-                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType()!, ArraySize);
+                            result.SetAt(j, Array.CreateInstance(parameter.ParameterType.GetElementType()!, ArraySize));
                             flags |= ArgumentFlags.EmptyParamArray;
                         }
                         else
@@ -169,7 +167,7 @@ namespace MugenMvvm.Bindings.Extensions
                                 if (!parameter.HasDefaultValue)
                                     return null;
                                 flags |= ArgumentFlags.Optional;
-                                result[j] = parameter.DefaultValue;
+                                result.SetAt(j, parameter.DefaultValue);
                             }
                         }
                     }
@@ -179,7 +177,7 @@ namespace MugenMvvm.Bindings.Extensions
 
                 var parameterInfo = parameters[i];
                 var value = getValue(state, i, parameterInfo);
-                if (i == parameters.Count - 1 && hasParams && !parameterInfo.ParameterType.IsInstanceOfType(value))
+                if (i == parametersCount - 1 && hasParams && !parameterInfo.ParameterType.IsInstanceOfType(value))
                 {
                     flags |= ArgumentFlags.ParamArray;
                     ArraySize[0] = argsLength - i;
@@ -190,41 +188,47 @@ namespace MugenMvvm.Bindings.Extensions
                         array.SetValue(getValue(state, j, parameterInfo), ArraySize);
                     }
 
-                    result[i] = array;
+                    result.SetAt(i, array);
                 }
                 else
                 {
                     converter ??= MugenService.GlobalValueConverter;
-                    result[i] = converter.Convert(value, parameterInfo.ParameterType, parameterInfo);
+                    result.SetAt(i, converter.Convert(value, parameterInfo.ParameterType, parameterInfo));
                 }
             }
 
             return result;
         }
 
-        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
+        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata)
         {
-            args = converter.TryGetInvokeArgs(parameters, args, args.Length, (objects, i, _) => objects[i], args, out var flags)!;
-            if (args != null && flags.HasFlag(ArgumentFlags.Metadata))
-                args[args.Length - 1] = metadata;
+            args = converter.TryGetInvokeArgs(parameters, parameters.Count, args, args.Count, (objects, i, _) => objects[i], args, out var flags)!;
+            if (flags.HasFlag(ArgumentFlags.Metadata))
+                args.SetAt(args.Count - 1, metadata);
             return args;
         }
 
-        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out EnumFlags<ArgumentFlags> flags)
+        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<string> args, IReadOnlyMetadataContext? metadata,
+            out EnumFlags<ArgumentFlags> flags) =>
+            converter.TryGetInvokeArgs(parameters, parameters.Count, args, metadata, out flags);
+
+        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount, ItemOrArray<string> args,
+            IReadOnlyMetadataContext? metadata,
+            out EnumFlags<ArgumentFlags> flags)
         {
             try
             {
-                return converter.TryGetInvokeArgs(parameters, (args, converter.DefaultIfNull(), metadata), args.Length,
-                    ((string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
+                return converter.TryGetInvokeArgs(parameters, parametersCount, (args, converter.DefaultIfNull(), metadata), args.Count,
+                    ((ItemOrArray<string> args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
                     {
                         var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType()! : parameter.ParameterType;
                         return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
-                    }, null, out flags);
+                    }, default, out flags);
             }
             catch
             {
                 flags = default;
-                return null;
+                return default;
             }
         }
 
@@ -401,7 +405,8 @@ namespace MugenMvvm.Bindings.Extensions
         {
             Should.NotBeNull(type, nameof(type));
             memberManager = memberManager.DefaultIfNull();
-            if (path.Members.Count == 0)
+            var members = path.Members;
+            if (members.Count == 0)
             {
                 if (firstMemberIndex > 0)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
@@ -411,12 +416,12 @@ namespace MugenMvvm.Bindings.Extensions
                 return target;
             }
 
-            if (firstMemberIndex > path.Members.Count)
+            if (firstMemberIndex > members.Count)
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
 
-            for (var index = firstMemberIndex; index < path.Members.Count; index++)
+            for (var index = firstMemberIndex; index < members.Count; index++)
             {
-                var pathMember = path.Members[index];
+                var pathMember = members[index];
                 if (index == 1)
                     flags = flags.SetInstanceOrStaticFlags(false);
                 target = memberManager.GetValue(type, target, pathMember, flags, metadata);
@@ -434,15 +439,16 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(type, nameof(type));
             memberManager = memberManager.DefaultIfNull();
             string lastMemberName;
-            if (path.Members.Count == 0)
+            var members = path.Members;
+            if (members.Count == 0)
                 lastMemberName = path.Path;
             else
             {
-                for (var i = 0; i < path.Members.Count - 1; i++)
+                for (var i = 0; i < members.Count - 1; i++)
                 {
                     if (i == 1)
                         flags = flags.SetInstanceOrStaticFlags(false);
-                    var member = memberManager.TryGetMember(type, MemberType.Accessor, flags, path.Members[i], metadata);
+                    var member = memberManager.TryGetMember(type, MemberType.Accessor, flags, members[i], metadata);
                     if (!(member is IAccessorMemberInfo accessor) || !accessor.CanRead)
                         return null;
 
@@ -453,7 +459,7 @@ namespace MugenMvvm.Bindings.Extensions
                 }
 
                 flags = flags.SetInstanceOrStaticFlags(false);
-                lastMemberName = path.Members[path.Members.Count - 1];
+                lastMemberName = members[members.Count - 1];
             }
 
             return memberManager.TryGetMember(type, lastMemberType, flags, lastMemberName, metadata);
@@ -563,13 +569,13 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state) => new(listener, state);
 
-        public static string[]? GetIndexerArgsRaw(string path)
+        public static ItemOrArray<string> GetIndexerArgsRaw(string path)
         {
             var start = 1;
             if (path.StartsWith("Item[", StringComparison.Ordinal))
                 start = 5;
             else if (!path.StartsWith("[", StringComparison.Ordinal) || !path.EndsWith("]", StringComparison.Ordinal))
-                return null;
+                return default;
 
 #if SPAN_API
             return path
@@ -584,13 +590,13 @@ namespace MugenMvvm.Bindings.Extensions
 #endif
         }
 
-        public static string[]? GetMethodArgsRaw(string path, out string methodName)
+        public static ItemOrArray<string> GetMethodArgsRaw(string path, out string methodName)
         {
             var startIndex = path.IndexOf('(');
             if (startIndex < 0 || !path.EndsWith(")", StringComparison.Ordinal))
             {
                 methodName = path;
-                return null;
+                return default;
             }
 
             methodName = path.Substring(0, startIndex);
@@ -653,6 +659,15 @@ namespace MugenMvvm.Bindings.Extensions
             if (memberNameBuilder.Length != 0 && memberNameBuilder[0] == '.')
                 memberNameBuilder.Remove(0, 1);
             return memberNameBuilder.ToString();
+        }
+
+        internal static ItemOrArray<T> InsertFirstArg<T>(this ItemOrArray<T> args, T firstArg)
+        {
+            if (args.IsEmpty)
+                return firstArg;
+            if (args.HasItem)
+                return new[] {firstArg, args.Item!};
+            return args.List.InsertFirstArg(firstArg);
         }
 
         internal static T[] InsertFirstArg<T>(this T[]? args, T firstArg)
@@ -743,7 +758,7 @@ namespace MugenMvvm.Bindings.Extensions
 #if SPAN_API
         private static ReadOnlySpan<char> RemoveBounds(this ReadOnlySpan<char> st, int start = 1) => st.Slice(start, st.Length - start - 1);
 
-        private static string[] UnescapeString(this ReadOnlySpan<char> source, char separator)
+        private static ItemOrArray<string> UnescapeString(this ReadOnlySpan<char> source, char separator)
         {
             var length = 1;
             for (var i = 0; i < source.Length; i++)
@@ -753,9 +768,9 @@ namespace MugenMvvm.Bindings.Extensions
             }
 
             if (length == 0)
-                return Array.Empty<string>();
+                return default;
 
-            var args = new string[length];
+            var args = ItemOrArray.Get<string>(length);
             var index = 0;
             foreach (var arg in source.Split(separator))
             {
@@ -763,7 +778,7 @@ namespace MugenMvvm.Bindings.Extensions
                 if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal)
                     || value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
                     value = value.RemoveBounds();
-                args[index++] = value.ToString();
+                args.SetAt(index++, value.ToString());
             }
 
             return args;

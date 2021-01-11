@@ -10,7 +10,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
-using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Extensions;
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
             {
                 MemberFlags = MemberFlags.Instance,
-                GetSource = (o, o1, arg3) => (this, EmptyMemberPath.Instance)
+                GetSource = (o, o1, arg3) => (this, MemberPath.Empty)
             };
             var source = new TestExpressionNode
             {
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var binding = new TestBinding();
             var targetSrc = "";
             var sourceSrc = new object();
-            var targetPath = new MultiMemberPath("Member1.Member2");
+            var targetPath = MemberPath.Get("Member1.Member2");
             var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods | BindingMemberExpressionFlags.Optional;
             var suppressMethodAccessors = true;
             var suppressIndexAccessors = true;

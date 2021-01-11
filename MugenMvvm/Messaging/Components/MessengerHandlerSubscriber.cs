@@ -125,13 +125,12 @@ namespace MugenMvvm.Messaging.Components
             {
                 if (Count == 0)
                     return default;
-                if (Count == 1)
-                {
-                    var subscriber = this.FirstOrDefault();
-                    return new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode);
-                }
 
-                return this.ToArray(subscriber => new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode));
+                var array = ItemOrArray.Get<MessengerSubscriberInfo>(Count);
+                int index = 0;
+                foreach (var item in this)
+                    array.SetAt(index++, new MessengerSubscriberInfo(item.Subscriber, item.ExecutionMode));
+                return array;
             }
         }
 

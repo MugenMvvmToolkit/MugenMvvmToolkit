@@ -2,7 +2,6 @@
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.Bindings.Observation.Paths;
 using Should;
 using Xunit;
 
@@ -24,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         [Fact]
         public void TryGetMemberPathObserverShouldRespectMemberPathObserverRequestParameters1()
         {
-            var path = EmptyMemberPath.Instance;
+            var path = MemberPath.Empty;
 
             var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true, null);
             var component = new MemberPathObserverProvider();
@@ -41,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         [Fact]
         public void TryGetMemberPathObserverShouldRespectMemberPathObserverRequestParameters2()
         {
-            var path = new SingleMemberPath("Test");
+            var path = MemberPath.Get("Test");
 
             var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true, null);
             var component = new MemberPathObserverProvider();
@@ -58,7 +57,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         [Fact]
         public void TryGetMemberPathObserverShouldRespectMemberPathObserverRequestParameters3()
         {
-            var path = new MultiMemberPath("Test.Test2");
+            var path = MemberPath.Get("Test.Test2");
 
             var request = new MemberPathObserverRequest(path, MemberFlags.Attached, null, true, true, true, null);
             var component = new MemberPathObserverProvider();

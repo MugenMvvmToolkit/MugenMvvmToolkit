@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Bindings.Enums;
+﻿using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Bindings.Interfaces.Members
@@ -8,6 +8,6 @@ namespace MugenMvvm.Bindings.Interfaces.Members
     {
         EnumFlags<ArgumentFlags> ArgumentFlags { get; }
 
-        IReadOnlyList<object?> GetArgs();
+        ItemOrIReadOnlyList<object?> GetArgs();
     }
 }

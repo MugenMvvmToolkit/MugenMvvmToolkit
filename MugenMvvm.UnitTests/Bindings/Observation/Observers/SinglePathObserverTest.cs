@@ -5,8 +5,8 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
     {
         #region Fields
 
-        protected static readonly SingleMemberPath DefaultPath = new("test");
+        protected static readonly IMemberPath DefaultPath = MemberPath.Get("test");
 
         #endregion
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             using var _ = MugenService.AddComponent(component);
             var singlePathObserver = GetObserver(this, path, memberFlags, optional);
             var members = singlePathObserver.GetMembers(DefaultMetadata);
-            members.Members.Single().ShouldEqual(accessorInfo);
+            members.Members.Item.ShouldEqual(accessorInfo);
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(this);
         }
@@ -141,7 +141,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             lastMember.Error.ShouldBeNull();
 
             var members = singlePathObserver.GetMembers(DefaultMetadata);
-            members.Members.ShouldEqual(ConstantMemberInfo.UnsetArray);
+            members.Members.Item.ShouldEqual(ConstantMemberInfo.Unset);
             members.IsAvailable.ShouldBeFalse();
             members.Target.ShouldEqual(BindingMetadata.UnsetValue);
             members.Error.ShouldBeNull();

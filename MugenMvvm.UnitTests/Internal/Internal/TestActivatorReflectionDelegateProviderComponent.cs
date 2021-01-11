@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Models;
@@ -26,7 +27,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 
         #region Properties
 
-        public Func<ConstructorInfo, Func<object?[], object>?>? TryGetActivator { get; set; }
+        public Func<ConstructorInfo, Func<ItemOrArray<object?>, object>?>? TryGetActivator { get; set; }
 
         public Func<ConstructorInfo, Type, Delegate?>? TryGetActivator1 { get; set; }
 
@@ -36,7 +37,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 
         #region Implementation of interfaces
 
-        Func<object?[], object>? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
+        Func<ItemOrArray<object?>, object>? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
             _reflectionManager?.ShouldEqual(reflectionManager);
             return TryGetActivator?.Invoke(constructor);

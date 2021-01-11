@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 TryGetAccessor = (flags, objects, arg3) =>
                 {
                     flags.ShouldEqual(default);
-                    objects!.Length.ShouldEqual(1);
+                    objects!.Count.ShouldEqual(1);
                     objects![0].ShouldEqual(1);
                     arg3.ShouldEqual(DefaultMetadata);
                     return accessor;

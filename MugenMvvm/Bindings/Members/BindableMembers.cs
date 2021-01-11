@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members.Descriptors;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members
 {
@@ -44,23 +43,23 @@ namespace MugenMvvm.Bindings.Members
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, object, object?> ElementSourceMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _elementSourceMethod ??= new MemberTypesRequest(nameof(ElementSource), Default.Types<object>());
+            _elementSourceMethod ??= new MemberTypesRequest(nameof(ElementSource), typeof(object));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, string, int, object?> RelativeSourceMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _relativeSourceMethod ??= new MemberTypesRequest(nameof(RelativeSource), Default.Types<string, int>());
+            _relativeSourceMethod ??= new MemberTypesRequest(nameof(RelativeSource), new[] {typeof(string), typeof(int)});
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, string[], bool> HasErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _hasErrorsMethod ??= new MemberTypesRequest(nameof(HasErrors), Default.Types<string[]>());
+            _hasErrorsMethod ??= new MemberTypesRequest(nameof(HasErrors), typeof(string[]));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, string[], object?> GetErrorMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _getErrorMethod ??= new MemberTypesRequest(nameof(GetError), Default.Types<string[]>());
+            _getErrorMethod ??= new MemberTypesRequest(nameof(GetError), typeof(string[]));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, string[], IReadOnlyList<object>> GetErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), Default.Types<string[]>());//todo item or list
+            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), typeof(string[]));
 
 
         [BindingMember(nameof(Root))]

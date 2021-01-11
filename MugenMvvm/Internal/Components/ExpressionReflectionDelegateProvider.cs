@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -18,9 +19,11 @@ namespace MugenMvvm.Internal.Components
         #region Fields
 
         public static readonly ParameterExpression TargetParameter = MugenExtensions.GetParameterExpression<object>();
-        private static readonly ParameterExpression[] TargetArgsParameters = {TargetParameter, MugenExtensions.GetParameterExpression<object[]>()};
-        private static readonly ParameterExpression[] ArgsParameters = MugenExtensions.GetParametersExpression<object[]>();
+        private static readonly ParameterExpression[] TargetArgsParameters = {TargetParameter, MugenExtensions.GetParameterExpression<ItemOrArray<object>>()};
+        private static readonly ParameterExpression[] ArgsParameters = MugenExtensions.GetParametersExpression<ItemOrArray<object>>();
         private static readonly Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?> CacheMethodDelegates = new(17, InternalEqualityComparer.TypeMethod);
+        private static readonly Expression ItemOrArrayItemFieldExpression = Expression.Field(MugenExtensions.GetParameterExpression<ItemOrArray<object>>(),
+            typeof(ItemOrArray<object>).GetFieldOrThrow(nameof(ItemOrArray<object>.Item), BindingFlagsEx.InstancePublic));
 
         #endregion
 
@@ -41,7 +44,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        Func<object?[], object> IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor) => GetActivator(constructor);
+        Func<ItemOrArray<object?>, object> IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor) => GetActivator(constructor);
 
         Delegate? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType) => TryGetActivator(constructor, delegateType);
 
@@ -49,7 +52,7 @@ namespace MugenMvvm.Internal.Components
 
         Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberSetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType) => TryGetMemberSetter(member, delegateType);
 
-        Func<object?, object?[], object?> IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method) => GetMethodInvoker(method);
+        Func<object?, ItemOrArray<object?>, object?> IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method) => GetMethodInvoker(method);
 
         Delegate? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method, Type delegateType) => TryGetMethodInvoker(method, delegateType);
 
@@ -86,9 +89,9 @@ namespace MugenMvvm.Internal.Components
             return info;
         }
 
-        public static Func<object?[], object> GetActivator(ConstructorInfo constructor) =>
+        public static Func<ItemOrArray<object?>, object> GetActivator(ConstructorInfo constructor) =>
             Expression
-                .Lambda<Func<object?[], object>>(Expression.New(constructor, GetParametersExpression(constructor)).ConvertIfNeed(typeof(object), false), ArgsParameters)
+                .Lambda<Func<ItemOrArray<object?>, object>>(Expression.New(constructor, GetParametersExpression(constructor).AsList()).ConvertIfNeed(typeof(object), false), ArgsParameters)
                 .CompileEx();
 
         public static Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType)
@@ -110,21 +113,11 @@ namespace MugenMvvm.Internal.Components
             return Expression.Lambda(delegateType, Expression.New(constructor, args).ConvertIfNeed(delegateMethod.ReturnType, false), parameters).CompileEx();
         }
 
-        public static Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
+        public static Func<object?, ItemOrArray<object?>, object?> GetMethodInvoker(MethodInfo method)
         {
             var expressions = GetParametersExpression(method);
-            if (method.IsStatic)
-            {
-                return Expression
-                    .Lambda<Func<object?, object?[], object?>>(Expression
-                        .Call(null, method, expressions).ConvertIfNeed(typeof(object), false), TargetArgsParameters)
-                    .CompileEx();
-            }
-
-            return Expression
-                .Lambda<Func<object?, object?[], object?>>(Expression
-                    .Call(TargetParameter.ConvertIfNeed(method.DeclaringType, false), method, expressions).ConvertIfNeed(typeof(object), false), TargetArgsParameters)
-                .CompileEx();
+            var callExpression = Expression.Call(method.IsStatic ? null : TargetParameter.ConvertIfNeed(method.DeclaringType, false), method, expressions.AsList());
+            return Expression.Lambda<Func<object?, ItemOrArray<object?>, object?>>(callExpression.ConvertIfNeed(typeof(object), false), TargetArgsParameters).CompileEx();
         }
 
         public static Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType)
@@ -257,12 +250,17 @@ namespace MugenMvvm.Internal.Components
                 .CompileEx();
         }
 
-        private static Expression[] GetParametersExpression(MethodBase methodBase)
+        private static ItemOrArray<Expression> GetParametersExpression(MethodBase methodBase)
         {
             var paramsInfo = methodBase.GetParameters();
+            if (paramsInfo.Length == 0)
+                return default;
+            if (paramsInfo.Length == 1)
+                return ItemOrArrayItemFieldExpression.ConvertIfNeed(paramsInfo[0].ParameterType, false);
+
             var argsExp = new Expression[paramsInfo.Length];
             for (var i = 0; i < paramsInfo.Length; i++)
-                argsExp[i] = MugenExtensions.GetIndexExpression(i).ConvertIfNeed(paramsInfo[i].ParameterType, false);
+                argsExp[i] = MugenExtensions.GetItemOrArrayIndexExpression(i).ConvertIfNeed(paramsInfo[i].ParameterType, false);
             return argsExp;
         }
 

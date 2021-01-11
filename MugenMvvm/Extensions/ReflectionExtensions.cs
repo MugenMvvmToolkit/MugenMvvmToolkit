@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Internal;
@@ -75,6 +76,13 @@ namespace MugenMvvm.Extensions
 
         public static bool IsAnonymousClass(this Type type) => type.IsDefined(typeof(CompilerGeneratedAttribute), false) && type.IsClass;
 
+        public static ConstructorInfo GetConstructorOrThrow(this Type type, BindingFlags flags, Type[] types)
+        {
+            var constructor = type.GetConstructor(flags, null, types, null);
+            Should.BeSupported(constructor != null, type.Name + ".ctor");
+            return constructor;
+        }
+
         public static MethodInfo GetMethodOrThrow(this Type type, string name, BindingFlags flags, Type[]? types = null)
         {
             var method = types == null ? type.GetMethod(name, flags) : type.GetMethod(name, flags, null, types, null);
@@ -82,7 +90,14 @@ namespace MugenMvvm.Extensions
             return method;
         }
 
-        public static Func<object?[], object> GetActivator(this IReflectionManager reflectionManager, ConstructorInfo constructor)
+        public static FieldInfo GetFieldOrThrow(this Type type, string name, BindingFlags flags)
+        {
+            var field = type.GetField(name, flags);
+            Should.BeSupported(field != null, type.Name + "." + name);
+            return field;
+        }
+
+        public static Func<ItemOrArray<object?>, object> GetActivator(this IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetActivator(constructor);
@@ -100,7 +115,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static Func<object?, object?[], object?> GetMethodInvoker(this IReflectionManager reflectionManager, MethodInfo method)
+        public static Func<object?, ItemOrArray<object?>, object?> GetMethodInvoker(this IReflectionManager reflectionManager, MethodInfo method)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetMethodInvoker(method);
@@ -141,7 +156,7 @@ namespace MugenMvvm.Extensions
         public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionManager? reflectionManager = null) =>
             reflectionManager.DefaultIfNull().TryCreateDelegate(delegateType, target, method);
 
-        public static Func<object?[], object> GetActivator(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetActivator(constructor);
+        public static Func<ItemOrArray<object?>, object> GetActivator(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetActivator(constructor);
 
         public static TDelegate GetActivator<TDelegate>(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null)
             where TDelegate : Delegate =>
@@ -155,7 +170,7 @@ namespace MugenMvvm.Extensions
 
         public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetMethodInvoker(method, delegateType);
 
-        public static Func<object?, object?[], object?> GetMethodInvoker(this MethodInfo method, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetMethodInvoker(method);
+        public static Func<object?, ItemOrArray<object?>, object?> GetMethodInvoker(this MethodInfo method, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetMethodInvoker(method);
 
         public static TDelegate GetMemberGetter<TDelegate>(this MemberInfo member, IReflectionManager? reflectionManager = null) where TDelegate : Delegate =>
             (TDelegate) reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(TDelegate));

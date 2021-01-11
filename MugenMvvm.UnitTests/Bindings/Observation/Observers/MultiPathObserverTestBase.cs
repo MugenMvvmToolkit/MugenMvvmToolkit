@@ -5,8 +5,8 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         protected const string MemberPath1 = "Test1";
         protected const string MemberPath2 = "Test2";
         protected const string MemberPath3 = "Test3";
-        protected static readonly MultiMemberPath DefaultPath = new($"{MemberPath1}.{MemberPath2}.{MemberPath3}");
+        protected static readonly IMemberPath DefaultPath = MemberPath.Get($"{MemberPath1}.{MemberPath2}.{MemberPath3}");
 
         #endregion
 
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             rootListener.ShouldNotBeNull();
             rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
-            members.Members.ShouldEqual(new[] {accessorInfo1, accessorInfo2, accessorInfo3});
+            members.Members.AsList().ShouldEqual(new[] {accessorInfo1, accessorInfo2, accessorInfo3});
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
             getMembersCount.ShouldEqual(3);
@@ -136,7 +136,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             getMembersCount = 0;
             rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
-            members.Members.ShouldEqual(new[] {accessorInfo1, accessorInfo2, accessorInfo3});
+            members.Members.AsList().ShouldEqual(new[] {accessorInfo1, accessorInfo2, accessorInfo3});
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
             if (hasStablePath)

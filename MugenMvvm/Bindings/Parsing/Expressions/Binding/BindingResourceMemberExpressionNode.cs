@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -44,7 +43,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
             var resource = GetResource(target, metadata, out var r);
-            path = r?.Path ?? EmptyMemberPath.Instance;
+            path = r?.Path ?? MemberPath.Empty;
             return resource;
         }
 

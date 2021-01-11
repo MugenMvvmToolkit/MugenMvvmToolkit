@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Parsing.Components.Converters
@@ -27,7 +28,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
             if (context.TryConvertExtension(index.Indexer, expression, out var result))
                 return result;
 
-            return new IndexExpressionNode(context.ConvertTarget(index.Object, index.Indexer), context.Convert(index.Arguments));
+            return new IndexExpressionNode(context.ConvertTarget(index.Object, index.Indexer), context.Convert(new ItemOrIReadOnlyList<Expression>(index.Arguments)));
         }
 
         #endregion

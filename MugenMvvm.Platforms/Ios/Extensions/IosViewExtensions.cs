@@ -35,7 +35,7 @@ namespace MugenMvvm.Ios.Extensions
             return result;
         }
 
-        public static void SetItemsNotifyParent<T, TItem>(this T container, Action<T, TItem[]> setAction, params TItem[] items)
+        public static void SetItemsNotifyParent<T, TItem>(this T container, Action<T, TItem[]> setAction, TItem[] items)
             where T : class, INativeObject
             where TItem : class
         {

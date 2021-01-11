@@ -3,7 +3,6 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
@@ -22,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void ShouldCacheInvalidateResourceRequest()
         {
             var resource = new DynamicResource();
-            var request = new MemberPathObserverRequest(new SingleMemberPath(nameof(IDynamicResource.Value)), default, null, false, false, false,
+            var request = new MemberPathObserverRequest(MemberPath.Get(nameof(IDynamicResource.Value)), default, null, false, false, false,
                 new BindingResourceMemberExpressionNode(nameof(resource), "", 0, default, default));
 
             var observationManager = new ObservationManager();

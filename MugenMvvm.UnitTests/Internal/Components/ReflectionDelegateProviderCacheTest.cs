@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
@@ -24,7 +25,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public void TryGetActivatorShouldUseCache1()
         {
             var invokeCount = 0;
-            Func<object?[], object> result = objects => objects;
+            Func<ItemOrArray<object?>, object> result = objects => objects;
             var manager = new ReflectionManager();
             manager.AddComponent(new TestActivatorReflectionDelegateProviderComponent(manager)
             {
@@ -139,7 +140,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public void TryGetMethodInvokerShouldUseCache1()
         {
             var invokeCount = 0;
-            Func<object?, object?[], object?> result = (o, objects) => o;
+            Func<object?, ItemOrArray<object?>, object?> result = (o, objects) => o;
             var manager = new ReflectionManager();
             manager.AddComponent(new TestMethodReflectionDelegateProviderComponent(manager)
             {

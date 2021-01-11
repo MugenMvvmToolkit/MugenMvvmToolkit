@@ -176,7 +176,7 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(T[]? items) => new(items);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(List<T>? items) => new(items);
 

@@ -71,18 +71,18 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static TReturn Invoke<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> methodMember, TTarget target,
-            object?[]? args = null, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+            ItemOrArray<object?> args, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
             var method = methodMember.TryGetMember(GetTargetType(methodMember.IsStatic, ref target!), flags, metadata, memberManager);
             if (method == null)
                 ExceptionManager.ThrowInvalidBindingMember(target, methodMember.ToString());
-            return (TReturn) method.Invoke(target, args ?? Default.Array<object?>(), metadata)!;
+            return (TReturn) method.Invoke(target, args, metadata)!;
         }
 
         public static TReturn Invoke<TTarget, TArg1, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TReturn> methodMember, TTarget target,
             TArg1 arg1, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>
-            methodMember.RawMethod.Invoke(target, new[] {BoxingExtensions.Box(arg1)}, flags, metadata, memberManager);
+            methodMember.RawMethod.Invoke(target, BoxingExtensions.Box(arg1), flags, metadata, memberManager);
 
         public static TReturn Invoke<TTarget, TArg1, TArg2, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TReturn> methodMember, TTarget target,
             TArg1 arg1, TArg2 arg2, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class =>

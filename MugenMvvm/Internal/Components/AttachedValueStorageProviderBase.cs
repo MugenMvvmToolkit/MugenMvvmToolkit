@@ -21,8 +21,7 @@ namespace MugenMvvm.Internal.Components
             return ((IDictionary<string, object?>) internalState).Count;
         }
 
-        public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(object item, TState state,
-            Func<object, string, object?, TState, bool>? predicate, ref object? internalState)
+        public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(object item, TState state, Func<object, string, object?, TState, bool>? predicate, ref object? internalState)
         {
             if (internalState == null)
                 return default;

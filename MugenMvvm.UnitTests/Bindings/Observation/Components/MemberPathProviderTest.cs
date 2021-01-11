@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Bindings.Observation.Components;
-using MugenMvvm.Bindings.Observation.Paths;
+﻿using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Bindings.Observation.Components;
 using Should;
 using Xunit;
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void TryGetMemberPathShouldReturnEmptyPath()
         {
             var component = new MemberPathProvider();
-            component.TryGetMemberPath(null!, "", DefaultMetadata).ShouldEqual(EmptyMemberPath.Instance);
+            component.TryGetMemberPath(null!, "", DefaultMetadata).ShouldEqual(MemberPath.Empty);
         }
 
         [Fact]
@@ -28,8 +28,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             const string member = "Test";
             var component = new MemberPathProvider();
-            var path = (SingleMemberPath) component.TryGetMemberPath(null!, member, DefaultMetadata)!;
+            var path = component.TryGetMemberPath(null!, member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
+            path.Members.Item.ShouldEqual(member);
         }
 
         [Fact]
@@ -37,8 +38,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             const string member = "Test.Test[T]";
             var component = new MemberPathProvider();
-            var path = (MultiMemberPath) component.TryGetMemberPath(null!, member, DefaultMetadata)!;
+            var path = component.TryGetMemberPath(null!, member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
+            path.Members.AsList().ShouldEqual(new[] {"Test", "Test", "[T]"});
         }
 
         #endregion

@@ -150,7 +150,7 @@ namespace MugenMvvm.Bindings.Extensions
                     return errors;
             }
 
-            return Default.Array<object>();
+            return default;//todo fix
         }
 
         [return: NotNullIfNotNull("target")]

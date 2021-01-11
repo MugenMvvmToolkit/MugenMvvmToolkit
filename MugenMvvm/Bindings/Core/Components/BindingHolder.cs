@@ -54,7 +54,7 @@ namespace MugenMvvm.Bindings.Core.Components
             if (count == 0)
                 return default;
             if (count == 1)
-                return new ItemOrIReadOnlyList<IBinding>((IBinding) values.Item.Value!, true);
+                return ItemOrIReadOnlyList.FromItem((IBinding) values.Item.Value!);
 
             var bindings = new IBinding[count];
             var index = 0;

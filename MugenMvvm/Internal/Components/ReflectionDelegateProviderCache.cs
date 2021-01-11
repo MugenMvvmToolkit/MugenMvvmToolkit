@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions.Components;
@@ -18,9 +19,9 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
-        private readonly Dictionary<ConstructorInfo, Func<object?[], object>?> _activatorCache;
+        private readonly Dictionary<ConstructorInfo, Func<ItemOrArray<object?>, object>?> _activatorCache;
         private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _activatorCacheDelegate;
-        private readonly Dictionary<MethodInfo, Func<object?, object?[], object?>?> _invokeMethodCache;
+        private readonly Dictionary<MethodInfo, Func<object?, ItemOrArray<object?>, object?>?> _invokeMethodCache;
         private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _invokeMethodCacheDelegate;
         private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _memberGetterCache;
         private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _memberSetterCache;
@@ -37,9 +38,9 @@ namespace MugenMvvm.Internal.Components
         {
             _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
             _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();
-            _activatorCache = new Dictionary<ConstructorInfo, Func<object?[], object>?>(59, InternalEqualityComparer.MemberInfo);
+            _activatorCache = new Dictionary<ConstructorInfo, Func<ItemOrArray<object?>, object>?>(59, InternalEqualityComparer.MemberInfo);
             _activatorCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
-            _invokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>?>(59, InternalEqualityComparer.MemberInfo);
+            _invokeMethodCache = new Dictionary<MethodInfo, Func<object?, ItemOrArray<object?>, object?>?>(59, InternalEqualityComparer.MemberInfo);
             _invokeMethodCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
             _memberGetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
             _memberSetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
@@ -49,7 +50,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public Func<object?[], object>? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
+        public Func<ItemOrArray<object?>, object>? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
             lock (_activatorCache)
             {
@@ -114,7 +115,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Func<object?, object?[], object?>? TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method)
+        public Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method)
         {
             lock (_invokeMethodCache)
             {

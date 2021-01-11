@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -26,11 +27,11 @@ namespace MugenMvvm.Internal
 
         public Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method) => GetComponents<IReflectionDelegateProviderComponent>().TryCreateDelegate(this, delegateType, target, method);
 
-        public Func<object?[], object>? TryGetActivator(ConstructorInfo constructor) => GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(this, constructor);
+        public Func<ItemOrArray<object?>, object>? TryGetActivator(ConstructorInfo constructor) => GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(this, constructor);
 
         public Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType) => GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(this, constructor, delegateType);
 
-        public Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method) => GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(this, method);
+        public Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(MethodInfo method) => GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(this, method);
 
         public Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType) => GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(this, method, delegateType);
 

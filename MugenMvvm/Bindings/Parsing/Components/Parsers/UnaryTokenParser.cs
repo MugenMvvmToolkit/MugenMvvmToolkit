@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
@@ -17,12 +18,12 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         public UnaryTokenParser()
         {
-            Mapping = new Dictionary<char, UnaryTokenType[]>(7)
+            Mapping = new Dictionary<char, ItemOrArray<UnaryTokenType>>(7)
             {
-                {UnaryTokenType.Minus.Value[0], new[] {UnaryTokenType.Minus}},
-                {UnaryTokenType.Plus.Value[0], new[] {UnaryTokenType.Plus}},
-                {UnaryTokenType.BitwiseNegation.Value[0], new[] {UnaryTokenType.BitwiseNegation}},
-                {UnaryTokenType.LogicalNegation.Value[0], new[] {UnaryTokenType.LogicalNegation}},
+                {UnaryTokenType.Minus.Value[0], UnaryTokenType.Minus},
+                {UnaryTokenType.Plus.Value[0], UnaryTokenType.Plus},
+                {UnaryTokenType.BitwiseNegation.Value[0], UnaryTokenType.BitwiseNegation},
+                {UnaryTokenType.LogicalNegation.Value[0], UnaryTokenType.LogicalNegation},
                 {UnaryTokenType.DynamicExpression.Value[0], new[] {UnaryTokenType.StaticExpression, UnaryTokenType.DynamicExpression}}
             };
         }
@@ -31,7 +32,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         #region Properties
 
-        public Dictionary<char, UnaryTokenType[]> Mapping { get; }
+        public Dictionary<char, ItemOrArray<UnaryTokenType>> Mapping { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Unary;
 
@@ -61,9 +62,8 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (context.IsEof(position) || !Mapping.TryGetValue(context.TokenAt(position), out var values))
                 return null;
 
-            for (var i = 0; i < values.Length; i++)
+            foreach (var value in values)
             {
-                var value = values[i];
                 if (!context.IsToken(value.Value, position))
                     continue;
 

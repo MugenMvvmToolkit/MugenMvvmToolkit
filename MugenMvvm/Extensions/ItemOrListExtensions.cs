@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -75,6 +75,17 @@ namespace MugenMvvm.Extensions
                 editor.Add(item);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetAt<T>(this ref ItemOrArray<T> array, int index, T value)
+        {
+            if (array.List != null)
+                array.List[index] = value;
+            else if ((uint) index < (uint) array.Count)
+                array = new ItemOrArray<T>(value, true);
+            else
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+        }
+
         internal static ItemOrIReadOnlyList<T> ToItemOrList<T>(this List<T> list, bool clear)
         {
             if (list.Count == 1)
@@ -90,6 +101,41 @@ namespace MugenMvvm.Extensions
                 list.Clear();
             return array;
         }
+
+        internal static int Count<T>(this ItemOrIReadOnlyList<T> itemOrList, Func<T, bool> predicate)
+        {
+            int count = 0;
+            foreach (var item in itemOrList)
+            {
+                if (predicate(item))
+                    ++count;
+            }
+
+            return count;
+        }
+
+        internal static bool All<T>(this ItemOrArray<T> itemOrList, Func<T, bool> predicate)
+        {
+            foreach (var item in itemOrList)
+            {
+                if (!predicate(item))
+                    return false;
+            }
+
+            return true;
+        }
+
+        [return: MaybeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static T LastOrDefault<T>(this ItemOrIReadOnlyList<T> itemOrList)
+        {
+            if (itemOrList.IsEmpty)
+                return default;
+            return itemOrList[itemOrList.Count - 1];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static T Last<T>(this ItemOrIReadOnlyList<T> itemOrList) => itemOrList[itemOrList.Count - 1];
 
         #endregion
     }

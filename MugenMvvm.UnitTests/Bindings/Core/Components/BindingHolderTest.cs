@@ -2,7 +2,7 @@
 using System.Linq;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
-using MugenMvvm.Bindings.Observation.Paths;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var bindings = new List<IBinding>();
             for (var i = 0; i < count; i++)
             {
-                var testBinding = new TestBinding {Target = new TestMemberPathObserver {Path = new MultiMemberPath(defaultPath + i)}};
+                var testBinding = new TestBinding {Target = new TestMemberPathObserver {Path = MemberPath.Get(defaultPath + i)}};
                 bindings.Add(testBinding);
 
                 bindingHolder.TryRegister(null!, this, testBinding, DefaultMetadata).ShouldBeTrue();
@@ -52,12 +52,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var b2Disposed = false;
             var b1 = new TestBinding
             {
-                Target = new TestMemberPathObserver {Path = new SingleMemberPath("T")},
+                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
                 Dispose = () => b1Disposed = true
             };
             var b2 = new TestBinding
             {
-                Target = new TestMemberPathObserver {Path = new SingleMemberPath("T")},
+                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
                 Dispose = () => b2Disposed = true
             };
             var bindingHolder = new BindingHolder();

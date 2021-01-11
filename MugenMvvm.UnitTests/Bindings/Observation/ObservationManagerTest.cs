@@ -3,7 +3,6 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.Bindings.Observation.Paths;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
@@ -32,7 +31,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         {
             var provider = new ObservationManager();
             var request = this;
-            var result = EmptyMemberPath.Instance;
+            var result = MemberPath.Empty;
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {

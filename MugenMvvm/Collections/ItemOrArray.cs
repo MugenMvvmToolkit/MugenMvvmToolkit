@@ -8,6 +8,16 @@ namespace MugenMvvm.Collections
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrArray<T> Get<T>(int count)
+        {
+            if (count == 0)
+                return default;
+            if (count == 1)
+                return new ItemOrArray<T>(default, true);
+            return new ItemOrArray<T>(new T[count]);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrArray<T> FromItem<T>(T item) where T : class? => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

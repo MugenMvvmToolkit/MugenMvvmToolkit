@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal
@@ -10,11 +11,11 @@ namespace MugenMvvm.Interfaces.Internal
 
         Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method);
 
-        Func<object?[], object>? TryGetActivator(ConstructorInfo constructor);
+        Func<ItemOrArray<object?>, object>? TryGetActivator(ConstructorInfo constructor);
 
         Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType);
 
-        Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method);
+        Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(MethodInfo method);
 
         Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType);
 

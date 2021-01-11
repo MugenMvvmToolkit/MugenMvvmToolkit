@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members.Descriptors;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -46,12 +47,12 @@ namespace MugenMvvm.Bindings.Members.Builders
         {
             Should.BeSupported(!descriptor.IsStatic, nameof(descriptor.IsStatic));
             var m = Method<TTarget, TReturn>(descriptor.Request!.Name, typeof(TTarget), typeof(TReturn));
-            var types = descriptor.Request!.Types;
-            if (types.Length != 0 && addParameters)
+            if (addParameters)
             {
-                var parameters = new IParameterInfo[types.Length];
-                for (var i = 0; i < types.Length; i++)
-                    parameters[i] = Parameter("", types[i]).Build();
+                var types = descriptor.Request.Types;
+                var parameters = ItemOrArray.Get<IParameterInfo>(types.Count);
+                for (var i = 0; i < types.Count; i++)
+                    parameters.SetAt(i, Parameter("", types[i]).Build());
                 m = m.WithParameters(parameters);
             }
 

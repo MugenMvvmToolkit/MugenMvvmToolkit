@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    internal sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type[]?>,
-        IEqualityComparer<Type?>, IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>,
-        IEqualityComparer<ThreadExecutionMode?>, IEqualityComparer<KeyValuePair<Type, Type>>, IEqualityComparer<IMetadataContextKey?>
+    internal sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type?>,
+        IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>, IEqualityComparer<ThreadExecutionMode?>, IEqualityComparer<KeyValuePair<Type, Type>>,
+        IEqualityComparer<IMetadataContextKey?>
     {
         #region Fields
 
@@ -17,7 +18,6 @@ namespace MugenMvvm.Internal
         public static readonly IEqualityComparer<MemberInfo> MemberInfo = Comparer;
         public static readonly IEqualityComparer<(object, object?)> ValueTupleReference = Comparer;
         public static readonly IEqualityComparer<object> Reference = Comparer;
-        public static readonly IEqualityComparer<Type[]> TypeArray = Comparer;
         public static readonly IEqualityComparer<Type> Type = Comparer;
         public static readonly IEqualityComparer<KeyValuePair<Type, MethodInfo>> TypeMethod = Comparer;
         public static readonly IEqualityComparer<KeyValuePair<Type, MemberInfo>> TypeMember = Comparer;
@@ -78,12 +78,11 @@ namespace MugenMvvm.Internal
 
         int IEqualityComparer<Type?>.GetHashCode(Type? obj) => obj!.GetHashCode();
 
-        bool IEqualityComparer<Type[]?>.Equals(Type[]? x, Type[]? y)
+        public static bool Equals(Type[] x, Type[] y)
         {
             if (x == y)
                 return true;
-
-            if (x!.Length != y!.Length)
+            if (x.Length != y.Length)
                 return false;
             for (var i = 0; i < x.Length; i++)
             {
@@ -94,12 +93,18 @@ namespace MugenMvvm.Internal
             return true;
         }
 
-        int IEqualityComparer<Type[]?>.GetHashCode(Type[]? key)
+        public static bool Equals(ItemOrArray<Type> x, ItemOrArray<Type> y)
         {
-            var hashCode = new HashCode();
-            for (var index = 0; index < key!.Length; index++)
-                hashCode.Add(key[index]);
-            return hashCode.ToHashCode();
+            if (x.Count != y.Count)
+                return false;
+            if (x.List != null)
+            {
+                if (y.List == null)
+                    return false;
+                return Equals(x.List, y.List);
+            }
+
+            return x.Item == y.Item;
         }
 
         #endregion

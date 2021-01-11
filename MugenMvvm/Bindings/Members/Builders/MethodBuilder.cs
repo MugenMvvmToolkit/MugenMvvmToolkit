@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Bindings.Members.Builders
 {
@@ -24,7 +25,7 @@ namespace MugenMvvm.Bindings.Members.Builders
         private bool _isStatic;
         private bool _isObservable;
         private bool _isNonObservable;
-        private Func<IMethodMemberInfo, IReadOnlyList<IParameterInfo>>? _getParameters;
+        private Func<IMethodMemberInfo, ItemOrIReadOnlyList<IParameterInfo>>? _getParameters;
         private TryGetAccessorDelegate<IMethodMemberInfo>? _tryGetAccessor;
         private InvokeMethodDelegate<IMethodMemberInfo, TTarget, TReturn>? _invoke;
 
@@ -106,14 +107,18 @@ namespace MugenMvvm.Bindings.Members.Builders
             return this;
         }
 
-        public MethodBuilder<TTarget, TReturn> WithParameters(params IParameterInfo[] parameters)
+        public MethodBuilder<TTarget, TReturn> WithParameters(IParameterInfo parameters) => WithParameters(ItemOrIReadOnlyList.FromItem(parameters));
+
+        public MethodBuilder<TTarget, TReturn> WithParameters(ItemOrIReadOnlyList<IParameterInfo> parameters)
         {
-            Should.NotBeNull(parameters, nameof(parameters));
-            _getParameters = info => parameters;
+            var rawValue = parameters.GetRawValue();
+            if (rawValue == null)
+                return this;
+            _getParameters = _ => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(rawValue);
             return this;
         }
 
-        public MethodBuilder<TTarget, TReturn> GetParametersHandler(Func<IMethodMemberInfo, IReadOnlyList<IParameterInfo>> getParameters)
+        public MethodBuilder<TTarget, TReturn> GetParametersHandler(Func<IMethodMemberInfo, ItemOrIReadOnlyList<IParameterInfo>> getParameters)
         {
             Should.NotBeNull(getParameters, nameof(getParameters));
             _getParameters = getParameters;
@@ -169,7 +174,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             AttachedMemberBuilder.GenerateMemberId(isMethodId ? BindingInternalConstant.AttachedMethodPrefix : BindingInternalConstant.AttachedHandlerMethodPrefix, _declaringType, _name);
 
         private DelegateMethodMemberInfo<TTarget, TReturn, TState> Method<TState>(in TState state, InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturn, TState>, TTarget, TReturn> invoke,
-            Func<DelegateMethodMemberInfo<TTarget, TReturn, TState>, IReadOnlyList<IParameterInfo>>? getParameters, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+            Func<DelegateMethodMemberInfo<TTarget, TReturn, TState>, ItemOrIReadOnlyList<IParameterInfo>>? getParameters, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
             new(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
                 state, invoke, getParameters, _tryGetAccessor, !_isNonObservable, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
