@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Collections
             AssertEmpty(new ItemOrIReadOnlyList<string>(array: null));
             AssertEmpty(new ItemOrIReadOnlyList<string>(Default.Array<string>()));
 
-            ItemOrIEnumerableTest.AssertEmpty<string>(new ItemOrIReadOnlyList<string>(array:null));
+            ItemOrIEnumerableTest.AssertEmpty<string>(new ItemOrIReadOnlyList<string>(array: null));
         }
 
         [Fact]
@@ -124,6 +124,31 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var list = new object[] {this, this};
             AssertList(ItemOrIReadOnlyList.FromRawValue<object>(list), list);
+        }
+
+        [Fact]
+        public void CastShouldBeValid1()
+        {
+            var objValue = new ItemOrIReadOnlyList<object>(this, false);
+            var thisValue = objValue.Cast<ItemOrIReadOnlyListTest>();
+            AssertEmpty(thisValue);
+        }
+
+        [Fact]
+        public void CastShouldBeValid2()
+        {
+            var objValue = new ItemOrIReadOnlyList<object>(this, true);
+            var thisValue = objValue.Cast<ItemOrIReadOnlyListTest>();
+            AssertItem(thisValue, this);
+        }
+
+        [Fact]
+        public void CastShouldBeValid3()
+        {
+            var list = new[] {this, this};
+            var objValue = new ItemOrIReadOnlyList<object>(list);
+            var thisValue = objValue.Cast<ItemOrIReadOnlyListTest>();
+            AssertList(thisValue, list);
         }
 
         internal static void AssertEmpty<T>(ItemOrIReadOnlyList<T> itemOrList) where T : class

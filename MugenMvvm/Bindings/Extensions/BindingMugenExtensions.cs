@@ -116,18 +116,21 @@ namespace MugenMvvm.Bindings.Extensions
                 target.AttachedValues().Clear();
         }
 
-        public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)
+        public static ItemOrArray<Type> GetTypes(this IResourceResolver? resourceResolver, ItemOrIReadOnlyList<string> types, IReadOnlyMetadataContext? metadata = null)
         {
-            if (types == null || types.Count == 0)
+            if (types.IsEmpty)
                 return Default.Array<Type>();
             resourceResolver = resourceResolver.DefaultIfNull();
-            var typeArgs = new Type[types.Count];
-            for (var i = 0; i < types.Count; i++)
+            var typeArgs = types.Count == 1 ? null : new Type[types.Count];
+            int index = 0;
+            foreach (var t in types)
             {
-                var type = resourceResolver.TryGetType(types[i], null, metadata);
+                var type = resourceResolver.TryGetType(t, null, metadata);
                 if (type == null)
-                    ExceptionManager.ThrowCannotResolveType(types[i]);
-                typeArgs[i] = type;
+                    ExceptionManager.ThrowCannotResolveType(t);
+                if (typeArgs == null)
+                    return type;
+                typeArgs[index++] = type;
             }
 
             return typeArgs;
@@ -480,13 +483,13 @@ namespace MugenMvvm.Bindings.Extensions
                         target = memberExpressionNode.Target;
                         break;
                     }
-                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
+                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.IsAllConstants():
                     {
                         var args = indexExpressionNode.Arguments;
                         builder.Insert(0, ']');
                         if (args.Count > 0)
                         {
-                            args.Last().ToStringValue(builder);
+                            args[args.Count - 1].ToStringValue(builder);
                             for (var i = args.Count - 2; i >= 0; i--)
                             {
                                 builder.Insert(0, ',');
@@ -498,13 +501,13 @@ namespace MugenMvvm.Bindings.Extensions
                         target = indexExpressionNode.Target;
                         break;
                     }
-                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
+                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.IsAllConstants():
                     {
                         var args = methodCallExpression.Arguments;
                         builder.Insert(0, ')');
                         if (args.Count > 0)
                         {
-                            args.Last().ToStringValue(builder);
+                            args[args.Count - 1].ToStringValue(builder);
                             for (var i = args.Count - 2; i >= 0; i--)
                             {
                                 builder.Insert(0, ',');
@@ -542,10 +545,10 @@ namespace MugenMvvm.Bindings.Extensions
                     case IMemberExpressionNode memberExpressionNode:
                         target = memberExpressionNode.Target;
                         break;
-                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
+                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.IsAllConstants():
                         target = indexExpressionNode.Target;
                         break;
-                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
+                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.IsAllConstants():
                         target = methodCallExpression.Target;
                         break;
                     default:
@@ -698,6 +701,17 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args) => ((BindingEventHandler?) weakReference.Target)?.OnCanExecuteChanged();
+
+        internal static bool IsAllConstants(this ItemOrIReadOnlyList<IExpressionNode> expressions)
+        {
+            foreach (var expression in expressions)
+            {
+                if (expression.ExpressionType != ExpressionNodeType.Constant)
+                    return false;
+            }
+
+            return true;
+        }
 
         private static ParameterValue GetParameterValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {

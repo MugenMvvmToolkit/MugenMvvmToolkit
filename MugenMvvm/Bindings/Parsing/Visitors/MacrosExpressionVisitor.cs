@@ -29,8 +29,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         {
             _memberBuilder = new StringBuilder();
             var target = ConstantExpressionNode.Get(typeof(BindingMugenExtensions), typeof(Type));
-            var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), Default.Array<IExpressionNode>(), null, Default.ReadOnlyDictionary<string, object?>());
-            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), Default.Array<IExpressionNode>(), null, Default.ReadOnlyDictionary<string, object?>());
+            var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), Default.Array<IExpressionNode>(), default, Default.ReadOnlyDictionary<string, object?>());
+            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), Default.Array<IExpressionNode>(), default, Default.ReadOnlyDictionary<string, object?>());
             Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>
             {
                 {MacrosConstant.Binding, context => bindingImpl},
@@ -96,7 +96,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                     return new MethodCallExpressionNode(method.Target, methodName, Default.Array<IExpressionNode>(), method.TypeArgs, method.Metadata);
                 }
 
-                if (method.Method == methodName && arguments.All(n => n is IConstantExpressionNode))
+                if (method.Method == methodName && arguments.IsAllConstants())
                     return method;
 
                 var args = new IExpressionNode[arguments.Count];

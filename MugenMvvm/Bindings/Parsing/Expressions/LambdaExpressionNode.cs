@@ -2,20 +2,27 @@
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class LambdaExpressionNode : ExpressionNodeBase<ILambdaExpressionNode>, ILambdaExpressionNode
     {
+        #region Fields
+
+        private readonly object? _parameters;
+
+        #endregion
+
         #region Constructors
 
-        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpressionNode>? parameters, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
+        public LambdaExpressionNode(IExpressionNode body, ItemOrIReadOnlyList<IParameterExpressionNode> parameters, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(body, nameof(body));
             Body = body;
-            Parameters = parameters ?? Default.Array<IParameterExpressionNode>();
+            _parameters = parameters.GetRawValue();
         }
 
         #endregion
@@ -24,7 +31,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Lambda;
 
-        public IReadOnlyList<IParameterExpressionNode> Parameters { get; }
+        public ItemOrIReadOnlyList<IParameterExpressionNode> Parameters => ItemOrIReadOnlyList.FromRawValue<IParameterExpressionNode>(_parameters);
 
         public IExpressionNode Body { get; }
 
@@ -52,7 +59,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         {
             if (Parameters.Count == 0)
                 return "() => " + Body;
-            return $"({string.Join(", ", Parameters)}) => {Body}";
+            return $"({string.Join(", ", Parameters.AsList())}) => {Body}";
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Collections;
 
 namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
@@ -6,6 +7,6 @@ namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
     {
         string Method { get; }
 
-        IReadOnlyList<string> TypeArgs { get; }
+        ItemOrIReadOnlyList<string> TypeArgs { get; }
     }
 }

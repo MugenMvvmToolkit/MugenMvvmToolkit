@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                 new BinaryExpressionNode(BinaryTokenType.Equality,
                     new MethodCallExpressionNode(ConstantExpressionNode.Get(value1), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))}, new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
-                new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string), typeof(Type)), "Format",
+                new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string), typeof(Type)), nameof(string.Format),
                     new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get(value3)}, new string[0]),
                 new ConditionExpressionNode(new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, ConstantExpressionNode.Get(value3), ConstantExpressionNode.Get(10, typeof(int))),
                     ConstantExpressionNode.Get("test", typeof(string)),

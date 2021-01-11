@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -107,7 +108,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return (T) result!;
         }
 
-        protected IReadOnlyList<T> VisitWithCheck<T>(IExpressionVisitor visitor, IReadOnlyList<T> nodes, ref bool changed, IReadOnlyMetadataContext? metadata)
+        protected ItemOrIReadOnlyList<T> VisitWithCheck<T>(IExpressionVisitor visitor, ItemOrIReadOnlyList<T> nodes, ref bool changed, IReadOnlyMetadataContext? metadata)
             where T : class, IExpressionNode
         {
             T[]? newArgs = null;
@@ -117,6 +118,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 var node = VisitWithCheck(visitor, nodes[i], true, ref itemsChanged, metadata);
                 if (!itemsChanged)
                     continue;
+
                 newArgs ??= nodes.ToArray();
                 newArgs[i] = node;
             }
@@ -136,13 +138,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return x1.Equals(x2, comparer);
         }
 
-        protected static bool Equals(IReadOnlyList<IExpressionNode> x1, IReadOnlyList<IExpressionNode> x2, IExpressionEqualityComparer? comparer)
+        protected static bool Equals<T>(ItemOrIReadOnlyList<T> x1, ItemOrIReadOnlyList<T> x2, IExpressionEqualityComparer? comparer)
+            where T : class, IExpressionNode
         {
-            if (ReferenceEquals(x1, x2))
+            if (ReferenceEquals(x1.Item, x2.Item) && ReferenceEquals(x1.List, x2.List))
                 return true;
-            if (x1.Count != x2.Count)
+            var count = x1.Count;
+            if (count != x2.Count)
                 return false;
-            for (int i = 0; i < x1.Count; i++)
+            for (int i = 0; i < count; i++)
             {
                 if (!x1[i].Equals(x2[i], comparer))
                     return false;
@@ -151,7 +155,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return true;
         }
 
-        protected static int GetHashCode(int hashCode, IExpressionNode? target, IReadOnlyList<IExpressionNode> args, IExpressionEqualityComparer? comparer)
+        protected static int GetHashCode<T>(int hashCode, IExpressionNode? target, ItemOrIReadOnlyList<T> args, IExpressionEqualityComparer? comparer)
+            where T : class, IExpressionNode
         {
             if (target == null)
                 return HashCode.Combine(hashCode, args.Count);

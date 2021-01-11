@@ -60,6 +60,13 @@ namespace MugenMvvm.Collections
             }
         }
 
+        private ItemOrArray([AllowNull] T item, T[]? list, int count)
+        {
+            Item = item!;
+            List = list;
+            Count = count;
+        }
+
         #endregion
 
         #region Properties
@@ -111,6 +118,9 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(ItemOrArray<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.Count);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrArray<TType> Cast<TType>() => new((TType?) (object?) Item!, (TType[]?) (object?) List, Count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T[] AsList()

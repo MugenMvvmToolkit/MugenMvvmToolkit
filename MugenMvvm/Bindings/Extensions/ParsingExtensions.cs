@@ -327,9 +327,9 @@ namespace MugenMvvm.Bindings.Extensions
             return expressionNode;
         }
 
-        public static List<IExpressionNode>? ParseArguments(this ITokenParserContext context, string endSymbol)
+        public static ItemOrIReadOnlyList<IExpressionNode> ParseArguments(this ITokenParserContext context, string endSymbol)
         {
-            LazyList<IExpressionNode> args = default;
+            var args = new ItemOrListEditor<IExpressionNode>();
             while (true)
             {
                 var node = context.TryParseWhileNotNull();
@@ -350,18 +350,18 @@ namespace MugenMvvm.Bindings.Extensions
                 }
 
                 context.TryGetErrors()?.Add(node == null
-                    ? BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args.List == null ? null : string.Join(",", args))
-                    : BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args), endSymbol));
+                    ? BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args.IsEmpty ? null : string.Join(",", args.AsList()))
+                    : BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args.AsList()), endSymbol));
 
-                return null;
+                return default;
             }
 
-            return args;
+            return args.ToItemOrList();
         }
 
-        public static string[]? ParseStringArguments(this ITokenParserContext context, string endSymbol, bool isPointSupported)
+        public static ItemOrArray<string> ParseStringArguments(this ITokenParserContext context, string endSymbol, bool isPointSupported)
         {
-            LazyList<(int start, int end)> args = default;
+            var args = new ItemOrListEditor<(int start, int end)>();
             var start = context.Position;
             int? end = null;
             while (true)
@@ -372,7 +372,7 @@ namespace MugenMvvm.Bindings.Extensions
                     if (end == null)
                     {
                         context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(context.Format(args)));
-                        return null;
+                        return default;
                     }
 
                     args.Add((start, end.Value));
@@ -399,16 +399,21 @@ namespace MugenMvvm.Bindings.Extensions
                 }
 
                 context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(context.Format(args), endSymbol));
-                return null;
+                return default;
             }
 
-            var list = args.List;
-            if (list == null)
-                return null;
-            var result = new string[list.Count];
+            if (args.IsEmpty)
+                return default;
+            if (args.Count == 1)
+            {
+                var item = args[0];
+                return context.GetValue(item.start, item.end);
+            }
+
+            var result = new string[args.Count];
             for (var i = 0; i < result.Length; i++)
             {
-                var t = list[i];
+                var t = args[i];
                 result[i] = context.GetValue(t.start, t.end);
             }
 
@@ -485,8 +490,8 @@ namespace MugenMvvm.Bindings.Extensions
             return char.IsLetterOrDigit(symbol) || symbol == '_';
         }
 
-        private static string? Format(this ITokenParserContext context, LazyList<(int start, int end)> args) =>
-            args.List == null ? null : string.Join(",", args.List.Select(tuple => context.GetValue(tuple.start, tuple.end)));
+        private static string? Format(this ITokenParserContext context, ItemOrListEditor<(int start, int end)> args) =>
+            args.IsEmpty ? null : string.Join(",", args.AsList().Select(tuple => context.GetValue(tuple.start, tuple.end)));
 
         #endregion
     }

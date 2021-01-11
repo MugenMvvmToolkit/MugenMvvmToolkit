@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using MugenMvvm.Collections;
 
 namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
     public interface IHasArgumentsExpressionNode<out TExpression> : IExpressionNode where TExpression : class, IExpressionNode
     {
-        IReadOnlyList<IExpressionNode> Arguments { get; }
+        ItemOrIReadOnlyList<IExpressionNode> Arguments { get; }
 
-        TExpression UpdateArguments(IReadOnlyList<IExpressionNode> arguments);
+        TExpression UpdateArguments(ItemOrIReadOnlyList<IExpressionNode> arguments);
     }
 }

@@ -80,6 +80,31 @@ namespace MugenMvvm.UnitTests.Collections
             var list = new object[] {this, this};
             AssertList(ItemOrArray.FromRawValue<object>(list), list);
         }
+        
+        [Fact]
+        public void CastShouldBeValid1()
+        {
+            var objValue = new ItemOrArray<object>(this, false);
+            var thisValue = objValue.Cast<ItemOrArrayTest>();
+            AssertEmpty(thisValue);
+        }
+
+        [Fact]
+        public void CastShouldBeValid2()
+        {
+            var objValue = new ItemOrArray<object>(this, true);
+            var thisValue = objValue.Cast<ItemOrArrayTest>();
+            AssertItem(thisValue, this);
+        }
+
+        [Fact]
+        public void CastShouldBeValid3()
+        {
+            var list = new[] {this, this};
+            var objValue = new ItemOrArray<object>(list);
+            var thisValue = objValue.Cast<ItemOrArrayTest>();
+            AssertList(thisValue, list);
+        }
 
         private static void AssertEmpty<T>(ItemOrArray<T> itemOrList) where T : class
         {

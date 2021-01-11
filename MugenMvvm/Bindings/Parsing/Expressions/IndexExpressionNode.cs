@@ -2,19 +2,26 @@
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class IndexExpressionNode : ExpressionNodeBase<IIndexExpressionNode>, IIndexExpressionNode
     {
+        #region Fields
+
+        private readonly object? _arguments;
+
+        #endregion
+
         #region Constructors
 
-        public IndexExpressionNode(IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
+        public IndexExpressionNode(IExpressionNode? target, ItemOrIReadOnlyList<IExpressionNode> arguments, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
-            Should.NotBeNull(arguments, nameof(arguments));
             Target = target;
-            Arguments = arguments;
+            _arguments = arguments.GetRawValue();
         }
 
         #endregion
@@ -25,17 +32,13 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public IExpressionNode? Target { get; }
 
-        public IReadOnlyList<IExpressionNode> Arguments { get; }
+        public ItemOrIReadOnlyList<IExpressionNode> Arguments => ItemOrIReadOnlyList.FromRawValue<IExpressionNode>(_arguments);
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IIndexExpressionNode UpdateArguments(IReadOnlyList<IExpressionNode> arguments)
-        {
-            Should.NotBeNull(arguments, nameof(arguments));
-            return Equals(Arguments, arguments, null) ? this : new IndexExpressionNode(Target, arguments, Metadata);
-        }
+        public IIndexExpressionNode UpdateArguments(ItemOrIReadOnlyList<IExpressionNode> arguments) => Equals(Arguments, arguments, null) ? this : new IndexExpressionNode(Target, arguments, Metadata);
 
         public IIndexExpressionNode UpdateTarget(IExpressionNode? target) => Equals(target, Target) ? this : new IndexExpressionNode(target, Arguments, Metadata);
 
@@ -63,7 +66,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public override string ToString()
         {
-            var join = string.Join(", ", Arguments);
+            var join = string.Join(", ", Arguments.AsList());
             return $"{Target}[{join}]";
         }
 

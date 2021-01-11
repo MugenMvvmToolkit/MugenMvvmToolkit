@@ -40,7 +40,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 .MoveNext()
                 .SkipWhitespaces()
                 .ParseArguments("]");
-            if (args == null)
+            if (args.IsEmpty)
                 return null;
             return new IndexExpressionNode(expression, args);
         }

@@ -18,7 +18,7 @@ namespace MugenMvvm.Entities.Components
     {
         #region Fields
 
-        private readonly Dictionary<Type, EntityMemberAccessor[]> _cache;
+        private readonly Dictionary<Type, object?> _cache;
         private readonly IReflectionManager? _reflectionManager;
 
         private Func<PropertyInfo, bool>? _memberFilter;
@@ -31,7 +31,7 @@ namespace MugenMvvm.Entities.Components
         public ReflectionEntityStateSnapshotProvider(IReflectionManager? reflectionManager = null)
         {
             _reflectionManager = reflectionManager;
-            _cache = new Dictionary<Type, EntityMemberAccessor[]>(7, InternalEqualityComparer.Type);
+            _cache = new Dictionary<Type, object?>(7, InternalEqualityComparer.Type);
         }
 
         #endregion
@@ -71,7 +71,7 @@ namespace MugenMvvm.Entities.Components
         public IEntityStateSnapshot? TryGetSnapshot(IEntityManager entityManager, object entity, IReadOnlyMetadataContext? metadata)
         {
             var type = entity.GetType();
-            EntityMemberAccessor[]? value;
+            object? value;
             lock (_cache)
             {
                 if (!_cache.TryGetValue(type, out value))
@@ -81,9 +81,10 @@ namespace MugenMvvm.Entities.Components
                 }
             }
 
-            if (value.Length == 0)
+            var accessors = ItemOrIReadOnlyList.FromRawValue<EntityMemberAccessor>(value);
+            if (accessors.IsEmpty)
                 return null;
-            return new EntityStateSnapshot(entity, value, this);
+            return new EntityStateSnapshot(entity, accessors, this);
         }
 
         bool IEqualityComparer<object?>.Equals(object? x, object? y) => Equals(GetUnderlyingValue(x!), GetUnderlyingValue(y!));
@@ -102,10 +103,10 @@ namespace MugenMvvm.Entities.Components
             }
         }
 
-        private EntityMemberAccessor[] GetAccessors(Type type)
+        private object? GetAccessors(Type type)
         {
             var properties = type.GetProperties(MemberFlags);
-            LazyList<EntityMemberAccessor> list = default;
+            var list = new ItemOrListEditor<EntityMemberAccessor>();
             for (var index = 0; index < properties.Length; index++)
             {
                 var propertyInfo = properties[index];
@@ -117,7 +118,7 @@ namespace MugenMvvm.Entities.Components
                 }
             }
 
-            return list.List?.ToArray() ?? Default.Array<EntityMemberAccessor>();
+            return list.GetRawValueInternal();
         }
 
         private static object GetUnderlyingValue(object key)
@@ -135,17 +136,13 @@ namespace MugenMvvm.Entities.Components
         {
             #region Constructors
 
-            public EntityStateSnapshot(object entity, IReadOnlyList<EntityMemberAccessor> accessors, IEqualityComparer<object> comparer)
+            public EntityStateSnapshot(object entity, ItemOrIReadOnlyList<EntityMemberAccessor> accessors, IEqualityComparer<object> comparer)
                 : base(accessors.Count, comparer)
             {
                 Should.NotBeNull(entity, nameof(entity));
-                Should.NotBeNull(accessors, nameof(accessors));
                 EntityType = entity.GetType();
-                for (var i = 0; i < accessors.Count; i++)
-                {
-                    var accessor = accessors[i];
+                foreach (var accessor in accessors)
                     this[accessor.Member] = new MemberState(accessor.GetValue(entity), accessor.GetValue, accessor.SetValue);
-                }
             }
 
             #endregion

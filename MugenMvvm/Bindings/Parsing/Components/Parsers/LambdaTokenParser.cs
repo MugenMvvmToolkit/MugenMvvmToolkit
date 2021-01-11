@@ -6,6 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -65,22 +66,27 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 }
             }
 
-
-            IParameterExpressionNode[] args;
+            ItemOrArray<IParameterExpressionNode> args;
             if (context.IsToken("()"))
             {
-                args = Default.Array<IParameterExpressionNode>();
+                args = default;
                 context.MoveNext(2);
             }
             else if (context.IsToken('('))
             {
                 var stringArgs = context.MoveNext().SkipWhitespaces().ParseStringArguments(")", false);
-                if (stringArgs == null)
+                if (stringArgs.IsEmpty)
                     return null;
 
-                args = new IParameterExpressionNode[stringArgs.Length];
-                for (var i = 0; i < args.Length; i++)
-                    args[i] = new ParameterExpressionNode(stringArgs[i]);
+                if (stringArgs.Item == null)
+                {
+                    var items = new IParameterExpressionNode[stringArgs.Count];
+                    for (var i = 0; i < items.Length; i++)
+                        items[i] = new ParameterExpressionNode(stringArgs[i]);
+                    args = items;
+                }
+                else
+                    args = new ParameterExpressionNode(stringArgs[0]);
             }
             else
             {
@@ -101,15 +107,14 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
             if (!context.SkipWhitespaces().IsToken("=>"))
             {
-                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedTokenFormat1.Format(string.Join<IExpressionNode>(",", args)));
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedTokenFormat1.Format(string.Join<IExpressionNode>(",", args.AsList())));
                 return null;
             }
 
             try
             {
-                for (var i = 0; i < args.Length; i++)
+                foreach (var parameter in args)
                 {
-                    var parameter = args[i];
                     if (_currentParameters.ContainsKey(parameter.Name))
                     {
                         context.TryGetErrors()?.Add(BindingMessageConstant.DuplicateLambdaParameterFormat1.Format(parameter.Name));
@@ -122,7 +127,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 var body = context.MoveNext(2).TryParseWhileNotNull();
                 if (body == null)
                 {
-                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedExpressionFormat1.Format(string.Join<IExpressionNode>(",", args)));
+                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedExpressionFormat1.Format(string.Join<IExpressionNode>(",", args.AsList())));
                     return null;
                 }
 
@@ -130,8 +135,8 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             }
             finally
             {
-                for (var i = 0; i < args.Length; i++)
-                    _currentParameters.Remove(args[i].Name);
+                foreach (var arg in args)
+                    _currentParameters.Remove(arg.Name);
             }
         }
 

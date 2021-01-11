@@ -194,9 +194,9 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ItemOrIEnumerable(T item, IEnumerable<T>? list, int fixedCount)
+        internal ItemOrIEnumerable([AllowNull] T item, IEnumerable<T>? list, int fixedCount)
         {
-            Item = item;
+            Item = item!;
             List = list;
             _fixedCount = fixedCount;
         }
@@ -235,6 +235,9 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIEnumerable<T>(List<T>? items) => new(items);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrIEnumerable<TType> Cast<TType>() => new((TType?) (object?) Item!, (IEnumerable<TType>?) List, _fixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> AsList()

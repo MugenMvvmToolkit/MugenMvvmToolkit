@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var expressionNode = (IndexExpressionNode) exp.Accept(visitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
-            expressionNode.Arguments.ShouldEqual(new[] {arg1Changed, arg2Changed});
+            expressionNode.Arguments.AsList().ShouldEqual(new[] {arg1Changed, arg2Changed});
         }
 
         [Fact]
@@ -176,15 +176,15 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             else
                 HashCode.Combine(GetBaseHashCode(exp1), exp1.Arguments.Count).ShouldEqual(exp1.GetHashCode(comparer));
 
-            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.GetHashCodeCount == 0).ShouldBeTrue();
+            exp1.Arguments.AsList().Cast<TestExpressionNode>().All(node => node.GetHashCodeCount == 0).ShouldBeTrue();
 
             exp1.Equals(exp2, comparer).ShouldBeTrue();
             ((TestExpressionNode?) exp1.Target)?.EqualsCount.ShouldEqual(1);
-            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
+            exp1.Arguments.AsList().Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
 
             exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
             ((TestExpressionNode?) exp1.Target)?.EqualsCount.ShouldEqual(1);
-            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
+            exp1.Arguments.AsList().Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
 
             if (comparer == null || !hasTarget)
                 return;
@@ -202,7 +202,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode) exp1.Target!).EqualsCount.ShouldEqual(1);
-            exp1.Arguments.Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
+            exp1.Arguments.AsList().Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
         }
 
         #endregion

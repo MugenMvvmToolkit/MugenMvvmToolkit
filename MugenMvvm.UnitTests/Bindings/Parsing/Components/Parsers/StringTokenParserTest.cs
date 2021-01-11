@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             var component = new StringTokenParser();
             var ctx = new TokenParserContext {Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new BinaryTokenParser()}};
 
-            var expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), "Format",
+            var expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("{0} test {1}"),
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize("$@'{1+1} test {2}'", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(expected);
 
-            expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), "Format",
+            expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("{0:n} test {1:t}"),
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize("@$'{1+1:n} test {2:t}'", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(expected);
 
-            expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), "Format",
+            expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("{0:n} {test} {1:t}"),

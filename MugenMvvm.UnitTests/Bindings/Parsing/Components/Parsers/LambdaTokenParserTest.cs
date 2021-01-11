@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize("() => 1", DefaultMetadata);
 
             var component = new LambdaTokenParser();
-            component.TryParse(ctx, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), null));
+            component.TryParse(ctx, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), default));
 
             ctx.Initialize("(p1) => 1", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] {new ParameterExpressionNode("p1")}));

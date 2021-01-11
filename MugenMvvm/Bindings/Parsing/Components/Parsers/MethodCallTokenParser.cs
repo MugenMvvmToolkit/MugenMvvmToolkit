@@ -4,6 +4,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -50,17 +51,17 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             context.Position = nameEndPos;
             context.SkipWhitespaces();
 
-            string[]? typeArgs = null;
+            ItemOrArray<string> typeArgs = default;
             if (context.IsToken('<'))
             {
                 typeArgs = context.MoveNext().ParseStringArguments(">", true);
-                if (typeArgs == null)
+                if (typeArgs.IsEmpty)
                     return null;
             }
 
             if (!context.IsToken('('))
             {
-                if (typeArgs != null)
+                if (!typeArgs.IsEmpty)
                     context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseMethodExpressionExpectedTokenFormat1.Format($"{context.GetValue(nameStart, nameEndPos)}<{string.Join(",", typeArgs)}>"));
                 return null;
             }
@@ -72,7 +73,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             }
 
             var args = context.ParseArguments(")");
-            if (args == null)
+            if (args.IsEmpty)
                 return null;
             return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), args, typeArgs);
         }

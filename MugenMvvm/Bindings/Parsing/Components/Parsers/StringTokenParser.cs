@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -100,7 +101,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 return null;
 
             context.MoveNext(quoteToken.Length);
-            LazyList<IExpressionNode> args = default;
+            var args = new ItemOrListEditor<IExpressionNode>();
             StringBuilder? builder = null;
 
             var openedBraceCount = 0;
@@ -245,10 +246,16 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             }
 
             var st = builder.ToString();
-            if (args.List == null)
-                return new ConstantExpressionNode(st, typeof(string));
-            args.List.Insert(0, new ConstantExpressionNode(st, typeof(string)));
-            return new MethodCallExpressionNode(StringType, "Format", args.List);
+            var value = new ConstantExpressionNode(st, typeof(string));
+            if (args.IsEmpty)
+                return value;
+
+            if (args.Count == 1)
+                return new MethodCallExpressionNode(StringType, nameof(string.Format), new[] {value, args[0]});
+
+            var list = args.AsList();
+            list.Insert(0, value);
+            return new MethodCallExpressionNode(StringType, nameof(string.Format), list);
         }
 
         private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, ref StringBuilder? builder, object? param = null)

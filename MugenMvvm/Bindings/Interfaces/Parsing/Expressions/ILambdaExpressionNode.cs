@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Collections;
 
 namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 {
     public interface ILambdaExpressionNode : IExpressionNode
     {
-        IReadOnlyList<IParameterExpressionNode> Parameters { get; }
+        ItemOrIReadOnlyList<IParameterExpressionNode> Parameters { get; }
 
         IExpressionNode Body { get; }
     }

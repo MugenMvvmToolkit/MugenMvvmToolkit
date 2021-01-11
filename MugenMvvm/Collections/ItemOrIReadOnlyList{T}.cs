@@ -113,9 +113,9 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ItemOrIReadOnlyList(T item, IReadOnlyList<T>? list, int fixedCount)
+        internal ItemOrIReadOnlyList([AllowNull] T item, IReadOnlyList<T>? list, int fixedCount)
         {
-            Item = item;
+            Item = item!;
             List = list;
             _fixedCount = fixedCount;
         }
@@ -155,7 +155,11 @@ namespace MugenMvvm.Collections
             get
             {
                 if (List != null)
+                {
+                    if (_fixedCount != 0)
+                        return ((T[]) List)[index];
                     return List[index];
+                }
                 if ((uint) index < (uint) _fixedCount)
                     return Item!;
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
@@ -178,6 +182,9 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIEnumerable<T>(ItemOrIReadOnlyList<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList._fixedCount);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrIReadOnlyList<TType> Cast<TType>() => new((TType?) (object?) Item!, (IReadOnlyList<TType>?) List, _fixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IReadOnlyList<T> AsList()

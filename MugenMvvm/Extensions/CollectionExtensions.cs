@@ -15,23 +15,6 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Add<T>(this ref LazyList<T> list, T item) => list.Get().Add(item);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddIfNotNull<T>(this ref LazyList<T> list, T? item) where T : class
-        {
-            if (item != null)
-                list.Get().Add(item);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddRange<T>(this ref LazyList<T> list, IReadOnlyCollection<T>? items)
-        {
-            if (items != null && items.Count != 0)
-                list.Get().AddRange(items);
-        }
-
         [return: NotNullIfNotNull("collection")]
         public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase? collection)
         {
