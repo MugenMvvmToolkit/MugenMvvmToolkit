@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 using MugenMvvm.Serialization;
 using Should;
 using Xunit;
@@ -15,7 +16,7 @@ namespace MugenMvvm.UnitTests.Serialization
             MementoResult result = default;
             result.IsRestored.ShouldBeFalse();
             result.Target.ShouldBeNull();
-            result.Metadata.ShouldEqual(Default.Metadata);
+            result.Metadata.ShouldEqual(EmptyMetadataContext.Instance);
         }
 
         [Fact]

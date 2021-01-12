@@ -29,6 +29,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
     {
         #region Fields
 
+        private const int ConstantParameterTypeState = 0;
+        private const int ConstantObjectParameterTypeState = 1;
+        private const int BindingParameterTypeState = 2;
+
         private readonly MethodCallIndexerExpressionBuilder _component;
         private readonly TestMemberManagerComponent _memberManagerComponent;
         private readonly TestTypeResolverComponent _typeResolver;
@@ -274,11 +278,11 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 1)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, ConstantObjectParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallInstance1(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method);
@@ -331,11 +335,11 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 1)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, ConstantObjectParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallInstance2(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method1);
@@ -355,11 +359,11 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 1)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, ConstantObjectParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallInstance3(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method2);
@@ -379,11 +383,11 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 1)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, ConstantObjectParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallInstance4(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method3);
@@ -403,9 +407,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(2)]
+        [InlineData(ConstantParameterTypeState)]
+        [InlineData(ConstantObjectParameterTypeState)]
+        [InlineData(BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallInstance5(int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method4);
@@ -440,10 +444,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallStatic1(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerStatic.Method);
@@ -490,10 +494,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallStatic2(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerStatic.Method1);
@@ -512,10 +516,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallStatic3(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerStatic.Method2);
@@ -534,10 +538,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 2)]
+        [InlineData(true, ConstantParameterTypeState)]
+        [InlineData(true, BindingParameterTypeState)]
+        [InlineData(false, ConstantParameterTypeState)]
+        [InlineData(false, BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallStatic4(bool underlying, int state)
         {
             const string memberName = nameof(MethodInvokerStatic.Method3);
@@ -556,8 +560,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(2)]
+        [InlineData(ConstantParameterTypeState)]
+        [InlineData(BindingParameterTypeState)]
         public void TryBuildShouldBuildMethodCallStatic5(int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method4);
@@ -653,7 +657,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 var methodInfo = new TestMethodMemberInfo
                 {
                     Type = member.ReturnType,
-                    GetParameters = () => { return member.GetParameters().Select(info => new ParameterInfoImpl(info)).ToArray(); }
+                    GetParameters = () => member.GetParameters().Select(info => new ParameterInfoImpl(info)).ToArray()
                 };
                 if (underlying)
                     methodInfo.UnderlyingMember = member;
@@ -695,10 +699,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             IExpressionNode? target;
             switch (state)
             {
-                case 0:
+                case ConstantParameterTypeState:
                     target = ConstantExpressionNode.Get(instance);
                     break;
-                case 1:
+                case ConstantObjectParameterTypeState:
                     target = ConstantExpressionNode.Get(instance, typeof(object));
                     break;
                 default:
@@ -720,8 +724,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 IExpressionNode arg;
                 switch (state)
                 {
-                    case 0:
-                    case 1:
+                    case ConstantObjectParameterTypeState:
+                    case ConstantParameterTypeState:
                         arg = ConstantExpressionNode.Get(args[i]);
                         break;
                     default:

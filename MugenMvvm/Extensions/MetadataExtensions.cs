@@ -33,7 +33,7 @@ namespace MugenMvvm.Extensions
         public static KeyValuePair<IMetadataContextKey, object?> ToValue<T>(this IMetadataContextKey<T> key, T value)
         {
             Should.NotBeNull(key, nameof(key));
-            return new KeyValuePair<IMetadataContextKey, object?>(key, key.SetValue(Default.Metadata, null, value));
+            return new KeyValuePair<IMetadataContextKey, object?>(key, key.SetValue(EmptyMetadataContext.Instance, null, value));
         }
 
         public static IMetadataContext EnsureInitialized(ref IReadOnlyMetadataContext? metadata)
@@ -57,7 +57,7 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata) => metadata ?? Default.Metadata;
+        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata) => metadata ?? EmptyMetadataContext.Instance;
 
         public static IReadOnlyMetadataContext WithValue<T>(this IReadOnlyMetadataContext? metadata, IMetadataContextKey<T> key, T value)
         {
@@ -154,7 +154,7 @@ namespace MugenMvvm.Extensions
         {
             if (owner != null && owner.HasMetadata)
                 return owner.Metadata;
-            return defaultValue ?? Default.Metadata;
+            return defaultValue.DefaultIfNull();
         }
 
         public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext

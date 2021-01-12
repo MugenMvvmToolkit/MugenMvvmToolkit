@@ -12,7 +12,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
@@ -47,8 +46,6 @@ namespace MugenMvvm.Bindings.Members.Components
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
         {
             _types.Clear();
-            if (type == typeof(string) && name == BindingInternalConstant.IndexerGetterName)
-                name = BindingInternalConstant.IndexerStringGetterName;
             var hasProperty = !memberTypes.HasFlag(MemberType.Accessor);
             var hasField = hasProperty;
             var hasEvent = !memberTypes.HasFlag(MemberType.Event);
@@ -72,14 +69,34 @@ namespace MugenMvvm.Bindings.Members.Components
             if (memberTypes.HasFlag(MemberType.Method))
             {
                 types.Clear();
+                bool isGetter = name == BindingInternalConstant.IndexerGetterName;
+                var isSetter = name == BindingInternalConstant.IndexerSetterName;
                 foreach (var t in BindingMugenExtensions.SelfAndBaseTypes(type, false, types: types))
                 {
-                    var methods = t.GetMethods(BindingFlagsEx.All);
-                    for (var index = 0; index < methods.Length; index++)
+                    if (isGetter || isSetter)
                     {
-                        var methodInfo = methods[index];
-                        if (methodInfo.Name == name)
-                            result.Add(new MethodMemberInfo(name, methodInfo, false, type));
+                        var propertyInfos = t.GetProperties(BindingFlagsEx.All);
+                        for (int i = 0; i < propertyInfos.Length; i++)
+                        {
+                            var propertyInfo = propertyInfos[i];
+                            var indexParameters = propertyInfo.GetIndexParameters();
+                            if (indexParameters.Length > 0)
+                            {
+                                var method = isGetter ? propertyInfo.GetGetMethod(true) : propertyInfo.GetSetMethod(true);
+                                if (method != null)
+                                    result.Add(new MethodMemberInfo(name, method, false, type, isGetter ? indexParameters : null, null));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var methods = t.GetMethods(BindingFlagsEx.All);
+                        for (var index = 0; index < methods.Length; index++)
+                        {
+                            var methodInfo = methods[index];
+                            if (methodInfo.Name == name)
+                                result.Add(new MethodMemberInfo(name, methodInfo, false, type));
+                        }
                     }
                 }
             }

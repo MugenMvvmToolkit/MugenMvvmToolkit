@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             memberManager.AddComponent(new ReflectionMemberProvider());
             memberManager.AddComponent(new NameRequestMemberManagerDecorator());
             memberManager.AddComponent(TestMemberManagerComponent.Selector);
-            memberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, BindingInternalConstant.IndexerStringGetterName, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            memberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, BindingInternalConstant.IndexerGetterName, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -84,10 +84,15 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new ReflectionMemberProvider());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index.ToString(CultureInfo.InvariantCulture)}]", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index.ToString(CultureInfo.InvariantCulture)}]", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags == default);
+                .ToList();
+            members.Count.ShouldEqual(4);
+            var member = members.Single(info => info.ArgumentFlags == default);
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray)).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional)).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata)).ShouldNotBeNull();
 
             var indexValue = 2;
             var getter = 0;
@@ -126,10 +131,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new ReflectionMemberProvider());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional));
+                .ToList();
+            members.Count.ShouldEqual(2);
+            var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional));
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata)).ShouldNotBeNull();
 
             var indexValue = 2;
             var getter = 0;
@@ -170,10 +178,15 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new ReflectionMemberProvider());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}]", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}]", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray));
+                .ToList();
+            members.Count.ShouldEqual(4);
+            var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray));
+            members.Single(info => info.ArgumentFlags == default).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional)).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata)).ShouldNotBeNull();
 
             var indexValue = 2;
             var getter = 0;
@@ -218,7 +231,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var member = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}, {string.Join(" , ", args)}]", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray));
+                .Single();
+            member.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray).ShouldBeTrue();
 
             var indexValue = 2;
             var getter = 0;
@@ -259,10 +273,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new ReflectionMemberProvider());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata));
+                .ToList();
+            members.Count.ShouldEqual(2);
+            var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata));
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional)).ShouldNotBeNull();
 
             var indexValue = 2;
             var getter = 0;

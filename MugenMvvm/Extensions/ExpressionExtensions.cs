@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -14,6 +16,13 @@ namespace MugenMvvm.Extensions
         public static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
         public static readonly ConstantExpression TrueConstantExpression = Expression.Constant(BoxingExtensions.TrueObject);
         public static readonly ConstantExpression FalseConstantExpression = Expression.Constant(BoxingExtensions.FalseObject);
+
+        private static readonly Dictionary<Type, MethodInfo> RawMethodMapping = new(3, InternalEqualityComparer.Type)
+        {
+            {typeof(ItemOrArray<>), typeof(ItemOrArray).GetMethodOrThrow(nameof(ItemOrArray.FromRawValue), BindingFlagsEx.StaticPublic)},
+            {typeof(ItemOrIEnumerable<>), typeof(ItemOrIEnumerable).GetMethodOrThrow(nameof(ItemOrIEnumerable.FromRawValue), BindingFlagsEx.StaticPublic)},
+            {typeof(ItemOrIReadOnlyList<>), typeof(ItemOrIReadOnlyList).GetMethodOrThrow(nameof(ItemOrIReadOnlyList.FromRawValue), BindingFlagsEx.StaticPublic)}
+        };
 
         private static readonly Expression ItemOrArrayListFieldExpression =
             Expression.Field(GetParameterExpression<ItemOrArray<object>>(), typeof(ItemOrArray<object>).GetFieldOrThrow(nameof(ItemOrArray<object>.List), BindingFlagsEx.InstancePublic));
@@ -42,6 +51,8 @@ namespace MugenMvvm.Extensions
                 return expression;
             if (type == typeof(object) && BoxingExtensions.CanBox(expression.Type))
                 return Expression.Call(null, BoxingExtensions.GetBoxMethodInfo(expression.Type), expression);
+            if (expression.Type == typeof(object) && type.IsGenericType && RawMethodMapping.TryGetValue(type.GetGenericTypeDefinition(), out var convertMethod))
+                return Expression.Call(convertMethod.MakeGenericMethod(type.GetGenericArguments()), expression);
             return Expression.Convert(expression, type);
         }
 

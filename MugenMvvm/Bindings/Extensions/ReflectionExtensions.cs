@@ -44,7 +44,7 @@ namespace MugenMvvm.Bindings.Extensions
         public static bool IsParamArray(this IParameterInfo parameter)
         {
             Should.NotBeNull(parameter, nameof(parameter));
-            return parameter.IsDefined(typeof(ParamArrayAttribute));
+            return parameter.ParameterType.IsArray && parameter.IsDefined(typeof(ParamArrayAttribute));
         }
 
         public static ItemOrArray<Type> TryInferGenericParameters<TParameter, TArg>(ItemOrIReadOnlyList<Type> genericArguments, ItemOrIReadOnlyList<TParameter> parameters,

@@ -5,9 +5,15 @@ namespace MugenMvvm.Internal
 {
     public sealed class WeakReferenceImpl : WeakReference, IWeakReference
     {
+        #region Fields
+
+        public static readonly IWeakReference Empty = new WeakReferenceImpl(null, false);
+
+        #endregion
+
         #region Constructors
 
-        public WeakReferenceImpl(object target, bool trackResurrection) : base(target, trackResurrection)
+        public WeakReferenceImpl(object? target, bool trackResurrection) : base(target, trackResurrection)
         {
         }
 

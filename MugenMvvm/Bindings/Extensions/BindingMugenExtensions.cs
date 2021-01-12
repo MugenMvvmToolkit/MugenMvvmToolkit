@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -138,7 +137,18 @@ namespace MugenMvvm.Bindings.Extensions
             Func<TState, int, IParameterInfo, object?> getValue, ItemOrArray<object?> arguments, out EnumFlags<ArgumentFlags> flags)
         {
             flags = default;
-            var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
+            bool hasParams;
+            if (parameters.Count != 0)
+            {
+                var parameterInfo = parameters.Last();
+                hasParams = parameterInfo.IsParamArray();
+            }
+            else
+                hasParams = false;
+
+            if (argsLength > parametersCount && !hasParams)
+                return default;
+
             ItemOrArray<object?> result;
             if (!arguments.IsEmpty && argsLength == parametersCount)
                 result = arguments;
@@ -154,8 +164,7 @@ namespace MugenMvvm.Bindings.Extensions
                         var parameter = parameters[j];
                         if (j == parametersCount - 1 && hasParams)
                         {
-                            ArraySize[0] = 0;
-                            result.SetAt(j, Array.CreateInstance(parameter.ParameterType.GetElementType()!, ArraySize));
+                            result.SetAt(j, Default.Array(parameter.ParameterType.GetElementType()!));
                             flags |= ArgumentFlags.EmptyParamArray;
                         }
                         else
@@ -180,15 +189,18 @@ namespace MugenMvvm.Bindings.Extensions
                 if (i == parametersCount - 1 && hasParams && !parameterInfo.ParameterType.IsInstanceOfType(value))
                 {
                     flags |= ArgumentFlags.ParamArray;
-                    ArraySize[0] = argsLength - i;
-                    var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, ArraySize);
-                    for (var j = i; j < argsLength; j++)
+                    lock (ArraySize)
                     {
-                        ArraySize[0] = j - i;
-                        array.SetValue(getValue(state, j, parameterInfo), ArraySize);
-                    }
+                        ArraySize[0] = argsLength - i;
+                        var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, ArraySize);
+                        for (var j = i; j < argsLength; j++)
+                        {
+                            ArraySize[0] = j - i;
+                            array.SetValue(getValue(state, j, parameterInfo), ArraySize);
+                        }
 
-                    result.SetAt(i, array);
+                        result.SetAt(i, array);
+                    }
                 }
                 else
                 {
@@ -197,7 +209,9 @@ namespace MugenMvvm.Bindings.Extensions
                 }
             }
 
-            return result;
+            if (result.Count == parametersCount)
+                return result;
+            return default;
         }
 
         public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata)
@@ -213,15 +227,14 @@ namespace MugenMvvm.Bindings.Extensions
             converter.TryGetInvokeArgs(parameters, parameters.Count, args, metadata, out flags);
 
         public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount, ItemOrArray<string> args,
-            IReadOnlyMetadataContext? metadata,
-            out EnumFlags<ArgumentFlags> flags)
+            IReadOnlyMetadataContext? metadata, out EnumFlags<ArgumentFlags> flags)
         {
             try
             {
                 return converter.TryGetInvokeArgs(parameters, parametersCount, (args, converter.DefaultIfNull(), metadata), args.Count,
                     ((ItemOrArray<string> args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
                     {
-                        var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType()! : parameter.ParameterType;
+                        var targetType = parameter.IsParamArray() && parameter.ParameterType.IsArray ? parameter.ParameterType.GetElementType()! : parameter.ParameterType;
                         return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
                     }, default, out flags);
             }

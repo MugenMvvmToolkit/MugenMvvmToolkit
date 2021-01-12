@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         public void ShouldIgnoreNonViewRequest()
         {
             var request = new TestViewModel();
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            var presenterResult = new PresenterResult(this, "t", NavigationProvider.System, NavigationType.Alert);
 
             var presenter = new Presenter();
             presenter.AddComponent(new ViewPresenterDecorator());
@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         public void ShouldIgnoreMultiMappings()
         {
             var view = new object();
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            var presenterResult = new PresenterResult(this, "t", NavigationProvider.System, NavigationType.Alert);
 
             var invokeCount = 0;
             var viewManager = new ViewManager();
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         public void ShouldIgnoreMultiViews()
         {
             var view = new object();
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            var presenterResult = new PresenterResult(this, "t", NavigationProvider.System, NavigationType.Alert);
 
             var invokeCount = 0;
             var viewManager = new ViewManager();
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
             var mapping = new ViewMapping("d", typeof(TestViewModel), typeof(object));
-            var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
+            var presenterResult = new PresenterResult(viewModel, "t", NavigationProvider.System, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
             var request = view;
 
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             });
             presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
-            callback.SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
+            callback.SetResult(new NavigationContext(viewModel, NavigationProvider.System, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(disposeViewModel ? 1 : 0);
         }
 
@@ -183,7 +183,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var viewModel = new TestViewModel {Dispose = () => ++disposeCount};
             var mapping = new ViewMapping("d", typeof(TestViewModel), typeof(object));
-            var presenterResult = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Alert);
+            var presenterResult = new PresenterResult(viewModel, "t", NavigationProvider.System, NavigationType.Alert);
             var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
             var viewObj = new View(mapping, view, viewModel);
             var request = view;
@@ -224,7 +224,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             });
             presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
-            callback.SetResult(new NavigationContext(viewModel, Default.NavigationProvider, "d", NavigationType.Alert, NavigationMode.Close));
+            callback.SetResult(new NavigationContext(viewModel, NavigationProvider.System, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(0);
         }
 
@@ -235,7 +235,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var v1 = new View(ViewMapping.Undefined, view, new TestViewModel());
             var v2 = new View(ViewMapping.Undefined, view, new TestViewModel());
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Alert);
+            var presenterResult = new PresenterResult(this, "t", NavigationProvider.System, NavigationType.Alert);
 
             var invokeCount = 0;
             var viewManager = new ViewManager();

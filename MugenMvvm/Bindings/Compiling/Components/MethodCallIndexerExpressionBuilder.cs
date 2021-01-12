@@ -180,7 +180,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     var hasParams = false;
                     if (parameters.Count != 0)
                     {
-                        hasParams = parameters[parameters.Count - 1].IsParamArray();
+                        hasParams = parameters.Last().IsParamArray();
                         if (hasParams)
                             requiredCount -= 1;
                     }
@@ -440,14 +440,10 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     {
                         var parameter = parameters[j];
                         if (j == parameters.Count - 1 && hasParams)
-                            result.SetAt(j, Expression.NewArrayInit(parameter.ParameterType.GetElementType()!, Default.Array<Expression>()));
+                            result.SetAt(j, Expression.Constant(Default.Array(parameter.ParameterType.GetElementType()!)));
                         else
-                        {
-                            if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
-                                result.SetAt(j, context.MetadataExpression);
-                            else
-                                result.SetAt(j, Expression.Constant(parameter.DefaultValue).ConvertIfNeed(parameter.ParameterType, false));
-                        }
+                            result.SetAt(j,
+                                parameter.ParameterType == typeof(IReadOnlyMetadataContext) ? context.MetadataExpression : Expression.Constant(parameter.DefaultValue).ConvertIfNeed(parameter.ParameterType, false));
                     }
 
                     break;

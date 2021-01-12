@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Presenters
             var vm = new TestViewModel();
             var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var exception = new Exception();
             var cts = new CancellationTokenSource();
             string? navigationId = null;
@@ -446,7 +446,7 @@ namespace MugenMvvm.UnitTests.Presenters
             var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource().Token;
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var showCount = 0;
             var cancelCount = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -607,7 +607,7 @@ namespace MugenMvvm.UnitTests.Presenters
             var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
             var cts = new CancellationTokenSource().Token;
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var closeCount = 0;
             var cancelCount = 0;
             var canClose = true;
@@ -681,7 +681,7 @@ namespace MugenMvvm.UnitTests.Presenters
             var vm = new TestViewModel();
             var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var canClose = true;
             var tcs = new TaskCompletionSource<bool>();
 
@@ -742,7 +742,7 @@ namespace MugenMvvm.UnitTests.Presenters
             var vm = new TestViewModel();
             var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
             var view = new View(mapping, new object(), vm);
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var exception = new Exception();
             var cts = new CancellationTokenSource();
             string? navigationId = null;

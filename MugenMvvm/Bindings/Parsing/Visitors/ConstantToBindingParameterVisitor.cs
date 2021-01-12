@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing.Visitors
 {
-    public sealed class ConstantToBindingParameterVisitor : IExpressionVisitor
+    public sealed class ConstantToBindingParameterVisitor : IExpressionVisitor//todo review
     {
         #region Properties
 

@@ -6,6 +6,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing
 {
@@ -30,7 +31,7 @@ namespace MugenMvvm.Bindings.Parsing
             Target = target;
             Source = source;
             _parametersRaw = parametersRaw;
-            Metadata = metadata ?? Default.Metadata;
+            Metadata = metadata.DefaultIfNull();
         }
 
         public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrIReadOnlyList<IExpressionNode> parameters, IReadOnlyMetadataContext? metadata = null)

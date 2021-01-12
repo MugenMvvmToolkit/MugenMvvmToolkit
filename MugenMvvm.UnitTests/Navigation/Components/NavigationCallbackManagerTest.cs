@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             {
                 HasMetadata = true,
                 Metadata = new MetadataContext()
-            }, "t", Default.NavigationProvider, NavigationType.Popup);
+            }, "t", NavigationProvider.System, NavigationType.Popup);
             var component = new NavigationCallbackManager();
             component.TryAddNavigationCallback(null!, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, DefaultMetadata).ShouldBeNull();
         }
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             {
                 if (wrapTarget)
                 {
-                    var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
+                    var result = new PresenterResult(target, "t", NavigationProvider.System, NavigationType.Popup);
                     var callback = component.TryAddNavigationCallback(null!, NavigationCallbackType.Showing, result.NavigationId, result.NavigationType, result, DefaultMetadata)!;
                     callback.ShouldNotBeNull();
                     addedCallbacks.Add(callback);
@@ -90,8 +90,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     Metadata = new MetadataContext()
                 }
                 : new object();
-            var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var result = new PresenterResult(target, "t", NavigationProvider.System, NavigationType.Popup);
+            var navigationContext = new NavigationContext(target, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.New);
+            var wrongIdCtx = new NavigationContext(this, NavigationProvider.System, "t-", NavigationType.Popup, NavigationMode.New);
             component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
@@ -138,8 +138,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     Metadata = new MetadataContext()
                 }
                 : new object();
-            var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var result = new PresenterResult(target, "t", NavigationProvider.System, NavigationType.Popup);
+            var navigationContext = new NavigationContext(target, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -161,7 +161,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.New);
+            var wrongIdCtx = new NavigationContext(this, NavigationProvider.System, "t-", NavigationType.Popup, NavigationMode.New);
             component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx, exception).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
@@ -187,8 +187,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     Metadata = new MetadataContext()
                 }
                 : new object();
-            var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
+            var result = new PresenterResult(target, "t", NavigationProvider.System, NavigationType.Popup);
+            var navigationContext = new NavigationContext(target, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -210,7 +210,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(target, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.New);
+            var wrongIdCtx = new NavigationContext(target, NavigationProvider.System, "t-", NavigationType.Popup, NavigationMode.New);
             component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx, cancellationToken).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 

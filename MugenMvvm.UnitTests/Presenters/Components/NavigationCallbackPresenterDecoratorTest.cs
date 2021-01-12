@@ -23,8 +23,8 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         {
             var suspended = false;
             var addedCallbacks = new List<(IPresenterResult, NavigationCallbackType)>();
-            var presenterResult1 = new PresenterResult(this, "t1", Default.NavigationProvider, NavigationType.Tab);
-            var presenterResult2 = new PresenterResult(this, "t2", Default.NavigationProvider, NavigationType.Window);
+            var presenterResult1 = new PresenterResult(this, "t1", NavigationProvider.System, NavigationType.Tab);
+            var presenterResult2 = new PresenterResult(this, "t2", NavigationProvider.System, NavigationType.Window);
             var presenter = new Presenter();
             var navigationDispatcher = new NavigationDispatcher();
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
@@ -69,8 +69,8 @@ namespace MugenMvvm.UnitTests.Presenters.Components
         {
             var suspended = false;
             var addedCallbacks = new List<(IPresenterResult, NavigationCallbackType)>();
-            var presenterResult1 = new PresenterResult(this, "t1", Default.NavigationProvider, NavigationType.Tab);
-            var presenterResult2 = new PresenterResult(this, "t2", Default.NavigationProvider, NavigationType.Window);
+            var presenterResult1 = new PresenterResult(this, "t1", NavigationProvider.System, NavigationType.Tab);
+            var presenterResult2 = new PresenterResult(this, "t2", NavigationProvider.System, NavigationType.Window);
             var presenter = new Presenter();
             var navigationDispatcher = new NavigationDispatcher();
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));

@@ -125,7 +125,7 @@ namespace MugenMvvm.Bindings.Observation
             if (parent != null)
             {
                 GetOrAdd(parent).Remove(this);
-                _parentRef = Default.WeakReference;
+                _parentRef = WeakReferenceImpl.Empty;
             }
         }
 

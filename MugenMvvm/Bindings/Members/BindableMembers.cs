@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members.Descriptors;
+using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Bindings.Members
 {
@@ -50,16 +52,16 @@ namespace MugenMvvm.Bindings.Members
             _relativeSourceMethod ??= new MemberTypesRequest(nameof(RelativeSource), new[] {typeof(string), typeof(int)});
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindableMethodDescriptor<T, string[], bool> HasErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _hasErrorsMethod ??= new MemberTypesRequest(nameof(HasErrors), typeof(string[]));
+        public static BindableMethodDescriptor<T, object?, bool> HasErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
+            _hasErrorsMethod ??= new MemberTypesRequest(nameof(HasErrors), typeof(object));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindableMethodDescriptor<T, string[], object?> GetErrorMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _getErrorMethod ??= new MemberTypesRequest(nameof(GetError), typeof(string[]));
+        public static BindableMethodDescriptor<T, object?, object?> GetErrorMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
+            _getErrorMethod ??= new MemberTypesRequest(nameof(GetError), typeof(object));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindableMethodDescriptor<T, string[], IReadOnlyList<object>> GetErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), typeof(string[]));
+        public static BindableMethodDescriptor<T, object?, IReadOnlyList<object>> GetErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
+            _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), typeof(object));
 
 
         [BindingMember(nameof(Root))]
@@ -97,13 +99,16 @@ namespace MugenMvvm.Bindings.Members
         public static object? RelativeSource<T>(this BindableMembersTargetDescriptor<T> descriptor, string name, int level) where T : class => RelativeSourceMethod<T>(default).Invoke(descriptor.Target, name, level);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, params string[] members) where T : class => HasErrorsMethod<T>(default).Invoke(descriptor.Target, members);
+        public static bool HasErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, ItemOrArray<string> members) where T : class =>
+            HasErrorsMethod<T>(default).Invoke(descriptor.Target, members.GetRawValue());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetError<T>(this BindableMembersTargetDescriptor<T> descriptor, params string[] members) where T : class => GetErrorMethod<T>(default).Invoke(descriptor.Target, members);
+        public static object? GetError<T>(this BindableMembersTargetDescriptor<T> descriptor, ItemOrArray<string> members) where T : class =>
+            GetErrorMethod<T>(default).Invoke(descriptor.Target, members.GetRawValue());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IReadOnlyList<object> GetErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, params string[] members) where T : class => GetErrorsMethod<T>(default).Invoke(descriptor.Target, members);
+        public static IReadOnlyList<object> GetErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, ItemOrArray<string> members) where T : class =>
+            GetErrorsMethod<T>(default).Invoke(descriptor.Target, members.GetRawValue());
 
         #endregion
     }

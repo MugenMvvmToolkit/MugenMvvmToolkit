@@ -50,26 +50,25 @@ namespace MugenMvvm.Bindings.Extensions
             return null;
         }
 
-        public static bool HasErrors(object target, string[] members)
+        public static bool HasErrors(object target, object? membersRaw)
         {
-            Should.NotBeNull(members, nameof(members));
             if (target is IHasService<IValidator> hasValidator)
             {
                 var validator = hasValidator.ServiceOptional;
                 if (validator != null)
                 {
-                    for (var i = 0; i < members.Length; i++)
+                    foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
                     {
-                        if (validator.HasErrors(members[i]))
+                        if (validator.HasErrors(member))
                             return true;
                     }
                 }
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)
             {
-                for (var i = 0; i < members.Length; i++)
+                foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
                 {
-                    if (dataErrorInfo.GetErrors(members[i]).Any())
+                    if (dataErrorInfo.GetErrors(member).Any())
                         return true;
                 }
             }

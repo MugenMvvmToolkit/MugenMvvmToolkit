@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.App.Components
             ctx!.NavigationMode.ShouldEqual(NavigationMode.Close);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
-            ctx.NavigationProvider.ShouldEqual(Default.NavigationProvider);
+            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
             ctx.Target.ShouldEqual(app);
 
             ctx = null;
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.App.Components
             ctx!.NavigationMode.ShouldEqual(NavigationMode.New);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
-            ctx.NavigationProvider.ShouldEqual(Default.NavigationProvider);
+            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
             ctx.Target.ShouldEqual(app);
         }
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.App.Components
             ctx!.NavigationMode.ShouldEqual(NavigationMode.Close);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
-            ctx.NavigationProvider.ShouldEqual(Default.NavigationProvider);
+            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
             ctx.Target.ShouldEqual(app);
 
             ctx = null;
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTests.App.Components
             ctx!.NavigationMode.ShouldEqual(NavigationMode.New);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
-            ctx.NavigationProvider.ShouldEqual(Default.NavigationProvider);
+            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
             ctx.Target.ShouldEqual(app);
         }
 

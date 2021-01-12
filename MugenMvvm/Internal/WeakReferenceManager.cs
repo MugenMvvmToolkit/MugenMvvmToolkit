@@ -38,7 +38,7 @@ namespace MugenMvvm.Internal
         public IWeakReference? TryGetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
         {
             if (item == null)
-                return Default.WeakReference;
+                return WeakReferenceImpl.Empty;
             return _components.TryGetWeakReference(this, item, metadata);
         }
 

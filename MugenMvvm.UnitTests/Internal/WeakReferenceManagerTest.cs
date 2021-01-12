@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Internal
         public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull()
         {
             var weakReferenceManager = new WeakReferenceManager();
-            weakReferenceManager.GetWeakReference(null, DefaultMetadata).ShouldEqual(Default.WeakReference);
+            weakReferenceManager.GetWeakReference(null, DefaultMetadata).ShouldEqual(WeakReferenceImpl.Empty);
         }
 
         [Fact]

@@ -125,15 +125,6 @@ namespace MugenMvvm.Extensions
             return true;
         }
 
-        [return: MaybeNull]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static T LastOrDefault<T>(this ItemOrIReadOnlyList<T> itemOrList)
-        {
-            if (itemOrList.IsEmpty)
-                return default;
-            return itemOrList[itemOrList.Count - 1];
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static T Last<T>(this ItemOrIReadOnlyList<T> itemOrList) => itemOrList[itemOrList.Count - 1];
 

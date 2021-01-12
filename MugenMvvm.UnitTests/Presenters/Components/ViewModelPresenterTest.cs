@@ -5,6 +5,7 @@ using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
+using MugenMvvm.Navigation;
 using MugenMvvm.Presenters;
 using MugenMvvm.Presenters.Components;
 using MugenMvvm.Requests;
@@ -154,7 +155,7 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             var view = new object();
             var request = new ViewModelViewRequest(viewModel, view);
             var viewManager = new ViewManager();
-            var result = new PresenterResult(viewModel, "t", Default.NavigationProvider, NavigationType.Popup);
+            var result = new PresenterResult(viewModel, "t", NavigationProvider.System, NavigationType.Popup);
             var closeCount = 0;
             var mediator = new TestViewModelPresenterMediator
             {

@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Navigation
         [Fact]
         public void OnCompletedShouldCompleteTask()
         {
-            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.New);
+            var ctx = new NavigationContext(this, NavigationProvider.System, "f", NavigationType.Alert, NavigationMode.New);
             var listener = new NavigationCallbackTaskListener(true);
             listener.IsSerializable.ShouldBeTrue();
             listener.Task.IsCompleted.ShouldBeFalse();
@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Navigation
         [Fact]
         public void OnErrorShouldCompleteTask()
         {
-            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.New);
+            var ctx = new NavigationContext(this, NavigationProvider.System, "f", NavigationType.Alert, NavigationMode.New);
             var error = new Exception();
             var listener = new NavigationCallbackTaskListener(false);
             listener.IsSerializable.ShouldBeFalse();
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Navigation
         [Fact]
         public void OnCanceledShouldCompleteTask()
         {
-            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.New);
+            var ctx = new NavigationContext(this, NavigationProvider.System, "f", NavigationType.Alert, NavigationMode.New);
             var listener = new NavigationCallbackTaskListener(false);
             listener.Task.IsCompleted.ShouldBeFalse();
             listener.OnCanceled(ctx, default);

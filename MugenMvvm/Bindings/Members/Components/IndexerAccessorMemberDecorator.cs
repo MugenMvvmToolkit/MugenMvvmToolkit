@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
@@ -17,7 +16,6 @@ using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
@@ -86,15 +84,10 @@ namespace MugenMvvm.Bindings.Members.Components
                 getterName = BindingInternalConstant.ArrayGetterName;
                 setterName = BindingInternalConstant.ArraySetterName;
             }
-            else if (type == typeof(string))
-            {
-                getterName = BindingInternalConstant.IndexerStringGetterName;
-                setterName = null;
-            }
             else
             {
                 getterName = BindingInternalConstant.IndexerGetterName;
-                setterName = BindingInternalConstant.IndexerSetterName;
+                setterName = type == typeof(string) ? null : BindingInternalConstant.IndexerSetterName;
             }
 
             _membersDictionary.Clear();

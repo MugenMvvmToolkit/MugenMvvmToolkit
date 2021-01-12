@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -36,7 +37,7 @@ namespace MugenMvvm.Serialization
 
         #region Properties
 
-        public IReadOnlyMetadataContext Metadata => _metadata ?? Default.Metadata;
+        public IReadOnlyMetadataContext Metadata => _metadata.DefaultIfNull();
 
         #endregion
     }

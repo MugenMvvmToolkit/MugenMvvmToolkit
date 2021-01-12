@@ -97,10 +97,10 @@ namespace MugenMvvm.App.Components
         }
 
         private INavigationContext BackgroundNewContext(IMugenApplication application) =>
-            _backgroundNewContext ??= new NavigationContext(application, Default.NavigationProvider, InternalConstant.BackgroundNavigationId, NavigationType.Background, NavigationMode.New);
+            _backgroundNewContext ??= new NavigationContext(application, NavigationProvider.System, InternalConstant.BackgroundNavigationId, NavigationType.Background, NavigationMode.New);
 
         private INavigationContext BackgroundCloseContext(IMugenApplication application) =>
-            _backgroundCloseContext ??= new NavigationContext(application, Default.NavigationProvider, InternalConstant.BackgroundNavigationId, NavigationType.Background, NavigationMode.Close);
+            _backgroundCloseContext ??= new NavigationContext(application, NavigationProvider.System, InternalConstant.BackgroundNavigationId, NavigationType.Background, NavigationMode.Close);
 
         #endregion
     }

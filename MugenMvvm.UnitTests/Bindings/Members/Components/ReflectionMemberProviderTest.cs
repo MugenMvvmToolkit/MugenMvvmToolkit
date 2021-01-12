@@ -3,9 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
+using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
@@ -24,6 +27,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         #endregion
 
         #region Properties
+
+        public object this[int index]
+        {
+            get => this;
+            set { }
+        }
 
         public static object? PropertyStatic { get; set; }
 
@@ -179,6 +188,25 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             items.ShouldNotBeEmpty();
             var members = component.TryGetMembers(null!, typeof(List<object>), nameof(List<object>.Remove), MemberType.Method, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
+        }
+
+        [Fact]
+        public void TryGetMembersShouldReturnIndexerMethods()
+        {
+            var component = new ReflectionMemberProvider();
+            var member = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).Item;
+            member!.UnderlyingMember.ShouldEqual(typeof(ReflectionMemberProviderTest).GetProperty("Item")!.GetMethod);
+
+            member = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata).Item;
+            member!.UnderlyingMember.ShouldEqual(typeof(ReflectionMemberProviderTest).GetProperty("Item")!.SetMethod);
+
+            member = component.TryGetMembers(null!, typeof(string), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).Item;
+            member!.UnderlyingMember.ShouldEqual(typeof(string).GetProperty("Chars")!.GetMethod);
+            component.TryGetMembers(null!, typeof(string), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
+
+            member = component.TryGetMembers(null!, typeof(ItemOrArray<object>), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).Item;
+            member!.UnderlyingMember.ShouldEqual(typeof(ItemOrArray<object>).GetProperty(InternalConstant.CustomIndexerName)!.GetMethod);
+            component.TryGetMembers(null!, typeof(ItemOrArray<object>), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         #endregion

@@ -2,12 +2,10 @@
 using System.Globalization;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
@@ -71,10 +69,15 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(TestMemberManagerComponent.Selector);
             manager.AddComponent(new NameRequestMemberManagerDecorator());
 
-            var member = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags == default);
+                .ToList();
+            members.Count.ShouldEqual(4);
+            var member = members.Single(info => info.ArgumentFlags == default);
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray)).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional)).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata)).ShouldNotBeNull();
 
             var getter = 0;
             var instance = new TestMethodInvoker
@@ -101,10 +104,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new NameRequestMemberManagerDecorator());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional));
+                .ToList();
+            members.Count.ShouldEqual(2);
+            var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional));
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata)).ShouldNotBeNull();
 
             var getter = 0;
             var instance = new TestMethodInvoker
@@ -132,10 +138,15 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new NameRequestMemberManagerDecorator());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1})", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1})", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray));
+                .ToList();
+            members.Count.ShouldEqual(4);
+            var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray));
+            members.Single(info => info.ArgumentFlags == default).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional)).ShouldNotBeNull();
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata)).ShouldNotBeNull();
 
             var getter = 0;
             var instance = new TestMethodInvoker
@@ -167,7 +178,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var member = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1}, {string.Join(",", args)})", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray));
+                .Single();
+            member.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray).ShouldBeTrue();
 
             var getter = 0;
             var instance = new TestMethodInvoker
@@ -195,10 +207,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             manager.AddComponent(new NameRequestMemberManagerDecorator());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')", DefaultMetadata)
+            var members = manager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
-                .Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata));
+                .ToList();
+            members.Count.ShouldEqual(2);
+            var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata));
+            members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional)).ShouldNotBeNull();
 
             var getter = 0;
             var instance = new TestMethodInvoker

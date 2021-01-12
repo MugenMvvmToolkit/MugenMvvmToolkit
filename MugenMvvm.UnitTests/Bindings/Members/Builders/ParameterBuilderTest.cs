@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
 using Should;
 using Xunit;
@@ -46,8 +47,16 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         [Fact]
         public void ConstructorShouldInitializeValues2()
         {
-            var parameter = new ParameterBuilder("", typeof(object)).IsParamsArray().Build();
+            var parameter = new ParameterBuilder("", typeof(object[])).IsParamsArray().Build();
             parameter.IsDefined(typeof(ParamArrayAttribute)).ShouldBeTrue();
+            Assert.Throws<ArgumentException>(() => new ParameterBuilder("", typeof(object)).IsParamsArray());
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues3()
+        {
+            var parameter = new ParameterBuilder("", typeof(object)).WithState(this).Build();
+            ((DelegateParameterInfo<object?>) parameter).State.ShouldEqual(this);
         }
 
         #endregion

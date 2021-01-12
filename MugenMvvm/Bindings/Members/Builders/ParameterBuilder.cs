@@ -13,8 +13,9 @@ namespace MugenMvvm.Bindings.Members.Builders
         private readonly Type _parameterType;
         private object? _defaultValue;
         private bool _hasDefaultValue;
-        private Func<IParameterInfo, Type, bool>? _isDefined;
+        private Func<DelegateParameterInfo<object?>, Type, bool>? _isDefined;
         private object? _underlyingMember;
+        private object? _state;
 
         #endregion
 
@@ -30,6 +31,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             _hasDefaultValue = false;
             _isDefined = null;
             _underlyingMember = null;
+            _state = null;
         }
 
         #endregion
@@ -60,11 +62,18 @@ namespace MugenMvvm.Bindings.Members.Builders
         public ParameterBuilder IsParamsArray()
         {
             Should.BeSupported(_isDefined == null, nameof(IsDefinedHandler));
+            Should.BeValid(_parameterType.IsArray, typeof(ParamArrayAttribute).Name);
             _isDefined = (builder, type) => type == typeof(ParamArrayAttribute);
             return this;
         }
 
-        public IParameterInfo Build() => new DelegateParameterInfo<object?>(_name, _parameterType, _underlyingMember, _hasDefaultValue, _defaultValue, null, _isDefined);
+        public ParameterBuilder WithState(object? state)
+        {
+            _state = state;
+            return this;
+        }
+
+        public IParameterInfo Build() => new DelegateParameterInfo<object?>(_name, _parameterType, _underlyingMember, _hasDefaultValue, _defaultValue, _state, _isDefined);
 
         #endregion
     }
