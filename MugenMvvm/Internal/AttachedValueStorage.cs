@@ -12,9 +12,9 @@ namespace MugenMvvm.Internal
     {
         #region Fields
 
-        private readonly object _item;
+        private readonly object? _item;
         private object? _state;
-        private readonly IAttachedValueStorageManager _storageManager;
+        private readonly IAttachedValueStorageManager? _storageManager;
 
         #endregion
 
@@ -42,15 +42,15 @@ namespace MugenMvvm.Internal
         public void Deconstruct(out IAttachedValueStorageManager storageManager, out object item, out object? state)
         {
             EnsureInitialized();
-            storageManager = _storageManager;
-            item = _item;
+            storageManager = _storageManager!;
+            item = _item!;
             state = _state;
         }
 
         public int GetCount()
         {
             EnsureInitialized();
-            return _storageManager.GetCount(_item, ref _state);
+            return _storageManager!.GetCount(_item!, ref _state);
         }
 
         public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues() => GetValues<object?>(null, null);
@@ -58,21 +58,21 @@ namespace MugenMvvm.Internal
         public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(TState state, Func<object, string, object?, TState, bool>? predicate)
         {
             EnsureInitialized();
-            return _storageManager.GetValues(_item, state, predicate, ref _state);
+            return _storageManager!.GetValues(_item!, state, predicate, ref _state);
         }
 
         public bool Contains(string path)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager.Contains(_item, path, ref _state);
+            return _storageManager!.Contains(_item!, path, ref _state);
         }
 
         public bool TryGet(string path, out object? value)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager.TryGet(_item, path, ref _state, out value);
+            return _storageManager!.TryGet(_item!, path, ref _state, out value);
         }
 
         public TValue AddOrUpdate<TValue, TState>(string path, TValue addValue, TState state, Func<object, string, TValue, TState, TValue> updateValueFactory)
@@ -80,7 +80,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             EnsureInitialized();
-            return _storageManager.AddOrUpdate(_item, path, addValue, state, updateValueFactory, ref _state);
+            return _storageManager!.AddOrUpdate(_item!, path, addValue, state, updateValueFactory, ref _state);
         }
 
         public TValue AddOrUpdate<TValue, TState>(string path, TState state, Func<object, TState, TValue> addValueFactory, Func<object, string, TValue, TState, TValue> updateValueFactory)
@@ -89,7 +89,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(addValueFactory, nameof(addValueFactory));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             EnsureInitialized();
-            return _storageManager.AddOrUpdate(_item, path, state, addValueFactory, updateValueFactory, ref _state);
+            return _storageManager!.AddOrUpdate(_item!, path, state, addValueFactory, updateValueFactory, ref _state);
         }
 
         public TValue GetOrAdd<TValue, TState>(string path, TState state, Func<object, TState, TValue> valueFactory)
@@ -97,14 +97,14 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
             EnsureInitialized();
-            return _storageManager.GetOrAdd(_item, path, state, valueFactory, ref _state);
+            return _storageManager!.GetOrAdd(_item!, path, state, valueFactory, ref _state);
         }
 
         public TValue GetOrAdd<TValue>(string path, TValue value)
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager.GetOrAdd(_item, path, value, ref _state);
+            return _storageManager!.GetOrAdd(_item!, path, value, ref _state);
         }
 
         public void Set(string path, object? value) => Set(path, value, out _);
@@ -113,7 +113,7 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            _storageManager.Set(_item, path, value, ref _state, out oldValue);
+            _storageManager!.Set(_item!, path, value, ref _state, out oldValue);
         }
 
         public bool Remove(string path) => Remove(path, out _);
@@ -122,13 +122,13 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(path, nameof(path));
             EnsureInitialized();
-            return _storageManager.Remove(_item, path, ref _state, out oldValue);
+            return _storageManager!.Remove(_item!, path, ref _state, out oldValue);
         }
 
         public bool Clear()
         {
             EnsureInitialized();
-            return _storageManager.Clear(_item, ref _state);
+            return _storageManager!.Clear(_item!, ref _state);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

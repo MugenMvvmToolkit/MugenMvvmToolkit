@@ -42,7 +42,7 @@ namespace MugenMvvm.Navigation
 
         public void OnNavigating(INavigationContext navigationContext) => GetComponents<INavigationListener>(navigationContext.GetMetadataOrDefault()).OnNavigating(this, navigationContext);
 
-        public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
+        public ValueTask<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
         {
             var meta = navigationContext.GetMetadataOrDefault();
             return GetComponents<INavigationConditionComponent>(meta).OnNavigatingAsync(GetComponents<INavigationListener>(meta), this, navigationContext, cancellationToken);

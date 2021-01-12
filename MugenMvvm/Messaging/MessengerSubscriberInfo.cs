@@ -9,7 +9,7 @@ namespace MugenMvvm.Messaging
         #region Fields
 
         public readonly ThreadExecutionMode? ExecutionMode;
-        public readonly object Subscriber;
+        public readonly object? Subscriber;
 
         #endregion
 

@@ -329,7 +329,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 context.NavigationMode.ShouldEqual(NavigationMode.Refresh);
                 if (result)
                     mediator.OnViewActivated(DefaultMetadata);
-                return Task.FromResult(result);
+                return new ValueTask<bool>(result);
             };
             mediator.OnNavigatedHandler = context =>
             {
@@ -398,7 +398,7 @@ namespace MugenMvvm.UnitTests.Presenters
             {
                 ++activateCount;
                 mediator.OnViewActivated(DefaultMetadata);
-                return Default.TrueTask;
+                return new ValueTask<bool>(true);
             };
 
             var cleanupViewCount = 0;
@@ -416,7 +416,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 {
                     ++cleanupViewCount;
                     v.ShouldEqual(view);
-                    return Default.TrueTask;
+                    return new ValueTask<bool>(true);
                 }
             });
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
@@ -462,7 +462,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 {
                     context.ShouldEqual(navigationContext);
                     t.CanBeCanceled.ShouldBeTrue();
-                    return tcs.Task;
+                    return tcs.Task.AsValueTask();
                 }
             });
             navigationDispatcher.AddComponent(new TestNavigationErrorListener
@@ -543,7 +543,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 {
                     ++clearCount;
                     v.ShouldEqual(view);
-                    return Default.TrueTask;
+                    return new ValueTask<bool>(true);
                 }
             });
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
@@ -588,7 +588,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 {
                     ++clearCount;
                     v.ShouldEqual(view);
-                    return Default.TrueTask;
+                    return new ValueTask<bool>(true);
                 }
             });
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
@@ -625,8 +625,8 @@ namespace MugenMvvm.UnitTests.Presenters
                     context.ShouldEqual(navigationContext);
                     t.CanBeCanceled.ShouldBeTrue();
                     if (canClose)
-                        return Task.FromResult(true);
-                    return tcs.Task;
+                        return new ValueTask<bool>(true);
+                    return tcs.Task.AsValueTask();
                 }
             });
             navigationDispatcher.AddComponent(new TestNavigationErrorListener
@@ -696,8 +696,8 @@ namespace MugenMvvm.UnitTests.Presenters
                 {
                     context.ShouldEqual(navigationContext);
                     if (canClose)
-                        return Task.FromResult(true);
-                    return tcs.Task;
+                        return new ValueTask<bool>(true);
+                    return tcs.Task.AsValueTask();
                 }
             });
 

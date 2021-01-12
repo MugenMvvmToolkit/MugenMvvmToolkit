@@ -21,7 +21,7 @@ namespace MugenMvvm.Interfaces.Navigation
 
         void OnNavigating(INavigationContext navigationContext);
 
-        Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default);
+        ValueTask<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default);
 
         void OnNavigated(INavigationContext navigationContext);
 

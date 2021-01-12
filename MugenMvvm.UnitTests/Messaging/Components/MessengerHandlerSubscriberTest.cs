@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             hashSet.Count.ShouldEqual(0);
 
             foreach (var messengerSubscriberInfo in subscribers)
-                component.TryUnsubscribe(messenger, messengerSubscriberInfo.Subscriber, DefaultMetadata).ShouldBeTrue();
+                component.TryUnsubscribe(messenger, messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
             component.TryGetSubscribers(messenger, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             GcCollect();
 
             foreach (var messengerSubscriberInfo in subscribers)
-                component.TryUnsubscribe(messenger, messengerSubscriberInfo.Subscriber, DefaultMetadata).ShouldBeTrue();
+                component.TryUnsubscribe(messenger, messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
             component.TryGetSubscribers(messenger, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 

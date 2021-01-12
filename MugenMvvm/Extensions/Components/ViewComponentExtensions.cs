@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -71,21 +69,28 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static async Task<bool> TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken,
+        public static async ValueTask<bool> TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
-            var editor = new ItemOrListEditor<Task<bool>>();
+            if (components.Length == 0)
+                return false;
+            if (components.Length == 1)
+                return await components[0].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata).ConfigureAwait(false);
+
+            var editor = new ItemOrListEditor<ValueTask<bool>>();
             for (var i = 0; i < components.Length; i++)
                 editor.Add(components[i].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata));
-            if (editor.Count == 0)
-                return false;
-            if (editor.Count == 1)
-                return await editor[0].ConfigureAwait(false);
-            var result = await Task.WhenAll((List<Task<bool>>) editor.GetRawValue()!).ConfigureAwait(false);
-            return result.WhenAny();
+            bool result = false;
+            foreach (var t in editor.ToItemOrList())
+            {
+                if (await t.ConfigureAwait(false))
+                    result = true;
+            }
+
+            return result;
         }
 
         #endregion

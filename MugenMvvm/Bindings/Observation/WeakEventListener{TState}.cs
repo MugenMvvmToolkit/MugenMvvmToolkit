@@ -10,7 +10,7 @@ namespace MugenMvvm.Bindings.Observation
         #region Fields
 
         public readonly TState State;
-        public readonly object Target;
+        public readonly object? Target;
 
         #endregion
 

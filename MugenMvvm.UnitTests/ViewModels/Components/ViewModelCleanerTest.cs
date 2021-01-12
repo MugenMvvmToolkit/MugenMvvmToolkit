@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Enums;
@@ -117,7 +118,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                     ++cleanupCount;
                     v.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return Default.TrueTask;
+                    return new ValueTask<bool>(true);
                 }
             });
             var manager = new ViewModelManager();

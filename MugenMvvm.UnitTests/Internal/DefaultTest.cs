@@ -23,8 +23,6 @@ namespace MugenMvvm.UnitTests.Internal
             Default.IndexerPropertyChangedArgs.PropertyName.ShouldEqual("Item[]");
             Default.ResetCollectionEventArgs.Action.ShouldEqual(NotifyCollectionChangedAction.Reset);
             Default.CompletedTask.IsCompleted.ShouldBeTrue();
-            Default.TrueTask.Result.ShouldEqual(true);
-            Default.FalseTask.Result.ShouldEqual(false);
         }
 
         #endregion

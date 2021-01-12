@@ -25,6 +25,18 @@ namespace MugenMvvm.UnitTests
             return (T) expression.UpdateMetadata(dictionary);
         }
 
+        public static async Task WaitSafeAsync<T>(this ValueTask<T> task)
+        {
+            try
+            {
+                await task;
+            }
+            catch
+            {
+                ;
+            }
+        }
+
         public static async Task WaitSafeAsync(this Task task)
         {
             try

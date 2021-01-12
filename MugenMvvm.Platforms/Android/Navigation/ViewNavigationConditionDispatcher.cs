@@ -6,7 +6,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Navigation
 {
@@ -20,31 +19,28 @@ namespace MugenMvvm.Android.Navigation
 
         #region Implementation of interfaces
 
-        public Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public async ValueTask<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (navigationContext.Target == null)
-                return Default.TrueTask;
+                return true;
 
             if (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsRestore)
             {
-                return navigationDispatcher
+                await navigationDispatcher
                     .WaitNavigationAsync(navigationContext.Target, navigationContext, (callback, context) =>
                         callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close ||
                         (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
                         (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, false, navigationContext.GetMetadataOrDefault())
-                    .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
+                    .ConfigureAwait(false);
             }
-
-            if (navigationContext.NavigationMode.IsClose)
+            else if (navigationContext.NavigationMode.IsClose)
             {
-                return navigationDispatcher
-                    .WaitNavigationAsync(navigationContext.Target, navigationContext, (callback, state)
-                        => callback.NavigationType == NavigationType.Background &&
-                           callback.CallbackType == NavigationCallbackType.Close, true, false, navigationContext.GetMetadataOrDefault())
-                    .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
+                await navigationDispatcher
+                    .WaitNavigationAsync(navigationContext.Target, navigationContext, (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close,
+                        true, false, navigationContext.GetMetadataOrDefault());
             }
 
-            return Default.TrueTask;
+            return true;
         }
 
         #endregion

@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             };
             var listener = new WeakEventListener<object>(target, this);
             listener.State.ShouldEqual(this);
-            ((IWeakReference) listener.Target).Target.ShouldEqual(target);
+            ((IWeakReference) listener.Target!).Target.ShouldEqual(target);
             listener.IsAlive.ShouldEqual(true);
             listener.Listener.ShouldEqual(target);
             listener.IsEmpty.ShouldBeFalse();

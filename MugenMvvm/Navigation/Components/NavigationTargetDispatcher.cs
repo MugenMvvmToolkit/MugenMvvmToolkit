@@ -5,7 +5,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
@@ -19,7 +18,7 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public async Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public async ValueTask<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
             var target = navigationContext.Target;
@@ -27,7 +26,7 @@ namespace MugenMvvm.Navigation.Components
             {
                 return await CanNavigateFromAsync(navigationDispatcher, target, nextTarget, navigationContext, cancellationToken).ConfigureAwait(false) &&
                        await CanNavigateToAsync(navigationDispatcher, nextTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
-                       await ((navigationContext.Target as IHasCloseNavigationCondition)?.CanCloseAsync(navigationDispatcher, navigationContext, cancellationToken) ?? Default.TrueTask);
+                       await ((navigationContext.Target as IHasCloseNavigationCondition)?.CanCloseAsync(navigationDispatcher, navigationContext, cancellationToken) ?? new ValueTask<bool>(true));
             }
 
             return await CanNavigateFromAsync(navigationDispatcher, nextTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
@@ -70,11 +69,11 @@ namespace MugenMvvm.Navigation.Components
 
         #region Methods
 
-        private static Task<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-            => (target as IHasNavigationCondition)?.CanNavigateFromAsync(navigationDispatcher, navigationContext, toTarget, cancellationToken) ?? Default.TrueTask;
+        private static ValueTask<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => (target as IHasNavigationCondition)?.CanNavigateFromAsync(navigationDispatcher, navigationContext, toTarget, cancellationToken) ?? new ValueTask<bool>(true);
 
-        private static Task<bool> CanNavigateToAsync(INavigationDispatcher navigationDispatcher, object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-            => (target as IHasNavigationCondition)?.CanNavigateToAsync(navigationDispatcher, navigationContext, fromTarget, cancellationToken) ?? Default.TrueTask;
+        private static ValueTask<bool> CanNavigateToAsync(INavigationDispatcher navigationDispatcher, object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => (target as IHasNavigationCondition)?.CanNavigateToAsync(navigationDispatcher, navigationContext, fromTarget, cancellationToken) ?? new ValueTask<bool>(true);
 
         #endregion
     }

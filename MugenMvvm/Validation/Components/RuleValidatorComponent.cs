@@ -48,7 +48,7 @@ namespace MugenMvvm.Validation.Components
             foreach (var rule in Rules)
             {
                 var task = rule.ValidateAsync(Target, memberName, errors, cancellationToken, metadata);
-                if (task != null && !task.IsCompleted)
+                if (!task.IsCompleted)
                     tasks.Add(task);
             }
 

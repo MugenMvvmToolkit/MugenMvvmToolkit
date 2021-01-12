@@ -195,7 +195,7 @@ namespace MugenMvvm.UnitTests.Views
         public async Task CleanupAsyncShouldBeHandledByComponents(int componentCount)
         {
             var manager = new ViewManager();
-            var result = Default.TrueTask;
+            var result = true;
             var cancellationToken = new CancellationTokenSource().Token;
             var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
@@ -213,7 +213,7 @@ namespace MugenMvvm.UnitTests.Views
                         meta.ShouldEqual(DefaultMetadata);
                         token.ShouldEqual(cancellationToken);
                         if (isLast)
-                            return result;
+                            return new ValueTask<bool>(result);
                         return null;
                     },
                     Priority = -i
@@ -222,7 +222,7 @@ namespace MugenMvvm.UnitTests.Views
             }
 
             var r = await manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
-            r.ShouldEqual(result.Result);
+            r.ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 

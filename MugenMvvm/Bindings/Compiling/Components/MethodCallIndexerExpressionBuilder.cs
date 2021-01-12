@@ -170,7 +170,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                         continue;
 
                     methods.SetAt(index, default);
-                    var methodData = TryInferMethod(methodInfo.Method, arguments);
+                    var methodData = TryInferMethod(methodInfo.Method!, arguments);
                     if (methodData.IsEmpty)
                         continue;
 
@@ -263,7 +263,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             var result = methods[resultIndex];
             var resultArgs = ConvertParameters(context, result, resultHasParams);
-            if (result.Method.UnderlyingMember is MethodInfo m)
+            if (result.Method!.UnderlyingMember is MethodInfo m)
             {
                 Expression? targetExp;
                 if (result.Method.AccessModifiers.HasFlag(Enums.MemberFlags.Extension))
@@ -313,7 +313,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                         hasParams = parameters[lastIndex].IsParamArray();
                     }
 
-                    var notExactlyEqual = methodInfo.Method.AccessModifiers.HasFlag(Enums.MemberFlags.Extension) ? NotExactlyEqualBoxWeight : 0;
+                    var notExactlyEqual = methodInfo.Method!.AccessModifiers.HasFlag(Enums.MemberFlags.Extension) ? NotExactlyEqualBoxWeight : 0;
                     var valid = true;
                     for (var j = 0; j < methodInfo.ExpectedParameterCount; j++)
                     {
@@ -806,7 +806,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             private readonly object? _parametersRaw;
             private readonly IMethodMemberInfo? _unresolvedMethod;
-            public readonly IMethodMemberInfo Method;
+            public readonly IMethodMemberInfo? Method;
             private readonly object? _args;
 
             #endregion
@@ -890,13 +890,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     }
                 }
 
-                return new MethodData(Method, null, instanceArgs.GetRawValue());
+                return new MethodData(Method!, null, instanceArgs.GetRawValue());
             }
 
             public MethodData TryResolve(ItemOrArray<ArgumentData> args, ItemOrArray<Expression> expressions)
             {
                 if (_unresolvedMethod == null)
-                    return new MethodData(Method, null, expressions.GetRawValue());
+                    return new MethodData(Method!, null, expressions.GetRawValue());
 
                 var method = TryInferGenericMethod(_unresolvedMethod, args, out var unresolved);
                 if (method == null || unresolved)

@@ -115,10 +115,10 @@ namespace MugenMvvm.Components
         {
             #region Fields
 
-            private readonly Delegate _listener;
+            private readonly Delegate? _listener;
             private readonly object? _state;
-            private readonly Action<bool, Delegate, object?, IComponentCollection, IReadOnlyMetadataContext?> _update;
-            private readonly Func<object, bool> IsValidComponent;
+            private readonly Action<bool, Delegate, object?, IComponentCollection, IReadOnlyMetadataContext?>? _update;
+            private readonly Func<object, bool>? IsValidComponent;
 
             #endregion
 
@@ -145,13 +145,13 @@ namespace MugenMvvm.Components
 
             public void OnComponentChanged(object component, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
             {
-                if (IsValidComponent(component))
+                if (IsValidComponent!(component))
                     Update(collection, metadata);
             }
 
-            public void Update(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update(true, _listener, _state, collection, metadata);
+            public void Update(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update!(true, _listener!, _state, collection, metadata);
 
-            public void Clear(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update(false, _listener, _state, collection, metadata);
+            public void Clear(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update!(false, _listener!, _state, collection, metadata);
 
             #endregion
         }

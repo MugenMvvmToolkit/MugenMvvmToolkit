@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface IHasCloseNavigationCondition
     {
-        Task<bool> CanCloseAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken);
+        ValueTask<bool> CanCloseAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken);
     }
 }

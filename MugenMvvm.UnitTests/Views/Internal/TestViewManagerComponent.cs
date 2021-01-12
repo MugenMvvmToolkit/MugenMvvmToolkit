@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Views.Internal
 
         public Func<IViewMapping, object, IReadOnlyMetadataContext?, CancellationToken, ValueTask<IView?>>? TryInitializeAsync { get; set; }
 
-        public Func<IView, object?, IReadOnlyMetadataContext?, CancellationToken, Task<bool>?>? TryCleanupAsync { get; set; }
+        public Func<IView, object?, IReadOnlyMetadataContext?, CancellationToken, ValueTask<bool>?>? TryCleanupAsync { get; set; }
 
         public int Priority { get; set; }
 
@@ -45,10 +45,10 @@ namespace MugenMvvm.UnitTests.Views.Internal
             return TryInitializeAsync?.Invoke(mapping, request!, metadata, cancellationToken) ?? default;
         }
 
-        Task<bool> IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        ValueTask<bool> IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _viewManager?.ShouldEqual(viewManager);
-            return TryCleanupAsync?.Invoke(view, state, metadata, cancellationToken) ?? Default.FalseTask;
+            return TryCleanupAsync?.Invoke(view, state, metadata, cancellationToken) ?? default;
         }
 
         #endregion

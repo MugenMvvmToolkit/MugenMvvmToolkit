@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTests.Navigation
                     {
                         context.ShouldEqual(navigationContext);
                         arg3.ShouldEqual(token);
-                        return source.Task;
+                        return source.Task.AsValueTask();
                     }
                 };
                 dispatcher.AddComponent(component);
@@ -220,7 +220,7 @@ namespace MugenMvvm.UnitTests.Navigation
             await result.WaitSafeAsync();
             result.IsCompleted.ShouldBeTrue();
             result.IsFaulted.ShouldBeTrue();
-            result.Exception!.InnerExceptions.Contains(ex).ShouldBeTrue();
+            result.AsTask().Exception!.InnerExceptions.Contains(ex).ShouldBeTrue();
             navigatingCount.ShouldEqual(0);
         }
 

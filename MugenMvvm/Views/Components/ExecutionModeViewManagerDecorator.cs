@@ -67,7 +67,7 @@ namespace MugenMvvm.Views.Components
             return tcs.Task.AsValueTask();
         }
 
-        public Task<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
             if (dispatcher.CanExecuteInline(CleanupExecutionMode, metadata))
@@ -76,20 +76,17 @@ namespace MugenMvvm.Views.Components
             var tcs = new TaskCompletionSource<bool>();
             dispatcher.Execute(CleanupExecutionMode, s =>
             {
-                var state = (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<bool>, IView, object?, CancellationToken, IReadOnlyMetadataContext?>) s!;
-                if (state.Item6.IsCancellationRequested)
+                var tuple = (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<bool>, IView, object?, CancellationToken, IReadOnlyMetadataContext?>) s!;
+                if (tuple.Item6.IsCancellationRequested)
                 {
-                    state.Item3.TrySetCanceled(state.Item6);
+                    tuple.Item3.TrySetCanceled(tuple.Item6);
                     return;
                 }
 
-                var task = state.Item1.Components.TryCleanupAsync(state.Item2, state.Item4, state.Item5, state.Item6, state.Item7);
-                if (task == null)
-                    state.Item3.TrySetResult(false);
-                else
-                    state.Item3.TrySetFromTask(task);
+                var task = tuple.Item1.Components.TryCleanupAsync(tuple.Item2, tuple.Item4, tuple.Item5, tuple.Item6, tuple.Item7);
+                tuple.Item3.TrySetFromTask(task);
             }, Tuple.Create(this, viewManager, tcs, view, state, cancellationToken, metadata), metadata);
-            return tcs.Task;
+            return tcs.Task.AsValueTask();
         }
 
         #endregion

@@ -59,15 +59,15 @@ namespace MugenMvvm.Views.Components
                 return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, v, m) => c.Add(v, m), (c, v, m) => c.Remove(v, m), metadata));
             }
 
-            var list = viewModel.Metadata.GetOrAdd(InternalMetadata.Views, (object?) null, (_, __, ___) => new List<IView>(2));
+            var list = viewModel.Metadata.GetOrAdd(InternalMetadata.Views, (object?) null, (_, _, _) => new List<IView>(2));
             return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
         }
 
-        public Task<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (!view.Target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var v)
                 || !(v is List<IView> value) || !value.Contains(view))
-                return Default.FalseTask;
+                return default;
 
             Cleanup(viewManager, view, state, value, (list, item, m) =>
             {
@@ -77,7 +77,7 @@ namespace MugenMvvm.Views.Components
                 else
                     item.ViewModel.Metadata.Get(InternalMetadata.Views)?.Remove(item);
             }, metadata);
-            return Default.TrueTask;
+            return new ValueTask<bool>(true);
         }
 
         public ItemOrIReadOnlyList<IView> TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
@@ -128,7 +128,7 @@ namespace MugenMvvm.Views.Components
             var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
             addAction(collection, view, metadata);
-            rawView.AttachedValues(metadata, _attachedValueManager).GetOrAdd(InternalConstant.ViewsValueKey, rawView, (_, __) => new List<IView>()).Add(view);
+            rawView.AttachedValues(metadata, _attachedValueManager).GetOrAdd(InternalConstant.ViewsValueKey, rawView, (_, _) => new List<IView>()).Add(view);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, viewModel, metadata);
             return view;
         }

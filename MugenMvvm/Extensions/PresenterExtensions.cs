@@ -57,7 +57,7 @@ namespace MugenMvvm.Extensions
             }
 
             if (tasks.Count == 0)
-                return Default.FalseTask;
+                return Task.FromResult(false);
             if (tasks.Count == 1)
                 return tasks[0];
             return Task.WhenAll((List<Task<bool>>) tasks.GetRawValue()!).ContinueWith(task => task.Result.WhenAny(), TaskContinuationOptions.ExecuteSynchronously);

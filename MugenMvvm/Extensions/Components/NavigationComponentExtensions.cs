@@ -160,7 +160,7 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList();
         }
 
-        public static async Task<bool> OnNavigatingAsync(this INavigationConditionComponent[] components, INavigationListener[] listeners,
+        public static async ValueTask<bool> OnNavigatingAsync(this INavigationConditionComponent[] components, INavigationListener[] listeners,
             INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));

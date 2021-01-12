@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
             var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
-            var result = Default.TrueTask;
+            var result = true;
             var cancellationToken = new CancellationTokenSource().Token;
             Action? action = null;
             dispatcher.AddComponent(new TestThreadDispatcherComponent
@@ -160,12 +160,12 @@ namespace MugenMvvm.UnitTests.Views.Components
                     r.ShouldEqual(viewModel);
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
-                    return result;
+                    return new ValueTask<bool>(result);
                 }
             });
 
             var r = await manager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
-            r.ShouldEqual(result.Result);
+            r.ShouldEqual(result);
             action.ShouldBeNull();
         }
 
@@ -179,7 +179,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
             var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
-            var result = Default.TrueTask;
+            var result = true;
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
             var ex = new Exception();
@@ -210,7 +210,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     token.ShouldEqual(cancellationToken);
                     if (state == 2)
                         throw ex;
-                    return result;
+                    return new ValueTask<bool>(result);
                 }
             });
 
@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     break;
                 case 2:
                     task.IsFaulted.ShouldBeTrue();
-                    task.Exception!.GetBaseException().ShouldEqual(ex);
+                    task.AsTask().Exception!.GetBaseException().ShouldEqual(ex);
                     break;
                 default:
                     task.IsCompleted.ShouldBeTrue();

@@ -11,7 +11,7 @@ namespace MugenMvvm.Bindings.Observation
     {
         #region Fields
 
-        public readonly object Target;
+        public readonly object? Target;
 
         #endregion
 

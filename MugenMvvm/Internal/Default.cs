@@ -27,8 +27,6 @@ namespace MugenMvvm.Internal
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new(NotifyCollectionChangedAction.Reset);
 
         public static readonly Task CompletedTask = Task.CompletedTask;
-        public static readonly Task<bool> TrueTask = Task.FromResult(true);
-        public static readonly Task<bool> FalseTask = Task.FromResult(false);
 
         #endregion
 

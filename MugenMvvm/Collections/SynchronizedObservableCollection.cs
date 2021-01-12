@@ -369,7 +369,7 @@ namespace MugenMvvm.Collections
         {
             #region Fields
 
-            private readonly SynchronizedObservableCollection<T> _collection;
+            private readonly SynchronizedObservableCollection<T>? _collection;
             private int _index;
 
             #endregion

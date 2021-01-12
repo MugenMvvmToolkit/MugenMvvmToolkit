@@ -20,18 +20,17 @@ namespace MugenMvvm.Ios.Navigation
 
         #region Implementation of interfaces
 
-        public Task<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public async ValueTask<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (navigationContext.Target != null && (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRefresh
                                                                                             || navigationContext.NavigationMode.IsRestore || navigationContext.NavigationMode.IsClose))
             {
-                return navigationDispatcher.WaitNavigationAsync(navigationContext.Target, navigationContext,
-                        (callback, context) => (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
-                                               (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, false, navigationContext.GetMetadataOrDefault())
-                    .ContinueWith(_ => true, TaskContinuationOptions.ExecuteSynchronously);
+                await navigationDispatcher.WaitNavigationAsync(navigationContext.Target, navigationContext,
+                    (callback, context) => (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
+                                           (callback.CallbackType == NavigationCallbackType.Showing || callback.CallbackType == NavigationCallbackType.Closing), true, false, navigationContext.GetMetadataOrDefault());
             }
 
-            return Default.TrueTask;
+            return true;
         }
 
         #endregion

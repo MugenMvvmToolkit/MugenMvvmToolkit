@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var mapping = new ViewMapping("id", viewModelType, viewType, DefaultMetadata);
             var view = new View(mapping, new object(), new TestViewModel());
             var viewModel = new TestViewModel();
-            var result = Default.TrueTask;
+            var result = true;
             var invokeCount = 0;
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     r.ShouldEqual(viewModel);
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
-                    return result;
+                    return new ValueTask<bool>(result);
                 }
             });
 
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             viewManager.AddComponent(component);
 
             var r = await viewManager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
-            r.ShouldEqual(result.Result);
+            r.ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 

@@ -61,12 +61,12 @@ namespace MugenMvvm.Bindings.Core.Components
             if (count == 0)
                 return default;
             if (count == 1)
-                return new BindingBuilder(_context, parserResult.Item.Target, parserResult.Item.Source, parserResult.Item.Parameters.GetRawValue());
+                return new BindingBuilder(_context, parserResult.Item.Target!, parserResult.Item.Source!, parserResult.Item.Parameters.GetRawValue());
 
             var bindingExpressions = new IBindingBuilder[count];
             int index = 0;
             foreach (var result in parserResult)
-                bindingExpressions[index++] = new BindingBuilder(_context, result.Target, result.Source, result.Parameters.GetRawValue());
+                bindingExpressions[index++] = new BindingBuilder(_context, result.Target!, result.Source!, result.Parameters.GetRawValue());
             return bindingExpressions;
         }
 

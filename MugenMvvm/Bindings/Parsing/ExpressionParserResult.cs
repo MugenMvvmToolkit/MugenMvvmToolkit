@@ -15,9 +15,9 @@ namespace MugenMvvm.Bindings.Parsing
     {
         #region Fields
 
-        public readonly IReadOnlyMetadataContext Metadata;
-        public readonly IExpressionNode Source;
-        public readonly IExpressionNode Target;
+        public readonly IReadOnlyMetadataContext? Metadata;
+        public readonly IExpressionNode? Source;
+        public readonly IExpressionNode? Target;
         private readonly object? _parametersRaw;
 
         #endregion

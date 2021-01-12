@@ -80,7 +80,7 @@ namespace MugenMvvm.Presenters
                 OnViewShown(null);
         }
 
-        protected override async Task<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
+        protected override async ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
         {
             var isAppeared = IsAppeared;
             await ViewPresenter.ActivateAsync(this, view, navigationContext).ConfigureAwait(false);

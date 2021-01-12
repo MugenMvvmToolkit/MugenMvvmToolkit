@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Properties
 
-        public Func<INavigationContext, CancellationToken, Task<bool>?>? CanNavigateAsync { get; set; }
+        public Func<INavigationContext, CancellationToken, ValueTask<bool>?>? CanNavigateAsync { get; set; }
 
         public int Priority { get; set; }
 
@@ -36,10 +36,10 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         #region Implementation of interfaces
 
-        Task<bool> INavigationConditionComponent.CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        ValueTask<bool> INavigationConditionComponent.CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
-            return CanNavigateAsync?.Invoke(navigationContext, cancellationToken) ?? Default.TrueTask;
+            return CanNavigateAsync?.Invoke(navigationContext, cancellationToken) ?? new ValueTask<bool>(true);
         }
 
         #endregion

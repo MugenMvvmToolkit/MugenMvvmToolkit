@@ -142,10 +142,10 @@ namespace MugenMvvm.Presenters
 
         protected abstract void CleanupView(TView view, INavigationContext navigationContext);
 
-        protected virtual Task<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
+        protected virtual ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
         {
             OnViewActivated(navigationContext.GetMetadataOrDefault());
-            return Default.TrueTask;
+            return new ValueTask<bool>(true);
         }
 
         protected virtual IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) => new PresenterResult(ViewModel, NavigationId, this, NavigationType, metadata);

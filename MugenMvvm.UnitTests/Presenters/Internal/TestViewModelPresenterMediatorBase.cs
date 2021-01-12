@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         protected override ThreadExecutionMode ExecutionMode => ExecutionModeField ?? base.ExecutionMode;
 
-        public Func<INavigationContext, Task<bool>>? ActivateViewHandler { get; set; }
+        public Func<INavigationContext, ValueTask<bool>>? ActivateViewHandler { get; set; }
 
         public Func<NavigationMode, IReadOnlyMetadataContext?, INavigationContext>? GetNavigationContextHandler { get; set; }
 
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         #region Methods
 
-        protected override Task<bool> ActivateViewAsync(T view, INavigationContext context) => ActivateViewHandler?.Invoke(context) ?? base.ActivateViewAsync(view, context);
+        protected override ValueTask<bool> ActivateViewAsync(T view, INavigationContext context) => ActivateViewHandler?.Invoke(context) ?? base.ActivateViewAsync(view, context);
 
         protected override INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata) =>
             GetNavigationContextHandler?.Invoke(mode, metadata) ?? base.GetNavigationContext(mode, metadata);
