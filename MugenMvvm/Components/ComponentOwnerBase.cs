@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -37,11 +38,11 @@ namespace MugenMvvm.Components
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
+        protected ItemOrArray<TComponent> GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class
         {
             if (_components == null)
-                return Default.Array<TComponent>();
+                return default;
             return _components.Get<TComponent>(metadata);
         }
 

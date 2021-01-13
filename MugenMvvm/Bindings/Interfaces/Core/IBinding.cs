@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Interfaces.Core
 {

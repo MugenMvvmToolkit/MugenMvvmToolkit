@@ -26,8 +26,8 @@ namespace MugenMvvm.Internal.Components
         private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _memberGetterCache;
         private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _memberSetterCache;
 
-        private IMemberReflectionDelegateProviderComponent[] _memberComponents;
-        private IMethodReflectionDelegateProviderComponent[] _methodComponents;
+        private ItemOrArray<IMemberReflectionDelegateProviderComponent> _memberComponents;
+        private ItemOrArray<IMethodReflectionDelegateProviderComponent> _methodComponents;
 
         #endregion
 
@@ -36,8 +36,6 @@ namespace MugenMvvm.Internal.Components
         [Preserve(Conditional = true)]
         public ReflectionDelegateProviderCache(int priority = InternalComponentPriority.DelegateProviderCache) : base(priority)
         {
-            _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
-            _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();
             _activatorCache = new Dictionary<ConstructorInfo, Func<ItemOrArray<object?>, object>?>(59, InternalEqualityComparer.MemberInfo);
             _activatorCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
             _invokeMethodCache = new Dictionary<MethodInfo, Func<object?, ItemOrArray<object?>, object?>?>(59, InternalEqualityComparer.MemberInfo);
@@ -79,11 +77,11 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        void IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, IList<IMemberReflectionDelegateProviderComponent> components,
-            IReadOnlyMetadataContext? metadata) => _memberComponents = this.Decorate(components);
+        void IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, ref ItemOrListEditor<IMemberReflectionDelegateProviderComponent> components,
+            IReadOnlyMetadataContext? metadata) => _memberComponents = this.Decorate(ref components);
 
-        void IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, IList<IMethodReflectionDelegateProviderComponent> components,
-            IReadOnlyMetadataContext? metadata) => _methodComponents = this.Decorate(components);
+        void IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>.Decorate(IComponentCollection collection, ref ItemOrListEditor<IMethodReflectionDelegateProviderComponent> components,
+            IReadOnlyMetadataContext? metadata) => _methodComponents = this.Decorate(ref components);
 
         public Delegate? TryGetMemberGetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {

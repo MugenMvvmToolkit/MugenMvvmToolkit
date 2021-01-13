@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
@@ -9,30 +11,30 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanExecuteInline(this IThreadDispatcherComponent[] components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CanExecuteInline(this ItemOrArray<IThreadDispatcherComponent> components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(executionMode, nameof(executionMode));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].CanExecuteInline(threadDispatcher, executionMode, metadata))
+                if (c.CanExecuteInline(threadDispatcher, executionMode, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TryExecute(this IThreadDispatcherComponent[] components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryExecute(this ItemOrArray<IThreadDispatcherComponent> components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(executionMode, nameof(executionMode));
             Should.NotBeNull(handler, nameof(handler));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].TryExecute(threadDispatcher, executionMode, handler, state, metadata))
+                if (c.TryExecute(threadDispatcher, executionMode, handler, state, metadata))
                     return true;
             }
 

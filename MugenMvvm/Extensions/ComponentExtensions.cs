@@ -81,9 +81,8 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
             {
-                var components = componentOwner.Components.Get<T>();
-                for (var i = 0; i < components.Length; i++)
-                    componentOwner.Components.Remove(components[i], metadata);
+                foreach (var t in componentOwner.Components.Get<T>())
+                    componentOwner.Components.Remove(t, metadata);
             }
         }
 
@@ -94,12 +93,13 @@ namespace MugenMvvm.Extensions
                 componentOwner.Components.Clear(metadata);
         }
 
-        public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrArray<T> GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
                 return componentOwner.Components.Get<T>(metadata);
-            return Default.Array<T>();
+            return default;
         }
 
         public static TComponent GetOrAddComponent<TComponent>(this IComponentOwner owner, Func<IReadOnlyMetadataContext?, TComponent> getComponent,
@@ -129,10 +129,11 @@ namespace MugenMvvm.Extensions
         public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
             owner.GetComponent<TComponent>(true, metadata);
 
-        public static T[] GetOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrArray<T> GetOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             if (collection == null)
-                return Default.Array<T>();
+                return default;
             return collection.Get<T>(metadata);
         }
 
@@ -156,7 +157,7 @@ namespace MugenMvvm.Extensions
             return 0;
         }
 
-        public static Task InvokeAllAsync<TComponent, TState>(this TComponent[] components, TState state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
+        public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> getResult)
             where TComponent : class, IComponent
         {
@@ -174,15 +175,15 @@ namespace MugenMvvm.Extensions
                 }
             }
 
-            if (components.Length == 0)
+            if (components.Count == 0)
                 return Default.CompletedTask;
-            if (components.Length == 1)
+            if (components.Count == 1)
                 return GetResult(components[0]);
 
             var tasks = new ItemOrListEditor<Task>();
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var result = GetResult(components[i]);
+                var result = GetResult(c);
                 if (!result.IsCompleted || result.IsFaulted || result.IsCanceled)
                     tasks.Add(result);
             }
@@ -197,7 +198,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(owner, nameof(owner));
             var components = owner.GetComponents<TComponent>(metadata);
-            if (components.Length != 0)
+            if (components.Count != 0)
                 return components[0];
             if (!optional)
                 ExceptionManager.ThrowCannotGetComponent(owner, typeof(TComponent));

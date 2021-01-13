@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;

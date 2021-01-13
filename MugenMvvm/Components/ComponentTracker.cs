@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -29,14 +30,14 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        public void AddListener<T, TState>(Action<T[], TState, IReadOnlyMetadataContext?> listener, TState state)
+        public void AddListener<T, TState>(Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?> listener, TState state)
             where T : class
             where TState : class
         {
-            var l = new Listener(listener, state, o => o is T || o is IComponentCollectionDecorator<T>, (b, l, s, collection, metadata) =>
+            var l = new Listener(listener, state, o => o is T || o is IComponentCollectionDecorator<T>, (b, del, s, collection, metadata) =>
             {
-                var action = (Action<T[], TState, IReadOnlyMetadataContext?>) l;
-                action.Invoke(b ? collection.Get<T>() : Default.Array<T>(), (TState) s!, metadata);
+                var action = (Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?>) del;
+                action.Invoke(b ? collection.Get<T>() : default, (TState) s!, metadata);
             });
             if (_listeners != null)
             {
@@ -48,7 +49,7 @@ namespace MugenMvvm.Components
                 _listener = l;
             else
             {
-                _listeners = new List<Listener> {_listener, l};
+                _listeners = new List<Listener>(2) {_listener, l};
                 _listener = default;
             }
         }

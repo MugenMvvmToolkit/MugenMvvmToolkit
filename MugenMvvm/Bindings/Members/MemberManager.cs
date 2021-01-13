@@ -19,7 +19,7 @@ namespace MugenMvvm.Bindings.Members
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IMemberManagerComponent[] _components;
+        private ItemOrArray<IMemberManagerComponent> _components;
 
         #endregion
 
@@ -29,7 +29,6 @@ namespace MugenMvvm.Bindings.Members
         public MemberManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
-            _components = Default.Array<IMemberManagerComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IMemberManagerComponent, MemberManager>((components, state, _) => state._components = components, this);
         }

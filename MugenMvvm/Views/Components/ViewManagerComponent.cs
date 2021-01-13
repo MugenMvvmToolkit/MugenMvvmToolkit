@@ -111,12 +111,11 @@ namespace MugenMvvm.Views.Components
         }
 
         private IView InitializeView<TList>(IViewManager viewManager, IViewMapping mapping, IViewModelBase viewModel, object rawView,
-            IList<IView> views, TList collection, Action<TList, IView, IReadOnlyMetadataContext?> addAction,
+            ItemOrIReadOnlyList<IView> views, TList collection, Action<TList, IView, IReadOnlyMetadataContext?> addAction,
             Action<TList, IView, IReadOnlyMetadataContext?> removeAction, IReadOnlyMetadataContext? metadata) where TList : class
         {
-            for (var i = 0; i < views.Count; i++)
+            foreach (var oldView in views)
             {
-                var oldView = views[i];
                 if (oldView.Mapping.Id == mapping.Id)
                 {
                     if (oldView.Target == rawView)

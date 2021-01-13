@@ -11,7 +11,7 @@ namespace MugenMvvm.Collections
         #region Fields
 
         private bool _hasItem;
-        private T _item;
+        private T? _item;
         private List<T>? _list;
 
         #endregion
@@ -23,7 +23,7 @@ namespace MugenMvvm.Collections
         {
             if (rawValue is IEnumerable<T> enumerable)
             {
-                _item = default!;
+                _item = default;
                 _hasItem = false;
                 if (enumerable is List<T> l)
                     _list = l;
@@ -51,7 +51,7 @@ namespace MugenMvvm.Collections
         {
             if (itemOrList.List != null)
             {
-                _item = default!;
+                _item = default;
                 _hasItem = false;
                 if (itemOrList.List is List<T> l)
                     _list = l;
@@ -64,6 +64,14 @@ namespace MugenMvvm.Collections
                 _hasItem = itemOrList.HasItem;
                 _item = itemOrList.Item!;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrListEditor(List<T> list)
+        {
+            _list = list;
+            _item = default!;
+            _hasItem = false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,7 +111,7 @@ namespace MugenMvvm.Collections
                 if ((uint) index >= (uint) Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
-                return _list == null ? _item : _list[index];
+                return _list == null ? _item! : _list[index];
             }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
@@ -124,17 +132,6 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrListEditor<T> FromRawValue(object? rawValue) => new(rawValue);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public List<T> AsList()
-        {
-            if (_list != null)
-                return _list;
-            var result = new List<T>(2);
-            if (_hasItem)
-                result.Add(_item);
-            return result;
-        }
 
         public void AddRange(IEnumerable<T>? values) => AddRange(new ItemOrIEnumerable<T>(values));
 
@@ -161,7 +158,7 @@ namespace MugenMvvm.Collections
                     return;
                 }
 
-                _list = new List<T>(2) {_item};
+                _list = new List<T>(2) {_item!};
                 _item = default!;
                 _hasItem = false;
             }
@@ -178,15 +175,24 @@ namespace MugenMvvm.Collections
                 _list.Add(item!);
             else if (_hasItem)
             {
-                _list = new List<T>(2) {_item, item!};
-                _item = default!;
+                _list = new List<T>(2) {_item!, item!};
+                _item = default;
                 _hasItem = false;
             }
             else
             {
-                _item = item!;
+                _item = item;
                 _hasItem = true;
             }
+        }
+
+        public int IndexOf(T item)
+        {
+            if (_list != null)
+                return _list.IndexOf(item);
+            if (_hasItem && EqualityComparer<T>.Default.Equals(_item!, item))
+                return 0;
+            return -1;
         }
 
         public bool Remove(T item)
@@ -194,9 +200,9 @@ namespace MugenMvvm.Collections
             if (_list != null)
                 return _list.Remove(item);
 
-            if (EqualityComparer<T>.Default.Equals(_item, item))
+            if (EqualityComparer<T>.Default.Equals(_item!, item))
             {
-                _item = default!;
+                _item = default;
                 _hasItem = false;
                 return true;
             }
@@ -210,7 +216,7 @@ namespace MugenMvvm.Collections
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
             if (_list == null)
             {
-                _item = default!;
+                _item = default;
                 _hasItem = false;
             }
             else
@@ -221,7 +227,7 @@ namespace MugenMvvm.Collections
         {
             if (_list == null)
             {
-                _item = default!;
+                _item = default;
                 _hasItem = false;
             }
             else
@@ -248,6 +254,29 @@ namespace MugenMvvm.Collections
             if (_list == null)
                 return new ItemOrIReadOnlyList<T>(_item, _hasItem);
             return new ItemOrIReadOnlyList<T>(_list);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<T> AsList()
+        {
+            if (_list != null)
+                return _list;
+            var result = new List<T>(2);
+            if (_hasItem)
+                result.Add(_item!);
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrArray<T> ToItemOrArray()
+        {
+            if (_list == null)
+                return new ItemOrArray<T>(_item, _hasItem);
+            if (_list.Count == 0)
+                return default;
+            if (_list.Count == 1)
+                return new ItemOrArray<T>(_list[0], true);
+            return new ItemOrArray<T>(_list.ToArray());
         }
 
         #endregion

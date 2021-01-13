@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Components;
+﻿using MugenMvvm.Collections;
+using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -12,7 +13,7 @@ namespace MugenMvvm.Internal
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IAttachedValueStorageProviderComponent[] _components;
+        private ItemOrArray<IAttachedValueStorageProviderComponent> _components;
 
         #endregion
 
@@ -20,7 +21,6 @@ namespace MugenMvvm.Internal
 
         public AttachedValueManager(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
-            _components = Default.Array<IAttachedValueStorageProviderComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IAttachedValueStorageProviderComponent, AttachedValueManager>((components, state, _) => state._components = components, this);
         }

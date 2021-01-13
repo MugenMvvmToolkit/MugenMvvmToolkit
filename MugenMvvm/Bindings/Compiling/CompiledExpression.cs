@@ -28,7 +28,7 @@ namespace MugenMvvm.Bindings.Compiling
         private readonly IReadOnlyMetadataContext? _inputMetadata;
         private readonly object?[] _values;
 
-        private IExpressionBuilderComponent[] _expressionBuilders;
+        private object? _expressionBuilders;
         private IMetadataContext? _metadata;
 
         private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
@@ -44,7 +44,6 @@ namespace MugenMvvm.Bindings.Compiling
             _expressions = new Dictionary<IExpressionNode, Expression?>(this);
             _expression = expression.Accept(this, metadata);
             _values = new object[_expressions.Count + 1];
-            _expressionBuilders = Default.Array<IExpressionBuilderComponent>();
             MetadataExpression = MugenExtensions.GetIndexExpression(_expressions.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
         }
 
@@ -58,14 +57,11 @@ namespace MugenMvvm.Bindings.Compiling
 
         public Expression MetadataExpression { get; }
 
-        public IExpressionBuilderComponent[] ExpressionBuilders
+        public ItemOrArray<IExpressionBuilderComponent> ExpressionBuilders
         {
-            get => _expressionBuilders;
-            set
-            {
-                Should.NotBeNull(value, nameof(value));
-                _expressionBuilders = value;
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ItemOrArray.FromRawValue<IExpressionBuilderComponent>(_expressionBuilders);
+            set => _expressionBuilders = value.GetRawValue();
         }
 
         ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Preorder;
@@ -76,7 +72,7 @@ namespace MugenMvvm.Bindings.Compiling
 
         public object? Invoke(ItemOrArray<ParameterValue> values, IReadOnlyMetadataContext? metadata)
         {
-            var key = values.List ?? values.Item.Type ?? (object) Default.Array<ParameterValue>();
+            var key = values.List ?? values.Item.Type ?? (object) Default.Array<Type>();
             if (!_cache.TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);
@@ -184,7 +180,7 @@ namespace MugenMvvm.Bindings.Compiling
             _expressions.Remove(expression);
         }
 
-        public Expression? TryBuild(IExpressionNode expression) => _expressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
+        public Expression? TryBuild(IExpressionNode expression) => ExpressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
 
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {

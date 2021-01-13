@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -43,12 +44,12 @@ namespace MugenMvvm.UnitTests.Components
             var decorator2 = new TestThreadDispatcherDecorator();
             var component1 = new TestThreadDispatcherComponent();
             var component2 = new TestThreadDispatcherComponent();
-            var components = new List<IThreadDispatcherComponent> {decorator1, decorator2, component1, component2};
+            var components = new ItemOrListEditor<IThreadDispatcherComponent>(new List<IThreadDispatcherComponent> {decorator1, decorator2, component1, component2});
 
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator2).Decorate(collection, components, DefaultMetadata);
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator1).Decorate(collection, components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator2).Decorate(collection, ref components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator1).Decorate(collection, ref components, DefaultMetadata);
 
-            components.Single().ShouldEqual(decorator1);
+            components.AsList().Single().ShouldEqual(decorator1);
             decorator1.Components.Single().ShouldEqual(decorator2);
             decorator2.Components.ShouldEqual(new[] {component1, component2});
         }

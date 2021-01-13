@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Components
@@ -15,7 +15,6 @@ namespace MugenMvvm.Interfaces.Components
 
         void Clear(IReadOnlyMetadataContext? metadata = null);
 
-        [Pure]
-        TComponent[] Get<TComponent>(IReadOnlyMetadataContext? metadata = null) where TComponent : class;//todo review
+        ItemOrArray<T> Get<T>(IReadOnlyMetadataContext? metadata = null) where T : class;
     }
 }

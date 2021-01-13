@@ -67,8 +67,8 @@ namespace MugenMvvm.Navigation
 
         public bool TryGetResult([NotNullWhen(true)] out INavigationContext? navigationContext)
         {
-            navigationContext = _navigationContext!;
-            return _state == SuccessState;
+            navigationContext = _state == SuccessState ? _navigationContext : null;
+            return navigationContext != null;
         }
 
         public void AddCallback(INavigationCallbackListener callback)

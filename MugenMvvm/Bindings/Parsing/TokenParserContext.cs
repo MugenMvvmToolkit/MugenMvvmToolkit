@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -17,7 +19,7 @@ namespace MugenMvvm.Bindings.Parsing
         #region Fields
 
         private int? _limit;
-        private ITokenParserComponent[] _parsers;
+        private object? _parsers;
         private int _position;
 
         #endregion
@@ -27,7 +29,6 @@ namespace MugenMvvm.Bindings.Parsing
         public TokenParserContext() : base(null)
         {
             Source = string.Empty;
-            _parsers = Default.Array<ITokenParserComponent>();
         }
 
         #endregion
@@ -66,14 +67,11 @@ namespace MugenMvvm.Bindings.Parsing
             }
         }
 
-        public ITokenParserComponent[] Parsers
+        public ItemOrArray<ITokenParserComponent> Parsers
         {
-            get => _parsers;
-            set
-            {
-                Should.NotBeNull(value, nameof(value));
-                _parsers = value;
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ItemOrArray.FromRawValue<ITokenParserComponent>(_parsers);
+            set => _parsers = value.GetRawValue();
         }
 
         string IHasTarget<string>.Target => Source;

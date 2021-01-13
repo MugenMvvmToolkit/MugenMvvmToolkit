@@ -14,42 +14,46 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static ItemOrIReadOnlyList<IPresenterResult> TryShow(this IPresenterComponent[] components, IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(request, nameof(request));
-            if (components.Length == 1)
-                return components[0].TryShow(presenter, request, cancellationToken, metadata);
-            var result = new ItemOrListEditor<IPresenterResult>();
-            for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryShow(presenter, request, cancellationToken, metadata));
-            return result.ToItemOrList();
-        }
-
-        public static ItemOrIReadOnlyList<IPresenterResult> TryClose(this IPresenterComponent[] components, IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(request, nameof(request));
-            if (components.Length == 1)
-                return components[0].TryClose(presenter, request, cancellationToken, metadata);
-            var result = new ItemOrListEditor<IPresenterResult>();
-            for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryClose(presenter, request, cancellationToken, metadata));
-            return result.ToItemOrList();
-        }
-
-        public static IViewModelPresenterMediator? TryGetPresenterMediator(this IViewModelPresenterMediatorProviderComponent[] components, IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,
+        public static ItemOrIReadOnlyList<IPresenterResult> TryShow(this ItemOrArray<IPresenterComponent> components, IPresenter presenter, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(request, nameof(request));
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
+                return components[0].TryShow(presenter, request, cancellationToken, metadata);
+            var result = new ItemOrListEditor<IPresenterResult>();
+            foreach (var c in components)
+                result.AddRange(c.TryShow(presenter, request, cancellationToken, metadata));
+
+            return result.ToItemOrList();
+        }
+
+        public static ItemOrIReadOnlyList<IPresenterResult> TryClose(this ItemOrArray<IPresenterComponent> components, IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(request, nameof(request));
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
+                return components[0].TryClose(presenter, request, cancellationToken, metadata);
+            var result = new ItemOrListEditor<IPresenterResult>();
+            foreach (var c in components)
+                result.AddRange(c.TryClose(presenter, request, cancellationToken, metadata));
+
+            return result.ToItemOrList();
+        }
+
+        public static IViewModelPresenterMediator? TryGetPresenterMediator(this ItemOrArray<IViewModelPresenterMediatorProviderComponent> components, IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,
+            IReadOnlyMetadataContext? metadata)
+        {
             Should.NotBeNull(presenter, nameof(presenter));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(mapping, nameof(mapping));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var mediator = components[i].TryGetPresenterMediator(presenter, viewModel, mapping, metadata);
+                var mediator = c.TryGetPresenterMediator(presenter, viewModel, mapping, metadata);
                 if (mediator != null)
                     return mediator;
             }
@@ -57,16 +61,15 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IViewPresenter? TryGetViewPresenter(this IViewPresenterProviderComponent[] components, IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,
+        public static IViewPresenter? TryGetViewPresenter(this ItemOrArray<IViewPresenterProviderComponent> components, IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(mapping, nameof(mapping));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var viewPresenter = components[i].TryGetViewPresenter(presenter, viewModel, mapping, metadata);
+                var viewPresenter = c.TryGetViewPresenter(presenter, viewModel, mapping, metadata);
                 if (viewPresenter != null)
                     return viewPresenter;
             }

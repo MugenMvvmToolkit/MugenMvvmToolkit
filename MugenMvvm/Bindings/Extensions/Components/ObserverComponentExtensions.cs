@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Observation.Components;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Extensions.Components
@@ -10,15 +12,15 @@ namespace MugenMvvm.Bindings.Extensions.Components
     {
         #region Methods
 
-        public static MemberObserver TryGetMemberObserver(this IMemberObserverProviderComponent[] components, IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemberObserver TryGetMemberObserver(this ItemOrArray<IMemberObserverProviderComponent> components, IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(observationManager, nameof(observationManager));
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var observer = components[i].TryGetMemberObserver(observationManager, type, member, metadata);
+                var observer = c.TryGetMemberObserver(observationManager, type, member, metadata);
                 if (!observer.IsEmpty)
                     return observer;
             }
@@ -26,14 +28,14 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return default;
         }
 
-        public static IMemberPath? TryGetMemberPath(this IMemberPathProviderComponent[] components, IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IMemberPath? TryGetMemberPath(this ItemOrArray<IMemberPathProviderComponent> components, IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(observationManager, nameof(observationManager));
             Should.NotBeNull(path, nameof(path));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var memberPath = components[i].TryGetMemberPath(observationManager, path, metadata);
+                var memberPath = c.TryGetMemberPath(observationManager, path, metadata);
                 if (memberPath != null)
                     return memberPath;
             }
@@ -41,16 +43,16 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return null;
         }
 
-        public static IMemberPathObserver? TryGetMemberPathObserver(this IMemberPathObserverProviderComponent[] components, IObservationManager observationManager, object target,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IMemberPathObserver? TryGetMemberPathObserver(this ItemOrArray<IMemberPathObserverProviderComponent> components, IObservationManager observationManager, object target,
             object request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(observationManager, nameof(observationManager));
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var observer = components[i].TryGetMemberPathObserver(observationManager, target, request, metadata);
+                var observer = c.TryGetMemberPathObserver(observationManager, target, request, metadata);
                 if (observer != null)
                     return observer;
             }

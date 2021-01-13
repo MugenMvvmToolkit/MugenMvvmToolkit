@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Components
@@ -10,6 +11,6 @@ namespace MugenMvvm.Interfaces.Components
     public interface IComponentCollectionDecorator<TComponent> : IComponentCollectionDecorator
         where TComponent : class
     {
-        void Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata);
+        void Decorate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -35,12 +35,11 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(memberName, nameof(memberName));
             InlineValidatorComponent? component = null;
-            var components = validator.GetComponents<InlineValidatorComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in validator.GetComponents<InlineValidatorComponent>(metadata))
             {
-                if (components[i].Target == target)
+                if (c.Target == target)
                 {
-                    component = components[i];
+                    component = c;
                     break;
                 }
             }

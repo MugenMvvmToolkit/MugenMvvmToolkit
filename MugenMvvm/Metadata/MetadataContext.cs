@@ -256,7 +256,7 @@ namespace MugenMvvm.Metadata
         {
             var components = GetComponents();
             var listeners = GetListeners();
-            if (listeners.Length == 0)
+            if (listeners.Count == 0)
             {
                 lock (_dictionary)
                 {
@@ -309,7 +309,7 @@ namespace MugenMvvm.Metadata
         {
             var components = GetComponents();
             var listeners = GetListeners();
-            if (listeners.Length == 0)
+            if (listeners.Count == 0)
             {
                 lock (_dictionary)
                 {
@@ -350,24 +350,24 @@ namespace MugenMvvm.Metadata
 
         public void Add<T>(IMetadataContextKey<T> contextKey, T value) => Set(contextKey, value, out _);
 
-        private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue) =>
+        private bool TryGet(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue) =>
             components.TryGetValue(this, contextKey, operationType, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
 
-        private void Set(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, object? rawValue)
+        private void Set(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey, object? rawValue)
         {
             if (!components.TrySetValue(this, contextKey, rawValue))
                 _dictionary[contextKey] = rawValue;
         }
 
-        private bool Remove(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey)
+        private bool Remove(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey)
         {
             var remove = _dictionary.Remove(contextKey);
             return components.TryClear(this, contextKey) || remove;
         }
 
-        private IMetadataContextValueManagerComponent[] GetComponents() => _components.GetOrDefault<IMetadataContextValueManagerComponent>();
+        private ItemOrArray<IMetadataContextValueManagerComponent> GetComponents() => _components.GetOrDefault<IMetadataContextValueManagerComponent>();
 
-        private IMetadataContextListener[] GetListeners() => _components.GetOrDefault<IMetadataContextListener>();
+        private ItemOrArray<IMetadataContextListener> GetListeners() => _components.GetOrDefault<IMetadataContextListener>();
 
         #endregion
     }

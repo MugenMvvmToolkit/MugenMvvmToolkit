@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -27,21 +26,27 @@ namespace MugenMvvm.UnitTests.Components.Internal
             set => base.Priority = value;
         }
 
-        public new TComponent[] Components => base.Components;
+        public new ItemOrArray<TComponent> Components => base.Components;
 
-        public Action<IComponentCollection, IList<TComponent>, IReadOnlyMetadataContext?>? DecorateHandler { get; set; }
+        public DecorateDelegate? DecorateHandler { get; set; }
 
         #endregion
 
         #region Methods
 
-        protected override void Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
+        protected override void Decorate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
             if (DecorateHandler == null)
-                base.Decorate(collection, components, metadata);
+                base.Decorate(collection, ref components, metadata);
             else
-                DecorateHandler.Invoke(collection, components, metadata);
+                DecorateHandler.Invoke(collection, ref components, metadata);
         }
+
+        #endregion
+
+        #region Nested types
+
+        public delegate void DecorateDelegate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata);
 
         #endregion
     }

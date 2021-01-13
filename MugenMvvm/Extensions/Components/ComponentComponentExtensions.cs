@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -9,15 +9,14 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IComponentCollection? TryGetComponentCollection(this IComponentCollectionProviderComponent[] components, IComponentCollectionManager collectionManager, object owner,
+        public static IComponentCollection? TryGetComponentCollection(this ItemOrArray<IComponentCollectionProviderComponent> components, IComponentCollectionManager collectionManager, object owner,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(collectionManager, nameof(collectionManager));
             Should.NotBeNull(owner, nameof(owner));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var collection = components[i].TryGetComponentCollection(collectionManager, owner, metadata);
+                var collection = c.TryGetComponentCollection(collectionManager, owner, metadata);
                 if (collection != null)
                     return collection;
             }
@@ -25,14 +24,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnComponentCollectionCreated(this IComponentCollectionManagerListener[] listeners, IComponentCollectionManager collectionManager, IComponentCollection collection,
+        public static void OnComponentCollectionCreated(this ItemOrArray<IComponentCollectionManagerListener> listeners, IComponentCollectionManager collectionManager, IComponentCollection collection,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collectionManager, nameof(collectionManager));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnComponentCollectionCreated(collectionManager, collection, metadata);
+            foreach (var c in listeners)
+                c.OnComponentCollectionCreated(collectionManager, collection, metadata);
         }
 
         public static bool HasComponent<TComponent>(object? components) where TComponent : class, IComponent
@@ -117,74 +115,66 @@ namespace MugenMvvm.Extensions.Components
                 (components as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
         }
 
-        public static bool OnAdding(this IComponentCollectionChangingListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static bool OnAdding(this ItemOrArray<IComponentCollectionChangingListener> listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            for (var i = 0; i < listeners.Length; i++)
+            foreach (var c in listeners)
             {
-                if (!listeners[i].OnAdding(collection, component, metadata))
+                if (!c.OnAdding(collection, component, metadata))
                     return false;
             }
 
             return true;
         }
 
-        public static void OnAdded(this IComponentCollectionChangedListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static void OnAdded(this ItemOrArray<IComponentCollectionChangedListener> listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdded(collection, component, metadata);
+            foreach (var c in listeners)
+                c.OnAdded(collection, component, metadata);
         }
 
-        public static bool OnRemoving(this IComponentCollectionChangingListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static bool OnRemoving(this ItemOrArray<IComponentCollectionChangingListener> listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            for (var i = 0; i < listeners.Length; i++)
+            foreach (var c in listeners)
             {
-                if (!listeners[i].OnRemoving(collection, component, metadata))
+                if (!c.OnRemoving(collection, component, metadata))
                     return false;
             }
 
             return true;
         }
 
-        public static void OnRemoved(this IComponentCollectionChangedListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static void OnRemoved(this ItemOrArray<IComponentCollectionChangedListener> listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoved(collection, component, metadata);
+            foreach (var c in listeners)
+                c.OnRemoved(collection, component, metadata);
         }
 
-        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator[] decorators, IComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata)
+        public static void Decorate<TComponent>(this IComponentCollectionDecorator[] decorators, IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata)
             where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
-            Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < decorators.Length; i++)
             {
                 if (decorators[i] is IComponentCollectionDecorator<TComponent> decorator)
-                    decorator.Decorate(collection, components, metadata);
+                    decorator.Decorate(collection, ref components, metadata);
             }
-
-            return components.ToArray();
         }
 
-        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, IComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata)
+        public static void Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, IComponentCollection collection, ref ItemOrListEditor<TComponent> components,
+            IReadOnlyMetadataContext? metadata)
             where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
-            Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < decorators.Length; i++)
-                decorators[i].Decorate(collection, components, metadata);
-            return components.ToArray();
+                decorators[i].Decorate(collection, ref components, metadata);
         }
 
         public static bool HasDecorators<TComponent>(this IComponentCollectionDecorator[] decorators) where TComponent : class
@@ -199,22 +189,27 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator<TComponent> decorator, IList<TComponent> components)
+        public static ItemOrArray<TComponent> Decorate<TComponent>(this IComponentCollectionDecorator<TComponent> decorator, ref ItemOrListEditor<TComponent> components)
             where TComponent : class
         {
             Should.NotBeNull(decorator, nameof(decorator));
-            Should.NotBeNull(components, nameof(components));
             if (!(decorator is TComponent decoratorComponent))
-                return Default.Array<TComponent>();
+                return default;
 
             var index = components.IndexOf(decoratorComponent);
             if (index < 0)
-                return Default.Array<TComponent>();
+                return default;
 
             ++index;
             var length = components.Count - index;
             if (length == 0)
-                return Default.Array<TComponent>();
+                return default;
+            if (length == 1)
+            {
+                var c = components[index];
+                components.RemoveAt(index);
+                return c;
+            }
 
             var result = new TComponent[length];
             var position = 0;

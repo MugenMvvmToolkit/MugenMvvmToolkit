@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var validator = component.TryGetValidator(null!, this, DefaultMetadata);
             validator.ShouldBeType<Validator>();
             validator.Components.Count.ShouldEqual(1);
-            validator.Components.Get<CycleHandlerValidatorComponent>().Length.ShouldEqual(1);
+            validator.Components.Get<CycleHandlerValidatorComponent>().Count.ShouldEqual(1);
         }
 
         [Fact]

@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
@@ -9,30 +10,28 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanWrap(this IWrapperManagerComponent[] components, IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
+        public static bool CanWrap(this ItemOrArray<IWrapperManagerComponent> components, IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].CanWrap(wrapperManager, wrapperType, request, metadata))
+                if (c.CanWrap(wrapperManager, wrapperType, request, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static object? TryWrap(this IWrapperManagerComponent[] components, IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
+        public static object? TryWrap(this ItemOrArray<IWrapperManagerComponent> components, IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var wrapper = components[i].TryWrap(wrapperManager, wrapperType, request, metadata);
+                var wrapper = c.TryWrap(wrapperManager, wrapperType, request, metadata);
                 if (wrapper != null)
                     return wrapper;
             }
@@ -40,14 +39,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnWrapped(this IWrapperManagerListener[] listeners, IWrapperManager wrapperManager, object wrapper, object request, IReadOnlyMetadataContext? metadata)
+        public static void OnWrapped(this ItemOrArray<IWrapperManagerListener> listeners, IWrapperManager wrapperManager, object wrapper, object request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapper, nameof(wrapper));
             Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnWrapped(wrapperManager, wrapper, request, metadata);
+            foreach (var c in listeners)
+                c.OnWrapped(wrapperManager, wrapper, request, metadata);
         }
 
         #endregion

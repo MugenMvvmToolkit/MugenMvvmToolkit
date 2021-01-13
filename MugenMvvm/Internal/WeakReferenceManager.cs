@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -13,7 +14,7 @@ namespace MugenMvvm.Internal
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IWeakReferenceProviderComponent[] _components;
+        private ItemOrArray<IWeakReferenceProviderComponent> _components;
 
         #endregion
 
@@ -22,7 +23,6 @@ namespace MugenMvvm.Internal
         [Preserve(Conditional = true)]
         public WeakReferenceManager(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
-            _components = Default.Array<IWeakReferenceProviderComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IWeakReferenceProviderComponent, WeakReferenceManager>((components, state, _) => state._components = components, this);
         }

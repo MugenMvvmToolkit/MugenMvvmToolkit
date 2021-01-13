@@ -62,7 +62,7 @@ namespace MugenMvvm.Collections.Components
         public void OnItemChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Length; i++)
+            for (var i = startIndex; i < decorators.Count; i++)
             {
                 if (!decorators[i].OnItemChanged(collection, ref item, ref index, ref args))
                     return;
@@ -74,7 +74,7 @@ namespace MugenMvvm.Collections.Components
         public void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Length; i++)
+            for (var i = startIndex; i < decorators.Count; i++)
             {
                 if (!decorators[i].OnAdded(collection, ref item, ref index))
                     return;
@@ -86,7 +86,7 @@ namespace MugenMvvm.Collections.Components
         public void OnReplaced(ICollection collection, ICollectionDecorator? decorator, object? oldItem, object? newItem, int index)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Length; i++)
+            for (var i = startIndex; i < decorators.Count; i++)
             {
                 if (!decorators[i].OnReplaced(collection, ref oldItem, ref newItem, ref index))
                     return;
@@ -98,7 +98,7 @@ namespace MugenMvvm.Collections.Components
         public void OnMoved(ICollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Length; i++)
+            for (var i = startIndex; i < decorators.Count; i++)
             {
                 if (!decorators[i].OnMoved(collection, ref item, ref oldIndex, ref newIndex))
                     return;
@@ -110,7 +110,7 @@ namespace MugenMvvm.Collections.Components
         public void OnRemoved(ICollection collection, ICollectionDecorator? decorator, object? item, int index)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Length; i++)
+            for (var i = startIndex; i < decorators.Count; i++)
             {
                 if (!decorators[i].OnRemoved(collection, ref item, ref index))
                     return;
@@ -122,7 +122,7 @@ namespace MugenMvvm.Collections.Components
         public void OnReset(ICollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Length; i++)
+            for (var i = startIndex; i < decorators.Count; i++)
             {
                 if (!decorators[i].OnReset(collection, ref items))
                     return;
@@ -157,14 +157,14 @@ namespace MugenMvvm.Collections.Components
             return component;
         }
 
-        private static ICollectionDecorator[] GetDecorators(ICollection collection, ICollectionDecorator? decorator, out int index, bool isLengthDefault = false)
+        private static ItemOrArray<ICollectionDecorator> GetDecorators(ICollection collection, ICollectionDecorator? decorator, out int index, bool isLengthDefault = false)
         {
             var components = GetComponents<ICollectionDecorator>(collection);
-            index = isLengthDefault ? components.Length : 0;
+            index = isLengthDefault ? components.Count : 0;
             if (decorator == null)
                 return components;
 
-            for (var i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Count; i++)
             {
                 if (components[i] == decorator)
                 {
@@ -178,7 +178,7 @@ namespace MugenMvvm.Collections.Components
             return components;
         }
 
-        private static TComponent[] GetComponents<TComponent>(ICollection collection) where TComponent : class => ((IComponentOwner) collection).Components.Get<TComponent>();
+        private static ItemOrArray<TComponent> GetComponents<TComponent>(ICollection collection) where TComponent : class => ((IComponentOwner) collection).Components.Get<TComponent>();
 
         #endregion
 

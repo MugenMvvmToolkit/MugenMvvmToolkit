@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
-    public sealed class ReflectionMemberProvider : IMemberProviderComponent, IHasPriority
+    public sealed class ReflectionMemberProvider : IMemberProviderComponent, IHasPriority//todo cache
     {
         #region Fields
 

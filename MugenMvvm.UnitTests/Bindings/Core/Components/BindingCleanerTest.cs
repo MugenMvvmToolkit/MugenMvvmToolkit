@@ -92,13 +92,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             binding.State.ShouldEqual(BindingState.Disposed);
             targetDisposed.ShouldBeTrue();
             sourceDisposed.ShouldBeTrue();
-            binding.GetComponents().AsList().ShouldBeEmpty();
+            binding.GetComponents<object>().AsList().ShouldBeEmpty();
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
 
             binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
-            binding.GetComponents().AsList().ShouldBeEmpty();
+            binding.GetComponents<object>().AsList().ShouldBeEmpty();
         }
 
         [Fact]
@@ -163,13 +163,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             binding.State.ShouldEqual(BindingState.Disposed);
             targetDisposed.ShouldBeTrue();
             sourceDisposed.ShouldBeTrue();
-            binding.GetComponents().AsList().ShouldBeEmpty();
+            binding.GetComponents<object>().AsList().ShouldBeEmpty();
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
 
             binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
-            binding.GetComponents().AsList().ShouldBeEmpty();
+            binding.GetComponents<object>().AsList().ShouldBeEmpty();
         }
 
         #endregion

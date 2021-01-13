@@ -134,6 +134,9 @@ namespace MugenMvvm.UnitTests.Collections
             editorItemOrList.List.ShouldEqual(itemOrList.List);
 
             for (var i = 0; i < count; i++)
+                objects.IndexOf(objects[i]).ShouldEqual(i);
+
+            for (var i = 0; i < count; i++)
             {
                 objects.RemoveAt(0);
                 editor.RemoveAt(0);

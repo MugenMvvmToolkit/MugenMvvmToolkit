@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Components;
@@ -10,24 +12,23 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnLifecycleChanged(this IApplicationLifecycleListener[] components, IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void OnLifecycleChanged(this ItemOrArray<IApplicationLifecycleListener> components, IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(application, nameof(application));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnLifecycleChanged(application, lifecycleState, state, metadata);
+            foreach (var c in components)
+                c.OnLifecycleChanged(application, lifecycleState, state, metadata);
         }
 
-        public static void OnUnhandledException(this IUnhandledExceptionHandlerComponent[] components, IMugenApplication application, Exception exception, UnhandledExceptionType type,
+        public static void OnUnhandledException(this ItemOrArray<IUnhandledExceptionHandlerComponent> components, IMugenApplication application, Exception exception, UnhandledExceptionType type,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(application, nameof(application));
             Should.NotBeNull(exception, nameof(exception));
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnUnhandledException(application, exception, type, metadata);
+            foreach (var c in components)
+                c.OnUnhandledException(application, exception, type, metadata);
         }
 
         #endregion

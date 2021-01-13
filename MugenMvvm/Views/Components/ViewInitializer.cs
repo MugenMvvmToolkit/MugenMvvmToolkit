@@ -49,9 +49,9 @@ namespace MugenMvvm.Views.Components
         {
             view.ViewModel.TrySubscribe(view.Target, ThreadExecutionMode.Main, metadata);
             (view.Target as IInitializableView)?.Initialize(view, state, metadata);
-            var initializableViews = view.GetComponents<IInitializableView>(metadata);
-            for (var i = 0; i < initializableViews.Length; i++)
-                initializableViews[i].Initialize(view, state, metadata);
+            foreach (var v in view.GetComponents<IInitializableView>(metadata))
+                v.Initialize(view, state, metadata);
+
             view.Components.AddComponent(this);
             if (SetDataContext)
                 view.Target.BindableMembers().SetDataContext(view.ViewModel);

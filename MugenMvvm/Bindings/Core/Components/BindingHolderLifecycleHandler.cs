@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,7 +19,7 @@ namespace MugenMvvm.Bindings.Core.Components
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IBindingHolderComponent[] _components;
+        private ItemOrArray<IBindingHolderComponent> _components;
 
         #endregion
 
@@ -27,7 +28,6 @@ namespace MugenMvvm.Bindings.Core.Components
         [Preserve(Conditional = true)]
         public BindingHolderLifecycleHandler()
         {
-            _components = Default.Array<IBindingHolderComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IBindingHolderComponent, BindingHolderLifecycleHandler>((components, state, _) => state._components = components, this);
         }

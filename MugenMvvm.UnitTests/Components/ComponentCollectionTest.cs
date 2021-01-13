@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -86,7 +87,7 @@ namespace MugenMvvm.UnitTests.Components
             componentCollection.Count.ShouldEqual(components.Count);
             componentCollection.Clear(DefaultMetadata);
             componentCollection.Count.ShouldEqual(0);
-            componentCollection.Get<TestComponentCollectionProviderComponent>().Length.ShouldEqual(0);
+            componentCollection.Get<TestComponentCollectionProviderComponent>().Count.ShouldEqual(0);
         }
 
         [Theory]
@@ -130,7 +131,7 @@ namespace MugenMvvm.UnitTests.Components
             addingCount.ShouldEqual(count);
             addedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(0);
-            componentCollection.Get<object>().Length.ShouldEqual(0);
+            componentCollection.Get<object>().Count.ShouldEqual(0);
 
             canAdd = true;
             addingCount = 0;
@@ -143,7 +144,7 @@ namespace MugenMvvm.UnitTests.Components
             addingCount.ShouldEqual(count);
             addedCount.ShouldEqual(count);
             componentCollection.Count.ShouldEqual(count);
-            componentCollection.Get<object>().Length.ShouldEqual(count);
+            componentCollection.Get<object>().Count.ShouldEqual(count);
         }
 
         [Theory]
@@ -191,7 +192,7 @@ namespace MugenMvvm.UnitTests.Components
             removingCount.ShouldEqual(count);
             removedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(count);
-            componentCollection.Get<object>().Length.ShouldEqual(count);
+            componentCollection.Get<object>().Count.ShouldEqual(count);
 
             canRemove = true;
             removingCount = 0;
@@ -204,7 +205,7 @@ namespace MugenMvvm.UnitTests.Components
             removingCount.ShouldEqual(count);
             removedCount.ShouldEqual(count);
             componentCollection.Count.ShouldEqual(0);
-            componentCollection.Get<object>().Length.ShouldEqual(0);
+            componentCollection.Get<object>().Count.ShouldEqual(0);
         }
 
         [Theory]
@@ -307,7 +308,7 @@ namespace MugenMvvm.UnitTests.Components
             componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
             detachingCount.ShouldEqual(2);
             detachedCount.ShouldEqual(1);
-            componentCollection.Get<object>().Length.ShouldEqual(0);
+            componentCollection.Get<object>().Count.ShouldEqual(0);
         }
 
         [Fact]
@@ -345,11 +346,11 @@ namespace MugenMvvm.UnitTests.Components
             componentCollection.TryAdd(component);
 
             componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component});
-            decoratorComponent1.DecorateHandler = (c, list, context) =>
+            decoratorComponent1.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
-                list.ShouldEqual(new[] {component});
+                list.AsList().ShouldEqual(new[] {component});
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated1);
             };
@@ -358,11 +359,11 @@ namespace MugenMvvm.UnitTests.Components
             componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
             executed.ShouldEqual(1);
 
-            decoratorComponent2.DecorateHandler = (c, list, context) =>
+            decoratorComponent2.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
-                list.ShouldEqual(new[] {component, componentDecorated1});
+                list.AsList().ShouldEqual(new[] {component, componentDecorated1});
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated2);
             };
@@ -397,7 +398,7 @@ namespace MugenMvvm.UnitTests.Components
             {
                 var decoratorComponent = new TestThreadDispatcherDecorator
                 {
-                    DecorateHandler = (c, list, context) =>
+                    DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
                     {
                         ++executed;
                         c.ShouldEqual(componentCollection);
@@ -410,8 +411,8 @@ namespace MugenMvvm.UnitTests.Components
 
             var components = componentCollection.Get<IThreadDispatcherComponent>();
             executed.ShouldEqual(count);
-            components.Length.ShouldEqual(count * 2);
-            components.OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
+            components.Count.ShouldEqual(count * 2);
+            components.AsList().OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
         }
 
         protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollection(this);

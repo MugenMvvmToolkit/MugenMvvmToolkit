@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Convert.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,7 +19,7 @@ namespace MugenMvvm.Bindings.Convert
 
         private readonly ComponentTracker _componentTracker;
         private GlobalValueConverterComponent? _component;
-        private IGlobalValueConverterComponent[] _components;
+        private ItemOrArray<IGlobalValueConverterComponent> _components;
 
         #endregion
 
@@ -27,12 +28,11 @@ namespace MugenMvvm.Bindings.Convert
         [Preserve(Conditional = true)]
         public GlobalValueConverter(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
-            _components = Default.Array<IGlobalValueConverterComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IGlobalValueConverterComponent, GlobalValueConverter>((components, state, _) =>
             {
                 state._components = components;
-                if (components.Length == 1 && components[0] is GlobalValueConverterComponent c)
+                if (components.Count == 1 && components[0] is GlobalValueConverterComponent c)
                     state._component = c;
                 else
                     state._component = null;

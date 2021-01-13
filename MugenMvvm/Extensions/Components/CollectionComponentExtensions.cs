@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Extensions.Components
@@ -8,221 +9,197 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnBeginBatchUpdate(this ICollectionBatchUpdateListener[] listeners, ICollection collection)
+        public static void OnBeginBatchUpdate(this ItemOrArray<ICollectionBatchUpdateListener> listeners, ICollection collection)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBeginBatchUpdate(collection);
+            foreach (var c in listeners)
+                c.OnBeginBatchUpdate(collection);
         }
 
-        public static void OnEndBatchUpdate(this ICollectionBatchUpdateListener[] listeners, ICollection collection)
+        public static void OnEndBatchUpdate(this ItemOrArray<ICollectionBatchUpdateListener> listeners, ICollection collection)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnEndBatchUpdate(collection);
+            foreach (var c in listeners)
+                c.OnEndBatchUpdate(collection);
         }
 
-        public static bool CanAdd<T>(this IConditionCollectionComponent<T>[] components, IReadOnlyCollection<T> collection, T item, int index)
+        public static bool CanAdd<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyCollection<T> collection, T item, int index)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (!components[i].CanAdd(collection, item, index))
+                if (!c.CanAdd(collection, item, index))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanReplace<T>(this IConditionCollectionComponent<T>[] components, IReadOnlyCollection<T> collection, T oldItem, T newItem, int index)
+        public static bool CanReplace<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyCollection<T> collection, T oldItem, T newItem, int index)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (!components[i].CanReplace(collection, oldItem, newItem, index))
+                if (!c.CanReplace(collection, oldItem, newItem, index))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanMove<T>(this IConditionCollectionComponent<T>[] components, IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex)
+        public static bool CanMove<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (!components[i].CanMove(collection, item, oldIndex, newIndex))
+                if (!c.CanMove(collection, item, oldIndex, newIndex))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanRemove<T>(this IConditionCollectionComponent<T>[] components, IReadOnlyCollection<T> collection, T item, int index)
+        public static bool CanRemove<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyCollection<T> collection, T item, int index)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (!components[i].CanRemove(collection, item, index))
+                if (!c.CanRemove(collection, item, index))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanReset<T>(this IConditionCollectionComponent<T>[] components, IReadOnlyCollection<T> collection, IEnumerable<T>? items)
+        public static bool CanReset<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyCollection<T> collection, IEnumerable<T>? items)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (!components[i].CanReset(collection, items))
+                if (!c.CanReset(collection, items))
                     return false;
             }
 
             return true;
         }
 
-        public static void OnAdding<T>(this ICollectionChangingListener<T>[] listeners, IReadOnlyCollection<T> collection, T item, int index)
+        public static void OnAdding<T>(this ItemOrArray<ICollectionChangingListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdding(collection, item, index);
+            foreach (var c in listeners)
+                c.OnAdding(collection, item, index);
         }
 
-        public static void OnReplacing<T>(this ICollectionChangingListener<T>[] listeners, IReadOnlyCollection<T> collection, T oldItem, T newItem, int index)
+        public static void OnReplacing<T>(this ItemOrArray<ICollectionChangingListener<T>> listeners, IReadOnlyCollection<T> collection, T oldItem, T newItem, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReplacing(collection, oldItem, newItem, index);
+            foreach (var c in listeners)
+                c.OnReplacing(collection, oldItem, newItem, index);
         }
 
-        public static void OnMoving<T>(this ICollectionChangingListener<T>[] listeners, IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex)
+        public static void OnMoving<T>(this ItemOrArray<ICollectionChangingListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnMoving(collection, item, oldIndex, newIndex);
+            foreach (var c in listeners)
+                c.OnMoving(collection, item, oldIndex, newIndex);
         }
 
-        public static void OnRemoving<T>(this ICollectionChangingListener<T>[] listeners, IReadOnlyCollection<T> collection, T item, int index)
+        public static void OnRemoving<T>(this ItemOrArray<ICollectionChangingListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoving(collection, item, index);
+            foreach (var c in listeners)
+                c.OnRemoving(collection, item, index);
         }
 
-        public static void OnResetting<T>(this ICollectionChangingListener<T>[] listeners, IReadOnlyCollection<T> collection, IEnumerable<T>? items)
+        public static void OnResetting<T>(this ItemOrArray<ICollectionChangingListener<T>> listeners, IReadOnlyCollection<T> collection, IEnumerable<T>? items)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnResetting(collection, items);
+            foreach (var c in listeners)
+                c.OnResetting(collection, items);
         }
 
-        public static void OnItemChanged<T>(this ICollectionChangedListener<T>[] listeners, IReadOnlyCollection<T> collection, T item, int index, object? args)
+        public static void OnItemChanged<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index, object? args)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnItemChanged(collection, item, index, args);
+            foreach (var c in listeners)
+                c.OnItemChanged(collection, item, index, args);
         }
 
-        public static void OnAdded<T>(this ICollectionChangedListener<T>[] listeners, IReadOnlyCollection<T> collection, T item, int index)
+        public static void OnAdded<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdded(collection, item, index);
+            foreach (var c in listeners)
+                c.OnAdded(collection, item, index);
         }
 
-        public static void OnReplaced<T>(this ICollectionChangedListener<T>[] listeners, IReadOnlyCollection<T> collection, T oldItem, T newItem, int index)
+        public static void OnReplaced<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T oldItem, T newItem, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReplaced(collection, oldItem, newItem, index);
+            foreach (var c in listeners)
+                c.OnReplaced(collection, oldItem, newItem, index);
         }
 
-        public static void OnMoved<T>(this ICollectionChangedListener<T>[] listeners, IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex)
+        public static void OnMoved<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnMoved(collection, item, oldIndex, newIndex);
+            foreach (var c in listeners)
+                c.OnMoved(collection, item, oldIndex, newIndex);
         }
 
-        public static void OnRemoved<T>(this ICollectionChangedListener<T>[] listeners, IReadOnlyCollection<T> collection, T item, int index)
+        public static void OnRemoved<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoved(collection, item, index);
+            foreach (var c in listeners)
+                c.OnRemoved(collection, item, index);
         }
 
-        public static void OnReset<T>(this ICollectionChangedListener<T>[] listeners, IReadOnlyCollection<T> collection, IEnumerable<T>? items)
+        public static void OnReset<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, IEnumerable<T>? items)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReset(collection, items);
+            foreach (var c in listeners)
+                c.OnReset(collection, items);
         }
 
-        public static void OnItemChanged(this ICollectionDecoratorListener[] listeners, ICollection collection, object? item, int index, object? args)
+        public static void OnItemChanged(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? item, int index, object? args)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnItemChanged(collection, item, index, args);
+            foreach (var c in listeners)
+                c.OnItemChanged(collection, item, index, args);
         }
 
-        public static void OnAdded(this ICollectionDecoratorListener[] listeners, ICollection collection, object? item, int index)
+        public static void OnAdded(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? item, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdded(collection, item, index);
+            foreach (var c in listeners)
+                c.OnAdded(collection, item, index);
         }
 
-        public static void OnReplaced(this ICollectionDecoratorListener[] listeners, ICollection collection, object? oldItem, object? newItem, int index)
+        public static void OnReplaced(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? oldItem, object? newItem, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReplaced(collection, oldItem, newItem, index);
+            foreach (var c in listeners)
+                c.OnReplaced(collection, oldItem, newItem, index);
         }
 
-        public static void OnMoved(this ICollectionDecoratorListener[] listeners, ICollection collection, object? item, int oldIndex, int newIndex)
+        public static void OnMoved(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? item, int oldIndex, int newIndex)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnMoved(collection, item, oldIndex, newIndex);
+            foreach (var c in listeners)
+                c.OnMoved(collection, item, oldIndex, newIndex);
         }
 
-        public static void OnRemoved(this ICollectionDecoratorListener[] listeners, ICollection collection, object? item, int index)
+        public static void OnRemoved(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? item, int index)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoved(collection, item, index);
+            foreach (var c in listeners)
+                c.OnRemoved(collection, item, index);
         }
 
-        public static void OnReset(this ICollectionDecoratorListener[] listeners, ICollection collection, IEnumerable<object?>? items)
+        public static void OnReset(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, IEnumerable<object?>? items)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(collection, nameof(collection));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReset(collection, items);
+            foreach (var c in listeners)
+                c.OnReset(collection, items);
         }
 
         #endregion

@@ -50,9 +50,9 @@ namespace MugenMvvm.Views.Components
         {
             view.ViewModel.TryUnsubscribe(view.Target, metadata);
             (view.Target as ICleanableView)?.Cleanup(state, metadata);
-            var cleanableViews = view.GetComponents<ICleanableView>(metadata);
-            for (var i = 0; i < cleanableViews.Length; i++)
-                cleanableViews[i].Cleanup(state, metadata);
+            foreach (var v in view.GetComponents<ICleanableView>(metadata))
+                v.Cleanup(state, metadata);
+
             view.ClearMetadata(true);
             view.Components.RemoveComponent(this);
             view.Components.Clear(metadata);

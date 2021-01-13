@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
@@ -10,50 +11,45 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnSerializing(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
+        public static void OnSerializing(this ItemOrArray<ISerializerListener> listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnSerializing(serializer, instance, serializationContext!);
+            foreach (var c in listeners)
+                c.OnSerializing(serializer, instance, serializationContext!);
         }
 
-        public static void OnSerialized(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
+        public static void OnSerialized(this ItemOrArray<ISerializerListener> listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnSerialized(serializer, instance, serializationContext!);
+            foreach (var c in listeners)
+                c.OnSerialized(serializer, instance, serializationContext!);
         }
 
-        public static void OnDeserializing(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
+        public static void OnDeserializing(this ItemOrArray<ISerializerListener> listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnDeserializing(serializer, instance, serializationContext!);
+            foreach (var c in listeners)
+                c.OnDeserializing(serializer, instance, serializationContext!);
         }
 
-        public static void OnDeserialized(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
+        public static void OnDeserialized(this ItemOrArray<ISerializerListener> listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnDeserialized(serializer, instance, serializationContext!);
+            foreach (var c in listeners)
+                c.OnDeserialized(serializer, instance, serializationContext!);
         }
 
-        public static ISurrogateProvider? TryGetSurrogateProvider(this ISurrogateProviderResolverComponent[] components, ISerializer serializer, Type type, ISerializationContext? serializationContext)
+        public static ISurrogateProvider? TryGetSurrogateProvider(this ItemOrArray<ISurrogateProviderResolverComponent> components, ISerializer serializer, Type type, ISerializationContext? serializationContext)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(type, nameof(type));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var provider = components[i].TryGetSurrogateProvider(serializer, type, serializationContext);
+                var provider = c.TryGetSurrogateProvider(serializer, type, serializationContext);
                 if (provider != null)
                     return provider;
             }
@@ -61,14 +57,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Type? TryResolveType(this ITypeResolverComponent[] components, ISerializer serializer, string? assemblyName, string typeName, ISerializationContext? serializationContext)
+        public static Type? TryResolveType(this ItemOrArray<ITypeResolverComponent> components, ISerializer serializer, string? assemblyName, string typeName, ISerializationContext? serializationContext)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(typeName, nameof(typeName));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var type = components[i].TryResolveType(serializer, assemblyName, typeName, serializationContext);
+                var type = c.TryResolveType(serializer, assemblyName, typeName, serializationContext);
                 if (type != null)
                     return type;
             }
@@ -76,15 +71,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool TryResolveName(this ITypeResolverComponent[] components, ISerializer serializer, Type serializedType, ISerializationContext? serializationContext, out string? assemblyName,
+        public static bool TryResolveName(this ItemOrArray<ITypeResolverComponent> components, ISerializer serializer, Type serializedType, ISerializationContext? serializationContext, out string? assemblyName,
             out string? typeName)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializedType, nameof(serializedType));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].TryResolveName(serializer, serializedType, serializationContext, out assemblyName, out typeName))
+                if (c.TryResolveName(serializer, serializedType, serializationContext, out assemblyName, out typeName))
                     return true;
             }
 
@@ -93,15 +87,14 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static ISerializationContext? TryGetSerializationContext<TRequest, TResult>(this ISerializationContextProviderComponent[] components, ISerializer serializer,
+        public static ISerializationContext? TryGetSerializationContext<TRequest, TResult>(this ItemOrArray<ISerializationContextProviderComponent> components, ISerializer serializer,
             ISerializationFormatBase<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var context = components[i].TryGetSerializationContext(serializer, format, request, metadata);
+                var context = c.TryGetSerializationContext(serializer, format, request, metadata);
                 if (context != null)
                     return context;
             }
@@ -109,31 +102,29 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool IsSupported<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, TRequest? request,
+        public static bool IsSupported<TRequest, TResult>(this ItemOrArray<ISerializationManagerComponent> components, ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, TRequest? request,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].IsSupported(serializer, format, request, metadata))
+                if (c.IsSupported(serializer, format, request, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TrySerialize<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
+        public static bool TrySerialize<TRequest, TResult>(this ItemOrArray<ISerializationManagerComponent> components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
             ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].TrySerialize(serializer, format, request, serializationContext, ref result))
+                if (c.TrySerialize(serializer, format, request, serializationContext, ref result))
                     return true;
             }
 
@@ -141,16 +132,15 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool TryDeserialize<TRequest, TResult>(this ISerializationManagerComponent[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
+        public static bool TryDeserialize<TRequest, TResult>(this ItemOrArray<ISerializationManagerComponent> components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
             ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].TryDeserialize(serializer, format, request, serializationContext, ref result))
+                if (c.TryDeserialize(serializer, format, request, serializationContext, ref result))
                     return true;
             }
 
@@ -158,31 +148,29 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool IsSupported<TRequest, TResult>(this ISerializerComponent<TRequest, TResult>[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format,
+        public static bool IsSupported<TRequest, TResult>(this ItemOrArray<ISerializerComponent<TRequest, TResult>> components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format,
             TRequest? request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].IsSupported(serializer, format, request, metadata))
+                if (c.IsSupported(serializer, format, request, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TrySerialize<TRequest, TResult>(this ISerializerComponent<TRequest, TResult>[] components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
+        public static bool TrySerialize<TRequest, TResult>(this ItemOrArray<ISerializerComponent<TRequest, TResult>> components, ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
             ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].TrySerialize(serializer, format, request, serializationContext, ref result))
+                if (c.TrySerialize(serializer, format, request, serializationContext, ref result))
                     return true;
             }
 
@@ -190,31 +178,29 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool IsSupported<TRequest, TResult>(this IDeserializerComponent<TRequest, TResult>[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format,
+        public static bool IsSupported<TRequest, TResult>(this ItemOrArray<IDeserializerComponent<TRequest, TResult>> components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format,
             TRequest? request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].IsSupported(serializer, format, request, metadata))
+                if (c.IsSupported(serializer, format, request, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TryDeserialize<TRequest, TResult>(this IDeserializerComponent<TRequest, TResult>[] components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
+        public static bool TryDeserialize<TRequest, TResult>(this ItemOrArray<IDeserializerComponent<TRequest, TResult>> components, ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
             ISerializationContext serializationContext, [NotNullWhen(true)] ref TResult? result)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].TryDeserialize(serializer, format, request, serializationContext, ref result))
+                if (c.TryDeserialize(serializer, format, request, serializationContext, ref result))
                     return true;
             }
 

@@ -125,6 +125,23 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static T Last<T>(this ItemOrIReadOnlyList<T> itemOrList) => itemOrList[itemOrList.Count - 1];
 
+        internal static T? FirstOrDefault<T>(this ItemOrArray<T> itemOrList, Func<T, bool> predicate)
+        {
+            if (itemOrList.List != null)
+            {
+                foreach (var item in itemOrList)
+                {
+                    if (predicate(item))
+                        return item;
+                }
+                return default;
+            }
+
+            if (predicate(itemOrList.Item!))
+                return itemOrList.Item;
+            return default;
+        }
+
         #endregion
     }
 }

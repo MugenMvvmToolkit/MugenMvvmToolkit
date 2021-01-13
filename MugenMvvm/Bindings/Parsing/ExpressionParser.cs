@@ -15,7 +15,7 @@ namespace MugenMvvm.Bindings.Parsing
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IExpressionParserComponent[] _components;
+        private ItemOrArray<IExpressionParserComponent> _components;
 
         #endregion
 
@@ -24,7 +24,6 @@ namespace MugenMvvm.Bindings.Parsing
         public ExpressionParser(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
-            _components = Default.Array<IExpressionParserComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionParserComponent, ExpressionParser>((components, state, _) => state._components = components, this);
         }

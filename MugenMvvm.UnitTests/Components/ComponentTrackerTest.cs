@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Components;
+﻿using MugenMvvm.Collections;
+using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Components.Internal;
@@ -21,7 +22,7 @@ namespace MugenMvvm.UnitTests.Components
             var componentTracker = new ComponentTracker();
             var componentCollection = new ComponentCollection(this);
             var executed = 0;
-            IComponent[]? expectedComponents = null;
+            ItemOrArray<IComponent> expectedComponents = default;
 
             for (var i = 0; i < listenersCount; i++)
             {
@@ -67,7 +68,7 @@ namespace MugenMvvm.UnitTests.Components
                     ++executed;
                     s.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
-                    components.Length.ShouldEqual(expectedCount);
+                    components.Count.ShouldEqual(expectedCount);
                     componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
             }
@@ -103,17 +104,16 @@ namespace MugenMvvm.UnitTests.Components
                     ++executed;
                     s.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
-                    components.Length.ShouldEqual(expectedCount);
+                    components.Count.ShouldEqual(expectedCount);
                     componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
             }
 
-            var toRemove = componentCollection.Get<IComponent>();
-            for (var i = 0; i < toRemove.Length; i++)
+            foreach (var c in componentCollection.Get<IComponent>())
             {
                 --expectedCount;
                 executed = 0;
-                componentCollection.Remove(toRemove[i], DefaultMetadata);
+                componentCollection.Remove(c, DefaultMetadata);
                 executed.ShouldEqual(listenersCount);
             }
         }

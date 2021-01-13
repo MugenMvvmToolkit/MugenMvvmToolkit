@@ -86,14 +86,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             binding.State.ShouldEqual(BindingState.Disposed);
             targetDisposed.ShouldBeFalse();
             sourceDisposed.ShouldBeFalse();
-            binding.GetComponents().AsList().ShouldContain(components);
+            binding.GetComponents<object>().AsList().ShouldContain(components);
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
 
             binding.Components.Clear();
             binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
-            binding.GetComponents().AsList().ShouldBeEmpty();
+            binding.GetComponents<object>().AsList().ShouldBeEmpty();
             ShouldThrow<ObjectDisposedException>(() =>
             {
                 var compiledExpression = binding.Expression;

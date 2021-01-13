@@ -63,18 +63,16 @@ namespace MugenMvvm.Views.Components
             {
                 viewImp.Components.AddComponent(this);
                 TryUpdateViewModel(viewImp.Target, viewImp.ViewModel);
-                var components = viewImp.GetComponents<object>(metadata);
-                for (var i = 0; i < components.Length; i++)
-                    TryUpdateViewModel(components[i], viewImp.ViewModel);
+                foreach (var c in viewImp.GetComponents<object>(metadata))
+                    TryUpdateViewModel(c, viewImp.ViewModel);
                 TryUpdateView(viewImp, false, metadata);
             }
             else if (lifecycleState == ViewLifecycleState.Clearing)
             {
                 TryUpdateView(viewImp, true, metadata);
                 TryUpdateViewModel(viewImp.Target, null);
-                var components = viewImp.GetComponents<object>(metadata);
-                for (var i = 0; i < components.Length; i++)
-                    TryUpdateViewModel(components[i], null);
+                foreach (var c in viewImp.GetComponents<object>(metadata))
+                    TryUpdateViewModel(c, null);
                 viewImp.Components.RemoveComponent(this);
             }
         }

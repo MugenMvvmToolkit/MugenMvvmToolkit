@@ -105,9 +105,9 @@ namespace MugenMvvm.Validation
 
         #region Methods
 
-        private new TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
+        private new ItemOrArray<TComponent> GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class =>
-            IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
+            IsDisposed ? default : base.GetComponents<TComponent>(metadata);
 
         #endregion
     }

@@ -86,7 +86,7 @@ namespace MugenMvvm.Presenters.Components
             lock (_locker)
             {
                 var components = presenter.GetComponents<IViewModelPresenterMediatorProviderComponent>(metadata);
-                if (components.Length == 0)
+                if (components.Count == 0)
                     return default;
 
                 var dictionary = viewModel.Metadata.Get(InternalMetadata.Mediators);

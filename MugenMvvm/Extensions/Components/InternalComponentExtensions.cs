@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
@@ -14,30 +15,29 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool IsInState<T>(this ILifecycleTrackerComponent<T>[] components, object owner, object target, T state, IReadOnlyMetadataContext? metadata)
+        public static bool IsInState<T>(this ItemOrArray<ILifecycleTrackerComponent<T>> components, object owner, object target, T state, IReadOnlyMetadataContext? metadata)
             where T : class, IEnum
         {
             Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(state, nameof(state));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].IsInState(owner, target, state, metadata))
+                if (c.IsInState(owner, target, state, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static AttachedValueStorage TryGetAttachedValues(this IAttachedValueStorageProviderComponent[] components, IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AttachedValueStorage TryGetAttachedValues(this ItemOrArray<IAttachedValueStorageProviderComponent> components, IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(item, nameof(item));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var storage = components[i].TryGetAttachedValues(attachedValueManager, item, metadata);
+                var storage = c.TryGetAttachedValues(attachedValueManager, item, metadata);
                 if (!storage.IsEmpty)
                     return storage;
             }
@@ -45,14 +45,13 @@ namespace MugenMvvm.Extensions.Components
             return default;
         }
 
-        public static Func<ItemOrArray<object?>, object>? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, ConstructorInfo constructor)
+        public static Func<ItemOrArray<object?>, object>? TryGetActivator(this ItemOrArray<IActivatorReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(constructor, nameof(constructor));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var activator = components[i].TryGetActivator(reflectionManager, constructor);
+                var activator = c.TryGetActivator(reflectionManager, constructor);
                 if (activator != null)
                     return activator;
             }
@@ -60,15 +59,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType)
+        public static Delegate? TryGetActivator(this ItemOrArray<IActivatorReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(constructor, nameof(constructor));
             Should.NotBeNull(delegateType, nameof(delegateType));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var activator = components[i].TryGetActivator(reflectionManager, constructor, delegateType);
+                var activator = c.TryGetActivator(reflectionManager, constructor, delegateType);
                 if (activator != null)
                     return activator;
             }
@@ -76,15 +74,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetMemberGetter(this IMemberReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
+        public static Delegate? TryGetMemberGetter(this ItemOrArray<IMemberReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(member, nameof(member));
             Should.NotBeNull(delegateType, nameof(delegateType));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var getter = components[i].TryGetMemberGetter(reflectionManager, member, delegateType);
+                var getter = c.TryGetMemberGetter(reflectionManager, member, delegateType);
                 if (getter != null)
                     return getter;
             }
@@ -92,15 +89,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetMemberSetter(this IMemberReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
+        public static Delegate? TryGetMemberSetter(this ItemOrArray<IMemberReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(member, nameof(member));
             Should.NotBeNull(delegateType, nameof(delegateType));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var setter = components[i].TryGetMemberSetter(reflectionManager, member, delegateType);
+                var setter = c.TryGetMemberSetter(reflectionManager, member, delegateType);
                 if (setter != null)
                     return setter;
             }
@@ -108,14 +104,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(this IMethodReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, MethodInfo method)
+        public static Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(this ItemOrArray<IMethodReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MethodInfo method)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(method, nameof(method));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var invoker = components[i].TryGetMethodInvoker(reflectionManager, method);
+                var invoker = c.TryGetMethodInvoker(reflectionManager, method);
                 if (invoker != null)
                     return invoker;
             }
@@ -123,15 +118,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetMethodInvoker(this IMethodReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, MethodInfo method, Type delegateType)
+        public static Delegate? TryGetMethodInvoker(this ItemOrArray<IMethodReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MethodInfo method, Type delegateType)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(method, nameof(method));
             Should.NotBeNull(delegateType, nameof(delegateType));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var invoker = components[i].TryGetMethodInvoker(reflectionManager, method, delegateType);
+                var invoker = c.TryGetMethodInvoker(reflectionManager, method, delegateType);
                 if (invoker != null)
                     return invoker;
             }
@@ -139,30 +133,28 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool CanCreateDelegate(this IReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, Type delegateType, MethodInfo method)
+        public static bool CanCreateDelegate(this ItemOrArray<IReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, Type delegateType, MethodInfo method)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].CanCreateDelegate(reflectionManager, delegateType, method))
+                if (c.CanCreateDelegate(reflectionManager, delegateType, method))
                     return true;
             }
 
             return false;
         }
 
-        public static Delegate? TryCreateDelegate(this IReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, Type delegateType, object? target, MethodInfo method)
+        public static Delegate? TryCreateDelegate(this ItemOrArray<IReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, Type delegateType, object? target, MethodInfo method)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var value = components[i].TryCreateDelegate(reflectionManager, delegateType, target, method);
+                var value = c.TryCreateDelegate(reflectionManager, delegateType, target, method);
                 if (value != null)
                     return value;
             }
@@ -170,14 +162,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ILogger? TryGetLogger(this ILoggerProviderComponent[] components, ILogger logger, object request, IReadOnlyMetadataContext? metadata)
+        public static ILogger? TryGetLogger(this ItemOrArray<ILoggerProviderComponent> components, ILogger logger, object request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(request, nameof(request));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var result = components[i].TryGetLogger(logger, request, metadata);
+                var result = c.TryGetLogger(logger, request, metadata);
                 if (result != null)
                     return result;
             }
@@ -185,38 +176,36 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool CanLog(this ILoggerComponent[] components, ILogger logger, LogLevel level, IReadOnlyMetadataContext? metadata)
+        public static bool CanLog(this ItemOrArray<ILoggerComponent> components, ILogger logger, LogLevel level, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(level, nameof(level));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                if (components[i].CanLog(logger, level, metadata))
+                if (c.CanLog(logger, level, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static void Log(this ILoggerComponent[] components, ILogger logger, LogLevel level, object message, Exception? exception, IReadOnlyMetadataContext? metadata)
+        public static void Log(this ItemOrArray<ILoggerComponent> components, ILogger logger, LogLevel level, object message, Exception? exception, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(level, nameof(level));
             Should.NotBeNull(message, nameof(message));
-            for (var i = 0; i < components.Length; i++)
-                components[i].Log(logger, level, message, exception, metadata);
+            foreach (var c in components)
+                c.Log(logger, level, message, exception, metadata);
         }
 
-        public static IWeakReference? TryGetWeakReference(this IWeakReferenceProviderComponent[] components, IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IWeakReference? TryGetWeakReference(this ItemOrArray<IWeakReferenceProviderComponent> components, IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(weakReferenceManager, nameof(weakReferenceManager));
             Should.NotBeNull(item, nameof(item));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var weakReference = components[i].TryGetWeakReference(weakReferenceManager, item, metadata);
+                var weakReference = c.TryGetWeakReference(weakReferenceManager, item, metadata);
                 if (weakReference != null)
                     return weakReference;
             }

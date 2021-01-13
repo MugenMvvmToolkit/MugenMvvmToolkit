@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -15,7 +15,7 @@ namespace MugenMvvm.Components
     {
         #region Fields
 
-        protected TComponent[] Components;
+        protected ItemOrArray<TComponent> Components;
 
         #endregion
 
@@ -23,7 +23,6 @@ namespace MugenMvvm.Components
 
         protected ComponentDecoratorBase(int priority = ComponentPriority.Decorator)
         {
-            Components = Default.Array<TComponent>();
             Priority = priority;
         }
 
@@ -37,7 +36,8 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        void IComponentCollectionDecorator<TComponent>.Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata) => Decorate(collection, components, metadata);
+        void IComponentCollectionDecorator<TComponent>.Decorate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata) =>
+            Decorate(collection, ref components, metadata);
 
         #endregion
 
@@ -48,10 +48,10 @@ namespace MugenMvvm.Components
         protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
             owner.Components.RemoveComponent(this, metadata);
-            Components = Default.Array<TComponent>();
+            Components = default;
         }
 
-        protected virtual void Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata) => Components = this.Decorate(components);
+        protected virtual void Decorate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata) => Components = this.Decorate(ref components);
 
         #endregion
     }

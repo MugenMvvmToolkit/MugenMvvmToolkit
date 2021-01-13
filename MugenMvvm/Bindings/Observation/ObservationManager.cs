@@ -3,6 +3,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -16,9 +17,9 @@ namespace MugenMvvm.Bindings.Observation
 
         private readonly ComponentTracker _componentTracker;
 
-        private IMemberObserverProviderComponent[] _memberObserverComponents;
-        private IMemberPathProviderComponent[] _memberPathComponents;
-        private IMemberPathObserverProviderComponent[] _memberPathObserverComponents;
+        private ItemOrArray<IMemberObserverProviderComponent> _memberObserverComponents;
+        private ItemOrArray<IMemberPathProviderComponent> _memberPathComponents;
+        private ItemOrArray<IMemberPathObserverProviderComponent> _memberPathObserverComponents;
 
         #endregion
 
@@ -28,9 +29,6 @@ namespace MugenMvvm.Bindings.Observation
         public ObservationManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
-            _memberObserverComponents = Default.Array<IMemberObserverProviderComponent>();
-            _memberPathComponents = Default.Array<IMemberPathProviderComponent>();
-            _memberPathObserverComponents = Default.Array<IMemberPathObserverProviderComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IMemberObserverProviderComponent, ObservationManager>((components, state, _) => state._memberObserverComponents = components, this);
             _componentTracker.AddListener<IMemberPathProviderComponent, ObservationManager>((components, state, _) => state._memberPathComponents = components, this);

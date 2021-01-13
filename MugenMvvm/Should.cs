@@ -15,7 +15,7 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if !DEBUG
+#if DEBUG
         public static void NotBeNull<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
             T? argumentValue, [InvokerParameterName] string paramName) where T : class
 #else

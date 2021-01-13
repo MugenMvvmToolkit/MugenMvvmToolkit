@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -12,13 +10,12 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IBusyToken? TryBeginBusy(this IBusyManagerComponent[] components, IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
+        public static IBusyToken? TryBeginBusy(this ItemOrArray<IBusyManagerComponent> components, IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(busyManager, nameof(busyManager));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var token = components[i].TryBeginBusy(busyManager, request, metadata);
+                var token = c.TryBeginBusy(busyManager, request, metadata);
                 if (token != null)
                     return token;
             }
@@ -26,15 +23,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
+        public static IBusyToken? TryGetToken<TState>(this ItemOrArray<IBusyManagerComponent> components, IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(filter, nameof(filter));
             Should.NotBeNull(busyManager, nameof(busyManager));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var token = components[i].TryGetToken(busyManager, filter, state, metadata);
+                var token = c.TryGetToken(busyManager, filter, state, metadata);
                 if (token != null)
                     return token;
             }
@@ -42,33 +38,32 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ItemOrIReadOnlyList<IBusyToken> TryGetTokens(this IBusyManagerComponent[] components, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<IBusyToken> TryGetTokens(this ItemOrArray<IBusyManagerComponent> components, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(busyManager, nameof(busyManager));
-            if (components.Length == 1)
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
                 return components[0].TryGetTokens(busyManager, metadata);
             var result = new ItemOrListEditor<IBusyToken>();
-            for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetTokens(busyManager, metadata));
+            foreach (var c in components)
+                result.AddRange(c.TryGetTokens(busyManager, metadata));
             return result.ToItemOrList();
         }
 
-        public static void OnBeginBusy(this IBusyManagerListener[] listeners, IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
+        public static void OnBeginBusy(this ItemOrArray<IBusyManagerListener> listeners, IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(busyManager, nameof(busyManager));
             Should.NotBeNull(busyToken, nameof(busyToken));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBeginBusy(busyManager, busyToken, metadata);
+            foreach (var c in listeners)
+                c.OnBeginBusy(busyManager, busyToken, metadata);
         }
 
-        public static void OnBusyStateChanged(this IBusyManagerListener[] listeners, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
+        public static void OnBusyStateChanged(this ItemOrArray<IBusyManagerListener> listeners, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(busyManager, nameof(busyManager));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBusyStateChanged(busyManager, metadata);
+            foreach (var c in listeners)
+                c.OnBusyStateChanged(busyManager, metadata);
         }
 
         #endregion

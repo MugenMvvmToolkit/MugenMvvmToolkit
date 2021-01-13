@@ -16,7 +16,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core
 {
@@ -52,6 +51,7 @@ namespace MugenMvvm.Bindings.Core
 
         #region Constructors
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Binding(IMemberPathObserver target, object? sourceRaw)
         {
             Should.NotBeNull(target, nameof(target));
@@ -246,10 +246,10 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
-        TComponent[] IComponentCollection.Get<TComponent>(IReadOnlyMetadataContext? metadata)
+        ItemOrArray<T> IComponentCollection.Get<T>(IReadOnlyMetadataContext? metadata)
         {
-            Should.MethodBeSupported(false, nameof(IComponentCollection.Get));
-            return null!;
+            Should.MethodBeSupported(typeof(T) == typeof(object), nameof(IComponentCollection.Get));
+            return ItemOrArray.FromRawValue<T>(_components);
         }
 
         void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
@@ -286,7 +286,7 @@ namespace MugenMvvm.Bindings.Core
 
         #region Methods
 
-        public void Initialize(ItemOrArray<IComponent<IBinding>?> components, IReadOnlyMetadataContext? metadata)
+        public void Initialize(ItemOrArray<object?> components, IReadOnlyMetadataContext? metadata)
         {
             if (CheckFlag(DisposedFlag))
                 return;

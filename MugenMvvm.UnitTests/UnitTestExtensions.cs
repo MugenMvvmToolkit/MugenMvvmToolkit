@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,6 +16,19 @@ namespace MugenMvvm.UnitTests
     public static class UnitTestExtensions
     {
         #region Methods
+
+        public static void ShouldEqual<T>(this ItemOrArray<T> itemOrList, IEnumerable<T> enumerable) => itemOrList.AsList().ShouldEqual(enumerable);
+
+        public static void ShouldContain<T>(this ItemOrArray<T> itemOrList, params T[] values) => itemOrList.AsList().ShouldContain(values);
+
+        public static void ShouldBeEmpty<T>(this ItemOrArray<T> itemOrList) => itemOrList.IsEmpty.ShouldBeTrue();
+
+        public static T Single<T>(this ItemOrArray<T> itemOrList)
+        {
+            if (itemOrList.Count != 1)
+                throw new InvalidOperationException("Assert Single");
+            return itemOrList[0];
+        }
 
         public static T UpdateMetadata<T>(this T expression, string key1, object? value1, string? key2 = null, object? value2 = null)
             where T : class, IExpressionNode

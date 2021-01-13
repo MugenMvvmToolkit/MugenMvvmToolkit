@@ -110,9 +110,9 @@ namespace MugenMvvm.Commands
 
         #region Methods
 
-        private new TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
+        private new ItemOrArray<TComponent> GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class =>
-            IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
+            IsDisposed ? default : base.GetComponents<TComponent>(metadata);
 
         public static ICompositeCommand Create(object? owner, Action execute, Func<bool>? canExecute = null, ItemOrIEnumerable<object> notifiers = default, bool? allowMultipleExecution = null,
             CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null) =>

@@ -51,19 +51,19 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.HasErrors(memberName).ShouldBeFalse();
             validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();
-            validator.GetComponents<InlineValidatorComponent>().Length.ShouldEqual(1);
+            validator.GetComponents<InlineValidatorComponent>().Count.ShouldEqual(1);
 
             validator.SetErrors(validator, memberName, errors);
             validator.HasErrors(memberName).ShouldBeTrue();
             validator.HasErrors().ShouldBeTrue();
             validator.GetErrors(memberName).AsList().ShouldContain(errors);
-            validator.GetComponents<InlineValidatorComponent>().Length.ShouldEqual(2);
+            validator.GetComponents<InlineValidatorComponent>().Count.ShouldEqual(2);
 
             validator.SetErrors(validator, memberName, default, DefaultMetadata);
             validator.HasErrors(memberName).ShouldBeFalse();
             validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();
-            validator.GetComponents<InlineValidatorComponent>().Length.ShouldEqual(2);
+            validator.GetComponents<InlineValidatorComponent>().Count.ShouldEqual(2);
         }
 
         #endregion

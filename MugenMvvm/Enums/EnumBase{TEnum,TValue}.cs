@@ -62,7 +62,12 @@ namespace MugenMvvm.Enums
         }
 
         [DataMember(Name = "_v")]
-        public TValue Value { get; internal set; }
+        public TValue Value
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get; 
+            internal set;
+        }
 
         public static int Count => Enumerations.Count;
 

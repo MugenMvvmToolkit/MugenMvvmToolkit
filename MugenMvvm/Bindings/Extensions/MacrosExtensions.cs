@@ -208,11 +208,10 @@ namespace MugenMvvm.Bindings.Extensions
         private static MacrosBindingInitializer GetMacrosInitializer(this IBindingManager bindingManager, int priority)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
-            var initializers = bindingManager.GetComponents<MacrosBindingInitializer>();
-            for (int i = 0; i < initializers.Length; i++)
+            foreach (var c in bindingManager.GetComponents<MacrosBindingInitializer>())
             {
-                if (initializers[i].Priority == priority)
-                    return initializers[i];
+                if (c.Priority == priority)
+                    return c;
             }
 
             var initializer = new MacrosBindingInitializer {Priority = priority};

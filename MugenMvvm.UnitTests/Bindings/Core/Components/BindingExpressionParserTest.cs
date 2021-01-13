@@ -184,14 +184,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.Target.ShouldEqual(targetObserver);
                 binding.Source.ShouldEqual(sourceObserver);
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents().AsList().ShouldContain(components);
+                binding.GetComponents<object>().AsList().ShouldContain(components);
 
                 binding = expression.Build(target, source, DefaultMetadata);
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
                 binding.Source.ShouldEqual(sourceObserver);
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents().AsList().ShouldContain(components);
+                binding.GetComponents<object>().AsList().ShouldContain(components);
             }
         }
 
@@ -334,7 +334,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.Target.ShouldEqual(targetObserver);
                 binding.Source.AsList().ShouldEqual(new[] {sourceObserver1, sourceObserver2});
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents().AsList().ShouldContain(components);
+                binding.GetComponents<object>().AsList().ShouldContain(components);
 
                 binding = (MultiBinding) expression.Build(target, source, DefaultMetadata);
                 binding.Expression.ShouldEqual(exp);
@@ -342,7 +342,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.Target.ShouldEqual(targetObserver);
                 binding.Source.AsList().ShouldEqual(new[] {sourceObserver1, sourceObserver2});
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents().AsList().ShouldContain(components);
+                binding.GetComponents<object>().AsList().ShouldContain(components);
             }
         }
 

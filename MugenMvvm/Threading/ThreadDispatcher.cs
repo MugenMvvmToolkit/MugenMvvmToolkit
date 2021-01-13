@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Components;
+﻿using MugenMvvm.Collections;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -14,7 +15,7 @@ namespace MugenMvvm.Threading
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IThreadDispatcherComponent[] _components;
+        private ItemOrArray<IThreadDispatcherComponent> _components;
 
         #endregion
 
@@ -22,7 +23,6 @@ namespace MugenMvvm.Threading
 
         public ThreadDispatcher(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
-            _components = Default.Array<IThreadDispatcherComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IThreadDispatcherComponent, ThreadDispatcher>((components, state, _) => state._components = components, this);
         }

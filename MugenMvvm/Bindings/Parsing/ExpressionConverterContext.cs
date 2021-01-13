@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -15,7 +17,7 @@ namespace MugenMvvm.Bindings.Parsing
         #region Fields
 
         private readonly Dictionary<TExpression, IExpressionNode?> _expressions;
-        private IExpressionConverterComponent<TExpression>[] _converters;
+        private object? _converters;
 
         #endregion
 
@@ -24,21 +26,17 @@ namespace MugenMvvm.Bindings.Parsing
         public ExpressionConverterContext() : base(null)
         {
             _expressions = new Dictionary<TExpression, IExpressionNode?>();
-            _converters = Default.Array<IExpressionConverterComponent<TExpression>>();
         }
 
         #endregion
 
         #region Properties
 
-        public IExpressionConverterComponent<TExpression>[] Converters
+        public ItemOrArray<IExpressionConverterComponent<TExpression>> Converters
         {
-            get => _converters;
-            set
-            {
-                Should.NotBeNull(value, nameof(value));
-                _converters = value;
-            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ItemOrArray.FromRawValue<IExpressionConverterComponent<TExpression>>(_converters);
+            set => _converters = value.GetRawValue();
         }
 
         #endregion
@@ -65,7 +63,7 @@ namespace MugenMvvm.Bindings.Parsing
             _expressions.Remove(expression);
         }
 
-        public IExpressionNode? TryConvert(TExpression expression) => _converters.TryConvert(this, expression) ?? TryGetExpression(expression);
+        public IExpressionNode? TryConvert(TExpression expression) => Converters.TryConvert(this, expression) ?? TryGetExpression(expression);
 
         #endregion
 

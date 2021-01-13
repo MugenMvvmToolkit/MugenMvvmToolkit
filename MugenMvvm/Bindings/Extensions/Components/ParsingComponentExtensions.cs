@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
@@ -14,14 +15,14 @@ namespace MugenMvvm.Bindings.Extensions.Components
     {
         #region Methods
 
-        public static IExpressionNode? TryConvert<TExpression>(this IExpressionConverterComponent<TExpression>[] components, IExpressionConverterContext<TExpression> context, TExpression expression)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IExpressionNode? TryConvert<TExpression>(this ItemOrArray<IExpressionConverterComponent<TExpression>> components, IExpressionConverterContext<TExpression> context, TExpression expression)
             where TExpression : class
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(expression, nameof(expression));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var r = components[i].TryConvert(context, expression);
+                var r = c.TryConvert(context, expression);
                 if (r != null)
                     return r;
             }
@@ -29,15 +30,15 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return null;
         }
 
-        public static ItemOrIReadOnlyList<ExpressionParserResult> TryParse(this IExpressionParserComponent[] components, IExpressionParser parser, object expression,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrIReadOnlyList<ExpressionParserResult> TryParse(this ItemOrArray<IExpressionParserComponent> components, IExpressionParser parser, object expression,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(parser, nameof(parser));
             Should.NotBeNull(expression, nameof(expression));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var c in components)
             {
-                var result = components[i].TryParse(parser, expression, metadata);
+                var result = c.TryParse(parser, expression, metadata);
                 if (!result.IsEmpty)
                     return result;
             }
@@ -45,13 +46,13 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return default;
         }
 
-        public static IExpressionNode? TryParse(this ITokenParserComponent[] components, ITokenParserContext context, IExpressionNode? expression, Func<ITokenParserContext, ITokenParserComponent, bool>? condition)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IExpressionNode? TryParse(this ItemOrArray<ITokenParserComponent> components, ITokenParserContext context, IExpressionNode? expression,
+            Func<ITokenParserContext, ITokenParserComponent, bool>? condition)
         {
-            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
-            for (var i = 0; i < components.Length; i++)
+            foreach (var component in components)
             {
-                var component = components[i];
                 if (condition != null && !condition(context, component))
                     continue;
 
