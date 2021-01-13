@@ -182,11 +182,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public static IEnumerable<object?[]> GetArgumentFlagsData()
         {
             var getter = new TestMethodMemberInfo {AccessModifiers = MemberFlags.InstancePublic, DeclaringType = typeof(object), Type = typeof(object)};
-            var defaultMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], default, typeof(object), null);
-            var optionalMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Optional, typeof(object), null);
-            var metadataMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Metadata, typeof(object), null);
-            var paramMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.ParamArray, typeof(object), null);
-            var emptyParamMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.EmptyParamArray, typeof(object), null);
+            var defaultMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], default, typeof(object));
+            var optionalMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Optional, typeof(object));
+            var metadataMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Metadata, typeof(object));
+            var paramMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.ParamArray, typeof(object));
+            var emptyParamMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.EmptyParamArray, typeof(object));
 
 
             var list = new List<object?[]>();

@@ -104,8 +104,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             MethodAccessorMemberInfo? memberInfo = null;
             var reflectedType = typeof(string);
             var observerRequestCount = 0;
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {
@@ -117,7 +116,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 }
             });
 
-            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : (EnumFlags<ArgumentFlags>) default, reflectedType, observationManager);
+            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : (EnumFlags<ArgumentFlags>) default, reflectedType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.DeclaringType.ShouldEqual(declaringType);
             memberInfo.Type.ShouldEqual(type);

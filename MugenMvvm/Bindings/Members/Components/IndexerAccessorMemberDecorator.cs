@@ -10,7 +10,6 @@ using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
-using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
@@ -26,18 +25,16 @@ namespace MugenMvvm.Bindings.Members.Components
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
         private readonly Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> flags)> _membersDictionary;
-        private readonly IObservationManager? _observationManager;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null, int priority = MemberComponentPriority.IndexerAccessorDecorator)
+        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null,  int priority = MemberComponentPriority.IndexerAccessorDecorator)
             : base(priority)
         {
             _globalValueConverter = globalValueConverter;
-            _observationManager = observationManager;
             _members = new List<IMemberInfo>();
             _membersDictionary = new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> flags)>(this);
         }
@@ -159,7 +156,7 @@ namespace MugenMvvm.Bindings.Members.Components
                     setter = Owner.TryGetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodMemberInfo;
 
                 if (getter != null || setter != null)
-                    _members.Add(new MethodAccessorMemberInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observationManager));
+                    _members.Add(new MethodAccessorMemberInfo(name, getter, setter, item.Value.args, item.Value.flags, type));
             }
 
             _membersDictionary.Clear();

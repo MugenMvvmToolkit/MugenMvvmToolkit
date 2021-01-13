@@ -15,9 +15,9 @@ namespace MugenMvvm.Bindings.Members
     {
         #region Fields
 
+        private readonly ushort _argumentFlags;
         private readonly ItemOrArray<object?> _args;
         private readonly IMethodMemberInfo? _getMethod;
-        private readonly IObservationManager? _observationManager;
         private readonly Type _reflectedType;
         private readonly IMethodMemberInfo? _setMethod;
         private MemberObserver _observer;
@@ -26,8 +26,7 @@ namespace MugenMvvm.Bindings.Members
 
         #region Constructors
 
-        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType,
-            IObservationManager? observationManager)
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType)
         {
             Should.NotBeNull(name, nameof(name));
             if (getMethod == null)
@@ -38,16 +37,15 @@ namespace MugenMvvm.Bindings.Members
             _getMethod = getMethod;
             _setMethod = setMethod;
             _args = args;
-            ArgumentFlags = argumentFlags;
             _reflectedType = reflectedType;
-            _observationManager = observationManager;
+            _argumentFlags = argumentFlags.Value();
         }
 
         #endregion
 
         #region Properties
 
-        public EnumFlags<ArgumentFlags> ArgumentFlags { get; }
+        public EnumFlags<ArgumentFlags> ArgumentFlags => new(_argumentFlags);
 
         public string Name { get; }
 
@@ -80,8 +78,8 @@ namespace MugenMvvm.Bindings.Members
 
             if (_observer.IsEmpty)
             {
-                _observer = _observationManager
-                    .DefaultIfNull()
+                _observer = MugenService
+                    .ObservationManager
                     .TryGetMemberObserver(_reflectedType, this, metadata)
                     .NoDoIfEmpty();
             }

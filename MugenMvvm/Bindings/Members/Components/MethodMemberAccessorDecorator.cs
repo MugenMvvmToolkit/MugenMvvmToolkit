@@ -24,18 +24,16 @@ namespace MugenMvvm.Bindings.Members.Components
 
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
-        private readonly IObservationManager? _observationManager;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null, int priority = MemberComponentPriority.MethodAccessorDecorator)
+        public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, int priority = MemberComponentPriority.MethodAccessorDecorator)
             : base(priority)
         {
             _globalValueConverter = globalValueConverter;
-            _observationManager = observationManager;
             _members = new List<IMemberInfo>();
         }
 
@@ -61,7 +59,7 @@ namespace MugenMvvm.Bindings.Members.Components
                     var values = _globalValueConverter.TryGetInvokeArgs(methodInfo.GetParameters(), methodArgsRaw, metadata, out var flags);
                     if (!values.IsEmpty)
                     {
-                        _members[i] = methodInfo.TryGetAccessor(flags, values, metadata) ?? new MethodAccessorMemberInfo(methodName, methodInfo, null, values, flags, type, _observationManager);
+                        _members[i] = methodInfo.TryGetAccessor(flags, values, metadata) ?? new MethodAccessorMemberInfo(methodName, methodInfo, null, values, flags, type);
                         continue;
                     }
                 }
