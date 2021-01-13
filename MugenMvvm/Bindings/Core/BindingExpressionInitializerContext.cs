@@ -70,8 +70,7 @@ namespace MugenMvvm.Bindings.Core
 
         #region Implementation of interfaces
 
-        [return: MaybeNull]
-        public TValue TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default)
+        public TValue? TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default)
         {
             Should.NotBeNull(parameterName, nameof(parameterName));
             if (AssignmentParameters.TryGetValue(parameterName, out var node))
@@ -83,7 +82,7 @@ namespace MugenMvvm.Bindings.Core
                 {
                     if (constant.Value is TValue value)
                         return value;
-                    return (TValue) MugenService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
+                    return (TValue?) MugenService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
                 }
 
                 if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)

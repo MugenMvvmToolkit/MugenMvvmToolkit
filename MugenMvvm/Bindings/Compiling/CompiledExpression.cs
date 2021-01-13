@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Constants;
@@ -23,7 +22,6 @@ namespace MugenMvvm.Bindings.Compiling
     {
         #region Fields
 
-        private static readonly ExpressionOptimizer ExpressionOptimizer = new();
         private readonly Dictionary<object, Func<object?[], object?>> _cache;
         private readonly IExpressionNode _expression;
         private readonly Dictionary<IExpressionNode, Expression?> _expressions;
@@ -225,9 +223,9 @@ namespace MugenMvvm.Bindings.Compiling
                 foreach (var pair in memberValues.ToItemOrList())
                     _expressions[pair.Key] = pair.Value;
 
-                var expression = ExpressionOptimizer.Visit(this.Build(_expression))!.ConvertIfNeed(typeof(object), false);
-                var lambda = Expression.Lambda<Func<object?[], object?>>(expression, ArrayParameterArray);
-                return lambda.CompileEx();
+                return Expression
+                    .Lambda<Func<object?[], object?>>(this.Build(_expression).ConvertIfNeed(typeof(object), false), ArrayParameterArray)
+                    .CompileEx();
             }
             finally
             {

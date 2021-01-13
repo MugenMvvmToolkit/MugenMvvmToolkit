@@ -37,8 +37,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
         private const float NotExactlyEqualUnsafeCastWeight = 1000f;
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
-        private static readonly ConstructorInfo ItemOrArrayItemConstructor = typeof(ItemOrArray<object>).GetConstructorOrThrow(BindingFlagsEx.InstancePublic, new[] {typeof(object), typeof(bool)});
-        private static readonly ConstructorInfo ItemOrArrayListConstructor = typeof(ItemOrArray<object>).GetConstructorOrThrow(BindingFlagsEx.InstancePublic, new[] {typeof(object[])});
+
+        private static readonly ConstructorInfo ItemOrArrayInternalConstructor =
+            typeof(ItemOrArray<object>).GetConstructorOrThrow(BindingFlagsEx.InstancePublic | BindingFlagsEx.InstanceNonPublic, new[] {typeof(object), typeof(object[]), typeof(int)});
         private static readonly MethodInfo InvokeMethod = typeof(IMethodMemberInfo).GetMethodOrThrow(nameof(IMethodMemberInfo.Invoke), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
 
@@ -558,8 +559,8 @@ namespace MugenMvvm.Bindings.Compiling.Components
             if (args.IsEmpty)
                 return Expression.Default(typeof(ItemOrArray<object>));
             if (args.HasItem)
-                return Expression.New(ItemOrArrayItemConstructor, args.Item!, MugenExtensions.TrueConstantExpression);
-            return Expression.New(ItemOrArrayListConstructor, Expression.NewArrayInit(typeof(object), args.List!));
+                return Expression.New(ItemOrArrayInternalConstructor, args.Item!, MugenExtensions.NullArrayConstantExpression, MugenExtensions.GetConstantExpression(1));
+            return Expression.New(ItemOrArrayInternalConstructor, MugenExtensions.NullConstantExpression, Expression.NewArrayInit(typeof(object), args.List!), MugenExtensions.GetConstantExpression(args.Count));
         }
 
         private ItemOrArray<MethodData> GetMethods(Type type, string methodName, bool isStatic, ItemOrArray<Type> typeArgs, IReadOnlyMetadataContext? metadata)

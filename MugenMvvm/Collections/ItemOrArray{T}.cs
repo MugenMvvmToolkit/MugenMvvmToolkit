@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
@@ -57,7 +58,8 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private ItemOrArray(T? item, T[]? list, int count)
+        [Preserve]
+        internal ItemOrArray(T? item, T[]? list, int count)
         {
             Item = item!;
             List = list;

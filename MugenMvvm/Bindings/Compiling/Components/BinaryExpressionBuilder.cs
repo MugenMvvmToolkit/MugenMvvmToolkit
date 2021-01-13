@@ -109,11 +109,10 @@ namespace MugenMvvm.Bindings.Compiling.Components
             }
         }
 
-        [Preserve(Conditional = true)]
         // ReSharper disable UnusedMember.Local
-        private static void LinkerInclude() =>
-            // ReSharper disable ReturnValueOfPureMethodIsNotUsed
-            string.Concat(1, 1);
+        // ReSharper disable ReturnValueOfPureMethodIsNotUsed
+        [Preserve(Conditional = true)]
+        private static void LinkerInclude() => string.Concat(1, 1);
         // ReSharper restore ReturnValueOfPureMethodIsNotUsed
         // ReSharper restore UnusedMember.Local
 

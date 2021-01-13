@@ -8,7 +8,6 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Presenters;
@@ -39,7 +38,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(navigationTarget, nameof(navigationTarget));
             IReadOnlyMetadataContext? closeMetadata = null;
-            var callbacks = new ItemOrListEditor<Task>();
+            var callbacks = new ItemOrListEditor<INavigationCallback>();
             foreach (var navigationEntry in navigationDispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && navigationEntry.IsPending)
@@ -54,12 +53,12 @@ namespace MugenMvvm.Extensions
                     foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
                     {
                         if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
-                            callbacks.Add(navigationCallback.ToTask(false));
+                            callbacks.Add(navigationCallback);
                     }
                 }
             }
 
-            return callbacks.WhenAll();
+            return callbacks.WhenAll(false, false).AsTask();
         }
 
         public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
@@ -147,7 +146,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
-            var tasks = new ItemOrListEditor<Task>();
+            var callbacks = new ItemOrListEditor<INavigationCallback>();
             foreach (var t in dispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && t.IsPending)
@@ -159,19 +158,28 @@ namespace MugenMvvm.Extensions
                 foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata))
                 {
                     if (filter(callback, state))
-                        tasks.Add(callback.ToTask(isSerializable));
+                        callbacks.Add(callback);
                 }
             }
 
-            return tasks.WhenAll();
+            return callbacks.WhenAll(false, isSerializable).AsTask();
         }
 
-        public static Task<INavigationContext> ToTask(this INavigationCallback callback, bool isSerializable)
+        public static ValueTask<INavigationContext> AsTask(this INavigationCallback callback, bool isSerializable)
         {
             Should.NotBeNull(callback, nameof(callback));
+            if (callback.TryGetResult(out var r))
+                return new ValueTask<INavigationContext>(r);
+
+            foreach (var navigationCallbackListener in callback.GetCallbacks())
+            {
+                if (navigationCallbackListener is NavigationCallbackTaskListener taskListener && taskListener.IsSerializable == isSerializable)
+                    return taskListener.Task.AsValueTask();
+            }
+
             var result = new NavigationCallbackTaskListener(isSerializable);
             callback.AddCallback(result);
-            return result.Task;
+            return result.Task.AsValueTask();
         }
 
         #endregion

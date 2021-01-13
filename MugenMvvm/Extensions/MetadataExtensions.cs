@@ -83,12 +83,11 @@ namespace MugenMvvm.Extensions
             return false;
         }
 
-        [return: MaybeNull]
         [return: NotNullIfNotNull("defaultValue")]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, T? defaultValue = default)
+        public static T? Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, T? defaultValue = default)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            metadataContext.TryGet(key, out var value, defaultValue!);
+            metadataContext.TryGet(key, out var value, defaultValue);
             return value;
         }
 
@@ -168,10 +167,9 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        [return: MaybeNull]
-        internal static T GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key, T? defaultValue = default)
+        internal static T? GetOrDefault<T>(this IMetadataOwner<IReadOnlyMetadataContext> owner, IReadOnlyMetadataContextKey<T> key, T? defaultValue = default)
         {
-            if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue!))
+            if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue))
                 return v;
             return default;
         }

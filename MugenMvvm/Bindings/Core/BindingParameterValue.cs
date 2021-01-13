@@ -36,14 +36,15 @@ namespace MugenMvvm.Bindings.Core
 
         #region Methods
 
-        [return: MaybeNull]
-        public T GetValue<T>(IReadOnlyMetadataContext? metadata)
+        public T? GetValue<T>(IReadOnlyMetadataContext? metadata)
         {
             if (Expression != null)
                 return (T) Expression.Invoke(Parameter, metadata)!;
             if (Parameter is IMemberPathObserver observer)
                 return (T) observer.GetLastMember(metadata).GetValueOrThrow(metadata)!;
-            return (T) Parameter!;
+            if (Parameter == null)
+                return default;
+            return (T?) Parameter;
         }
 
         public void Dispose() => BindingMugenExtensions.DisposeBindingSource(Parameter);

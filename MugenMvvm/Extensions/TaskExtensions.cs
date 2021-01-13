@@ -7,6 +7,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -21,7 +22,30 @@ namespace MugenMvvm.Extensions
                 return Default.CompletedTask;
             if (editor.Count == 1)
                 return editor[0];
-            return Task.WhenAll((IList<Task>) editor.GetRawValue()!);
+            return Task.WhenAll(editor.AsList());
+        }
+
+        public static async ValueTask<bool> WhenAll(this ItemOrListEditor<INavigationCallback> callbacks, bool handleCancel, bool isSerializable)
+        {
+            bool result = false;
+            for (int i = 0; i < callbacks.Count; i++)
+            {
+                var callback = callbacks[i];
+                if (callback == null)
+                    continue;
+                try
+                {
+                    if (await callback.AsTask(isSerializable).ConfigureAwait(false) != null)
+                        result = true;
+                }
+                catch (OperationCanceledException)
+                {
+                    if (!handleCancel)
+                        throw;
+                }
+            }
+
+            return result;
         }
 
         public static TTask WithBusyIndicator<TTask>(this TTask task, IHasService<IBusyManager> busyManager,
@@ -44,6 +68,24 @@ namespace MugenMvvm.Extensions
             var token = busyManager.BeginBusy(millisecondsDelay > 0 ? new DelayBusyRequest(message, millisecondsDelay) : message, metadata);
             task.ContinueWith((t, o) => ((IDisposable) o!).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
             return task;
+        }
+
+        public static ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IHasService<IBusyManager> busyManager, object? message = null, int millisecondsDelay = 0, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(busyManager, nameof(busyManager));
+            return task.WithBusyIndicator(busyManager.Service, message, millisecondsDelay, metadata);
+        }
+
+        public static async ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(busyManager, nameof(busyManager));
+            if (task.IsCompleted)
+                return task.Result;
+
+            if (millisecondsDelay == 0 && message is IHasBusyDelayMessage hasBusyDelay)
+                millisecondsDelay = hasBusyDelay.Delay;
+            using var token = busyManager.BeginBusy(millisecondsDelay > 0 ? new DelayBusyRequest(message, millisecondsDelay) : message, metadata);
+            return await task.ConfigureAwait(false);
         }
 
         public static Task ToTask(this Exception exception) => ToTask<object?>(exception);

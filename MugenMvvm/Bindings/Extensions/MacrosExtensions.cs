@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
+using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
@@ -22,6 +24,10 @@ namespace MugenMvvm.Bindings.Extensions
     public static partial class BindingMugenExtensions
     {
         #region Methods
+
+        public static MacrosBindingInitializer GetMacrosPreInitializer(this IBindingManager bindingManager) => bindingManager.GetMacrosInitializer(BindingComponentPriority.MacrosPreInitializer);
+
+        public static MacrosBindingInitializer GetMacrosPostInitializer(this IBindingManager bindingManager) => bindingManager.GetMacrosInitializer(BindingComponentPriority.MacrosPostInitializer);
 
         public static bool IsMacros(this IUnaryExpressionNode? expression)
         {
@@ -197,6 +203,21 @@ namespace MugenMvvm.Bindings.Extensions
             }
 
             return null;
+        }
+
+        private static MacrosBindingInitializer GetMacrosInitializer(this IBindingManager bindingManager, int priority)
+        {
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
+            var initializers = bindingManager.GetComponents<MacrosBindingInitializer>();
+            for (int i = 0; i < initializers.Length; i++)
+            {
+                if (initializers[i].Priority == priority)
+                    return initializers[i];
+            }
+
+            var initializer = new MacrosBindingInitializer {Priority = priority};
+            bindingManager.AddComponent(initializer);
+            return initializer;
         }
 
         private static bool TypeNameEqual(Type type, string typeName)

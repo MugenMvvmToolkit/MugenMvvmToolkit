@@ -60,7 +60,7 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static void SetValue<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
-            [MaybeNull] TValue value, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
+            TValue? value, EnumFlags<MemberFlags> flags = default, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
             where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
@@ -157,7 +157,6 @@ namespace MugenMvvm.Bindings.Extensions
 
         internal static void Raise(this INotifiableMemberInfo notifiableMember, IMemberInfo _, object? target, object? message, IReadOnlyMetadataContext? metadata) => notifiableMember.Raise(target, message, metadata);
 
-        [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TReturn? SingleOrDefault<TReturn>(this ItemOrIReadOnlyList<IMemberInfo> itemOrList) where TReturn : class, IMemberInfo
         {

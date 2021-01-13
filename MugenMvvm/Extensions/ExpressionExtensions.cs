@@ -14,10 +14,11 @@ namespace MugenMvvm.Extensions
         #region Fields
 
         public static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
+        public static readonly ConstantExpression NullArrayConstantExpression = Expression.Constant(null, typeof(object[]));
         public static readonly ConstantExpression TrueConstantExpression = Expression.Constant(BoxingExtensions.TrueObject);
         public static readonly ConstantExpression FalseConstantExpression = Expression.Constant(BoxingExtensions.FalseObject);
 
-        private static readonly Dictionary<Type, MethodInfo> RawMethodMapping = new(3, InternalEqualityComparer.Type)
+        internal static readonly Dictionary<Type, MethodInfo> RawMethodMapping = new(3, InternalEqualityComparer.Type)
         {
             {typeof(ItemOrArray<>), typeof(ItemOrArray).GetMethodOrThrow(nameof(ItemOrArray.FromRawValue), BindingFlagsEx.StaticPublic)},
             {typeof(ItemOrIEnumerable<>), typeof(ItemOrIEnumerable).GetMethodOrThrow(nameof(ItemOrIEnumerable.FromRawValue), BindingFlagsEx.StaticPublic)},

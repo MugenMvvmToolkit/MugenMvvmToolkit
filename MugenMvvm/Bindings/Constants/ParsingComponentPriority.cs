@@ -18,6 +18,7 @@
 
         public const int TokenParser = 0;
         public const int Converter = 0;
+        public const int Optimizer = 100;
 
         #endregion
     }

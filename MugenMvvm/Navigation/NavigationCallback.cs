@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
@@ -62,6 +63,12 @@ namespace MugenMvvm.Navigation
 
                 return ItemOrIReadOnlyList.FromItem((INavigationCallbackListener) _callbacks!);
             }
+        }
+
+        public bool TryGetResult([NotNullWhen(true)] out INavigationContext? navigationContext)
+        {
+            navigationContext = _navigationContext!;
+            return _state == SuccessState;
         }
 
         public void AddCallback(INavigationCallbackListener callback)

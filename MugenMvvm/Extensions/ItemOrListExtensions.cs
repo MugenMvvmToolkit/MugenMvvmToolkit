@@ -26,9 +26,8 @@ namespace MugenMvvm.Extensions
         public static object? GetRawValue<T>(this ItemOrListEditor<T> editor)
             where T : class? => editor.GetRawValueInternal();
 
-        [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FirstOrDefault<T>(this ItemOrIEnumerable<T> itemOrList)
+        public static T? FirstOrDefault<T>(this ItemOrIEnumerable<T> itemOrList)
         {
             if (itemOrList.List != null)
             {
@@ -40,9 +39,8 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item;
         }
 
-        [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FirstOrDefault<T>(this ItemOrArray<T> itemOrList)
+        public static T? FirstOrDefault<T>(this ItemOrArray<T> itemOrList)
         {
             if (itemOrList.List != null)
             {
@@ -54,9 +52,8 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item;
         }
 
-        [return: MaybeNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FirstOrDefault<T>(this ItemOrIReadOnlyList<T> itemOrList)
+        public static T? FirstOrDefault<T>(this ItemOrIReadOnlyList<T> itemOrList)
         {
             if (itemOrList.List != null)
             {

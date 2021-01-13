@@ -71,6 +71,8 @@ namespace MugenMvvm.UnitTests.Navigation
             var invokeCount = 0;
             var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
             callback.IsCompleted.ShouldBeFalse();
+            callback.TryGetResult(out var ctx).ShouldBeFalse();
+            ctx.ShouldBeNull();
 
             if (isCompletedCallback)
                 callback.SetResult(DefaultContext);
@@ -103,6 +105,8 @@ namespace MugenMvvm.UnitTests.Navigation
 
             invokeCount.ShouldEqual(count);
             callback.IsCompleted.ShouldBeTrue();
+            callback.TryGetResult(out ctx).ShouldBeTrue();
+            ctx.ShouldEqual(DefaultContext);
         }
 
         [Theory]
@@ -118,6 +122,8 @@ namespace MugenMvvm.UnitTests.Navigation
             var invokeCount = 0;
             var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
             callback.IsCompleted.ShouldBeFalse();
+            callback.TryGetResult(out var ctx).ShouldBeFalse();
+            ctx.ShouldBeNull();
 
             if (isCompletedCallback)
                 callback.SetException(DefaultContext, ex);
@@ -150,6 +156,8 @@ namespace MugenMvvm.UnitTests.Navigation
 
             invokeCount.ShouldEqual(count);
             callback.IsCompleted.ShouldBeTrue();
+            callback.TryGetResult(out ctx).ShouldBeFalse();
+            ctx.ShouldBeNull();
         }
 
         [Theory]
@@ -165,6 +173,9 @@ namespace MugenMvvm.UnitTests.Navigation
             var invokeCount = 0;
             var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
             callback.IsCompleted.ShouldBeFalse();
+            callback.TryGetResult(out var ctx).ShouldBeFalse();
+            ctx.ShouldBeNull();
+
             if (isCompletedCallback)
                 callback.SetCanceled(DefaultContext, token);
             for (var i = 0; i < count; i++)
@@ -196,6 +207,8 @@ namespace MugenMvvm.UnitTests.Navigation
 
             invokeCount.ShouldEqual(count);
             callback.IsCompleted.ShouldBeTrue();
+            callback.TryGetResult(out ctx).ShouldBeFalse();
+            ctx.ShouldBeNull();
         }
 
         [Fact]

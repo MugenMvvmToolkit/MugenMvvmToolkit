@@ -56,22 +56,26 @@ namespace MugenMvvm.Bindings.Extensions
                 .WithComponent(new MemberExpressionBuilder())
                 .WithComponent(new MethodCallIndexerExpressionBuilder())
                 .WithComponent(new NullConditionalExpressionBuilder())
+                .WithComponent(new ExpressionOptimizer())
                 .WithComponent(new UnaryExpressionBuilder());
 
             configuration.WithAppService(new GlobalValueConverter())
                 .WithComponent(new GlobalValueConverterComponent());
 
-            var macrosBindingInitializer = new MacrosBindingInitializer();
+            var macrosPreInitializer = new MacrosBindingInitializer{Priority = BindingComponentPriority.MacrosPreInitializer};
             var macrosVisitor = new MacrosExpressionVisitor();
-            macrosBindingInitializer.TargetVisitors.Add(macrosVisitor);
-            macrosBindingInitializer.SourceVisitors.Add(macrosVisitor);
-            macrosBindingInitializer.ParameterVisitors.Add(macrosVisitor);
+            macrosPreInitializer.TargetVisitors.Add(macrosVisitor);
+            macrosPreInitializer.SourceVisitors.Add(macrosVisitor);
+            macrosPreInitializer.ParameterVisitors.Add(macrosVisitor);
+
+            var macrosPostInitializer = new MacrosBindingInitializer {Priority = BindingComponentPriority.MacrosPostInitializer};
             var constantToBindingParameterVisitor = new ConstantToBindingParameterVisitor();
-            macrosBindingInitializer.SourceVisitors.Add(constantToBindingParameterVisitor);
-            macrosBindingInitializer.ParameterVisitors.Add(constantToBindingParameterVisitor);
+            macrosPostInitializer.SourceVisitors.Add(constantToBindingParameterVisitor);
+            macrosPostInitializer.ParameterVisitors.Add(constantToBindingParameterVisitor);
 
             configuration.WithAppService(new BindingManager())
-                .WithComponent(macrosBindingInitializer)
+                .WithComponent(macrosPreInitializer)
+                .WithComponent(macrosPostInitializer)
                 .WithComponent(new BindingBuilderDelegateExpressionParser())
                 .WithComponent(new BindingCleaner())
                 .WithComponent(new BindingExpressionExceptionDecorator())

@@ -258,17 +258,6 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item) => MugenService.WeakReferenceManager.GetWeakReference(item);
 
-        internal static bool WhenAny(this bool[] values)//todo remove
-        {
-            for (var i = 0; i < values.Length; i++)
-            {
-                if (values[i])
-                    return true;
-            }
-
-            return false;
-        }
-
         private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
         {
             if (exception == null)

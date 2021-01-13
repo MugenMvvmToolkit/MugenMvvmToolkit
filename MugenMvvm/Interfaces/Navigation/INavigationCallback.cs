@@ -1,6 +1,6 @@
-﻿using MugenMvvm.Collections;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
@@ -9,6 +9,8 @@ namespace MugenMvvm.Interfaces.Navigation
         bool IsCompleted { get; }
 
         NavigationCallbackType CallbackType { get; }
+
+        bool TryGetResult([NotNullWhen(true)] out INavigationContext? navigationContext);
 
         void AddCallback(INavigationCallbackListener callback);
 

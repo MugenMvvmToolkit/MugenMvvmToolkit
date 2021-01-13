@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,6 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Internal;
 using MugenMvvm.Presenters;
 
 namespace MugenMvvm.Extensions
@@ -43,42 +42,33 @@ namespace MugenMvvm.Extensions
             return new ShowPresenterResult<T>(presenterResult, showingCallback, closeCallback);
         }
 
-        public static Task<bool> CloseAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default, bool isSerializable = true,
+        public static ValueTask<bool> CloseAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default, bool isSerializable = true,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            var tasks = new ItemOrListEditor<Task<bool>>();
+            var callbacks = new ItemOrListEditor<INavigationCallback>();
             foreach (var result in presenter.DefaultIfNull().TryClose(viewModel, cancellationToken, metadata))
             {
                 foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata))
                 {
                     if (callback.CallbackType == NavigationCallbackType.Closing)
-                        tasks.Add(callback.ToTask(isSerializable).CancelToFalse());
+                        callbacks.Add(callback);
                 }
             }
 
-            if (tasks.Count == 0)
-                return Task.FromResult(false);
-            if (tasks.Count == 1)
-                return tasks[0];
-            return Task.WhenAll((List<Task<bool>>) tasks.GetRawValue()!).ContinueWith(task => task.Result.WhenAny(), TaskContinuationOptions.ExecuteSynchronously);
+            return callbacks.WhenAll(true, isSerializable);
         }
 
-        public static TaskAwaiter GetAwaiter(this ShowPresenterResult showResult) => ((Task) showResult.CloseCallback.ToTask(true)).GetAwaiter();
+        public static ValueTaskAwaiter<INavigationContext> GetAwaiter(this ShowPresenterResult showResult) => showResult.CloseCallback.AsTask(true).GetAwaiter();
 
-        public static TaskAwaiter<T> GetAwaiter<T>(this ShowPresenterResult<T> showResult) =>
-            showResult.CloseCallback
-                .ToTask(true)
-                .ContinueWith(task => (task.Result.Target is IHasResult<T> navigationResult ? navigationResult.Result : default)!, TaskContinuationOptions.ExecuteSynchronously)
-                .GetAwaiter()!;
+        public static ValueTaskAwaiter<T?> GetAwaiter<T>(this ShowPresenterResult<T> showResult) => showResult.CloseCallback.GetResultAsync<T>().GetAwaiter()!;
 
-        private static Task<bool> CancelToFalse(this Task<INavigationContext> task) =>
-            task.ContinueWith(t =>
-            {
-                if (t.IsCanceled)
-                    return false;
-                return t.Result != null;
-            }, TaskContinuationOptions.ExecuteSynchronously);
-
+        private static async ValueTask<T?> GetResultAsync<T>(this INavigationCallback callback)
+        {
+            var navigationContext = await callback.AsTask(true).ConfigureAwait(false);
+            if (navigationContext.Target is IHasResult<T> hasResult)
+                return hasResult.Result;
+            return default;
+        }
 
         private static void TryGetShowPresenterResult(ItemOrIReadOnlyList<IPresenterResult> result, INavigationDispatcher? navigationDispatcher, IReadOnlyMetadataContext? metadata,
             out INavigationCallback? showingCallback, out INavigationCallback closeCallback, out IPresenterResult presenterResult)

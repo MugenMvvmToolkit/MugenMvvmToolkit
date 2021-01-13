@@ -48,8 +48,7 @@ namespace MugenMvvm.Bindings.Extensions
             return flags;
         }
 
-        [return: MaybeNull]
-        public static TValue TryGetMetadataValue<TValue>(this IExpressionNode expression, string key, TValue defaultValue = default)
+        public static TValue? TryGetMetadataValue<TValue>(this IExpressionNode expression, string key, TValue defaultValue = default)
         {
             Should.NotBeNull(expression, nameof(expression));
             Should.NotBeNull(key, nameof(key));
@@ -197,21 +196,19 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static bool IsToken(this ITokenParserContext context, string token, int? position = null, bool isPartOfIdentifier = true)
         {
-            var length = token.Length;
-            if (length == 1)
+            if (token.Length == 1)
                 return context.IsToken(token[0], position);
 
             var p = context.GetPosition(position);
-            var i = 0;
             var ctxLength = context.Length;
-            while (i != length)
-            {
-                if (p >= ctxLength || context.TokenAt(p) != token[i])
-                    return false;
-                ++i;
-                ++p;
-            }
+            if (p + token.Length > ctxLength)
+                return false;
 
+            for (int i = 0; i < token.Length; i++)
+            {
+                if (context.TokenAt(p++) != token[i])
+                    return false;
+            }
             return isPartOfIdentifier || p >= ctxLength || !context.TokenAt(p).IsValidIdentifierSymbol(false);
         }
 
@@ -388,7 +385,7 @@ namespace MugenMvvm.Bindings.Extensions
 
             if (args.IsEmpty)
                 return default;
-            
+
             var result = ItemOrArray.Get<string>(args.Count);
             for (var i = 0; i < result.Count; i++)
             {

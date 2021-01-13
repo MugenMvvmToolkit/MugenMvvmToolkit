@@ -34,7 +34,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public List<IExpressionVisitor> ParameterVisitors { get; }
 
-        public int Priority { get; set; } = BindingComponentPriority.ParameterPreInitializer;
+        public int Priority { get; set; }
 
         #endregion
 
