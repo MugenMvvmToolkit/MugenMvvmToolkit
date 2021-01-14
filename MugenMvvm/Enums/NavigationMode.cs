@@ -25,18 +25,26 @@ namespace MugenMvvm.Enums
         {
         }
 
-        [IgnoreDataMember] [XmlIgnore] public bool IsUndefined => this == Undefined;
+        [IgnoreDataMember]
+        [XmlIgnore]
+        public bool IsUndefined => this == Undefined;
 
-        [DataMember(Name = "n")] public bool IsNew { get; protected set; }
+        [DataMember(Name = "n")]
+        public bool IsNew { get; protected set; }
 
-        [DataMember(Name = "r")] public bool IsRefresh { get; protected set; }
+        [DataMember(Name = "r")]
+        public bool IsRefresh { get; protected set; }
 
-        [DataMember(Name = "c")] public bool IsClose { get; protected set; }
+        [DataMember(Name = "c")]
+        public bool IsClose { get; protected set; }
 
-        [DataMember(Name = "bg")] public bool IsBackground { get; protected set; }
+        [DataMember(Name = "bg")]
+        public bool IsBackground { get; protected set; }
 
-        [DataMember(Name = "f")] public bool IsForeground { get; protected set; }
+        [DataMember(Name = "f")]
+        public bool IsForeground { get; protected set; }
 
-        [DataMember(Name = "rs")] public bool IsRestore { get; protected set; }
+        [DataMember(Name = "rs")]
+        public bool IsRestore { get; protected set; }
     }
 }

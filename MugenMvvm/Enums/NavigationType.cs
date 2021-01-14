@@ -30,10 +30,14 @@ namespace MugenMvvm.Enums
         {
         }
 
-        [IgnoreDataMember] [XmlIgnore] public bool IsUndefined => Undefined == this;
+        [IgnoreDataMember]
+        [XmlIgnore]
+        public bool IsUndefined => Undefined == this;
 
-        [DataMember(Name = "r")] public bool IsRootNavigation { get; set; }
+        [DataMember(Name = "r")]
+        public bool IsRootNavigation { get; set; }
 
-        [DataMember(Name = "n")] public bool IsNestedNavigation { get; set; }
+        [DataMember(Name = "n")]
+        public bool IsNestedNavigation { get; set; }
     }
 }

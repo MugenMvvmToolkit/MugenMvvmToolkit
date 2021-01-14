@@ -44,8 +44,10 @@ namespace MugenMvvm.Ios.App
         {
             if (lifecycleState == IosApplicationLifecycleState.Preserving && state is ICancelableRequest cancelableRequest
                                                                           && cancelableRequest.Cancel == null)
+            {
                 cancelableRequest.Cancel = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController == null ||
                                            !_serializer.DefaultIfNull().IsSupported(SerializationFormat.AppStateBytes);
+            }
             else if (lifecycleState == IosApplicationLifecycleState.Preserved && state is NSCoder coder)
             {
                 var rootViewController = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController;

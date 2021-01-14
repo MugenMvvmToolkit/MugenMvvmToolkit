@@ -20,7 +20,8 @@ namespace MugenMvvm.Enums
             Flag = flag ?? ConvertValue(value);
         }
 
-        [DataMember(Name = "_f")] public long Flag { get; internal set; }
+        [DataMember(Name = "_f")]
+        public long Flag { get; internal set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue>? value) => ReferenceEquals(value, null) ? default : new EnumFlags<TEnum>(value.Flag);

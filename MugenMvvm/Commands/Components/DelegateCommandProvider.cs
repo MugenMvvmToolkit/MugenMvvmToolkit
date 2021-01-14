@@ -62,8 +62,10 @@ namespace MugenMvvm.Commands.Components
         private CommandEventHandler GetCommandEventHandler(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
             if (CacheCommandEventHandler && commandRequest.CanNotify == null && commandRequest.Notifiers.Count == 0 && owner is IMetadataOwner<IMetadataContext> m)
+            {
                 return m.Metadata.GetOrAdd(InternalMetadata.CommandEventHandler, (this, owner, commandRequest, metadata),
                     (_, _, s) => s.Item1.GetCommandEventHandlerInternal(s.owner, s.commandRequest, s.metadata));
+            }
 
             return GetCommandEventHandlerInternal(owner, commandRequest, metadata);
         }

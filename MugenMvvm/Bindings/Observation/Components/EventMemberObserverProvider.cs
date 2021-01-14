@@ -48,8 +48,10 @@ namespace MugenMvvm.Bindings.Observation.Components
                 memberName = memberInfo.Name;
             }
             else if (member is string st)
+            {
                 return memberManager.DefaultIfNull().TryGetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticAll : MemberFlags.InstanceAll, st, metadata) as
                     IObservableMemberInfo;
+            }
             else
                 return null;
 

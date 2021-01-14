@@ -100,8 +100,11 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return result;
 
             if (target == null)
+            {
                 return Expression.Call(Expression.Constant(member), GetValuePropertyMethod, MugenExtensions.NullConstantExpression, context.MetadataExpression)
                                  .ConvertIfNeed(member.Type, false);
+            }
+
             return Expression
                    .Call(Expression.Constant(member), GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression)
                    .ConvertIfNeed(member.Type, false);

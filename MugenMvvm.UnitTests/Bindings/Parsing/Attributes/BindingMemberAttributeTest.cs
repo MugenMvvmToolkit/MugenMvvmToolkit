@@ -136,9 +136,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(""), name));
         }
 
-        [BindingMember(PropertyName)] public static string StaticProperty => "";
+        [BindingMember(PropertyName)]
+        public static string StaticProperty => "";
 
-        [BindingMember(PropertyName)] public string Property => "";
+        [BindingMember(PropertyName)]
+        public string Property => "";
 
         [BindingMember(MethodName)]
         public static string StaticMethod() => "";

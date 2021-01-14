@@ -46,8 +46,11 @@ namespace MugenMvvm.Bindings.Attributes
                 else
                     resourceName = ResourceName;
                 if (resourceName != null)
+                {
                     _expressionNode = UnaryExpressionNode.Get(IsStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression,
                         MemberExpressionNode.Get(null, resourceName));
+                }
+
                 _initialized = true;
             }
 

@@ -12,9 +12,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         public object? Property { get; set; }
 
-        [BindingMacros(PropertyResource)] public object? PropertyResourceExt { get; set; }
+        [BindingMacros(PropertyResource)]
+        public object? PropertyResourceExt { get; set; }
 
-        [BindingMacros(IndexerResource)] public object? this[int index] => null;
+        [BindingMacros(IndexerResource)]
+        public object? this[int index] => null;
 
         public object? this[object index] => null;
 

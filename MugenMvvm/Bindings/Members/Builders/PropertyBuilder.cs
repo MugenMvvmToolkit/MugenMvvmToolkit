@@ -374,8 +374,10 @@ namespace MugenMvvm.Bindings.Members.Builders
                 if (parentProperty != null && parentProperty._state != DefaultState)
                     SetValue(target, parentProperty.Value, ParentState, metadata);
                 else if (_state == ParentState)
+                {
                     SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo) _member, target),
                         DefaultState, metadata);
+                }
             }
 
             private void TryUnsubscribe(TTarget parent, IReadOnlyMetadataContext? metadata)

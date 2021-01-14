@@ -10,7 +10,8 @@ namespace MugenMvvm.Bindings.Resources
     {
         private object? _value;
 
-        [Preserve] public event EventHandler? ValueChanged;
+        [Preserve]
+        public event EventHandler? ValueChanged;
 
         [Preserve]
         public object? Value

@@ -21,7 +21,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _compiler.AddComponent(new ExpressionOptimizer());
         }
 
-
         [Fact]
         public void ShouldHandleNestedExpression()
         {

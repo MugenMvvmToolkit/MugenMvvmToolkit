@@ -48,11 +48,11 @@ namespace MugenMvvm.ViewModels
 
         IBusyManager IHasService<IBusyManager>.Service => BusyManager;
 
+        IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
+
         IMessenger? IHasService<IMessenger>.ServiceOptional => _messenger;
 
         IMessenger IHasService<IMessenger>.Service => Messenger;
-
-        IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
 
         IViewModelManager IHasService<IViewModelManager>.Service => ViewModelManager;
 

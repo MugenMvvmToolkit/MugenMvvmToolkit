@@ -42,9 +42,12 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (!context.IsToken('('))
             {
                 if (!typeArgs.IsEmpty)
+                {
                     context.TryGetErrors()
                            ?.Add(BindingMessageConstant.CannotParseMethodExpressionExpectedTokenFormat1.Format(
                                $"{context.GetValue(nameStart, nameEndPos)}<{string.Join(",", typeArgs)}>"));
+                }
+
                 return null;
             }
 
