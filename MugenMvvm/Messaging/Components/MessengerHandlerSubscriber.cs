@@ -187,8 +187,10 @@ namespace MugenMvvm.Messaging.Components
             lock (this)
             {
                 foreach (var item in this)
+                {
                     if (item.Subscriber == subscriber)
                         return Remove(item);
+                }
             }
 
             return false;

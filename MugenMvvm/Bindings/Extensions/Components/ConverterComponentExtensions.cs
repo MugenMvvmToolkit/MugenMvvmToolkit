@@ -16,8 +16,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             Should.NotBeNull(converter, nameof(converter));
             Should.NotBeNull(targetType, nameof(targetType));
             foreach (var c in components)
+            {
                 if (c.TryConvert(converter, ref value, targetType, member, metadata))
                     return true;
+            }
 
             return false;
         }

@@ -265,8 +265,10 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (context.IsEof())
                 return null;
             for (var i = 0; i < QuoteTokens.Count; i++)
+            {
                 if (context.IsToken(QuoteTokens[i]))
                     return QuoteTokens[i];
+            }
 
             return null;
         }

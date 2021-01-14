@@ -15,8 +15,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             Should.NotBeNull(request, nameof(request));
             foreach (var c in components)
+            {
                 if (c.CanWrap(wrapperManager, wrapperType, request, metadata))
                     return true;
+            }
 
             return false;
         }

@@ -54,6 +54,7 @@ namespace MugenMvvm.Collections.Components
                 return components;
 
             for (var i = 0; i < components.Count; i++)
+            {
                 if (components[i] == decorator)
                 {
                     index = i;
@@ -61,6 +62,7 @@ namespace MugenMvvm.Collections.Components
                         ++index;
                     break;
                 }
+            }
 
             return components;
         }
@@ -82,8 +84,10 @@ namespace MugenMvvm.Collections.Components
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Count; i++)
+            {
                 if (!decorators[i].OnItemChanged(collection, ref item, ref index, ref args))
                     return;
+            }
 
             GetComponents<ICollectionDecoratorListener>(collection).OnItemChanged(collection, item, index, args);
         }
@@ -92,8 +96,10 @@ namespace MugenMvvm.Collections.Components
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Count; i++)
+            {
                 if (!decorators[i].OnAdded(collection, ref item, ref index))
                     return;
+            }
 
             GetComponents<ICollectionDecoratorListener>(collection).OnAdded(collection, item, index);
         }
@@ -102,8 +108,10 @@ namespace MugenMvvm.Collections.Components
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Count; i++)
+            {
                 if (!decorators[i].OnReplaced(collection, ref oldItem, ref newItem, ref index))
                     return;
+            }
 
             GetComponents<ICollectionDecoratorListener>(collection).OnReplaced(collection, oldItem, newItem, index);
         }
@@ -112,8 +120,10 @@ namespace MugenMvvm.Collections.Components
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Count; i++)
+            {
                 if (!decorators[i].OnMoved(collection, ref item, ref oldIndex, ref newIndex))
                     return;
+            }
 
             GetComponents<ICollectionDecoratorListener>(collection).OnMoved(collection, item, oldIndex, newIndex);
         }
@@ -122,8 +132,10 @@ namespace MugenMvvm.Collections.Components
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Count; i++)
+            {
                 if (!decorators[i].OnRemoved(collection, ref item, ref index))
                     return;
+            }
 
             GetComponents<ICollectionDecoratorListener>(collection).OnRemoved(collection, item, index);
         }
@@ -132,8 +144,10 @@ namespace MugenMvvm.Collections.Components
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Count; i++)
+            {
                 if (!decorators[i].OnReset(collection, ref items))
                     return;
+            }
 
             GetComponents<ICollectionDecoratorListener>(collection).OnReset(collection, items);
         }

@@ -98,12 +98,14 @@ namespace MugenMvvm.Views.Components
             Action<TList, IView, IReadOnlyMetadataContext?> removeAction, IReadOnlyMetadataContext? metadata) where TList : class
         {
             foreach (var oldView in views)
+            {
                 if (oldView.Mapping.Id == mapping.Id)
                 {
                     if (oldView.Target == rawView)
                         return oldView;
                     Cleanup(viewManager, oldView, null, collection, removeAction, metadata);
                 }
+            }
 
             var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);

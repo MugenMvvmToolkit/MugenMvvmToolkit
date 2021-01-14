@@ -54,11 +54,13 @@ namespace MugenMvvm.Bindings.Members.Components
 
                 var isValid = true;
                 for (var j = 0; j < types.Count; j++)
+                {
                     if (parameters[j].ParameterType != types[j])
                     {
                         isValid = false;
                         break;
                     }
+                }
 
                 if (isValid)
                     _members.Add(methodInfo);

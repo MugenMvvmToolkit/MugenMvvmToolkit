@@ -39,8 +39,10 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(command, nameof(command));
             foreach (var c in components)
+            {
                 if (c.HasCanExecute(command, metadata))
                     return true;
+            }
 
             return false;
         }
@@ -49,8 +51,10 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(command, nameof(command));
             foreach (var c in components)
+            {
                 if (!c.CanExecute(command, parameter, metadata))
                     return false;
+            }
 
             return true;
         }

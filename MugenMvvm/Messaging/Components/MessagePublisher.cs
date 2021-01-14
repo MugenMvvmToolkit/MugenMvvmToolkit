@@ -144,8 +144,10 @@ namespace MugenMvvm.Messaging.Components
             {
                 var messageContext = (IMessageContext) state!;
                 for (var i = 0; i < Count; i++)
+                {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)
                         _messenger.TryUnsubscribe(this[i].Subscriber!, messageContext.GetMetadataOrDefault());
+                }
             }
         }
     }

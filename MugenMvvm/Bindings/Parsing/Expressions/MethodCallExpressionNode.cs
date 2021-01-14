@@ -84,8 +84,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             if (count != otherTypeArgs.Count)
                 return false;
             for (var i = 0; i < count; i++)
+            {
                 if (!TypeArgs[i].Equals(otherTypeArgs[i]))
                     return false;
+            }
 
             return true;
         }

@@ -36,8 +36,10 @@ namespace MugenMvvm.Bindings.Observation.Components
             else
             {
                 foreach (var observer in _cache)
+                {
                     if (observer.Value != null)
                         observer.Value.IsDisposable = true;
+                }
 
                 _cache.Clear();
             }

@@ -35,8 +35,10 @@ namespace MugenMvvm.Bindings.Members.Components
             {
                 var keys = new ItemOrListEditor<CacheKey>();
                 foreach (var pair in _cache)
+                {
                     if (pair.Key.Type == type)
                         keys.Add(pair.Key);
+                }
 
                 var count = keys.Count;
                 for (var i = 0; i < count; i++)

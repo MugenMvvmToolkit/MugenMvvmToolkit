@@ -299,8 +299,8 @@ namespace MugenMvvm.Extensions
                 {
                     if (includeStackTrace)
                         sb.AppendLine();
-                    for (var index = 0; index < loadException.LoaderExceptions.Length; index++)
-                        FlattenInternal(loadException.LoaderExceptions[index], sb, includeStackTrace);
+                    foreach (var e in loadException.LoaderExceptions)
+                        FlattenInternal(e, sb, includeStackTrace);
                 }
 
                 exception = exception.InnerException;

@@ -92,8 +92,10 @@ namespace MugenMvvm.Extensions.Components
 
             var result = false;
             foreach (var t in editor.ToItemOrList())
+            {
                 if (await t.ConfigureAwait(false))
                     result = true;
+            }
 
             return result;
         }

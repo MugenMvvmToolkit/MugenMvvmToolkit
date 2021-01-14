@@ -141,6 +141,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
             foreach (var navigationType in NavigationType.GetAll())
+            {
                 for (var i = 0; i < count; i++)
                 {
                     ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
@@ -148,6 +149,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     component.OnNavigating(dispatcher, ctx);
                     contexts.Add(ctx);
                 }
+            }
 
             ValidateEntries(component.TryGetNavigationEntries(null!, null).AsList(), contexts, true);
             invokedCount.ShouldEqual(contexts.Count * count);
@@ -187,6 +189,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
             foreach (var navigationType in NavigationType.GetAll())
+            {
                 for (var i = 0; i < count; i++)
                 {
                     ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
@@ -194,6 +197,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     component.OnNavigated(dispatcher, ctx);
                     contexts.Add(ctx);
                 }
+            }
 
             ValidateEntries(component.TryGetNavigationEntries(null!, null).AsList(), contexts);
             invokedCount.ShouldEqual(contexts.Count * count);
@@ -213,6 +217,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
             foreach (var navigationType in NavigationType.GetAll())
+            {
                 for (var i = 0; i < count; i++)
                 {
                     ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
@@ -220,6 +225,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     component.OnNavigated(dispatcher, ctx);
                     contexts.Add(ctx);
                 }
+            }
 
             for (var i = 0; i < count; i++)
             {
@@ -268,6 +274,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 var invokedCount = 0;
                 foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
                 foreach (var navigationType in NavigationType.GetAll())
+                {
                     for (var i = 0; i < count; i++)
                     {
                         ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
@@ -275,6 +282,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                         component.OnNavigated(dispatcher, ctx);
                         contexts.Add(ctx);
                     }
+                }
 
                 for (var i = 0; i < count; i++)
                 {
@@ -349,6 +357,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             }
 
             foreach (var navigationType in NavigationType.GetAll())
+            {
                 for (var i = 0; i < count; i++)
                 {
                     ctx = new PresenterResult(this, Guid.NewGuid().ToString(), provider, navigationType);
@@ -356,6 +365,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     presenter.TryShow(ctx);
                     contexts.Add(ctx);
                 }
+            }
 
             ValidateEntries(component.TryGetNavigationEntries(dispatcher, null).AsList(), contexts, true);
             invokedCount.ShouldEqual(contexts.Count * count);

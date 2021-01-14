@@ -125,8 +125,10 @@ namespace MugenMvvm.Extensions
         internal static int IndexOf<T>(T[] items, T item) where T : class
         {
             for (var i = 0; i < items.Length; i++)
+            {
                 if (items[i] == item)
                     return i;
+            }
 
             return -1;
         }
@@ -216,53 +218,26 @@ namespace MugenMvvm.Extensions
 
 #if SPAN_API
         //https://github.com/dotnet/runtime/pull/295
-        internal static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, char separator)
-            => new(span, separator);
-#endif
+        internal static SpanSplitEnumerator Split(this ReadOnlySpan<char> span, char separator) => new(span, separator);
 
-#if SPAN_API
         [StructLayout(LayoutKind.Auto)]
-        public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
+        public ref struct SpanSplitEnumerator
         {
-            private readonly ReadOnlySpan<T> _buffer;
-
-            private readonly ReadOnlySpan<T> _separators;
-            private readonly T _separator;
-
-            private readonly int _separatorLength;
-            private readonly bool _splitOnSingleToken;
-
-            private readonly bool _isInitialized;
+            private readonly ReadOnlySpan<char> _buffer;
+            private readonly char _separator;
 
             private int _startCurrent;
             private int _endCurrent;
             private int _startNext;
 
-            public SpanSplitEnumerator<T> GetEnumerator() => this;
+            public SpanSplitEnumerator GetEnumerator() => this;
 
             public Range Current => new(_startCurrent, _endCurrent);
 
-            internal SpanSplitEnumerator(ReadOnlySpan<T> span, ReadOnlySpan<T> separators)
+            internal SpanSplitEnumerator(ReadOnlySpan<char> span, char separator)
             {
-                _isInitialized = true;
-                _buffer = span;
-                _separators = separators;
-                _separator = default!;
-                _splitOnSingleToken = false;
-                _separatorLength = _separators.Length != 0 ? _separators.Length : 1;
-                _startCurrent = 0;
-                _endCurrent = 0;
-                _startNext = 0;
-            }
-
-            internal SpanSplitEnumerator(ReadOnlySpan<T> span, T separator)
-            {
-                _isInitialized = true;
                 _buffer = span;
                 _separator = separator;
-                _separators = default;
-                _splitOnSingleToken = true;
-                _separatorLength = 1;
                 _startCurrent = 0;
                 _endCurrent = 0;
                 _startNext = 0;
@@ -270,17 +245,17 @@ namespace MugenMvvm.Extensions
 
             public bool MoveNext()
             {
-                if (!_isInitialized || _startNext > _buffer.Length)
+                if (_startNext > _buffer.Length)
                     return false;
 
                 var slice = _buffer.Slice(_startNext);
                 _startCurrent = _startNext;
 
-                var separatorIndex = _splitOnSingleToken ? slice.IndexOf(_separator) : slice.IndexOf(_separators);
+                var separatorIndex = slice.IndexOf(_separator);
                 var elementLength = separatorIndex != -1 ? separatorIndex : slice.Length;
 
                 _endCurrent = _startCurrent + elementLength;
-                _startNext = _endCurrent + _separatorLength;
+                _startNext = _endCurrent + 1;
                 return true;
             }
         }

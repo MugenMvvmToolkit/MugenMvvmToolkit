@@ -54,8 +54,10 @@ namespace MugenMvvm.Bindings.Members.Components
             Should.NotBeNull(member, nameof(member));
             var removed = false;
             foreach (var pair in _registeredMembers)
+            {
                 if (pair.Value.Remove(member))
                     removed = true;
+            }
 
             if (removed)
                 OwnerOptional.TryInvalidateCache();

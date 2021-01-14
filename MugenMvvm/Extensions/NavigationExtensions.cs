@@ -48,8 +48,10 @@ namespace MugenMvvm.Extensions
                 closeMetadata ??= new MetadataContext(metadata) {{NavigationMetadata.ForceClose, true}, {NavigationMetadata.NavigationType, navigationType}};
                 foreach (var result in presenter.DefaultIfNull().TryClose(navigationEntry.Target, default, closeMetadata))
                 foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
+                {
                     if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
                         callbacks.Add(navigationCallback);
+                }
             }
 
             return callbacks.WhenAll(false, false).AsTask();
@@ -65,8 +67,10 @@ namespace MugenMvvm.Extensions
                 if (state.navigationType != null && entry.NavigationType != state.navigationType || !(entry.Target is IViewModelBase viewModel))
                     return null;
                 foreach (var t in MugenService.ViewManager.GetViews(viewModel, m))
+                {
                     if (t.Target is TView view)
                         return view;
+                }
 
                 return null;
             }, metadata);
@@ -154,8 +158,10 @@ namespace MugenMvvm.Extensions
                     continue;
 
                 foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata))
+                {
                     if (filter(callback, state))
                         callbacks.Add(callback);
+                }
             }
 
             return callbacks.WhenAll(false, isSerializable).AsTask();
@@ -168,8 +174,10 @@ namespace MugenMvvm.Extensions
                 return new ValueTask<INavigationContext>(r);
 
             foreach (var navigationCallbackListener in callback.GetCallbacks())
+            {
                 if (navigationCallbackListener is NavigationCallbackTaskListener taskListener && taskListener.IsSerializable == isSerializable)
                     return taskListener.Task.AsValueTask();
+            }
 
             var result = new NavigationCallbackTaskListener(isSerializable);
             callback.AddCallback(result);

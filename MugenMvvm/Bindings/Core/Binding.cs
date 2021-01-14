@@ -126,8 +126,10 @@ namespace MugenMvvm.Bindings.Core
 
             var currentLength = 0;
             for (var i = 0; i < list.Length; i++)
+            {
                 if (OnComponentAdding(list[i], metadata))
                     list[currentLength++] = list[i];
+            }
 
             if (CheckFlag(DisposedFlag))
                 return;

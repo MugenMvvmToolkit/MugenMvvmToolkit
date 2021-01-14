@@ -108,12 +108,14 @@ namespace MugenMvvm.Bindings.Observation
             else
             {
                 for (var i = 0; i < _size; i++)
+                {
                     if (_listeners[i].IsEmpty)
                     {
                         _listeners[i] = weakItem;
                         --_removedSize;
                         break;
                     }
+                }
             }
 
             if (_size - _removedSize == 1)

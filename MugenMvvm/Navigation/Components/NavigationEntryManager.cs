@@ -33,8 +33,10 @@ namespace MugenMvvm.Navigation.Components
         private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
         {
             for (var i = 0; i < entries.Count; i++)
+            {
                 if (entries[i].NavigationId == id)
                     return entries[i];
+            }
 
             return null;
         }

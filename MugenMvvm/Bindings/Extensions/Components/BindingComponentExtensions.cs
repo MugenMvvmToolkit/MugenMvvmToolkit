@@ -187,8 +187,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
+                {
                     if (c[i] is ITargetValueInterceptorComponent interceptor)
                         value = interceptor.InterceptTargetValue(binding, targetMember, value, metadata);
+                }
             }
             else if (components is ITargetValueInterceptorComponent interceptor)
                 value = interceptor.InterceptTargetValue(binding, targetMember, value, metadata);
@@ -203,8 +205,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
+                {
                     if (c[i] is ISourceValueInterceptorComponent interceptor)
                         value = interceptor.InterceptSourceValue(binding, sourceMember, value, metadata);
+                }
             }
             else if (components is ISourceValueInterceptorComponent interceptor)
                 value = interceptor.InterceptSourceValue(binding, sourceMember, value, metadata);
@@ -219,8 +223,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
+                {
                     if (c[i] is ITargetValueSetterComponent setter && setter.TrySetTargetValue(binding, targetMember, newValue, metadata))
                         return true;
+                }
             }
             else if (components is ITargetValueSetterComponent setter && setter.TrySetTargetValue(binding, targetMember, newValue, metadata))
                 return true;
@@ -235,8 +241,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
+                {
                     if (c[i] is ISourceValueSetterComponent setter && setter.TrySetSourceValue(binding, sourceMember, newValue, metadata))
                         return true;
+                }
             }
             else if (components is ISourceValueSetterComponent setter && setter.TrySetSourceValue(binding, sourceMember, newValue, metadata))
                 return true;
@@ -341,8 +349,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(binding, nameof(binding));
             foreach (var c in components)
+            {
                 if (c.TryRegister(bindingManager, target, binding, metadata))
                     return true;
+            }
 
             return false;
         }
@@ -353,8 +363,10 @@ namespace MugenMvvm.Bindings.Extensions.Components
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(binding, nameof(binding));
             foreach (var c in components)
+            {
                 if (c.TryUnregister(bindingManager, target, binding, metadata))
                     return true;
+            }
 
             return false;
         }

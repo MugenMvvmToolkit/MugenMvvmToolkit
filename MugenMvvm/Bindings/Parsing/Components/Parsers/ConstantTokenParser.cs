@@ -33,11 +33,13 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
             var start = context.SkipWhitespacesPosition();
             foreach (var expressionNode in LiteralToExpression)
+            {
                 if (context.IsToken(expressionNode.Key, start, false))
                 {
                     context.Position = start + expressionNode.Key.Length;
                     return expressionNode.Value;
                 }
+            }
 
             return null;
         }

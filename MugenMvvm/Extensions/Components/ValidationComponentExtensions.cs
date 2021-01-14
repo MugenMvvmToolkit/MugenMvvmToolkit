@@ -133,8 +133,10 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(validator, nameof(validator));
             foreach (var c in components)
+            {
                 if (c.HasErrors(validator, memberName, metadata))
                     return true;
+            }
 
             return false;
         }

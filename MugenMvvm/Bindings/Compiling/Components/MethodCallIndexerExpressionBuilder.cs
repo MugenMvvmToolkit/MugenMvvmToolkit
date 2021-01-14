@@ -58,6 +58,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
         private static void GetBestMethodCandidates(ref ItemOrArray<MethodData> methods, ItemOrArray<ArgumentData> arguments)
         {
             for (var index = 0; index < methods.Count; index++)
+            {
                 try
                 {
                     var methodInfo = methods[index];
@@ -87,11 +88,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     var count = parameters.Count > arguments.Count ? arguments.Count : parameters.Count;
                     var valid = true;
                     for (var i = 0; i < count; i++)
+                    {
                         if (!IsCompatible(parameters[i].ParameterType, arguments[i].Node))
                         {
                             valid = false;
                             break;
                         }
+                    }
 
                     if (valid)
                         methods.SetAt(index, methodData);
@@ -100,6 +103,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 {
                     ;
                 }
+            }
         }
 
         private static Expression? TryGenerateMethodCall(IExpressionBuilderContext context, ref ItemOrArray<MethodData> methods, in TargetData target,
@@ -109,6 +113,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return null;
 
             for (var i = 0; i < methods.Count; i++)
+            {
                 try
                 {
                     var method = methods[i];
@@ -147,6 +152,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 {
                     methods.SetAt(i, default);
                 }
+            }
 
             var resultIndex = TrySelectMethod(methods, arguments, out var resultHasParams);
             if (resultIndex < 0)
@@ -556,12 +562,14 @@ namespace MugenMvvm.Bindings.Compiling.Components
             var methods = ItemOrArray.Get<MethodData>(members.Count);
             var count = 0;
             foreach (var member in members)
+            {
                 if (member is IMethodMemberInfo method)
                 {
                     var m = typeArgs.IsEmpty ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
                         methods.SetAt(count++, new MethodData(m));
                 }
+            }
 
             return methods;
         }
@@ -654,8 +662,10 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 if (values.Length != types.Length)
                     return false;
                 for (var i = 0; i < values.Length; i++)
+                {
                     if (GetValueType(values[i]) != types[i])
                         return false;
+                }
 
                 return true;
             }

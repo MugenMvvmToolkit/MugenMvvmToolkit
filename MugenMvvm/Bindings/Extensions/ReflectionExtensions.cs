@@ -88,8 +88,10 @@ namespace MugenMvvm.Bindings.Extensions
                     return default;
                 var constraints = arg.GetGenericParameterConstraints();
                 for (var j = 0; j < constraints.Length; j++)
+                {
                     if (!constraints[j].IsAssignableFrom(inferredType))
                         return default;
+                }
             }
 
             return inferredTypes;
@@ -351,8 +353,10 @@ namespace MugenMvvm.Bindings.Extensions
         private static Type? FindCommonType(Type genericDefinition, Type type)
         {
             foreach (var baseType in SelfAndBaseTypes(type))
+            {
                 if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericDefinition)
                     return baseType;
+            }
 
             return null;
         }

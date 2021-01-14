@@ -33,10 +33,12 @@ namespace MugenMvvm.Android.Views
 
             var result = new ItemOrListEditor<IViewMapping>();
             foreach (var mapping in mappings)
+            {
                 if (!mapping.ViewType.IsInterface && mapping.ViewType.IsInstanceOfType(view))
                     result.Add(mapping);
                 else if (mapping is IResourceViewMapping map && map.ResourceId == viewId)
                     result.Add(mapping);
+            }
 
             return result.ToItemOrList();
         }

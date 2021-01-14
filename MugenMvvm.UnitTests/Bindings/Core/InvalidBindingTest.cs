@@ -36,6 +36,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var exception = new Exception();
             var binding = new InvalidBinding(exception);
             for (var i = 0; i < count; i++)
+            {
                 binding.AddComponent(new TestBindingTargetListener
                 {
                     OnTargetUpdateFailed = (b, e, m) =>
@@ -48,6 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     OnTargetUpdateCanceled = (b, m) => throw new NotSupportedException(),
                     OnTargetUpdated = (b, v, m) => throw new NotSupportedException()
                 });
+            }
 
             binding.UpdateTarget();
             updateFailed.ShouldEqual(count);
@@ -62,6 +64,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var exception = new Exception();
             var binding = new InvalidBinding(exception);
             for (var i = 0; i < count; i++)
+            {
                 binding.AddComponent(new TestBindingSourceListener
                 {
                     OnSourceUpdateFailed = (b, e, m) =>
@@ -74,6 +77,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     OnSourceUpdateCanceled = (b, m) => throw new NotSupportedException(),
                     OnSourceUpdated = (b, v, m) => throw new NotSupportedException()
                 });
+            }
 
             binding.UpdateSource();
             updateFailed.ShouldEqual(count);

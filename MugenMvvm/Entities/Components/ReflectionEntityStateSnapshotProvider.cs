@@ -163,8 +163,10 @@ namespace MugenMvvm.Entities.Components
                     return TryGetValue(member, out var value) && !Equals(value.GetValue(entity), value.Value);
 
                 foreach (var pair in this)
+                {
                     if (!Equals(pair.Value.GetValue(entity), pair.Value.Value))
                         return true;
+                }
 
                 return false;
             }

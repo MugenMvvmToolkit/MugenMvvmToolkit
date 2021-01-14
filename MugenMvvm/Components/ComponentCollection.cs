@@ -103,8 +103,10 @@ namespace MugenMvvm.Components
         public ItemOrArray<T> Get<T>(IReadOnlyMetadataContext? metadata = null) where T : class
         {
             foreach (var tracker in _componentTrackers)
+            {
                 if (tracker.ComponentType == typeof(T))
                     return ItemOrArray.FromRawValue<T>(tracker.Components);
+            }
 
             return AddNewTracker<T>(metadata);
         }
@@ -143,8 +145,10 @@ namespace MugenMvvm.Components
         {
             var size = 0;
             for (var i = 0; i < _items.Count; i++)
+            {
                 if (_items[i] is TComponent)
                     ++size;
+            }
 
             if (size == 0)
                 return ComponentTracker.Get<TComponent>(default);
@@ -155,8 +159,10 @@ namespace MugenMvvm.Components
             var components = ItemOrArray.Get<TComponent>(size);
             size = 0;
             for (var i = 0; i < _items.Count; i++)
+            {
                 if (_items[i] is TComponent c)
                     components.SetAt(size++, c);
+            }
 
             return ComponentTracker.Get(components);
         }
@@ -166,8 +172,10 @@ namespace MugenMvvm.Components
         {
             var components = size == 1 ? default : new ItemOrListEditor<TComponent>(new List<TComponent>(size));
             for (var i = 0; i < _items.Count; i++)
+            {
                 if (_items[i] is TComponent c)
                     components.Add(c);
+            }
 
             _decorators.Decorate(this, ref components, metadata);
             return ComponentTracker.Get(components.ToItemOrArray());

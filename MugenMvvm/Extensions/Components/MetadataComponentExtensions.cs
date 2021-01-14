@@ -56,8 +56,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             foreach (var c in components)
+            {
                 if (c.Contains(context, contextKey))
                     return true;
+            }
 
             return false;
         }
@@ -69,8 +71,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(operationType, nameof(operationType));
             foreach (var c in components)
+            {
                 if (c.TryGetValue(context, contextKey, operationType, out rawValue))
                     return true;
+            }
 
             rawValue = null;
             return false;
@@ -82,8 +86,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             foreach (var c in components)
+            {
                 if (c.TrySetValue(context, contextKey, rawValue))
                     return true;
+            }
 
             return false;
         }
@@ -94,8 +100,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(contextKey, nameof(contextKey));
             var clear = false;
             foreach (var c in components)
+            {
                 if (c.TryRemove(context, contextKey))
                     clear = true;
+            }
 
             return clear;
         }

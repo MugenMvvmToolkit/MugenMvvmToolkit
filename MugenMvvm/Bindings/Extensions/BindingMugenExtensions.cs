@@ -39,8 +39,10 @@ namespace MugenMvvm.Bindings.Extensions
         internal const char CommaChar = ',';
         internal const char DotChar = '.';
 
-        public static readonly char[] CommaSeparator = {CommaChar};
-        public static readonly char[] DotSeparator = {DotChar};
+#if !SPAN_API
+        internal static readonly char[] CommaSeparator = {CommaChar};
+#endif
+        internal static readonly char[] DotSeparator = {DotChar};
         private static readonly int[] ArraySize = new int[1];
 
         public static IMemberPath GetMemberPath(this IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata = null)
@@ -106,7 +108,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(resolver, nameof(resolver));
             return resolver.GetOrAddComponent(_ => new TypeResolverComponent());
         }
-        
+
         public static ResourceResolverComponent GetResourceResolver(this IResourceResolver resolver)
         {
             Should.NotBeNull(resolver, nameof(resolver));
@@ -418,8 +420,10 @@ namespace MugenMvvm.Bindings.Extensions
         public static bool IsAllMembersAvailable(ItemOrArray<object?> observers)
         {
             foreach (var item in observers)
+            {
                 if (item is IMemberPathObserver observer && !observer.IsAllMembersAvailable())
                     return false;
+            }
 
             return true;
         }
@@ -750,8 +754,10 @@ namespace MugenMvvm.Bindings.Extensions
         internal static bool IsAllConstants(this ItemOrIReadOnlyList<IExpressionNode> expressions)
         {
             foreach (var expression in expressions)
+            {
                 if (expression.ExpressionType != ExpressionNodeType.Constant)
                     return false;
+            }
 
             return true;
         }
@@ -790,8 +796,10 @@ namespace MugenMvvm.Bindings.Extensions
         {
             var length = 1;
             for (var i = 0; i < source.Length; i++)
+            {
                 if (source[i] == separator)
                     ++length;
+            }
 
             if (length == 0)
                 return default;

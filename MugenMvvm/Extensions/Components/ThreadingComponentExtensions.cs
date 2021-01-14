@@ -16,8 +16,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(executionMode, nameof(executionMode));
             foreach (var c in components)
+            {
                 if (c.CanExecuteInline(threadDispatcher, executionMode, metadata))
                     return true;
+            }
 
             return false;
         }
@@ -31,8 +33,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(executionMode, nameof(executionMode));
             Should.NotBeNull(handler, nameof(handler));
             foreach (var c in components)
+            {
                 if (c.TryExecute(threadDispatcher, executionMode, handler, state, metadata))
                     return true;
+            }
 
             return false;
         }

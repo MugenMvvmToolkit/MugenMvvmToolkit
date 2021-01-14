@@ -55,8 +55,10 @@ namespace MugenMvvm.Android.Collections
                 return false;
 
             for (var i = 0; i < CollectionAdapter.Count; i++)
+            {
                 if (StableIdProvider.GetId(CollectionAdapter[i]) == itemId)
                     return true;
+            }
 
             return false;
         }

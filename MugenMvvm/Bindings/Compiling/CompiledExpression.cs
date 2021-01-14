@@ -61,8 +61,10 @@ namespace MugenMvvm.Bindings.Compiling
             if (values.Length != types.Length)
                 return false;
             for (var i = 0; i < values.Length; i++)
+            {
                 if (values[i].Type != types[i])
                     return false;
+            }
 
             return true;
         }

@@ -20,11 +20,17 @@ namespace MugenMvvm.Models
     public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, IThreadDispatcherHandler, ISuspendable,
         IValueHolder<IWeakReference>, IValueHolder<Delegate>, IValueHolder<IDictionary<string, object?>>, IValueHolder<MemberListenerCollection>
     {
-        [NonSerialized] [IgnoreDataMember] private bool _isNotificationsDirty;
+        [NonSerialized]
+        [IgnoreDataMember]
+        private bool _isNotificationsDirty;
 
-        [NonSerialized] [IgnoreDataMember] private MemberListenerCollection? _memberListeners;
+        [NonSerialized]
+        [IgnoreDataMember]
+        private MemberListenerCollection? _memberListeners;
 
-        [NonSerialized] [IgnoreDataMember] private int _suspendCount;
+        [NonSerialized]
+        [IgnoreDataMember]
+        private int _suspendCount;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

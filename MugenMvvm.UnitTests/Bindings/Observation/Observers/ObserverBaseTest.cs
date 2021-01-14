@@ -166,6 +166,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         private static void ValidateInvokeCount(TestMemberPathObserverListener[] listeners, ListenerMode mode, int count, bool clear = true, int? start = null, int? end = null)
         {
             for (var i = start.GetValueOrDefault(); i < end.GetValueOrDefault(listeners.Length); i++)
+            {
                 switch (mode)
                 {
                     case ListenerMode.Error:
@@ -186,6 +187,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     default:
                         throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
                 }
+            }
         }
 
         protected abstract TObserver GetObserver(object target);

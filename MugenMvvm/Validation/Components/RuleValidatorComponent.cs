@@ -19,11 +19,13 @@ namespace MugenMvvm.Validation.Components
         {
             Rules = rules;
             foreach (var rule in rules)
+            {
                 if (rule.IsAsync)
                 {
                     _isAsync = true;
                     break;
                 }
+            }
         }
 
         protected override CancellationToken GetCancellationToken(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>

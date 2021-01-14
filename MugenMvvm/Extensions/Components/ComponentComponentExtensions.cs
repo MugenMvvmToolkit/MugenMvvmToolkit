@@ -37,8 +37,10 @@ namespace MugenMvvm.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
+                {
                     if (c[i] is TComponent)
                         return true;
+                }
 
                 return false;
             }
@@ -53,8 +55,10 @@ namespace MugenMvvm.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
+                {
                     if (c[i] is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
                         return false;
+                }
             }
             else if (components is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
                 return false;
@@ -86,8 +90,10 @@ namespace MugenMvvm.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
+                {
                     if (c[i] is IComponentCollectionChangingListener listener && listener != component && !listener.OnRemoving(collection, component, metadata))
                         return false;
+                }
             }
             else if (components is IComponentCollectionChangingListener listener && listener != component && !listener.OnRemoving(collection, component, metadata))
                 return false;
@@ -114,8 +120,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
             foreach (var c in listeners)
+            {
                 if (!c.OnAdding(collection, component, metadata))
                     return false;
+            }
 
             return true;
         }
@@ -135,8 +143,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
             foreach (var c in listeners)
+            {
                 if (!c.OnRemoving(collection, component, metadata))
                     return false;
+            }
 
             return true;
         }
@@ -156,8 +166,10 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(decorators, nameof(decorators));
             for (var i = 0; i < decorators.Length; i++)
+            {
                 if (decorators[i] is IComponentCollectionDecorator<TComponent> decorator)
                     decorator.Decorate(collection, ref components, metadata);
+            }
         }
 
         public static void Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, IComponentCollection collection,
@@ -174,8 +186,10 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(decorators, nameof(decorators));
             for (var i = 0; i < decorators.Length; i++)
+            {
                 if (decorators[i] is IComponentCollectionDecorator<TComponent>)
                     return true;
+            }
 
             return false;
         }

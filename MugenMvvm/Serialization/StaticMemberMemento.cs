@@ -15,7 +15,8 @@ namespace MugenMvvm.Serialization
     [Preserve(Conditional = true, AllMembers = true)]
     public sealed class StaticMemberMemento : IMemento
     {
-        [DataMember(Name = "M")] internal MemberInfo? Member;
+        [DataMember(Name = "M")]
+        internal MemberInfo? Member;
 
 #pragma warning disable CS8618
         internal StaticMemberMemento()

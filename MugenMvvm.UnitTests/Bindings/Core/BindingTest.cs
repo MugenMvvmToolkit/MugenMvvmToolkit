@@ -527,6 +527,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var updated = 0;
             var binding = new Binding(target, source);
             for (var i = 0; i < count; i++)
+            {
                 binding.AddComponent(new TestBindingTargetListener
                 {
                     OnTargetUpdateFailed = (b, e, m) =>
@@ -550,6 +551,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         m.ShouldEqual(binding);
                     }
                 });
+            }
 
             binding.UpdateTarget();
             updateCanceled.ShouldEqual(count);
@@ -620,6 +622,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var updated = 0;
             var binding = new Binding(target, source);
             for (var i = 0; i < count; i++)
+            {
                 binding.AddComponent(new TestBindingSourceListener
                 {
                     OnSourceUpdateFailed = (b, e, m) =>
@@ -643,6 +646,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         m.ShouldEqual(binding);
                     }
                 });
+            }
 
             binding.UpdateSource();
             updateCanceled.ShouldEqual(count);
@@ -1032,6 +1036,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var errorCount = 0;
             var binding = GetBinding(target, source);
             for (var i = 0; i < count; i++)
+            {
                 binding.AddComponent(new TestBindingTargetObserverListener
                 {
                     OnTargetPathMembersChanged = (b, o, m) =>
@@ -1057,6 +1062,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         m.ShouldEqual(binding);
                     }
                 });
+            }
 
             listener.ShouldEqual(binding);
             lastMemberCount.ShouldEqual(0);
@@ -1124,6 +1130,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var binding = GetBinding(target, sources.Length == 1 ? sources[0] : (object) sources);
             IMemberPathObserver? source = null;
             for (var i = 0; i < count; i++)
+            {
                 binding.AddComponent(new TestBindingSourceObserverListener
                 {
                     OnSourcePathMembersChanged = (b, o, m) =>
@@ -1149,6 +1156,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         m.ShouldEqual(binding);
                     }
                 });
+            }
 
             foreach (var listenerPair in listeners)
             {

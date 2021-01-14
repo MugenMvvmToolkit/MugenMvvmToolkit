@@ -202,8 +202,10 @@ namespace MugenMvvm.Validation.Components
                 lock (_errors)
                 {
                     foreach (var pair in _errors)
+                    {
                         if (!errors.ContainsKey(pair.Key))
                             errors[pair.Key] = null;
+                    }
                 }
             }
             else

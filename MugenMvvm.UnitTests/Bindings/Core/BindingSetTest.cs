@@ -206,8 +206,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             var bindingSet = new BindingSet<object>(bindingManager);
             for (var i = 0; i < bindingCount; i++)
+            {
                 foreach (var valueTuple in list)
                     bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
+            }
 
             var bindings = bindingSet.BuildIncludeBindings(DefaultMetadata);
             invokeBuilderCount.ShouldEqual(count * bindingCount);
@@ -267,8 +269,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             var bindingSet = new BindingSet<object>(bindingManager);
             for (var i = 0; i < bindingCount; i++)
+            {
                 foreach (var valueTuple in list)
                     bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
+            }
 
             bindingSet.Dispose();
             invokeBuilderCount.ShouldEqual(count * bindingCount);
@@ -323,8 +327,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             var bindingSet = new BindingSet<object>(bindingManager);
             for (var i = 0; i < bindingCount; i++)
+            {
                 foreach (var valueTuple in list)
                     bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
+            }
 
             bindingSet.Build(DefaultMetadata);
             invokeBuilderCount.ShouldEqual(count * bindingCount);

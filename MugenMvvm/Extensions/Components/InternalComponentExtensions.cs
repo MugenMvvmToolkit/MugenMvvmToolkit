@@ -20,8 +20,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(state, nameof(state));
             foreach (var c in components)
+            {
                 if (c.IsInState(owner, target, state, metadata))
                     return true;
+            }
 
             return false;
         }
@@ -143,8 +145,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
             foreach (var c in components)
+            {
                 if (c.CanCreateDelegate(reflectionManager, delegateType, method))
                     return true;
+            }
 
             return false;
         }
@@ -184,8 +188,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(level, nameof(level));
             foreach (var c in components)
+            {
                 if (c.CanLog(logger, level, metadata))
                     return true;
+            }
 
             return false;
         }

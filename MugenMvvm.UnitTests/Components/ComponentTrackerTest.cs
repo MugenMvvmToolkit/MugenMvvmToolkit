@@ -23,6 +23,7 @@ namespace MugenMvvm.UnitTests.Components
             ItemOrArray<IComponent> expectedComponents = default;
 
             for (var i = 0; i < listenersCount; i++)
+            {
                 componentTracker.AddListener<IComponent, ComponentTrackerTest>((components, s, arg3) =>
                 {
                     ++executed;
@@ -30,6 +31,7 @@ namespace MugenMvvm.UnitTests.Components
                     arg3.ShouldEqual(DefaultMetadata);
                     expectedComponents.ShouldEqual(components);
                 }, this);
+            }
 
             for (var i = 0; i < componentCount; i++)
                 componentCollection.TryAdd(new TestAttachableComponent<object>());
@@ -58,6 +60,7 @@ namespace MugenMvvm.UnitTests.Components
             var expectedCount = 0;
 
             for (var i = 0; i < listenersCount; i++)
+            {
                 componentTracker.AddListener<IComponent, ComponentTrackerTest>((components, s, arg3) =>
                 {
                     ++executed;
@@ -66,6 +69,7 @@ namespace MugenMvvm.UnitTests.Components
                     components.Count.ShouldEqual(expectedCount);
                     componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
+            }
 
             for (var i = 0; i < componentCount; i++)
             {
@@ -92,6 +96,7 @@ namespace MugenMvvm.UnitTests.Components
             var expectedCount = componentCount;
 
             for (var i = 0; i < listenersCount; i++)
+            {
                 componentTracker.AddListener<IComponent, ComponentTrackerTest>((components, s, arg3) =>
                 {
                     ++executed;
@@ -100,6 +105,7 @@ namespace MugenMvvm.UnitTests.Components
                     components.Count.ShouldEqual(expectedCount);
                     componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
+            }
 
             foreach (var c in componentCollection.Get<IComponent>())
             {

@@ -27,18 +27,22 @@ namespace MugenMvvm.Android.Views
             {
                 IResourceViewMapping? viewMapping = null;
                 foreach (var t in viewManager.GetMappings(viewRequest.ViewModel, metadata))
+                {
                     if (t is IResourceViewMapping m && (viewRequest.ResourceId == 0 || m.ResourceId == viewRequest.ResourceId))
                     {
                         viewMapping = m;
                         break;
                     }
+                }
 
                 if (viewMapping != null || viewRequest.ResourceId != 0)
                 {
                     var resourceId = viewMapping?.ResourceId ?? viewRequest.ResourceId;
                     foreach (var v in viewManager.GetViews(viewRequest.ViewModel, metadata))
+                    {
                         if (v.Mapping is IResourceViewMapping m && m.ResourceId == resourceId)
                             return new ValueTask<IView?>(v);
+                    }
 
                     var view = ViewMugenExtensions.GetView(container, resourceId, true);
                     viewMapping ??= new ResourceViewMapping(resourceId, viewRequest.ViewModel.GetType(), view.GetType(), metadata);

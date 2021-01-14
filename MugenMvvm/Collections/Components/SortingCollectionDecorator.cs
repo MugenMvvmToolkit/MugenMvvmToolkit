@@ -89,8 +89,10 @@ namespace MugenMvvm.Collections.Components
         private int GetIndexByOriginalIndex(int index)
         {
             for (var i = 0; i < _items.Count; i++)
+            {
                 if (_items[i].OriginalIndex == index)
                     return i;
+            }
 
             return -1;
         }

@@ -64,15 +64,19 @@ namespace MugenMvvm.Bindings.Extensions
                 if (validator != null)
                 {
                     foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
+                    {
                         if (validator.HasErrors(member))
                             return true;
+                    }
                 }
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)
             {
                 foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
+                {
                     if (dataErrorInfo.GetErrors(member).Any())
                         return true;
+                }
             }
 
             return false;
@@ -204,8 +208,10 @@ namespace MugenMvvm.Bindings.Extensions
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             foreach (var c in bindingManager.GetComponents<MacrosBindingInitializer>())
+            {
                 if (c.Priority == priority)
                     return c;
+            }
 
             var initializer = new MacrosBindingInitializer {Priority = priority};
             bindingManager.AddComponent(initializer);

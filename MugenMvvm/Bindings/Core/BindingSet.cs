@@ -77,6 +77,7 @@ namespace MugenMvvm.Bindings.Core
         private void BuildInternal(bool includeBindings, ref ItemOrListEditor<IBinding> bindings, IReadOnlyMetadataContext? metadata = null)
         {
             foreach (var builder in Builders)
+            {
                 if (builder.Value is IBindingBuilder expression)
                 {
                     var binding = expression.Build(builder.Key.Item1, builder.Key.Item2, metadata);
@@ -97,6 +98,7 @@ namespace MugenMvvm.Bindings.Core
                             bindings.Add(binding);
                     }
                 }
+            }
 
             Builders.Clear();
         }

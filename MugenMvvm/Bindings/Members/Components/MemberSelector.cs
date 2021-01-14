@@ -33,8 +33,10 @@ namespace MugenMvvm.Bindings.Members.Components
             var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
             var flags = member.AccessModifiers;
             foreach (var f in MemberFlags.GetAll())
+            {
                 if (flags.HasFlag(f))
                     priority += f.Priority;
+            }
 
             return priority;
         }
@@ -49,8 +51,10 @@ namespace MugenMvvm.Bindings.Members.Components
 
             var priority = 0;
             foreach (var f in ArgumentFlags.GetAll())
+            {
                 if (flags.HasFlag(f))
                     priority += f.Priority;
+            }
 
             return priority;
         }
@@ -112,8 +116,10 @@ namespace MugenMvvm.Bindings.Members.Components
                 return false;
 
             for (var i = 0; i < xM.Count; i++)
+            {
                 if (xM[i].ParameterType != yM[i].ParameterType)
                     return false;
+            }
 
             return true;
         }

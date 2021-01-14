@@ -85,8 +85,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             var result = false;
             foreach (var c in components)
+            {
                 if (c.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext))
                     result = true;
+            }
 
             return result;
         }
@@ -101,8 +103,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(exception, nameof(exception));
             var result = false;
             foreach (var c in components)
+            {
                 if (c.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, exception))
                     result = true;
+            }
 
             return result;
         }
@@ -114,8 +118,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(callbackType, nameof(callbackType));
             var result = false;
             foreach (var c in components)
+            {
                 if (c.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, cancellationToken))
                     result = true;
+            }
 
             return result;
         }

@@ -60,8 +60,10 @@ namespace MugenMvvm.Bindings.Extensions
                 return false;
 
             foreach (var pair in metadata)
+            {
                 if (!otherMetadata.TryGetValue(pair.Key, out var v) || !Equals(v, pair.Value))
                     return false;
+            }
 
             return true;
         }
@@ -198,8 +200,11 @@ namespace MugenMvvm.Bindings.Extensions
                 return false;
 
             for (var i = 0; i < token.Length; i++)
+            {
                 if (context.TokenAt(p++) != token[i])
                     return false;
+            }
+
             return isPartOfIdentifier || p >= ctxLength || !context.TokenAt(p).IsValidIdentifierSymbol(false);
         }
 
@@ -236,8 +241,10 @@ namespace MugenMvvm.Bindings.Extensions
             var start = context.GetPosition(position);
             var length = context.Length;
             for (var i = start; i < length; i++)
+            {
                 if (tokens.Contains(context.TokenAt(i)))
                     return i;
+            }
 
             return -1;
         }

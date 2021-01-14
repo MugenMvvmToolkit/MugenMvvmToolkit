@@ -133,11 +133,13 @@ namespace MugenMvvm.Ios.Views
             if (subviews != null)
             {
                 foreach (UIView view in subviews)
+                {
                     if (view.Alpha < 1)
                     {
                         UIView uiView = view;
                         UIView.Animate(0.25, () => uiView.Alpha = 1);
                     }
+                }
             }
 
             return null!;

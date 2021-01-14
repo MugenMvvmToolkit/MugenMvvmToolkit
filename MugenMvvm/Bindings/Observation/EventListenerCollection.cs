@@ -56,8 +56,10 @@ namespace MugenMvvm.Bindings.Observation
                     var hasDeadRef = false;
                     var size = _size;
                     for (var i = 0; i < size; i++)
+                    {
                         if (!WeakEventListener.TryHandle(listeners[i], sender, args, metadata) && RemoveAt(listeners, i))
                             hasDeadRef = true;
+                    }
 
                     if (hasDeadRef && _listeners == listeners)
                         TrimIfNeed(listeners, true);
@@ -105,12 +107,14 @@ namespace MugenMvvm.Bindings.Observation
                     else
                     {
                         for (var i = 0; i < _size; i++)
+                        {
                             if (listeners[i] == null)
                             {
                                 listeners[i] = target;
                                 --_removedSize;
                                 break;
                             }
+                        }
                     }
                 }
                 else
@@ -135,12 +139,14 @@ namespace MugenMvvm.Bindings.Observation
             {
                 var size = _size;
                 for (var i = 0; i < size; i++)
+                {
                     if (WeakEventListener.GetListener(listeners[i]) == listener)
                     {
                         if (RemoveAt(listeners, i))
                             TrimIfNeed(listeners, false);
                         return true;
                     }
+                }
             }
             else if (WeakEventListener.GetListener(_listeners) == listener)
             {

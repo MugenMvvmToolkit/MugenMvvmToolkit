@@ -57,11 +57,13 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             var index = -1;
             var priority = int.MinValue;
             for (var i = 0; i < tokens.Count; i++)
+            {
                 if (tokens[i].Priority > priority)
                 {
                     priority = tokens[i].Priority;
                     index = i;
                 }
+            }
 
             return index;
         }
@@ -154,11 +156,13 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 }
 
                 foreach (var t in token.Aliases)
+                {
                     if (context.IsToken(t))
                     {
                         context.MoveNext(t.Length);
                         return token;
                     }
+                }
             }
 
             return null;

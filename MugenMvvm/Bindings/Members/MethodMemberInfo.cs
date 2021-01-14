@@ -42,11 +42,13 @@ namespace MugenMvvm.Bindings.Members
             {
                 _genericArguments = genericArguments ?? _method.GetGenericArguments();
                 for (var i = 0; i < _genericArguments.Length; i++)
+                {
                     if (_genericArguments[i].IsGenericParameter)
                     {
                         IsGenericMethodDefinition = true;
                         break;
                     }
+                }
             }
 
             parameterInfos ??= _method.GetParameters();

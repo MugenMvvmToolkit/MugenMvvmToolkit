@@ -78,8 +78,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializedType, nameof(serializedType));
             foreach (var c in components)
+            {
                 if (c.TryResolveName(serializer, serializedType, serializationContext, out assemblyName, out typeName))
                     return true;
+            }
 
             assemblyName = null;
             typeName = null;
@@ -109,8 +111,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             foreach (var c in components)
+            {
                 if (c.IsSupported(serializer, format, request, metadata))
                     return true;
+            }
 
             return false;
         }
@@ -123,8 +127,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
             foreach (var c in components)
+            {
                 if (c.TrySerialize(serializer, format, request, serializationContext, ref result))
                     return true;
+            }
 
             result = default!;
             return false;
@@ -138,8 +144,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
             foreach (var c in components)
+            {
                 if (c.TryDeserialize(serializer, format, request, serializationContext, ref result))
                     return true;
+            }
 
             result = default!;
             return false;
@@ -152,8 +160,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             foreach (var c in components)
+            {
                 if (c.IsSupported(serializer, format, request, metadata))
                     return true;
+            }
 
             return false;
         }
@@ -166,8 +176,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
             foreach (var c in components)
+            {
                 if (c.TrySerialize(serializer, format, request, serializationContext, ref result))
                     return true;
+            }
 
             result = default!;
             return false;
@@ -180,8 +192,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(format, nameof(format));
             foreach (var c in components)
+            {
                 if (c.IsSupported(serializer, format, request, metadata))
                     return true;
+            }
 
             return false;
         }
@@ -194,8 +208,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
             foreach (var c in components)
+            {
                 if (c.TryDeserialize(serializer, format, request, serializationContext, ref result))
                     return true;
+            }
 
             result = default!;
             return false;

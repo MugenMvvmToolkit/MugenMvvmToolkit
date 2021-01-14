@@ -24,6 +24,7 @@ namespace MugenMvvm.Internal
         public static readonly IEqualityComparer<KeyValuePair<Type, Type>> TypeType = Comparer;
         public static readonly IEqualityComparer<IMetadataContextKey> MetadataContextKey = Comparer;
 
+
         private InternalEqualityComparer()
         {
         }
@@ -35,8 +36,10 @@ namespace MugenMvvm.Internal
             if (x.Length != y.Length)
                 return false;
             for (var i = 0; i < x.Length; i++)
+            {
                 if (x[i] != y[i])
                     return false;
+            }
 
             return true;
         }

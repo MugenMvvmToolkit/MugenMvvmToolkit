@@ -31,8 +31,10 @@ namespace MugenMvvm.Entities
                 lock (_dictionary)
                 {
                     foreach (var item in _dictionary)
+                    {
                         if (item.Value != EntityState.Unchanged)
                             return true;
+                    }
 
                     return false;
                 }

@@ -62,6 +62,7 @@ namespace MugenMvvm.Enums
             StringBuilder? builder = null;
             string? name = null;
             foreach (var @enum in EnumBase.GetAll<T>())
+            {
                 if (this.HasFlag(@enum.Flag))
                 {
                     if (name == null)
@@ -72,6 +73,7 @@ namespace MugenMvvm.Enums
                         builder.Append(@enum.Name).Append(' ').Append('|').Append(' ');
                     }
                 }
+            }
 
             if (builder == null)
                 return name ?? Flags.ToString();

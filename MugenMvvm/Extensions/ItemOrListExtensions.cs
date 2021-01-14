@@ -100,8 +100,10 @@ namespace MugenMvvm.Extensions
         {
             var count = 0;
             foreach (var item in itemOrList)
+            {
                 if (predicate(item))
                     ++count;
+            }
 
             return count;
         }
@@ -109,8 +111,10 @@ namespace MugenMvvm.Extensions
         internal static bool All<T>(this ItemOrArray<T> itemOrList, Func<T, bool> predicate)
         {
             foreach (var item in itemOrList)
+            {
                 if (!predicate(item))
                     return false;
+            }
 
             return true;
         }
@@ -123,8 +127,11 @@ namespace MugenMvvm.Extensions
             if (itemOrList.List != null)
             {
                 foreach (var item in itemOrList)
+                {
                     if (predicate(item))
                         return item;
+                }
+
                 return default;
             }
 

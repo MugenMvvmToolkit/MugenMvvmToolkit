@@ -149,8 +149,10 @@ namespace MugenMvvm.Bindings.Members.Components
             var xParameters = x.Parameters;
             var yParameters = y.Parameters;
             for (var i = 0; i < xCount; i++)
+            {
                 if (xParameters[i].ParameterType != yParameters[i].ParameterType)
                     return false;
+            }
 
             return true;
         }

@@ -53,12 +53,14 @@ namespace MugenMvvm.Bindings.Core.Components
             }
 
             foreach (var mode in BindingModes)
+            {
                 if (context.TryGetParameterValue<bool>(mode.Key))
                 {
                     if (mode.Value != null)
                         context.Components[BindingParameterNameConstant.Mode] = mode.Value;
                     return;
                 }
+            }
 
             if (DefaultMode != null)
                 context.Components[BindingParameterNameConstant.Mode] = DefaultMode;

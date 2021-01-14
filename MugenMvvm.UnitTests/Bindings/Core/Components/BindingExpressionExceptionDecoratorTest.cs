@@ -45,6 +45,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var exception = new Exception();
             var expressions = new IBindingBuilder[count];
             for (var i = 0; i < expressions.Length; i++)
+            {
                 expressions[i] = new TestBindingBuilder
                 {
                     Build = (t, s, arg3) =>
@@ -55,6 +56,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         throw exception;
                     }
                 };
+            }
 
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new BindingExpressionExceptionDecorator());

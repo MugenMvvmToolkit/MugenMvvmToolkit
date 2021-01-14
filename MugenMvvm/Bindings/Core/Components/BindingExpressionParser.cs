@@ -137,15 +137,19 @@ namespace MugenMvvm.Bindings.Core.Components
                 if (size > 1)
                 {
                     foreach (var componentPair in _context.Components)
+                    {
                         if (componentPair.Value != null)
                             ++size;
+                    }
                 }
 
                 var components = ItemOrArray.Get<object>(size);
                 size = 0;
                 foreach (var componentPair in _context.Components)
+                {
                     if (componentPair.Value != null)
                         components.SetAt(size++, componentPair.Value);
+                }
 
                 _parametersRaw = components.GetRawValue();
                 _context.Clear();

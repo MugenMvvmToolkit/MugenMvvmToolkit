@@ -48,6 +48,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var component = new NavigationCallbackManager();
             var addedCallbacks = new HashSet<INavigationCallback>(ReferenceEqualityComparer.Instance);
             for (var i = 0; i < count; i++)
+            {
                 if (wrapTarget)
                 {
                     var result = new PresenterResult(target, "t", NavigationProvider.System, NavigationType.Popup);
@@ -64,6 +65,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     addedCallbacks.Add(callback);
                     component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
                 }
+            }
 
             addedCallbacks.Count.ShouldEqual(1);
         }

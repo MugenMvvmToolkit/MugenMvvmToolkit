@@ -238,8 +238,10 @@ namespace MugenMvvm.Internal.Components
                 var types = new Type[genericArguments.Length];
                 var index = 0;
                 for (var i = 0; i < mParameters.Length; i++)
+                {
                     if (mParameters[i].ParameterType.IsGenericParameter)
                         types[index++] = eParameters[i].ParameterType;
+                }
 
                 try
                 {

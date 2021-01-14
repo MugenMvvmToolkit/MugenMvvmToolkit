@@ -16,6 +16,7 @@ namespace MugenMvvm.Bindings.Members
         public static readonly ConstantMemberInfo Null = new("", null, false);
         public static readonly ConstantMemberInfo Unset = new("", BindingMetadata.UnsetValue, false);
 
+
         private readonly object? _result;
 
         public ConstantMemberInfo(string name, object? result, bool canWrite)

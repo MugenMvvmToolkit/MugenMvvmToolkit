@@ -42,8 +42,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             if (count != x2.Count)
                 return false;
             for (var i = 0; i < count; i++)
+            {
                 if (!x1[i].Equals(x2[i], comparer))
                     return false;
+            }
 
             return true;
         }

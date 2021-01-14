@@ -35,11 +35,13 @@ namespace MugenMvvm.Bindings.Core.Components
             {
                 canInline = true;
                 foreach (var parameter in collect)
+                {
                     if (!parameter.MemberFlags.HasFlag(MemberFlags.Static))
                     {
                         canInline = false;
                         break;
                     }
+                }
             }
 
             if (canInline)

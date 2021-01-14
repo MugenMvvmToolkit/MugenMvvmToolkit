@@ -94,8 +94,10 @@ namespace MugenMvvm.Extensions
         {
             var editor = new ItemOrListEditor<T>();
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
+            {
                 if (flags.HasFlag(value.Flag))
                     editor.Add(value);
+            }
 
             return editor.ToItemOrList();
         }
@@ -131,8 +133,10 @@ namespace MugenMvvm.Extensions
         {
             var count = 0;
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
+            {
                 if (flags.HasFlag(value))
                     values[count++] = value;
+            }
 
             return count;
         }

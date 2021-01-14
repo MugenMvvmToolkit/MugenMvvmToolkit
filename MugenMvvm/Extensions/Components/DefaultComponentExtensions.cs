@@ -38,8 +38,10 @@ namespace MugenMvvm.Extensions.Components
         public static bool IsSuspended(this ItemOrArray<ISuspendable> components)
         {
             foreach (var c in components)
+            {
                 if (c.IsSuspended)
                     return true;
+            }
 
             return false;
         }

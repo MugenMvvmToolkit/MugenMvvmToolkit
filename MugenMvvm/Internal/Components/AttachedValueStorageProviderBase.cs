@@ -39,8 +39,10 @@ namespace MugenMvvm.Internal.Components
 
                 var result = new ItemOrListEditor<KeyValuePair<string, object?>>();
                 foreach (var keyValue in dictionary)
+                {
                     if (predicate(item, keyValue.Key, keyValue.Value, state))
                         result.Add(keyValue);
+                }
 
                 return result.ToItemOrList();
             }

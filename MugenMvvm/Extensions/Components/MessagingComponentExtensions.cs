@@ -34,8 +34,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messageContext, nameof(messageContext));
             var published = false;
             foreach (var c in components)
+            {
                 if (c.TryPublish(messenger, messageContext))
                     published = true;
+            }
 
             return published;
         }
@@ -47,8 +49,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(subscriber, nameof(subscriber));
             var result = false;
             foreach (var c in components)
+            {
                 if (c.TrySubscribe(messenger, subscriber, executionMode, metadata))
                     result = true;
+            }
 
             return result;
         }
@@ -59,8 +63,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(subscriber, nameof(subscriber));
             var result = false;
             foreach (var c in components)
+            {
                 if (c.TryUnsubscribe(messenger, subscriber, metadata))
                     result = true;
+            }
 
             return result;
         }
@@ -70,8 +76,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messenger, nameof(messenger));
             var result = false;
             foreach (var c in components)
+            {
                 if (c.TryUnsubscribeAll(messenger, metadata))
                     result = true;
+            }
 
             return result;
         }

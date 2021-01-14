@@ -44,11 +44,13 @@ namespace MugenMvvm.Presenters.Components
             {
                 foreach (var presenterResult in result)
                 foreach (var callback in _navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(presenterResult, metadata))
+                {
                     if (callback.CallbackType == NavigationCallbackType.Close)
                     {
                         callback.AddCallback(NavigationCallbackDelegateListener.DisposeTargetCallback);
                         break;
                     }
+                }
             }
 
             if (result.IsEmpty && canDisposeViewModel)

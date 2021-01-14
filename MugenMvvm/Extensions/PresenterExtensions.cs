@@ -47,8 +47,10 @@ namespace MugenMvvm.Extensions
             var callbacks = new ItemOrListEditor<INavigationCallback>();
             foreach (var result in presenter.DefaultIfNull().TryClose(viewModel, cancellationToken, metadata))
             foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata))
+            {
                 if (callback.CallbackType == NavigationCallbackType.Closing)
                     callbacks.Add(callback);
+            }
 
             return callbacks.WhenAll(true, isSerializable);
         }
@@ -74,10 +76,12 @@ namespace MugenMvvm.Extensions
             showingCallback = null;
             closeCallback = null!;
             foreach (var navigationCallback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result.Item, metadata))
+            {
                 if (navigationCallback.CallbackType == NavigationCallbackType.Showing)
                     showingCallback = navigationCallback;
                 else if (navigationCallback.CallbackType == NavigationCallbackType.Close)
                     closeCallback = navigationCallback;
+            }
 
             if (closeCallback == null)
             {

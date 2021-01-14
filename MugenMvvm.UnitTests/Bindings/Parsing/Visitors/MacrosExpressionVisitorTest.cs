@@ -80,9 +80,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             visitor.ConstantParametersMethods.ShouldNotBeEmpty();
 
             foreach (var method in visitor.ConstantParametersMethods)
+            {
                 new MethodCallExpressionNode(null, method.Key, Default.Array<IExpressionNode>()).Accept(visitor)
                                                                                                 .ShouldEqual(new MethodCallExpressionNode(null, method.Value,
                                                                                                     Default.Array<IExpressionNode>()));
+            }
 
             var args = new IExpressionNode[]
                 {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};

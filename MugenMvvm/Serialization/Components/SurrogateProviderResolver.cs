@@ -64,8 +64,10 @@ namespace MugenMvvm.Serialization.Components
             if (!_surrogateProviders.TryGetValue(type, out var value))
             {
                 foreach (var provider in _surrogateProviders)
+                {
                     if (provider.Key.IsAssignableFrom(type))
                         return provider.Value;
+                }
             }
 
             return value;
