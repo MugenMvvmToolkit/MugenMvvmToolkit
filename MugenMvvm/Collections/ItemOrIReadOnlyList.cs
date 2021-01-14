@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace MugenMvvm.Collections
 {
     public static class ItemOrIReadOnlyList
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIReadOnlyList<T> FromItem<T>(T? item) where T : class? => new(item, item != null);
 
@@ -32,7 +29,5 @@ namespace MugenMvvm.Collections
                 return default;
             return new ItemOrIReadOnlyList<T>((T) value, true);
         }
-
-        #endregion
     }
 }

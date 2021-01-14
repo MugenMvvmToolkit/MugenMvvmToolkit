@@ -6,8 +6,6 @@ namespace MugenMvvm.UnitTests.Enums
 {
     public class FlagsEnumBaseTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void FlagsOperationsShouldBeValid()
         {
@@ -20,7 +18,5 @@ namespace MugenMvvm.UnitTests.Enums
             (f1 & f2).Flags.ShouldEqual(f1.Value & f2.Value);
             (~f1).Flags.ShouldEqual(~f1.Value);
         }
-
-        #endregion
     }
 }

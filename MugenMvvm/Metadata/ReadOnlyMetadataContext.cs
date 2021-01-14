@@ -8,13 +8,7 @@ namespace MugenMvvm.Metadata
 {
     public sealed class ReadOnlyMetadataContext : IReadOnlyMetadataContext
     {
-        #region Fields
-
         private readonly Dictionary<IMetadataContextKey, object?> _dictionary;
-
-        #endregion
-
-        #region Constructors
 
         public ReadOnlyMetadataContext(ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
         {
@@ -23,22 +17,12 @@ namespace MugenMvvm.Metadata
                 _dictionary[contextValue.Key] = contextValue.Value;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Count => _dictionary.Count;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => new(_dictionary);
 
         public bool Contains(IMetadataContextKey contextKey) => _dictionary.ContainsKey(contextKey);
 
         public bool TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value) => _dictionary.TryGetValue(contextKey, out value);
-
-        #endregion
     }
 }

@@ -10,22 +10,12 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 {
     public class TestCollectionDecoratorListener<T> : ICollectionDecoratorListener
     {
-        #region Fields
-
         private readonly object _collection;
-
-        #endregion
-
-        #region Constructors
 
         public TestCollectionDecoratorListener(IObservableCollection<T> collection)
         {
             _collection = collection;
         }
-
-        #endregion
-
-        #region Properties
 
         public Action<T, int>? OnAdded { get; set; }
 
@@ -42,10 +32,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
         public bool ThrowErrorNullDelegate { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         void ICollectionDecoratorListener.OnItemChanged(ICollection collection, object? item, int index, object? args)
         {
@@ -92,7 +78,5 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 throw new NotSupportedException();
             OnReset?.Invoke(items as IEnumerable<T> ?? items?.Cast<T>());
         }
-
-        #endregion
     }
 }

@@ -17,16 +17,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewManagerComponentTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryInitializeAsyncShouldIgnoreNull()
-        {
-            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
-            var component = new ViewManagerComponent();
-            component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldEqual(default);
-        }
-
         [Theory]
         [InlineData(1, true)]
         [InlineData(1, false)]
@@ -191,6 +181,12 @@ namespace MugenMvvm.UnitTests.Views.Components
             states[ViewLifecycleState.Cleared].Count.ShouldEqual(count);
         }
 
-        #endregion
+        [Fact]
+        public void TryInitializeAsyncShouldIgnoreNull()
+        {
+            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
+            var component = new ViewManagerComponent();
+            component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldEqual(default);
+        }
     }
 }

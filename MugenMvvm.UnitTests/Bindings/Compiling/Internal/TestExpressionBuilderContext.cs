@@ -10,13 +10,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
 {
     public class TestExpressionBuilderContext : MetadataOwnerBase, IExpressionBuilderContext
     {
-        #region Fields
-
         private readonly Dictionary<IExpressionNode, Expression> _dictionary;
-
-        #endregion
-
-        #region Constructors
 
         public TestExpressionBuilderContext(IReadOnlyMetadataContext? metadata = null)
             : base(metadata)
@@ -24,12 +18,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
             MetadataExpression = Expression.Parameter(typeof(IReadOnlyMetadataContext));
             _dictionary = new Dictionary<IExpressionNode, Expression>();
         }
-
-        #endregion
-
-        #region Properties
-
-        public Expression MetadataExpression { get; set; }
 
         public Func<IExpressionNode, Expression?>? TryGetExpression { get; set; }
 
@@ -39,9 +27,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
 
         public Func<IExpressionNode, Expression?>? Build { get; set; } = node => Expression.Constant(((IConstantExpressionNode) node).Value, ((IConstantExpressionNode) node).Type);
 
-        #endregion
-
-        #region Implementation of interfaces
+        public Expression MetadataExpression { get; set; }
 
         Expression? IExpressionBuilderContext.TryGetExpression(IExpressionNode expression)
         {
@@ -74,7 +60,5 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
                 _dictionary.TryGetValue(expression, out result);
             return result;
         }
-
-        #endregion
     }
 }

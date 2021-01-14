@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
@@ -15,8 +14,6 @@ namespace MugenMvvm.Metadata
 {
     public abstract class MetadataContextKey : IMetadataContextKey
     {
-        #region Constructors
-
         protected MetadataContextKey(string key, bool isSerializable, IReadOnlyDictionary<string, object?>? metadata)
         {
             Id = key;
@@ -24,27 +21,13 @@ namespace MugenMvvm.Metadata
             Metadata = metadata ?? Default.ReadOnlyDictionary<string, object?>();
         }
 
-        #endregion
-
-        #region Properties
+        public abstract Type ValueType { get; }
 
         public string Id { get; }
 
         public bool IsSerializable { get; }
 
-        public abstract Type ValueType { get; }
-
         public IReadOnlyDictionary<string, object?> Metadata { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public bool Equals(IMetadataContextKey? other) => EqualsInternal(other);
-
-        #endregion
-
-        #region Methods
 
         public static IMetadataContextKey<T> FromKey<T>(IMetadataContextKey<T>? _, string key, IReadOnlyDictionary<string, object?>? metadata = null) => FromKey<T>(key, metadata);
 
@@ -57,7 +40,8 @@ namespace MugenMvvm.Metadata
         public static IMetadataContextKey<T> FromMember<T>(IMetadataContextKey<T>? _, Type declaredType, string fieldOrPropertyName, bool serializable = false,
             IReadOnlyDictionary<string, object?>? metadata = null) => FromMember<T>(declaredType, fieldOrPropertyName, serializable, metadata);
 
-        public static IMetadataContextKey<T> FromMember<T>(Type declaredType, string fieldOrPropertyName, bool serializable = false, IReadOnlyDictionary<string, object?>? metadata = null)
+        public static IMetadataContextKey<T> FromMember<T>(Type declaredType, string fieldOrPropertyName, bool serializable = false,
+            IReadOnlyDictionary<string, object?>? metadata = null)
         {
             Should.NotBeNull(declaredType, nameof(declaredType));
             Should.NotBeNullOrEmpty(fieldOrPropertyName, nameof(fieldOrPropertyName));
@@ -83,6 +67,10 @@ namespace MugenMvvm.Metadata
             return new Builder<T>(key, declaredType, fieldOrPropertyName);
         }
 
+        private static string GenerateKey(Type declaredType, string fieldOrPropertyName)
+            => declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +
+               declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
+
         public sealed override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -94,6 +82,8 @@ namespace MugenMvvm.Metadata
 
         public override string ToString() => Id;
 
+        public bool Equals(IMetadataContextKey? other) => EqualsInternal(other);
+
         protected virtual bool EqualsInternal(IMetadataContextKey? other)
         {
             if (ReferenceEquals(other, this))
@@ -101,19 +91,9 @@ namespace MugenMvvm.Metadata
             return other is IHasId<string> hasStringId && string.Equals(Id, hasStringId.Id);
         }
 
-        private static string GenerateKey(Type declaredType, string fieldOrPropertyName)
-            => declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +
-               declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
-
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         public ref struct Builder<T>
         {
-            #region Fields
-
             public readonly string Key;
             private readonly Type? _declaredType;
             private readonly string? _fieldOrPropertyName;
@@ -128,10 +108,6 @@ namespace MugenMvvm.Metadata
             private bool _hasDefaultValue;
             private T _defaultValue;
             private bool _isSerializable;
-
-            #endregion
-
-            #region Constructors
 
             public Builder(string key, Type? declaredType, string? fieldOrPropertyName)
             {
@@ -150,10 +126,6 @@ namespace MugenMvvm.Metadata
                 _hasDefaultValue = false;
                 _defaultValue = default!;
             }
-
-            #endregion
-
-            #region Methods
 
             public Builder<T> WithBuildCallback(Action<IMetadataContextKey<T>> callback)
             {
@@ -249,18 +221,10 @@ namespace MugenMvvm.Metadata
                 _getValueFunc = getter;
                 return this;
             }
-
-            #endregion
         }
 
         private sealed class MetadataContextKeyInternal<T> : MetadataContextKey, IMetadataContextKey<T>, IHasMemento
         {
-            #region Fields
-
-            private readonly Type? _declaredType;
-            private readonly string? _fieldOrPropertyName;
-            private IMemento? _memento;
-
             public T DefaultValue;
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? GetDefaultValueFunc;
             public Func<IMetadataContextKey<T>, IMemento?>? GetMementoFunc;
@@ -269,9 +233,9 @@ namespace MugenMvvm.Metadata
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? SetValueFunc;
             public Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T>? ValidateAction;
 
-            #endregion
-
-            #region Constructors
+            private readonly Type? _declaredType;
+            private readonly string? _fieldOrPropertyName;
+            private IMemento? _memento;
 
             public MetadataContextKeyInternal(string key, bool isSerializable, IReadOnlyDictionary<string, object?>? metadata, Type? declaredType, string? fieldOrPropertyName)
                 : base(key, isSerializable, metadata)
@@ -281,15 +245,7 @@ namespace MugenMvvm.Metadata
                 DefaultValue = default!;
             }
 
-            #endregion
-
-            #region Properties
-
             public override Type ValueType => typeof(T);
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public IMemento? GetMemento()
             {
@@ -297,10 +253,6 @@ namespace MugenMvvm.Metadata
                     return _memento ??= GetMementoInternal();
                 return null;
             }
-
-            public T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue) => GetValueInternal(metadataContext, rawValue, default!, false);
-
-            public T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue, T value) => GetValueInternal(metadataContext, rawValue, value, true);
 
             public object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, T newValue)
             {
@@ -310,16 +262,16 @@ namespace MugenMvvm.Metadata
                 return SetValueFunc(metadataContext, this, oldValue, newValue);
             }
 
+            public T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue) => GetValueInternal(metadataContext, rawValue, default!, false);
+
+            public T GetValue(IReadOnlyMetadataContext metadataContext, object? rawValue, T value) => GetValueInternal(metadataContext, rawValue, value, true);
+
             public T GetDefaultValue(IReadOnlyMetadataContext metadataContext, T? defaultValue)
             {
                 if (GetDefaultValueFunc == null)
                     return HasDefaultValue ? DefaultValue : defaultValue!;
                 return GetDefaultValueFunc(metadataContext, this, defaultValue!);
             }
-
-            #endregion
-
-            #region Methods
 
             private T GetValueInternal(IReadOnlyMetadataContext metadataContext, object? rawValue, T value, bool hasValue)
             {
@@ -344,10 +296,6 @@ namespace MugenMvvm.Metadata
                     return StaticMemberMemento.Create(this, _declaredType!, _fieldOrPropertyName!);
                 return GetMementoFunc(this);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

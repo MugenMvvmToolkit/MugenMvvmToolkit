@@ -14,31 +14,19 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 {
     public sealed class BindingResourceMemberExpressionNode : BindingMemberExpressionNodeBase<BindingResourceMemberExpressionNode>
     {
-        #region Fields
-
         private MemberPathObserverRequest? _request;
         private MemberPathObserverRequest? _requestResource;
 
-        #endregion
-
-        #region Constructors
-
-        public BindingResourceMemberExpressionNode(string resourceName, string path, int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName = null,
-            IExpressionNode? expression = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(path, index, flags, memberFlags, observableMethodName, expression, metadata)
+        public BindingResourceMemberExpressionNode(string resourceName, string path, int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags,
+            string? observableMethodName = null,
+            IExpressionNode? expression = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(path, index, flags, memberFlags, observableMethodName, expression,
+            metadata)
         {
             Should.NotBeNull(resourceName, nameof(resourceName));
             ResourceName = resourceName;
         }
 
-        #endregion
-
-        #region Properties
-
         public string ResourceName { get; }
-
-        #endregion
-
-        #region Methods
 
         public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
@@ -58,6 +46,14 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
             return MugenService.ObservationManager.GetMemberPathObserver(resource, request, metadata);
         }
+
+        protected override bool Equals(BindingResourceMemberExpressionNode other, IExpressionEqualityComparer? comparer) =>
+            ResourceName.Equals(other.ResourceName) && base.Equals(other, comparer);
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => base.GetHashCode((hashCode * 397) ^ ResourceName.GetHashCode(), comparer);
+
+        protected override BindingResourceMemberExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) =>
+            new(ResourceName, Path, Index, Flags, MemberFlags, ObservableMethodName, Expression, metadata);
 
         private object? GetResource(object target, IReadOnlyMetadataContext? metadata, out MemberPathObserverRequest? request)
         {
@@ -83,15 +79,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
             return resource.Resource;
         }
-
-        protected override bool Equals(BindingResourceMemberExpressionNode other, IExpressionEqualityComparer? comparer) =>
-            ResourceName.Equals(other.ResourceName) && base.Equals(other, comparer);
-
-        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => base.GetHashCode(hashCode * 397 ^ ResourceName.GetHashCode(), comparer);
-
-        protected override BindingResourceMemberExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) =>
-            new(ResourceName, Path, Index, Flags, MemberFlags, ObservableMethodName, Expression, metadata);
-
-        #endregion
     }
 }

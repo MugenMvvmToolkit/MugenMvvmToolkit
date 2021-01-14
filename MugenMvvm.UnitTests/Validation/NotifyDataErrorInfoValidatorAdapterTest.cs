@@ -10,48 +10,6 @@ namespace MugenMvvm.UnitTests.Validation
 {
     public class NotifyDataErrorInfoValidatorAdapterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void HasErrorsShouldUseValidator()
-        {
-            var hasErrors = false;
-            var validator = new Validator();
-            validator.AddComponent(new TestValidatorComponent
-            {
-                HasErrors = (v, s, arg3) =>
-                {
-                    s.ShouldBeNull();
-                    return hasErrors;
-                }
-            });
-
-            var adapter = new NotifyDataErrorInfoValidatorAdapter(validator);
-            adapter.HasErrors.ShouldEqual(hasErrors);
-
-            hasErrors = true;
-            adapter.HasErrors.ShouldEqual(hasErrors);
-        }
-
-        [Fact]
-        public void GetErrorsShouldUseValidator()
-        {
-            var propertyName = "Test";
-            var errors = new[] {"1", "2"};
-            var validator = new Validator();
-            validator.AddComponent(new TestValidatorComponent
-            {
-                GetErrors = (v, s, arg3) =>
-                {
-                    s.ShouldEqual(propertyName);
-                    return errors;
-                }
-            });
-
-            var adapter = new NotifyDataErrorInfoValidatorAdapter(validator);
-            adapter.GetErrors(propertyName).ShouldEqual(errors);
-        }
-
         [Fact]
         public void ErrorsChangedShouldListenOnErrorsChanged()
         {
@@ -74,6 +32,44 @@ namespace MugenMvvm.UnitTests.Validation
             invokeCount.ShouldEqual(1);
         }
 
-        #endregion
+        [Fact]
+        public void GetErrorsShouldUseValidator()
+        {
+            var propertyName = "Test";
+            var errors = new[] {"1", "2"};
+            var validator = new Validator();
+            validator.AddComponent(new TestValidatorComponent
+            {
+                GetErrors = (v, s, arg3) =>
+                {
+                    s.ShouldEqual(propertyName);
+                    return errors;
+                }
+            });
+
+            var adapter = new NotifyDataErrorInfoValidatorAdapter(validator);
+            adapter.GetErrors(propertyName).ShouldEqual(errors);
+        }
+
+        [Fact]
+        public void HasErrorsShouldUseValidator()
+        {
+            var hasErrors = false;
+            var validator = new Validator();
+            validator.AddComponent(new TestValidatorComponent
+            {
+                HasErrors = (v, s, arg3) =>
+                {
+                    s.ShouldBeNull();
+                    return hasErrors;
+                }
+            });
+
+            var adapter = new NotifyDataErrorInfoValidatorAdapter(validator);
+            adapter.HasErrors.ShouldEqual(hasErrors);
+
+            hasErrors = true;
+            adapter.HasErrors.ShouldEqual(hasErrors);
+        }
     }
 }

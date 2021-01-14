@@ -13,14 +13,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
 {
     public sealed class MethodEmptyPathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
     {
-        #region Fields
-
         private readonly string _method;
         private ActionToken _unsubscriber;
-
-        #endregion
-
-        #region Constructors
 
         public MethodEmptyPathObserver(string method, object target, EnumFlags<MemberFlags> memberFlags) : base(target, memberFlags)
         {
@@ -29,27 +23,9 @@ namespace MugenMvvm.Bindings.Observation.Observers
             IsDisposable = true;
         }
 
-        #endregion
-
-        #region Properties
-
         public override IMemberPath Path => MemberPath.Empty;
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
-        {
-            OnLastMemberChanged();
-            return true;
-        }
-
-        #endregion
-
-        #region Methods
 
         public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
@@ -94,6 +70,10 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         protected override void OnListenersRemoved() => _unsubscriber.Dispose();
 
-        #endregion
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        {
+            OnLastMemberChanged();
+            return true;
+        }
     }
 }

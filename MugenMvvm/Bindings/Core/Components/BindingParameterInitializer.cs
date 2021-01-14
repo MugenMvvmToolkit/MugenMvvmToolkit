@@ -17,19 +17,14 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingParameterInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
-        #region Fields
+        private static readonly
+            Func<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression), IBinding, object, object?,
+                IReadOnlyMetadataContext?, IComponent<IBinding>?>
+            GetParametersComponentDelegate = GetParametersComponent;
 
         private readonly IExpressionCompiler? _compiler;
         private readonly BindingMemberExpressionCollectorVisitor _memberExpressionCollectorVisitor;
         private readonly BindingMemberExpressionVisitor _memberExpressionVisitor;
-
-        private static readonly
-            Func<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?>
-            GetParametersComponentDelegate = GetParametersComponent;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public BindingParameterInitializer(IExpressionCompiler? compiler = null)
@@ -44,21 +39,22 @@ namespace MugenMvvm.Bindings.Core.Components
             _compiler = compiler;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = BindingComponentPriority.ParameterInitializer;
-
         public EnumFlags<MemberFlags> MemberFlags
         {
             get => _memberExpressionVisitor.MemberFlags;
             set => _memberExpressionVisitor.MemberFlags = value;
         }
 
-        #endregion
+        public int Priority { get; set; } = BindingComponentPriority.ParameterInitializer;
 
-        #region Implementation of interfaces
+        private static IComponent<IBinding> GetParametersComponent(
+            (BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression) state,
+            IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        {
+            var (converter, converterParameter, fallback, targetNullValue) = state;
+            return new BindingParameterHandler(converter.ToBindingParameter(target, source, metadata), converterParameter.ToBindingParameter(target, source, metadata),
+                fallback.ToBindingParameter(target, source, metadata), targetNullValue.ToBindingParameter(target, source, metadata));
+        }
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
@@ -69,30 +65,22 @@ namespace MugenMvvm.Bindings.Core.Components
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
             var metadata = context.GetMetadataOrDefault();
-            var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Converter, metadata);
-            var converterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.ConverterParameter, metadata);
-            var fallback = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Fallback, metadata);
-            var targetNullValue = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.TargetNullValue, metadata);
+            var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Converter,
+                metadata);
+            var converterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.ConverterParameter, metadata);
+            var fallback = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Fallback,
+                metadata);
+            var targetNullValue = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.TargetNullValue, metadata);
             if (!converter.IsEmpty || !converterParameter.IsEmpty || !fallback.IsEmpty || !targetNullValue.IsEmpty)
             {
                 var state = (converter, converterParameter, fallback, targetNullValue);
-                var provider = new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
+                var provider =
+                    new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(
+                        GetParametersComponentDelegate, state);
                 context.Components[BindingParameterNameConstant.ParameterHandler] = provider;
             }
         }
-
-        #endregion
-
-        #region Methods
-
-        private static IComponent<IBinding> GetParametersComponent((BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression) state,
-            IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            var (converter, converterParameter, fallback, targetNullValue) = state;
-            return new BindingParameterHandler(converter.ToBindingParameter(target, source, metadata), converterParameter.ToBindingParameter(target, source, metadata),
-                fallback.ToBindingParameter(target, source, metadata), targetNullValue.ToBindingParameter(target, source, metadata));
-        }
-
-        #endregion
     }
 }

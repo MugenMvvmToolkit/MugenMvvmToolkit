@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class BindingExpressionRequestTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -21,7 +19,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             memberManagerRequest.Source.ShouldEqual(source);
             memberManagerRequest.Parameters.ShouldEqual(parameter);
         }
-
-        #endregion
     }
 }

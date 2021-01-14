@@ -16,19 +16,13 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class EventInfoMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {
-        #region Fields
+        private static readonly MethodInfo RaiseMethod = typeof(BindingMugenExtensions)
+            .GetMethodOrThrow(nameof(BindingMugenExtensions.Raise), BindingFlagsEx.StaticPublic);
 
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionManager? _reflectionManager;
-
-        private static readonly MethodInfo RaiseMethod = typeof(BindingMugenExtensions)
-            .GetMethodOrThrow(nameof(BindingMugenExtensions.Raise), BindingFlagsEx.StaticPublic);
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public EventInfoMemberObserverProvider(IAttachedValueManager? attachedValueManager = null, IReflectionManager? reflectionManager = null)
@@ -39,15 +33,7 @@ namespace MugenMvvm.Bindings.Observation.Components
             _memberObserverHandler = TryObserve;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ObserverComponentPriority.EventObserverProvider;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
@@ -56,17 +42,14 @@ namespace MugenMvvm.Bindings.Observation.Components
             return default;
         }
 
-        #endregion
-
-        #region Methods
-
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             var tuple = (Tuple<EventInfo, string>) member;
             if (target == null && !tuple.Item1.IsStatic())
                 return default;
 
-            var listenerInternal = (target ?? tuple.Item1.DeclaringType!).AttachedValues(metadata, _attachedValueManager).GetOrAdd(tuple.Item2, tuple.Item1, _createWeakListenerDelegate);
+            var listenerInternal = (target ?? tuple.Item1.DeclaringType!).AttachedValues(metadata, _attachedValueManager)
+                                                                         .GetOrAdd(tuple.Item2, tuple.Item1, _createWeakListenerDelegate);
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);
@@ -99,7 +82,5 @@ namespace MugenMvvm.Bindings.Observation.Components
                 addMethod.GetMethodInvoker<Action<object, Delegate>>(_reflectionManager).Invoke(target!, handler);
             return listenerInternal;
         }
-
-        #endregion
     }
 }

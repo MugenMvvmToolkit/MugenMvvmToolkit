@@ -14,64 +14,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class CollectionDecoratorManagerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void DecoratorShouldDecorateItems()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-
-            var decoratedItems = new[] {item1};
-            var collection = CreateCollection(item1, item2);
-            CollectionDecoratorManager.GetOrAdd(collection);
-            var decorator = new TestCollectionDecorator
-            {
-                DecorateItems = items =>
-                {
-                    items.ShouldEqual(new[] {item1, item2});
-                    return decoratedItems;
-                }
-            };
-            collection.AddComponent(decorator);
-            collection.DecorateItems().ShouldEqual(decoratedItems);
-        }
-
-        [Fact]
-        public void DecoratorShouldDecorateItemsMulti()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-
-            var original = new[] {item1, item2};
-            var decoratedItems1 = new[] {item2};
-            var decoratedItems2 = new[] {item1};
-            var collection = CreateCollection(item1, item2);
-            CollectionDecoratorManager.GetOrAdd(collection);
-            var decorator1 = new TestCollectionDecorator
-            {
-                DecorateItems = items =>
-                {
-                    items.ShouldEqual(original);
-                    return decoratedItems1;
-                }
-            };
-            collection.AddComponent(decorator1);
-
-            var decorator2 = new TestCollectionDecorator
-            {
-                DecorateItems = items =>
-                {
-                    items.ShouldEqual(decoratedItems1);
-                    return items.Concat(decoratedItems2);
-                },
-                Priority = -1
-            };
-            collection.AddComponent(decorator2);
-
-            collection.DecorateItems().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
-        }
-
         [Theory]
         [InlineData(true, true)]
         [InlineData(false, false)]
@@ -79,7 +21,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(true, false)]
         public void DecoratorShouldTrackItemsMulti1(bool defaultComparer, bool filterFirst)
         {
-            var comparer = defaultComparer ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int) o!, (int) o1!)) : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
+            var comparer = defaultComparer
+                ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int) o!, (int) o1!))
+                : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
             var collection = CreateCollection<int>();
             CollectionDecoratorManager.GetOrAdd(collection);
             var decorator1 = new SortingCollectionDecorator(comparer);
@@ -564,6 +508,60 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         protected IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items);
 
-        #endregion
+        [Fact]
+        public void DecoratorShouldDecorateItems()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+
+            var decoratedItems = new[] {item1};
+            var collection = CreateCollection(item1, item2);
+            CollectionDecoratorManager.GetOrAdd(collection);
+            var decorator = new TestCollectionDecorator
+            {
+                DecorateItems = items =>
+                {
+                    items.ShouldEqual(new[] {item1, item2});
+                    return decoratedItems;
+                }
+            };
+            collection.AddComponent(decorator);
+            collection.DecorateItems().ShouldEqual(decoratedItems);
+        }
+
+        [Fact]
+        public void DecoratorShouldDecorateItemsMulti()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+
+            var original = new[] {item1, item2};
+            var decoratedItems1 = new[] {item2};
+            var decoratedItems2 = new[] {item1};
+            var collection = CreateCollection(item1, item2);
+            CollectionDecoratorManager.GetOrAdd(collection);
+            var decorator1 = new TestCollectionDecorator
+            {
+                DecorateItems = items =>
+                {
+                    items.ShouldEqual(original);
+                    return decoratedItems1;
+                }
+            };
+            collection.AddComponent(decorator1);
+
+            var decorator2 = new TestCollectionDecorator
+            {
+                DecorateItems = items =>
+                {
+                    items.ShouldEqual(decoratedItems1);
+                    return items.Concat(decoratedItems2);
+                },
+                Priority = -1
+            };
+            collection.AddComponent(decorator2);
+
+            collection.DecorateItems().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
+        }
     }
 }

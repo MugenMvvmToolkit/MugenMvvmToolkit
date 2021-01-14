@@ -15,14 +15,8 @@ namespace MugenMvvm.Metadata
 {
     public sealed class MetadataContext : IMetadataContext, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>
     {
-        #region Fields
-
         private readonly Dictionary<IMetadataContextKey, object?> _dictionary;
         private IComponentCollection? _components;
-
-        #endregion
-
-        #region Constructors
 
         public MetadataContext(ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
         {
@@ -49,9 +43,7 @@ namespace MugenMvvm.Metadata
         {
         }
 
-        #endregion
-
-        #region Properties
+        public IComponentCollection Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
 
         public int Count
         {
@@ -66,47 +58,12 @@ namespace MugenMvvm.Metadata
 
         bool IComponentOwner.HasComponents => _components != null && _components.Count != 0;
 
-        public IComponentCollection Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
+        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>>.Enumerator GetEnumerator() => GetValues().GetEnumerator();
 
-        #endregion
+        public void Add<T>(IMetadataContextKey<T> contextKey, T value) => Set(contextKey, value, out _);
 
-        #region Implementation of interfaces
-
-        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues()
-        {
-            var components = GetComponents();
-            lock (_dictionary)
-            {
-                var contextValues = new ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>>();
-                foreach (var keyValuePair in _dictionary)
-                    contextValues.Add(keyValuePair);
-                components.GetValues(this, MetadataOperationType.Get, ref contextValues);
-
-                return contextValues.ToItemOrList();
-            }
-        }
-
-        public bool Contains(IMetadataContextKey contextKey)
-        {
-            Should.NotBeNull(contextKey, nameof(contextKey));
-            var components = GetComponents();
-            lock (_dictionary)
-            {
-                return _dictionary.ContainsKey(contextKey) || components.Contains(this, contextKey);
-            }
-        }
-
-        public bool TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value)
-        {
-            Should.NotBeNull(contextKey, nameof(contextKey));
-            var components = GetComponents();
-            lock (_dictionary)
-            {
-                return TryGet(components, contextKey, MetadataOperationType.Get, out value);
-            }
-        }
-
-        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory)
+        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state,
+            Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -338,19 +295,42 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator() => GetEnumerator();
+        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues()
+        {
+            var components = GetComponents();
+            lock (_dictionary)
+            {
+                var contextValues = new ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>>();
+                foreach (var keyValuePair in _dictionary)
+                    contextValues.Add(keyValuePair);
+                components.GetValues(this, MetadataOperationType.Get, ref contextValues);
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+                return contextValues.ToItemOrList();
+            }
+        }
 
-        #endregion
+        public bool Contains(IMetadataContextKey contextKey)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            var components = GetComponents();
+            lock (_dictionary)
+            {
+                return _dictionary.ContainsKey(contextKey) || components.Contains(this, contextKey);
+            }
+        }
 
-        #region Methods
+        public bool TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            var components = GetComponents();
+            lock (_dictionary)
+            {
+                return TryGet(components, contextKey, MetadataOperationType.Get, out value);
+            }
+        }
 
-        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>>.Enumerator GetEnumerator() => GetValues().GetEnumerator();
-
-        public void Add<T>(IMetadataContextKey<T> contextKey, T value) => Set(contextKey, value, out _);
-
-        private bool TryGet(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue) =>
+        private bool TryGet(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey, MetadataOperationType operationType,
+            out object? rawValue) =>
             components.TryGetValue(this, contextKey, operationType, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
 
         private void Set(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey, object? rawValue)
@@ -369,6 +349,8 @@ namespace MugenMvvm.Metadata
 
         private ItemOrArray<IMetadataContextListener> GetListeners() => _components.GetOrDefault<IMetadataContextListener>();
 
-        #endregion
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator() => GetEnumerator();
     }
 }

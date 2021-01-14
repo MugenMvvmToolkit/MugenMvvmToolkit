@@ -11,24 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class InvalidBindingTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void StateShouldBeInvalid()
-        {
-            var ex = new Exception();
-            var invalidBinding = new InvalidBinding(ex);
-            invalidBinding.State.ShouldEqual(BindingState.Invalid);
-            invalidBinding.Exception.ShouldEqual(ex);
-        }
-
-        [Fact]
-        public void BuildShouldReturnSelf()
-        {
-            var invalidBinding = new InvalidBinding(new Exception());
-            ((IBindingBuilder) invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -38,7 +20,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var exception = new Exception();
             var binding = new InvalidBinding(exception);
             for (var i = 0; i < count; i++)
-            {
                 binding.AddComponent(new TestBindingTargetListener
                 {
                     OnTargetUpdateFailed = (b, e, m) =>
@@ -51,7 +32,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     OnTargetUpdateCanceled = (b, m) => throw new NotSupportedException(),
                     OnTargetUpdated = (b, v, m) => throw new NotSupportedException()
                 });
-            }
 
             binding.UpdateTarget();
             updateFailed.ShouldEqual(count);
@@ -66,7 +46,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var exception = new Exception();
             var binding = new InvalidBinding(exception);
             for (var i = 0; i < count; i++)
-            {
                 binding.AddComponent(new TestBindingSourceListener
                 {
                     OnSourceUpdateFailed = (b, e, m) =>
@@ -79,12 +58,25 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     OnSourceUpdateCanceled = (b, m) => throw new NotSupportedException(),
                     OnSourceUpdated = (b, v, m) => throw new NotSupportedException()
                 });
-            }
 
             binding.UpdateSource();
             updateFailed.ShouldEqual(count);
         }
 
-        #endregion
+        [Fact]
+        public void BuildShouldReturnSelf()
+        {
+            var invalidBinding = new InvalidBinding(new Exception());
+            ((IBindingBuilder) invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
+        }
+
+        [Fact]
+        public void StateShouldBeInvalid()
+        {
+            var ex = new Exception();
+            var invalidBinding = new InvalidBinding(ex);
+            invalidBinding.State.ShouldEqual(BindingState.Invalid);
+            invalidBinding.Exception.ShouldEqual(ex);
+        }
     }
 }

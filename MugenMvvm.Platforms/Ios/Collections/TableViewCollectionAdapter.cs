@@ -11,14 +11,8 @@ namespace MugenMvvm.Ios.Collections
 {
     public class TableViewCollectionAdapter : ICollectionViewAdapter, IThreadDispatcherHandler, IValueHolder<Delegate>
     {
-        #region Fields
-
         private readonly IWeakReference _targetRef;
         private readonly IThreadDispatcher? _threadDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         public TableViewCollectionAdapter(UITableView tableView, IThreadDispatcher? threadDispatcher = null)
         {
@@ -26,12 +20,6 @@ namespace MugenMvvm.Ios.Collections
             _threadDispatcher = threadDispatcher;
             _targetRef = tableView.ToWeakReference();
         }
-
-        #endregion
-
-        #region Properties
-
-        public bool IsAlive => _targetRef.IsAlive;
 
         public UITableView? TableView => (UITableView?) _targetRef.Target;
 
@@ -41,13 +29,11 @@ namespace MugenMvvm.Ios.Collections
 
         public UITableViewRowAnimation ReloadRowsAnimation { get; set; } = UITableViewRowAnimation.Automatic;
 
+        public bool IsAlive => _targetRef.IsAlive;
+
         protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void ReloadData(Action completion)
         {
@@ -86,7 +72,5 @@ namespace MugenMvvm.Ios.Collections
             TableView?.LayoutIfNeeded();
             ((Action) state!).Invoke();
         }
-
-        #endregion
     }
 }

@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Internal;
-using MugenMvvm.Metadata;
+﻿using MugenMvvm.Metadata;
 using MugenMvvm.Serialization;
 using Should;
 using Xunit;
@@ -8,15 +7,15 @@ namespace MugenMvvm.UnitTests.Serialization
 {
     public class MementoResultTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void IsRestoredShouldBeFalseDefault()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ConstructorShouldInitializeValues2(bool isRestored)
         {
-            MementoResult result = default;
-            result.IsRestored.ShouldBeFalse();
-            result.Target.ShouldBeNull();
-            result.Metadata.ShouldEqual(EmptyMetadataContext.Instance);
+            var mementoResult = new MementoResult(isRestored, DefaultMetadata);
+            mementoResult.IsRestored.ShouldEqual(isRestored);
+            mementoResult.Metadata.ShouldEqual(DefaultMetadata);
+            mementoResult.Target.ShouldBeNull();
         }
 
         [Fact]
@@ -29,17 +28,13 @@ namespace MugenMvvm.UnitTests.Serialization
             mementoResult.Target.ShouldEqual(target);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ConstructorShouldInitializeValues2(bool isRestored)
+        [Fact]
+        public void IsRestoredShouldBeFalseDefault()
         {
-            var mementoResult = new MementoResult(isRestored, DefaultMetadata);
-            mementoResult.IsRestored.ShouldEqual(isRestored);
-            mementoResult.Metadata.ShouldEqual(DefaultMetadata);
-            mementoResult.Target.ShouldBeNull();
+            MementoResult result = default;
+            result.IsRestored.ShouldBeFalse();
+            result.Target.ShouldBeNull();
+            result.Metadata.ShouldEqual(EmptyMetadataContext.Instance);
         }
-
-        #endregion
     }
 }

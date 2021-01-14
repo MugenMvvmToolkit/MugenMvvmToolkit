@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class LambdaTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotLambdaExpression()
         {
@@ -38,9 +36,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             component.TryParse(ctx, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] {new ParameterExpressionNode("p1")}));
 
             ctx.Initialize("(p1, p2) => 1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] {new ParameterExpressionNode("p1"), new ParameterExpressionNode("p2")}));
+            component.TryParse(ctx, null)
+                     .ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] {new ParameterExpressionNode("p1"), new ParameterExpressionNode("p2")}));
         }
-
-        #endregion
     }
 }

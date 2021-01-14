@@ -14,34 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class DelegateObservableMemberInfoTest : UnitTestBase
     {
-        #region Properties
-
         protected virtual MemberType MemberType => MemberType.Event;
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            string name = "n";
-            Type declaringType = typeof(int);
-            Type memberType = typeof(object);
-            var accessModifiers = MemberFlags.Dynamic;
-            object underlyingMember = new();
-            var state = (this, "");
-            TryObserveDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> tryObserve = (member, target, listener, metadata) => default;
-            RaiseDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> raise = (member, target, message, metadata) => { };
-            var memberInfo = Create(name, declaringType, memberType, accessModifiers, underlyingMember, state, false, tryObserve, raise);
-            memberInfo.Type.ShouldEqual(memberType);
-            memberInfo.Name.ShouldEqual(name);
-            memberInfo.MemberType.ShouldEqual(MemberType);
-            memberInfo.AccessModifiers.ShouldEqual(accessModifiers);
-            memberInfo.UnderlyingMember.ShouldEqual(underlyingMember);
-            memberInfo.DeclaringType.ShouldEqual(declaringType);
-            memberInfo.State.ShouldEqual(state);
-        }
 
         [Theory]
         [InlineData(true)]
@@ -76,6 +49,57 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }
         }
 
+        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
+            EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
+            in TState state,
+            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
+            where TTarget : class? =>
+            new(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            string name = "n";
+            Type declaringType = typeof(int);
+            Type memberType = typeof(object);
+            var accessModifiers = MemberFlags.Dynamic;
+            object underlyingMember = new();
+            var state = (this, "");
+            TryObserveDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> tryObserve = (member, target, listener, metadata) =>
+                default;
+            RaiseDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> raise = (member, target, message, metadata) => { };
+            var memberInfo = Create(name, declaringType, memberType, accessModifiers, underlyingMember, state, false, tryObserve, raise);
+            memberInfo.Type.ShouldEqual(memberType);
+            memberInfo.Name.ShouldEqual(name);
+            memberInfo.MemberType.ShouldEqual(MemberType);
+            memberInfo.AccessModifiers.ShouldEqual(accessModifiers);
+            memberInfo.UnderlyingMember.ShouldEqual(underlyingMember);
+            memberInfo.DeclaringType.ShouldEqual(declaringType);
+            memberInfo.State.ShouldEqual(state);
+        }
+
+        [Fact]
+        public void RaiseShouldUseDelegate()
+        {
+            IMemberInfo? m = null;
+            var invokeCount = 0;
+            string t = "";
+            var msg = new object();
+            var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, false, (member, target, listener, metadata) => default,
+                (member, target, message, metadata) =>
+                {
+                    ++invokeCount;
+                    member.ShouldEqual(m);
+                    target.ShouldEqual(t);
+                    message.ShouldEqual(msg);
+                    metadata.ShouldEqual(DefaultMetadata);
+                });
+            m = memberInfo;
+            memberInfo.Raise(t, msg, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
+        }
+
         [Fact]
         public void TryObserverShouldUseDelegate()
         {
@@ -97,34 +121,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.TryObserve(t, l, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
-
-
-        [Fact]
-        public void RaiseShouldUseDelegate()
-        {
-            IMemberInfo? m = null;
-            var invokeCount = 0;
-            string t = "";
-            var msg = new object();
-            var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, false, (member, target, listener, metadata) => default, (member, target, message, metadata) =>
-            {
-                ++invokeCount;
-                member.ShouldEqual(m);
-                target.ShouldEqual(t);
-                message.ShouldEqual(msg);
-                metadata.ShouldEqual(DefaultMetadata);
-            });
-            m = memberInfo;
-            memberInfo.Raise(t, msg, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
-        }
-
-        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
-            in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-            where TTarget : class? =>
-            new(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
-
-        #endregion
     }
 }

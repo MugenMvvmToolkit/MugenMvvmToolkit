@@ -8,23 +8,13 @@ namespace MugenMvvm.Android.Bindings
 {
     public sealed class ContentTemplateSelectorWrapper : IContentTemplateSelector, IFragmentTemplateSelector, ITitleTemplateSelector
     {
-        #region Fields
-
         private readonly IResourceTemplateSelector _selector;
-
-        #endregion
-
-        #region Constructors
 
         public ContentTemplateSelectorWrapper(IResourceTemplateSelector selector)
         {
             Should.NotBeNull(selector, nameof(selector));
             _selector = selector;
         }
-
-        #endregion
-
-        #region Properties
 
         public bool HasFragments
         {
@@ -35,10 +25,6 @@ namespace MugenMvvm.Android.Bindings
                 return false;
             }
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public object SelectTemplate(object container, object? item)
         {
@@ -52,7 +38,5 @@ namespace MugenMvvm.Android.Bindings
         }
 
         public ICharSequence? GetTitle(object container, object? item) => (_selector as ITitleTemplateSelector)?.GetTitle(container, item);
-
-        #endregion
     }
 }

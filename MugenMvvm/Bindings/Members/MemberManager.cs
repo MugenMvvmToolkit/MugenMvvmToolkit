@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions.Components;
@@ -10,20 +9,13 @@ using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members
 {
     public sealed class MemberManager : ComponentOwnerBase<IMemberManager>, IMemberManager, IHasComponentAddedHandler, IHasComponentRemovedHandler
     {
-        #region Fields
-
         private readonly ComponentTracker _componentTracker;
         private ItemOrArray<IMemberManagerComponent> _components;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public MemberManager(IComponentCollectionManager? componentCollectionManager = null)
@@ -33,17 +25,14 @@ namespace MugenMvvm.Bindings.Members
             _componentTracker.AddListener<IMemberManagerComponent, MemberManager>((components, state, _) => state._components = components, this);
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
-
-        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
-
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request,
+            IReadOnlyMetadataContext? metadata = null)
             => _components.TryGetMembers(this, type, memberTypes, flags, request, metadata);
 
-        #endregion
+        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(component, collection, metadata);
+
+        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(component, collection, metadata);
     }
 }

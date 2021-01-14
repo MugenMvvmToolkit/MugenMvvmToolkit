@@ -13,13 +13,19 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class EventInfoMemberObserverProviderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
+        public sealed class TestEventClass
         {
-            var component = new EventInfoMemberObserverProvider();
-            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            public static event EventHandler? EventHandlerStatic;
+
+            public event EventHandler? EventHandler;
+
+            public event Action? Action;
+
+            public static void OnEventHandlerStatic(EventArgs args) => EventHandlerStatic?.Invoke(null, args);
+
+            public void OnEventHandler(EventArgs args) => EventHandler?.Invoke(this, args);
+
+            public void OnAction() => Action?.Invoke();
         }
 
         [Fact]
@@ -151,33 +157,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             listener.InvokeCount.ShouldEqual(2);
         }
 
-        #endregion
-
-        #region Nested types
-
-        public sealed class TestEventClass
+        [Fact]
+        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
         {
-            #region Events
-
-            public static event EventHandler? EventHandlerStatic;
-
-            public event EventHandler? EventHandler;
-
-            public event Action? Action;
-
-            #endregion
-
-            #region Methods
-
-            public static void OnEventHandlerStatic(EventArgs args) => EventHandlerStatic?.Invoke(null, args);
-
-            public void OnEventHandler(EventArgs args) => EventHandler?.Invoke(this, args);
-
-            public void OnAction() => Action?.Invoke();
-
-            #endregion
+            var component = new EventInfoMemberObserverProvider();
+            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
-
-        #endregion
     }
 }

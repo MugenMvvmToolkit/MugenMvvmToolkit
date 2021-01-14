@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
@@ -13,14 +12,11 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
 {
     public static class BindingBuilderExtensions
     {
-        #region Methods
-
         public static ItemOrIReadOnlyList<IBindingBuilder> ParseBindingExpression<TTarget, TSource>(this IBindingManager? bindingManager,
             BindingBuilderDelegate<TTarget, TSource> getBuilder, IReadOnlyMetadataContext? metadata)
             where TTarget : class
@@ -29,7 +25,8 @@ namespace MugenMvvm.Bindings.Extensions
                 .DefaultIfNull()
                 .ParseBindingExpression(expression: getBuilder, metadata);
 
-        public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, object> getBuilder, IReadOnlyMetadataContext? metadata = null,
+        public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, object> getBuilder,
+            IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null)
             where TTarget : class =>
             bindingManager.BindInternal(getBuilder, target, null, metadata);
@@ -130,7 +127,8 @@ namespace MugenMvvm.Bindings.Extensions
             where TSource : class =>
             builder.BindingParameter(BindingParameterNameConstant.CommandParameter, ConstantExpressionNode.Get(value));
 
-        public static BindingBuilderTo<TTarget, TSource> CommandParameter<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
+        public static BindingBuilderTo<TTarget, TSource> CommandParameter<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder,
+            Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
             where TTarget : class
             where TSource : class
         {
@@ -146,7 +144,8 @@ namespace MugenMvvm.Bindings.Extensions
             return builder.BindingParameter(BindingParameterNameConstant.Converter, ConstantExpressionNode.Get(converter));
         }
 
-        public static BindingBuilderTo<TTarget, TSource> Converter<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
+        public static BindingBuilderTo<TTarget, TSource> Converter<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder,
+            Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
             where TTarget : class
             where TSource : class
         {
@@ -178,7 +177,8 @@ namespace MugenMvvm.Bindings.Extensions
             where TSource : class =>
             builder.BindingParameter(BindingParameterNameConstant.Fallback, ConstantExpressionNode.Get(value));
 
-        public static BindingBuilderTo<TTarget, TSource> Fallback<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
+        public static BindingBuilderTo<TTarget, TSource> Fallback<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder,
+            Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
             where TTarget : class
             where TSource : class
         {
@@ -206,12 +206,13 @@ namespace MugenMvvm.Bindings.Extensions
                 bindingBuilder.Build(target, source, metadata);
         }
 
-        private static ItemOrIReadOnlyList<IBinding> BindInternal(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static ItemOrIReadOnlyList<IBinding> BindInternal(this IBindingManager? bindingManager, object request, object target, object? source,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             var expressions = bindingManager
-                .DefaultIfNull()
-                .ParseBindingExpression(request, metadata);
+                              .DefaultIfNull()
+                              .ParseBindingExpression(request, metadata);
 
             if (expressions.Item != null)
                 return ItemOrIReadOnlyList.FromItem(expressions.Item.Build(target, source, metadata));
@@ -231,7 +232,5 @@ namespace MugenMvvm.Bindings.Extensions
                 return builder.BindingParameter(null, parameter);
             return builder.BindingParameter(null, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, parameter));
         }
-
-        #endregion
     }
 }

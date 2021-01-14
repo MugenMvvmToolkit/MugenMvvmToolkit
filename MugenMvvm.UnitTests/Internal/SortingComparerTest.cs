@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class SortingComparerTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1000)]
         [InlineData(100)]
@@ -21,10 +19,10 @@ namespace MugenMvvm.UnitTests.Internal
                 ints.Add(random.Next());
 
             var comparer = SortingComparer<int>
-                .Ascending(i => i)
-                .ThenByDescending(i => i % 2 == 0)
-                .ThenBy(i => i % 3 == 0)
-                .Build();
+                           .Ascending(i => i)
+                           .ThenByDescending(i => i % 2 == 0)
+                           .ThenBy(i => i % 3 == 0)
+                           .Build();
             var list = ints.ToList();
             list.Sort(comparer);
 
@@ -42,16 +40,14 @@ namespace MugenMvvm.UnitTests.Internal
                 ints.Add(random.Next());
 
             var comparer = SortingComparer<int>
-                .Descending(i => i)
-                .ThenByDescending(i => i % 2 == 0)
-                .ThenBy(i => i % 3 == 0)
-                .Build();
+                           .Descending(i => i)
+                           .ThenByDescending(i => i % 2 == 0)
+                           .ThenBy(i => i % 3 == 0)
+                           .Build();
             var list = ints.ToList();
             list.Sort(comparer);
 
             list.ShouldEqual(ints.OrderByDescending(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0));
         }
-
-        #endregion
     }
 }

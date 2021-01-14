@@ -16,82 +16,25 @@ namespace MugenMvvm.Internal.Components
     public sealed class ExpressionReflectionDelegateProvider : IReflectionDelegateProviderComponent, IActivatorReflectionDelegateProviderComponent,
         IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent, IHasPriority
     {
-        #region Fields
-
         public static readonly ParameterExpression TargetParameter = MugenExtensions.GetParameterExpression<object>();
         private static readonly ParameterExpression[] TargetArgsParameters = {TargetParameter, MugenExtensions.GetParameterExpression<ItemOrArray<object>>()};
         private static readonly ParameterExpression[] ArgsParameters = MugenExtensions.GetParametersExpression<ItemOrArray<object>>();
         private static readonly Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?> CacheMethodDelegates = new(17, InternalEqualityComparer.TypeMethod);
+
         private static readonly Expression ItemOrArrayItemFieldExpression = Expression.Field(MugenExtensions.GetParameterExpression<ItemOrArray<object>>(),
             typeof(ItemOrArray<object>).GetFieldOrThrow(nameof(ItemOrArray<object>.Item), BindingFlagsEx.InstancePublic));
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ExpressionReflectionDelegateProvider()
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = InternalComponentPriority.DelegateProvider;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        Func<ItemOrArray<object?>, object> IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor) => GetActivator(constructor);
-
-        Delegate? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType) => TryGetActivator(constructor, delegateType);
-
-        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberGetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType) => TryGetMemberGetter(member, delegateType);
-
-        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberSetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType) => TryGetMemberSetter(member, delegateType);
-
-        Func<object?, ItemOrArray<object?>, object?> IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method) => GetMethodInvoker(method);
-
-        Delegate? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method, Type delegateType) => TryGetMethodInvoker(method, delegateType);
-
-        bool IReflectionDelegateProviderComponent.CanCreateDelegate(IReflectionManager reflectionManager, Type delegateType, MethodInfo method) => TryGetMethodDelegate(delegateType, method) != null;
-
-        Delegate? IReflectionDelegateProviderComponent.TryCreateDelegate(IReflectionManager reflectionManager, Type delegateType, object? target, MethodInfo method)
-        {
-            method = TryGetMethodDelegate(delegateType, method)!;
-            if (method == null)
-                return null;
-
-            if (target == null)
-                return method.CreateDelegate(delegateType);
-            return method.CreateDelegate(delegateType, target);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private static MethodInfo? TryGetMethodDelegate(Type delegateType, MethodInfo method)
-        {
-            var key = new KeyValuePair<Type, MethodInfo>(delegateType, method);
-            MethodInfo? info;
-            lock (CacheMethodDelegates)
-            {
-                if (!CacheMethodDelegates.TryGetValue(key, out info))
-                {
-                    info = TryGetMethodDelegateInternal(delegateType, method);
-                    CacheMethodDelegates[key] = info;
-                }
-            }
-
-            return info;
-        }
 
         public static Func<ItemOrArray<object?>, object> GetActivator(ConstructorInfo constructor) =>
             Expression
-                .Lambda<Func<ItemOrArray<object?>, object>>(Expression.New(constructor, GetParametersExpression(constructor).AsList()).ConvertIfNeed(typeof(object), false), ArgsParameters)
+                .Lambda<Func<ItemOrArray<object?>, object>>(Expression.New(constructor, GetParametersExpression(constructor).AsList()).ConvertIfNeed(typeof(object), false),
+                    ArgsParameters)
                 .CompileEx();
 
         public static Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType)
@@ -175,15 +118,15 @@ namespace MugenMvvm.Internal.Components
                 if (delegateParameters.Length == 0)
                 {
                     expression = Expression.Lambda(delegateType, Expression
-                        .MakeMemberAccess(null, member)
-                        .ConvertIfNeed(delegateMethod.ReturnType, false));
+                                                                 .MakeMemberAccess(null, member)
+                                                                 .ConvertIfNeed(delegateMethod.ReturnType, false));
                 }
                 else if (delegateParameters.Length == 1) //ignoring first parameter
                 {
                     var parameter = Expression.Parameter(delegateParameters[0].ParameterType);
                     expression = Expression.Lambda(delegateType, Expression
-                        .MakeMemberAccess(null, member)
-                        .ConvertIfNeed(delegateMethod.ReturnType, false), parameter);
+                                                                 .MakeMemberAccess(null, member)
+                                                                 .ConvertIfNeed(delegateMethod.ReturnType, false), parameter);
                 }
                 else
                     return null;
@@ -194,8 +137,8 @@ namespace MugenMvvm.Internal.Components
                     return null;
                 var targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
                 expression = Expression.Lambda(delegateType, Expression
-                    .MakeMemberAccess(targetParameter.ConvertIfNeed(member.DeclaringType, false), member)
-                    .ConvertIfNeed(delegateMethod.ReturnType, false), targetParameter);
+                                                             .MakeMemberAccess(targetParameter.ConvertIfNeed(member.DeclaringType, false), member)
+                                                             .ConvertIfNeed(delegateMethod.ReturnType, false), targetParameter);
             }
 
             return expression.CompileEx();
@@ -241,13 +184,29 @@ namespace MugenMvvm.Internal.Components
             if (targetParameter == null)
             {
                 return Expression
-                    .Lambda(delegateType, expression, valueParameter)
-                    .CompileEx();
+                       .Lambda(delegateType, expression, valueParameter)
+                       .CompileEx();
             }
 
             return Expression
-                .Lambda(delegateType, expression, targetParameter, valueParameter)
-                .CompileEx();
+                   .Lambda(delegateType, expression, targetParameter, valueParameter)
+                   .CompileEx();
+        }
+
+        private static MethodInfo? TryGetMethodDelegate(Type delegateType, MethodInfo method)
+        {
+            var key = new KeyValuePair<Type, MethodInfo>(delegateType, method);
+            MethodInfo? info;
+            lock (CacheMethodDelegates)
+            {
+                if (!CacheMethodDelegates.TryGetValue(key, out info))
+                {
+                    info = TryGetMethodDelegateInternal(delegateType, method);
+                    CacheMethodDelegates[key] = info;
+                }
+            }
+
+            return info;
         }
 
         private static ItemOrArray<Expression> GetParametersExpression(MethodBase methodBase)
@@ -279,10 +238,8 @@ namespace MugenMvvm.Internal.Components
                 var types = new Type[genericArguments.Length];
                 var index = 0;
                 for (var i = 0; i < mParameters.Length; i++)
-                {
                     if (mParameters[i].ParameterType.IsGenericParameter)
                         types[index++] = eParameters[i].ParameterType;
-                }
 
                 try
                 {
@@ -308,6 +265,36 @@ namespace MugenMvvm.Internal.Components
             return method;
         }
 
-        #endregion
+        Func<ItemOrArray<object?>, object> IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor) =>
+            GetActivator(constructor);
+
+        Delegate? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType) =>
+            TryGetActivator(constructor, delegateType);
+
+        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberGetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType) =>
+            TryGetMemberGetter(member, delegateType);
+
+        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberSetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType) =>
+            TryGetMemberSetter(member, delegateType);
+
+        Func<object?, ItemOrArray<object?>, object?> IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method) =>
+            GetMethodInvoker(method);
+
+        Delegate? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method, Type delegateType) =>
+            TryGetMethodInvoker(method, delegateType);
+
+        bool IReflectionDelegateProviderComponent.CanCreateDelegate(IReflectionManager reflectionManager, Type delegateType, MethodInfo method) =>
+            TryGetMethodDelegate(delegateType, method) != null;
+
+        Delegate? IReflectionDelegateProviderComponent.TryCreateDelegate(IReflectionManager reflectionManager, Type delegateType, object? target, MethodInfo method)
+        {
+            method = TryGetMethodDelegate(delegateType, method)!;
+            if (method == null)
+                return null;
+
+            if (target == null)
+                return method.CreateDelegate(delegateType);
+            return method.CreateDelegate(delegateType, target);
+        }
     }
 }

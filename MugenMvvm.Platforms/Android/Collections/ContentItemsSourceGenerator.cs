@@ -15,8 +15,6 @@ namespace MugenMvvm.Android.Collections
 {
     public sealed class ContentItemsSourceGenerator : DiffableBindableCollectionAdapter
     {
-        #region Constructors
-
         private ContentItemsSourceGenerator(View view, IContentTemplateSelector contentTemplateSelector)
         {
             View = view;
@@ -24,19 +22,11 @@ namespace MugenMvvm.Android.Collections
             DiffableComparer = contentTemplateSelector as IDiffableEqualityComparer;
         }
 
-        #endregion
-
-        #region Properties
-
         public View View { get; }
 
         public IContentTemplateSelector ContentTemplateSelector { get; }
 
         protected override bool IsAlive => View.Handle != IntPtr.Zero;
-
-        #endregion
-
-        #region Methods
 
         public static ContentItemsSourceGenerator? TryGet(View view)
         {
@@ -48,7 +38,8 @@ namespace MugenMvvm.Android.Collections
         {
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(selector, nameof(selector));
-            return view.AttachedValues().GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector, (o, templateSelector) => new ContentItemsSourceGenerator((View) o, templateSelector));
+            return view.AttachedValues().GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector,
+                (o, templateSelector) => new ContentItemsSourceGenerator((View) o, templateSelector));
         }
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
@@ -104,7 +95,5 @@ namespace MugenMvvm.Android.Collections
 
             return template;
         }
-
-        #endregion
     }
 }

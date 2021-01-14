@@ -8,35 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberPathTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ShouldInitializeValuesEmptyPath()
-        {
-            var emptyMemberPath = MemberPath.Get("");
-            MemberPath.Empty.ShouldEqual(emptyMemberPath);
-            emptyMemberPath.Members.IsEmpty.ShouldBeTrue();
-            emptyMemberPath.Path.ShouldEqual("");
-            var valueHolder = (IValueHolder<string>) emptyMemberPath;
-            valueHolder.Value = nameof(valueHolder);
-            valueHolder.Value.ShouldEqual(nameof(valueHolder));
-        }
-
-        [Fact]
-        public void ShouldInitializeValuesSinglePath()
-        {
-            const string path = "Path";
-            var singleMemberPath = MemberPath.Get(path);
-            singleMemberPath.Members.Item.ShouldEqual(path);
-            singleMemberPath.Members[0].ShouldEqual(path);
-            singleMemberPath.Members.Count.ShouldEqual(1);
-            singleMemberPath.Path.ShouldEqual(path);
-            ShouldThrow<ArgumentOutOfRangeException>(() =>
-            {
-                var member = singleMemberPath.Members[1];
-            });
-        }
-
         [Fact]
         public void ShouldInitializeValues1()
         {
@@ -78,6 +49,31 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             memberPath.Members.AsList().ShouldEqual(items);
         }
 
-        #endregion
+        [Fact]
+        public void ShouldInitializeValuesEmptyPath()
+        {
+            var emptyMemberPath = MemberPath.Get("");
+            MemberPath.Empty.ShouldEqual(emptyMemberPath);
+            emptyMemberPath.Members.IsEmpty.ShouldBeTrue();
+            emptyMemberPath.Path.ShouldEqual("");
+            var valueHolder = (IValueHolder<string>) emptyMemberPath;
+            valueHolder.Value = nameof(valueHolder);
+            valueHolder.Value.ShouldEqual(nameof(valueHolder));
+        }
+
+        [Fact]
+        public void ShouldInitializeValuesSinglePath()
+        {
+            const string path = "Path";
+            var singleMemberPath = MemberPath.Get(path);
+            singleMemberPath.Members.Item.ShouldEqual(path);
+            singleMemberPath.Members[0].ShouldEqual(path);
+            singleMemberPath.Members.Count.ShouldEqual(1);
+            singleMemberPath.Path.ShouldEqual(path);
+            ShouldThrow<ArgumentOutOfRangeException>(() =>
+            {
+                var member = singleMemberPath.Members[1];
+            });
+        }
     }
 }

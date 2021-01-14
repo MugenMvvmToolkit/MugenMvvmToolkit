@@ -10,8 +10,6 @@ namespace MugenMvvm.Ios.Views
 {
     public class MugenViewController : UIViewController, IValueHolder<IDictionary<string, object?>>, IValueHolder<IWeakReference>
     {
-        #region Constructors
-
         public MugenViewController()
         {
         }
@@ -24,25 +22,17 @@ namespace MugenMvvm.Ios.Views
         {
         }
 
-        protected MugenViewController(NSObjectFlag t) : base(t)
-        {
-        }
-
         protected internal MugenViewController(IntPtr handle) : base(handle)
         {
         }
 
-        #endregion
-
-        #region Properties
+        protected MugenViewController(NSObjectFlag t) : base(t)
+        {
+        }
 
         IDictionary<string, object?>? IValueHolder<IDictionary<string, object?>>.Value { get; set; }
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        #endregion
-
-        #region Methods
 
         public override void DidMoveToParentViewController(UIViewController parent)
         {
@@ -113,7 +103,5 @@ namespace MugenMvvm.Ios.Views
             base.ViewDidDisappear(animated);
             MugenService.ViewManager.OnLifecycleChanged(this, ViewLifecycleState.Disappeared);
         }
-
-        #endregion
     }
 }

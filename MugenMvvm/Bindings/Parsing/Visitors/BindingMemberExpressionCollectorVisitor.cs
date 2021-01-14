@@ -5,55 +5,22 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Visitors
 {
     public sealed class BindingMemberExpressionCollectorVisitor : IExpressionVisitor
     {
-        #region Fields
-
         private readonly List<(IBindingMemberExpressionNode, IBindingMemberExpressionNode)> _members;
-
-        #endregion
-
-        #region Constructors
 
         public BindingMemberExpressionCollectorVisitor()
         {
             _members = new List<(IBindingMemberExpressionNode, IBindingMemberExpressionNode)>(4);
         }
 
-        #endregion
-
-        #region Properties
-
         ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Preorder;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
-        {
-            if (expression is not IBindingMemberExpressionNode bindingMember)
-                return expression;
-
-            var updated = TryGet(bindingMember);
-            if (updated == null)
-            {
-                updated = bindingMember.Update(_members.Count, bindingMember.Flags, bindingMember.MemberFlags, bindingMember.ObservableMethodName);
-                _members.Add((bindingMember, updated));
-            }
-
-            return updated;
-        }
-
-        #endregion
-
-        #region Methods
-
-        public ItemOrIReadOnlyList<IBindingMemberExpressionNode> Collect([NotNullIfNotNull("expression")] ref IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrIReadOnlyList<IBindingMemberExpressionNode> Collect([NotNullIfNotNull("expression")] ref IExpressionNode? expression,
+            IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)
                 return default;
@@ -70,7 +37,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             }
 
             var nodes = new IBindingMemberExpressionNode[count];
-            for (int i = 0; i < nodes.Length; i++)
+            for (var i = 0; i < nodes.Length; i++)
                 nodes[i] = _members[i].Item2;
             _members.Clear();
             return nodes;
@@ -78,7 +45,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         private IBindingMemberExpressionNode? TryGet(IBindingMemberExpressionNode node)
         {
-            for (int i = 0; i < _members.Count; i++)
+            for (var i = 0; i < _members.Count; i++)
             {
                 var tuple = _members[i];
                 if (ReferenceEquals(tuple.Item1, node) || ReferenceEquals(tuple.Item2, node))
@@ -88,6 +55,19 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             return null;
         }
 
-        #endregion
+        IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+        {
+            if (expression is not IBindingMemberExpressionNode bindingMember)
+                return expression;
+
+            var updated = TryGet(bindingMember);
+            if (updated == null)
+            {
+                updated = bindingMember.Update(_members.Count, bindingMember.Flags, bindingMember.MemberFlags, bindingMember.ObservableMethodName);
+                _members.Add((bindingMember, updated));
+            }
+
+            return updated;
+        }
     }
 }

@@ -12,29 +12,12 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class ViewLifecycleTracker : LifecycleTrackerBase<ViewLifecycleState, object>, IHasPriority, IViewLifecycleListener
     {
-        #region Constructors
-
         public ViewLifecycleTracker()
         {
             Trackers.Add(TrackViewState);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ViewComponentPriority.LifecycleTracker;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-            => OnLifecycleChanged(view, lifecycleState, metadata);
-
-        #endregion
-
-        #region Methods
 
         private static void TrackViewState(object view, HashSet<ViewLifecycleState> states, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
@@ -51,8 +34,9 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        protected override object GetTarget(object target) => MugenExtensions.Unwrap(target);
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            => OnLifecycleChanged(view, lifecycleState, metadata);
 
-        #endregion
+        protected override object GetTarget(object target) => MugenExtensions.Unwrap(target);
     }
 }

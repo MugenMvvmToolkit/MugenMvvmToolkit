@@ -13,8 +13,6 @@ namespace MugenMvvm.UnitTests.Serialization
 {
     public class SerializerTest : ComponentOwnerTestBase<Serializer>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -47,9 +45,6 @@ namespace MugenMvvm.UnitTests.Serialization
             serializer.IsSupported(format, request, DefaultMetadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
-
-        [Fact]
-        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(SerializationFormat.JsonBytes!, null!));
 
         [Theory]
         [InlineData(1)]
@@ -94,9 +89,6 @@ namespace MugenMvvm.UnitTests.Serialization
             serializer.Serialize(format, request, null, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
-
-        [Fact]
-        public void DeserializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(DeserializationFormat.JsonBytes, null!));
 
         [Theory]
         [InlineData(1)]
@@ -144,6 +136,10 @@ namespace MugenMvvm.UnitTests.Serialization
 
         protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void DeserializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(DeserializationFormat.JsonBytes, null!));
+
+        [Fact]
+        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(SerializationFormat.JsonBytes!, null!));
     }
 }

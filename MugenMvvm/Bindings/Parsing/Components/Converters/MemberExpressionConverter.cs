@@ -11,13 +11,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class MemberExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Member;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
@@ -29,7 +23,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
             return MemberExpressionNode.Get(context.ConvertTarget(memberExpression.Expression, memberExpression.Member), memberExpression.Member.Name);
         }
-
-        #endregion
     }
 }

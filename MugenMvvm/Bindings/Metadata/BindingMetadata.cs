@@ -7,8 +7,6 @@ namespace MugenMvvm.Bindings.Metadata
 {
     public static class BindingMetadata
     {
-        #region Fields
-
         public static object UnsetValue = new();
         public static object DoNothing = new();
 
@@ -16,10 +14,6 @@ namespace MugenMvvm.Bindings.Metadata
         private static IMetadataContextKey<object>? _eventArgs;
         private static IMetadataContextKey<bool>? _suppressHolderRegistration;
         private static IMetadataContextKey<bool>? _isMultiBinding;
-
-        #endregion
-
-        #region Properties
 
         [AllowNull]
         public static IMetadataContextKey<IBinding> Binding
@@ -49,12 +43,6 @@ namespace MugenMvvm.Bindings.Metadata
             set => _isMultiBinding = value;
         }
 
-        #endregion
-
-        #region Methods
-
         private static MetadataContextKey.Builder<T> GetBuilder<T>(IMetadataContextKey<T>? _, string name) => MetadataContextKey.Create<T>(typeof(BindingMetadata), name);
-
-        #endregion
     }
 }

@@ -11,14 +11,8 @@ namespace MugenMvvm.Validation
 {
     public sealed class NotifyDataErrorInfoValidatorAdapter : INotifyDataErrorInfo, IValidatorListener
     {
-        #region Fields
-
         private readonly object? _owner;
         private readonly IValidator _validator;
-
-        #endregion
-
-        #region Constructors
 
         public NotifyDataErrorInfoValidatorAdapter(IValidator validator, object? owner = null)
         {
@@ -28,21 +22,9 @@ namespace MugenMvvm.Validation
             validator.AddComponent(this);
         }
 
-        #endregion
-
-        #region Properties
-
-        public bool HasErrors => _validator.HasErrors();
-
-        #endregion
-
-        #region Events
-
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-        #endregion
-
-        #region Implementation of interfaces
+        public bool HasErrors => _validator.HasErrors();
 
         public IEnumerable GetErrors(string? propertyName) => _validator.GetErrors(propertyName ?? "").AsList();
 
@@ -54,7 +36,5 @@ namespace MugenMvvm.Validation
         }
 
         void IValidatorListener.OnDisposed(IValidator validator) => ErrorsChanged = null;
-
-        #endregion
     }
 }

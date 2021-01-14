@@ -11,14 +11,8 @@ namespace MugenMvvm.Messaging
     public sealed class WeakDelegateMessengerHandler<TTarget, TMessage> : IMessengerHandler
         where TTarget : class
     {
-        #region Fields
-
         private readonly Action<TTarget, object?, TMessage, IMessageContext> _action;
         private readonly IWeakReference _reference;
-
-        #endregion
-
-        #region Constructors
 
         public WeakDelegateMessengerHandler(TTarget target, Action<TTarget, object?, TMessage, IMessageContext> action)
         {
@@ -37,10 +31,6 @@ namespace MugenMvvm.Messaging
             _action = action.GetMethodInfo()!.GetMethodInvoker<Action<TTarget, object, TMessage, IMessageContext>>()!;
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public bool CanHandle(Type messageType) => typeof(TMessage).IsAssignableFrom(messageType);
 
         public MessengerResult Handle(IMessageContext messageContext)
@@ -56,7 +46,5 @@ namespace MugenMvvm.Messaging
 
             return MessengerResult.Ignored;
         }
-
-        #endregion
     }
 }

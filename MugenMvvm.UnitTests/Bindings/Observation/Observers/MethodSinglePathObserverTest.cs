@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Enums;
@@ -13,8 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class MethodSinglePathObserverTest : SinglePathObserverTest
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -59,14 +56,13 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             using var _ = MugenService.AddComponent(component);
 
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull());
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+                disposed => currentListener.ShouldBeNull());
         }
 
         protected override SinglePathObserver GetObserver(object target) => new MethodSinglePathObserver(MethodName, target, DefaultPath, MemberFlags.InstancePublic, true);
 
         protected override SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) =>
             new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
-
-        #endregion
     }
 }

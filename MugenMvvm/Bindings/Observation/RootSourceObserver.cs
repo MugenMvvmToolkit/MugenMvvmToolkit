@@ -15,15 +15,9 @@ namespace MugenMvvm.Bindings.Observation
 {
     public sealed class RootSourceObserver : EventListenerCollection, IWeakEventListener
     {
-        #region Fields
-
         private readonly IWeakReference _targetRef;
         private IWeakReference? _parentRef;
         private ActionToken _parentToken;
-
-        #endregion
-
-        #region Constructors
 
         private RootSourceObserver(object target)
         {
@@ -31,47 +25,9 @@ namespace MugenMvvm.Bindings.Observation
             _targetRef = target.ToWeakReference();
         }
 
-        #endregion
-
-        #region Properties
-
-        public bool IsAlive => _targetRef.IsAlive;
-
         public bool IsWeak => true;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
-        {
-            try
-            {
-                var target = _targetRef.Target;
-                if (target == null)
-                    return false;
-                if (message is RootSourceObserver)
-                    Raise(target, message, metadata);
-                else if (UpdateParent(target, metadata))
-                    Raise(target, this, metadata);
-            }
-            catch (Exception e)
-            {
-                MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.Binding, metadata);
-            }
-
-            return true;
-        }
-
-        #endregion
-
-        #region Methods
-
-        public void Dispose()
-        {
-            ClearParent();
-            Clear();
-        }
+        public bool IsAlive => _targetRef.IsAlive;
 
         public static RootSourceObserver GetOrAdd(object target) =>
             target.AttachedValues().GetOrAdd(BindingInternalConstant.RootObserver, target, (o, _) => new RootSourceObserver(o));
@@ -80,6 +36,12 @@ namespace MugenMvvm.Bindings.Observation
         {
             if (target.AttachedValues().Remove(BindingInternalConstant.RootObserver, out var value))
                 (value as RootSourceObserver)?.Dispose();
+        }
+
+        public void Dispose()
+        {
+            ClearParent();
+            Clear();
         }
 
         public object? Get(IReadOnlyMetadataContext? metadata) => Get(_targetRef.Target, metadata);
@@ -129,6 +91,24 @@ namespace MugenMvvm.Bindings.Observation
             }
         }
 
-        #endregion
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        {
+            try
+            {
+                var target = _targetRef.Target;
+                if (target == null)
+                    return false;
+                if (message is RootSourceObserver)
+                    Raise(target, message, metadata);
+                else if (UpdateParent(target, metadata))
+                    Raise(target, this, metadata);
+            }
+            catch (Exception e)
+            {
+                MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.Binding, metadata);
+            }
+
+            return true;
+        }
     }
 }

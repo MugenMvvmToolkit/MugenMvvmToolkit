@@ -11,16 +11,10 @@ namespace MugenMvvm.Bindings.Observation.Observers
 {
     public sealed class MethodSinglePathObserver : SinglePathObserver, ObserverBase.IMethodPathObserver
     {
-        #region Fields
-
         private readonly string _method;
 
         private IWeakReference? _lastValueRef;
         private ActionToken _unsubscriber;
-
-        #endregion
-
-        #region Constructors
 
         public MethodSinglePathObserver(string method, object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional)
             : base(target, path, memberFlags, optional)
@@ -29,21 +23,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             _method = method;
         }
 
-        #endregion
-
-        #region Properties
-
         string IMethodPathObserver.Method => _method;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        IEventListener IMethodPathObserver.GetMethodListener() => this;
-
-        #endregion
-
-        #region Methods
 
         protected override void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
@@ -64,6 +44,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
             base.UnsubscribeLastMember();
         }
 
-        #endregion
+        IEventListener IMethodPathObserver.GetMethodListener() => this;
     }
 }

@@ -5,8 +5,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 {
     public class TestMemberPathObserverListener : IMemberPathObserverListener
     {
-        #region Properties
-
         public int PathMembersChangedCount { get; set; }
 
         public int LastMemberChangedCount { get; set; }
@@ -18,10 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
         public Action<IMemberPathObserver>? OnLastMemberChanged { get; set; }
 
         public Action<IMemberPathObserver, Exception>? OnError { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
         {
@@ -40,7 +34,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
             ++ErrorCount;
             OnError?.Invoke(observer, exception);
         }
-
-        #endregion
     }
 }

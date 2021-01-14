@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class DelegateBindingComponentProviderTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void GetComponentShouldCallDelegate()
         {
@@ -30,7 +28,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             }, state);
             provider.TryGetComponent(binding, target, source, DefaultMetadata).ShouldEqual(result);
         }
-
-        #endregion
     }
 }

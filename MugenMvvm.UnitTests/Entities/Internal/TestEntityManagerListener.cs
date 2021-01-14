@@ -9,32 +9,18 @@ namespace MugenMvvm.UnitTests.Entities.Internal
 {
     public class TestEntityManagerListener : IEntityManagerListener, IHasPriority
     {
-        #region Fields
-
         private readonly IEntityManager? _entityManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestEntityManagerListener(IEntityManager? entityManager)
         {
             _entityManager = entityManager;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; }
-
         public Action<IEntityStateSnapshot, object, IReadOnlyMetadataContext?>? OnSnapshotCreated { get; set; }
 
         public Action<IEntityTrackingCollection, object?, IReadOnlyMetadataContext?>? OnTrackingCollectionCreated { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; }
 
         void IEntityManagerListener.OnSnapshotCreated(IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, IReadOnlyMetadataContext? metadata)
         {
@@ -42,12 +28,11 @@ namespace MugenMvvm.UnitTests.Entities.Internal
             OnSnapshotCreated?.Invoke(snapshot, entity, metadata);
         }
 
-        void IEntityManagerListener.OnTrackingCollectionCreated(IEntityManager entityManager, IEntityTrackingCollection collection, object? request, IReadOnlyMetadataContext? metadata)
+        void IEntityManagerListener.OnTrackingCollectionCreated(IEntityManager entityManager, IEntityTrackingCollection collection, object? request,
+            IReadOnlyMetadataContext? metadata)
         {
             _entityManager?.ShouldEqual(entityManager);
             OnTrackingCollectionCreated?.Invoke(collection, request, metadata);
         }
-
-        #endregion
     }
 }

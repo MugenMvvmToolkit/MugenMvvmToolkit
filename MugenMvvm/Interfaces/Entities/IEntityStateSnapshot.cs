@@ -2,7 +2,6 @@
 using MugenMvvm.Collections;
 using MugenMvvm.Entities;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Entities
 {

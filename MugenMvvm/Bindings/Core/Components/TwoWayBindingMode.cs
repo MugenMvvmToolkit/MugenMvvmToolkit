@@ -11,27 +11,13 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class TwoWayBindingMode : IAttachableComponent, IBindingSourceObserverListener, IBindingTargetObserverListener, IHasPriority
     {
-        #region Fields
-
         public static readonly TwoWayBindingMode Instance = new();
-
-        #endregion
-
-        #region Constructors
 
         private TwoWayBindingMode()
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.Mode;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
@@ -52,7 +38,5 @@ namespace MugenMvvm.Bindings.Core.Components
         void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
         {
         }
-
-        #endregion
     }
 }

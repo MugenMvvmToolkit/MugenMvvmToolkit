@@ -15,9 +15,8 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
-        public static IComponentCollection GetComponentCollection(this IComponentCollectionManager componentCollectionManager, object owner, IReadOnlyMetadataContext? metadata = null)
+        public static IComponentCollection GetComponentCollection(this IComponentCollectionManager componentCollectionManager, object owner,
+            IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(componentCollectionManager, nameof(componentCollectionManager));
             Should.NotBeNull(owner, nameof(owner));
@@ -124,7 +123,8 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent => owner.GetComponent<TComponent>(false, metadata)!;
+        public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
+            owner.GetComponent<TComponent>(false, metadata)!;
 
         public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
             owner.GetComponent<TComponent>(true, metadata);
@@ -157,7 +157,8 @@ namespace MugenMvvm.Extensions
             return 0;
         }
 
-        public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
+        public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> getResult)
             where TComponent : class, IComponent
         {
@@ -204,7 +205,5 @@ namespace MugenMvvm.Extensions
                 ExceptionManager.ThrowCannotGetComponent(owner, typeof(TComponent));
             return null;
         }
-
-        #endregion
     }
 }

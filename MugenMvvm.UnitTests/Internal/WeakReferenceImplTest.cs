@@ -6,8 +6,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class WeakReferenceImplTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ReleaseShouldClearReference()
         {
@@ -17,7 +15,5 @@ namespace MugenMvvm.UnitTests.Internal
             weakReferenceImpl.Release();
             weakReferenceImpl.Target.ShouldBeNull();
         }
-
-        #endregion
     }
 }

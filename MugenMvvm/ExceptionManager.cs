@@ -14,8 +14,6 @@ namespace MugenMvvm
 {
     internal static class ExceptionManager
     {
-        #region Methods
-
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowNullArgument(string paramName) => throw new ArgumentNullException(paramName);
@@ -30,7 +28,8 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowArgumentShouldBeOfType(string paramName, Type type, Type requiredType) => throw new ArgumentException(ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
+        public static void ThrowArgumentShouldBeOfType(string paramName, Type type, Type requiredType) =>
+            throw new ArgumentException(ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -66,7 +65,8 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotGetComponent(object owner, Type componentType) => throw new InvalidOperationException(CannotGetComponentFormat2.Format(owner.GetType(), componentType));
+        public static void ThrowCannotGetComponent(object owner, Type componentType) =>
+            throw new InvalidOperationException(CannotGetComponentFormat2.Format(owner.GetType(), componentType));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -84,7 +84,8 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowObjectInitialized(object obj, [CallerMemberName] string? hint = null) => throw new InvalidOperationException(ObjectInitializedFormat2.Format(obj, hint));
+        public static void ThrowObjectInitialized(object obj, [CallerMemberName] string? hint = null) =>
+            throw new InvalidOperationException(ObjectInitializedFormat2.Format(obj, hint));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -104,8 +105,8 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotAddComponent(IComponentCollection collection, object component) => throw new InvalidOperationException(CannotAddComponentFormat2.Format(collection.Owner, component));
-
+        public static void ThrowCannotAddComponent(IComponentCollection collection, object component) =>
+            throw new InvalidOperationException(CannotAddComponentFormat2.Format(collection.Owner, component));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -131,15 +132,18 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotParseExpression(object? expression, string? hint = null) => throw new InvalidOperationException(CannotParseExpressionFormat2.Format(expression, hint));
+        public static void ThrowCannotParseExpression(object? expression, string? hint = null) =>
+            throw new InvalidOperationException(CannotParseExpressionFormat2.Format(expression, hint));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotCompileExpression(IExpressionNode expression, string? hint = null) => throw new InvalidOperationException(CannotCompileExpressionFormat2.Format(expression, hint));
+        public static void ThrowCannotCompileExpression(IExpressionNode expression, string? hint = null) =>
+            throw new InvalidOperationException(CannotCompileExpressionFormat2.Format(expression, hint));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCannotUseExpressionExpected(IExpressionNode expression, Type expectedType) => throw new InvalidOperationException(CannotUseExpressionExpected.Format(expression, expectedType));
+        public static void ThrowCannotUseExpressionExpected(IExpressionNode expression, Type expectedType) =>
+            throw new InvalidOperationException(CannotUseExpressionExpected.Format(expression, expectedType));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -165,7 +169,5 @@ namespace MugenMvvm
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowCannotUseExpressionClosure(object expression) => throw new InvalidOperationException(CannotUseExpressionClosureFormat1.Format(expression));
-
-        #endregion
     }
 }

@@ -7,15 +7,6 @@ namespace MugenMvvm.UnitTests.Serialization.Components
 {
     public class SurrogateProviderResolverTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetSurrogateProviderShouldReturnNullEmpty()
-        {
-            var component = new SurrogateProviderResolver();
-            component.TryGetSurrogateProvider(null!, typeof(string), null).ShouldBeNull();
-        }
-
         [Fact]
         public void TryGetSurrogateProviderShouldAddRemoveResolve()
         {
@@ -37,6 +28,11 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             component.TryGetSurrogateProvider(null!, typeof(SurrogateProviderResolverTest), null).ShouldBeNull();
         }
 
-        #endregion
+        [Fact]
+        public void TryGetSurrogateProviderShouldReturnNullEmpty()
+        {
+            var component = new SurrogateProviderResolver();
+            component.TryGetSurrogateProvider(null!, typeof(string), null).ShouldBeNull();
+        }
     }
 }

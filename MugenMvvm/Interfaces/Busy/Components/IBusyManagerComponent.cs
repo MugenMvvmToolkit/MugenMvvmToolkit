@@ -2,7 +2,6 @@
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Busy.Components
 {
@@ -10,7 +9,8 @@ namespace MugenMvvm.Interfaces.Busy.Components
     {
         IBusyToken? TryBeginBusy(IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata);
 
-        IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata);
+        IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
+            IReadOnlyMetadataContext? metadata);
 
         ItemOrIReadOnlyList<IBusyToken> TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata);
     }

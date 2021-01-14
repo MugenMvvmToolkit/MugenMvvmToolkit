@@ -8,13 +8,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class MemberPathProvider : IMemberPathProviderComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ObserverComponentPriority.PathProvider;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IMemberPath? TryGetMemberPath(IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
         {
@@ -22,7 +16,5 @@ namespace MugenMvvm.Bindings.Observation.Components
                 return MemberPath.Get(s);
             return null;
         }
-
-        #endregion
     }
 }

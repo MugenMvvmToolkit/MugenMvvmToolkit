@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using MugenMvvm.Bindings.Constants;
@@ -33,8 +32,6 @@ namespace MugenMvvm.Internal
 {
     public static class DebugTracer
     {
-        #region Fields
-
         private const string NavigationTag = "Navigation: ";
         private const string BindingTag = "Binding: ";
         private const string ViewTag = "View: ";
@@ -44,15 +41,7 @@ namespace MugenMvvm.Internal
         private const string MessagingTag = "Messaging: ";
         private static ILogger? _logger;
 
-        #endregion
-
-        #region Properties
-
         private static ILogger? Logger => _logger ??= MugenService.Optional<ILogger>()?.GetLogger(typeof(DebugTracer));
-
-        #endregion
-
-        #region Methods
 
         public static void AddConsoleLogger(ILogger logger) =>
             logger.AddComponent(new DelegateLogger((level, s, e, _) => Console.Out.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}"), (_, _) => true));
@@ -157,14 +146,8 @@ namespace MugenMvvm.Internal
                 return null;
             });
 
-        #endregion
-
-        #region Nested types
-
         private sealed class GlobalBindingTracer : IBindingTargetListener, IBindingSourceListener, IBindingExpressionInitializerComponent
         {
-            #region Implementation of interfaces
-
             public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
             {
                 context.Components["Debug"] = this;
@@ -194,28 +177,16 @@ namespace MugenMvvm.Internal
             public void OnTargetUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata)
             {
             }
-
-            #endregion
         }
 
         private sealed class BindingTracer : IBindingTargetListener, IBindingSourceListener
         {
-            #region Fields
-
             private readonly string _tag;
-
-            #endregion
-
-            #region Constructors
 
             public BindingTracer(string tag)
             {
                 _tag = tag;
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnSourceUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata)
             {
@@ -223,7 +194,8 @@ namespace MugenMvvm.Internal
 
             public void OnSourceUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) source update canceled");
 
-            public void OnSourceUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) source updated newValue={newValue}");
+            public void OnSourceUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) =>
+                Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) source updated newValue={newValue}");
 
             public void OnTargetUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata)
             {
@@ -231,22 +203,15 @@ namespace MugenMvvm.Internal
 
             public void OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) target update canceled");
 
-            public void OnTargetUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) => Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) target updated newValue={newValue}");
-
-            #endregion
+            public void OnTargetUpdated(IBinding binding, object? newValue, IReadOnlyMetadataContext metadata) =>
+                Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) target updated newValue={newValue}");
         }
 
         private sealed class ApplicationTracer : ComponentDecoratorBase<IMugenApplication, IApplicationLifecycleListener>, IApplicationLifecycleListener
         {
-            #region Constructors
-
             public ApplicationTracer() : base(ComponentPriority.Max)
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
@@ -254,21 +219,13 @@ namespace MugenMvvm.Internal
                 Components.OnLifecycleChanged(application, lifecycleState, state, metadata);
                 Logger.Trace()?.Log($"{ApplicationTag}after ({lifecycleState}) state={state ?? "null"}, metadata={metadata.Dump()}");
             }
-
-            #endregion
         }
 
         private sealed class NavigatingErrorListener : ComponentDecoratorBase<INavigationDispatcher, INavigationErrorListener>, INavigationErrorListener
         {
-            #region Constructors
-
             public NavigatingErrorListener() : base(ComponentPriority.Max)
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
             {
@@ -283,21 +240,13 @@ namespace MugenMvvm.Internal
                 Components.OnNavigationCanceled(navigationDispatcher, navigationContext, cancellationToken);
                 Logger.Trace()?.Log($"{NavigationTag}after canceled {Dump(navigationDispatcher, navigationContext)}");
             }
-
-            #endregion
         }
 
         private sealed class NavigatedTracer : ComponentDecoratorBase<INavigationDispatcher, INavigationListener>, INavigationListener
         {
-            #region Constructors
-
             public NavigatedTracer() : base(ComponentPriority.Max)
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
             {
@@ -312,21 +261,13 @@ namespace MugenMvvm.Internal
                 Components.OnNavigated(navigationDispatcher, navigationContext);
                 Logger.Trace()?.Log($"{NavigationTag}after navigated {Dump(navigationDispatcher, navigationContext)}");
             }
-
-            #endregion
         }
 
         private sealed class MessengerTracer : ComponentDecoratorBase<IMessenger, IMessengerSubscriberComponent>, IMessengerSubscriberComponent
         {
-            #region Constructors
-
             public MessengerTracer() : base(ComponentPriority.Max)
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public bool TrySubscribe(IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
                 => Components.TrySubscribe(messenger, subscriber, executionMode, metadata);
@@ -358,21 +299,13 @@ namespace MugenMvvm.Internal
 
             public ItemOrIReadOnlyList<MessengerSubscriberInfo> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
                 => Components.TryGetSubscribers(messenger, metadata);
-
-            #endregion
         }
 
         private sealed class PresenterTracer : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent
         {
-            #region Constructors
-
             public PresenterTracer() : base(ComponentPriority.Max)
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
@@ -389,31 +322,20 @@ namespace MugenMvvm.Internal
                 Logger.Trace()?.Log($"{PresentationTag}closed request={request}{Dump(result)}, metadata={metadata.Dump()}");
                 return result;
             }
-
-            #endregion
         }
 
         private sealed class ViewModelTracer : ComponentDecoratorBase<IViewModelManager, IViewModelLifecycleListener>, IViewModelLifecycleListener
         {
-            #region Fields
-
             private int _createdCount;
             private int _disposedCount;
             private int _finalizedCount;
-
-            #endregion
-
-            #region Constructors
 
             public ViewModelTracer() : base(ComponentPriority.Max)
             {
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
+                IReadOnlyMetadataContext? metadata)
             {
                 Logger.Trace()?.Log($"{ViewModelTag}before ({lifecycleState}) viewmodel={viewModel}, state={state ?? "null"}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
@@ -426,21 +348,13 @@ namespace MugenMvvm.Internal
                     ++_finalizedCount;
                 Logger.Trace()?.Log($"{ViewModelTag}created={_createdCount}, disposed={_disposedCount}, finalized={_finalizedCount}");
             }
-
-            #endregion
         }
 
         private sealed class ViewMappingTracer : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent
         {
-            #region Constructors
-
             public ViewMappingTracer() : base(ComponentPriority.Max)
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public ItemOrIReadOnlyList<IViewMapping> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
             {
@@ -449,32 +363,13 @@ namespace MugenMvvm.Internal
                 Logger.Trace()?.Log($"{ViewTag}mappings for ({request}, viewmodel={vm}, view={view}) {Dump(mappings)}, metadata={metadata.Dump()}");
                 return mappings;
             }
-
-            #endregion
         }
 
         private sealed class ViewTracer : ComponentDecoratorBase<IViewManager, IViewLifecycleListener>, IViewLifecycleListener
         {
-            #region Constructors
-
             public ViewTracer() : base(ComponentPriority.Max)
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-            {
-                Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
-                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ViewTag}after ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
-            }
-
-            #endregion
-
-            #region Methods
 
             private static string Dump(IViewManager viewManager, object view)
             {
@@ -490,9 +385,12 @@ namespace MugenMvvm.Internal
                 return stringBuilder.ToString();
             }
 
-            #endregion
+            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            {
+                Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
+                Logger.Trace()?.Log($"{ViewTag}after ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
+            }
         }
-
-        #endregion
     }
 }

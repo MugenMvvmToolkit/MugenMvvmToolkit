@@ -17,17 +17,12 @@ namespace MugenMvvm.Ios.Presenters
 {
     public class NavigationControllerViewPresenter : ViewPresenterBase<UIViewController>
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IPresenter? _presenter;
         private readonly IViewManager? _viewManager;
 
-        #endregion
-
-        #region Constructors
-
-        public NavigationControllerViewPresenter(UINavigationController navigationController, IViewManager? viewManager = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
+        public NavigationControllerViewPresenter(UINavigationController navigationController, IViewManager? viewManager = null, IPresenter? presenter = null,
+            INavigationDispatcher? navigationDispatcher = null)
         {
             Should.NotBeNull(navigationController, nameof(navigationController));
             NavigationController = navigationController;
@@ -35,10 +30,6 @@ namespace MugenMvvm.Ios.Presenters
             _presenter = presenter;
             _navigationDispatcher = navigationDispatcher;
         }
-
-        #endregion
-
-        #region Properties
 
         public override NavigationType NavigationType => NavigationType.Page;
 
@@ -54,16 +45,14 @@ namespace MugenMvvm.Ios.Presenters
 
         protected IViewManager ViewManager => _viewManager.DefaultIfNull();
 
-        #endregion
-
-        #region Methods
-
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             base.CanPresent(presenter, viewModel, mapping, metadata) && (CanPresentHandler == null || CanPresentHandler(presenter, viewModel, mapping, metadata));
 
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => ShowInternalAsync(true, mediator, view, navigationContext);
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) =>
+            ShowInternalAsync(true, mediator, view, navigationContext);
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => ShowInternalAsync(false, mediator, view, navigationContext);
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) =>
+            ShowInternalAsync(false, mediator, view, navigationContext);
 
         protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
         {
@@ -121,7 +110,5 @@ namespace MugenMvvm.Ios.Presenters
             controllers[controllers.Length - 1] = view;
             NavigationController.SetViewControllers(controllers, animated);
         }
-
-        #endregion
     }
 }

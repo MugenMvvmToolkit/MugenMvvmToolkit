@@ -24,7 +24,8 @@ namespace MugenMvvm.Collections
 {
     public class BindableCollectionAdapter : ReadOnlyCollection<object?>, IThreadDispatcherHandler, IValueHolder<Delegate>
     {
-        #region Fields
+        protected WeakListener? Listener;
+        internal List<object?>? ResetCache;
 
         private readonly List<CollectionChangedEvent> _pendingEvents;
         private readonly IThreadDispatcher? _threadDispatcher;
@@ -33,12 +34,6 @@ namespace MugenMvvm.Collections
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
         private int _suspendCount;
-        protected WeakListener? Listener;
-        internal List<object?>? ResetCache;
-
-        #endregion
-
-        #region Constructors
 
         public BindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source ?? new List<object?>())
@@ -48,9 +43,15 @@ namespace MugenMvvm.Collections
             _executionMode = ThreadExecutionMode.Main;
         }
 
-        #endregion
-
-        #region Properties
+        protected enum CollectionChangedAction
+        {
+            Add = 1,
+            Move = 2,
+            Remove = 3,
+            Replace = 4,
+            Reset = 5,
+            Changed = 6
+        }
 
         public IEnumerable? Collection
         {
@@ -97,23 +98,13 @@ namespace MugenMvvm.Collections
 
         public int BatchSize { get; set; } = 50;
 
+        protected virtual bool IsAlive => true;
+
         protected int Version { get; private set; } = -1;
 
         protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
-        protected virtual bool IsAlive => true;
-
         Delegate? IValueHolder<Delegate>.Value { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IThreadDispatcherHandler.Execute(object? state) => ExecutePendingEvents((int) state!);
-
-        #endregion
-
-        #region Methods
 
         protected virtual void AddCollectionListener(IEnumerable collection, int version)
         {
@@ -361,108 +352,16 @@ namespace MugenMvvm.Collections
             return default;
         }
 
-        #endregion
-
-        #region Nested types
-
-        protected class WeakListener : AttachableComponentBase<ICollection>, IHasTarget<BindableCollectionAdapter?>, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasPriority
-        {
-            #region Fields
-
-            private readonly IWeakReference _reference;
-            private int _version;
-
-            #endregion
-
-            #region Constructors
-
-            public WeakListener(BindableCollectionAdapter adapter)
-            {
-                _reference = adapter.ToWeakReference();
-            }
-
-            #endregion
-
-            #region Properties
-
-            public int Priority { get; set; } = ComponentPriority.PostInitializer;
-
-            public BindableCollectionAdapter? Target => GetAdapter();
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void OnBeginBatchUpdate(ICollection collection) => GetAdapter()?.BeginBatchUpdate(_version);
-
-            public void OnEndBatchUpdate(ICollection collection) => GetAdapter()?.EndBatchUpdate(_version);
-
-            public void OnItemChanged(ICollection collection, object? item, int index, object? args)
-            {
-                var adapter = GetAdapter();
-                if (adapter != null && !adapter.IgnoreItemChangedEvent)
-                    adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
-            }
-
-            public void OnAdded(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
-
-            public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
-
-            public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) => GetAdapter()?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
-
-            public void OnRemoved(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
-
-            public void OnReset(ICollection collection, IEnumerable<object?>? items) => GetAdapter()?.AddEvent(CollectionChangedEvent.Reset(items), _version);
-
-            #endregion
-
-            #region Methods
-
-            public void SetVersion(int version) => _version = version;
-
-            public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
-            {
-                if (sender == null)
-                    return;
-
-                var adapter = GetAdapter();
-                if (adapter == null || !adapter.IsAlive)
-                    ((INotifyCollectionChanged) sender).CollectionChanged -= OnCollectionChanged;
-                else
-                    adapter.OnCollectionChanged(sender, args, _version);
-            }
-
-            protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd(owner);
-
-            protected BindableCollectionAdapter? GetAdapter()
-            {
-                var adapter = (BindableCollectionAdapter?) _reference.Target;
-                if (adapter == null || !adapter.IsAlive)
-                {
-                    (OwnerOptional as IComponentOwner)?.Components.Remove(this);
-                    return null;
-                }
-
-                return adapter;
-            }
-
-            #endregion
-        }
+        void IThreadDispatcherHandler.Execute(object? state) => ExecutePendingEvents((int) state!);
 
         [StructLayout(LayoutKind.Auto)]
         protected readonly struct CollectionChangedEvent
         {
-            #region Fields
-
             public readonly CollectionChangedAction Action;
             public readonly int NewIndex;
             public readonly object? NewItem;
             public readonly int OldIndex;
             public readonly object? OldItem;
-
-            #endregion
-
-            #region Constructors
 
             public CollectionChangedEvent(CollectionChangedAction action, object? oldItem, object? newItem, int oldIndex, int newIndex)
             {
@@ -473,19 +372,11 @@ namespace MugenMvvm.Collections
                 NewIndex = newIndex;
             }
 
-            #endregion
-
-            #region Properties
-
             public bool IsEmpty => Action == 0;
 
             public IEnumerable<object?>? ResetItems => (IEnumerable<object?>?) NewItem;
 
             public object? ChangedArgs => NewItem;
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public bool Raise(BindableCollectionAdapter adapter, bool batchUpdate, int version)
             {
@@ -547,10 +438,6 @@ namespace MugenMvvm.Collections
                 return true;
             }
 
-            #endregion
-
-            #region Methods
-
             public static CollectionChangedEvent Changed(object? item, int index, object? args) => new(CollectionChangedAction.Changed, item, args, index, index);
 
             public static CollectionChangedEvent Add(object? item, int index) => new(CollectionChangedAction.Add, item, item, index, index);
@@ -562,20 +449,73 @@ namespace MugenMvvm.Collections
             public static CollectionChangedEvent Remove(object? item, int index) => new(CollectionChangedAction.Remove, item, item, index, index);
 
             public static CollectionChangedEvent Reset(IEnumerable<object?>? items) => new(CollectionChangedAction.Reset, null, items, -1, -1);
-
-            #endregion
         }
 
-        protected enum CollectionChangedAction
+        protected class WeakListener : AttachableComponentBase<ICollection>, IHasTarget<BindableCollectionAdapter?>, ICollectionBatchUpdateListener, ICollectionDecoratorListener,
+            IHasPriority
         {
-            Add = 1,
-            Move = 2,
-            Remove = 3,
-            Replace = 4,
-            Reset = 5,
-            Changed = 6
-        }
+            private readonly IWeakReference _reference;
+            private int _version;
 
-        #endregion
+            public WeakListener(BindableCollectionAdapter adapter)
+            {
+                _reference = adapter.ToWeakReference();
+            }
+
+            public int Priority { get; set; } = ComponentPriority.PostInitializer;
+
+            public BindableCollectionAdapter? Target => GetAdapter();
+
+            public void SetVersion(int version) => _version = version;
+
+            public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
+            {
+                if (sender == null)
+                    return;
+
+                var adapter = GetAdapter();
+                if (adapter == null || !adapter.IsAlive)
+                    ((INotifyCollectionChanged) sender).CollectionChanged -= OnCollectionChanged;
+                else
+                    adapter.OnCollectionChanged(sender, args, _version);
+            }
+
+            public void OnBeginBatchUpdate(ICollection collection) => GetAdapter()?.BeginBatchUpdate(_version);
+
+            public void OnEndBatchUpdate(ICollection collection) => GetAdapter()?.EndBatchUpdate(_version);
+
+            public void OnItemChanged(ICollection collection, object? item, int index, object? args)
+            {
+                var adapter = GetAdapter();
+                if (adapter != null && !adapter.IgnoreItemChangedEvent)
+                    adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
+            }
+
+            public void OnAdded(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
+
+            public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) =>
+                GetAdapter()?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
+
+            public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) =>
+                GetAdapter()?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
+
+            public void OnRemoved(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
+
+            public void OnReset(ICollection collection, IEnumerable<object?>? items) => GetAdapter()?.AddEvent(CollectionChangedEvent.Reset(items), _version);
+
+            protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd(owner);
+
+            protected BindableCollectionAdapter? GetAdapter()
+            {
+                var adapter = (BindableCollectionAdapter?) _reference.Target;
+                if (adapter == null || !adapter.IsAlive)
+                {
+                    (OwnerOptional as IComponentOwner)?.Components.Remove(this);
+                    return null;
+                }
+
+                return adapter;
+            }
+        }
     }
 }

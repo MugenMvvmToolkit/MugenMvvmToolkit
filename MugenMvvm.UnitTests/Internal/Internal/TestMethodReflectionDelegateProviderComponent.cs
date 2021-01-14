@@ -10,32 +10,18 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public class TestMethodReflectionDelegateProviderComponent : IMethodReflectionDelegateProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IReflectionManager? _reflectionManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestMethodReflectionDelegateProviderComponent(IReflectionManager? reflectionManager)
         {
             _reflectionManager = reflectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public Func<MethodInfo, Func<object?, ItemOrArray<object?>, object?>?>? TryGetMethodInvoker { get; set; }
 
         public Func<MethodInfo, Type, Delegate?>? TryGetMethodInvoker1 { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         Func<object?, ItemOrArray<object?>, object?>? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method)
         {
@@ -48,7 +34,5 @@ namespace MugenMvvm.UnitTests.Internal.Internal
             _reflectionManager?.ShouldEqual(reflectionManager);
             return TryGetMethodInvoker1?.Invoke(method, delegateType);
         }
-
-        #endregion
     }
 }

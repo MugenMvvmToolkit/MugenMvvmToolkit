@@ -20,13 +20,7 @@ namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class ExtensionMethodMemberProvider : AttachableComponentBase<IMemberManager>, IMemberProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly HashSet<Type> _types;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ExtensionMethodMemberProvider()
@@ -37,17 +31,24 @@ namespace MugenMvvm.Bindings.Members.Components
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = MemberComponentPriority.Extension;
 
-        #endregion
+        public void Add(Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (_types.Add(type))
+                OwnerOptional.TryInvalidateCache();
+        }
 
-        #region Implementation of interfaces
+        public void Remove(Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (_types.Remove(type))
+                OwnerOptional.TryInvalidateCache();
+        }
 
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+            IReadOnlyMetadataContext? metadata)
         {
             if (!memberTypes.HasFlag(MemberType.Method))
                 return default;
@@ -88,24 +89,6 @@ namespace MugenMvvm.Bindings.Members.Components
             return members.ToItemOrList();
         }
 
-        #endregion
-
-        #region Methods
-
-        public void Add(Type type)
-        {
-            Should.NotBeNull(type, nameof(type));
-            if (_types.Add(type))
-                OwnerOptional.TryInvalidateCache();
-        }
-
-        public void Remove(Type type)
-        {
-            Should.NotBeNull(type, nameof(type));
-            if (_types.Remove(type))
-                OwnerOptional.TryInvalidateCache();
-        }
-
         private MethodInfo? TryMakeGenericMethod(MethodInfo method, Type type, out Type[]? genericArguments)
         {
             try
@@ -122,7 +105,5 @@ namespace MugenMvvm.Bindings.Members.Components
                 return null;
             }
         }
-
-        #endregion
     }
 }

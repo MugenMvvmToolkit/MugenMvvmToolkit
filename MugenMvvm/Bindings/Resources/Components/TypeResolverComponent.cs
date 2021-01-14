@@ -12,8 +12,6 @@ namespace MugenMvvm.Bindings.Resources.Components
 {
     public sealed class TypeResolverComponent : ITypeResolverComponent, IHasPriority
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public TypeResolverComponent()
         {
@@ -60,27 +58,9 @@ namespace MugenMvvm.Bindings.Resources.Components
             AddType(typeof(Environment));
         }
 
-        #endregion
-
-        #region Properties
-
         public IDictionary<string, Type> Types { get; }
 
         public int Priority { get; set; } = ResourceComponentPriority.TypeResolver;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public Type? TryGetType(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            Types.TryGetValue(name, out var value);
-            return value;
-        }
-
-        #endregion
-
-        #region Methods
 
         public void AddType(Type type, string? alias = null)
         {
@@ -93,6 +73,10 @@ namespace MugenMvvm.Bindings.Resources.Components
                 Types[alias] = type;
         }
 
-        #endregion
+        public Type? TryGetType(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            Types.TryGetValue(name, out var value);
+            return value;
+        }
     }
 }

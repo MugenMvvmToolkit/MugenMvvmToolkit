@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class MultiAttachableComponentTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -38,29 +36,6 @@ namespace MugenMvvm.UnitTests.Components
                 testAttachableComponent.Owners.AsList().ShouldEqual(owners.Take(i + 1).ToArray());
                 methodCallCount.ShouldEqual(i + 1);
             }
-        }
-
-        [Fact]
-        public void OnAttachingShouldCallInternalMethod()
-        {
-            var methodCallCount = 0;
-            var canAttach = false;
-            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>();
-            testAttachableComponent.OnAttachingHandler = (test, context) =>
-            {
-                ++methodCallCount;
-                test.ShouldEqual(this);
-                context.ShouldEqual(DefaultMetadata);
-                return canAttach;
-            };
-
-            IAttachableComponent attachable = testAttachableComponent;
-            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
-            methodCallCount.ShouldEqual(1);
-
-            canAttach = true;
-            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
-            methodCallCount.ShouldEqual(2);
         }
 
         [Theory]
@@ -101,6 +76,29 @@ namespace MugenMvvm.UnitTests.Components
         }
 
         [Fact]
+        public void OnAttachingShouldCallInternalMethod()
+        {
+            var methodCallCount = 0;
+            var canAttach = false;
+            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>();
+            testAttachableComponent.OnAttachingHandler = (test, context) =>
+            {
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+                return canAttach;
+            };
+
+            IAttachableComponent attachable = testAttachableComponent;
+            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
+            methodCallCount.ShouldEqual(1);
+
+            canAttach = true;
+            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
+            methodCallCount.ShouldEqual(2);
+        }
+
+        [Fact]
         public void OnDetachingShouldCallInternalMethod()
         {
             var methodCallCount = 0;
@@ -124,7 +122,5 @@ namespace MugenMvvm.UnitTests.Components
             attachable.OnDetaching(this, DefaultMetadata).ShouldEqual(canDetach);
             methodCallCount.ShouldEqual(2);
         }
-
-        #endregion
     }
 }

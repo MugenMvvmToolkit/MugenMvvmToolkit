@@ -13,14 +13,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
 {
     public abstract class MultiPathObserverBase : ObserverBase, IEventListener, IValueHolder<IWeakReference>
     {
-        #region Fields
-
         protected IMemberInfo[]? Members;
         protected object? PenultimateValueOrException;
-
-        #endregion
-
-        #region Constructors
 
         protected MultiPathObserverBase(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
             : base(target, memberFlags)
@@ -32,31 +26,9 @@ namespace MugenMvvm.Bindings.Observation.Observers
             Path = path;
         }
 
-        #endregion
-
-        #region Properties
-
         public override IMemberPath Path { get; }
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata) => Update();
-
-        #endregion
-
-        #region Methods
-
-        protected abstract void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata);
-
-        protected abstract void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata);
-
-        protected abstract void UnsubscribeLastMember();
-
-        protected abstract void ClearListeners();
 
         public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
@@ -93,6 +65,14 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 return new MemberPathLastMember(e);
             return default;
         }
+
+        protected abstract void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata);
+
+        protected abstract void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata);
+
+        protected abstract void UnsubscribeLastMember();
+
+        protected abstract void ClearListeners();
 
         protected override void OnListenersAdded() => UpdateIfNeed();
 
@@ -221,6 +201,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
             OnPathMembersChanged();
         }
 
-        #endregion
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata) => Update();
     }
 }

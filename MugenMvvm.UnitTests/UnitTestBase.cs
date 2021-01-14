@@ -46,8 +46,6 @@ namespace MugenMvvm.UnitTests
 {
     public class UnitTestBase
     {
-        #region Fields
-
 #if DEBUG
         protected const string ReleaseTest = "NOT SUPPORTED IN DEBUG";
 #else
@@ -57,10 +55,6 @@ namespace MugenMvvm.UnitTests
         protected static readonly ReadOnlyDictionary<string, object?> EmptyDictionary = new(new Dictionary<string, object?>());
         protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(1, ""), null);
         protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
-
-        #endregion
-
-        #region Constructors
 
         public UnitTestBase(ITestOutputHelper? outputHelper = null)
         {
@@ -116,10 +110,6 @@ namespace MugenMvvm.UnitTests
             }
         }
 
-        #endregion
-
-        #region Methods
-
         protected virtual void InitializeThreadDispatcher()
         {
             var threadDispatcher = new ThreadDispatcher();
@@ -141,9 +131,8 @@ namespace MugenMvvm.UnitTests
             GC.Collect();
         }
 
-        protected TestExpressionNode GetTestEqualityExpression(IExpressionEqualityComparer? comparer, int hash)
-        {
-            return new()
+        protected TestExpressionNode GetTestEqualityExpression(IExpressionEqualityComparer? comparer, int hash) =>
+            new()
             {
                 EqualsHandler = (x, y, equalityComparer) =>
                 {
@@ -158,10 +147,7 @@ namespace MugenMvvm.UnitTests
                 },
                 Id = hash
             };
-        }
 
-        protected int GetBaseHashCode(IExpressionNode expression) => expression.ExpressionType.Value * 397 ^ expression.Metadata.Count;
-
-        #endregion
+        protected int GetBaseHashCode(IExpressionNode expression) => (expression.ExpressionType.Value * 397) ^ expression.Metadata.Count;
     }
 }

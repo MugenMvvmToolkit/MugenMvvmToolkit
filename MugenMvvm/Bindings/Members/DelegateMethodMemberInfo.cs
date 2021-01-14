@@ -11,15 +11,9 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class DelegateMethodMemberInfo<TTarget, TReturnValue, TState> : DelegateObservableMemberInfo<TTarget, TState>, IMethodMemberInfo where TTarget : class?
     {
-        #region Fields
-
         private readonly Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, ItemOrIReadOnlyList<IParameterInfo>>? _getParameters;
         private readonly InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, TTarget, TReturnValue> _invoke;
         private readonly TryGetAccessorDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>>? _tryGetAccessor;
-
-        #endregion
-
-        #region Constructors
 
         public DelegateMethodMemberInfo(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, TState state,
             InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, TTarget, TReturnValue> invoke,
@@ -34,19 +28,11 @@ namespace MugenMvvm.Bindings.Members
             _tryGetAccessor = tryGetAccessor;
         }
 
-        #endregion
-
-        #region Properties
+        public override MemberType MemberType => MemberType.Method;
 
         public bool IsGenericMethod => false;
 
         public bool IsGenericMethodDefinition => false;
-
-        public override MemberType MemberType => MemberType.Method;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IParameterInfo> GetParameters()
         {
@@ -73,10 +59,10 @@ namespace MugenMvvm.Bindings.Members
             return null!;
         }
 
-        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, ItemOrIReadOnlyList<object?> args, IReadOnlyMetadataContext? metadata = null) => _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
+        public IAccessorMemberInfo? TryGetAccessor(EnumFlags<ArgumentFlags> argumentFlags, ItemOrIReadOnlyList<object?> args, IReadOnlyMetadataContext? metadata = null) =>
+            _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
 
-        public object? Invoke(object? target, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata = null) => BoxingExtensions.Box(_invoke(this, (TTarget) target!, args, metadata));
-
-        #endregion
+        public object? Invoke(object? target, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata = null) =>
+            BoxingExtensions.Box(_invoke(this, (TTarget) target!, args, metadata));
     }
 }

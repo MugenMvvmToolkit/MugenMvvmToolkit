@@ -10,13 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class MemberTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Member;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -34,7 +28,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             context.Position = endPosition;
             return MemberExpressionNode.Get(expression, context.GetValue(position, endPosition));
         }
-
-        #endregion
     }
 }

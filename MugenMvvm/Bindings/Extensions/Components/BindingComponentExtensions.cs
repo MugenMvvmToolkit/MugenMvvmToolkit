@@ -8,16 +8,12 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class BindingComponentExtensions
     {
-        #region Methods
-
         public static void OnTargetPathMembersChanged(object? components, IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
@@ -191,10 +187,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                {
                     if (c[i] is ITargetValueInterceptorComponent interceptor)
                         value = interceptor.InterceptTargetValue(binding, targetMember, value, metadata);
-                }
             }
             else if (components is ITargetValueInterceptorComponent interceptor)
                 value = interceptor.InterceptTargetValue(binding, targetMember, value, metadata);
@@ -209,10 +203,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                {
                     if (c[i] is ISourceValueInterceptorComponent interceptor)
                         value = interceptor.InterceptSourceValue(binding, sourceMember, value, metadata);
-                }
             }
             else if (components is ISourceValueInterceptorComponent interceptor)
                 value = interceptor.InterceptSourceValue(binding, sourceMember, value, metadata);
@@ -227,10 +219,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                {
                     if (c[i] is ITargetValueSetterComponent setter && setter.TrySetTargetValue(binding, targetMember, newValue, metadata))
                         return true;
-                }
             }
             else if (components is ITargetValueSetterComponent setter && setter.TrySetTargetValue(binding, targetMember, newValue, metadata))
                 return true;
@@ -245,10 +235,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                {
                     if (c[i] is ISourceValueSetterComponent setter && setter.TrySetSourceValue(binding, sourceMember, newValue, metadata))
                         return true;
-                }
             }
             else if (components is ISourceValueSetterComponent setter && setter.TrySetSourceValue(binding, sourceMember, newValue, metadata))
                 return true;
@@ -280,21 +268,24 @@ namespace MugenMvvm.Bindings.Extensions.Components
             }
         }
 
-        public static void OnBeginEvent(this ItemOrArray<IBindingEventHandlerComponent> components, IBindingManager bindingManager, object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        public static void OnBeginEvent(this ItemOrArray<IBindingEventHandlerComponent> components, IBindingManager bindingManager, object? sender, object? message,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             foreach (var c in components)
                 c.OnBeginEvent(bindingManager, sender, message, metadata);
         }
 
-        public static void OnEndEvent(this ItemOrArray<IBindingEventHandlerComponent> components, IBindingManager bindingManager, object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        public static void OnEndEvent(this ItemOrArray<IBindingEventHandlerComponent> components, IBindingManager bindingManager, object? sender, object? message,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             foreach (var c in components)
                 c.OnEndEvent(bindingManager, sender, message, metadata);
         }
 
-        public static void OnEventError(this ItemOrArray<IBindingEventHandlerComponent> components, IBindingManager bindingManager, Exception exception, object? sender, object? message,
+        public static void OnEventError(this ItemOrArray<IBindingEventHandlerComponent> components, IBindingManager bindingManager, Exception exception, object? sender,
+            object? message,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
@@ -319,14 +310,16 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return new ItemOrIReadOnlyList<IBindingBuilder>(expression as IReadOnlyList<IBindingBuilder>);
         }
 
-        public static void Initialize(this ItemOrArray<IBindingExpressionInitializerComponent> components, IBindingManager bindingManager, IBindingExpressionInitializerContext context)
+        public static void Initialize(this ItemOrArray<IBindingExpressionInitializerComponent> components, IBindingManager bindingManager,
+            IBindingExpressionInitializerContext context)
         {
             Should.NotBeNull(context, nameof(context));
             foreach (var c in components)
                 c.Initialize(bindingManager, context);
         }
 
-        public static ItemOrIReadOnlyList<IBinding> TryGetBindings(this ItemOrArray<IBindingHolderComponent> components, IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<IBinding> TryGetBindings(this ItemOrArray<IBindingHolderComponent> components, IBindingManager bindingManager, object target,
+            string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(target, nameof(target));
@@ -342,28 +335,26 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return result.ToItemOrList();
         }
 
-        public static bool TryRegister(this ItemOrArray<IBindingHolderComponent> components, IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public static bool TryRegister(this ItemOrArray<IBindingHolderComponent> components, IBindingManager bindingManager, object? target, IBinding binding,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(binding, nameof(binding));
             foreach (var c in components)
-            {
                 if (c.TryRegister(bindingManager, target, binding, metadata))
                     return true;
-            }
 
             return false;
         }
 
-        public static bool TryUnregister(this ItemOrArray<IBindingHolderComponent> components, IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public static bool TryUnregister(this ItemOrArray<IBindingHolderComponent> components, IBindingManager bindingManager, object? target, IBinding binding,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(binding, nameof(binding));
             foreach (var c in components)
-            {
                 if (c.TryUnregister(bindingManager, target, binding, metadata))
                     return true;
-            }
 
             return false;
         }
@@ -401,7 +392,5 @@ namespace MugenMvvm.Bindings.Extensions.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? TryGetBindingComponent(object? item, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata) =>
             (item as IBindingComponentProvider)?.TryGetComponent(binding, target, source, metadata) ?? item;
-
-        #endregion
     }
 }

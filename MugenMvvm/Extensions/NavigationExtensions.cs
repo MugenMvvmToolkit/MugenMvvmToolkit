@@ -16,8 +16,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         public static object? GetNextNavigationTarget(this INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
             navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
             {
@@ -49,19 +47,16 @@ namespace MugenMvvm.Extensions
 
                 closeMetadata ??= new MetadataContext(metadata) {{NavigationMetadata.ForceClose, true}, {NavigationMetadata.NavigationType, navigationType}};
                 foreach (var result in presenter.DefaultIfNull().TryClose(navigationEntry.Target, default, closeMetadata))
-                {
-                    foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
-                    {
-                        if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
-                            callbacks.Add(navigationCallback);
-                    }
-                }
+                foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
+                    if (navigationCallback.CallbackType == NavigationCallbackType.Closing)
+                        callbacks.Add(navigationCallback);
             }
 
             return callbacks.WhenAll(false, false).AsTask();
         }
 
-        public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
+        public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
+            IReadOnlyMetadataContext? metadata = null)
             where TView : class =>
             navigationDispatcher.GetTopNavigation((navigationType, includePending), (entry, state, m) =>
             {
@@ -70,15 +65,14 @@ namespace MugenMvvm.Extensions
                 if (state.navigationType != null && entry.NavigationType != state.navigationType || !(entry.Target is IViewModelBase viewModel))
                     return null;
                 foreach (var t in MugenService.ViewManager.GetViews(viewModel, m))
-                {
                     if (t.Target is TView view)
                         return view;
-                }
 
                 return null;
             }, metadata);
 
-        public static T? GetTopNavigationTarget<T>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true, IReadOnlyMetadataContext? metadata = null)
+        public static T? GetTopNavigationTarget<T>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
+            IReadOnlyMetadataContext? metadata = null)
             where T : class =>
             navigationDispatcher.GetTopNavigation((navigationType, includePending), (entry, state, m) =>
             {
@@ -89,7 +83,8 @@ namespace MugenMvvm.Extensions
                 return null;
             }, metadata);
 
-        public static TResult? GetTopNavigation<TResult, TState>(this INavigationDispatcher navigationDispatcher, TState state, Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate,
+        public static TResult? GetTopNavigation<TResult, TState>(this INavigationDispatcher navigationDispatcher, TState state,
+            Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate,
             IReadOnlyMetadataContext? metadata = null)
             where TResult : class
         {
@@ -111,10 +106,12 @@ namespace MugenMvvm.Extensions
             return null;
         }
 
-        public static IPresenterResult GetPresenterResult(this INavigationProvider navigationProvider, IViewModelBase viewModel, NavigationType navigationType, IReadOnlyMetadataContext? metadata = null) =>
+        public static IPresenterResult GetPresenterResult(this INavigationProvider navigationProvider, IViewModelBase viewModel, NavigationType navigationType,
+            IReadOnlyMetadataContext? metadata = null) =>
             navigationProvider.GetPresenterResult(viewModel, navigationProvider.GetNavigationId(viewModel), navigationType, metadata);
 
-        public static IPresenterResult GetPresenterResult(this INavigationProvider navigationProvider, object? target, string navigationId, NavigationType navigationType, IReadOnlyMetadataContext? metadata = null) =>
+        public static IPresenterResult GetPresenterResult(this INavigationProvider navigationProvider, object? target, string navigationId, NavigationType navigationType,
+            IReadOnlyMetadataContext? metadata = null) =>
             new PresenterResult(target, navigationId, navigationProvider, navigationType, metadata);
 
         public static string GetNavigationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)
@@ -124,7 +121,8 @@ namespace MugenMvvm.Extensions
             return $"{navigationProvider.Id}/{viewModel.GetId()}";
         }
 
-        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType,
+        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object? target, INavigationProvider navigationProvider, string navigationId,
+            NavigationType navigationType,
             NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
@@ -156,10 +154,8 @@ namespace MugenMvvm.Extensions
                     continue;
 
                 foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata))
-                {
                     if (filter(callback, state))
                         callbacks.Add(callback);
-                }
             }
 
             return callbacks.WhenAll(false, isSerializable).AsTask();
@@ -172,16 +168,12 @@ namespace MugenMvvm.Extensions
                 return new ValueTask<INavigationContext>(r);
 
             foreach (var navigationCallbackListener in callback.GetCallbacks())
-            {
                 if (navigationCallbackListener is NavigationCallbackTaskListener taskListener && taskListener.IsSerializable == isSerializable)
                     return taskListener.Task.AsValueTask();
-            }
 
             var result = new NavigationCallbackTaskListener(isSerializable);
             callback.AddCallback(result);
             return result.Task.AsValueTask();
         }
-
-        #endregion
     }
 }

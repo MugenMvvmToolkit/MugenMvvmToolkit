@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberObserverTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void DefaultShouldBeEmpty()
         {
@@ -47,7 +45,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

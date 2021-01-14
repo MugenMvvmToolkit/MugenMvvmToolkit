@@ -9,15 +9,9 @@ namespace MugenMvvm.Metadata
 {
     public static class ViewModelMetadata
     {
-        #region Fields
-
         private static IMetadataContextKey<string>? _id;
         private static IMetadataContextKey<IViewModelBase?>? _viewModel;
         private static IMetadataContextKey<IViewModelBase?>? _parentViewModel;
-
-        #endregion
-
-        #region Properties
 
         [AllowNull]
         public static IMetadataContextKey<string> Id
@@ -37,16 +31,12 @@ namespace MugenMvvm.Metadata
         public static IMetadataContextKey<IViewModelBase?> ParentViewModel
         {
             get => _parentViewModel ??= GetBuilder(_parentViewModel, nameof(ParentViewModel))
-                .Getter((context, key, v) => (IViewModelBase?) ((IWeakReference?) v)?.Target)
-                .Setter((context, key, oldValue, v) => v.ToWeakReference())
-                .Serializable()
-                .Build();
+                                        .Getter((context, key, v) => (IViewModelBase?) ((IWeakReference?) v)?.Target)
+                                        .Setter((context, key, oldValue, v) => v.ToWeakReference())
+                                        .Serializable()
+                                        .Build();
             set => _parentViewModel = value;
         }
-
-        #endregion
-
-        #region Methods
 
         private static string GetId(IReadOnlyMetadataContext ctx, IMetadataContextKey<string> key, string? value)
         {
@@ -56,7 +46,5 @@ namespace MugenMvvm.Metadata
         }
 
         private static MetadataContextKey.Builder<T> GetBuilder<T>(IMetadataContextKey<T>? _, string name) => MetadataContextKey.Create<T>(typeof(ViewModelMetadata), name);
-
-        #endregion
     }
 }

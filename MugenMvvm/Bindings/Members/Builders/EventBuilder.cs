@@ -11,8 +11,6 @@ namespace MugenMvvm.Bindings.Members.Builders
     [StructLayout(LayoutKind.Auto)]
     public ref struct EventBuilder<TTarget> where TTarget : class?
     {
-        #region Fields
-
         private readonly Type _declaringType;
         private readonly string _name;
         private readonly Type _eventType;
@@ -21,10 +19,6 @@ namespace MugenMvvm.Bindings.Members.Builders
         private RaiseDelegate<INotifiableMemberInfo, TTarget>? _raise;
         private object? _underlyingMember;
         private bool _isStatic;
-
-        #endregion
-
-        #region Constructors
 
         public EventBuilder(string name, Type declaringType, Type eventType)
         {
@@ -40,10 +34,6 @@ namespace MugenMvvm.Bindings.Members.Builders
             _eventType = eventType;
             _underlyingMember = null;
         }
-
-        #endregion
-
-        #region Methods
 
         public EventBuilder<TTarget> Static()
         {
@@ -61,7 +51,8 @@ namespace MugenMvvm.Bindings.Members.Builders
         public EventBuilder<TTarget> WrapMember(IObservableMemberInfo memberInfo)
         {
             Should.NotBeNull(memberInfo, nameof(memberInfo));
-            return CustomImplementation(memberInfo.TryObserve, memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
+            return CustomImplementation(memberInfo.TryObserve,
+                memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
         }
 
         public EventBuilder<TTarget> CustomImplementation(TryObserveDelegate<INotifiableMemberInfo, TTarget> subscribe, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
@@ -114,12 +105,11 @@ namespace MugenMvvm.Bindings.Members.Builders
         }
 
         private string GenerateMemberId(bool isEventId) =>
-            AttachedMemberBuilder.GenerateMemberId(isEventId ? BindingInternalConstant.AttachedEventPrefix : BindingInternalConstant.AttachedHandlerEventPrefix, _declaringType, _name);
+            AttachedMemberBuilder.GenerateMemberId(isEventId ? BindingInternalConstant.AttachedEventPrefix : BindingInternalConstant.AttachedHandlerEventPrefix, _declaringType,
+                _name);
 
         private DelegateObservableMemberInfo<TTarget, TState> Event<TState>(in TState state, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget> tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise = null) =>
             new(_name, _declaringType, _eventType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember, state, false, tryObserve, raise);
-
-        #endregion
     }
 }

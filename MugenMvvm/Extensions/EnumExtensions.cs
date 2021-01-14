@@ -1,19 +1,15 @@
 ﻿// ReSharper disable MethodOverloadWithOptionalParameter
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlag<T>(this EnumFlags<T> flags, long flag) where T : class, IFlagsEnum => (flags.Flags & flag) == flag;
 
@@ -44,7 +40,6 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, ulong> flag) where T : FlagsEnumBase<T, ulong> => (flags.Flags & flag.Flag) == flag.Flag;
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte Value<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => (byte) flags.Flags;
 
@@ -68,7 +63,6 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong Value<T>(this EnumFlags<T> flags, ulong _ = 0) where T : FlagsEnumBase<T, ulong> => (ulong) flags.Flags;
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => GetFlags<T, byte>(flags);
@@ -100,15 +94,11 @@ namespace MugenMvvm.Extensions
         {
             var editor = new ItemOrListEditor<T>();
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
-            {
                 if (flags.HasFlag(value.Flag))
                     editor.Add(value);
-            }
 
             return editor.ToItemOrList();
         }
-
-        #endregion
 
 #if SPAN_API
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,10 +131,8 @@ namespace MugenMvvm.Extensions
         {
             var count = 0;
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
-            {
                 if (flags.HasFlag(value))
                     values[count++] = value;
-            }
 
             return count;
         }

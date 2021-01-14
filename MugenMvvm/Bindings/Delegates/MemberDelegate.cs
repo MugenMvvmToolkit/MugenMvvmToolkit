@@ -23,9 +23,11 @@ namespace MugenMvvm.Bindings.Delegates
     public delegate void SetValueDelegate<in TMember, in TTarget, in TValue>(TMember member, TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
         where TMember : class, IMemberInfo;
 
-    public delegate void ValueChangedDelegate<in TMember, in TTarget, in TValue>(TMember member, TTarget target, TValue oldValue, TValue newValue, IReadOnlyMetadataContext? metadata);
+    public delegate void ValueChangedDelegate<in TMember, in TTarget, in TValue>(TMember member, TTarget target, TValue oldValue, TValue newValue,
+        IReadOnlyMetadataContext? metadata);
 
     public delegate TValue InvokeMethodDelegate<in TMember, in TTarget, out TValue>(TMember member, TTarget target, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata);
 
-    public delegate IAccessorMemberInfo? TryGetAccessorDelegate<in TMember>(TMember member, EnumFlags<ArgumentFlags> argumentFlags, ItemOrIReadOnlyList<object?> args, IReadOnlyMetadataContext? metadata);
+    public delegate IAccessorMemberInfo? TryGetAccessorDelegate<in TMember>(TMember member, EnumFlags<ArgumentFlags> argumentFlags, ItemOrIReadOnlyList<object?> args,
+        IReadOnlyMetadataContext? metadata);
 }

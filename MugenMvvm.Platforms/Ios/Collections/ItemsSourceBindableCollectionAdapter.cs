@@ -10,8 +10,6 @@ namespace MugenMvvm.Ios.Collections
 {
     public class ItemsSourceBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
     {
-        #region Fields
-
         private readonly List<object?> _beforeResetList;
         private readonly HashSet<int> _reloadIndexes;
         private Closure? _closure;
@@ -19,10 +17,6 @@ namespace MugenMvvm.Ios.Collections
         private bool _isInitialized;
         private int _pendingReloadCount;
         private List<(int position, int count)>? _pendingReloads;
-
-        #endregion
-
-        #region Constructors
 
         public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter,
             IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
@@ -36,52 +30,17 @@ namespace MugenMvvm.Ios.Collections
             _reloadIndexes = new HashSet<int>();
         }
 
-        #endregion
-
-        #region Properties
-
         public ICollectionViewAdapter CollectionViewAdapter { get; }
 
         public IDiffableEqualityComparer? DiffableComparer { get; }
 
         protected override bool IsAlive => CollectionViewAdapter.IsAlive;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        int DiffUtil.ICallback.GetOldListSize() => _beforeResetList.Count;
-
-        int DiffUtil.ICallback.GetNewListSize() => Count;
-
-        bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
+        protected static void DisposeIndexPaths(NSIndexPath[] paths)
         {
-            if (DiffableComparer == null)
-                return Equals(_beforeResetList[oldItemPosition], this[newItemPosition]);
-            return DiffableComparer.AreItemsTheSame(_beforeResetList[oldItemPosition], this[newItemPosition]);
+            for (var i = 0; i < paths.Length; i++)
+                paths[i].Dispose();
         }
-
-        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => !_reloadIndexes.Contains(oldItemPosition);
-
-        void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count) => NotifyInserted(finalPosition, count);
-
-        void DiffUtil.IListUpdateCallback.OnRemoved(int position, int count) => NotifyDeleted(position, count);
-
-        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition) => NotifyMoved(fromOriginalPosition, toFinalPosition);
-
-        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool moved)
-        {
-            if (moved)
-                return;
-
-            _pendingReloads ??= new List<(int, int)>();
-            _pendingReloads.Add((finalPosition, count));
-            _pendingReloadCount += count;
-        }
-
-        #endregion
-
-        #region Methods
 
         public virtual void Reload(object? item)
         {
@@ -95,6 +54,8 @@ namespace MugenMvvm.Ios.Collections
             if (_reloadIndexes.Add(index))
                 AddEvent(CollectionChangedEvent.Changed(null, index, null), Version);
         }
+
+        protected virtual NSIndexPath GetIndexPath(int index) => NSIndexPath.FromRowSection(index, 0);
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
@@ -145,8 +106,6 @@ namespace MugenMvvm.Ios.Collections
             CollectionViewAdapter.PerformUpdates(closure.PerformUpdates, closure.EndPerformUpdates);
         }
 
-        protected virtual NSIndexPath GetIndexPath(int index) => NSIndexPath.FromRowSection(index, 0);
-
         protected NSIndexPath[] GetIndexPaths(int startingPosition, int count)
         {
             var indexPaths = new NSIndexPath[count];
@@ -185,20 +144,38 @@ namespace MugenMvvm.Ios.Collections
             DisposeIndexPaths(indexPaths);
         }
 
-        protected static void DisposeIndexPaths(NSIndexPath[] paths)
+        int DiffUtil.ICallback.GetOldListSize() => _beforeResetList.Count;
+
+        int DiffUtil.ICallback.GetNewListSize() => Count;
+
+        bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
         {
-            for (var i = 0; i < paths.Length; i++)
-                paths[i].Dispose();
+            if (DiffableComparer == null)
+                return Equals(_beforeResetList[oldItemPosition], this[newItemPosition]);
+            return DiffableComparer.AreItemsTheSame(_beforeResetList[oldItemPosition], this[newItemPosition]);
         }
 
-        #endregion
+        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => !_reloadIndexes.Contains(oldItemPosition);
 
-        #region Nested types
+        void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count) => NotifyInserted(finalPosition, count);
+
+        void DiffUtil.IListUpdateCallback.OnRemoved(int position, int count) => NotifyDeleted(position, count);
+
+        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition) =>
+            NotifyMoved(fromOriginalPosition, toFinalPosition);
+
+        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool moved)
+        {
+            if (moved)
+                return;
+
+            _pendingReloads ??= new List<(int, int)>();
+            _pendingReloads.Add((finalPosition, count));
+            _pendingReloadCount += count;
+        }
 
         protected sealed class Closure
         {
-            #region Fields
-
             private readonly ItemsSourceBindableCollectionAdapter _adapter;
             private readonly int _version;
 
@@ -206,29 +183,17 @@ namespace MugenMvvm.Ios.Collections
             private Action<bool>? _endPerformUpdates;
             private Action? _performUpdates;
 
-            #endregion
-
-            #region Constructors
-
             private Closure(ItemsSourceBindableCollectionAdapter adapter, int version)
             {
                 _adapter = adapter;
                 _version = version;
             }
 
-            #endregion
-
-            #region Properties
-
             public Action EndBatchUpdate => _endBatchUpdate ??= EndBatchUpdateImpl;
 
             public Action PerformUpdates => _performUpdates ??= PerformUpdatesIml;
 
             public Action<bool> EndPerformUpdates => _endPerformUpdates ??= EndPerformUpdatesImpl;
-
-            #endregion
-
-            #region Methods
 
             public static Closure GetClosure(ItemsSourceBindableCollectionAdapter adapter, int version)
             {
@@ -271,10 +236,6 @@ namespace MugenMvvm.Ios.Collections
             private void PerformUpdatesIml() => _adapter._diffResult.DispatchUpdatesTo(_adapter);
 
             private void EndBatchUpdateImpl() => _adapter.EndBatchUpdate(_version);
-
-            #endregion
         }
-
-        #endregion
     }
 }

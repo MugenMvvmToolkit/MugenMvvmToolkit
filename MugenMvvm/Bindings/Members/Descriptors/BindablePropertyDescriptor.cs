@@ -7,13 +7,7 @@ namespace MugenMvvm.Bindings.Members.Descriptors
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindablePropertyDescriptor<TTarget, TValue> where TTarget : class
     {
-        #region Fields
-
         public readonly string Name;
-
-        #endregion
-
-        #region Constructors
 
         public BindablePropertyDescriptor(string name)
         {
@@ -21,15 +15,7 @@ namespace MugenMvvm.Bindings.Members.Descriptors
             Name = name;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsStatic => typeof(TTarget) == typeof(Type);
-
-        #endregion
-
-        #region Methods
 
         [Pure]
         public BindablePropertyDescriptor<TNewTarget, TValue> Override<TNewTarget>() where TNewTarget : class => new(Name);
@@ -42,7 +28,5 @@ namespace MugenMvvm.Bindings.Members.Descriptors
         public static implicit operator string(BindablePropertyDescriptor<TTarget, TValue> member) => member.Name;
 
         public override string ToString() => Name;
-
-        #endregion
     }
 }

@@ -11,14 +11,8 @@ namespace MugenMvvm.Threading.Components
 {
     public class SynchronizationContextThreadDispatcher : IThreadDispatcherComponent, IHasPriority
     {
-        #region Fields
-
         private readonly SynchronizationContext _synchronizationContext;
         private int? _mainThreadId;
-
-        #endregion
-
-        #region Constructors
 
         public SynchronizationContextThreadDispatcher(SynchronizationContext synchronizationContext, bool isOnMainThread = false)
         {
@@ -30,18 +24,11 @@ namespace MugenMvvm.Threading.Components
                 synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ThreadingComponentPriority.Dispatcher;
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
-            => executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread() || executionMode == ThreadExecutionMode.Background && !IsOnMainThread();
+            => executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread() ||
+               executionMode == ThreadExecutionMode.Background && !IsOnMainThread();
 
         public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -53,10 +40,6 @@ namespace MugenMvvm.Threading.Components
                 return ExecuteBackground(handler, state);
             return false;
         }
-
-        #endregion
-
-        #region Methods
 
         protected virtual bool ExecuteBackground(object handler, object? state)
         {
@@ -151,7 +134,5 @@ namespace MugenMvvm.Threading.Components
                 return SynchronizationContext.Current == _synchronizationContext;
             return _mainThreadId.Value == Environment.CurrentManagedThreadId;
         }
-
-        #endregion
     }
 }

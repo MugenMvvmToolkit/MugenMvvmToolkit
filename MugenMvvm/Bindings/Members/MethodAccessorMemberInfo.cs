@@ -13,8 +13,6 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class MethodAccessorMemberInfo : IAccessorMemberInfo, IHasArgsMemberInfo
     {
-        #region Fields
-
         private readonly ushort _argumentFlags;
         private readonly ItemOrArray<object?> _args;
         private readonly IMethodMemberInfo? _getMethod;
@@ -22,11 +20,8 @@ namespace MugenMvvm.Bindings.Members
         private readonly IMethodMemberInfo? _setMethod;
         private MemberObserver _observer;
 
-        #endregion
-
-        #region Constructors
-
-        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> argumentFlags, Type reflectedType)
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> argumentFlags,
+            Type reflectedType)
         {
             Should.NotBeNull(name, nameof(name));
             if (getMethod == null)
@@ -41,9 +36,9 @@ namespace MugenMvvm.Bindings.Members
             _argumentFlags = argumentFlags.Value();
         }
 
-        #endregion
+        public bool CanRead => _getMethod != null;
 
-        #region Properties
+        public bool CanWrite => _setMethod != null;
 
         public EnumFlags<ArgumentFlags> ArgumentFlags => new(_argumentFlags);
 
@@ -58,34 +53,6 @@ namespace MugenMvvm.Bindings.Members
         public MemberType MemberType => MemberType.Accessor;
 
         public EnumFlags<MemberFlags> AccessModifiers => _getMethod?.AccessModifiers ?? _setMethod!.AccessModifiers;
-
-        public bool CanRead => _getMethod != null;
-
-        public bool CanWrite => _setMethod != null;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (_getMethod != null)
-            {
-                var token = _getMethod.TryObserve(target, listener, metadata);
-                if (!token.IsEmpty)
-                    return token;
-            }
-
-            if (_observer.IsEmpty)
-            {
-                _observer = MugenService
-                    .ObservationManager
-                    .TryGetMemberObserver(_reflectedType, this, metadata)
-                    .NoDoIfEmpty();
-            }
-
-            return _observer.TryObserve(target, listener, metadata);
-        }
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
@@ -127,6 +94,24 @@ namespace MugenMvvm.Bindings.Members
 
         public ItemOrIReadOnlyList<object?> GetArgs() => _args;
 
-        #endregion
+        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (_getMethod != null)
+            {
+                var token = _getMethod.TryObserve(target, listener, metadata);
+                if (!token.IsEmpty)
+                    return token;
+            }
+
+            if (_observer.IsEmpty)
+            {
+                _observer = MugenService
+                            .ObservationManager
+                            .TryGetMemberObserver(_reflectedType, this, metadata)
+                            .NoDoIfEmpty();
+            }
+
+            return _observer.TryObserve(target, listener, metadata);
+        }
     }
 }

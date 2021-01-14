@@ -12,8 +12,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class ConstantTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Constructors
-
         public ConstantTokenParser()
         {
             LiteralToExpression = new Dictionary<string, IExpressionNode>(3, StringComparer.Ordinal)
@@ -24,17 +22,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<string, IExpressionNode> LiteralToExpression { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -43,17 +33,13 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
             var start = context.SkipWhitespacesPosition();
             foreach (var expressionNode in LiteralToExpression)
-            {
                 if (context.IsToken(expressionNode.Key, start, false))
                 {
                     context.Position = start + expressionNode.Key.Length;
                     return expressionNode.Value;
                 }
-            }
 
             return null;
         }
-
-        #endregion
     }
 }

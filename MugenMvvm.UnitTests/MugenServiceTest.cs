@@ -7,73 +7,11 @@ namespace MugenMvvm.UnitTests
 {
     public class MugenServiceTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void InitializeInstanceShouldUseConstantValue()
+        private static void Validate<T>(Func<T> getService, in Type? type) where T : class
         {
-            MugenService.Configuration.Clear<MugenServiceTest>();
-            MugenService.Configuration.InitializeFallback(null);
-            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
-            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
-
-            MugenService.Configuration.InitializeInstance(this);
-            MugenService.Optional<MugenServiceTest>().ShouldEqual(this);
-            MugenService.Instance<MugenServiceTest>().ShouldEqual(this);
-
-            MugenService.Configuration.Clear<MugenServiceTest>();
-            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
-            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
-        }
-
-        [Fact]
-        public void InitializeInstanceShouldUseHasService()
-        {
-            MugenService.Configuration.Clear<MugenServiceTest>();
-            MugenService.Configuration.InitializeFallback(null);
-            var service = new TestHasServiceModel<MugenServiceTest> {Service = this, ServiceOptional = new MugenServiceTest()};
-            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
-            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
-
-            MugenService.Configuration.Initialize(service);
-            MugenService.Optional<MugenServiceTest>().ShouldEqual(service.ServiceOptional);
-            MugenService.Instance<MugenServiceTest>().ShouldEqual(service.Service);
-
-            MugenService.Configuration.Clear<MugenServiceTest>();
-            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
-            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
-        }
-
-        [Fact]
-        public void InitializeInstanceShouldUseFallback()
-        {
-            MugenService.Configuration.Clear<MugenServiceTest>();
-            MugenService.Configuration.InitializeFallback(null);
-            var optional = new MugenServiceTest();
-            var fallback = new TestFallbackServiceConfiguration
-            {
-                Instance = type =>
-                {
-                    type.ShouldEqual(GetType());
-                    return this;
-                },
-                Optional = type =>
-                {
-                    type.ShouldEqual(GetType());
-                    return optional;
-                }
-            };
-            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
-            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
-
-            MugenService.Configuration.InitializeFallback(fallback);
-            MugenService.Configuration.GetFallbackConfiguration().ShouldEqual(fallback);
-            MugenService.Optional<MugenServiceTest>().ShouldEqual(optional);
-            MugenService.Instance<MugenServiceTest>().ShouldEqual(this);
-
-            MugenService.Configuration.InitializeFallback(null);
-            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
-            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
+            MugenService.Configuration.Clear<T>();
+            getService();
+            typeof(T).ShouldEqual(type);
         }
 
         [Fact]
@@ -116,13 +54,71 @@ namespace MugenMvvm.UnitTests
             Validate(() => MugenService.ExpressionCompiler, lastType);
         }
 
-        private static void Validate<T>(Func<T> getService, in Type? type) where T : class
+        [Fact]
+        public void InitializeInstanceShouldUseConstantValue()
         {
-            MugenService.Configuration.Clear<T>();
-            getService();
-            typeof(T).ShouldEqual(type);
+            MugenService.Configuration.Clear<MugenServiceTest>();
+            MugenService.Configuration.InitializeFallback(null);
+            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
+            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
+
+            MugenService.Configuration.InitializeInstance(this);
+            MugenService.Optional<MugenServiceTest>().ShouldEqual(this);
+            MugenService.Instance<MugenServiceTest>().ShouldEqual(this);
+
+            MugenService.Configuration.Clear<MugenServiceTest>();
+            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
+            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
         }
 
-        #endregion
+        [Fact]
+        public void InitializeInstanceShouldUseFallback()
+        {
+            MugenService.Configuration.Clear<MugenServiceTest>();
+            MugenService.Configuration.InitializeFallback(null);
+            var optional = new MugenServiceTest();
+            var fallback = new TestFallbackServiceConfiguration
+            {
+                Instance = type =>
+                {
+                    type.ShouldEqual(GetType());
+                    return this;
+                },
+                Optional = type =>
+                {
+                    type.ShouldEqual(GetType());
+                    return optional;
+                }
+            };
+            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
+            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
+
+            MugenService.Configuration.InitializeFallback(fallback);
+            MugenService.Configuration.GetFallbackConfiguration().ShouldEqual(fallback);
+            MugenService.Optional<MugenServiceTest>().ShouldEqual(optional);
+            MugenService.Instance<MugenServiceTest>().ShouldEqual(this);
+
+            MugenService.Configuration.InitializeFallback(null);
+            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
+            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
+        }
+
+        [Fact]
+        public void InitializeInstanceShouldUseHasService()
+        {
+            MugenService.Configuration.Clear<MugenServiceTest>();
+            MugenService.Configuration.InitializeFallback(null);
+            var service = new TestHasServiceModel<MugenServiceTest> {Service = this, ServiceOptional = new MugenServiceTest()};
+            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
+            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
+
+            MugenService.Configuration.Initialize(service);
+            MugenService.Optional<MugenServiceTest>().ShouldEqual(service.ServiceOptional);
+            MugenService.Instance<MugenServiceTest>().ShouldEqual(service.Service);
+
+            MugenService.Configuration.Clear<MugenServiceTest>();
+            ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
+            MugenService.Optional<MugenServiceTest>().ShouldBeNull();
+        }
     }
 }

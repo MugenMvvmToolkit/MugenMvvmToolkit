@@ -7,13 +7,7 @@ namespace MugenMvvm.Components
 {
     public abstract class AttachableComponentBase<T> : IAttachableComponent, IDetachableComponent where T : class
     {
-        #region Fields
-
         private T? _owner;
-
-        #endregion
-
-        #region Properties
 
         protected T Owner
         {
@@ -34,9 +28,17 @@ namespace MugenMvvm.Components
 
         protected bool IsAttached => _owner != null;
 
-        #endregion
+        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => OwnerOptional == null;
 
-        #region Implementation of interfaces
+        protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => true;
+
+        protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -70,23 +72,5 @@ namespace MugenMvvm.Components
                 Interlocked.CompareExchange(ref _owner, null, o);
             }
         }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => OwnerOptional == null;
-
-        protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => true;
-
-        protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        #endregion
     }
 }

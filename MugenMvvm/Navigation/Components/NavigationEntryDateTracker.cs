@@ -9,13 +9,7 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationEntryDateTracker : INavigationEntryListener, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = NavigationComponentPriority.EntryTracker;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnNavigationEntryAdded(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo) =>
             navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow, out _);
@@ -26,7 +20,5 @@ namespace MugenMvvm.Navigation.Components
         public void OnNavigationEntryRemoved(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
         }
-
-        #endregion
     }
 }

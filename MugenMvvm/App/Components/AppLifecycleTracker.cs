@@ -10,7 +10,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Navigation;
 
@@ -18,16 +17,10 @@ namespace MugenMvvm.App.Components
 {
     public sealed class AppLifecycleTracker : LifecycleTrackerBase<ApplicationLifecycleState, IMugenApplication>, IApplicationLifecycleListener, IHasPriority
     {
-        #region Fields
-
         private readonly IMessenger? _messenger;
         private readonly INavigationDispatcher? _navigationDispatcher;
         private INavigationContext? _backgroundCloseContext;
         private INavigationContext? _backgroundNewContext;
-
-        #endregion
-
-        #region Constructors
 
         public AppLifecycleTracker(INavigationDispatcher? navigationDispatcher = null, IMessenger? messenger = null)
         {
@@ -36,15 +29,23 @@ namespace MugenMvvm.App.Components
             Trackers.Add(TrackAppState);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = AppComponentPriority.LifecycleTracker;
 
-        #endregion
+        private static void TrackAppState(IMugenApplication app, HashSet<ApplicationLifecycleState> states, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state == ApplicationLifecycleState.Activating || state == ApplicationLifecycleState.Activated ||
+                state == ApplicationLifecycleState.Deactivating || state == ApplicationLifecycleState.Deactivated)
+            {
+                states.Remove(ApplicationLifecycleState.Deactivating);
+                states.Remove(ApplicationLifecycleState.Deactivated);
+                states.Remove(ApplicationLifecycleState.Activating);
+                states.Remove(ApplicationLifecycleState.Activated);
+            }
+            else if (state == ApplicationLifecycleState.Initialized)
+                states.Remove(ApplicationLifecycleState.Initializing);
 
-        #region Implementation of interfaces
+            states.Add(state);
+        }
 
         public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -57,7 +58,8 @@ namespace MugenMvvm.App.Components
                 var closeContext = BackgroundCloseContext(application);
                 dispatcher
                     .GetComponents<INavigationCallbackManagerComponent>(metadata)
-                    .TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, InternalConstant.BackgroundNavigationId, NavigationType.Background, application, metadata);
+                    .TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, InternalConstant.BackgroundNavigationId, NavigationType.Background, application,
+                        metadata);
                 dispatcher.OnNavigated(closeContext);
                 closeContext.ClearMetadata(true);
             }
@@ -76,32 +78,12 @@ namespace MugenMvvm.App.Components
             _messenger.DefaultIfNull().Publish(application, lifecycleState, metadata);
         }
 
-        #endregion
-
-        #region Methods
-
-        private static void TrackAppState(IMugenApplication app, HashSet<ApplicationLifecycleState> states, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata)
-        {
-            if (state == ApplicationLifecycleState.Activating || state == ApplicationLifecycleState.Activated ||
-                state == ApplicationLifecycleState.Deactivating || state == ApplicationLifecycleState.Deactivated)
-            {
-                states.Remove(ApplicationLifecycleState.Deactivating);
-                states.Remove(ApplicationLifecycleState.Deactivated);
-                states.Remove(ApplicationLifecycleState.Activating);
-                states.Remove(ApplicationLifecycleState.Activated);
-            }
-            else if (state == ApplicationLifecycleState.Initialized)
-                states.Remove(ApplicationLifecycleState.Initializing);
-
-            states.Add(state);
-        }
-
         private INavigationContext BackgroundNewContext(IMugenApplication application) =>
-            _backgroundNewContext ??= new NavigationContext(application, NavigationProvider.System, InternalConstant.BackgroundNavigationId, NavigationType.Background, NavigationMode.New);
+            _backgroundNewContext ??= new NavigationContext(application, NavigationProvider.System, InternalConstant.BackgroundNavigationId, NavigationType.Background,
+                NavigationMode.New);
 
         private INavigationContext BackgroundCloseContext(IMugenApplication application) =>
-            _backgroundCloseContext ??= new NavigationContext(application, NavigationProvider.System, InternalConstant.BackgroundNavigationId, NavigationType.Background, NavigationMode.Close);
-
-        #endregion
+            _backgroundCloseContext ??= new NavigationContext(application, NavigationProvider.System, InternalConstant.BackgroundNavigationId, NavigationType.Background,
+                NavigationMode.Close);
     }
 }

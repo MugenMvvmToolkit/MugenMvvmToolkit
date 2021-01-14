@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class DelegateParameterInfoTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -42,7 +40,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             parameter.IsDefined(requestType).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
         }
-
-        #endregion
     }
 }

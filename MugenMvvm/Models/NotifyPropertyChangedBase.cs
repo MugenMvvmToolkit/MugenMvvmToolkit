@@ -20,27 +20,15 @@ namespace MugenMvvm.Models
     public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, IThreadDispatcherHandler, ISuspendable,
         IValueHolder<IWeakReference>, IValueHolder<Delegate>, IValueHolder<IDictionary<string, object?>>, IValueHolder<MemberListenerCollection>
     {
-        #region Fields
+        [NonSerialized] [IgnoreDataMember] private bool _isNotificationsDirty;
 
-        [NonSerialized]
-        [IgnoreDataMember]
-        private bool _isNotificationsDirty;
+        [NonSerialized] [IgnoreDataMember] private MemberListenerCollection? _memberListeners;
 
-        [NonSerialized]
-        [IgnoreDataMember]
-        private MemberListenerCollection? _memberListeners;
+        [NonSerialized] [IgnoreDataMember] private int _suspendCount;
 
-        [NonSerialized]
-        [IgnoreDataMember]
-        private int _suspendCount;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        #endregion
-
-        #region Properties
-
-        [IgnoreDataMember]
-        [field: NonSerialized]
-        IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
+        public bool IsSuspended => _suspendCount != 0;
 
         [IgnoreDataMember]
         [field: NonSerialized]
@@ -50,7 +38,9 @@ namespace MugenMvvm.Models
         [field: NonSerialized]
         IDictionary<string, object?>? IValueHolder<IDictionary<string, object?>>.Value { get; set; }
 
-        public bool IsSuspended => _suspendCount != 0;
+        [IgnoreDataMember]
+        [field: NonSerialized]
+        IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
         MemberListenerCollection? IValueHolder<MemberListenerCollection>.Value
         {
@@ -58,15 +48,7 @@ namespace MugenMvvm.Models
             set => _memberListeners = value;
         }
 
-        #endregion
-
-        #region Events
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        #endregion
-
-        #region Implementation of interfaces
+        public void InvalidateProperties() => OnPropertyChanged(Default.EmptyPropertyChangedArgs);
 
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -74,13 +56,17 @@ namespace MugenMvvm.Models
             return new ActionToken((m, _) => ((NotifyPropertyChangedBase) m!).EndSuspend(), this);
         }
 
-        void IThreadDispatcherHandler.Execute(object? state) => OnPropertyChangedInternal((PropertyChangedEventArgs) state!);
+        protected virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)
+        {
+            _memberListeners?.RaisePropertyChanged(this, args);
+            PropertyChanged?.Invoke(this, args);
+        }
 
-        #endregion
-
-        #region Methods
-
-        public void InvalidateProperties() => OnPropertyChanged(Default.EmptyPropertyChangedArgs);
+        protected virtual void OnEndSuspend(bool isDirty)
+        {
+            if (isDirty)
+                InvalidateProperties();
+        }
 
         [NotifyPropertyChangedInvocator]
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) => OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
@@ -99,18 +85,6 @@ namespace MugenMvvm.Models
             PropertyChanged = null;
         }
 
-        protected virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)
-        {
-            _memberListeners?.RaisePropertyChanged(this, args);
-            PropertyChanged?.Invoke(this, args);
-        }
-
-        protected virtual void OnEndSuspend(bool isDirty)
-        {
-            if (isDirty)
-                InvalidateProperties();
-        }
-
         private void EndSuspend()
         {
             if (Interlocked.Decrement(ref _suspendCount) == 0)
@@ -121,6 +95,6 @@ namespace MugenMvvm.Models
             }
         }
 
-        #endregion
+        void IThreadDispatcherHandler.Execute(object? state) => OnPropertyChangedInternal((PropertyChangedEventArgs) state!);
     }
 }

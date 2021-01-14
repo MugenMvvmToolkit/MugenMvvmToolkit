@@ -9,7 +9,25 @@ namespace MugenMvvm.Ios.Collections
 {
     public class CollectionViewManager : ICollectionViewManager
     {
-        #region Implementation of interfaces
+        protected static ItemsSourceBindableCollectionAdapter? GetCollectionAdapter(object collectionView, bool throwIfNotSupported)
+        {
+            if (collectionView is UITableView tableView)
+                return ((MugenTableViewSource) tableView.Source)?.CollectionAdapter;
+            if (collectionView is UICollectionView collection)
+                return ((MugenCollectionViewSource) collection.Source)?.CollectionAdapter;
+            if (throwIfNotSupported)
+                ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().ItemsSource());
+            return null;
+        }
+
+        protected static ICellTemplateSelector GetCellTemplateSelector(UIView view)
+        {
+            var itemTemplateSelector = (ICellTemplateSelector?) view.BindableMembers().ItemTemplateSelector();
+            if (itemTemplateSelector == null)
+                ExceptionManager.ThrowObjectNotInitialized(view, view.BindableMembers().Descriptor.ItemTemplateSelector());
+            itemTemplateSelector.Initialize(view);
+            return itemTemplateSelector;
+        }
 
         public virtual IEnumerable? GetItemsSource(object collectionView) => GetCollectionAdapter(collectionView, true)?.Collection;
 
@@ -48,34 +66,9 @@ namespace MugenMvvm.Ios.Collections
             return null;
         }
 
-        public virtual void SetSelectedItem(object collectionView, object? value) => ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().SelectedItem());
+        public virtual void SetSelectedItem(object collectionView, object? value) =>
+            ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().SelectedItem());
 
         public virtual void ReloadItem(object collectionView, object? item) => GetCollectionAdapter(collectionView, false)?.Reload(item);
-
-        #endregion
-
-        #region Methods
-
-        protected static ItemsSourceBindableCollectionAdapter? GetCollectionAdapter(object collectionView, bool throwIfNotSupported)
-        {
-            if (collectionView is UITableView tableView)
-                return ((MugenTableViewSource) tableView.Source)?.CollectionAdapter;
-            if (collectionView is UICollectionView collection)
-                return ((MugenCollectionViewSource) collection.Source)?.CollectionAdapter;
-            if (throwIfNotSupported)
-                ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().ItemsSource());
-            return null;
-        }
-
-        protected static ICellTemplateSelector GetCellTemplateSelector(UIView view)
-        {
-            var itemTemplateSelector = (ICellTemplateSelector?) view.BindableMembers().ItemTemplateSelector();
-            if (itemTemplateSelector == null)
-                ExceptionManager.ThrowObjectNotInitialized(view, view.BindableMembers().Descriptor.ItemTemplateSelector());
-            itemTemplateSelector.Initialize(view);
-            return itemTemplateSelector;
-        }
-
-        #endregion
     }
 }

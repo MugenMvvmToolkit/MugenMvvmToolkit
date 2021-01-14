@@ -9,8 +9,6 @@ namespace MugenMvvm.Android.Bindings
 {
     public sealed class MenuTemplate : IMenuTemplate
     {
-        #region Properties
-
         public Action<IMenu, object>? ApplyHandler { get; set; }
 
         public Action<IMenu>? ClearHandler { get; set; }
@@ -19,9 +17,16 @@ namespace MugenMvvm.Android.Bindings
 
         public IMenuItemTemplate? ItemTemplate { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public static void ClearMenu(IMenu? menu)
+        {
+            if (menu == null)
+                return;
+            var size = menu.Size();
+            for (var i = 0; i < size; i++)
+                MenuItemTemplate.ClearMenuItem(menu.GetItem(i));
+            menu.Clear();
+            BindingMugenExtensions.ClearBindings(menu, true);
+        }
 
         public void Apply(IMenu menu, object owner)
         {
@@ -38,22 +43,5 @@ namespace MugenMvvm.Android.Bindings
             ClearHandler?.Invoke(menu);
             ClearMenu(menu);
         }
-
-        #endregion
-
-        #region Methods
-
-        public static void ClearMenu(IMenu? menu)
-        {
-            if (menu == null)
-                return;
-            var size = menu.Size();
-            for (var i = 0; i < size; i++)
-                MenuItemTemplate.ClearMenuItem(menu.GetItem(i));
-            menu.Clear();
-            BindingMugenExtensions.ClearBindings(menu, true);
-        }
-
-        #endregion
     }
 }

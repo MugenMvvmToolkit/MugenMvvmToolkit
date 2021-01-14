@@ -12,26 +12,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class SortingCollectionDecoratorTest : UnitTestBase, IComparer<object?>
     {
-        #region Properties
-
         private bool DefaultComparer { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        int IComparer<object?>.Compare(object? x1, object? x2)
-        {
-            var x = (int) x1!;
-            var y = (int) x2!;
-            if (DefaultComparer)
-                return Comparer<int>.Default.Compare(x, y);
-            return y.CompareTo(x);
-        }
-
-        #endregion
-
-        #region Methods
 
         [Theory]
         [InlineData(false)]
@@ -168,12 +149,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.ChangedItems.ShouldEqual(items);
 
             for (var i = 0; i < 10; i++)
+            for (var j = 10; j < 20; j++)
             {
-                for (var j = 10; j < 20; j++)
-                {
-                    observableCollection[i] = observableCollection[j];
-                    tracker.ChangedItems.ShouldEqual(items);
-                }
+                observableCollection[i] = observableCollection[j];
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -233,7 +212,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 tracker.ChangedItems.ShouldEqual(items);
             }
         }
-
 
         [Theory]
         [InlineData(true)]
@@ -418,6 +396,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.ChangedItems.ShouldEqual(items);
         }
 
-        #endregion
+        int IComparer<object?>.Compare(object? x1, object? x2)
+        {
+            var x = (int) x1!;
+            var y = (int) x2!;
+            if (DefaultComparer)
+                return Comparer<int>.Default.Compare(x, y);
+            return y.CompareTo(x);
+        }
     }
 }

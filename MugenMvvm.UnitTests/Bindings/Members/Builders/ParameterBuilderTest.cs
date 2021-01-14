@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     public class ParameterBuilderTest
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -58,7 +56,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var parameter = new ParameterBuilder("", typeof(object)).WithState(this).Build();
             ((DelegateParameterInfo<object?>) parameter).State.ShouldEqual(this);
         }
-
-        #endregion
     }
 }

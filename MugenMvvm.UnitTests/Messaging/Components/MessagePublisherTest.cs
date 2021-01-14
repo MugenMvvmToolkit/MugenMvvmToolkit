@@ -14,8 +14,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
 {
     public class MessagePublisherTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -32,14 +30,12 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             var invokedCount = 0;
             var messengerHandlers = new MessengerHandler[count];
             for (var i = 0; i < messengerHandlers.Length; i++)
-            {
                 messengerHandlers[i] = new MessengerHandler((o, arg3, o1) =>
                 {
                     ++invokedCount;
                     messageContext.ShouldEqual(arg3);
                     return result;
                 }, this, ThreadExecutionMode.Current);
-            }
 
             subscriberComponent.TryGetMessengerHandlers = (type, context) =>
             {
@@ -208,7 +204,5 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             invokedCount.ShouldEqual(6);
             tryGetMessengerHandlersCount.ShouldEqual(3);
         }
-
-        #endregion
     }
 }

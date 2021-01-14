@@ -11,14 +11,8 @@ namespace MugenMvvm.Internal
 {
     public sealed class WeakReferenceManager : ComponentOwnerBase<IWeakReferenceManager>, IWeakReferenceManager, IHasComponentAddedHandler, IHasComponentRemovedHandler
     {
-        #region Fields
-
         private readonly ComponentTracker _componentTracker;
         private ItemOrArray<IWeakReferenceProviderComponent> _components;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public WeakReferenceManager(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
@@ -27,14 +21,6 @@ namespace MugenMvvm.Internal
             _componentTracker.AddListener<IWeakReferenceProviderComponent, WeakReferenceManager>((components, state, _) => state._components = components, this);
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
-
-        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
-
         public IWeakReference? TryGetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
         {
             if (item == null)
@@ -42,6 +28,10 @@ namespace MugenMvvm.Internal
             return _components.TryGetWeakReference(this, item, metadata);
         }
 
-        #endregion
+        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(component, collection, metadata);
+
+        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(component, collection, metadata);
     }
 }

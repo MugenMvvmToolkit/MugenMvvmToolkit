@@ -2,8 +2,6 @@
 {
     public static class InternalComponentPriority
     {
-        #region Fields
-
         public const int WeakReferenceProvider = 0;
         public const int DelegateProvider = 0;
         public const int DelegateProviderCache = ComponentPriority.Cache;
@@ -14,7 +12,5 @@
         public const int MetadataOwnerAttachedValueProvider = 1;
         public const int WeakTableAttachedValueProvider = -1;
         public const int StaticTypeAttachedValueProvider = 3;
-
-        #endregion
     }
 }

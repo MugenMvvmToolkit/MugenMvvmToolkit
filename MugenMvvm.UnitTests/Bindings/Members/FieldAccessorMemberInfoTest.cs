@@ -10,17 +10,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class FieldAccessorMemberInfoTest : UnitTestBase
     {
-        #region Fields
-
-        public string? Field1;
-        public int Field2;
-
         public static string? Field1Static;
         public static int Field2Static;
 
-        #endregion
-
-        #region Methods
+        public string? Field1;
+        public int Field2;
 
         [Theory]
         [InlineData(nameof(Field1))]
@@ -149,7 +143,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 Field2Static.ShouldEqual(int.MaxValue);
             }
         }
-
-        #endregion
     }
 }

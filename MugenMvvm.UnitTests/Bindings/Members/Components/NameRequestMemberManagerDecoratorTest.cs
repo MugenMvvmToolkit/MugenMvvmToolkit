@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class NameRequestMemberManagerDecoratorTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
@@ -70,7 +68,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

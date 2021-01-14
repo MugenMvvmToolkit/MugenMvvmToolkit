@@ -9,15 +9,9 @@ namespace MugenMvvm.Android.Native
     [Register("com/mugen/mvvm/MugenInitializerBase", DoNotGenerateAcw = true)]
     public abstract class NativeMugenInitializerBase : Object
     {
-        #region Fields
-
         private static readonly JniPeerMembers _members = new XAPeerMembers("com/mugen/mvvm/MugenInitializerBase", typeof(NativeMugenInitializerBase));
         private static Delegate cb_initialize;
         private static Delegate cb_onTrimMemoryInternal_I;
-
-        #endregion
-
-        #region Constructors
 
         protected NativeMugenInitializerBase(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
         {
@@ -38,10 +32,6 @@ namespace MugenMvvm.Android.Native
             _members.InstanceMethods.FinishCreateInstance(__id, this, null);
         }
 
-        #endregion
-
-        #region Properties
-
         internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
 
         public override JniPeerMembers JniPeerMembers => _members;
@@ -50,10 +40,6 @@ namespace MugenMvvm.Android.Native
 
         protected override Type ThresholdType => _members.ManagedPeerType;
 
-        #endregion
-
-        #region Methods
-
         // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm']/class[@name='MugenInitializerBase']/method[@name='initialize' and count(parameter)=0]"
         [Register("initialize", "()V", "GetInitializeHandler")]
         protected abstract void Initialize();
@@ -61,8 +47,6 @@ namespace MugenMvvm.Android.Native
         // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm']/class[@name='MugenInitializerBase']/method[@name='onTrimMemoryInternal' and count(parameter)=1 and parameter[1][@type='int']]"
         [Register("onTrimMemoryInternal", "(I)V", "GetOnTrimMemoryInternal_IHandler")]
         protected abstract void OnTrimMemory(int level);
-
-        #endregion
 
 #pragma warning disable 0169
         private static Delegate GetInitializeHandler()

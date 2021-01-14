@@ -11,7 +11,13 @@ namespace MugenMvvm.Android.Collections
 {
     public class CollectionViewManager : ICollectionViewManager
     {
-        #region Implementation of interfaces
+        protected static object? GetItemsSourceProvider(View target)
+        {
+            var itemsSourceProvider = ViewGroupMugenExtensions.GetItemsSourceProvider(target);
+            if (itemsSourceProvider != null)
+                return itemsSourceProvider;
+            return ContentItemsSourceGenerator.TryGet(target);
+        }
 
         public virtual IEnumerable? GetItemsSource(object collectionView)
         {
@@ -111,19 +117,5 @@ namespace MugenMvvm.Android.Collections
         public virtual void ReloadItem(object collectionView, object? item)
         {
         }
-
-        #endregion
-
-        #region Methods
-
-        protected static object? GetItemsSourceProvider(View target)
-        {
-            var itemsSourceProvider = ViewGroupMugenExtensions.GetItemsSourceProvider(target);
-            if (itemsSourceProvider != null)
-                return itemsSourceProvider;
-            return ContentItemsSourceGenerator.TryGet(target);
-        }
-
-        #endregion
     }
 }

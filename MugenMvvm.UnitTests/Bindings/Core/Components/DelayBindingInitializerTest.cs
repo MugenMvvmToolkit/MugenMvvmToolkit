@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Bindings.Constants;
+﻿using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
-using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
-using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -14,18 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class DelayBindingInitializerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void InitializeShouldIgnoreEmptyParameters()
-        {
-            var initializer = new DelayBindingInitializer();
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            initializer.Initialize(null!, context);
-            context.Components.ShouldBeEmpty();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -34,7 +19,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             const int delay = 100;
             var initializer = new DelayBindingInitializer();
             var context = new BindingExpressionInitializerContext(this);
-            var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Delay), ConstantExpressionNode.Get(delay));
+            var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Delay),
+                ConstantExpressionNode.Get(delay));
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
             if (ignore)
                 context.Components[BindingParameterNameConstant.Delay] = null;
@@ -60,7 +46,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             const int delay = 100;
             var initializer = new DelayBindingInitializer();
             var context = new BindingExpressionInitializerContext(this);
-            var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetDelay), ConstantExpressionNode.Get(delay));
+            var parameter = new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetDelay),
+                ConstantExpressionNode.Get(delay));
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameter, DefaultMetadata);
             if (ignore)
                 context.Components[BindingParameterNameConstant.TargetDelay] = null;
@@ -78,6 +65,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             component.Delay.ShouldEqual((ushort) delay);
         }
 
-        #endregion
+        [Fact]
+        public void InitializeShouldIgnoreEmptyParameters()
+        {
+            var initializer = new DelayBindingInitializer();
+            var context = new BindingExpressionInitializerContext(this);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            initializer.Initialize(null!, context);
+            context.Components.ShouldBeEmpty();
+        }
     }
 }

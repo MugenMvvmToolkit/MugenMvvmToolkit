@@ -9,7 +9,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
@@ -27,7 +26,34 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class ViewModelCleanerTest : UnitTestBase
     {
-        #region Methods
+        private sealed class TestCleanerViewModel : TestViewModel, IHasService<IBusyManager>, IHasService<IMessenger>, IValueHolder<IWeakReference>
+        {
+            public IBusyManager? BusyManager { get; set; }
+
+            public IMessenger? Messenger { get; set; }
+
+            public IWeakReference? Value { get; set; }
+
+            IBusyManager IHasService<IBusyManager>.Service => throw new NotSupportedException();
+
+            IBusyManager? IHasService<IBusyManager>.ServiceOptional => BusyManager;
+
+            IMessenger IHasService<IMessenger>.Service => throw new NotSupportedException();
+
+            IMessenger? IHasService<IMessenger>.ServiceOptional => Messenger;
+        }
+
+        [Fact]
+        public void ShouldClearAttachedValues()
+        {
+            var manager = new ViewModelManager();
+            manager.AddComponent(new ViewModelCleaner(new ViewManager()));
+            var viewModel = new TestCleanerViewModel();
+            const string attachedPath = "t";
+            MugenService.AttachedValueManager.TryGetAttachedValues(viewModel).Set(attachedPath, this, out _);
+            manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
+            MugenService.AttachedValueManager.TryGetAttachedValues(viewModel).Contains(attachedPath).ShouldBeFalse();
+        }
 
         [Fact]
         public void ShouldClearBusyManager()
@@ -62,18 +88,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         }
 
         [Fact]
-        public void ShouldClearAttachedValues()
-        {
-            var manager = new ViewModelManager();
-            manager.AddComponent(new ViewModelCleaner(new ViewManager()));
-            var viewModel = new TestCleanerViewModel();
-            const string attachedPath = "t";
-            MugenService.AttachedValueManager.TryGetAttachedValues(viewModel).Set(attachedPath, this, out _);
-            manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            MugenService.AttachedValueManager.TryGetAttachedValues(viewModel).Contains(attachedPath).ShouldBeFalse();
-        }
-
-        [Fact]
         public void ShouldClearMetadata()
         {
             var manager = new ViewModelManager();
@@ -82,17 +96,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             viewModel.Metadata.Set(ViewModelMetadata.ViewModel, viewModel);
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             viewModel.Metadata.TryGet(ViewModelMetadata.ViewModel, out var vm).ShouldBeFalse();
-        }
-
-        [Fact]
-        public void ShouldClearWeakReference()
-        {
-            var manager = new ViewModelManager();
-            manager.AddComponent(new ViewModelCleaner(new ViewManager()));
-            var viewModel = new TestCleanerViewModel();
-            viewModel.Value = new WeakReferenceImpl(viewModel, false);
-            manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
-            viewModel.Value.Target.ShouldBeNull();
         }
 
         [Fact]
@@ -127,31 +130,15 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             cleanupCount.ShouldEqual(1);
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestCleanerViewModel : TestViewModel, IHasService<IBusyManager>, IHasService<IMessenger>, IValueHolder<IWeakReference>
+        [Fact]
+        public void ShouldClearWeakReference()
         {
-            #region Properties
-
-            public IBusyManager? BusyManager { get; set; }
-
-            public IMessenger? Messenger { get; set; }
-
-            IBusyManager IHasService<IBusyManager>.Service => throw new NotSupportedException();
-
-            IMessenger IHasService<IMessenger>.Service => throw new NotSupportedException();
-
-            IBusyManager? IHasService<IBusyManager>.ServiceOptional => BusyManager;
-
-            IMessenger? IHasService<IMessenger>.ServiceOptional => Messenger;
-
-            public IWeakReference? Value { get; set; }
-
-            #endregion
+            var manager = new ViewModelManager();
+            manager.AddComponent(new ViewModelCleaner(new ViewManager()));
+            var viewModel = new TestCleanerViewModel();
+            viewModel.Value = new WeakReferenceImpl(viewModel, false);
+            manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
+            viewModel.Value.Target.ShouldBeNull();
         }
-
-        #endregion
     }
 }

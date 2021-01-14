@@ -9,22 +9,12 @@ namespace MugenMvvm.Bindings.Observation.Observers
 {
     public sealed class RootMultiPathObserver : MultiPathObserverBase
     {
-        #region Fields
-
         private ActionToken _unsubscriber;
-
-        #endregion
-
-        #region Constructors
 
         public RootMultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
         }
-
-        #endregion
-
-        #region Methods
 
         protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
         {
@@ -44,7 +34,5 @@ namespace MugenMvvm.Bindings.Observation.Observers
         }
 
         protected override void ClearListeners() => _unsubscriber.Dispose();
-
-        #endregion
     }
 }

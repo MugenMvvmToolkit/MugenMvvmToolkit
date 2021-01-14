@@ -4,8 +4,6 @@ namespace MugenMvvm.Bindings.Constants
 {
     public static class MemberComponentPriority
     {
-        #region Fields
-
         public const int Attached = 10;
         public const int Instance = 0;
         public const int Extension = -10;
@@ -16,7 +14,5 @@ namespace MugenMvvm.Bindings.Constants
         public const int IndexerAccessorDecorator = 100;
         public const int MethodAccessorDecorator = 100;
         public const int Selector = 0;
-
-        #endregion
     }
 }

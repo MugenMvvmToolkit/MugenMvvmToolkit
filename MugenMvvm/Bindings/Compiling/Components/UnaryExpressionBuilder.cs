@@ -14,8 +14,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class UnaryExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        #region Constructors
-
         public UnaryExpressionBuilder()
         {
             Mapping = new Dictionary<UnaryTokenType, Func<Expression, Expression>>
@@ -27,17 +25,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<UnaryTokenType, Func<Expression, Expression>> Mapping { get; }
 
         public int Priority { get; set; } = CompilingComponentPriority.Unary;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
@@ -51,7 +41,5 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             return null;
         }
-
-        #endregion
     }
 }

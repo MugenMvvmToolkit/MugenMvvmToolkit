@@ -9,26 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class EmptyPathObserverTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void GetMembersShouldReturnActualMembers()
-        {
-            var observer = new EmptyPathObserver(this);
-            var members = observer.GetMembers(DefaultMetadata);
-            members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
-            members.Target.ShouldEqual(this);
-        }
-
-        [Fact]
-        public void GetLastMemberShouldReturnActualMembers()
-        {
-            var observer = new EmptyPathObserver(this);
-            var members = observer.GetLastMember(DefaultMetadata);
-            members.Member.ShouldEqual(ConstantMemberInfo.Target);
-            members.Target.ShouldEqual(this);
-        }
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -67,6 +47,24 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         }
 
         [Fact]
+        public void GetLastMemberShouldReturnActualMembers()
+        {
+            var observer = new EmptyPathObserver(this);
+            var members = observer.GetLastMember(DefaultMetadata);
+            members.Member.ShouldEqual(ConstantMemberInfo.Target);
+            members.Target.ShouldEqual(this);
+        }
+
+        [Fact]
+        public void GetMembersShouldReturnActualMembers()
+        {
+            var observer = new EmptyPathObserver(this);
+            var members = observer.GetMembers(DefaultMetadata);
+            members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
+            members.Target.ShouldEqual(this);
+        }
+
+        [Fact]
         public void ObserverShouldIgnoreListeners()
         {
             var emptyPathObserver = new EmptyPathObserver(this);
@@ -77,7 +75,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             emptyPathObserver.RemoveListener(listener);
             emptyPathObserver.GetListeners().IsEmpty.ShouldBeTrue();
         }
-
-        #endregion
     }
 }

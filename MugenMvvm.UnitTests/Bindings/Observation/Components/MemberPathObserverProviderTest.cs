@@ -9,16 +9,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class MemberPathObserverProviderTest : UnitTestBase
     {
-        #region Fields
-
         private const string MethodName = "M";
 
-        #endregion
-
-        #region Methods
-
         [Fact]
-        public void TryGetMemberPathObserverShouldIgnoreUnsupportedRequest() => new MemberPathObserverProvider().TryGetMemberPathObserver(null!, this, this, DefaultMetadata).ShouldBeNull();
+        public void TryGetMemberPathObserverShouldIgnoreUnsupportedRequest() =>
+            new MemberPathObserverProvider().TryGetMemberPathObserver(null!, this, this, DefaultMetadata).ShouldBeNull();
 
         [Fact]
         public void TryGetMemberPathObserverShouldRespectMemberPathObserverRequestParameters1()
@@ -70,7 +65,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             observer.Path.ShouldEqual(path);
             observer.Target.ShouldEqual(this);
         }
-
-        #endregion
     }
 }

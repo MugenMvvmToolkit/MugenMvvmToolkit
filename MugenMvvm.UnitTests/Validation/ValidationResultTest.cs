@@ -8,7 +8,26 @@ namespace MugenMvvm.UnitTests.Validation
 {
     public class ValidationResultTest : UnitTestBase
     {
-        #region Methods
+        [Fact]
+        public void GetErrorsShouldReturnNonReadonlyDictionary()
+        {
+            ValidationResult v = default;
+            var errors = v.GetErrors();
+            errors.Count.ShouldEqual(0);
+            errors.IsReadOnly.ShouldBeFalse();
+
+            v = ValidationResult.Get(new Dictionary<string, object?>());
+            v.GetErrors().ShouldEqual((object) v.Errors!);
+
+            var readonlyDict = new ReadOnlyDictionary<string, object?>(new Dictionary<string, object?>
+            {
+                {"1", new[] {"1"}}
+            });
+            v = ValidationResult.Get(readonlyDict);
+            errors = v.GetErrors();
+            errors.ShouldEqual(readonlyDict);
+            errors.IsReadOnly.ShouldBeFalse();
+        }
 
         [Fact]
         public void HasResultShouldBeFalseDefault()
@@ -41,28 +60,5 @@ namespace MugenMvvm.UnitTests.Validation
             singleResult.SingleMemberErrors.AsList().ShouldEqual(result);
             singleResult.HasResult.ShouldBeTrue();
         }
-
-        [Fact]
-        public void GetErrorsShouldReturnNonReadonlyDictionary()
-        {
-            ValidationResult v = default;
-            var errors = v.GetErrors();
-            errors.Count.ShouldEqual(0);
-            errors.IsReadOnly.ShouldBeFalse();
-
-            v = ValidationResult.Get(new Dictionary<string, object?>());
-            v.GetErrors().ShouldEqual((object) v.Errors!);
-
-            var readonlyDict = new ReadOnlyDictionary<string, object?>(new Dictionary<string, object?>
-            {
-                {"1", new[] {"1"}}
-            });
-            v = ValidationResult.Get(readonlyDict);
-            errors = v.GetErrors();
-            errors.ShouldEqual(readonlyDict);
-            errors.IsReadOnly.ShouldBeFalse();
-        }
-
-        #endregion
     }
 }

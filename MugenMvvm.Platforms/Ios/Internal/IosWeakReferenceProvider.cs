@@ -9,13 +9,7 @@ namespace MugenMvvm.Ios.Internal
 {
     public sealed class IosWeakReferenceProvider : IWeakReferenceProviderComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = InternalComponentPriority.WeakReferenceProvider + 1;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IWeakReference? TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {
@@ -23,7 +17,5 @@ namespace MugenMvvm.Ios.Internal
                 return IosAttachedValueHolder.Get(nsObject, false)!.WeakReference;
             return null;
         }
-
-        #endregion
     }
 }

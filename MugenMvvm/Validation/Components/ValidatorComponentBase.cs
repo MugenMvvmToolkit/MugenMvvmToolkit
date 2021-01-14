@@ -17,20 +17,14 @@ namespace MugenMvvm.Validation.Components
     public abstract class ValidatorComponentBase<TTarget> : MultiAttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IHasDisposeCondition
         where TTarget : class
     {
-        #region Fields
+        private const int DefaultState = 0;
+        private const int NoDisposeState = 1;
+        private const int DisposedState = 2;
 
         private readonly Dictionary<string, object> _errors;
 
         private CancellationTokenSource? _disposeToken;
         private int _state;
-
-        private const int DefaultState = 0;
-        private const int NoDisposeState = 1;
-        private const int DisposedState = 2;
-
-        #endregion
-
-        #region Constructors
 
         protected ValidatorComponentBase(TTarget target)
         {
@@ -38,15 +32,7 @@ namespace MugenMvvm.Validation.Components
             Target = target;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsDisposed => _state == DisposedState;
-
-        public TTarget Target { get; }
-
-        public int Priority { get; set; }
 
         public bool IsDisposable
         {
@@ -60,9 +46,9 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        #endregion
+        public int Priority { get; set; }
 
-        #region Implementation of interfaces
+        public TTarget Target { get; }
 
         public void Dispose()
         {
@@ -145,10 +131,6 @@ namespace MugenMvvm.Validation.Components
                 UpdateErrors(memberName!, null, true, metadata);
         }
 
-        #endregion
-
-        #region Methods
-
         protected abstract ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
@@ -220,10 +202,8 @@ namespace MugenMvvm.Validation.Components
                 lock (_errors)
                 {
                     foreach (var pair in _errors)
-                    {
                         if (!errors.ContainsKey(pair.Key))
                             errors[pair.Key] = null;
-                    }
                 }
             }
             else
@@ -244,7 +224,5 @@ namespace MugenMvvm.Validation.Components
             foreach (var pair in errors)
                 UpdateErrors(pair.Key, pair.Value, true, result.Metadata);
         }
-
-        #endregion
     }
 }

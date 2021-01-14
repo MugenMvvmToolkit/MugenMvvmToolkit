@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class AssignmentTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotAssignExpression()
         {
@@ -27,7 +25,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldBeNull();
         }
 
-
         [Fact]
         public void TryParseShouldParseAssignExpression()
         {
@@ -35,9 +32,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             var ctx = new TokenParserContext {Parsers = new ITokenParserComponent[] {new DigitTokenParser()}};
 
             ctx.Initialize("=1", DefaultMetadata);
-            component.TryParse(ctx, MemberExpressionNode.Empty).ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Empty, ConstantExpressionNode.Get(1)));
+            component.TryParse(ctx, MemberExpressionNode.Empty)
+                     .ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Empty, ConstantExpressionNode.Get(1)));
         }
-
-        #endregion
     }
 }

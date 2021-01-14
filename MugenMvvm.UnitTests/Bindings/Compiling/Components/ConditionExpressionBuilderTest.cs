@@ -9,16 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class ConditionExpressionBuilderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotConditionExpression()
-        {
-            var component = new ConditionExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
-
         [Theory]
         [InlineData(true, 1, 2, 1)]
         [InlineData(false, 1, 2, 2)]
@@ -33,6 +23,14 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         }
 
         [Fact]
+        public void TryBuildShouldIgnoreNotConditionExpression()
+        {
+            var component = new ConditionExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+        }
+
+        [Fact]
         public void TryBuildShouldThrowInvalidException()
         {
             var component = new ConditionExpressionBuilder();
@@ -42,7 +40,5 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var context = new TestExpressionBuilderContext();
             ShouldThrow<InvalidOperationException>(() => component.TryBuild(context, new ConditionExpressionNode(conditionExpression, ifTrueExp, ifFalseExp)));
         }
-
-        #endregion
     }
 }

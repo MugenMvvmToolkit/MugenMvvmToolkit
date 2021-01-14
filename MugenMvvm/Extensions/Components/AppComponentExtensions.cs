@@ -10,10 +10,9 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class AppComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void OnLifecycleChanged(this ItemOrArray<IApplicationLifecycleListener> components, IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state,
+        public static void OnLifecycleChanged(this ItemOrArray<IApplicationLifecycleListener> components, IMugenApplication application, ApplicationLifecycleState lifecycleState,
+            object? state,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(application, nameof(application));
@@ -22,7 +21,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnLifecycleChanged(application, lifecycleState, state, metadata);
         }
 
-        public static void OnUnhandledException(this ItemOrArray<IUnhandledExceptionHandlerComponent> components, IMugenApplication application, Exception exception, UnhandledExceptionType type,
+        public static void OnUnhandledException(this ItemOrArray<IUnhandledExceptionHandlerComponent> components, IMugenApplication application, Exception exception,
+            UnhandledExceptionType type,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(application, nameof(application));
@@ -30,7 +30,5 @@ namespace MugenMvvm.Extensions.Components
             foreach (var c in components)
                 c.OnUnhandledException(application, exception, type, metadata);
         }
-
-        #endregion
     }
 }

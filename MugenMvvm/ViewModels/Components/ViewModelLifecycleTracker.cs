@@ -12,13 +12,7 @@ namespace MugenMvvm.ViewModels.Components
 {
     public sealed class ViewModelLifecycleTracker : IViewModelLifecycleListener, ILifecycleTrackerComponent<ViewModelLifecycleState>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ViewModelComponentPriority.LifecycleTracker;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public bool IsInState(object owner, object target, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
@@ -34,12 +28,11 @@ namespace MugenMvvm.ViewModels.Components
             return false;
         }
 
-        public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Disposed && !(viewModel is ViewModelBase))
                 viewModel.Metadata.Set(InternalMetadata.IsDisposed, true, out _);
         }
-
-        #endregion
     }
 }

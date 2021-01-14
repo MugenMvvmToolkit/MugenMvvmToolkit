@@ -6,15 +6,6 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
 {
     public class TypeResolverComponentTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetResourceValueShouldReturnNullEmpty()
-        {
-            var component = new TypeResolverComponent();
-            component.TryGetType(null!, "test", this, DefaultMetadata).ShouldBeNull();
-        }
-
         [Fact]
         public void TryGetResourceValueAddRemoveResource()
         {
@@ -40,6 +31,11 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
             component.TryGetType(null!, alias, this, DefaultMetadata).ShouldBeNull();
         }
 
-        #endregion
+        [Fact]
+        public void TryGetResourceValueShouldReturnNullEmpty()
+        {
+            var component = new TypeResolverComponent();
+            component.TryGetType(null!, "test", this, DefaultMetadata).ShouldBeNull();
+        }
     }
 }

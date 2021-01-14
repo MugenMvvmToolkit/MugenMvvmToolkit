@@ -20,15 +20,9 @@ namespace MugenMvvm.ViewModels.Components
 {
     public sealed class ViewModelServiceResolver : IViewModelServiceResolverComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IComponentCollectionManager? _componentCollectionManager;
         private readonly IReflectionManager? _reflectionManager;
         private readonly IThreadDispatcher? _threadDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ViewModelServiceResolver(IReflectionManager? reflectionManager = null, IThreadDispatcher? threadDispatcher = null,
@@ -39,15 +33,7 @@ namespace MugenMvvm.ViewModels.Components
             _componentCollectionManager = componentCollectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ViewModelComponentPriority.ServiceResolver;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public object? TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -73,7 +59,5 @@ namespace MugenMvvm.ViewModels.Components
 
             return null;
         }
-
-        #endregion
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Enums;
@@ -12,8 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class RootMultiPathObserverTest : MultiPathObserverTestBase<RootMultiPathObserver>
     {
-        #region Methods
-
         public override void ObserverShouldNotifyListenersLastMember(int count)
         {
             IEventListener? currentListener = null;
@@ -54,14 +51,13 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 
             using var _ = MugenService.AddComponent(component);
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(), 0);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+                disposed => currentListener.ShouldBeNull(), 0);
         }
 
         protected override RootMultiPathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.All, false, false);
 
         protected override RootMultiPathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional) =>
             new(target, path, memberFlags, hasStablePath, optional);
-
-        #endregion
     }
 }

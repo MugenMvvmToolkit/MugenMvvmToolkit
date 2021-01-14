@@ -7,32 +7,18 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 {
     public class TestNavigationEntryListener : INavigationEntryListener
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         public TestNavigationEntryListener(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
         }
 
-        #endregion
-
-        #region Properties
-
         public Action<INavigationEntry, IHasNavigationInfo?>? OnNavigationEntryAdded { get; set; }
 
         public Action<INavigationEntry, IHasNavigationInfo?>? OnNavigationEntryUpdated { get; set; }
 
         public Action<INavigationEntry, IHasNavigationInfo?>? OnNavigationEntryRemoved { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         void INavigationEntryListener.OnNavigationEntryAdded(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
@@ -51,7 +37,5 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
             OnNavigationEntryRemoved?.Invoke(navigationEntry, navigationInfo);
         }
-
-        #endregion
     }
 }

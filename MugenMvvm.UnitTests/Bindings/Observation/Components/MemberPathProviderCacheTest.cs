@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class MemberPathProviderCacheTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryGetMemberPathShouldCacheStringRequest()
         {
@@ -45,7 +43,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             provider.RemoveComponent(decorator);
             decorator.TryGetMemberPath(provider, path.Path, DefaultMetadata).ShouldBeNull();
         }
-
-        #endregion
     }
 }

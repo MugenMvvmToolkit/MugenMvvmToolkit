@@ -5,7 +5,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
 using MugenMvvm.UnitTests.Navigation.Internal;
@@ -16,8 +15,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationCallbackInvokerTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -142,7 +139,5 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 callbackTypes.ShouldContain(NavigationCallbackType.Showing);
             }
         }
-
-        #endregion
     }
 }

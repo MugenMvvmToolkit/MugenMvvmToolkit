@@ -10,23 +10,13 @@ namespace MugenMvvm.Enums
     [StructLayout(LayoutKind.Auto)]
     public readonly struct EnumFlags<T> : IEquatable<EnumFlags<T>>, IComparable<EnumFlags<T>> where T : class, IFlagsEnum
     {
-        #region Fields
-
         public readonly long Flags;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EnumFlags(long value)
         {
             Flags = value;
         }
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >=(EnumFlags<T> left, EnumFlags<T> right) => left.Flags >= right.Flags;
@@ -72,7 +62,6 @@ namespace MugenMvvm.Enums
             StringBuilder? builder = null;
             string? name = null;
             foreach (var @enum in EnumBase.GetAll<T>())
-            {
                 if (this.HasFlag(@enum.Flag))
                 {
                     if (name == null)
@@ -83,14 +72,11 @@ namespace MugenMvvm.Enums
                         builder.Append(@enum.Name).Append(' ').Append('|').Append(' ');
                     }
                 }
-            }
 
             if (builder == null)
                 return name ?? Flags.ToString();
             builder.Remove(builder.Length - 3, 3);
             return builder.ToString();
         }
-
-        #endregion
     }
 }

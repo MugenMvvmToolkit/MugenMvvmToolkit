@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class DefaultTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ValuesShouldBeValid()
         {
@@ -24,7 +22,5 @@ namespace MugenMvvm.UnitTests.Internal
             Default.ResetCollectionEventArgs.Action.ShouldEqual(NotifyCollectionChangedAction.Reset);
             Default.CompletedTask.IsCompleted.ShouldBeTrue();
         }
-
-        #endregion
     }
 }

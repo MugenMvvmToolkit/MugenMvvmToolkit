@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
@@ -13,7 +12,6 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.Requests;
 
@@ -21,15 +19,9 @@ namespace MugenMvvm.Presenters.Components
 {
     public sealed class ViewPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IViewManager? _viewManager;
         private readonly IViewModelManager? _viewModelManager;
-
-        #endregion
-
-        #region Constructors
 
         public ViewPresenterDecorator(IViewManager? viewManager = null, IViewModelManager? viewModelManager = null, INavigationDispatcher? navigationDispatcher = null,
             int priority = PresenterComponentPriority.ViewPresenterDecorator)
@@ -40,15 +32,7 @@ namespace MugenMvvm.Presenters.Components
             _navigationDispatcher = navigationDispatcher;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool DisposeViewModelOnClose { get; set; } = true;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -59,16 +43,12 @@ namespace MugenMvvm.Presenters.Components
             if (canDisposeViewModel && DisposeViewModelOnClose)
             {
                 foreach (var presenterResult in result)
-                {
-                    foreach (var callback in _navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(presenterResult, metadata))
+                foreach (var callback in _navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(presenterResult, metadata))
+                    if (callback.CallbackType == NavigationCallbackType.Close)
                     {
-                        if (callback.CallbackType == NavigationCallbackType.Close)
-                        {
-                            callback.AddCallback(NavigationCallbackDelegateListener.DisposeTargetCallback);
-                            break;
-                        }
+                        callback.AddCallback(NavigationCallbackDelegateListener.DisposeTargetCallback);
+                        break;
                     }
-                }
             }
 
             if (result.IsEmpty && canDisposeViewModel)
@@ -94,11 +74,8 @@ namespace MugenMvvm.Presenters.Components
             return Components.TryClose(presenter, request, cancellationToken, metadata);
         }
 
-        #endregion
-
-        #region Methods
-
-        private IViewModelBase? TryGetViewModel(object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, out object? view, out bool canDisposeViewModel)
+        private IViewModelBase? TryGetViewModel(object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, out object? view,
+            out bool canDisposeViewModel)
         {
             view = null;
             canDisposeViewModel = true;
@@ -122,7 +99,5 @@ namespace MugenMvvm.Presenters.Components
                 return null;
             return _viewModelManager.DefaultIfNull().TryGetViewModel(mappings.Item.ViewModelType, metadata);
         }
-
-        #endregion
     }
 }

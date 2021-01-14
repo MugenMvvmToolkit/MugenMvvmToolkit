@@ -14,15 +14,9 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class EventMemberInfo : IObservableMemberInfo
     {
-        #region Fields
-
         private readonly EventInfo _eventInfo;
         private readonly ushort _modifiers;
         private readonly MemberObserver _observer;
-
-        #endregion
-
-        #region Constructors
 
         public EventMemberInfo(string name, EventInfo eventInfo, MemberObserver observer)
         {
@@ -34,10 +28,6 @@ namespace MugenMvvm.Bindings.Members
             Type = _eventInfo.EventHandlerType ?? typeof(EventHandler);
             _modifiers = _eventInfo.GetAccessModifiers().Value();
         }
-
-        #endregion
-
-        #region Properties
 
         public string Name { get; }
 
@@ -51,12 +41,6 @@ namespace MugenMvvm.Bindings.Members
 
         public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null) => _observer.TryObserve(target, listener!, metadata);
-
-        #endregion
     }
 }

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using Should;
 
@@ -14,22 +12,12 @@ namespace MugenMvvm.UnitTests.Messaging.Internal
 {
     public class TestMessengerSubscriberComponent : IMessengerSubscriberComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IMessenger? _messenger;
-
-        #endregion
-
-        #region Constructors
 
         public TestMessengerSubscriberComponent(IMessenger? messenger = null)
         {
             _messenger = messenger;
         }
-
-        #endregion
-
-        #region Properties
 
         public Func<object?, ThreadExecutionMode?, IReadOnlyMetadataContext?, bool>? TrySubscribe { get; set; }
 
@@ -42,10 +30,6 @@ namespace MugenMvvm.UnitTests.Messaging.Internal
         public Func<IReadOnlyMetadataContext?, ItemOrIReadOnlyList<MessengerSubscriberInfo>>? TryGetSubscribers { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         bool IMessengerSubscriberComponent.TrySubscribe(IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
@@ -76,7 +60,5 @@ namespace MugenMvvm.UnitTests.Messaging.Internal
             _messenger?.ShouldEqual(messenger);
             return TryGetSubscribers?.Invoke(metadata) ?? default;
         }
-
-        #endregion
     }
 }

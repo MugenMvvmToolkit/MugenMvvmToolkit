@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class MetadataContextValueTest : ReadOnlyMetadataContextTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -33,7 +31,5 @@ namespace MugenMvvm.UnitTests.Metadata
             ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             TryGetTest(context, contextKey, 1);
         }
-
-        #endregion
     }
 }

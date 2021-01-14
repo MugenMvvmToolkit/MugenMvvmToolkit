@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -7,20 +6,13 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Bindings.Core
 {
     public class BindingExpressionInitializerContext : MetadataOwnerBase, IBindingExpressionInitializerContext
     {
-        #region Fields
-
         private object? _parameterExpressions;
-
-        #endregion
-
-        #region Constructors
 
         public BindingExpressionInitializerContext(object owner)
             : base(null)
@@ -34,11 +26,13 @@ namespace MugenMvvm.Bindings.Core
             InlineParameters = new Dictionary<string, bool>();
         }
 
-        #endregion
-
-        #region Properties
-
         public object Owner { get; }
+
+        public Dictionary<string, object?> Components { get; }
+
+        public Dictionary<string, IExpressionNode> AssignmentParameters { get; }
+
+        public Dictionary<string, bool> InlineParameters { get; }
 
         public object Target { get; private set; }
 
@@ -60,48 +54,8 @@ namespace MugenMvvm.Bindings.Core
 
         IDictionary<string, object?> IBindingExpressionInitializerContext.Components => Components;
 
-        public Dictionary<string, object?> Components { get; }
-
-        public Dictionary<string, IExpressionNode> AssignmentParameters { get; }
-
-        public Dictionary<string, bool> InlineParameters { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public TValue? TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default)
-        {
-            Should.NotBeNull(parameterName, nameof(parameterName));
-            if (AssignmentParameters.TryGetValue(parameterName, out var node))
-            {
-                if (node is TValue v)
-                    return v;
-
-                if (node is IConstantExpressionNode constant)
-                {
-                    if (constant.Value is TValue value)
-                        return value;
-                    return (TValue?) MugenService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
-                }
-
-                if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)
-                    return (TValue) (object) member.Member;
-
-                ExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
-            }
-
-            if ((typeof(TValue) == typeof(bool?) || typeof(TValue) == typeof(bool)) && InlineParameters.TryGetValue(parameterName, out var b))
-                return MugenExtensions.CastGeneric<bool, TValue>(b);
-
-            return defaultValue;
-        }
-
-        #endregion
-
-        #region Methods
-
-        public void Initialize(object target, object? source, IExpressionNode targetExpression, IExpressionNode? sourceExpression, ItemOrIReadOnlyList<IExpressionNode> parameters, IReadOnlyMetadataContext? metadata)
+        public void Initialize(object target, object? source, IExpressionNode targetExpression, IExpressionNode? sourceExpression, ItemOrIReadOnlyList<IExpressionNode> parameters,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(targetExpression, nameof(targetExpression));
@@ -131,6 +85,33 @@ namespace MugenMvvm.Bindings.Core
             MetadataRaw?.Clear();
         }
 
+        public TValue? TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default)
+        {
+            Should.NotBeNull(parameterName, nameof(parameterName));
+            if (AssignmentParameters.TryGetValue(parameterName, out var node))
+            {
+                if (node is TValue v)
+                    return v;
+
+                if (node is IConstantExpressionNode constant)
+                {
+                    if (constant.Value is TValue value)
+                        return value;
+                    return (TValue?) MugenService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
+                }
+
+                if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)
+                    return (TValue) (object) member.Member;
+
+                ExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
+            }
+
+            if ((typeof(TValue) == typeof(bool?) || typeof(TValue) == typeof(bool)) && InlineParameters.TryGetValue(parameterName, out var b))
+                return MugenExtensions.CastGeneric<bool, TValue>(b);
+
+            return defaultValue;
+        }
+
         private void InitializeParameters(ItemOrIReadOnlyList<IExpressionNode> parameters)
         {
             InlineParameters.Clear();
@@ -154,7 +135,5 @@ namespace MugenMvvm.Bindings.Core
                     break;
             }
         }
-
-        #endregion
     }
 }

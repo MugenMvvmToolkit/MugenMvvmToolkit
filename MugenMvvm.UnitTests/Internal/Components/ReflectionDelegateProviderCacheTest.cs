@@ -12,14 +12,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public class ReflectionDelegateProviderCacheTest : UnitTestBase
     {
-        #region Fields
-
         public static readonly MethodInfo TestMethod = typeof(ReflectionManagerTest).GetMethod(nameof(GetHashCode))!;
         public static readonly ConstructorInfo TestConstructor = typeof(ReflectionManagerTest).GetConstructor(new Type[0])!;
-
-        #endregion
-
-        #region Methods
 
         [Fact]
         public void TryGetActivatorShouldUseCache1()
@@ -192,7 +186,5 @@ namespace MugenMvvm.UnitTests.Internal.Components
             manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

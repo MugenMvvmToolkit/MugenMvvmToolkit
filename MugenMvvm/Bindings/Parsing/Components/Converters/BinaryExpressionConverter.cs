@@ -14,8 +14,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class BinaryExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        #region Constructors
-
         public BinaryExpressionConverter()
         {
             Mapping = new Dictionary<ExpressionType, Func<BinaryExpression, BinaryTokenType>>(23)
@@ -42,17 +40,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<ExpressionType, Func<BinaryExpression, BinaryTokenType>> Mapping { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Binary;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
@@ -61,7 +51,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
             return null;
         }
-
-        #endregion
     }
 }

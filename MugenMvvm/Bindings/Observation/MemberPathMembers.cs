@@ -12,14 +12,8 @@ namespace MugenMvvm.Bindings.Observation
     [StructLayout(LayoutKind.Auto)]
     public readonly ref struct MemberPathMembers
     {
-        #region Fields
-
         private readonly object? _membersRaw;
         private readonly object? _target;
-
-        #endregion
-
-        #region Constructors
 
         public MemberPathMembers(object? target, ItemOrIReadOnlyList<IMemberInfo> members)
         {
@@ -33,10 +27,6 @@ namespace MugenMvvm.Bindings.Observation
             _target = exception;
             _membersRaw = null;
         }
-
-        #endregion
-
-        #region Properties
 
         public bool IsAvailable
         {
@@ -72,10 +62,6 @@ namespace MugenMvvm.Bindings.Observation
             get => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(_membersRaw ?? ConstantMemberInfo.Unset);
         }
 
-        #endregion
-
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ThrowIfError()
         {
@@ -88,7 +74,5 @@ namespace MugenMvvm.Bindings.Observation
 
             return true;
         }
-
-        #endregion
     }
 }

@@ -17,15 +17,9 @@ namespace MugenMvvm.Ios.Presenters
 {
     public class ModalViewPresenter : ViewPresenterBase<UIViewController>
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly MugenAdaptivePresentationControllerDelegate _presentationControllerDelegate;
         private readonly IViewManager? _viewManager;
-
-        #endregion
-
-        #region Constructors
 
         public ModalViewPresenter(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
         {
@@ -34,23 +28,15 @@ namespace MugenMvvm.Ios.Presenters
             _presentationControllerDelegate = new MugenAdaptivePresentationControllerDelegate(this);
         }
 
-        #endregion
-
-        #region Properties
+        public override NavigationType NavigationType => NavigationType.Popup;
 
         public bool Animated { get; set; } = true;
 
         public bool NonModal { get; set; } = true;
 
-        public override NavigationType NavigationType => NavigationType.Popup;
-
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
         protected IViewManager ViewManager => _viewManager.DefaultIfNull();
-
-        #endregion
-
-        #region Methods
 
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
             => base.CanPresent(presenter, viewModel, mapping, metadata) && typeof(IModalView).IsAssignableFrom(mapping.ViewType);
@@ -94,28 +80,14 @@ namespace MugenMvvm.Ios.Presenters
             return Default.CompletedTask;
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class MugenAdaptivePresentationControllerDelegate : UIAdaptivePresentationControllerDelegate
         {
-            #region Fields
-
             private readonly ModalViewPresenter _presenter;
-
-            #endregion
-
-            #region Constructors
 
             public MugenAdaptivePresentationControllerDelegate(ModalViewPresenter presenter)
             {
                 _presenter = presenter;
             }
-
-            #endregion
-
-            #region Methods
 
             public override bool ShouldDismiss(UIPresentationController presentationController)
             {
@@ -124,11 +96,8 @@ namespace MugenMvvm.Ios.Presenters
                 return !request.Cancel.GetValueOrDefault();
             }
 
-            public override void DidDismiss(UIPresentationController presentationController) => _presenter.ViewManager.OnLifecycleChanged(presentationController.PresentedViewController, ViewLifecycleState.Closed);
-
-            #endregion
+            public override void DidDismiss(UIPresentationController presentationController) =>
+                _presenter.ViewManager.OnLifecycleChanged(presentationController.PresentedViewController, ViewLifecycleState.Closed);
         }
-
-        #endregion
     }
 }

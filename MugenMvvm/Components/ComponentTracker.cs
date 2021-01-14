@@ -6,29 +6,14 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
     public sealed class ComponentTracker : IComponentCollectionChangedListener
     {
-        #region Fields
-
         private int _flag;
         private Listener _listener;
         private List<Listener>? _listeners;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentChanged(component, collection, metadata);
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentChanged(component, collection, metadata);
-
-        #endregion
-
-        #region Methods
 
         public void AddListener<T, TState>(Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?> listener, TState state)
             where T : class
@@ -107,25 +92,22 @@ namespace MugenMvvm.Components
                 _listener.OnComponentChanged(component, collection, metadata);
         }
 
-        #endregion
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            OnComponentChanged(component, collection, metadata);
 
-        #region Nested types
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            OnComponentChanged(component, collection, metadata);
 
         [StructLayout(LayoutKind.Auto)]
         private readonly struct Listener
         {
-            #region Fields
-
             private readonly Delegate? _listener;
             private readonly object? _state;
             private readonly Action<bool, Delegate, object?, IComponentCollection, IReadOnlyMetadataContext?>? _update;
             private readonly Func<object, bool>? IsValidComponent;
 
-            #endregion
-
-            #region Constructors
-
-            public Listener(Delegate listener, object? state, Func<object, bool> isValidComponent, Action<bool, Delegate, object?, IComponentCollection, IReadOnlyMetadataContext?> update)
+            public Listener(Delegate listener, object? state, Func<object, bool> isValidComponent,
+                Action<bool, Delegate, object?, IComponentCollection, IReadOnlyMetadataContext?> update)
             {
                 Should.NotBeNull(listener, nameof(listener));
                 _listener = listener;
@@ -134,15 +116,7 @@ namespace MugenMvvm.Components
                 _update = update;
             }
 
-            #endregion
-
-            #region Properties
-
             public bool IsEmpty => _listener == null;
-
-            #endregion
-
-            #region Methods
 
             public void OnComponentChanged(object component, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
             {
@@ -153,10 +127,6 @@ namespace MugenMvvm.Components
             public void Update(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update!(true, _listener!, _state, collection, metadata);
 
             public void Clear(IComponentCollection collection, IReadOnlyMetadataContext? metadata) => _update!(false, _listener!, _state, collection, metadata);
-
-            #endregion
         }
-
-        #endregion
     }
 }

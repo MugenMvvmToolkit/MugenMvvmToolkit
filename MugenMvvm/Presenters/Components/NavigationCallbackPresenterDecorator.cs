@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
@@ -19,13 +18,7 @@ namespace MugenMvvm.Presenters.Components
 {
     public sealed class NavigationCallbackPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public NavigationCallbackPresenterDecorator(INavigationDispatcher? navigationDispatcher = null, int priority = PresenterComponentPriority.CallbackDecorator)
@@ -33,10 +26,6 @@ namespace MugenMvvm.Presenters.Components
         {
             _navigationDispatcher = navigationDispatcher;
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -75,12 +64,7 @@ namespace MugenMvvm.Presenters.Components
             }
         }
 
-        #endregion
-
-        #region Methods
-
-        private ActionToken SuspendNavigation(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata) => navigationDispatcher.GetComponents<ISuspendable>(metadata).Suspend(Owner, metadata);
-
-        #endregion
+        private ActionToken SuspendNavigation(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata) =>
+            navigationDispatcher.GetComponents<ISuspendable>(metadata).Suspend(Owner, metadata);
     }
 }

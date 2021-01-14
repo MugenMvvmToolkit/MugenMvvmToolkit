@@ -9,10 +9,9 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class ViewModelComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void OnLifecycleChanged(this ItemOrArray<IViewModelLifecycleListener> components, IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+        public static void OnLifecycleChanged(this ItemOrArray<IViewModelLifecycleListener> components, IViewModelManager viewModelManager, IViewModelBase viewModel,
+            ViewModelLifecycleState lifecycleState,
             object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
@@ -22,7 +21,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
         }
 
-        public static object? TryGetService(this ItemOrArray<IViewModelServiceResolverComponent> components, IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
+        public static object? TryGetService(this ItemOrArray<IViewModelServiceResolverComponent> components, IViewModelManager viewModelManager, IViewModelBase viewModel,
+            object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
             Should.NotBeNull(viewModel, nameof(viewModel));
@@ -37,7 +37,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IViewModelBase? TryGetViewModel(this ItemOrArray<IViewModelProviderComponent> components, IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
+        public static IViewModelBase? TryGetViewModel(this ItemOrArray<IViewModelProviderComponent> components, IViewModelManager viewModelManager, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
             foreach (var c in components)
@@ -49,7 +50,5 @@ namespace MugenMvvm.Extensions.Components
 
             return null;
         }
-
-        #endregion
     }
 }

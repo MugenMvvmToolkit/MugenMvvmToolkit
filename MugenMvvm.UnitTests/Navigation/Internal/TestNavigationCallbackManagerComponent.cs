@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
@@ -7,31 +6,18 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
-using MugenMvvm.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTests.Navigation.Internal
 {
     public class TestNavigationCallbackManagerComponent : INavigationCallbackManagerComponent, IHasPriority
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         public TestNavigationCallbackManagerComponent(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; }
 
         public Func<NavigationCallbackType, string, NavigationType, object, IReadOnlyMetadataContext?, INavigationCallback?>? TryAddNavigationCallback { get; set; }
 
@@ -43,11 +29,10 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
 
         public Func<NavigationCallbackType, INavigationContext, CancellationToken, bool>? TryInvokeCanceledNavigationCallbacks { get; set; }
 
-        #endregion
+        public int Priority { get; set; }
 
-        #region Implementation of interfaces
-
-        INavigationCallback? INavigationCallbackManagerComponent.TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId,
+        INavigationCallback? INavigationCallbackManagerComponent.TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType,
+            string navigationId,
             NavigationType navigationType,
             object request, IReadOnlyMetadataContext? metadata)
         {
@@ -62,25 +47,26 @@ namespace MugenMvvm.UnitTests.Navigation.Internal
             return TryGetNavigationCallbacks?.Invoke(request, metadata) ?? default;
         }
 
-        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext)
+        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType,
+            INavigationContext navigationContext)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
             return TryInvokeNavigationCallbacks?.Invoke(callbackType, navigationContext) ?? false;
         }
 
-        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception)
+        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType,
+            INavigationContext navigationContext, Exception exception)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
             return TryInvokeExceptionNavigationCallbacks?.Invoke(callbackType, navigationContext, exception) ?? false;
         }
 
-        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext,
+        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType,
+            INavigationContext navigationContext,
             CancellationToken cancellationToken)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
             return TryInvokeCanceledNavigationCallbacks?.Invoke(callbackType, navigationContext, cancellationToken) ?? false;
         }
-
-        #endregion
     }
 }

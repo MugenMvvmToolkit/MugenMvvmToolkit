@@ -13,8 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Convert
 {
     public class GlobalValueConverterTest : ComponentOwnerTestBase<GlobalValueConverter>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -56,7 +54,5 @@ namespace MugenMvvm.UnitTests.Bindings.Convert
         }
 
         protected override GlobalValueConverter GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        #endregion
     }
 }

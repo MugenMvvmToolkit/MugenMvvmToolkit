@@ -10,24 +10,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class LambdaExpressionNode : ExpressionNodeBase<ILambdaExpressionNode>, ILambdaExpressionNode
     {
-        #region Fields
-
         private readonly object? _parameters;
 
-        #endregion
-
-        #region Constructors
-
-        public LambdaExpressionNode(IExpressionNode body, ItemOrIReadOnlyList<IParameterExpressionNode> parameters, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
+        public LambdaExpressionNode(IExpressionNode body, ItemOrIReadOnlyList<IParameterExpressionNode> parameters, IReadOnlyDictionary<string, object?>? metadata = null) :
+            base(metadata)
         {
             Should.NotBeNull(body, nameof(body));
             Body = body;
             _parameters = parameters.GetRawValue();
         }
-
-        #endregion
-
-        #region Properties
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Lambda;
 
@@ -35,9 +26,12 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public IExpressionNode Body { get; }
 
-        #endregion
-
-        #region Methods
+        public override string ToString()
+        {
+            if (Parameters.Count == 0)
+                return "() => " + Body;
+            return $"({string.Join(", ", Parameters.AsList())}) => {Body}";
+        }
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
@@ -51,17 +45,9 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         protected override ILambdaExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new LambdaExpressionNode(Body, Parameters, metadata);
 
-        protected override bool Equals(ILambdaExpressionNode other, IExpressionEqualityComparer? comparer) => Body.Equals(other.Body, comparer) && Equals(Parameters, other.Parameters, comparer);
+        protected override bool Equals(ILambdaExpressionNode other, IExpressionEqualityComparer? comparer) =>
+            Body.Equals(other.Body, comparer) && Equals(Parameters, other.Parameters, comparer);
 
         protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => GetHashCode(hashCode, Body, Parameters, comparer);
-
-        public override string ToString()
-        {
-            if (Parameters.Count == 0)
-                return "() => " + Body;
-            return $"({string.Join(", ", Parameters.AsList())}) => {Body}";
-        }
-
-        #endregion
     }
 }

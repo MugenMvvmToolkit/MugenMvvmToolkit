@@ -13,8 +13,6 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class InternalComponentExtensions
     {
-        #region Methods
-
         public static bool IsInState<T>(this ItemOrArray<ILifecycleTrackerComponent<T>> components, object owner, object target, T state, IReadOnlyMetadataContext? metadata)
             where T : class, IEnum
         {
@@ -22,16 +20,15 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(state, nameof(state));
             foreach (var c in components)
-            {
                 if (c.IsInState(owner, target, state, metadata))
                     return true;
-            }
 
             return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AttachedValueStorage TryGetAttachedValues(this ItemOrArray<IAttachedValueStorageProviderComponent> components, IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
+        public static AttachedValueStorage TryGetAttachedValues(this ItemOrArray<IAttachedValueStorageProviderComponent> components, IAttachedValueManager attachedValueManager,
+            object item, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
             Should.NotBeNull(item, nameof(item));
@@ -45,7 +42,8 @@ namespace MugenMvvm.Extensions.Components
             return default;
         }
 
-        public static Func<ItemOrArray<object?>, object>? TryGetActivator(this ItemOrArray<IActivatorReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, ConstructorInfo constructor)
+        public static Func<ItemOrArray<object?>, object>? TryGetActivator(this ItemOrArray<IActivatorReflectionDelegateProviderComponent> components,
+            IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(constructor, nameof(constructor));
@@ -59,7 +57,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetActivator(this ItemOrArray<IActivatorReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType)
+        public static Delegate? TryGetActivator(this ItemOrArray<IActivatorReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager,
+            ConstructorInfo constructor, Type delegateType)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(constructor, nameof(constructor));
@@ -74,7 +73,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetMemberGetter(this ItemOrArray<IMemberReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
+        public static Delegate? TryGetMemberGetter(this ItemOrArray<IMemberReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MemberInfo member,
+            Type delegateType)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(member, nameof(member));
@@ -89,7 +89,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetMemberSetter(this ItemOrArray<IMemberReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
+        public static Delegate? TryGetMemberSetter(this ItemOrArray<IMemberReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MemberInfo member,
+            Type delegateType)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(member, nameof(member));
@@ -104,7 +105,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(this ItemOrArray<IMethodReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MethodInfo method)
+        public static Func<object?, ItemOrArray<object?>, object?>? TryGetMethodInvoker(this ItemOrArray<IMethodReflectionDelegateProviderComponent> components,
+            IReflectionManager reflectionManager, MethodInfo method)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(method, nameof(method));
@@ -118,7 +120,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Delegate? TryGetMethodInvoker(this ItemOrArray<IMethodReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, MethodInfo method, Type delegateType)
+        public static Delegate? TryGetMethodInvoker(this ItemOrArray<IMethodReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager,
+            MethodInfo method, Type delegateType)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(method, nameof(method));
@@ -133,21 +136,21 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool CanCreateDelegate(this ItemOrArray<IReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, Type delegateType, MethodInfo method)
+        public static bool CanCreateDelegate(this ItemOrArray<IReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, Type delegateType,
+            MethodInfo method)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
             foreach (var c in components)
-            {
                 if (c.CanCreateDelegate(reflectionManager, delegateType, method))
                     return true;
-            }
 
             return false;
         }
 
-        public static Delegate? TryCreateDelegate(this ItemOrArray<IReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, Type delegateType, object? target, MethodInfo method)
+        public static Delegate? TryCreateDelegate(this ItemOrArray<IReflectionDelegateProviderComponent> components, IReflectionManager reflectionManager, Type delegateType,
+            object? target, MethodInfo method)
         {
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             Should.NotBeNull(delegateType, nameof(delegateType));
@@ -181,15 +184,14 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(level, nameof(level));
             foreach (var c in components)
-            {
                 if (c.CanLog(logger, level, metadata))
                     return true;
-            }
 
             return false;
         }
 
-        public static void Log(this ItemOrArray<ILoggerComponent> components, ILogger logger, LogLevel level, object message, Exception? exception, IReadOnlyMetadataContext? metadata)
+        public static void Log(this ItemOrArray<ILoggerComponent> components, ILogger logger, LogLevel level, object message, Exception? exception,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(logger, nameof(logger));
             Should.NotBeNull(level, nameof(level));
@@ -199,7 +201,8 @@ namespace MugenMvvm.Extensions.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IWeakReference? TryGetWeakReference(this ItemOrArray<IWeakReferenceProviderComponent> components, IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
+        public static IWeakReference? TryGetWeakReference(this ItemOrArray<IWeakReferenceProviderComponent> components, IWeakReferenceManager weakReferenceManager, object item,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(weakReferenceManager, nameof(weakReferenceManager));
             Should.NotBeNull(item, nameof(item));
@@ -212,7 +215,5 @@ namespace MugenMvvm.Extensions.Components
 
             return null;
         }
-
-        #endregion
     }
 }

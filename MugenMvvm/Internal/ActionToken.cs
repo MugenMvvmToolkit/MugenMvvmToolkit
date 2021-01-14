@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Collections;
@@ -9,15 +8,9 @@ namespace MugenMvvm.Internal
     [StructLayout(LayoutKind.Auto)]
     public struct ActionToken : IDisposable
     {
-        #region Fields
-
         private object? _handler;
         private object? _state1;
         private object? _state2;
-
-        #endregion
-
-        #region Constructors
 
         private ActionToken(object handler, object? state, object? state2)
         {
@@ -62,17 +55,9 @@ namespace MugenMvvm.Internal
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public readonly bool IsEmpty => _handler == null;
 
         public static ActionToken NoDoToken => new((_, __) => { });
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void Dispose()
         {
@@ -91,10 +76,6 @@ namespace MugenMvvm.Internal
             _state2 = null;
         }
 
-        #endregion
-
-        #region Methods
-
         public void Deconstruct(out object? handler, out object? state1, out object? state2)
         {
             handler = _handler;
@@ -102,15 +83,9 @@ namespace MugenMvvm.Internal
             state2 = _state2;
         }
 
-        #endregion
-
-        #region Nested types
-
         public interface IHandler
         {
             void Invoke(object? state1, object? state2);
         }
-
-        #endregion
     }
 }

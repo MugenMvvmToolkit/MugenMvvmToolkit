@@ -6,27 +6,13 @@ namespace MugenMvvm.Metadata
 {
     public sealed class EmptyMetadataContext : IReadOnlyMetadataContext
     {
-        #region Fields
-
         public static IReadOnlyMetadataContext Instance = new EmptyMetadataContext();
-
-        #endregion
-
-        #region Constructors
 
         private EmptyMetadataContext()
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public int Count => 0;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => default;
 
@@ -37,7 +23,5 @@ namespace MugenMvvm.Metadata
             value = null;
             return false;
         }
-
-        #endregion
     }
 }

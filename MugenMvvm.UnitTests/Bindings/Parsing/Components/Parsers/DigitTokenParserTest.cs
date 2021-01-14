@@ -9,20 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class DigitTokenParserTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryParseShouldIgnoreNotDigitExpression()
-        {
-            var component = new DigitTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new ConstantTokenParser()}
-            };
-            ctx.Initialize("null", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
-        }
-
         [Theory]
         [InlineData("1", 1)]
         [InlineData("1.1", 1.1)]
@@ -57,6 +43,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         }
 
         [Fact]
+        public void TryParseShouldIgnoreNotDigitExpression()
+        {
+            var component = new DigitTokenParser();
+            var ctx = new TokenParserContext
+            {
+                Parsers = new[] {new ConstantTokenParser()}
+            };
+            ctx.Initialize("null", DefaultMetadata);
+            component.TryParse(ctx, null).ShouldBeNull();
+        }
+
+        [Fact]
         public void TryParseShouldParseCustomDigitExpression()
         {
             var invokeCount = 0;
@@ -77,7 +75,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(1));
             invokeCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

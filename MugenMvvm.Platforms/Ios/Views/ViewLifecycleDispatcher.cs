@@ -15,19 +15,14 @@ namespace MugenMvvm.Ios.Views
 {
     public sealed class ViewLifecycleDispatcher : IViewLifecycleListener, IHasPriority
     {
-        #region Properties
+        public bool DisposeView { get; set; } = true;
 
         public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
 
-        public bool DisposeView { get; set; } = true;
-
-        #endregion
-
-        #region Implementation of interfaces
-
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if ((lifecycleState == IosViewLifecycleState.WillAppearing || lifecycleState == IosViewLifecycleState.DidMovedToParentViewController || lifecycleState == IosViewLifecycleState.RemovedFromParentViewController)
+            if ((lifecycleState == IosViewLifecycleState.WillAppearing || lifecycleState == IosViewLifecycleState.DidMovedToParentViewController ||
+                 lifecycleState == IosViewLifecycleState.RemovedFromParentViewController)
                 && MugenExtensions.Unwrap(view) is UIViewController controller)
             {
                 controller.ViewIfLoaded?.RaiseParentChanged();
@@ -36,7 +31,5 @@ namespace MugenMvvm.Ios.Views
             else if (lifecycleState == ViewLifecycleState.Cleared && MugenExtensions.Unwrap(view) is UIViewController c)
                 c.ViewIfLoaded?.ClearBindings(true, DisposeView);
         }
-
-        #endregion
     }
 }

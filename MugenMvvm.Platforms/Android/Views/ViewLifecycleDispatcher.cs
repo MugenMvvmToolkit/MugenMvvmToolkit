@@ -16,14 +16,8 @@ namespace MugenMvvm.Android.Views
 {
     public sealed class ViewLifecycleDispatcher : IViewLifecycleListener, ILifecycleTrackerComponent<ViewLifecycleState>, IHasPriority
     {
-        #region Fields
-
         private readonly IMugenApplication? _application;
         private readonly IPresenter? _presenter;
-
-        #endregion
-
-        #region Constructors
 
         public ViewLifecycleDispatcher(IPresenter? presenter = null, IMugenApplication? application = null)
         {
@@ -31,17 +25,9 @@ namespace MugenMvvm.Android.Views
             _application = application;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ViewComponentPriority.PostInitializer - 1;
-
         public bool FinishNotInitializedView { get; set; } = true;
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; } = ViewComponentPriority.PostInitializer - 1;
 
         public bool IsInState(object owner, object target, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
@@ -76,7 +62,8 @@ namespace MugenMvvm.Android.Views
                     if (!_presenter.DefaultIfNull().TryShow(view, default, metadata).IsEmpty)
                         viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
                 }
-                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view is IActivityView activityView && viewManager.GetViews(view).IsEmpty)
+                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view is IActivityView activityView &&
+                         viewManager.GetViews(view).IsEmpty)
                     activityView.Finish();
             }
 
@@ -89,7 +76,5 @@ namespace MugenMvvm.Android.Views
             else if (lifecycleState == AndroidViewLifecycleState.Started && view is IActivityView && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activated, state, metadata);
         }
-
-        #endregion
     }
 }

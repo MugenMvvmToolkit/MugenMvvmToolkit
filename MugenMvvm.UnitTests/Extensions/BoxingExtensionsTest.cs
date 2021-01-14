@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -8,8 +7,6 @@ namespace MugenMvvm.UnitTests.Extensions
 {
     public class BoxingExtensionsTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void BoxBoolShouldUseCache()
         {
@@ -54,7 +51,5 @@ namespace MugenMvvm.UnitTests.Extensions
             objects.Add(BoxingExtensions.Box(BoxingExtensions.CacheSize + 1));
             objects.Count.ShouldEqual(2);
         }
-
-        #endregion
     }
 }

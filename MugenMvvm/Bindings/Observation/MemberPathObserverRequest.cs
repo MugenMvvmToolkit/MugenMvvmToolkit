@@ -9,13 +9,7 @@ namespace MugenMvvm.Bindings.Observation
 {
     public class MemberPathObserverRequest
     {
-        #region Fields
-
         private ushort _memberFlags;
-
-        #endregion
-
-        #region Constructors
 
         public MemberPathObserverRequest(IMemberPath path, EnumFlags<MemberFlags> memberFlags, string? observableMethodName,
             bool hasStablePath, bool observable, bool optional, IExpressionNode? expression)
@@ -29,10 +23,6 @@ namespace MugenMvvm.Bindings.Observation
             ObservableMethodName = observable ? observableMethodName : null;
             Expression = expression;
         }
-
-        #endregion
-
-        #region Properties
 
         public bool HasStablePath { get; protected set; }
 
@@ -52,7 +42,5 @@ namespace MugenMvvm.Bindings.Observation
         public IMemberPath Path { get; protected set; }
 
         public IExpressionNode? Expression { get; }
-
-        #endregion
     }
 }

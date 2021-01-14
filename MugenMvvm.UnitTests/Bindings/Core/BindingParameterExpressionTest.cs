@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingParameterExpressionTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void DefaultShouldBeEmpty() => default(BindingParameterExpression).IsEmpty.ShouldBeTrue();
 
@@ -79,7 +77,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             bindingParameterValue.Expression.ShouldEqual(exp);
             ((object[]) bindingParameterValue.Parameter!).ShouldEqual(new[] {result1, result2});
         }
-
-        #endregion
     }
 }

@@ -18,13 +18,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 {
     public sealed class MacrosExpressionVisitor : IExpressionVisitor
     {
-        #region Fields
-
         private readonly StringBuilder _memberBuilder;
-
-        #endregion
-
-        #region Constructors
 
         public MacrosExpressionVisitor()
         {
@@ -67,12 +61,6 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             };
         }
 
-        #endregion
-
-        #region Properties
-
-        public ExpressionTraversalType TraversalType => ExpressionTraversalType.Postorder;
-
         public Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>> Macros { get; }
 
         public Dictionary<string, IMethodCallExpressionNode> MethodAliases { get; }
@@ -81,9 +69,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         public Dictionary<string, IExpressionNode> MacrosTargets { get; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public ExpressionTraversalType TraversalType => ExpressionTraversalType.Postorder;
 
         public IExpressionNode? Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
@@ -136,7 +122,5 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
             return expression;
         }
-
-        #endregion
     }
 }

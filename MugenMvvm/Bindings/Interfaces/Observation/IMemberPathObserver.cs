@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Bindings.Observation;
+﻿using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Interfaces.Observation
 {

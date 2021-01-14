@@ -9,16 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class DefaultExpressionConverterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotDefaultExpression()
-        {
-            var component = new DefaultExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
-
         [Fact]
         public void TryConvertShouldConvertConstantExpression()
         {
@@ -27,6 +17,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             component.TryConvert(ctx, Expression.Default(typeof(int))).ShouldEqual(ConstantExpressionNode.Get(0));
         }
 
-        #endregion
+        [Fact]
+        public void TryConvertShouldIgnoreNotDefaultExpression()
+        {
+            var component = new DefaultExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
+        }
     }
 }

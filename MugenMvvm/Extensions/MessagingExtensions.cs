@@ -10,9 +10,8 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
-        public static IMessageContext Publish(this IMessagePublisher publisher, object message, IReadOnlyMetadataContext? metadata = null) => publisher.Publish(null, message, metadata);
+        public static IMessageContext Publish(this IMessagePublisher publisher, object message, IReadOnlyMetadataContext? metadata = null) =>
+            publisher.Publish(null, message, metadata);
 
         public static IMessageContext Publish(this IMessagePublisher publisher, object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
@@ -30,10 +29,12 @@ namespace MugenMvvm.Extensions
             return new ActionToken((m, h) => ((IMessenger) m!).TryUnsubscribe(h!), messenger, subscriber);
         }
 
-        public static ActionToken Subscribe<TMessage>(this IMessenger messenger, Action<object?, TMessage, IMessageContext> action, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null) =>
+        public static ActionToken Subscribe<TMessage>(this IMessenger messenger, Action<object?, TMessage, IMessageContext> action, ThreadExecutionMode? executionMode = null,
+            IReadOnlyMetadataContext? metadata = null) =>
             messenger.Subscribe(new DelegateMessengerHandler<TMessage>(action), executionMode, metadata);
 
-        public static ActionToken SubscribeWeak(this IMessenger messenger, IMessengerHandlerBase subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null) =>
+        public static ActionToken SubscribeWeak(this IMessenger messenger, IMessengerHandlerBase subscriber, ThreadExecutionMode? executionMode = null,
+            IReadOnlyMetadataContext? metadata = null) =>
             messenger.Subscribe(subscriber.ToWeakReference(), executionMode, metadata);
 
         public static ActionToken SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target, Action<TTarget, object?, TMessage, IMessageContext> action,
@@ -44,7 +45,5 @@ namespace MugenMvvm.Extensions
         public static ActionToken SubscribeWeak<TMessage>(this IMessenger messenger, Action<object?, TMessage, IMessageContext> action, ThreadExecutionMode? executionMode = null,
             IReadOnlyMetadataContext? metadata = null) =>
             messenger.Subscribe(new WeakDelegateMessengerHandler<object, TMessage>(action), executionMode, metadata);
-
-        #endregion
     }
 }

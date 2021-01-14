@@ -11,62 +11,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class FilterCollectionDecoratorTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ShouldTrackChangesEmptyFilter()
-        {
-            var observableCollection = new SynchronizedObservableCollection<int>();
-            var decorator = new FilterCollectionDecorator<int>();
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-
-            observableCollection.Add(1);
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-
-            observableCollection.Insert(1, 2);
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-
-            observableCollection.Remove(2);
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-
-            observableCollection.RemoveAt(0);
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-
-            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-
-            observableCollection[0] = 200;
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-
-            observableCollection.Move(1, 2);
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-
-            observableCollection.Clear();
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-        }
-
-        [Fact]
-        public void ShouldTrackChangesSetFilter()
-        {
-            var observableCollection = new SynchronizedObservableCollection<int>
-            {
-                1, 2, 3, 4, 5
-            };
-            var decorator = new FilterCollectionDecorator<int>();
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-
-            decorator.Filter = i => i % 2 == 0;
-
-            tracker.ChangedItems.ShouldEqual(observableCollection.DecorateItems().Cast<int>());
-            tracker.ChangedItems.ShouldEqual(observableCollection.Where(decorator.Filter));
-        }
-
         [Fact]
         public void AddShouldTrackChanges()
         {
@@ -93,7 +37,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
-        public void ReplaceShouldTrackChanges1()
+        public void ClearShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
@@ -107,35 +51,29 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 observableCollection.Add(i);
             tracker.ChangedItems.ShouldEqual(items);
 
-            for (var i = 0; i < 10; i++)
-            {
-                observableCollection[i] = i + 101;
-                tracker.ChangedItems.ShouldEqual(items);
-            }
+            observableCollection.Clear();
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         [Fact]
-        public void ReplaceShouldTrackChanges2()
+        public void ItemChangedShouldTrackChanges()
         {
-            var observableCollection = new SynchronizedObservableCollection<int>();
-            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var observableCollection = new SynchronizedObservableCollection<TestCollectionItem>();
+            var decorator = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
             observableCollection.AddComponent(decorator);
 
-            var tracker = new DecoratorObservableCollectionTracker<int>();
+            var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
             observableCollection.AddComponent(tracker);
             var items = observableCollection.Where(decorator.Filter);
 
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
+                observableCollection.Add(new TestCollectionItem {Id = i});
 
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 100; i++)
             {
-                for (var j = 10; j < 20; j++)
-                {
-                    observableCollection[i] = observableCollection[j];
-                    tracker.ChangedItems.ShouldEqual(items);
-                }
+                observableCollection[i].Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                observableCollection.RaiseItemChanged(observableCollection[i], null);
+                tracker.ChangedItems.ShouldEqual(items);
             }
         }
 
@@ -211,6 +149,51 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
+        public void ReplaceShouldTrackChanges1()
+        {
+            var observableCollection = new SynchronizedObservableCollection<int>();
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            observableCollection.AddComponent(decorator);
+
+            var tracker = new DecoratorObservableCollectionTracker<int>();
+            observableCollection.AddComponent(tracker);
+            var items = observableCollection.Where(decorator.Filter);
+
+            for (var i = 0; i < 100; i++)
+                observableCollection.Add(i);
+            tracker.ChangedItems.ShouldEqual(items);
+
+            for (var i = 0; i < 10; i++)
+            {
+                observableCollection[i] = i + 101;
+                tracker.ChangedItems.ShouldEqual(items);
+            }
+        }
+
+        [Fact]
+        public void ReplaceShouldTrackChanges2()
+        {
+            var observableCollection = new SynchronizedObservableCollection<int>();
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            observableCollection.AddComponent(decorator);
+
+            var tracker = new DecoratorObservableCollectionTracker<int>();
+            observableCollection.AddComponent(tracker);
+            var items = observableCollection.Where(decorator.Filter);
+
+            for (var i = 0; i < 100; i++)
+                observableCollection.Add(i);
+            tracker.ChangedItems.ShouldEqual(items);
+
+            for (var i = 0; i < 10; i++)
+            for (var j = 10; j < 20; j++)
+            {
+                observableCollection[i] = observableCollection[j];
+                tracker.ChangedItems.ShouldEqual(items);
+            }
+        }
+
+        [Fact]
         public void ResetShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
@@ -227,47 +210,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             observableCollection.Reset(new[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.ShouldEqual(items);
-        }
-
-        [Fact]
-        public void ClearShouldTrackChanges()
-        {
-            var observableCollection = new SynchronizedObservableCollection<int>();
-            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.Where(decorator.Filter);
-
-            for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
-
-            observableCollection.Clear();
-            tracker.ChangedItems.ShouldEqual(items);
-        }
-
-        [Fact]
-        public void ItemChangedShouldTrackChanges()
-        {
-            var observableCollection = new SynchronizedObservableCollection<TestCollectionItem>();
-            var decorator = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.Where(decorator.Filter);
-
-            for (var i = 0; i < 100; i++)
-                observableCollection.Add(new TestCollectionItem {Id = i});
-
-            for (var i = 0; i < 100; i++)
-            {
-                observableCollection[i].Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
-                observableCollection.RaiseItemChanged(observableCollection[i], null);
-                tracker.ChangedItems.ShouldEqual(items);
-            }
         }
 
         [Fact]
@@ -306,6 +248,58 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.ChangedItems.ShouldEqual(items);
         }
 
-        #endregion
+        [Fact]
+        public void ShouldTrackChangesEmptyFilter()
+        {
+            var observableCollection = new SynchronizedObservableCollection<int>();
+            var decorator = new FilterCollectionDecorator<int>();
+            observableCollection.AddComponent(decorator);
+
+            var tracker = new DecoratorObservableCollectionTracker<int>();
+            observableCollection.AddComponent(tracker);
+
+            observableCollection.Add(1);
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+
+            observableCollection.Insert(1, 2);
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+
+            observableCollection.Remove(2);
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+
+            observableCollection.RemoveAt(0);
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+
+            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+
+            observableCollection[0] = 200;
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+
+            observableCollection.Clear();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+        }
+
+        [Fact]
+        public void ShouldTrackChangesSetFilter()
+        {
+            var observableCollection = new SynchronizedObservableCollection<int>
+            {
+                1, 2, 3, 4, 5
+            };
+            var decorator = new FilterCollectionDecorator<int>();
+            observableCollection.AddComponent(decorator);
+
+            var tracker = new DecoratorObservableCollectionTracker<int>();
+            observableCollection.AddComponent(tracker);
+
+            decorator.Filter = i => i % 2 == 0;
+
+            tracker.ChangedItems.ShouldEqual(observableCollection.DecorateItems().Cast<int>());
+            tracker.ChangedItems.ShouldEqual(observableCollection.Where(decorator.Filter));
+        }
     }
 }

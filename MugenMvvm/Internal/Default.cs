@@ -13,11 +13,7 @@ namespace MugenMvvm.Internal
 {
     public static class Default
     {
-        #region Fields
-
-        private static readonly int[] EmptySize = {0};
-        private static int _counter;
-        private static readonly Dictionary<Type, Array> EmptyArrayCache = new(InternalEqualityComparer.Type);
+        public static readonly Task CompletedTask = Task.CompletedTask;
 
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new(string.Empty);
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new(nameof(IList.Count));
@@ -26,11 +22,9 @@ namespace MugenMvvm.Internal
         internal static readonly PropertyChangedEventArgs BusyTokenPropertyChangedArgs = new(nameof(ViewModelBase.BusyToken));
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new(NotifyCollectionChangedAction.Reset);
 
-        public static readonly Task CompletedTask = Task.CompletedTask;
-
-        #endregion
-
-        #region Methods
+        private static readonly int[] EmptySize = {0};
+        private static readonly Dictionary<Type, Array> EmptyArrayCache = new(InternalEqualityComparer.Type);
+        private static int _counter;
 
         public static T[] Array<T>() => EmptyArrayImpl<T>.Instance;
 
@@ -66,28 +60,14 @@ namespace MugenMvvm.Internal
             }
         }
 
-        #endregion
-
-        #region Nested types
-
         private static class EmptyArrayImpl<T>
         {
-            #region Fields
-
             public static readonly T[] Instance = (T[]) GetEmptyArray<T>(typeof(Default), true);
-
-            #endregion
         }
 
         private static class EmptyDictionaryImpl<TKey, TValue> where TKey : notnull
         {
-            #region Fields
-
             public static readonly ReadOnlyDictionary<TKey, TValue> Instance = new(new Dictionary<TKey, TValue>());
-
-            #endregion
         }
-
-        #endregion
     }
 }

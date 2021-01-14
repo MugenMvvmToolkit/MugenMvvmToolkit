@@ -3,7 +3,6 @@ using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging.Components

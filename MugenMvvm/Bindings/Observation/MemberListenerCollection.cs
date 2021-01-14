@@ -9,54 +9,60 @@ namespace MugenMvvm.Bindings.Observation
 {
     public class MemberListenerCollection : ActionToken.IHandler
     {
-        #region Fields
+        private const int MinValueTrim = 3;
+        private const int MaxValueTrim = 100;
 
         private WeakEventListener<string>[] _listeners;
         private bool _raising;
         private ushort _removedSize;
         private ushort _size;
-        private const int MinValueTrim = 3;
-        private const int MaxValueTrim = 100;
-
-        #endregion
-
-        #region Constructors
 
         public MemberListenerCollection()
         {
             _listeners = Default.Array<WeakEventListener<string>>();
         }
 
-        #endregion
-
-        #region Properties
-
         public int Count => _size - _removedSize;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void ActionToken.IHandler.Invoke(object? target, object? state)
+        private static bool MemberNameEqual(string changedMember, string listenedMember)
         {
-            var propertyName = (string) state!;
-            var listeners = _listeners;
-            var size = _size;
-            for (var i = 0; i < size; i++)
+            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
+                return true;
+            if (string.IsNullOrEmpty(listenedMember))
+                return true;
+
+            if (listenedMember[0] == '[')
             {
-                var listener = listeners[i];
-                if (listener.Target == target && listener.State == propertyName)
+                if (InternalConstant.IndexerName.Equals(changedMember))
+                    return true;
+                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
                 {
-                    if (RemoveAt(listeners, i))
-                        TrimIfNeed(false);
-                    break;
+                    int i = 4, j = 0;
+                    while (i < changedMember.Length)
+                    {
+                        if (j >= listenedMember.Length)
+                            return false;
+                        var c1 = changedMember[i];
+                        var c2 = listenedMember[j];
+                        if (c1 == c2)
+                        {
+                            ++i;
+                            ++j;
+                        }
+                        else if (c1 == '"')
+                            ++i;
+                        else if (c2 == '"')
+                            ++j;
+                        else
+                            return false;
+                    }
+
+                    return j == listenedMember.Length;
                 }
             }
+
+            return false;
         }
-
-        #endregion
-
-        #region Methods
 
         public void Raise(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
         {
@@ -102,14 +108,12 @@ namespace MugenMvvm.Bindings.Observation
             else
             {
                 for (var i = 0; i < _size; i++)
-                {
                     if (_listeners[i].IsEmpty)
                     {
                         _listeners[i] = weakItem;
                         --_removedSize;
                         break;
                     }
-                }
             }
 
             if (_size - _removedSize == 1)
@@ -231,46 +235,21 @@ namespace MugenMvvm.Bindings.Observation
             }
         }
 
-        private static bool MemberNameEqual(string changedMember, string listenedMember)
+        void ActionToken.IHandler.Invoke(object? target, object? state)
         {
-            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
-                return true;
-            if (string.IsNullOrEmpty(listenedMember))
-                return true;
-
-            if (listenedMember[0] == '[')
+            var propertyName = (string) state!;
+            var listeners = _listeners;
+            var size = _size;
+            for (var i = 0; i < size; i++)
             {
-                if (InternalConstant.IndexerName.Equals(changedMember))
-                    return true;
-                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
+                var listener = listeners[i];
+                if (listener.Target == target && listener.State == propertyName)
                 {
-                    int i = 4, j = 0;
-                    while (i < changedMember.Length)
-                    {
-                        if (j >= listenedMember.Length)
-                            return false;
-                        var c1 = changedMember[i];
-                        var c2 = listenedMember[j];
-                        if (c1 == c2)
-                        {
-                            ++i;
-                            ++j;
-                        }
-                        else if (c1 == '"')
-                            ++i;
-                        else if (c2 == '"')
-                            ++j;
-                        else
-                            return false;
-                    }
-
-                    return j == listenedMember.Length;
+                    if (RemoveAt(listeners, i))
+                        TrimIfNeed(false);
+                    break;
                 }
             }
-
-            return false;
         }
-
-        #endregion
     }
 }

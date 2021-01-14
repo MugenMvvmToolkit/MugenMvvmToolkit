@@ -9,11 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class ExpressionParserResultTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void DefaultShouldBeEmpty() => default(ExpressionParserResult).IsEmpty.ShouldBeTrue();
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -34,7 +29,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             var target = MemberExpressionNode.Source;
             var source = MemberExpressionNode.EventArgs;
             var parameter = new[] {MemberExpressionNode.Self, MemberExpressionNode.Binding};
-            var memberManagerRequest = new ExpressionParserResult(target, source, parameter, new TestMetadataOwner<IReadOnlyMetadataContext> {Metadata = DefaultMetadata, HasMetadata = true});
+            var memberManagerRequest = new ExpressionParserResult(target, source, parameter,
+                new TestMetadataOwner<IReadOnlyMetadataContext> {Metadata = DefaultMetadata, HasMetadata = true});
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
             memberManagerRequest.IsEmpty.ShouldBeFalse();
@@ -42,6 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             memberManagerRequest.Metadata.ShouldEqual(DefaultMetadata);
         }
 
-        #endregion
+        [Fact]
+        public void DefaultShouldBeEmpty() => default(ExpressionParserResult).IsEmpty.ShouldBeTrue();
     }
 }

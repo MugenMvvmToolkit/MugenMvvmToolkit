@@ -8,16 +8,10 @@ namespace MugenMvvm.Messaging
     [StructLayout(LayoutKind.Auto)]
     public readonly struct MessengerHandler
     {
-        #region Fields
-
         public readonly object? Subscriber;
         public readonly ThreadExecutionMode? ExecutionMode;
         private readonly Func<object, IMessageContext, object?, MessengerResult>? _handler;
         private readonly object? _state;
-
-        #endregion
-
-        #region Constructors
 
         public MessengerHandler(Func<object, IMessageContext, object?, MessengerResult> handler, object subscriber, ThreadExecutionMode? executionMode, object? state = null)
         {
@@ -29,17 +23,10 @@ namespace MugenMvvm.Messaging
             _state = state;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => _handler == null;
 
-        #endregion
-
-        #region Methods
-
-        public void Deconstruct(out object? subscriber, out ThreadExecutionMode? executionMode, out Func<object, IMessageContext, object?, MessengerResult>? handler, out object? state)
+        public void Deconstruct(out object? subscriber, out ThreadExecutionMode? executionMode, out Func<object, IMessageContext, object?, MessengerResult>? handler,
+            out object? state)
         {
             subscriber = Subscriber;
             executionMode = ExecutionMode;
@@ -53,7 +40,5 @@ namespace MugenMvvm.Messaging
                 return MessengerResult.Ignored;
             return _handler(Subscriber!, messageContext, _state);
         }
-
-        #endregion
     }
 }

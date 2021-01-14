@@ -14,24 +14,53 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
     public abstract class ExpressionNodeBase<TExpression> : IExpressionNode
         where TExpression : class, IExpressionNode
     {
-        #region Constructors
-
         protected ExpressionNodeBase(IReadOnlyDictionary<string, object?>? metadata)
         {
             Metadata = metadata ?? Default.ReadOnlyDictionary<string, object?>();
         }
 
-        #endregion
-
-        #region Properties
-
         public abstract ExpressionNodeType ExpressionType { get; }
 
         public IReadOnlyDictionary<string, object?> Metadata { get; }
 
-        #endregion
+        protected static bool Equals(IExpressionNode? x1, IExpressionNode? x2, IExpressionEqualityComparer? comparer)
+        {
+            if (ReferenceEquals(x1, x2))
+                return true;
+            if (ReferenceEquals(x1, null) || ReferenceEquals(x2, null))
+                return false;
 
-        #region Implementation of interfaces
+            return x1.Equals(x2, comparer);
+        }
+
+        protected static bool Equals<T>(ItemOrIReadOnlyList<T> x1, ItemOrIReadOnlyList<T> x2, IExpressionEqualityComparer? comparer)
+            where T : class, IExpressionNode
+        {
+            if (ReferenceEquals(x1.Item, x2.Item) && ReferenceEquals(x1.List, x2.List))
+                return true;
+            var count = x1.Count;
+            if (count != x2.Count)
+                return false;
+            for (var i = 0; i < count; i++)
+                if (!x1[i].Equals(x2[i], comparer))
+                    return false;
+
+            return true;
+        }
+
+        protected static int GetHashCode<T>(int hashCode, IExpressionNode? target, ItemOrIReadOnlyList<T> args, IExpressionEqualityComparer? comparer)
+            where T : class, IExpressionNode
+        {
+            if (target == null)
+                return HashCode.Combine(hashCode, args.Count);
+            return HashCode.Combine(hashCode, args.Count, target.GetHashCode(comparer));
+        }
+
+        public sealed override bool Equals(object? obj) => Equals(obj as IExpressionNode);
+
+        public sealed override int GetHashCode() => GetHashCode(null);
+
+        public bool Equals(IExpressionNode? other) => Equals(other, null);
 
         public IExpressionNode Accept(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata = null)
         {
@@ -40,7 +69,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return ReferenceEquals(node, this) ? node : node.Accept(visitor, metadata);
         }
 
-        public IExpressionNode UpdateMetadata(IReadOnlyDictionary<string, object?>? metadata) => this.MetadataEquals(metadata ??= Default.ReadOnlyDictionary<string, object?>()) ? this : Clone(metadata);
+        public IExpressionNode UpdateMetadata(IReadOnlyDictionary<string, object?>? metadata) =>
+            this.MetadataEquals(metadata ??= Default.ReadOnlyDictionary<string, object?>()) ? this : Clone(metadata);
 
         public bool Equals(IExpressionNode? other, IExpressionEqualityComparer? comparer)
         {
@@ -59,14 +89,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             var hash = comparer?.GetHashCode(this);
             if (hash.HasValue)
                 return hash.Value;
-            return GetHashCode(ExpressionType.Value * 397 ^ Metadata.Count, comparer);
+            return GetHashCode((ExpressionType.Value * 397) ^ Metadata.Count, comparer);
         }
-
-        public bool Equals(IExpressionNode? other) => Equals(other, null);
-
-        #endregion
-
-        #region Methods
 
         protected abstract IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata);
 
@@ -75,10 +99,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         protected abstract bool Equals(TExpression other, IExpressionEqualityComparer? comparer);
 
         protected abstract int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer);
-
-        public sealed override bool Equals(object? obj) => Equals(obj as IExpressionNode);
-
-        public sealed override int GetHashCode() => GetHashCode(null);
 
         protected virtual IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
@@ -130,42 +150,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 return nodes;
             return newArgs;
         }
-
-        protected static bool Equals(IExpressionNode? x1, IExpressionNode? x2, IExpressionEqualityComparer? comparer)
-        {
-            if (ReferenceEquals(x1, x2))
-                return true;
-            if (ReferenceEquals(x1, null) || ReferenceEquals(x2, null))
-                return false;
-
-            return x1.Equals(x2, comparer);
-        }
-
-        protected static bool Equals<T>(ItemOrIReadOnlyList<T> x1, ItemOrIReadOnlyList<T> x2, IExpressionEqualityComparer? comparer)
-            where T : class, IExpressionNode
-        {
-            if (ReferenceEquals(x1.Item, x2.Item) && ReferenceEquals(x1.List, x2.List))
-                return true;
-            var count = x1.Count;
-            if (count != x2.Count)
-                return false;
-            for (int i = 0; i < count; i++)
-            {
-                if (!x1[i].Equals(x2[i], comparer))
-                    return false;
-            }
-
-            return true;
-        }
-
-        protected static int GetHashCode<T>(int hashCode, IExpressionNode? target, ItemOrIReadOnlyList<T> args, IExpressionEqualityComparer? comparer)
-            where T : class, IExpressionNode
-        {
-            if (target == null)
-                return HashCode.Combine(hashCode, args.Count);
-            return HashCode.Combine(hashCode, args.Count, target.GetHashCode(comparer));
-        }
-
-        #endregion
     }
 }

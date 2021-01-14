@@ -12,21 +12,14 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Components
 {
     public sealed class ExpressionConverterComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
-        #region Fields
-
         private readonly ComponentTracker _componentTracker;
         private readonly ExpressionConverterContext<Expression> _context;
         private readonly TokenParserContext _parserContext;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ExpressionConverterComponent()
@@ -34,44 +27,12 @@ namespace MugenMvvm.Bindings.Parsing.Components
             _context = new ExpressionConverterContext<Expression>();
             _parserContext = new TokenParserContext();
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
+            _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>(
+                (components, state, _) => state.Converters = components, _context);
             _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Converter;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        ItemOrIReadOnlyList<ExpressionParserResult> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
-        {
-            if (expression is BindingExpressionRequest request)
-                return Parse(request, metadata);
-
-            if (expression is IReadOnlyList<BindingExpressionRequest> expressions)
-            {
-                if (expressions.Count == 0)
-                    return default;
-                if (expressions.Count == 1)
-                    return Parse(expressions[0], metadata);
-
-                var result = new ExpressionParserResult[expressions.Count];
-                for (var i = 0; i < result.Length; i++)
-                    result[i] = Parse(expressions[i], metadata);
-                return result;
-            }
-
-            return default;
-        }
-
-        #endregion
-
-        #region Methods
 
         protected override void OnAttached(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
@@ -144,6 +105,25 @@ namespace MugenMvvm.Bindings.Parsing.Components
                 result.Add(Convert(parameter.Value, metadata));
         }
 
-        #endregion
+        ItemOrIReadOnlyList<ExpressionParserResult> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
+        {
+            if (expression is BindingExpressionRequest request)
+                return Parse(request, metadata);
+
+            if (expression is IReadOnlyList<BindingExpressionRequest> expressions)
+            {
+                if (expressions.Count == 0)
+                    return default;
+                if (expressions.Count == 1)
+                    return Parse(expressions[0], metadata);
+
+                var result = new ExpressionParserResult[expressions.Count];
+                for (var i = 0; i < result.Length; i++)
+                    result[i] = Parse(expressions[i], metadata);
+                return result;
+            }
+
+            return default;
+        }
     }
 }

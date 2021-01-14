@@ -11,19 +11,12 @@ using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class MethodRequestMemberManagerDecorator : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent
     {
-        #region Fields
-
         private readonly List<IMemberInfo> _members;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public MethodRequestMemberManagerDecorator(int priority = MemberComponentPriority.RequestHandlerDecorator)
@@ -32,11 +25,8 @@ namespace MugenMvvm.Bindings.Members.Components
             _members = new List<IMemberInfo>();
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request,
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
+            object request,
             IReadOnlyMetadataContext? metadata)
         {
             if (!(request is MemberTypesRequest typesRequest))
@@ -64,13 +54,11 @@ namespace MugenMvvm.Bindings.Members.Components
 
                 var isValid = true;
                 for (var j = 0; j < types.Count; j++)
-                {
                     if (parameters[j].ParameterType != types[j])
                     {
                         isValid = false;
                         break;
                     }
-                }
 
                 if (isValid)
                     _members.Add(methodInfo);
@@ -78,7 +66,5 @@ namespace MugenMvvm.Bindings.Members.Components
 
             return _members.ToItemOrList(true);
         }
-
-        #endregion
     }
 }

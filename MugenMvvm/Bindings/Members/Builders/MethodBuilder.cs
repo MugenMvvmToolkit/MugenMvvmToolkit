@@ -13,8 +13,6 @@ namespace MugenMvvm.Bindings.Members.Builders
     [StructLayout(LayoutKind.Auto)]
     public ref struct MethodBuilder<TTarget, TReturn> where TTarget : class?
     {
-        #region Fields
-
         private readonly Type _declaringType;
         private readonly string _name;
         private readonly Type _returnType;
@@ -28,10 +26,6 @@ namespace MugenMvvm.Bindings.Members.Builders
         private Func<IMethodMemberInfo, ItemOrIReadOnlyList<IParameterInfo>>? _getParameters;
         private TryGetAccessorDelegate<IMethodMemberInfo>? _tryGetAccessor;
         private InvokeMethodDelegate<IMethodMemberInfo, TTarget, TReturn>? _invoke;
-
-        #endregion
-
-        #region Constructors
 
         public MethodBuilder(string name, Type declaringType, Type returnType)
         {
@@ -52,10 +46,6 @@ namespace MugenMvvm.Bindings.Members.Builders
             _invoke = null;
             _tryGetAccessor = null;
         }
-
-        #endregion
-
-        #region Methods
 
         public MethodBuilder<TTarget, TReturn> Static()
         {
@@ -88,10 +78,12 @@ namespace MugenMvvm.Bindings.Members.Builders
         {
             if (memberInfo == null)
                 return this;
-            return ObservableHandler(memberInfo.TryObserve, memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
+            return ObservableHandler(memberInfo.TryObserve,
+                memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
         }
 
-        public MethodBuilder<TTarget, TReturn> ObservableHandler(TryObserveDelegate<IObservableMemberInfo, TTarget> tryObserve, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
+        public MethodBuilder<TTarget, TReturn> ObservableHandler(TryObserveDelegate<IObservableMemberInfo, TTarget> tryObserve,
+            RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
         {
             Should.NotBeNull(tryObserve, nameof(tryObserve));
             Should.BeSupported(!_isObservable, nameof(Observable));
@@ -148,11 +140,13 @@ namespace MugenMvvm.Bindings.Members.Builders
                 if (!_isObservable)
                     return Method<object?>(null, _invoke, _getParameters, _tryObserve, _raise);
 
-                return Method(id!, _invoke, _getParameters, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
+                return Method(id!, _invoke, _getParameters,
+                    (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
                     (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State, message, metadata));
             }
 
-            RaiseDelegate<DelegateObservableMemberInfo<TTarget, (InvokeMethodDelegate<IMethodMemberInfo, TTarget, TReturn> _invoke, TryObserveDelegate<INotifiableMemberInfo, TTarget>? _tryObserve,
+            RaiseDelegate<DelegateObservableMemberInfo<TTarget, (InvokeMethodDelegate<IMethodMemberInfo, TTarget, TReturn> _invoke,
+                TryObserveDelegate<INotifiableMemberInfo, TTarget>? _tryObserve,
                 MemberAttachedDelegate<IMethodMemberInfo, TTarget> _attachedHandler, string attachedId, string? id)>, TTarget>? raise = null;
             if (id != null)
                 raise = (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State.id!, message, metadata);
@@ -171,14 +165,15 @@ namespace MugenMvvm.Bindings.Members.Builders
         }
 
         private string GenerateMemberId(bool isMethodId) =>
-            AttachedMemberBuilder.GenerateMemberId(isMethodId ? BindingInternalConstant.AttachedMethodPrefix : BindingInternalConstant.AttachedHandlerMethodPrefix, _declaringType, _name);
+            AttachedMemberBuilder.GenerateMemberId(isMethodId ? BindingInternalConstant.AttachedMethodPrefix : BindingInternalConstant.AttachedHandlerMethodPrefix, _declaringType,
+                _name);
 
-        private DelegateMethodMemberInfo<TTarget, TReturn, TState> Method<TState>(in TState state, InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturn, TState>, TTarget, TReturn> invoke,
-            Func<DelegateMethodMemberInfo<TTarget, TReturn, TState>, ItemOrIReadOnlyList<IParameterInfo>>? getParameters, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+        private DelegateMethodMemberInfo<TTarget, TReturn, TState> Method<TState>(in TState state,
+            InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturn, TState>, TTarget, TReturn> invoke,
+            Func<DelegateMethodMemberInfo<TTarget, TReturn, TState>, ItemOrIReadOnlyList<IParameterInfo>>? getParameters,
+            TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
             new(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
                 state, invoke, getParameters, _tryGetAccessor, !_isNonObservable, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
-
-        #endregion
     }
 }

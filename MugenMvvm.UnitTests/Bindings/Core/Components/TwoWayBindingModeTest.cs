@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Observation.Observers;
@@ -12,8 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class TwoWayBindingModeTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldUpdateBindingIfTargetAvailable()
         {
@@ -51,7 +48,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             mode.OnTargetError(binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
             updateSourceCount.ShouldEqual(2);
         }
-
-        #endregion
     }
 }

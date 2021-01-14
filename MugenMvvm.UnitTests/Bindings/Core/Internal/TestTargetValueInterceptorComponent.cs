@@ -8,25 +8,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestTargetValueInterceptorComponent : ITargetValueInterceptorComponent, IHasPriority
     {
-        #region Properties
+        public delegate object? InterceptTargetValueDelegate(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata);
 
         public InterceptTargetValueDelegate? InterceptTargetValue { get; set; }
 
         public int Priority { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         object? ITargetValueInterceptorComponent.InterceptTargetValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata) =>
             InterceptTargetValue?.Invoke(binding, sourceMember, value, metadata);
-
-        #endregion
-
-        #region Nested types
-
-        public delegate object? InterceptTargetValueDelegate(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata);
-
-        #endregion
     }
 }

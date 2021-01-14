@@ -35,18 +35,12 @@ namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
-        #region Fields
-
         internal const char CommaChar = ',';
         internal const char DotChar = '.';
 
         public static readonly char[] CommaSeparator = {CommaChar};
         public static readonly char[] DotSeparator = {DotChar};
         private static readonly int[] ArraySize = new int[1];
-
-        #endregion
-
-        #region Methods
 
         public static IMemberPath GetMemberPath(this IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata = null)
         {
@@ -57,7 +51,8 @@ namespace MugenMvvm.Bindings.Extensions
             return result;
         }
 
-        public static IMemberPathObserver GetMemberPathObserver(this IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberPathObserver GetMemberPathObserver(this IObservationManager observationManager, object target, object request,
+            IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(observationManager, nameof(observationManager));
             var result = observationManager.TryGetMemberPathObserver(target, request, metadata);
@@ -121,7 +116,7 @@ namespace MugenMvvm.Bindings.Extensions
                 return default;
             resourceResolver = resourceResolver.DefaultIfNull();
             var typeArgs = ItemOrArray.Get<Type>(types.Count);
-            int index = 0;
+            var index = 0;
             foreach (var t in types)
             {
                 var type = resourceResolver.TryGetType(t, null, metadata);
@@ -133,7 +128,8 @@ namespace MugenMvvm.Bindings.Extensions
             return typeArgs;
         }
 
-        public static ItemOrArray<object?> TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount, TState state, int argsLength,
+        public static ItemOrArray<object?> TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount,
+            TState state, int argsLength,
             Func<TState, int, IParameterInfo, object?> getValue, ItemOrArray<object?> arguments, out EnumFlags<ArgumentFlags> flags)
         {
             flags = default;
@@ -214,7 +210,8 @@ namespace MugenMvvm.Bindings.Extensions
             return default;
         }
 
-        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata)
+        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<object?> args,
+            IReadOnlyMetadataContext? metadata)
         {
             args = converter.TryGetInvokeArgs(parameters, parameters.Count, args, args.Count, (objects, i, _) => objects[i], args, out var flags)!;
             if (flags.HasFlag(ArgumentFlags.Metadata))
@@ -222,11 +219,13 @@ namespace MugenMvvm.Bindings.Extensions
             return args;
         }
 
-        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<string> args, IReadOnlyMetadataContext? metadata,
+        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<string> args,
+            IReadOnlyMetadataContext? metadata,
             out EnumFlags<ArgumentFlags> flags) =>
             converter.TryGetInvokeArgs(parameters, parameters.Count, args, metadata, out flags);
 
-        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount, ItemOrArray<string> args,
+        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount,
+            ItemOrArray<string> args,
             IReadOnlyMetadataContext? metadata, out EnumFlags<ArgumentFlags> flags)
         {
             try
@@ -255,7 +254,8 @@ namespace MugenMvvm.Bindings.Extensions
             context.ParameterExpressions = parameters.ToItemOrList();
         }
 
-        public static BindingParameterExpression TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler, BindingMemberExpressionVisitor memberExpressionVisitor,
+        public static BindingParameterExpression TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler,
+            BindingMemberExpressionVisitor memberExpressionVisitor,
             BindingMemberExpressionCollectorVisitor memberExpressionCollectorVisitor, string parameterName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(context, nameof(context));
@@ -277,7 +277,8 @@ namespace MugenMvvm.Bindings.Extensions
             return new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
         }
 
-        public static void ApplyFlags(this IBindingExpressionInitializerContext context, BindingMemberExpressionVisitor memberExpressionVisitor, string parameterName, EnumFlags<BindingMemberExpressionFlags> flag)
+        public static void ApplyFlags(this IBindingExpressionInitializerContext context, BindingMemberExpressionVisitor memberExpressionVisitor, string parameterName,
+            EnumFlags<BindingMemberExpressionFlags> flag)
         {
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(memberExpressionVisitor, nameof(memberExpressionVisitor));
@@ -300,13 +301,14 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<string>? TryGetErrors(this IExpressionBuilderContext context) => context.GetOrDefault(CompilingMetadata.CompilingErrors, null);
+        public static List<string>? TryGetErrors(this IExpressionBuilderContext context) => context.GetOrDefault(CompilingMetadata.CompilingErrors);
 
         [Preserve(Conditional = true)]
         public static void Raise<TArg>(this EventListenerCollection collection, object? sender, TArg args) => collection.Raise(sender, args, null);
 
         [Preserve(Conditional = true)]
-        public static void RaisePropertyChanged(this MemberListenerCollection collection, object? sender, PropertyChangedEventArgs args) => collection.Raise(sender, args, args.PropertyName ?? "", null);
+        public static void RaisePropertyChanged(this MemberListenerCollection collection, object? sender, PropertyChangedEventArgs args) =>
+            collection.Raise(sender, args, args.PropertyName ?? "", null);
 
         public static object? Invoke(this ICompiledExpression? expression, object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {
@@ -403,10 +405,8 @@ namespace MugenMvvm.Bindings.Extensions
         public static bool IsAllMembersAvailable(ItemOrArray<object?> observers)
         {
             foreach (var item in observers)
-            {
                 if (item is IMemberPathObserver observer && !observer.IsAllMembersAvailable())
                     return false;
-            }
 
             return true;
         }
@@ -478,7 +478,8 @@ namespace MugenMvvm.Bindings.Extensions
             return memberManager.TryGetMember(type, lastMemberType, flags, lastMemberName, metadata);
         }
 
-        public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, Func<IExpressionNode, bool>? condition, out IExpressionNode? firstExpression)
+        public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, Func<IExpressionNode, bool>? condition,
+            out IExpressionNode? firstExpression)
         {
             Should.NotBeNull(builder, nameof(builder));
             firstExpression = null;
@@ -592,9 +593,9 @@ namespace MugenMvvm.Bindings.Extensions
 
 #if SPAN_API
             return path
-                .AsSpan()
-                .RemoveBounds(start)
-                .UnescapeString(CommaChar);
+                   .AsSpan()
+                   .RemoveBounds(start)
+                   .UnescapeString(CommaChar);
 #else
             return path
                 .RemoveBounds(start)
@@ -615,9 +616,9 @@ namespace MugenMvvm.Bindings.Extensions
             methodName = path.Substring(0, startIndex);
 #if SPAN_API
             return path
-                .AsSpan()
-                .RemoveBounds(startIndex + 1)
-                .UnescapeString(CommaChar);
+                   .AsSpan()
+                   .RemoveBounds(startIndex + 1)
+                   .UnescapeString(CommaChar);
 #else
             return path
                 .RemoveBounds(startIndex + 1)
@@ -653,7 +654,8 @@ namespace MugenMvvm.Bindings.Extensions
             isStatic ? (value | MemberFlags.Static) & ~MemberFlags.Instance : (value | MemberFlags.Instance) & ~MemberFlags.Static;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static EnumFlags<MemberFlags> ClearInstanceOrStaticFlags(this EnumFlags<MemberFlags> value, bool isStatic) => isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
+        internal static EnumFlags<MemberFlags> ClearInstanceOrStaticFlags(this EnumFlags<MemberFlags> value, bool isStatic) =>
+            isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsNullOrUnsetValue([NotNullWhen(false)] this object? value) => value == null || value == BindingMetadata.UnsetValue;
@@ -693,7 +695,8 @@ namespace MugenMvvm.Bindings.Extensions
             return objects;
         }
 
-        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata, ref ActionToken unsubscriber,
+        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata,
+            ref ActionToken unsubscriber,
             ref IWeakReference? lastValueRef)
         {
             unsubscriber.Dispose();
@@ -728,15 +731,14 @@ namespace MugenMvvm.Bindings.Extensions
                 unsubscriber = ActionToken.NoDoToken;
         }
 
-        internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args) => ((BindingEventHandler?) weakReference.Target)?.OnCanExecuteChanged();
+        internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args) =>
+            ((BindingEventHandler?) weakReference.Target)?.OnCanExecuteChanged();
 
         internal static bool IsAllConstants(this ItemOrIReadOnlyList<IExpressionNode> expressions)
         {
             foreach (var expression in expressions)
-            {
                 if (expression.ExpressionType != ExpressionNodeType.Constant)
                     return false;
-            }
 
             return true;
         }
@@ -775,10 +777,8 @@ namespace MugenMvvm.Bindings.Extensions
         {
             var length = 1;
             for (var i = 0; i < source.Length; i++)
-            {
                 if (source[i] == separator)
                     ++length;
-            }
 
             if (length == 0)
                 return default;
@@ -835,7 +835,5 @@ namespace MugenMvvm.Bindings.Extensions
 
             builder.Insert(0, value);
         }
-
-        #endregion
     }
 }

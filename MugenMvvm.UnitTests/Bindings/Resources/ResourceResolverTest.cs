@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
 {
     public class ResourceResolverTest : ComponentOwnerTestBase<ResourceResolver>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -81,7 +79,5 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
         }
 
         protected override ResourceResolver GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        #endregion
     }
 }

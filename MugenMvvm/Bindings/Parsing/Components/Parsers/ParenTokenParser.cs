@@ -9,13 +9,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class ParenTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Paren;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -39,7 +33,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             context.Position = p;
             return null;
         }
-
-        #endregion
     }
 }

@@ -10,8 +10,6 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class NavigationType : EnumBase<NavigationType, string>
     {
-        #region Fields
-
         public static readonly NavigationType Undefined = new(nameof(Undefined));
 
         public static readonly NavigationType Tab = new(nameof(Tab)) {IsNestedNavigation = true};
@@ -23,33 +21,19 @@ namespace MugenMvvm.Enums
         public static readonly NavigationType Alert = new(nameof(Alert));
         public static readonly NavigationType Toast = new(nameof(Toast));
 
-        #endregion
-
-        #region Constructors
+        public NavigationType(string value, string? name = null) : base(value, name)
+        {
+        }
 
         [Preserve(Conditional = true)]
         protected NavigationType()
         {
         }
 
-        public NavigationType(string value, string? name = null) : base(value, name)
-        {
-        }
+        [IgnoreDataMember] [XmlIgnore] public bool IsUndefined => Undefined == this;
 
-        #endregion
+        [DataMember(Name = "r")] public bool IsRootNavigation { get; set; }
 
-        #region Properties
-
-        [IgnoreDataMember]
-        [XmlIgnore]
-        public bool IsUndefined => Undefined == this;
-
-        [DataMember(Name = "r")]
-        public bool IsRootNavigation { get; set; }
-
-        [DataMember(Name = "n")]
-        public bool IsNestedNavigation { get; set; }
-
-        #endregion
+        [DataMember(Name = "n")] public bool IsNestedNavigation { get; set; }
     }
 }

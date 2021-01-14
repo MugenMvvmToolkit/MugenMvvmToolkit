@@ -8,16 +8,11 @@ namespace MugenMvvm.Android.Collections
 {
     public class ContentItemsSourceProvider : ItemsSourceProviderBase<IContentTemplateSelector>, IContentItemsSourceProvider
     {
-        #region Constructors
-
-        public ContentItemsSourceProvider(object owner, IContentTemplateSelector itemTemplateSelector, IStableIdProvider? stableIdProvider, ItemsSourceBindableCollectionAdapter? collectionAdapter = null)
+        public ContentItemsSourceProvider(object owner, IContentTemplateSelector itemTemplateSelector, IStableIdProvider? stableIdProvider,
+            ItemsSourceBindableCollectionAdapter? collectionAdapter = null)
             : base(owner, itemTemplateSelector, stableIdProvider, collectionAdapter)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public virtual Object GetContent(int position)
         {
@@ -37,7 +32,5 @@ namespace MugenMvvm.Android.Collections
                 return Native.Interfaces.ContentItemsSourceProvider.PositionNone;
             return index;
         }
-
-        #endregion
     }
 }

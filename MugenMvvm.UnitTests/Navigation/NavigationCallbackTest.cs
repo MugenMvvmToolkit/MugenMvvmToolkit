@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTests.Navigation.Internal;
 using Should;
@@ -14,13 +13,7 @@ namespace MugenMvvm.UnitTests.Navigation
 {
     public class NavigationCallbackTest : UnitTestBase
     {
-        #region Fields
-
         private static readonly NavigationContext DefaultContext = new(null, NavigationProvider.System, "f", NavigationType.Popup, NavigationMode.Close);
-
-        #endregion
-
-        #region Methods
 
         [Theory]
         [InlineData(1, "1", "Tab")]
@@ -232,7 +225,5 @@ namespace MugenMvvm.UnitTests.Navigation
             callback.TrySetException(DefaultContext, new Exception()).ShouldBeFalse();
             callback.TrySetCanceled(DefaultContext, CancellationToken.None).ShouldBeFalse();
         }
-
-        #endregion
     }
 }

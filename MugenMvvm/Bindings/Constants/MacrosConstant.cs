@@ -2,8 +2,6 @@
 {
     public static class MacrosConstant
     {
-        #region Fields
-
         public const string Context = "context";
         public const string Source = "source";
         public const string Self = "self";
@@ -12,7 +10,5 @@
         public const string Binding = "binding";
         public const string EventArgs = "args";
         public const string Action = "@";
-
-        #endregion
     }
 }

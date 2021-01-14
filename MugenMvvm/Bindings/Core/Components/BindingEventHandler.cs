@@ -22,8 +22,6 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public class BindingEventHandler : ITargetValueSetterComponent, IAttachableComponent, IDetachableComponent, IEventListener, IHasEventArgsComponent, IHasPriority
     {
-        #region Fields
-
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
         private object? _currentValue;
@@ -31,23 +29,13 @@ namespace MugenMvvm.Bindings.Core.Components
         private IWeakReference? _targetRef;
         private ActionToken _unsubscriber;
 
-        #endregion
-
-        #region Constructors
-
         private BindingEventHandler(BindingParameterValue commandParameter, bool toggleEnabledState)
         {
             CommandParameter = commandParameter;
             ToggleEnabledState = toggleEnabledState;
         }
 
-        #endregion
-
-        #region Properties
-
         public static int Priority { get; set; } = BindingComponentPriority.EventHandler;
-
-        int IHasPriority.Priority => Priority;
 
         public BindingParameterValue CommandParameter { get; private set; }
 
@@ -57,9 +45,90 @@ namespace MugenMvvm.Bindings.Core.Components
 
         protected virtual bool IsOneTime => true;
 
-        #endregion
+        int IHasPriority.Priority => Priority;
 
-        #region Implementation of interfaces
+        public static BindingEventHandler Get(BindingParameterValue commandParameter, bool toggleEnabledState, bool isOneTime)
+        {
+            if (isOneTime)
+                return new BindingEventHandler(commandParameter, toggleEnabledState);
+            return new OneWay(commandParameter, toggleEnabledState);
+        }
+
+        public bool TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
+        {
+            if (value == _currentValue)
+                return true;
+
+            ClearValue();
+            _currentMetadata = metadata;
+
+            if (value is ICommand command)
+            {
+                _currentValue = value;
+                if (ToggleEnabledState && InitializeCanExecute(targetMember.Target, command))
+                {
+                    OnCanExecuteChanged();
+                    command.CanExecuteChanged += _canExecuteHandler;
+                }
+            }
+            else if (value is IValueExpression)
+                _currentValue = value;
+
+            return true;
+        }
+
+        internal void OnCanExecuteChanged()
+        {
+            if (!(_currentValue is ICommand cmd))
+                return;
+
+            var target = _targetRef?.Target;
+            if (target != null)
+                SetEnabled(cmd.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata)), target);
+        }
+
+        private bool InitializeCanExecute(object? target, ICommand command)
+        {
+            if (target == null)
+                return false;
+            if (command is ICompositeCommand m && !m.HasCanExecute(_currentMetadata))
+                return false;
+
+            _enabledMember = BindableMembers.For<object>().Enabled().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, _currentMetadata);
+            if (_enabledMember == null || !_enabledMember.CanWrite)
+                return false;
+
+            _targetRef = target.ToWeakReference();
+            _canExecuteHandler ??= this.ToWeakReference().EventHandlerWeakCanExecuteHandler;
+            return true;
+        }
+
+        private void SetEnabled(bool value, object? target = null)
+        {
+            var enabledMember = _enabledMember;
+            if (enabledMember == null)
+                return;
+
+            target ??= _targetRef?.Target;
+            if (target == null)
+                return;
+
+            enabledMember.SetValue(target, BoxingExtensions.Box(value), _currentMetadata);
+        }
+
+        private void ClearValue()
+        {
+            if (_canExecuteHandler != null && _currentValue is ICommand c)
+            {
+                c.CanExecuteChanged -= _canExecuteHandler;
+                SetEnabled(true);
+            }
+
+            _targetRef = null;
+            _enabledMember = null;
+            _currentMetadata = null;
+            _currentValue = null;
+        }
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -124,115 +193,14 @@ namespace MugenMvvm.Bindings.Core.Components
             }
         }
 
-        public bool TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
-        {
-            if (value == _currentValue)
-                return true;
-
-            ClearValue();
-            _currentMetadata = metadata;
-
-            if (value is ICommand command)
-            {
-                _currentValue = value;
-                if (ToggleEnabledState && InitializeCanExecute(targetMember.Target, command))
-                {
-                    OnCanExecuteChanged();
-                    command.CanExecuteChanged += _canExecuteHandler;
-                }
-            }
-            else if (value is IValueExpression)
-                _currentValue = value;
-
-            return true;
-        }
-
-        #endregion
-
-        #region Methods
-
-        public static BindingEventHandler Get(BindingParameterValue commandParameter, bool toggleEnabledState, bool isOneTime)
-        {
-            if (isOneTime)
-                return new BindingEventHandler(commandParameter, toggleEnabledState);
-            return new OneWay(commandParameter, toggleEnabledState);
-        }
-
-        private bool InitializeCanExecute(object? target, ICommand command)
-        {
-            if (target == null)
-                return false;
-            if (command is ICompositeCommand m && !m.HasCanExecute(_currentMetadata))
-                return false;
-
-            _enabledMember = BindableMembers.For<object>().Enabled().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, _currentMetadata);
-            if (_enabledMember == null || !_enabledMember.CanWrite)
-                return false;
-
-            _targetRef = target.ToWeakReference();
-            _canExecuteHandler ??= this.ToWeakReference().EventHandlerWeakCanExecuteHandler;
-            return true;
-        }
-
-        internal void OnCanExecuteChanged()
-        {
-            if (!(_currentValue is ICommand cmd))
-                return;
-
-            var target = _targetRef?.Target;
-            if (target != null)
-                SetEnabled(cmd.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata)), target);
-        }
-
-        private void SetEnabled(bool value, object? target = null)
-        {
-            var enabledMember = _enabledMember;
-            if (enabledMember == null)
-                return;
-
-            target ??= _targetRef?.Target;
-            if (target == null)
-                return;
-
-            enabledMember.SetValue(target, BoxingExtensions.Box(value), _currentMetadata);
-        }
-
-        private void ClearValue()
-        {
-            if (_canExecuteHandler != null && _currentValue is ICommand c)
-            {
-                c.CanExecuteChanged -= _canExecuteHandler;
-                SetEnabled(true);
-            }
-
-            _targetRef = null;
-            _enabledMember = null;
-            _currentMetadata = null;
-            _currentValue = null;
-        }
-
-        #endregion
-
-        #region Nested types
-
         internal sealed class OneWay : BindingEventHandler, IBindingSourceObserverListener
         {
-            #region Constructors
-
             public OneWay(BindingParameterValue commandParameter, bool toggleEnabledState)
                 : base(commandParameter, toggleEnabledState)
             {
             }
 
-            #endregion
-
-            #region Properties
-
             protected override bool IsOneTime => false;
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 
@@ -241,10 +209,6 @@ namespace MugenMvvm.Bindings.Core.Components
             public void OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
             {
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

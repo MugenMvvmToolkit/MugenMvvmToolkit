@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingBuilderFromTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ToShouldCreateBindingBuilderTo()
         {
@@ -64,7 +62,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             converterRequest.Source.ShouldEqual(expression4);
             converterRequest.Parameters.AsList().Count.ShouldEqual(0);
         }
-
-        #endregion
     }
 }

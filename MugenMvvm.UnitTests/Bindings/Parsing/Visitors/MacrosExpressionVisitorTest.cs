@@ -12,30 +12,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 {
     public class MacrosExpressionVisitorTest : UnitTestBase
     {
-        #region Fields
-
         private const string MemberName1 = "T1";
         private const string MemberName2 = "T2";
         private const string MemberName3 = "T3";
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void VisitorShouldConvertParametersToConstant()
-        {
-            var visitor = new MacrosExpressionVisitor();
-            visitor.ConstantParametersMethods.ShouldNotBeEmpty();
-
-            foreach (var method in visitor.ConstantParametersMethods)
-                new MethodCallExpressionNode(null, method.Key, Default.Array<IExpressionNode>()).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, Default.Array<IExpressionNode>()));
-
-            var args = new IExpressionNode[] {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
-            var expectedArgs = new IExpressionNode[] {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
-            foreach (var method in visitor.ConstantParametersMethods)
-                new MethodCallExpressionNode(null, method.Key, args).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, expectedArgs));
-        }
 
         [Fact]
         public void VisitorShouldConvertMacros()
@@ -54,29 +33,15 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         }
 
         [Fact]
-        public void VisitorShouldConvertMethodAliases()
-        {
-            var visitor = new MacrosExpressionVisitor();
-            visitor.MethodAliases.ShouldNotBeEmpty();
-
-            foreach (var member in visitor.MethodAliases)
-            {
-                var methodCallExpressionNode = new MethodCallExpressionNode(null, member.Key,
-                    new IExpressionNode[] {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)});
-                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, methodCallExpressionNode)
-                    .Accept(visitor)
-                    .ShouldEqual(member.Value.UpdateArguments(methodCallExpressionNode.Arguments));
-            }
-        }
-
-        [Fact]
         public void VisitorShouldConvertMacrosTarget()
         {
             var visitor = new MacrosExpressionVisitor();
             visitor.MacrosTargets.ShouldNotBeEmpty();
 
-            var args = new IExpressionNode[] {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
-            var constantArgs = new IExpressionNode[] {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
+            var args = new IExpressionNode[]
+                {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
+            var constantArgs = new IExpressionNode[]
+                {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
             foreach (var member in visitor.MacrosTargets)
             {
                 var arguments = args;
@@ -88,6 +53,43 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             }
         }
 
-        #endregion
+        [Fact]
+        public void VisitorShouldConvertMethodAliases()
+        {
+            var visitor = new MacrosExpressionVisitor();
+            visitor.MethodAliases.ShouldNotBeEmpty();
+
+            foreach (var member in visitor.MethodAliases)
+            {
+                var methodCallExpressionNode = new MethodCallExpressionNode(null, member.Key,
+                    new IExpressionNode[]
+                    {
+                        new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3),
+                        ConstantExpressionNode.Get(1)
+                    });
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, methodCallExpressionNode)
+                    .Accept(visitor)
+                    .ShouldEqual(member.Value.UpdateArguments(methodCallExpressionNode.Arguments));
+            }
+        }
+
+        [Fact]
+        public void VisitorShouldConvertParametersToConstant()
+        {
+            var visitor = new MacrosExpressionVisitor();
+            visitor.ConstantParametersMethods.ShouldNotBeEmpty();
+
+            foreach (var method in visitor.ConstantParametersMethods)
+                new MethodCallExpressionNode(null, method.Key, Default.Array<IExpressionNode>()).Accept(visitor)
+                                                                                                .ShouldEqual(new MethodCallExpressionNode(null, method.Value,
+                                                                                                    Default.Array<IExpressionNode>()));
+
+            var args = new IExpressionNode[]
+                {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
+            var expectedArgs = new IExpressionNode[]
+                {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
+            foreach (var method in visitor.ConstantParametersMethods)
+                new MethodCallExpressionNode(null, method.Key, args).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, expectedArgs));
+        }
     }
 }

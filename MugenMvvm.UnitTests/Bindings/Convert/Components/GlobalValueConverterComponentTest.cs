@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
 {
     public class GlobalValueConverterComponentTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -18,47 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
             component.Priority.ShouldEqual(ConverterComponentPriority.Converter);
             component.Priority = int.MaxValue;
             component.Priority.ShouldEqual(int.MaxValue);
-        }
-
-        [Fact]
-        public void TryConvertShouldHandleNull()
-        {
-            var component = new GlobalValueConverterComponent();
-            object? value = null;
-            component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
-            value.ShouldBeNull();
-
-            value = null;
-            component.TryConvert(null!, ref value, typeof(bool), null, null).ShouldEqual(true);
-            value.ShouldEqual(false);
-        }
-
-        [Fact]
-        public void TryConvertShouldHandleInstanceOfType()
-        {
-            var component = new GlobalValueConverterComponent();
-            object? value = this;
-            component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
-            value.ShouldEqual(this);
-        }
-
-        [Fact]
-        public void TryConvertShouldHandleString()
-        {
-            var component = new GlobalValueConverterComponent();
-            object? value = this;
-            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
-            value.ShouldEqual(ToString());
-
-            const float f = 1.1f;
-            value = f;
-            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
-            value.ShouldEqual(f.ToString());
-
-            component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
-            value = f;
-            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
-            value.ShouldEqual(f.ToString(component.FormatProvider()));
         }
 
         [Fact]
@@ -88,6 +45,47 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
         }
 
         [Fact]
+        public void TryConvertShouldHandleInstanceOfType()
+        {
+            var component = new GlobalValueConverterComponent();
+            object? value = this;
+            component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
+            value.ShouldEqual(this);
+        }
+
+        [Fact]
+        public void TryConvertShouldHandleNull()
+        {
+            var component = new GlobalValueConverterComponent();
+            object? value = null;
+            component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
+            value.ShouldBeNull();
+
+            value = null;
+            component.TryConvert(null!, ref value, typeof(bool), null, null).ShouldEqual(true);
+            value.ShouldEqual(false);
+        }
+
+        [Fact]
+        public void TryConvertShouldHandleString()
+        {
+            var component = new GlobalValueConverterComponent();
+            object? value = this;
+            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
+            value.ShouldEqual(ToString());
+
+            const float f = 1.1f;
+            value = f;
+            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
+            value.ShouldEqual(f.ToString());
+
+            component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
+            value = f;
+            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
+            value.ShouldEqual(f.ToString(component.FormatProvider()));
+        }
+
+        [Fact]
         public void TryConvertShouldIgnoreNotConvertibleValue()
         {
             var component = new GlobalValueConverterComponent();
@@ -97,7 +95,5 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
             component.TryConvert(null!, ref value, GetType(), null, null).ShouldBeFalse();
             value.ShouldEqual(v);
         }
-
-        #endregion
     }
 }

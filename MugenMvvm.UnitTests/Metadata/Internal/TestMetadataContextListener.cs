@@ -7,22 +7,12 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
 {
     public class TestMetadataContextListener : IMetadataContextListener, IHasPriority
     {
-        #region Fields
-
         private readonly IMetadataContext? _metadataContext;
-
-        #endregion
-
-        #region Constructors
 
         public TestMetadataContextListener(IMetadataContext? metadataContext)
         {
             _metadataContext = metadataContext;
         }
-
-        #endregion
-
-        #region Properties
 
         public Action<IMetadataContextKey, object?>? OnAdded { get; set; }
 
@@ -31,10 +21,6 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
         public Action<IMetadataContextKey, object?>? OnRemoved { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         void IMetadataContextListener.OnAdded(IMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
         {
@@ -53,7 +39,5 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
             _metadataContext?.ShouldEqual(metadataContext);
             OnRemoved?.Invoke(key, oldValue);
         }
-
-        #endregion
     }
 }

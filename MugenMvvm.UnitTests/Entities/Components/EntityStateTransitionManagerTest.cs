@@ -9,16 +9,6 @@ namespace MugenMvvm.UnitTests.Entities.Components
 {
     public class EntityStateTransitionManagerTest : UnitTestBase
     {
-        #region Methods
-
-        [Theory]
-        [MemberData(nameof(GetData))]
-        public void ShouldUpdateState(EntityState from, EntityState to, EntityState result)
-        {
-            EntityStateTransitionManager.Priority.ShouldEqual(EntityComponentPriority.StateTransitionManager);
-            EntityStateTransitionManager.Instance.OnEntityStateChanging(null!, this, from, to, DefaultMetadata).ShouldEqual(result);
-        }
-
         public static IEnumerable<object?[]> GetData() =>
             new[]
             {
@@ -28,6 +18,12 @@ namespace MugenMvvm.UnitTests.Entities.Components
                 new[] {EntityState.Modified, EntityState.Added, EntityState.Added}
             };
 
-        #endregion
+        [Theory]
+        [MemberData(nameof(GetData))]
+        public void ShouldUpdateState(EntityState from, EntityState to, EntityState result)
+        {
+            EntityStateTransitionManager.Priority.ShouldEqual(EntityComponentPriority.StateTransitionManager);
+            EntityStateTransitionManager.Instance.OnEntityStateChanging(null!, this, from, to, DefaultMetadata).ShouldEqual(result);
+        }
     }
 }

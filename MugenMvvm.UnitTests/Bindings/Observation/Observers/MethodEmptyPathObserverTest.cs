@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation.Observers;
@@ -14,27 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class MethodEmptyPathObserverTest : ObserverBaseTest<MethodEmptyPathObserver>
     {
-        #region Methods
-
-        [Fact]
-        public void GetMembersShouldReturnActualMembers()
-        {
-            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
-            var members = observer.GetMembers(DefaultMetadata);
-            members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
-            members.Target.ShouldEqual(this);
-        }
-
-        [Fact]
-        public void GetLastMemberShouldReturnActualMembers()
-        {
-            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
-            var members = observer.GetLastMember(DefaultMetadata);
-            members.Member.ShouldEqual(ConstantMemberInfo.Target);
-            members.Target.ShouldEqual(this);
-        }
-
-
         [Theory]
         [InlineData(1, true)]
         [InlineData(1, false)]
@@ -77,11 +55,28 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             using var _ = MugenService.AddComponent(component);
 
             var observer = new MethodEmptyPathObserver(MethodName, this, flags);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+                disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
 
         protected override MethodEmptyPathObserver GetObserver(object target) => new(MethodName, target, MemberFlags.All);
 
-        #endregion
+        [Fact]
+        public void GetLastMemberShouldReturnActualMembers()
+        {
+            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
+            var members = observer.GetLastMember(DefaultMetadata);
+            members.Member.ShouldEqual(ConstantMemberInfo.Target);
+            members.Target.ShouldEqual(this);
+        }
+
+        [Fact]
+        public void GetMembersShouldReturnActualMembers()
+        {
+            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
+            var members = observer.GetMembers(DefaultMetadata);
+            members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
+            members.Target.ShouldEqual(this);
+        }
     }
 }

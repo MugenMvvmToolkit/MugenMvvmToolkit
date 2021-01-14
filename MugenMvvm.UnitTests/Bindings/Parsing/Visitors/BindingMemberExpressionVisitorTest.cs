@@ -2,7 +2,6 @@
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
@@ -23,17 +22,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 {
     public class BindingMemberExpressionVisitorTest : UnitTestBase
     {
-        #region Fields
-
         private const string MemberName = "Test1";
         private const string MethodName = "Test2";
         private const string MemberName2 = "Test3";
         private const string TypeName = "T";
         private const string ResourceName = "R";
-
-        #endregion
-
-        #region Methods
 
         [Theory]
         [InlineData(true)]
@@ -43,18 +36,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>());
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}()", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}()", 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
 
             visitor.SuppressMethodAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
-                    expression)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
+                       expression)));
 
             visitor.SuppressMethodAccessors = false;
             expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
-                    expression)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
+                       expression)));
         }
 
         [Theory]
@@ -65,18 +61,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new MethodCallExpressionNode(null, MethodName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)});
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}(1,2)", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}(1,2)", 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
 
             visitor.SuppressMethodAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
-                    expression)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
+                       expression)));
 
             visitor.SuppressMethodAccessors = false;
             expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
-                    expression)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
+                       expression)));
         }
 
         [Theory]
@@ -84,18 +83,22 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [InlineData(false)]
         public void VisitShouldHandleMethodCall3(bool isTarget)
         {
-            var expression = new MethodCallExpressionNode(new MemberExpressionNode(null, MemberName), MethodName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)});
+            var expression = new MethodCallExpressionNode(new MemberExpressionNode(null, MemberName), MethodName,
+                new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)});
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}.{expression.Method}(1,2)", 0, visitor.Flags.SetTargetFlags(isTarget),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}.{expression.Method}(1,2)", 0,
+                visitor.Flags.SetTargetFlags(isTarget),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
 
             visitor.SuppressMethodAccessors = true;
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0,
+                visitor.Flags.SetTargetFlags(isTarget),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
 
             visitor.SuppressMethodAccessors = false;
             expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0,
+                visitor.Flags.SetTargetFlags(isTarget),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
         }
 
@@ -110,16 +113,19 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                     ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)
                 });
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}[1].{expression.Method}(1,2)", 0, visitor.Flags.SetTargetFlags(isTarget),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}[1].{expression.Method}(1,2)", 0,
+                visitor.Flags.SetTargetFlags(isTarget),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
 
             visitor.SuppressMethodAccessors = true;
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0, visitor.Flags.SetTargetFlags(isTarget),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0,
+                visitor.Flags.SetTargetFlags(isTarget),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
 
             visitor.SuppressMethodAccessors = false;
             expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0, visitor.Flags.SetTargetFlags(isTarget),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0,
+                visitor.Flags.SetTargetFlags(isTarget),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
         }
 
@@ -131,16 +137,19 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new IndexExpressionNode(null, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)});
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode("[1,2]", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode("[1,2]", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
 
             visitor.SuppressIndexAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression)));
 
             visitor.SuppressIndexAccessors = false;
             expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression)));
         }
 
         [Theory]
@@ -151,16 +160,19 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new IndexExpressionNode(new MemberExpressionNode(null, MemberName), new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)});
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode($"{MemberName}[1,2]", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode($"{MemberName}[1,2]", 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
 
             visitor.SuppressIndexAccessors = true;
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression.Target)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression.Target)));
 
             visitor.SuppressIndexAccessors = false;
             expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression.Target)));
+                   .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression.Target)));
         }
 
         [Theory]
@@ -171,7 +183,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new MemberExpressionNode(null, MemberName);
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
         }
 
         [Theory]
@@ -182,7 +195,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName);
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode($"{MemberName2}.{MemberName}", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode($"{MemberName2}.{MemberName}", 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
         }
 
         [Theory]
@@ -193,7 +207,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = MemberExpressionNode.Empty;
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode("", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode("", 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
         }
 
         [Theory]
@@ -205,10 +220,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             EnumFlags<MemberFlags> memberFlags2 = MemberFlags.Dynamic;
             EnumFlags<BindingMemberExpressionFlags> bindingMemberFlags1 = BindingMemberExpressionFlags.Target;
             EnumFlags<BindingMemberExpressionFlags> bindingMemberFlags2 = BindingMemberExpressionFlags.Optional;
-            var target = new MemberExpressionNode(null, MemberName2).UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags2, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags2);
-            var expression = new MemberExpressionNode(target, MemberName).UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags1, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags1);
+            var target = new MemberExpressionNode(null, MemberName2).UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags2,
+                BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags2);
+            var expression = new MemberExpressionNode(target, MemberName).UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags1,
+                BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags1);
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName2}.{MemberName}", 0, bindingMemberFlags1 | bindingMemberFlags2,
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName2}.{MemberName}", 0,
+                bindingMemberFlags1 | bindingMemberFlags2,
                 (memberFlags1 | memberFlags2).SetInstanceOrStaticFlags(false), null, expression));
         }
 
@@ -225,11 +243,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros));
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(true), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(true), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)), MemberName);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(true), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(true), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
         }
 
         [Theory]
@@ -249,12 +269,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
 
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, bindingMemberFlags.SetTargetFlags(true), memberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, bindingMemberFlags.SetTargetFlags(true), memberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)), MemberName)
                 .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, bindingMemberFlags.SetTargetFlags(true), memberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, bindingMemberFlags.SetTargetFlags(true), memberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
         }
 
         [Theory]
@@ -266,11 +288,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Source));
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(false), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, visitor.Flags.SetTargetFlags(false), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Source)), MemberName);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(false), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, visitor.Flags.SetTargetFlags(false), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
         }
 
         [Theory]
@@ -281,11 +305,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
 
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context));
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindableMembers.For<object>().DataContext(), 0, visitor.Flags.SetTargetFlags(true),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindableMembers.For<object>().DataContext(), 0,
+                visitor.Flags.SetTargetFlags(true),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context)), MemberName);
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{BindableMembers.For<object>().DataContext()}.{MemberName}", 0, visitor.Flags.SetTargetFlags(true),
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{BindableMembers.For<object>().DataContext()}.{MemberName}", 0,
+                visitor.Flags.SetTargetFlags(true),
                 visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
         }
 
@@ -311,13 +337,15 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var visitor = new BindingMemberExpressionVisitor(null, resolver) {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName));
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingInstanceMemberExpressionNode(returnType, string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(true), null, expression));
+                   .ShouldEqual(new BindingInstanceMemberExpressionNode(returnType, string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(true), null, expression));
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)), MemberName);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingInstanceMemberExpressionNode(returnType, MemberName, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(true), null, expression));
+                   .ShouldEqual(new BindingInstanceMemberExpressionNode(returnType, MemberName, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(true), null, expression));
             invokeCount.ShouldEqual(1);
         }
 
@@ -400,7 +428,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 }
             });
 
-            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver, memberManager) {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver, memberManager)
+                {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName));
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(returnType));
             invokeCount.ShouldEqual(1);
@@ -411,7 +440,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
-            expression = new MemberExpressionNode(new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)), MemberName), MemberName2);
+            expression = new MemberExpressionNode(
+                new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)), MemberName), MemberName2);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(member2Result));
             invokeCount.ShouldEqual(1);
         }
@@ -424,11 +454,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName));
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, visitor.Flags.SetTargetFlags(isTarget), visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, visitor.Flags.SetTargetFlags(isTarget),
+                       visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
         }
 
         [Theory]
@@ -442,12 +474,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName))
                 .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName)
                 .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
             visitor.Visit(expression, isTarget, DefaultMetadata)
-                .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null, expression));
+                   .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null,
+                       expression));
         }
 
         [Theory]
@@ -512,7 +546,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 }
             });
 
-            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver, memberManager) {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver, memberManager)
+                {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName));
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(resource));
             invokeCount.ShouldEqual(1);
@@ -521,35 +556,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(memberResult));
             invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void VisitShouldCacheMethodCallMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()),
-                new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()));
-            var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheIndexerMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}), new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}));
-            var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName),
-                new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName));
-            var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
         }
 
         [Theory]
@@ -568,6 +574,69 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         }
 
         [Fact]
+        public void VisitShouldCacheIndexerMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}),
+                new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName),
+                new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheMethodCallMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()),
+                new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheResourceMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition,
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)),
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheResourceMemberStatic()
+        {
+            var resolver = new ResourceResolver();
+            resolver.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResource = (s, o, arg4) => new ResourceResolverResult(1)
+            });
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (o, arg3) => MemberPath.Empty
+            });
+
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition,
+                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)),
+                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)));
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
         public void VisitShouldCacheTypeMember()
         {
             var resolver = new ResourceResolver();
@@ -579,16 +648,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)),
                 new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)));
             var visitor = new BindingMemberExpressionVisitor(null, resolver);
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheResourceMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)),
-                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)));
-            var visitor = new BindingMemberExpressionVisitor();
             var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
         }
@@ -613,28 +672,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
         }
-
-        [Fact]
-        public void VisitShouldCacheResourceMemberStatic()
-        {
-            var resolver = new ResourceResolver();
-            resolver.AddComponent(new TestResourceResolverComponent
-            {
-                TryGetResource = (s, o, arg4) => new ResourceResolverResult(1)
-            });
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (o, arg3) => MemberPath.Empty
-            });
-
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)),
-                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)));
-            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        #endregion
     }
 }

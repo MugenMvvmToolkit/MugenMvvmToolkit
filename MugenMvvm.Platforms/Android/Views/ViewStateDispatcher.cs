@@ -22,17 +22,11 @@ using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ViewStateDispatcher : IViewLifecycleListener, IHasPriority//todo no state behavior, async initialization
+    public sealed class ViewStateDispatcher : IViewLifecycleListener, IHasPriority //todo no state behavior, async initialization
     {
-        #region Fields
-
         private readonly IPresenter? _presenter;
         private readonly ISerializer? _serializer;
         private readonly IViewModelManager? _viewModelManager;
-
-        #endregion
-
-        #region Constructors
 
         public ViewStateDispatcher(IViewModelManager? viewModelManager = null, IPresenter? presenter = null, ISerializer? serializer = null)
         {
@@ -41,15 +35,36 @@ namespace MugenMvvm.Android.Views
             _serializer = serializer;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ViewComponentPriority.StateManager;
 
-        #endregion
+        private static bool TryGetBundle(object? state, [NotNullWhen(true)] out Bundle? bundle)
+        {
+            while (true)
+            {
+                if (state is Bundle b)
+                {
+                    bundle = b;
+                    return true;
+                }
 
-        #region Implementation of interfaces
+                if (state is ICancelableRequest cancelableRequest)
+                {
+                    if (cancelableRequest.Cancel.GetValueOrDefault())
+                    {
+                        bundle = null;
+                        return false;
+                    }
+
+                    state = cancelableRequest.State;
+                    continue;
+                }
+
+                bundle = null;
+                return false;
+            }
+        }
+
+        private static string? GetViewModelId(object view) => view is IActivityView activityView ? ActivityMugenExtensions.GetViewModelId(activityView) : null;
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -60,10 +75,6 @@ namespace MugenMvvm.Android.Views
             else if (lifecycleState == AndroidViewLifecycleState.Created)
                 TryRestore(viewManager, view, null, state, metadata);
         }
-
-        #endregion
-
-        #region Methods
 
         private void TryRestore(IViewManager viewManager, object view, Bundle? b, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -154,36 +165,5 @@ namespace MugenMvvm.Android.Views
 
             return new ViewModelViewRequest(viewModel, view);
         }
-
-        private static bool TryGetBundle(object? state, [NotNullWhen(true)] out Bundle? bundle)
-        {
-            while (true)
-            {
-                if (state is Bundle b)
-                {
-                    bundle = b;
-                    return true;
-                }
-
-                if (state is ICancelableRequest cancelableRequest)
-                {
-                    if (cancelableRequest.Cancel.GetValueOrDefault())
-                    {
-                        bundle = null;
-                        return false;
-                    }
-
-                    state = cancelableRequest.State;
-                    continue;
-                }
-
-                bundle = null;
-                return false;
-            }
-        }
-
-        private static string? GetViewModelId(object view) => view is IActivityView activityView ? ActivityMugenExtensions.GetViewModelId(activityView) : null;
-
-        #endregion
     }
 }

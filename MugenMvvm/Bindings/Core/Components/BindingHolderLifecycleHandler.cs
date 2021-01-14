@@ -10,20 +10,13 @@ using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingHolderLifecycleHandler : AttachableComponentBase<IBindingManager>, IBindingLifecycleListener, IHasPriority
     {
-        #region Fields
-
         private readonly ComponentTracker _componentTracker;
         private ItemOrArray<IBindingHolderComponent> _components;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public BindingHolderLifecycleHandler()
@@ -32,19 +25,11 @@ namespace MugenMvvm.Bindings.Core.Components
             _componentTracker.AddListener<IBindingHolderComponent, BindingHolderLifecycleHandler>((components, state, _) => state._components = components, this);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.LifecyclePostInitializer;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v, false) && v)
+            if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v) && v)
                 return;
 
             if (lifecycleState == BindingLifecycleState.Initialized)
@@ -52,10 +37,6 @@ namespace MugenMvvm.Bindings.Core.Components
             else if (lifecycleState == BindingLifecycleState.Disposed)
                 _components.TryUnregister(bindingManager, binding.Target.Target, binding, metadata);
         }
-
-        #endregion
-
-        #region Methods
 
         protected override void OnAttached(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
@@ -68,7 +49,5 @@ namespace MugenMvvm.Bindings.Core.Components
             base.OnDetached(owner, metadata);
             _componentTracker.Detach(owner, metadata);
         }
-
-        #endregion
     }
 }

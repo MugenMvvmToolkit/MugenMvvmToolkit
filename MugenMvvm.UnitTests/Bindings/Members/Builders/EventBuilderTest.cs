@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     public class EventBuilderTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -146,7 +144,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 attachedInvokeCount.ShouldEqual(1);
             }
         }
-
-        #endregion
     }
 }

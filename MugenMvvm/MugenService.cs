@@ -29,13 +29,7 @@ namespace MugenMvvm
 {
     public static class MugenService
     {
-        #region Fields
-
         private static IFallbackServiceConfiguration? _fallbackConfiguration;
-
-        #endregion
-
-        #region Properties
 
         public static IMugenApplication Application
         {
@@ -175,10 +169,6 @@ namespace MugenMvvm
             get => Instance<IExpressionCompiler>();
         }
 
-        #endregion
-
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TService Instance<TService>() where TService : class => Configuration<TService>.Instance;
 
@@ -186,16 +176,11 @@ namespace MugenMvvm
         public static TService? Optional<TService>() where TService : class => Configuration<TService>.Optional;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ActionToken AddComponent<T>(IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner<T> => Instance<T>().AddComponent(component, metadata);
-
-        #endregion
-
-        #region Nested types
+        public static ActionToken AddComponent<T>(IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner<T> =>
+            Instance<T>().AddComponent(component, metadata);
 
         public static class Configuration
         {
-            #region Methods
-
             public static IFallbackServiceConfiguration? GetFallbackConfiguration() => _fallbackConfiguration;
 
             public static void InitializeFallback(IFallbackServiceConfiguration? fallbackConfiguration) => _fallbackConfiguration = fallbackConfiguration;
@@ -205,20 +190,12 @@ namespace MugenMvvm
             public static void InitializeInstance<TService>(TService service) where TService : class => Configuration<TService>.Initialize(service);
 
             public static void Clear<TService>() where TService : class => Configuration<TService>.Clear();
-
-            #endregion
         }
 
         private static class Configuration<TService> where TService : class
         {
-            #region Fields
-
             private static TService? _service;
             private static IHasService<TService>? _serviceConfiguration;
-
-            #endregion
-
-            #region Properties
 
             public static TService Instance
             {
@@ -245,10 +222,6 @@ namespace MugenMvvm
                     return _fallbackConfiguration?.Optional<TService>();
                 }
             }
-
-            #endregion
-
-            #region Methods
 
             public static void Initialize(IHasService<TService>? serviceConfiguration)
             {
@@ -278,10 +251,6 @@ namespace MugenMvvm
                 ExceptionManager.ThrowObjectNotInitialized(typeof(Configuration<TService>), typeof(TService).Name);
                 return null;
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

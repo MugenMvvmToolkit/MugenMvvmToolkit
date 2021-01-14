@@ -12,8 +12,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         public static async ValueTask<IView> InitializeAsync(this IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
@@ -35,16 +33,16 @@ namespace MugenMvvm.Extensions
             where TView : class =>
             (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
 
-        public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) => wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
+        public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
+            wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
 
-        public static bool CanWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class => view.CanWrap(typeof(TView), metadata, wrapperManager);
+        public static bool CanWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class =>
+            view.CanWrap(typeof(TView), metadata, wrapperManager);
 
         public static bool CanWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
             wrapperManager.DefaultIfNull().CanWrap(wrapperType, view, metadata);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsUndefined(this IViewMapping? mapping) => ReferenceEquals(mapping, ViewMapping.Undefined);
-
-        #endregion
     }
 }

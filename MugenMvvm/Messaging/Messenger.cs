@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Collections;
+﻿using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -8,22 +7,15 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Messaging
 {
     public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger
     {
-        #region Constructors
-
         public Messenger(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IMessageContextProviderComponent>(metadata).TryGetMessageContext(this, sender, message, metadata) ?? new MessageContext(sender, message, metadata);
@@ -56,7 +48,5 @@ namespace MugenMvvm.Messaging
 
         public ItemOrIReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IMessengerSubscriberComponent>(metadata).TryGetSubscribers(this, metadata);
-
-        #endregion
     }
 }

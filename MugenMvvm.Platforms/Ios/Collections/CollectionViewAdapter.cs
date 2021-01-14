@@ -11,14 +11,8 @@ namespace MugenMvvm.Ios.Collections
 {
     public class CollectionViewAdapter : ICollectionViewAdapter, IThreadDispatcherHandler, IValueHolder<Delegate>
     {
-        #region Fields
-
         private readonly IWeakReference _targetRef;
         private readonly IThreadDispatcher? _threadDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         public CollectionViewAdapter(UICollectionView collectionView, IThreadDispatcher? threadDispatcher = null)
         {
@@ -27,21 +21,13 @@ namespace MugenMvvm.Ios.Collections
             _targetRef = collectionView.ToWeakReference();
         }
 
-        #endregion
-
-        #region Properties
+        public UICollectionView? CollectionView => (UICollectionView?) _targetRef.Target;
 
         public bool IsAlive => _targetRef.IsAlive;
-
-        public UICollectionView? CollectionView => (UICollectionView?) _targetRef.Target;
 
         protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void ReloadData(Action completion)
         {
@@ -80,7 +66,5 @@ namespace MugenMvvm.Ios.Collections
             CollectionView?.LayoutIfNeeded();
             ((Action) state!).Invoke();
         }
-
-        #endregion
     }
 }

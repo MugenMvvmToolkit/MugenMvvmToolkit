@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Serialization.Components
 {
     public class SerializationManagerTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -170,7 +168,5 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             serializer.Deserialize(format, request, null, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
-
-        #endregion
     }
 }

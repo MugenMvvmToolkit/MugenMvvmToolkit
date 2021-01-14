@@ -11,15 +11,9 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class RawViewLifecycleDispatcher : ComponentDecoratorBase<IViewManager, IViewLifecycleListener>, IViewLifecycleListener
     {
-        #region Constructors
-
         public RawViewLifecycleDispatcher(int priority = ComponentPriority.Max) : base(priority)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -40,7 +34,5 @@ namespace MugenMvvm.Views.Components
             if (!hasView)
                 Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
         }
-
-        #endregion
     }
 }

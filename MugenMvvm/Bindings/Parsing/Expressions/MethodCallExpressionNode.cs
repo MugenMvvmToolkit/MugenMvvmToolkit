@@ -11,14 +11,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class MethodCallExpressionNode : ExpressionNodeBase<IMethodCallExpressionNode>, IMethodCallExpressionNode
     {
-        #region Fields
-
         private readonly object? _arguments;
         private readonly object? _typeArgs;
-
-        #endregion
-
-        #region Constructors
 
         public MethodCallExpressionNode(IExpressionNode? target, string method,
             ItemOrIReadOnlyList<IExpressionNode> arguments, ItemOrIReadOnlyList<string> typeArgs = default, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
@@ -30,32 +24,32 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             _typeArgs = typeArgs.GetRawValue();
         }
 
-        #endregion
-
-        #region Properties
-
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.MethodCall;
+
+        public ItemOrIReadOnlyList<IExpressionNode> Arguments => ItemOrIReadOnlyList.FromRawValue<IExpressionNode>(_arguments);
+
+        public IExpressionNode? Target { get; }
 
         public string Method { get; }
 
         public ItemOrIReadOnlyList<string> TypeArgs => ItemOrIReadOnlyList.FromRawValue<string>(_typeArgs);
 
-        public IExpressionNode? Target { get; }
-
-        public ItemOrIReadOnlyList<IExpressionNode> Arguments => ItemOrIReadOnlyList.FromRawValue<IExpressionNode>(_arguments);
-
-        #endregion
-
-        #region Implementation of interfaces
+        public override string ToString()
+        {
+            string? typeArgs = null;
+            if (TypeArgs.Count != 0)
+                typeArgs = $"<{string.Join(", ", TypeArgs.AsList())}>";
+            var join = string.Join(",", Arguments.AsList());
+            if (Target == null)
+                return $"{Method}{typeArgs}({join})";
+            return $"{Target}.{Method}{typeArgs}({join})";
+        }
 
         public IMethodCallExpressionNode UpdateArguments(ItemOrIReadOnlyList<IExpressionNode> arguments) =>
             Equals(arguments, Arguments, null) ? this : new MethodCallExpressionNode(Target, Method, arguments, TypeArgs, Metadata);
 
-        public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target) => Equals(target, Target) ? this : new MethodCallExpressionNode(target, Method, Arguments, TypeArgs, Metadata);
-
-        #endregion
-
-        #region Methods
+        public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target) =>
+            Equals(target, Target) ? this : new MethodCallExpressionNode(target, Method, Arguments, TypeArgs, Metadata);
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
@@ -69,7 +63,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return this;
         }
 
-        protected override IMethodCallExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new MethodCallExpressionNode(Target, Method, Arguments, TypeArgs, metadata);
+        protected override IMethodCallExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) =>
+            new MethodCallExpressionNode(Target, Method, Arguments, TypeArgs, metadata);
 
         protected override bool Equals(IMethodCallExpressionNode other, IExpressionEqualityComparer? comparer) =>
             Method.Equals(other.Method) && TypeArgsEquals(other.TypeArgs) && Equals(Target, other.Target, comparer) && Equals(Arguments, other.Arguments, comparer);
@@ -81,17 +76,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return HashCode.Combine(hashCode, Method, Arguments.Count, TypeArgs.Count, Target.GetHashCode(comparer));
         }
 
-        public override string ToString()
-        {
-            string? typeArgs = null;
-            if (TypeArgs.Count != 0)
-                typeArgs = $"<{string.Join(", ", TypeArgs.AsList())}>";
-            var join = string.Join(",", Arguments.AsList());
-            if (Target == null)
-                return $"{Method}{typeArgs}({join})";
-            return $"{Target}.{Method}{typeArgs}({join})";
-        }
-
         private bool TypeArgsEquals(ItemOrIReadOnlyList<string> otherTypeArgs)
         {
             if (ReferenceEquals(TypeArgs.Item, otherTypeArgs.Item) && ReferenceEquals(TypeArgs.List, otherTypeArgs.List))
@@ -100,14 +84,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             if (count != otherTypeArgs.Count)
                 return false;
             for (var i = 0; i < count; i++)
-            {
                 if (!TypeArgs[i].Equals(otherTypeArgs[i]))
                     return false;
-            }
 
             return true;
         }
-
-        #endregion
     }
 }

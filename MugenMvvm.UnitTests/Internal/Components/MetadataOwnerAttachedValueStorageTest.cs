@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public class MetadataOwnerAttachedValueStorageTest : AttachedValueStorageProviderTestBase
     {
-        #region Methods
-
         protected override object GetSupportedItem() =>
             new TestMetadataOwner<IMetadataContext>
             {
@@ -18,7 +16,5 @@ namespace MugenMvvm.UnitTests.Internal.Components
             };
 
         protected override IAttachedValueStorageProviderComponent GetComponent() => new MetadataOwnerAttachedValueStorage();
-
-        #endregion
     }
 }

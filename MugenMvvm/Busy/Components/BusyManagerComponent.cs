@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
@@ -17,21 +16,11 @@ namespace MugenMvvm.Busy.Components
 {
     public sealed class BusyManagerComponent : MultiAttachableComponentBase<IBusyManager>, IBusyManagerComponent, IHasPriority
     {
-        #region Fields
-
         private BusyToken? _busyTail;
-
-        #endregion
-
-        #region Properties
 
         public int Priority => BusyComponentPriority.BusyManager;
 
         private object Locker => this;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IBusyToken TryBeginBusy(IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
@@ -47,7 +36,8 @@ namespace MugenMvvm.Busy.Components
             return BeginBusy(new BusyToken(this, request), delay, metadata);
         }
 
-        public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata) =>
+        public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
+            IReadOnlyMetadataContext? metadata) =>
             _busyTail?.TryGetToken(filter, state, metadata);
 
         public ItemOrIReadOnlyList<IBusyToken> TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
@@ -57,10 +47,6 @@ namespace MugenMvvm.Busy.Components
                 return default;
             return busyToken.GetTokens();
         }
-
-        #endregion
-
-        #region Methods
 
         protected override void OnAttached(IBusyManager owner, IReadOnlyMetadataContext? metadata) => OnBusyInfoChanged(metadata);
 
@@ -99,23 +85,13 @@ namespace MugenMvvm.Busy.Components
                 owner.GetComponents<IBusyManagerListener>(metadata).OnBusyStateChanged(owner, metadata);
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class BusyToken : IBusyToken, IBusyTokenCallback
         {
-            #region Fields
-
             public readonly BusyManagerComponent Owner;
             private object? _listeners;
             private BusyToken? _next;
             private BusyToken? _prev;
             private int _suspendCount;
-
-            #endregion
-
-            #region Constructors
 
             public BusyToken(BusyManagerComponent owner, object? message)
             {
@@ -130,10 +106,6 @@ namespace MugenMvvm.Busy.Components
                 Owner = owner;
             }
 
-            #endregion
-
-            #region Properties
-
             public bool IsCompleted => this == _listeners;
 
             public object? Message { get; }
@@ -141,77 +113,6 @@ namespace MugenMvvm.Busy.Components
             public bool IsSuspended { get; private set; }
 
             private object Locker => Owner.Locker;
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public ActionToken RegisterCallback(IBusyTokenCallback callback)
-            {
-                Should.NotBeNull(callback, nameof(callback));
-                if (!IsCompleted)
-                {
-                    lock (Locker)
-                    {
-                        if (!IsCompleted)
-                        {
-                            var editor = GetListenersEditor();
-                            editor.Add(callback);
-                            _listeners = editor.GetRawValue();
-
-                            if (IsSuspended)
-                                callback.OnSuspendChanged(true);
-                            return new ActionToken((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
-                        }
-                    }
-                }
-
-                callback.OnCompleted(this);
-                return default;
-            }
-
-            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
-            {
-                if (Interlocked.Increment(ref _suspendCount) == 1)
-                    SetSuspended(true);
-
-                return new ActionToken((t, _) => ((BusyToken) t!).OnEndSuspend(), this);
-            }
-
-            public void Dispose()
-            {
-                ItemOrIReadOnlyList<IBusyTokenCallback> listeners;
-                lock (Locker)
-                {
-                    listeners = GetListeners();
-                    if (_prev != null)
-                        _prev._next = _next;
-                    if (_next == null)
-                        Owner._busyTail = _prev;
-                    else
-                        _next._prev = _prev;
-                    _listeners = this;
-                }
-
-                foreach (var t in listeners)
-                    t.OnCompleted(this);
-
-                Owner.OnBusyInfoChanged();
-            }
-
-            public void OnCompleted(IBusyToken token) => Dispose();
-
-            public void OnSuspendChanged(bool suspended)
-            {
-                if (suspended)
-                    Suspend();
-                else
-                    OnEndSuspend();
-            }
-
-            #endregion
-
-            #region Methods
 
             public IBusyToken? TryGetToken<TState>(Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata)
             {
@@ -267,6 +168,69 @@ namespace MugenMvvm.Busy.Components
                 return true;
             }
 
+            public ActionToken RegisterCallback(IBusyTokenCallback callback)
+            {
+                Should.NotBeNull(callback, nameof(callback));
+                if (!IsCompleted)
+                {
+                    lock (Locker)
+                    {
+                        if (!IsCompleted)
+                        {
+                            var editor = GetListenersEditor();
+                            editor.Add(callback);
+                            _listeners = editor.GetRawValue();
+
+                            if (IsSuspended)
+                                callback.OnSuspendChanged(true);
+                            return new ActionToken((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
+                        }
+                    }
+                }
+
+                callback.OnCompleted(this);
+                return default;
+            }
+
+            public void OnCompleted(IBusyToken token) => Dispose();
+
+            public void OnSuspendChanged(bool suspended)
+            {
+                if (suspended)
+                    Suspend();
+                else
+                    OnEndSuspend();
+            }
+
+            public void Dispose()
+            {
+                ItemOrIReadOnlyList<IBusyTokenCallback> listeners;
+                lock (Locker)
+                {
+                    listeners = GetListeners();
+                    if (_prev != null)
+                        _prev._next = _next;
+                    if (_next == null)
+                        Owner._busyTail = _prev;
+                    else
+                        _next._prev = _prev;
+                    _listeners = this;
+                }
+
+                foreach (var t in listeners)
+                    t.OnCompleted(this);
+
+                Owner.OnBusyInfoChanged();
+            }
+
+            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+            {
+                if (Interlocked.Increment(ref _suspendCount) == 1)
+                    SetSuspended(true);
+
+                return new ActionToken((t, _) => ((BusyToken) t!).OnEndSuspend(), this);
+            }
+
             private void OnEndSuspend()
             {
                 if (Interlocked.Decrement(ref _suspendCount) == 0)
@@ -313,10 +277,6 @@ namespace MugenMvvm.Busy.Components
                     return default;
                 return ItemOrIReadOnlyList.FromRawValue<IBusyTokenCallback>(_listeners);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

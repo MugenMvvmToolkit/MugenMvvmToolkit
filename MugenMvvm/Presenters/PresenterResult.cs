@@ -8,9 +8,8 @@ namespace MugenMvvm.Presenters
 {
     public sealed class PresenterResult : MetadataOwnerBase, IPresenterResult
     {
-        #region Constructors
-
-        public PresenterResult(object? target, string navigationId, INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext? metadata = null)
+        public PresenterResult(object? target, string navigationId, INavigationProvider navigationProvider, NavigationType navigationType,
+            IReadOnlyMetadataContext? metadata = null)
             : base(metadata)
         {
             Should.NotBeNullOrEmpty(navigationId, nameof(navigationId));
@@ -22,18 +21,12 @@ namespace MugenMvvm.Presenters
             NavigationType = navigationType;
         }
 
-        #endregion
-
-        #region Properties
-
         public string NavigationId { get; }
-
-        public INavigationProvider NavigationProvider { get; }
 
         public NavigationType NavigationType { get; }
 
-        public object? Target { get; }
+        public INavigationProvider NavigationProvider { get; }
 
-        #endregion
+        public object? Target { get; }
     }
 }

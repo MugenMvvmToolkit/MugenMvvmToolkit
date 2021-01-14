@@ -16,8 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MethodAccessorMemberInfoTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(true, true, true)]
         [InlineData(true, true, false)]
@@ -116,7 +114,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 }
             });
 
-            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : (EnumFlags<ArgumentFlags>) default, reflectedType);
+            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : (EnumFlags<ArgumentFlags>) default,
+                reflectedType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.DeclaringType.ShouldEqual(declaringType);
             memberInfo.Type.ShouldEqual(type);
@@ -146,7 +145,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             else
                 ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, setValue, DefaultMetadata));
         }
-
-        #endregion
     }
 }

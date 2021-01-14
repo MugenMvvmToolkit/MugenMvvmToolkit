@@ -8,38 +8,6 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class AttachableComponentTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void OwnerShouldThrowNotAttached()
-        {
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            ShouldThrow<InvalidOperationException>(() =>
-            {
-                var v = testAttachableComponent.Owner;
-            });
-        }
-
-        [Fact]
-        public void OnAttachedShouldThrowIfOwnerInitialized()
-        {
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            IAttachableComponent attachable = testAttachableComponent;
-
-            attachable.OnAttached(this, DefaultMetadata);
-            ShouldThrow<InvalidOperationException>(() => { attachable.OnAttached(this, DefaultMetadata); });
-        }
-
-        [Fact]
-        public void OnAttachedShouldIgnoreWrongOwner()
-        {
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            IAttachableComponent attachable = testAttachableComponent;
-
-            attachable.OnAttached(new object(), DefaultMetadata);
-            testAttachableComponent.IsAttached.ShouldBeFalse();
-        }
-
         [Fact]
         public void OnAttachedShouldAttachOwner()
         {
@@ -58,6 +26,26 @@ namespace MugenMvvm.UnitTests.Components
             testAttachableComponent.IsAttached.ShouldBeTrue();
             testAttachableComponent.Owner.ShouldEqual(this);
             methodCallCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void OnAttachedShouldIgnoreWrongOwner()
+        {
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            IAttachableComponent attachable = testAttachableComponent;
+
+            attachable.OnAttached(new object(), DefaultMetadata);
+            testAttachableComponent.IsAttached.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void OnAttachedShouldThrowIfOwnerInitialized()
+        {
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            IAttachableComponent attachable = testAttachableComponent;
+
+            attachable.OnAttached(this, DefaultMetadata);
+            ShouldThrow<InvalidOperationException>(() => { attachable.OnAttached(this, DefaultMetadata); });
         }
 
         [Fact]
@@ -132,6 +120,14 @@ namespace MugenMvvm.UnitTests.Components
             methodCallCount.ShouldEqual(2);
         }
 
-        #endregion
+        [Fact]
+        public void OwnerShouldThrowNotAttached()
+        {
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            ShouldThrow<InvalidOperationException>(() =>
+            {
+                var v = testAttachableComponent.Owner;
+            });
+        }
     }
 }

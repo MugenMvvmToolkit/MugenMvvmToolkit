@@ -6,15 +6,6 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
 {
     public class ResourceResolverComponentTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetResourceValueShouldReturnUnresolvedResource()
-        {
-            var component = new ResourceResolverComponent();
-            component.TryGetResource(null!, "test", this, DefaultMetadata).IsResolved.ShouldBeFalse();
-        }
-
         [Fact]
         public void TryGetResourceValueAddRemoveResource()
         {
@@ -32,6 +23,11 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
             component.TryGetResource(null!, name, this, DefaultMetadata).IsResolved.ShouldBeFalse();
         }
 
-        #endregion
+        [Fact]
+        public void TryGetResourceValueShouldReturnUnresolvedResource()
+        {
+            var component = new ResourceResolverComponent();
+            component.TryGetResource(null!, "test", this, DefaultMetadata).IsResolved.ShouldBeFalse();
+        }
     }
 }

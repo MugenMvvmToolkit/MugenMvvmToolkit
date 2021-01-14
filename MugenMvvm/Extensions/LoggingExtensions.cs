@@ -10,8 +10,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ILogger GetLogger(this ILogger logger, object request, IReadOnlyMetadataContext? metadata = null)
         {
@@ -51,28 +49,19 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [StringFormatMethod("format")]
-        public static void Log(this ILogger? logger, LogLevel level, Exception? exception, string format, params object?[] args) => logger.Log(level, exception, null, format, args);
+        public static void Log(this ILogger? logger, LogLevel level, Exception? exception, string format, params object?[] args) =>
+            logger.Log(level, exception, null, format, args);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [StringFormatMethod("format")]
         public static void Log(this ILogger? logger, LogLevel level, Exception? exception, IReadOnlyMetadataContext? metadata, string format, params object?[] args) =>
             logger?.Log(level, format.Format(args), exception, metadata);
 
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         public readonly struct LoggerWithLevel
         {
-            #region Fields
-
             public readonly LogLevel LogLevel;
             public readonly ILogger? Logger;
-
-            #endregion
-
-            #region Constructors
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public LoggerWithLevel(ILogger logger, LogLevel logLevel)
@@ -80,10 +69,6 @@ namespace MugenMvvm.Extensions
                 Logger = logger;
                 LogLevel = logLevel;
             }
-
-            #endregion
-
-            #region Methods
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Log(object message, IReadOnlyMetadataContext? metadata) => Logger?.Log(LogLevel, message, null, metadata);
@@ -104,11 +89,8 @@ namespace MugenMvvm.Extensions
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             [StringFormatMethod("format")]
-            public void Log(Exception? exception, IReadOnlyMetadataContext? metadata, string format, params object?[] args) => Logger?.Log(LogLevel, exception, metadata, format, args);
-
-            #endregion
+            public void Log(Exception? exception, IReadOnlyMetadataContext? metadata, string format, params object?[] args) =>
+                Logger?.Log(LogLevel, exception, metadata, format, args);
         }
-
-        #endregion
     }
 }

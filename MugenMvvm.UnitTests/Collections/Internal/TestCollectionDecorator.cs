@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 {
     public class TestCollectionDecorator : ICollectionDecorator, IHasPriority
     {
-        #region Properties
-
         public Func<IEnumerable<object?>, IEnumerable<object?>>? DecorateItems { get; set; }
 
         public FuncRef<object?, int, bool>? OnAdded { get; set; }
@@ -27,10 +25,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
         public bool ThrowErrorNullDelegate { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items)
         {
@@ -80,7 +74,5 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 throw new NotSupportedException();
             return OnReset?.Invoke(ref items) ?? true;
         }
-
-        #endregion
     }
 }

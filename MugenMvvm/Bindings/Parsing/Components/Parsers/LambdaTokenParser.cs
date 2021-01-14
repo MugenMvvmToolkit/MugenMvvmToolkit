@@ -14,28 +14,14 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class LambdaTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Fields
-
         private readonly Dictionary<string, IParameterExpressionNode> _currentParameters;
-
-        #endregion
-
-        #region Constructors
 
         public LambdaTokenParser()
         {
             _currentParameters = new Dictionary<string, IParameterExpressionNode>(StringComparer.Ordinal);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Lambda;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -45,10 +31,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 context.Position = p;
             return node;
         }
-
-        #endregion
-
-        #region Methods
 
         private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -120,7 +102,8 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 var body = context.MoveNext(2).TryParseWhileNotNull();
                 if (body == null)
                 {
-                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedExpressionFormat1.Format(string.Join<IExpressionNode>(",", args.AsList())));
+                    context.TryGetErrors()
+                           ?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedExpressionFormat1.Format(string.Join<IExpressionNode>(",", args.AsList())));
                     return null;
                 }
 
@@ -132,7 +115,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                     _currentParameters.Remove(arg.Name);
             }
         }
-
-        #endregion
     }
 }

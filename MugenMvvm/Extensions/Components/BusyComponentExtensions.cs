@@ -8,8 +8,6 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class BusyComponentExtensions
     {
-        #region Methods
-
         public static IBusyToken? TryBeginBusy(this ItemOrArray<IBusyManagerComponent> components, IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
@@ -23,7 +21,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IBusyToken? TryGetToken<TState>(this ItemOrArray<IBusyManagerComponent> components, IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
+        public static IBusyToken? TryGetToken<TState>(this ItemOrArray<IBusyManagerComponent> components, IBusyManager busyManager,
+            Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(filter, nameof(filter));
@@ -65,7 +64,5 @@ namespace MugenMvvm.Extensions.Components
             foreach (var c in listeners)
                 c.OnBusyStateChanged(busyManager, metadata);
         }
-
-        #endregion
     }
 }

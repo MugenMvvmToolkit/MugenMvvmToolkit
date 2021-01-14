@@ -14,8 +14,6 @@ namespace MugenMvvm.Collections.Components
 {
     public sealed class FilterCollectionDecorator<T> : AttachableComponentBase<ICollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
     {
-        #region Fields
-
         private readonly Func<object?, bool> _internalFilter;
         private ICollectionDecoratorManagerComponent? _decoratorManager;
         private Func<T, bool>? _filter;
@@ -24,10 +22,6 @@ namespace MugenMvvm.Collections.Components
         private int _size;
         private object?[] _values;
 
-        #endregion
-
-        #region Constructors
-
         public FilterCollectionDecorator()
         {
             _keys = Default.Array<int>();
@@ -35,10 +29,6 @@ namespace MugenMvvm.Collections.Components
             _size = 0;
             _internalFilter = FilterInternal;
         }
-
-        #endregion
-
-        #region Properties
 
         public Func<T, bool>? Filter
         {
@@ -54,140 +44,13 @@ namespace MugenMvvm.Collections.Components
 
         private bool HasFilter => _filter != null && _decoratorManager != null;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => HasFilter ? items.Where(_internalFilter) : items;
-
-        bool ICollectionDecorator.OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args)
-        {
-            if (!HasFilter)
-                return true;
-
-            var filterIndex = IndexOfKey(index);
-            if (FilterInternal(item))
-            {
-                if (filterIndex == -1)
-                {
-                    index = Add(index, item);
-                    _decoratorManager!.OnAdded(collection, this, item, index);
-                }
-                else
-                    index = filterIndex;
-
-                return true;
-            }
-
-            if (filterIndex != -1)
-            {
-                RemoveAt(filterIndex);
-                _decoratorManager!.OnRemoved(collection, this, item, filterIndex);
-            }
-
-            return false;
-        }
-
-        bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
-        {
-            if (!HasFilter)
-                return true;
-
-            UpdateIndexes(index, 1);
-            if (!FilterInternal(item))
-                return false;
-
-            index = Add(index, item);
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
-        {
-            if (!HasFilter)
-                return true;
-
-            var filterIndex = IndexOfKey(index);
-            if (filterIndex == -1)
-            {
-                if (FilterInternal(newItem))
-                    _decoratorManager!.OnAdded(collection, this, newItem, Add(index, newItem));
-
-                return false;
-            }
-
-            if (FilterInternal(newItem))
-            {
-                oldItem = GetValue(filterIndex)!;
-                SetValue(filterIndex, newItem);
-                index = filterIndex;
-                return true;
-            }
-
-            var oldValue = GetValue(filterIndex);
-            RemoveAt(filterIndex);
-            _decoratorManager!.OnRemoved(collection, this, oldValue, filterIndex);
-            return false;
-        }
-
-        bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
-        {
-            if (!HasFilter)
-                return true;
-
-            var filterIndex = IndexOfKey(oldIndex);
-            UpdateIndexes(oldIndex + 1, -1);
-            UpdateIndexes(newIndex, 1);
-
-            if (filterIndex == -1)
-                return false;
-
-            RemoveAt(filterIndex);
-            oldIndex = filterIndex;
-            newIndex = Add(newIndex, item);
-            return true;
-        }
-
-        bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
-        {
-            if (!HasFilter)
-                return true;
-
-            var filterIndex = IndexOfKey(index);
-            UpdateIndexes(index, -1);
-            if (filterIndex == -1)
-                return false;
-
-            RemoveAt(filterIndex);
-            index = filterIndex;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
-        {
-            if (!HasFilter)
-                return true;
-
-            Clear();
-            if (items != null)
-            {
-                UpdateItems(items);
-                items = this;
-            }
-
-            return true;
-        }
+        public void UpdateFilter() => UpdateFilterInternal(null, false);
 
         public IEnumerator<object?> GetEnumerator()
         {
             for (var i = 0; i < _size; i++)
                 yield return _values[i];
         }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        #endregion
-
-        #region Methods
 
         protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -200,8 +63,6 @@ namespace MugenMvvm.Collections.Components
             Clear();
             _decoratorManager = null;
         }
-
-        public void UpdateFilter() => UpdateFilterInternal(null, false);
 
         private void UpdateFilterInternal(Func<T, bool>? filter, bool setFilter)
         {
@@ -367,6 +228,125 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        #endregion
+        IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => HasFilter ? items.Where(_internalFilter) : items;
+
+        bool ICollectionDecorator.OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        {
+            if (!HasFilter)
+                return true;
+
+            var filterIndex = IndexOfKey(index);
+            if (FilterInternal(item))
+            {
+                if (filterIndex == -1)
+                {
+                    index = Add(index, item);
+                    _decoratorManager!.OnAdded(collection, this, item, index);
+                }
+                else
+                    index = filterIndex;
+
+                return true;
+            }
+
+            if (filterIndex != -1)
+            {
+                RemoveAt(filterIndex);
+                _decoratorManager!.OnRemoved(collection, this, item, filterIndex);
+            }
+
+            return false;
+        }
+
+        bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
+        {
+            if (!HasFilter)
+                return true;
+
+            UpdateIndexes(index, 1);
+            if (!FilterInternal(item))
+                return false;
+
+            index = Add(index, item);
+            return true;
+        }
+
+        bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
+        {
+            if (!HasFilter)
+                return true;
+
+            var filterIndex = IndexOfKey(index);
+            if (filterIndex == -1)
+            {
+                if (FilterInternal(newItem))
+                    _decoratorManager!.OnAdded(collection, this, newItem, Add(index, newItem));
+
+                return false;
+            }
+
+            if (FilterInternal(newItem))
+            {
+                oldItem = GetValue(filterIndex)!;
+                SetValue(filterIndex, newItem);
+                index = filterIndex;
+                return true;
+            }
+
+            var oldValue = GetValue(filterIndex);
+            RemoveAt(filterIndex);
+            _decoratorManager!.OnRemoved(collection, this, oldValue, filterIndex);
+            return false;
+        }
+
+        bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
+        {
+            if (!HasFilter)
+                return true;
+
+            var filterIndex = IndexOfKey(oldIndex);
+            UpdateIndexes(oldIndex + 1, -1);
+            UpdateIndexes(newIndex, 1);
+
+            if (filterIndex == -1)
+                return false;
+
+            RemoveAt(filterIndex);
+            oldIndex = filterIndex;
+            newIndex = Add(newIndex, item);
+            return true;
+        }
+
+        bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
+        {
+            if (!HasFilter)
+                return true;
+
+            var filterIndex = IndexOfKey(index);
+            UpdateIndexes(index, -1);
+            if (filterIndex == -1)
+                return false;
+
+            RemoveAt(filterIndex);
+            index = filterIndex;
+            return true;
+        }
+
+        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
+        {
+            if (!HasFilter)
+                return true;
+
+            Clear();
+            if (items != null)
+            {
+                UpdateItems(items);
+                items = this;
+            }
+
+            return true;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands
 {
     public class DelegateCommandRequest
     {
-        #region Fields
-
         private object? _notifiers;
-
-        #endregion
-
-        #region Constructors
 
         public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
             ThreadExecutionMode? eventThreadMode, ItemOrIEnumerable<object> notifiers, Func<object?, object?, bool>? canNotify)
@@ -29,10 +21,6 @@ namespace MugenMvvm.Commands
             _notifiers = notifiers.GetRawValue();
             CanNotify = canNotify;
         }
-
-        #endregion
-
-        #region Properties
 
         public bool? AllowMultipleExecution { get; protected set; }
 
@@ -52,10 +40,6 @@ namespace MugenMvvm.Commands
             protected set => _notifiers = value.GetRawValue();
         }
 
-        #endregion
-
-        #region Methods
-
         public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
             ThreadExecutionMode? eventThreadMode, ItemOrIEnumerable<object> notifiers, Func<object?, object?, bool>? canNotify)
         {
@@ -63,7 +47,5 @@ namespace MugenMvvm.Commands
                 return execute;
             return new DelegateCommandRequest(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify);
         }
-
-        #endregion
     }
 }

@@ -9,18 +9,12 @@ namespace MugenMvvm.Bindings.Members.Builders
     [StructLayout(LayoutKind.Auto)]
     public ref struct CustomPropertyBuilder<TTarget, TValue> where TTarget : class?
     {
-        #region Fields
-
         private PropertyBuilder<TTarget, TValue> _propertyBuilder;
         private GetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _getter;
         private SetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _setter;
         private TryObserveDelegate<IObservableMemberInfo, TTarget>? _tryObserve;
         private RaiseDelegate<IObservableMemberInfo, TTarget>? _raise;
         private bool _isObservable;
-
-        #endregion
-
-        #region Constructors
 
         public CustomPropertyBuilder(PropertyBuilder<TTarget, TValue> propertyBuilder)
         {
@@ -34,10 +28,6 @@ namespace MugenMvvm.Bindings.Members.Builders
             _getter = null;
             _setter = null;
         }
-
-        #endregion
-
-        #region Methods
 
         public CustomPropertyBuilder<TTarget, TValue> Static()
         {
@@ -76,10 +66,12 @@ namespace MugenMvvm.Bindings.Members.Builders
         {
             if (memberInfo == null)
                 return this;
-            return ObservableHandler(memberInfo.TryObserve, memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
+            return ObservableHandler(memberInfo.TryObserve,
+                memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
         }
 
-        public CustomPropertyBuilder<TTarget, TValue> ObservableHandler(TryObserveDelegate<IObservableMemberInfo, TTarget> tryObserve, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
+        public CustomPropertyBuilder<TTarget, TValue> ObservableHandler(TryObserveDelegate<IObservableMemberInfo, TTarget> tryObserve,
+            RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
         {
             Should.NotBeNull(tryObserve, nameof(tryObserve));
             Should.BeSupported(!_isObservable, nameof(Observable));
@@ -110,12 +102,15 @@ namespace MugenMvvm.Bindings.Members.Builders
                 if (!_isObservable)
                     return _propertyBuilder.Property<object?>(null, _getter, _setter, _tryObserve, _raise);
 
-                return _propertyBuilder.Property(id!, _getter, _setter, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
+                return _propertyBuilder.Property(id!, _getter, _setter,
+                    (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
                     (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State, message, metadata));
             }
 
-            RaiseDelegate<DelegateObservableMemberInfo<TTarget, (GetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _getter, SetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _setter,
-                TryObserveDelegate<IObservableMemberInfo, TTarget>? _tryObserve, MemberAttachedDelegate<IAccessorMemberInfo, TTarget> AttachedHandlerField, string attachedId, string? id)>, TTarget>? raise = null;
+            RaiseDelegate<DelegateObservableMemberInfo<TTarget, (GetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _getter,
+                SetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _setter,
+                TryObserveDelegate<IObservableMemberInfo, TTarget>? _tryObserve, MemberAttachedDelegate<IAccessorMemberInfo, TTarget> AttachedHandlerField, string attachedId,
+                string? id)>, TTarget>? raise = null;
             if (id != null)
                 raise = (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State.id!, message, metadata);
             var attachedId = _propertyBuilder.GenerateMemberId(false);
@@ -137,11 +132,10 @@ namespace MugenMvvm.Bindings.Members.Builders
         }
 
         private DelegateAccessorMemberInfo<TTarget, TValue, TState> Property<TState>(in TState state,
-            GetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? getValue, SetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? setValue,
+            GetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? getValue,
+            SetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? setValue,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
             _propertyBuilder.Property(state, _getter == null ? null : getValue, _setter == null ? null : setValue,
                 _tryObserve == null && !_isObservable ? null : tryObserve, raise);
-
-        #endregion
     }
 }

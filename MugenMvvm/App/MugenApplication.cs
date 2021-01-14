@@ -12,14 +12,8 @@ namespace MugenMvvm.App
 {
     public sealed class MugenApplication : IMugenApplication
     {
-        #region Fields
-
         private IComponentCollection? _components;
         private IPlatformInfo? _deviceInfo;
-
-        #endregion
-
-        #region Constructors
 
         public MugenApplication(IReadOnlyMetadataContext? metadata = null)
         {
@@ -27,27 +21,19 @@ namespace MugenMvvm.App
             MugenService.Configuration.InitializeInstance<IMugenApplication>(this);
         }
 
-        #endregion
+        public bool HasComponents => _components != null && _components.Count != 0;
 
-        #region Properties
+        public IComponentCollection Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
 
         public bool HasMetadata => Metadata.Count != 0;
 
-        public bool HasComponents => _components != null && _components.Count != 0;
-
         public IMetadataContext Metadata { get; }
-
-        public IComponentCollection Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
 
         public IPlatformInfo PlatformInfo
         {
             get => _deviceInfo ??= new PlatformInfo(new PlatformType("-"));
             private set => _deviceInfo = value;
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public bool IsInState(ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata = null) =>
             Components.Get<ILifecycleTrackerComponent<ApplicationLifecycleState>>(metadata).IsInState(this, this, state, metadata);
@@ -67,7 +53,5 @@ namespace MugenMvvm.App
             OnLifecycleChanged(ApplicationLifecycleState.Initializing, state, metadata);
             OnLifecycleChanged(ApplicationLifecycleState.Initialized, state, metadata);
         }
-
-        #endregion
     }
 }

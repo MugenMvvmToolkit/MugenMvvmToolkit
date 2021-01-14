@@ -4,8 +4,6 @@ namespace MugenMvvm.Bindings.Constants
 {
     public static class CompilingComponentPriority
     {
-        #region Fields
-
         public const int Binary = 1000;
         public const int Condition = 990;
         public const int Unary = 980;
@@ -16,7 +14,5 @@ namespace MugenMvvm.Bindings.Constants
 
         public const int LinqCompiler = 0;
         public const int Cache = ComponentPriority.Cache;
-
-        #endregion
     }
 }

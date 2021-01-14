@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingHolderTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -70,7 +68,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             b1Disposed.ShouldBeTrue();
             b2Disposed.ShouldBeFalse();
         }
-
-        #endregion
     }
 }

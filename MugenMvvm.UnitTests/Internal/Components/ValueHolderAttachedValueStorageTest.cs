@@ -7,12 +7,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public class ValueHolderAttachedValueStorageTest : AttachedValueStorageProviderTestBase
     {
-        #region Methods
-
         protected override object GetSupportedItem() => new TestValueHolder<IDictionary<string, object?>>();
 
         protected override IAttachedValueStorageProviderComponent GetComponent() => new ValueHolderAttachedValueStorage();
-
-        #endregion
     }
 }

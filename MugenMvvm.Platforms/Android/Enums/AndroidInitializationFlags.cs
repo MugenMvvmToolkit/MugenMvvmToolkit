@@ -5,8 +5,6 @@ namespace MugenMvvm.Android.Enums
 {
     public class AndroidInitializationFlags : FlagsEnumBase<AndroidInitializationFlags, int>
     {
-        #region Fields
-
         public static readonly AndroidInitializationFlags NativeMode = new(NativeInitializationFlags.NativeMode);
         public static readonly AndroidInitializationFlags FragmentStateDisabled = new(NativeInitializationFlags.FragmentStateDisabled);
         public static readonly AndroidInitializationFlags RawViewTagModeDisabled = new(NativeInitializationFlags.RawViewTagModeDisabled);
@@ -20,14 +18,8 @@ namespace MugenMvvm.Android.Enums
 
         public static readonly EnumFlags<AndroidInitializationFlags> AllSupportLibs = CompatLib | MaterialLib | RecyclerViewLib | SwipeRefreshLib | ViewPagerLib | ViewPager2Lib;
 
-        #endregion
-
-        #region Constructors
-
         public AndroidInitializationFlags(int value, string? name = null, long? flag = null) : base(value, name, flag)
         {
         }
-
-        #endregion
     }
 }

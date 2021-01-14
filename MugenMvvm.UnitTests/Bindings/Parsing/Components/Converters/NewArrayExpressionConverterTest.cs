@@ -9,16 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class NewArrayExpressionConverterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotNewArrayExpression()
-        {
-            var component = new NewArrayExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
-
         [Fact]
         public void TryConvertShouldConvertNewArrayExpression()
         {
@@ -37,6 +27,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             component.TryConvert(ctx, Expression.NewArrayInit(typeof(int), arg1, arg2)).ShouldEqual(expectedResult);
         }
 
-        #endregion
+        [Fact]
+        public void TryConvertShouldIgnoreNotNewArrayExpression()
+        {
+            var component = new NewArrayExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
+        }
     }
 }

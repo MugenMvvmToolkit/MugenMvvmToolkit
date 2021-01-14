@@ -7,16 +7,14 @@ using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class MemberComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(this ItemOrArray<IMemberManagerComponent> components, IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes,
+        public static ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(this ItemOrArray<IMemberManagerComponent> components, IMemberManager memberManager, Type type,
+            EnumFlags<MemberType> memberTypes,
             EnumFlags<MemberFlags> flags, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(memberManager, nameof(memberManager));
@@ -31,7 +29,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return default;
         }
 
-        public static void TryAddMembers(this ItemOrArray<IMemberProviderComponent> components, IMemberManager memberManager, ICollection<IMemberInfo> result, Type type, string name, EnumFlags<MemberType> memberTypes,
+        public static void TryAddMembers(this ItemOrArray<IMemberProviderComponent> components, IMemberManager memberManager, ICollection<IMemberInfo> result, Type type,
+            string name, EnumFlags<MemberType> memberTypes,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(memberManager, nameof(memberManager));
@@ -39,13 +38,12 @@ namespace MugenMvvm.Bindings.Extensions.Components
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
             foreach (var c in components)
-            {
-                foreach (var member in c.TryGetMembers(memberManager, type, name, memberTypes, metadata))
-                    result.Add(member);
-            }
+            foreach (var member in c.TryGetMembers(memberManager, type, name, memberTypes, metadata))
+                result.Add(member);
         }
 
-        public static ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(this ItemOrArray<IMemberProviderComponent> components, IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+        public static ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(this ItemOrArray<IMemberProviderComponent> components, IMemberManager memberManager, Type type, string name,
+            EnumFlags<MemberType> memberTypes,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(memberManager, nameof(memberManager));
@@ -61,7 +59,5 @@ namespace MugenMvvm.Bindings.Extensions.Components
 
             return result.ToItemOrList();
         }
-
-        #endregion
     }
 }

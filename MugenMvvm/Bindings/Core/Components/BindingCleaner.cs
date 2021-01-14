@@ -12,13 +12,7 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingCleaner : IBindingLifecycleListener, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.LifecyclePostInitializer;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -29,7 +23,5 @@ namespace MugenMvvm.Bindings.Core.Components
             BindingMugenExtensions.DisposeBindingSource(binding.Source.GetRawValue());
             binding.Components.Clear();
         }
-
-        #endregion
     }
 }

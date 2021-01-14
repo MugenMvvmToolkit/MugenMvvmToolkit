@@ -10,29 +10,21 @@ namespace MugenMvvm.UnitTests.Components.Internal
         where T : class, IComponentOwner<T>
         where TComponent : class
     {
-        #region Constructors
-
         public TestComponentDecorator() : base(0)
         {
         }
 
-        #endregion
+        public delegate void DecorateDelegate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata);
 
-        #region Properties
+        public new ItemOrArray<TComponent> Components => base.Components;
+
+        public DecorateDelegate? DecorateHandler { get; set; }
 
         public new int Priority
         {
             get => base.Priority;
             set => base.Priority = value;
         }
-
-        public new ItemOrArray<TComponent> Components => base.Components;
-
-        public DecorateDelegate? DecorateHandler { get; set; }
-
-        #endregion
-
-        #region Methods
 
         protected override void Decorate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
@@ -41,13 +33,5 @@ namespace MugenMvvm.UnitTests.Components.Internal
             else
                 DecorateHandler.Invoke(collection, ref components, metadata);
         }
-
-        #endregion
-
-        #region Nested types
-
-        public delegate void DecorateDelegate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata);
-
-        #endregion
     }
 }

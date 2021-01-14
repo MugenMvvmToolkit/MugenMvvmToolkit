@@ -8,25 +8,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestTargetValueSetterComponent : ITargetValueSetterComponent, IHasPriority
     {
-        #region Properties
-
-        public int Priority { get; set; }
+        public delegate bool TrySetTargetValueDelegate(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata);
 
         public TrySetTargetValueDelegate? TrySetTargetValue { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; }
 
         bool ITargetValueSetterComponent.TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) =>
             TrySetTargetValue?.Invoke(binding, targetMember, value, metadata) ?? false;
-
-        #endregion
-
-        #region Nested types
-
-        public delegate bool TrySetTargetValueDelegate(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata);
-
-        #endregion
     }
 }

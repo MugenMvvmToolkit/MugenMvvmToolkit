@@ -7,32 +7,12 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class MethodCallTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Method;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
-        {
-            var p = context.Position;
-            var node = TryParseInternal(context, expression);
-            if (node == null)
-                context.Position = p;
-            return node;
-        }
-
-        #endregion
-
-        #region Methods
 
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -62,7 +42,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (!context.IsToken('('))
             {
                 if (!typeArgs.IsEmpty)
-                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseMethodExpressionExpectedTokenFormat1.Format($"{context.GetValue(nameStart, nameEndPos)}<{string.Join(",", typeArgs)}>"));
+                    context.TryGetErrors()
+                           ?.Add(BindingMessageConstant.CannotParseMethodExpressionExpectedTokenFormat1.Format(
+                               $"{context.GetValue(nameStart, nameEndPos)}<{string.Join(",", typeArgs)}>"));
                 return null;
             }
 
@@ -78,6 +60,13 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), args, typeArgs);
         }
 
-        #endregion
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
+        {
+            var p = context.Position;
+            var node = TryParseInternal(context, expression);
+            if (node == null)
+                context.Position = p;
+            return node;
+        }
     }
 }

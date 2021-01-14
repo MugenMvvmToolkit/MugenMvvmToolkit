@@ -16,8 +16,6 @@ namespace MugenMvvm.UnitTests.Presenters.Components
 {
     public class NavigationCallbackPresenterDecoratorTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShowShouldAddCallbacks()
         {
@@ -107,7 +105,5 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             addedCallbacks.ShouldContain((presenterResult1, NavigationCallbackType.Closing));
             addedCallbacks.ShouldContain((presenterResult2, NavigationCallbackType.Closing));
         }
-
-        #endregion
     }
 }

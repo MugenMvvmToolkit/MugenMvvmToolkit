@@ -10,56 +10,15 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 {
     public class DecoratorObservableCollectionTracker<T> : ICollectionDecoratorListener
     {
-        #region Fields
-
         private bool _countRaised;
         private bool _indexerRaised;
-
-        #endregion
-
-        #region Constructors
 
         public DecoratorObservableCollectionTracker()
         {
             ChangedItems = new List<T>();
         }
 
-        #endregion
-
-        #region Properties
-
         public List<T> ChangedItems { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void OnItemChanged(ICollection collection, object? item, int index, object? args)
-        {
-        }
-
-        public void OnAdded(ICollection collection, object? item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
-
-        public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) => OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
-
-        public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
-
-        public void OnRemoved(ICollection collection, object? item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
-
-        public void OnReset(ICollection collection, IEnumerable<object?>? items) => OnReset(ChangedItems, items?.Cast<T>());
-
-        #endregion
-
-        #region Methods
-
-        private void CheckPropertyChanged(bool countChanged)
-        {
-            _indexerRaised.ShouldBeTrue();
-            if (countChanged)
-                _countRaised.ShouldBeTrue();
-            _indexerRaised = false;
-            _countRaised = false;
-        }
 
         private static void OnAddEvent(List<T> items, IList? newItems, int index)
         {
@@ -97,13 +56,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             items[index] = (T) newItems[0]!;
         }
 
-        private void OnReset(List<T> items, IEnumerable<T>? resetItems)
-        {
-            items.Clear();
-            if (resetItems != null)
-                items.AddRange(resetItems);
-        }
-
         public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
         {
             Should.NotBeNull(sender, nameof(sender));
@@ -135,6 +87,34 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             }
         }
 
-        #endregion
+        public void OnItemChanged(ICollection collection, object? item, int index, object? args)
+        {
+        }
+
+        public void OnAdded(ICollection collection, object? item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
+
+        public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) => OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
+
+        public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
+
+        public void OnRemoved(ICollection collection, object? item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
+
+        public void OnReset(ICollection collection, IEnumerable<object?>? items) => OnReset(ChangedItems, items?.Cast<T>());
+
+        private void CheckPropertyChanged(bool countChanged)
+        {
+            _indexerRaised.ShouldBeTrue();
+            if (countChanged)
+                _countRaised.ShouldBeTrue();
+            _indexerRaised = false;
+            _countRaised = false;
+        }
+
+        private void OnReset(List<T> items, IEnumerable<T>? resetItems)
+        {
+            items.Clear();
+            if (resetItems != null)
+                items.AddRange(resetItems);
+        }
     }
 }

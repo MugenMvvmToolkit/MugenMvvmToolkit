@@ -8,16 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class ConstantExpressionBuilderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotConstantExpression()
-        {
-            var component = new ConstantExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, MemberExpressionNode.Self).ShouldBeNull();
-        }
-
         [Fact]
         public void TryBuildShouldBuildConstantExpression()
         {
@@ -32,6 +22,12 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             build.Invoke().ShouldEqual(constantExpressionNode.Value);
         }
 
-        #endregion
+        [Fact]
+        public void TryBuildShouldIgnoreNotConstantExpression()
+        {
+            var component = new ConstantExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, MemberExpressionNode.Self).ShouldBeNull();
+        }
     }
 }

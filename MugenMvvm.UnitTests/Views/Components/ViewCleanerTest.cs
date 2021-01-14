@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
@@ -12,7 +11,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
@@ -27,48 +25,18 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewCleanerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ShouldClearDataContext()
+        private sealed class TestCleanableViewModel : TestViewModel, IHasService<IMessenger>
         {
-            var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
-            using var t = MugenService.AddComponent(new TestMemberManagerComponent
-            {
-                TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
-            });
+            public IMessenger Service => throw new NotSupportedException();
 
-
-            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
-            view.Target.BindableMembers().SetDataContext(viewModel);
-            view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
-            view.Target.BindableMembers().DataContext().ShouldBeNull();
+            public IMessenger? ServiceOptional { get; set; }
         }
 
-        [Fact]
-        public void ShouldUnsubscribeViewModel()
+        private sealed class TestCleanableView : ICleanableView
         {
-            var invokeCount = 0;
-            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
-            viewModel.ServiceOptional.AddComponent(new TestMessengerSubscriberComponent
-            {
-                TryUnsubscribe = (o, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(this);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return true;
-                }
-            });
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner());
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
+            public Action<object?, IReadOnlyMetadataContext?>? Cleanup { get; set; }
+
+            void ICleanableView.Cleanup(object? state, IReadOnlyMetadataContext? metadata) => Cleanup?.Invoke(state, metadata);
         }
 
         [Fact]
@@ -119,6 +87,26 @@ namespace MugenMvvm.UnitTests.Views.Components
         }
 
         [Fact]
+        public void ShouldClearDataContext()
+        {
+            var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
+            using var t = MugenService.AddComponent(new TestMemberManagerComponent
+            {
+                TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
+            });
+
+
+            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
+            view.Target.BindableMembers().SetDataContext(viewModel);
+            view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            view.Target.BindableMembers().DataContext().ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldClearMetadata()
         {
             var viewModel = new TestCleanableViewModel();
@@ -130,36 +118,26 @@ namespace MugenMvvm.UnitTests.Views.Components
             view.Metadata.Count.ShouldEqual(0);
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestCleanableViewModel : TestViewModel, IHasService<IMessenger>
+        [Fact]
+        public void ShouldUnsubscribeViewModel()
         {
-            #region Properties
-
-            public IMessenger Service => throw new NotSupportedException();
-
-            public IMessenger? ServiceOptional { get; set; }
-
-            #endregion
+            var invokeCount = 0;
+            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
+            viewModel.ServiceOptional.AddComponent(new TestMessengerSubscriberComponent
+            {
+                TryUnsubscribe = (o, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(this);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return true;
+                }
+            });
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new ViewCleaner());
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
         }
-
-        private sealed class TestCleanableView : ICleanableView
-        {
-            #region Properties
-
-            public Action<object?, IReadOnlyMetadataContext?>? Cleanup { get; set; }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            void ICleanableView.Cleanup(object? state, IReadOnlyMetadataContext? metadata) => Cleanup?.Invoke(state, metadata);
-
-            #endregion
-        }
-
-        #endregion
     }
 }

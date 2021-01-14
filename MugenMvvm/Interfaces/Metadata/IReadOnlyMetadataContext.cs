@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Collections;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Metadata
 {

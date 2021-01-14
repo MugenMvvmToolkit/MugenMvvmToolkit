@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewMappingProviderTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(null, false)]
         [InlineData("test", false)]
@@ -285,6 +283,21 @@ namespace MugenMvvm.UnitTests.Views.Components
             }
         }
 
+        public class ViewModelImpl : TestViewModel
+        {
+        }
+
+        public class BaseView : MetadataOwnerBase
+        {
+            public BaseView() : base(null)
+            {
+            }
+        }
+
+        public class ViewImpl : BaseView
+        {
+        }
+
         [Fact]
         public void ClearMappingsShouldClearMappings()
         {
@@ -299,30 +312,5 @@ namespace MugenMvvm.UnitTests.Views.Components
             component.ClearMappings();
             component.TryGetMappings(null!, vm, DefaultMetadata).AsList().ShouldBeEmpty();
         }
-
-        #endregion
-
-        #region Nested types
-
-        public class ViewModelImpl : TestViewModel
-        {
-        }
-
-        public class BaseView : MetadataOwnerBase
-        {
-            #region Constructors
-
-            public BaseView() : base(null)
-            {
-            }
-
-            #endregion
-        }
-
-        public class ViewImpl : BaseView
-        {
-        }
-
-        #endregion
     }
 }

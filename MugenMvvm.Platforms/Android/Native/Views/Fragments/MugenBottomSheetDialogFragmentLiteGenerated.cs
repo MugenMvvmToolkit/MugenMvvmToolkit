@@ -14,8 +14,6 @@ namespace MugenMvvm.Android.Native.Views.Fragments
     [Register("com/mugen/mvvm/views/fragments/MugenBottomSheetDialogFragmentLite", DoNotGenerateAcw = true)]
     public partial class MugenBottomSheetDialogFragmentLite : Object, IDialogFragmentView, INativeFragmentView
     {
-        #region Fields
-
         private static readonly JniPeerMembers _members = new XAPeerMembers("com/mugen/mvvm/views/fragments/MugenBottomSheetDialogFragmentLite", typeof(MugenDialogFragmentLite));
 
         private static Delegate cb_isCancelable;
@@ -68,14 +66,6 @@ namespace MugenMvvm.Android.Native.Views.Fragments
 
         private static Delegate cb_setupDialog_Landroid_app_Dialog_I;
 
-        #endregion
-
-        #region Constructors
-
-        protected MugenBottomSheetDialogFragmentLite(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
-        {
-        }
-
         // Metadata.xml XPath constructor reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/constructor[@name='MugenDialogFragmentLite' and count(parameter)=0]"
         [Register(".ctor", "()V", "")]
         public unsafe MugenBottomSheetDialogFragmentLite()
@@ -91,17 +81,59 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             _members.InstanceMethods.FinishCreateInstance(__id, this, null);
         }
 
-        #endregion
-
-        #region Properties
+        protected MugenBottomSheetDialogFragmentLite(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
+        {
+        }
 
         internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
 
-        public override JniPeerMembers JniPeerMembers => _members;
+        public virtual unsafe Context Context
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getContext' and count(parameter)=0]"
+            [Register("getContext", "()Landroid/content/Context;", "GetGetContextHandler")]
+            get
+            {
+                const string __id = "getContext.()Landroid/content/Context;";
+                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
+                return GetObject<Context>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+            }
+        }
 
-        protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
+        public virtual unsafe Dialog Dialog
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getDialog' and count(parameter)=0]"
+            [Register("getDialog", "()Landroid/app/Dialog;", "GetGetDialogHandler")]
+            get
+            {
+                const string __id = "getDialog.()Landroid/app/Dialog;";
+                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
+                return GetObject<Dialog>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+            }
+        }
 
-        protected override Type ThresholdType => _members.ManagedPeerType;
+        public virtual unsafe int Theme
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getTheme' and count(parameter)=0]"
+            [Register("getTheme", "()I", "GetGetThemeHandler")]
+            get
+            {
+                const string __id = "getTheme.()I";
+                var __rm = _members.InstanceMethods.InvokeVirtualInt32Method(__id, this, null);
+                return __rm;
+            }
+        }
+
+        public virtual unsafe View View
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getView' and count(parameter)=0]"
+            [Register("getView", "()Landroid/view/View;", "GetGetViewHandler")]
+            get
+            {
+                const string __id = "getView.()Landroid/view/View;";
+                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
+                return GetObject<View>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+            }
+        }
 
         public unsafe Activity Activity
         {
@@ -133,30 +165,6 @@ namespace MugenMvvm.Android.Native.Views.Fragments
                 var __args = stackalloc JniArgumentValue[1];
                 __args[0] = new JniArgumentValue(value);
                 _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, __args);
-            }
-        }
-
-        public virtual unsafe Context Context
-        {
-            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getContext' and count(parameter)=0]"
-            [Register("getContext", "()Landroid/content/Context;", "GetGetContextHandler")]
-            get
-            {
-                const string __id = "getContext.()Landroid/content/Context;";
-                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
-                return GetObject<Context>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
-            }
-        }
-
-        public virtual unsafe Dialog Dialog
-        {
-            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getDialog' and count(parameter)=0]"
-            [Register("getDialog", "()Landroid/app/Dialog;", "GetGetDialogHandler")]
-            get
-            {
-                const string __id = "getDialog.()Landroid/app/Dialog;";
-                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
-                return GetObject<Dialog>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
             }
         }
 
@@ -193,29 +201,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             }
         }
 
-        public virtual unsafe int Theme
-        {
-            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getTheme' and count(parameter)=0]"
-            [Register("getTheme", "()I", "GetGetThemeHandler")]
-            get
-            {
-                const string __id = "getTheme.()I";
-                var __rm = _members.InstanceMethods.InvokeVirtualInt32Method(__id, this, null);
-                return __rm;
-            }
-        }
-
-        public virtual unsafe View View
-        {
-            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='getView' and count(parameter)=0]"
-            [Register("getView", "()Landroid/view/View;", "GetGetViewHandler")]
-            get
-            {
-                const string __id = "getView.()Landroid/view/View;";
-                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
-                return GetObject<View>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
-            }
-        }
+        public override JniPeerMembers JniPeerMembers => _members;
 
         public virtual unsafe int ViewId
         {
@@ -229,29 +215,9 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             }
         }
 
-        #endregion
+        protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
 
-        #region Implementation of interfaces
-
-        // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='dismiss' and count(parameter)=0]"
-        [Register("dismiss", "()V", "GetDismissHandler")]
-        public virtual unsafe void Dismiss()
-        {
-            const string __id = "dismiss.()V";
-            _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, null);
-        }
-
-        // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='dismissAllowingStateLoss' and count(parameter)=0]"
-        [Register("dismissAllowingStateLoss", "()V", "GetDismissAllowingStateLossHandler")]
-        public virtual unsafe void DismissAllowingStateLoss()
-        {
-            const string __id = "dismissAllowingStateLoss.()V";
-            _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, null);
-        }
-
-        #endregion
-
-        #region Methods
+        protected override Type ThresholdType => _members.ManagedPeerType;
 
         // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='onCancel' and count(parameter)=1 and parameter[1][@type='android.content.DialogInterface']]"
         [Register("onCancel", "(Landroid/content/DialogInterface;)V", "GetOnCancel_Landroid_content_DialogInterface_Handler")]
@@ -378,7 +344,21 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, __args);
         }
 
-        #endregion
+        // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='dismiss' and count(parameter)=0]"
+        [Register("dismiss", "()V", "GetDismissHandler")]
+        public virtual unsafe void Dismiss()
+        {
+            const string __id = "dismiss.()V";
+            _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, null);
+        }
+
+        // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/method[@name='dismissAllowingStateLoss' and count(parameter)=0]"
+        [Register("dismissAllowingStateLoss", "()V", "GetDismissAllowingStateLossHandler")]
+        public virtual unsafe void DismissAllowingStateLoss()
+        {
+            const string __id = "dismissAllowingStateLoss.()V";
+            _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, null);
+        }
 
 #pragma warning disable 0169
         private static Delegate GetIsCancelableHandler()
@@ -601,13 +581,15 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             if (cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_ == null)
             {
                 cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_ =
-                    JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>) n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_);
+                    JNINativeWrapper.CreateDelegate(
+                        (Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>) n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_);
             }
 
             return cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_;
         }
 
-        private static IntPtr n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_(IntPtr jnienv, IntPtr native__this, IntPtr native_inflater, IntPtr native_container,
+        private static IntPtr n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_(IntPtr jnienv, IntPtr native__this, IntPtr native_inflater,
+            IntPtr native_container,
             IntPtr native_savedInstanceState)
         {
             MugenDialogFragmentLite __this = GetObject<MugenDialogFragmentLite>(jnienv, native__this, JniHandleOwnership.DoNotTransfer);

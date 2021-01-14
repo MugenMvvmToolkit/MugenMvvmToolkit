@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
@@ -7,16 +6,14 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class ParsingComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IExpressionNode? TryConvert<TExpression>(this ItemOrArray<IExpressionConverterComponent<TExpression>> components, IExpressionConverterContext<TExpression> context, TExpression expression)
+        public static IExpressionNode? TryConvert<TExpression>(this ItemOrArray<IExpressionConverterComponent<TExpression>> components,
+            IExpressionConverterContext<TExpression> context, TExpression expression)
             where TExpression : class
         {
             Should.NotBeNull(expression, nameof(expression));
@@ -63,7 +60,5 @@ namespace MugenMvvm.Bindings.Extensions.Components
 
             return null;
         }
-
-        #endregion
     }
 }

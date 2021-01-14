@@ -9,9 +9,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class ResourceComponentExtensions
     {
-        #region Methods
-
-        public static ResourceResolverResult TryGetResource(this ItemOrArray<IResourceResolverComponent> components, IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
+        public static ResourceResolverResult TryGetResource(this ItemOrArray<IResourceResolverComponent> components, IResourceResolver resourceResolver, string name, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(resourceResolver, nameof(resourceResolver));
             Should.NotBeNull(name, nameof(name));
@@ -25,7 +24,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return default;
         }
 
-        public static Type? TryGetType(this ItemOrArray<ITypeResolverComponent> components, IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
+        public static Type? TryGetType(this ItemOrArray<ITypeResolverComponent> components, IResourceResolver resourceResolver, string name, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(resourceResolver, nameof(resourceResolver));
             Should.NotBeNull(name, nameof(name));
@@ -38,7 +38,5 @@ namespace MugenMvvm.Bindings.Extensions.Components
 
             return null;
         }
-
-        #endregion
     }
 }

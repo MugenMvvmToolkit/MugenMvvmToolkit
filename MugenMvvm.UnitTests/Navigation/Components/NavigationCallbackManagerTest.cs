@@ -4,12 +4,10 @@ using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
 using MugenMvvm.Presenters;
-using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Metadata.Internal;
 using MugenMvvm.UnitTests.Navigation.Internal;
 using Should;
@@ -19,20 +17,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationCallbackManagerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryAddNavigationCallbackShouldIgnoreUnknownType()
-        {
-            var result = new PresenterResult(new TestMetadataOwner<IMetadataContext>
-            {
-                HasMetadata = true,
-                Metadata = new MetadataContext()
-            }, "t", NavigationProvider.System, NavigationType.Popup);
-            var component = new NavigationCallbackManager();
-            component.TryAddNavigationCallback(null!, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, DefaultMetadata).ShouldBeNull();
-        }
-
         [Theory]
         [InlineData(true, 1)]
         [InlineData(false, 1)]
@@ -52,7 +36,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var component = new NavigationCallbackManager();
             var addedCallbacks = new HashSet<INavigationCallback>(ReferenceEqualityComparer.Instance);
             for (var i = 0; i < count; i++)
-            {
                 if (wrapTarget)
                 {
                     var result = new PresenterResult(target, "t", NavigationProvider.System, NavigationType.Popup);
@@ -69,7 +52,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     addedCallbacks.Add(callback);
                     component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
                 }
-            }
 
             addedCallbacks.Count.ShouldEqual(1);
         }
@@ -219,6 +201,16 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
-        #endregion
+        [Fact]
+        public void TryAddNavigationCallbackShouldIgnoreUnknownType()
+        {
+            var result = new PresenterResult(new TestMetadataOwner<IMetadataContext>
+            {
+                HasMetadata = true,
+                Metadata = new MetadataContext()
+            }, "t", NavigationProvider.System, NavigationType.Popup);
+            var component = new NavigationCallbackManager();
+            component.TryAddNavigationCallback(null!, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, DefaultMetadata).ShouldBeNull();
+        }
     }
 }

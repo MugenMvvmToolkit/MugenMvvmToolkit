@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingBuilderToTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -33,7 +31,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             request.Source.ShouldEqual(to);
             request.Parameters.AsList().ShouldEqual(new[] {new KeyValuePair<string?, object>(param1, param1), new KeyValuePair<string?, object>(param2, param2)});
         }
-
-        #endregion
     }
 }

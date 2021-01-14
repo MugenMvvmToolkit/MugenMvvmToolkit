@@ -11,36 +11,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public abstract class ObserverBaseTest<TObserver> : UnitTestBase where TObserver : IMemberPathObserver
     {
-        #region Fields
-
         protected const string MethodName = "MM";
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeValues1()
-        {
-            var o = new object();
-            var observer = GetObserver(o);
-            observer.IsAlive.ShouldBeTrue();
-            observer.Target.ShouldEqual(o);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues2()
-        {
-            var o = new TestWeakReference {IsAlive = true, Target = new object()};
-            var observer = GetObserver(o);
-            observer.IsAlive.ShouldBeTrue();
-            observer.Target.ShouldEqual(o.Target);
-
-            o.Target = null;
-            o.IsAlive = false;
-            observer.IsAlive.ShouldBeFalse();
-            observer.Target.ShouldBeNull();
-        }
 
         [Theory]
         [InlineData(true)]
@@ -109,7 +80,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             observer.GetListeners().IsEmpty.ShouldBeTrue();
         }
 
-        protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action<bool> onCleared, int validationCount = 1, bool ignoreFirstMember = true)
+        protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action<bool> onCleared, int validationCount = 1,
+            bool ignoreFirstMember = true)
         {
             var listeners = new TestMemberPathObserverListener[count];
             for (var i = 0; i < listeners.Length; i++)
@@ -171,7 +143,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         private static void ValidateInvokeCount(TestMemberPathObserverListener[] listeners, ListenerMode mode, int count, bool clear = true, int? start = null, int? end = null)
         {
             for (var i = start.GetValueOrDefault(); i < end.GetValueOrDefault(listeners.Length); i++)
-            {
                 switch (mode)
                 {
                     case ListenerMode.Error:
@@ -192,14 +163,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     default:
                         throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
                 }
-            }
         }
 
         protected abstract TObserver GetObserver(object target);
-
-        #endregion
-
-        #region Nested types
 
         protected enum ListenerMode
         {
@@ -208,6 +174,27 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             Members
         }
 
-        #endregion
+        [Fact]
+        public void ConstructorShouldInitializeValues1()
+        {
+            var o = new object();
+            var observer = GetObserver(o);
+            observer.IsAlive.ShouldBeTrue();
+            observer.Target.ShouldEqual(o);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues2()
+        {
+            var o = new TestWeakReference {IsAlive = true, Target = new object()};
+            var observer = GetObserver(o);
+            observer.IsAlive.ShouldBeTrue();
+            observer.Target.ShouldEqual(o.Target);
+
+            o.Target = null;
+            o.IsAlive = false;
+            observer.IsAlive.ShouldBeFalse();
+            observer.Target.ShouldBeNull();
+        }
     }
 }

@@ -20,13 +20,7 @@ namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class MemberCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IEqualityComparer<MemberCache.CacheKey>
     {
-        #region Fields
-
         private readonly Dictionary<CacheKey, object?> _cache;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public MemberCache(int priority = MemberComponentPriority.Cache)
@@ -35,14 +29,22 @@ namespace MugenMvvm.Bindings.Members.Components
             _cache = new Dictionary<CacheKey, object?>(59, this);
         }
 
-        #endregion
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (state is Type type)
+            {
+                var keys = new ItemOrListEditor<CacheKey>();
+                foreach (var pair in _cache)
+                    if (pair.Key.Type == type)
+                        keys.Add(pair.Key);
 
-        #region Implementation of interfaces
-
-        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) =>
-            x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type && InternalEqualityComparer.Equals(x.Types, y.Types);
-
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, key.MemberFlags, key.Types.Count);
+                var count = keys.Count;
+                for (var i = 0; i < count; i++)
+                    _cache.Remove(keys[i]);
+            }
+            else
+                _cache.Clear();
+        }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
             object request, IReadOnlyMetadataContext? metadata)
@@ -70,51 +72,23 @@ namespace MugenMvvm.Bindings.Members.Components
             return ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(members);
         }
 
-        #endregion
-
-        #region Methods
-
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (state is Type type)
-            {
-                var keys = new ItemOrListEditor<CacheKey>();
-                foreach (var pair in _cache)
-                {
-                    if (pair.Key.Type == type)
-                        keys.Add(pair.Key);
-                }
-
-                var count = keys.Count;
-                for (var i = 0; i < count; i++)
-                    _cache.Remove(keys[i]);
-            }
-            else
-                _cache.Clear();
-        }
-
         protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(null, metadata);
 
         protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(null, metadata);
 
-        #endregion
+        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) =>
+            x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type && InternalEqualityComparer.Equals(x.Types, y.Types);
 
-        #region Nested types
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, key.MemberFlags, key.Types.Count);
 
         [StructLayout(LayoutKind.Auto)]
         internal readonly struct CacheKey
         {
-            #region Fields
-
             public readonly string Key;
             public readonly Type Type;
             public readonly ushort MemberType;
             public readonly ushort MemberFlags;
             private readonly object? _typesRaw;
-
-            #endregion
-
-            #region Constructors
 
             public CacheKey(Type type, string key, EnumFlags<MemberType> memberType, EnumFlags<MemberFlags> memberFlags, ItemOrArray<Type> types)
             {
@@ -125,19 +99,11 @@ namespace MugenMvvm.Bindings.Members.Components
                 _typesRaw = types.GetRawValue();
             }
 
-            #endregion
-
-            #region Properties
-
             public ItemOrArray<Type> Types
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => ItemOrArray.FromRawValue<Type>(_typesRaw);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

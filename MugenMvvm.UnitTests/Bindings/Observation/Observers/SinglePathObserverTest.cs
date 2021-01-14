@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
@@ -17,13 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class SinglePathObserverTest : ObserverBaseTest<SinglePathObserver>
     {
-        #region Fields
-
         protected static readonly IMemberPath DefaultPath = MemberPath.Get("test");
-
-        #endregion
-
-        #region Methods
 
         [Theory]
         [InlineData(true)]
@@ -123,29 +115,53 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             members.Error.ShouldEqual(error);
         }
 
-        [Fact]
-        public void OptionalShouldIgnoreNullMember()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ObserverShouldNotifyListenersLastMember(int count)
         {
-            var memberFlags = MemberFlags.All;
-            var path = DefaultPath;
+            IEventListener? currentListener = null;
+            IEventListener? lastListener = null;
+            var accessorInfo = new TestAccessorMemberInfo
+            {
+                TryObserve = (o, listener, arg3) =>
+                {
+                    currentListener = listener;
+                    lastListener = listener;
+                    return new ActionToken((o1, o2) => currentListener = null);
+                }
+            };
+            var component = new TestMemberManagerComponent
+            {
+                TryGetMembers = (t, m, f, r, meta) => accessorInfo
+            };
+            using var _ = MugenService.AddComponent(component);
+
+            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+                disposed => currentListener.ShouldBeNull());
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ObserverShouldNotifyListenersError(int count)
+        {
+            IEventListener? currentListener = null;
             var component = new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => default
             };
-
             using var _ = MugenService.AddComponent(component);
-            var singlePathObserver = GetObserver(this, path, memberFlags, true);
-            var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
-            lastMember.IsAvailable.ShouldBeFalse();
-            lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
-            lastMember.Error.ShouldBeNull();
 
-            var members = singlePathObserver.GetMembers(DefaultMetadata);
-            members.Members.Item.ShouldEqual(ConstantMemberInfo.Unset);
-            members.IsAvailable.ShouldBeFalse();
-            members.Target.ShouldEqual(BindingMetadata.UnsetValue);
-            members.Error.ShouldBeNull();
+            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
         }
+
+        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) =>
+            new(target, path, memberFlags, optional);
+
+        protected override SinglePathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.InstancePublic, true);
 
         [Fact]
         public void NonOptionalShouldReturnError()
@@ -170,52 +186,28 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             members.Error.ShouldBeType<InvalidOperationException>();
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ObserverShouldNotifyListenersLastMember(int count)
+        [Fact]
+        public void OptionalShouldIgnoreNullMember()
         {
-            IEventListener? currentListener = null;
-            IEventListener? lastListener = null;
-            var accessorInfo = new TestAccessorMemberInfo
-            {
-                TryObserve = (o, listener, arg3) =>
-                {
-                    currentListener = listener;
-                    lastListener = listener;
-                    return new ActionToken((o1, o2) => currentListener = null);
-                }
-            };
-            var component = new TestMemberManagerComponent
-            {
-                TryGetMembers = (t, m, f, r, meta) => accessorInfo
-            };
-            using var _ = MugenService.AddComponent(component);
-
-            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull());
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ObserverShouldNotifyListenersError(int count)
-        {
-            IEventListener? currentListener = null;
+            var memberFlags = MemberFlags.All;
+            var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => default
             };
+
             using var _ = MugenService.AddComponent(component);
+            var singlePathObserver = GetObserver(this, path, memberFlags, true);
+            var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
+            lastMember.IsAvailable.ShouldBeFalse();
+            lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
+            lastMember.Error.ShouldBeNull();
 
-            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
+            var members = singlePathObserver.GetMembers(DefaultMetadata);
+            members.Members.Item.ShouldEqual(ConstantMemberInfo.Unset);
+            members.IsAvailable.ShouldBeFalse();
+            members.Target.ShouldEqual(BindingMetadata.UnsetValue);
+            members.Error.ShouldBeNull();
         }
-
-        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) => new(target, path, memberFlags, optional);
-
-        protected override SinglePathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.InstancePublic, true);
-
-        #endregion
     }
 }

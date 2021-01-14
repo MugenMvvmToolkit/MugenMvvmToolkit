@@ -12,8 +12,6 @@ namespace MugenMvvm.Android.Collections
 {
     public sealed class MenuItemsSourceGenerator : DiffableBindableCollectionAdapter
     {
-        #region Constructors
-
         private MenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate itemTemplate)
         {
             Should.NotBeNull(itemTemplate, nameof(itemTemplate));
@@ -22,19 +20,11 @@ namespace MugenMvvm.Android.Collections
             DiffableComparer = itemTemplate as IDiffableEqualityComparer;
         }
 
-        #endregion
-
-        #region Properties
-
         public IMenu Menu { get; }
 
         public IMenuItemTemplate ItemTemplate { get; }
 
         protected override bool IsAlive => Menu.Handle != IntPtr.Zero;
-
-        #endregion
-
-        #region Methods
 
         public static MenuItemsSourceGenerator? TryGet(IMenu menu)
         {
@@ -106,7 +96,5 @@ namespace MugenMvvm.Android.Collections
                 ItemTemplate.Clear(Menu.GetItem(i)!);
             Menu.Clear();
         }
-
-        #endregion
     }
 }

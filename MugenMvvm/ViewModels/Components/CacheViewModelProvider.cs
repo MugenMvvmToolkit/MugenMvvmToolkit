@@ -14,14 +14,8 @@ namespace MugenMvvm.ViewModels.Components
 {
     public sealed class CacheViewModelProvider : IViewModelProviderComponent, IViewModelLifecycleListener, IHasPriority
     {
-        #region Fields
-
         private readonly bool _isWeakCache;
         private readonly Dictionary<string, object> _viewModelsCache;
-
-        #endregion
-
-        #region Constructors
 
         public CacheViewModelProvider(bool isWeakCache = true)
         {
@@ -29,17 +23,50 @@ namespace MugenMvvm.ViewModels.Components
             _viewModelsCache = new Dictionary<string, object>(StringComparer.Ordinal);
         }
 
-        #endregion
-
-        #region Properties
+        public Func<IViewModelBase, object?, IReadOnlyMetadataContext?, bool>? ShouldCache { get; set; }
 
         public int Priority { get; set; } = ViewModelComponentPriority.Provider;
 
-        public Func<IViewModelBase, object?, IReadOnlyMetadataContext?, bool>? ShouldCache { get; set; }
+        public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
+        {
+            if (!(request is string id))
+                return null;
 
-        #endregion
+            object? value;
+            lock (_viewModelsCache)
+            {
+                if (!_viewModelsCache.TryGetValue(id, out value))
+                    return null;
+            }
 
-        #region Implementation of interfaces
+            if (!_isWeakCache)
+                return (IViewModelBase) value;
+
+            var vm = (IViewModelBase?) ((IWeakReference) value).Target;
+            if (vm == null)
+                Remove(id);
+            return vm;
+        }
+
+        private void Add(string? id, IViewModelBase viewModel)
+        {
+            if (id == null)
+                return;
+            lock (_viewModelsCache)
+            {
+                _viewModelsCache[id] = _isWeakCache ? (object) viewModel.ToWeakReference() : viewModel;
+            }
+        }
+
+        private void Remove(string? id)
+        {
+            if (id == null)
+                return;
+            lock (_viewModelsCache)
+            {
+                _viewModelsCache.Remove(id);
+            }
+        }
 
         void IViewModelLifecycleListener.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
@@ -66,52 +93,5 @@ namespace MugenMvvm.ViewModels.Components
             else if (lifecycleState == ViewModelLifecycleState.Disposed)
                 Remove(viewModel.GetId());
         }
-
-        public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
-        {
-            if (!(request is string id))
-                return null;
-
-            object? value;
-            lock (_viewModelsCache)
-            {
-                if (!_viewModelsCache.TryGetValue(id, out value))
-                    return null;
-            }
-
-            if (!_isWeakCache)
-                return (IViewModelBase) value;
-
-            var vm = (IViewModelBase?) ((IWeakReference) value).Target;
-            if (vm == null)
-                Remove(id);
-            return vm;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private void Add(string? id, IViewModelBase viewModel)
-        {
-            if (id == null)
-                return;
-            lock (_viewModelsCache)
-            {
-                _viewModelsCache[id] = _isWeakCache ? (object) viewModel.ToWeakReference() : viewModel;
-            }
-        }
-
-        private void Remove(string? id)
-        {
-            if (id == null)
-                return;
-            lock (_viewModelsCache)
-            {
-                _viewModelsCache.Remove(id);
-            }
-        }
-
-        #endregion
     }
 }

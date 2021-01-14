@@ -10,25 +10,15 @@ using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Bindings.Compiling.Components
 {
-    public sealed class ExpressionOptimizer : ComponentDecoratorBase<IExpressionCompiler, IExpressionBuilderComponent>, IExpressionBuilderComponent//todo test
+    public sealed class ExpressionOptimizer : ComponentDecoratorBase<IExpressionCompiler, IExpressionBuilderComponent>, IExpressionBuilderComponent //todo test
     {
-        #region Fields
-
         private readonly Visitor _visitor;
         private bool _building;
-
-        #endregion
-
-        #region Constructors
 
         public ExpressionOptimizer(int priority = ParsingComponentPriority.Optimizer) : base(priority)
         {
             _visitor = new Visitor();
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
@@ -51,20 +41,16 @@ namespace MugenMvvm.Bindings.Compiling.Components
             return _visitor.Visit(result);
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class Visitor : ExpressionVisitor
         {
-            #region Fields
-
             private bool _hasParameter;
             private bool _visiting;
 
-            #endregion
+            private static bool IsItemOrList(Type type) => type.IsGenericType && MugenExtensions.RawMethodMapping.ContainsKey(type.GetGenericTypeDefinition());
 
-            #region Methods
+            private static bool IsValid(ExpressionType type) =>
+                type != ExpressionType.Parameter && type != ExpressionType.Constant && type != ExpressionType.Convert && type != ExpressionType.ConvertChecked &&
+                type != ExpressionType.Lambda;
 
             public override Expression? Visit(Expression? node)
             {
@@ -93,15 +79,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 _hasParameter = true;
                 return base.VisitParameter(node);
             }
-
-            private static bool IsItemOrList(Type type) => type.IsGenericType && MugenExtensions.RawMethodMapping.ContainsKey(type.GetGenericTypeDefinition());
-
-            private static bool IsValid(ExpressionType type) =>
-                type != ExpressionType.Parameter && type != ExpressionType.Constant && type != ExpressionType.Convert && type != ExpressionType.ConvertChecked && type != ExpressionType.Lambda;
-
-            #endregion
         }
-
-        #endregion
     }
 }

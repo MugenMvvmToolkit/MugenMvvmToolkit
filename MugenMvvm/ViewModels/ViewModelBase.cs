@@ -15,18 +15,13 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.ViewModels
 {
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener, IHasDisposeCallback//todo inherit service behavior
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener,
+        IHasDisposeCallback //todo inherit service behavior
     {
-        #region Fields
-
         private readonly IViewModelManager? _viewModelManager;
         private IBusyManager? _busyManager;
         private List<ActionToken>? _disposeTokens;
         private IMetadataContext? _metadata;
-
-        #endregion
-
-        #region Constructors
 
         protected ViewModelBase(IViewModelManager? viewModelManager = null)
         {
@@ -34,39 +29,27 @@ namespace MugenMvvm.ViewModels
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Created, manager: _viewModelManager);
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsBusy => BusyToken != null;
 
         public IBusyToken? BusyToken => _busyManager?.TryGetToken(this, (_, token, ___) => !token.IsSuspended && !token.IsCompleted);
-
-        public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-        public IMetadataContext Metadata => this.InitializeService(ref _metadata);
 
         public IBusyManager BusyManager => this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm));
 
         public bool IsDisposed { get; private set; }
 
+        public bool HasMetadata => !_metadata.IsNullOrEmpty();
+
+        public IMetadataContext Metadata => this.InitializeService(ref _metadata);
+
         protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 
         IBusyManager IHasService<IBusyManager>.Service => BusyManager;
 
+        IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
+
         IViewModelManager IHasService<IViewModelManager>.Service => ViewModelManager;
 
         IViewModelManager? IHasService<IViewModelManager>.ServiceOptional => _viewModelManager;
-
-        IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IBusyManagerListener.OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata) => OnBeginBusy(busyManager, busyToken, metadata);
-
-        void IBusyManagerListener.OnBusyStateChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata) => OnBusyStateChanged(busyManager, metadata);
 
         public void Dispose()
         {
@@ -105,12 +88,6 @@ namespace MugenMvvm.ViewModels
             if (inline)
                 token.Dispose();
         }
-
-        #endregion
-
-        #region Methods
-
-        protected T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
 
         protected virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null)
             => ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
@@ -153,6 +130,10 @@ namespace MugenMvvm.ViewModels
             this.TryGetService<IMessenger>(true)?.Publish(this, args);
         }
 
-        #endregion
+        protected T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
+
+        void IBusyManagerListener.OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata) => OnBeginBusy(busyManager, busyToken, metadata);
+
+        void IBusyManagerListener.OnBusyStateChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata) => OnBusyStateChanged(busyManager, metadata);
     }
 }

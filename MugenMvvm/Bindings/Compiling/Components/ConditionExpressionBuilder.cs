@@ -11,13 +11,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class ConditionExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = CompilingComponentPriority.Condition;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
@@ -29,7 +23,5 @@ namespace MugenMvvm.Bindings.Compiling.Components
             BindingMugenExtensions.Convert(ref ifTrue, ref ifFalse, true);
             return Expression.Condition(context.Build(condition.Condition).ConvertIfNeed(typeof(bool), true), ifTrue, ifFalse);
         }
-
-        #endregion
     }
 }

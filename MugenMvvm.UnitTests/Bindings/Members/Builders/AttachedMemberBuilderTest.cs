@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     public class AttachedMemberBuilderTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void EventShouldBuildEvent1()
         {
@@ -35,33 +33,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             BindableEventDescriptor<AttachedMemberBuilderTest> descriptor = name;
             var build = descriptor.GetBuilder(memberType).Build();
             build.MemberType.ShouldEqual(MemberType.Event);
-            build.Name.ShouldEqual(name);
-            build.DeclaringType.ShouldEqual(declaredType);
-            build.Type.ShouldEqual(memberType);
-        }
-
-        [Fact]
-        public void PropertyShouldBuildProperty1()
-        {
-            string name = "t";
-            Type declaredType = GetType();
-            var memberType = typeof(Action);
-            var build = AttachedMemberBuilder.Property<object, object>(name, declaredType, memberType).Build();
-            build.MemberType.ShouldEqual(MemberType.Accessor);
-            build.Name.ShouldEqual(name);
-            build.DeclaringType.ShouldEqual(declaredType);
-            build.Type.ShouldEqual(memberType);
-        }
-
-        [Fact]
-        public void PropertyShouldBuildProperty2()
-        {
-            string name = "t";
-            Type declaredType = GetType();
-            var memberType = typeof(Action);
-            BindablePropertyDescriptor<AttachedMemberBuilderTest, Action> descriptor = name;
-            var build = descriptor.GetBuilder().Build();
-            build.MemberType.ShouldEqual(MemberType.Accessor);
             build.Name.ShouldEqual(name);
             build.DeclaringType.ShouldEqual(declaredType);
             build.Type.ShouldEqual(memberType);
@@ -215,6 +186,31 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             parameterInfo.Name.ShouldEqual(name);
         }
 
-        #endregion
+        [Fact]
+        public void PropertyShouldBuildProperty1()
+        {
+            string name = "t";
+            Type declaredType = GetType();
+            var memberType = typeof(Action);
+            var build = AttachedMemberBuilder.Property<object, object>(name, declaredType, memberType).Build();
+            build.MemberType.ShouldEqual(MemberType.Accessor);
+            build.Name.ShouldEqual(name);
+            build.DeclaringType.ShouldEqual(declaredType);
+            build.Type.ShouldEqual(memberType);
+        }
+
+        [Fact]
+        public void PropertyShouldBuildProperty2()
+        {
+            string name = "t";
+            Type declaredType = GetType();
+            var memberType = typeof(Action);
+            BindablePropertyDescriptor<AttachedMemberBuilderTest, Action> descriptor = name;
+            var build = descriptor.GetBuilder().Build();
+            build.MemberType.ShouldEqual(MemberType.Accessor);
+            build.Name.ShouldEqual(name);
+            build.DeclaringType.ShouldEqual(declaredType);
+            build.Type.ShouldEqual(memberType);
+        }
     }
 }

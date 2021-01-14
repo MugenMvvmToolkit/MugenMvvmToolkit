@@ -15,15 +15,9 @@ namespace MugenMvvm.Bindings.Core
     public struct BindingSet<TSource> : IDisposable
         where TSource : class
     {
-        #region Fields
-
         private readonly TSource? _source;
         private IBindingManager? _bindingManager;
         private Dictionary<(object, object?), object?>? _builders;
-
-        #endregion
-
-        #region Constructors
 
         public BindingSet(IBindingManager? bindingManager = null) : this(null, bindingManager)
         {
@@ -36,23 +30,11 @@ namespace MugenMvvm.Bindings.Core
             _builders = null;
         }
 
-        #endregion
-
-        #region Properties
-
         private IBindingManager BindingManager => _bindingManager ??= _bindingManager.DefaultIfNull();
 
         private Dictionary<(object, object?), object?> Builders => _builders ??= new Dictionary<(object, object?), object?>(InternalEqualityComparer.ValueTupleReference);
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public void Dispose() => Build();
-
-        #endregion
-
-        #region Methods
 
         public BindingSet<TSource> Bind<TTarget>(TTarget target, BindingBuilderDelegate<TTarget, TSource> getBuilder, IReadOnlyMetadataContext? metadata = null)
             where TTarget : class
@@ -95,7 +77,6 @@ namespace MugenMvvm.Bindings.Core
         private void BuildInternal(bool includeBindings, ref ItemOrListEditor<IBinding> bindings, IReadOnlyMetadataContext? metadata = null)
         {
             foreach (var builder in Builders)
-            {
                 if (builder.Value is IBindingBuilder expression)
                 {
                     var binding = expression.Build(builder.Key.Item1, builder.Key.Item2, metadata);
@@ -116,7 +97,6 @@ namespace MugenMvvm.Bindings.Core
                             bindings.Add(binding);
                     }
                 }
-            }
 
             Builders.Clear();
         }
@@ -130,7 +110,5 @@ namespace MugenMvvm.Bindings.Core
             list.AddRange(expressions);
             Builders[key] = list.GetRawValue();
         }
-
-        #endregion
     }
 }

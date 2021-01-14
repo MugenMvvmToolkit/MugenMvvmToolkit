@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 {
     public class BindingMemberExpressionCollectorVisitorTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void CollectShouldCollectBindingMemberExpressions1()
         {
@@ -36,7 +34,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var ex1 = new BindingMemberExpressionNode("Test1", -1, default, default);
             var ex2 = new BindingMemberExpressionNode("Test2", -1, default, default);
             var ex3 = new BindingMemberExpressionNode("Test2", -1, default, default);
-            IExpressionNode expression = new BinaryExpressionNode(BinaryTokenType.Addition, ex1, new BinaryExpressionNode(BinaryTokenType.Division, ex2, new BinaryExpressionNode(BinaryTokenType.Addition, ex1, ex3)));
+            IExpressionNode expression = new BinaryExpressionNode(BinaryTokenType.Addition, ex1,
+                new BinaryExpressionNode(BinaryTokenType.Division, ex2, new BinaryExpressionNode(BinaryTokenType.Addition, ex1, ex3)));
             var visitor = new BindingMemberExpressionCollectorVisitor();
             var array = visitor.Collect(ref expression, DefaultMetadata).AsList();
             array.Count.ShouldEqual(3);
@@ -52,7 +51,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             array[1].ShouldEqual(ex2.Update(1, ex2.Flags, ex2.MemberFlags, ex2.ObservableMethodName));
             array[2].ShouldEqual(ex3.Update(2, ex3.Flags, ex3.MemberFlags, ex3.ObservableMethodName));
         }
-
-        #endregion
     }
 }

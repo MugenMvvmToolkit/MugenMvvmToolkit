@@ -9,37 +9,11 @@ namespace MugenMvvm.Components
         where TComponent : class
         where T : class, IComponentOwner<T>
     {
-        #region Constructors
-
         protected ComponentCacheBase(int priority = ComponentPriority.Cache) : base(priority)
         {
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentAdded(collection, component, metadata);
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => OnComponentRemoved(collection, component, metadata);
-
         public abstract void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null);
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnAttached(owner, metadata);
-            Invalidate(null, metadata);
-        }
-
-        protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnDetached(owner, metadata);
-            Invalidate(null, metadata);
-        }
 
         protected virtual void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
@@ -53,6 +27,22 @@ namespace MugenMvvm.Components
                 Invalidate(null, metadata);
         }
 
-        #endregion
+        protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnAttached(owner, metadata);
+            Invalidate(null, metadata);
+        }
+
+        protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnDetached(owner, metadata);
+            Invalidate(null, metadata);
+        }
+
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            OnComponentAdded(collection, component, metadata);
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            OnComponentRemoved(collection, component, metadata);
     }
 }

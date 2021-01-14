@@ -12,13 +12,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class MemberPathProviderCache : ComponentCacheBase<IObservationManager, IMemberPathProviderComponent>, IMemberPathProviderComponent
     {
-        #region Fields
-
         private readonly Dictionary<string, IMemberPath?> _cache;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public MemberPathProviderCache(int priority = ObserverComponentPriority.Cache)
@@ -27,9 +21,7 @@ namespace MugenMvvm.Bindings.Observation.Components
             _cache = new Dictionary<string, IMemberPath?>(59, StringComparer.Ordinal);
         }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
 
         public IMemberPath? TryGetMemberPath(IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
         {
@@ -44,13 +36,5 @@ namespace MugenMvvm.Bindings.Observation.Components
 
             return value;
         }
-
-        #endregion
-
-        #region Methods
-
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
-        #endregion
     }
 }

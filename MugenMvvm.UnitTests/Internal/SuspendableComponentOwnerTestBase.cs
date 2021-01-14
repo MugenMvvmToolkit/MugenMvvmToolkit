@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public abstract class SuspendableComponentOwnerTestBase<T> : ComponentOwnerTestBase<T> where T : class, IComponentOwner, ISuspendable
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -67,7 +65,5 @@ namespace MugenMvvm.UnitTests.Internal
         }
 
         protected virtual TestSuspendableComponent GetSuspendableComponent() => new();
-
-        #endregion
     }
 }

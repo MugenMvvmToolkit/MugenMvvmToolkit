@@ -3,14 +3,11 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTests.Components.Internal
 {
     public class TestMultiAttachableComponent<T> : MultiAttachableComponentBase<T>, IComponent<T> where T : class
     {
-        #region Properties
-
         public Action<T, IReadOnlyMetadataContext?>? OnAttachedHandler { get; set; }
 
         public Action<T, IReadOnlyMetadataContext?>? OnDetachedHandler { get; set; }
@@ -20,10 +17,6 @@ namespace MugenMvvm.UnitTests.Components.Internal
         public Func<T, IReadOnlyMetadataContext?, bool>? OnDetachingHandler { get; set; }
 
         public new ItemOrArray<T> Owners => base.Owners;
-
-        #endregion
-
-        #region Methods
 
         protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
@@ -40,7 +33,5 @@ namespace MugenMvvm.UnitTests.Components.Internal
         }
 
         protected override bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => OnDetachingHandler?.Invoke(owner, metadata) ?? base.OnDetaching(owner, metadata);
-
-        #endregion
     }
 }

@@ -12,18 +12,13 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class ConstantExpressionNode : ExpressionNodeBase<IConstantExpressionNode>, IConstantExpressionNode
     {
-        #region Fields
-
         public static readonly ConstantExpressionNode True = new(BoxingExtensions.TrueObject, typeof(bool), MugenExtensions.TrueConstantExpression);
         public static readonly ConstantExpressionNode False = new(BoxingExtensions.FalseObject, typeof(bool), MugenExtensions.FalseConstantExpression);
         public static readonly ConstantExpressionNode Null = new(null, typeof(object), MugenExtensions.NullConstantExpression);
         public static readonly ConstantExpressionNode EmptyString = new("", typeof(string), Expression.Constant(""));
 
-        #endregion
-
-        #region Constructors
-
-        public ConstantExpressionNode(object? value, Type? type = null, ConstantExpression? constantExpression = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
+        public ConstantExpressionNode(object? value, Type? type = null, ConstantExpression? constantExpression = null,
+            IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             if (type == null)
                 type = value == null ? typeof(object) : value.GetType();
@@ -34,21 +29,13 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             ConstantExpression = constantExpression;
         }
 
-        #endregion
-
-        #region Properties
-
         public ConstantExpression? ConstantExpression { get; }
-
-        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Constant;
 
         public Type Type { get; }
 
         public object? Value { get; }
 
-        #endregion
-
-        #region Methods
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Constant;
 
         public static ConstantExpressionNode Get<TType>() => TypeCache<TType>.TypeConstant;
 
@@ -81,14 +68,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return new ConstantExpressionNode(value, type);
         }
 
-        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
-
-        protected override IConstantExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new ConstantExpressionNode(Value, Type, ConstantExpression, metadata);
-
-        protected override bool Equals(IConstantExpressionNode other, IExpressionEqualityComparer? comparer) => Type == other.Type && Equals(Value, other.Value);
-
-        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => HashCode.Combine(hashCode, Type, Value);
-
         public override string ToString()
         {
             if (Value == null)
@@ -102,20 +81,18 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return Value.ToString()!;
         }
 
-        #endregion
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
 
-        #region Nested types
+        protected override IConstantExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new ConstantExpressionNode(Value, Type, ConstantExpression, metadata);
+
+        protected override bool Equals(IConstantExpressionNode other, IExpressionEqualityComparer? comparer) => Type == other.Type && Equals(Value, other.Value);
+
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => HashCode.Combine(hashCode, Type, Value);
 
         private static class IntCache
         {
-            #region Fields
-
             public static readonly ConstantExpressionNode[] Positive = GenerateItems(MugenExtensions.IntCache.Positive);
             public static readonly ConstantExpressionNode[] Negative = GenerateItems(MugenExtensions.IntCache.Negative);
-
-            #endregion
-
-            #region Methods
 
             private static ConstantExpressionNode[] GenerateItems(ConstantExpression[] values)
             {
@@ -128,20 +105,12 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
                 return items;
             }
-
-            #endregion
         }
 
         private static class TypeCache<TType>
         {
-            #region Fields
-
             public static readonly ConstantExpressionNode TypeConstant =
                 new(typeof(TType), typeof(TType).GetType(), Expression.Constant(typeof(TType)), Default.ReadOnlyDictionary<string, object?>());
-
-            #endregion
         }
-
-        #endregion
     }
 }

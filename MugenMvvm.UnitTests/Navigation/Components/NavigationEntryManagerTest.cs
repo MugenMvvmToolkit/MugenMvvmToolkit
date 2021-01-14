@@ -7,7 +7,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
@@ -21,13 +20,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationEntryManagerTest : UnitTestBase
     {
-        #region Fields
-
         private static readonly IMetadataContextKey<int> Key = MetadataContextKey.FromKey<int>("i");
-
-        #endregion
-
-        #region Methods
 
         [Theory]
         [InlineData(1)]
@@ -62,18 +55,14 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             }
 
             foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-            {
-                foreach (var navigationType in NavigationType.GetAll())
+            foreach (var navigationType in NavigationType.GetAll())
+                for (var i = 0; i < count; i++)
                 {
-                    for (var i = 0; i < count; i++)
-                    {
-                        ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
-                        ctx.Metadata.Set(Key, i);
-                        component.OnNavigating(dispatcher, ctx);
-                        contexts.Add(ctx);
-                    }
+                    ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
+                    ctx.Metadata.Set(Key, i);
+                    component.OnNavigating(dispatcher, ctx);
+                    contexts.Add(ctx);
                 }
-            }
 
             ValidateEntries(component.TryGetNavigationEntries(null!, null).AsList(), contexts, true);
             invokedCount.ShouldEqual(contexts.Count * count);
@@ -112,18 +101,14 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             }
 
             foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-            {
-                foreach (var navigationType in NavigationType.GetAll())
+            foreach (var navigationType in NavigationType.GetAll())
+                for (var i = 0; i < count; i++)
                 {
-                    for (var i = 0; i < count; i++)
-                    {
-                        ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
-                        ctx.Metadata.Set(Key, i);
-                        component.OnNavigated(dispatcher, ctx);
-                        contexts.Add(ctx);
-                    }
+                    ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
+                    ctx.Metadata.Set(Key, i);
+                    component.OnNavigated(dispatcher, ctx);
+                    contexts.Add(ctx);
                 }
-            }
 
             ValidateEntries(component.TryGetNavigationEntries(null!, null).AsList(), contexts);
             invokedCount.ShouldEqual(contexts.Count * count);
@@ -142,18 +127,14 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             var invokedCount = 0;
 
             foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-            {
-                foreach (var navigationType in NavigationType.GetAll())
+            foreach (var navigationType in NavigationType.GetAll())
+                for (var i = 0; i < count; i++)
                 {
-                    for (var i = 0; i < count; i++)
-                    {
-                        ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
-                        ctx.Metadata.Set(Key, i);
-                        component.OnNavigated(dispatcher, ctx);
-                        contexts.Add(ctx);
-                    }
+                    ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
+                    ctx.Metadata.Set(Key, i);
+                    component.OnNavigated(dispatcher, ctx);
+                    contexts.Add(ctx);
                 }
-            }
 
             for (var i = 0; i < count; i++)
             {
@@ -201,18 +182,14 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 dispatcher.Components.Clear();
                 var invokedCount = 0;
                 foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-                {
-                    foreach (var navigationType in NavigationType.GetAll())
+                foreach (var navigationType in NavigationType.GetAll())
+                    for (var i = 0; i < count; i++)
                     {
-                        for (var i = 0; i < count; i++)
-                        {
-                            ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
-                            ctx.Metadata.Set(Key, i);
-                            component.OnNavigated(dispatcher, ctx);
-                            contexts.Add(ctx);
-                        }
+                        ctx = new NavigationContext(this, provider, Guid.NewGuid().ToString(), navigationType, mode);
+                        ctx.Metadata.Set(Key, i);
+                        component.OnNavigated(dispatcher, ctx);
+                        contexts.Add(ctx);
                     }
-                }
 
                 for (var i = 0; i < count; i++)
                 {
@@ -236,7 +213,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
                 foreach (var navigationContext in contexts)
                 {
-                    ctx = new NavigationContext(this, navigationContext.NavigationProvider, navigationContext.NavigationId, navigationContext.NavigationType, closeMode, navigationContext.Metadata);
+                    ctx = new NavigationContext(this, navigationContext.NavigationProvider, navigationContext.NavigationId, navigationContext.NavigationType, closeMode,
+                        navigationContext.Metadata);
                     component.OnNavigated(dispatcher, ctx);
                 }
 
@@ -286,7 +264,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             }
 
             foreach (var navigationType in NavigationType.GetAll())
-            {
                 for (var i = 0; i < count; i++)
                 {
                     ctx = new PresenterResult(this, Guid.NewGuid().ToString(), provider, navigationType);
@@ -294,10 +271,54 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                     presenter.TryShow(ctx);
                     contexts.Add(ctx);
                 }
-            }
 
             ValidateEntries(component.TryGetNavigationEntries(dispatcher, null).AsList(), contexts, true);
             invokedCount.ShouldEqual(contexts.Count * count);
+        }
+
+        private static void ValidateEntries(IReadOnlyList<INavigationEntry>? entries, IReadOnlyCollection<IHasNavigationInfo> contexts, bool isPending = false)
+        {
+            if (entries == null)
+            {
+                contexts.Count.ShouldEqual(0);
+                return;
+            }
+
+            entries.Count.ShouldEqual(contexts.Count);
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                entry.IsPending.ShouldEqual(isPending);
+                var navigationContext = contexts.Single(context => context.NavigationId == entry.NavigationId);
+                navigationContext.NavigationType.ShouldEqual(entry.NavigationType);
+                ((IHasNavigationProvider) navigationContext).NavigationProvider.ShouldEqual(entry.NavigationProvider);
+                ((IMetadataOwner<IReadOnlyMetadataContext>) navigationContext).Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+            }
+        }
+
+        [Fact]
+        public void OnNavigatedShouldUpdatePendingEntry()
+        {
+            var provider = new TestNavigationProvider {Id = "t"};
+            var dispatcher = new NavigationDispatcher();
+            var component = new NavigationEntryManager(dispatcher);
+            var presenter = new Presenter();
+            presenter.AddComponent(component);
+            presenter.AddComponent(new TestPresenterComponent
+            {
+                TryShow = (o, context, arg3) => ItemOrIReadOnlyList.FromItem((IPresenterResult) o)
+            });
+
+            var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
+            var presenterResult = new PresenterResult(this, "id1", provider, NavigationType.Background);
+
+            presenter.TryShow(presenterResult);
+            var entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeTrue();
+
+            component.OnNavigated(dispatcher, navigationContext);
+            entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
+            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeFalse();
         }
 
         [Fact]
@@ -359,53 +380,5 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
             entries.AsList().SingleOrDefault(entry => entry.NavigationId == presenterResult.NavigationId).ShouldBeNull();
         }
-
-
-        [Fact]
-        public void OnNavigatedShouldUpdatePendingEntry()
-        {
-            var provider = new TestNavigationProvider {Id = "t"};
-            var dispatcher = new NavigationDispatcher();
-            var component = new NavigationEntryManager(dispatcher);
-            var presenter = new Presenter();
-            presenter.AddComponent(component);
-            presenter.AddComponent(new TestPresenterComponent
-            {
-                TryShow = (o, context, arg3) => ItemOrIReadOnlyList.FromItem((IPresenterResult) o)
-            });
-
-            var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
-            var presenterResult = new PresenterResult(this, "id1", provider, NavigationType.Background);
-
-            presenter.TryShow(presenterResult);
-            var entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeTrue();
-
-            component.OnNavigated(dispatcher, navigationContext);
-            entries = component.TryGetNavigationEntries(dispatcher, DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeFalse();
-        }
-
-        private static void ValidateEntries(IReadOnlyList<INavigationEntry>? entries, IReadOnlyCollection<IHasNavigationInfo> contexts, bool isPending = false)
-        {
-            if (entries == null)
-            {
-                contexts.Count.ShouldEqual(0);
-                return;
-            }
-
-            entries.Count.ShouldEqual(contexts.Count);
-            for (var i = 0; i < entries.Count; i++)
-            {
-                var entry = entries[i];
-                entry.IsPending.ShouldEqual(isPending);
-                var navigationContext = contexts.Single(context => context.NavigationId == entry.NavigationId);
-                navigationContext.NavigationType.ShouldEqual(entry.NavigationType);
-                ((IHasNavigationProvider) navigationContext).NavigationProvider.ShouldEqual(entry.NavigationProvider);
-                ((IMetadataOwner<IReadOnlyMetadataContext>) navigationContext).Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
-            }
-        }
-
-        #endregion
     }
 }

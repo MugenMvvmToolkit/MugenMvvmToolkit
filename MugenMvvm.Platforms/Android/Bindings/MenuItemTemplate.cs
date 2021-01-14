@@ -12,13 +12,7 @@ namespace MugenMvvm.Android.Bindings
 {
     public sealed class MenuItemTemplate : IMenuItemTemplate
     {
-        #region Fields
-
         private static readonly ICharSequence EmptyString = new String("");
-
-        #endregion
-
-        #region Properties
 
         public Action<IMenuItem>? ApplyHandler { get; set; }
 
@@ -26,9 +20,14 @@ namespace MugenMvvm.Android.Bindings
 
         public Func<IMenu, object?, MenuBindInfo>? Bind { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public static void ClearMenuItem(IMenuItem? menuItem)
+        {
+            if (menuItem == null)
+                return;
+            if (menuItem.HasSubMenu)
+                MenuTemplate.ClearMenu(menuItem.SubMenu);
+            BindingMugenExtensions.ClearBindings(menuItem, true);
+        }
 
         public void Apply(IMenu menu, int id, int order, object? item)
         {
@@ -69,36 +68,13 @@ namespace MugenMvvm.Android.Bindings
             ClearMenuItem(menuItem);
         }
 
-        #endregion
-
-        #region Methods
-
-        public static void ClearMenuItem(IMenuItem? menuItem)
-        {
-            if (menuItem == null)
-                return;
-            if (menuItem.HasSubMenu)
-                MenuTemplate.ClearMenu(menuItem.SubMenu);
-            BindingMugenExtensions.ClearBindings(menuItem, true);
-        }
-
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         public readonly struct MenuBindInfo
         {
-            #region Fields
-
             public readonly bool IsSubMenu;
             public readonly IMenuItemTemplate? ItemTemplate;
             public readonly string? ItemBind;
             public readonly string? SubMenuBind;
-
-            #endregion
-
-            #region Constructors
 
             private MenuBindInfo(IMenuItemTemplate? itemTemplate, string? subMenuBind, string? itemBind, bool isSubMenu)
             {
@@ -108,17 +84,9 @@ namespace MugenMvvm.Android.Bindings
                 IsSubMenu = isSubMenu;
             }
 
-            #endregion
-
-            #region Methods
-
             public static MenuBindInfo Item(string? bind) => new(null, null, bind, false);
 
             public static MenuBindInfo SubMenu(IMenuItemTemplate? itemTemplate, string? subMenuBind, string? itemBind) => new(itemTemplate, subMenuBind, itemBind, true);
-
-            #endregion
         }
-
-        #endregion
     }
 }

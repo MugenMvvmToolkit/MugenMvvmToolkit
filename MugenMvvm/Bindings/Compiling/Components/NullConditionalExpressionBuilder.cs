@@ -15,36 +15,40 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class NullConditionalExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly HashSet<IExpressionNode> _handledExpressions;
-
         private static readonly Type[] GenericTypeBuffer = new Type[1];
         private static readonly ParameterExpression[] ParameterExpressionBuffer = new ParameterExpression[1];
         private static readonly Expression[] ExpressionBuffer = new Expression[2];
 
-        #endregion
-
-        #region Constructors
+        private readonly HashSet<IExpressionNode> _handledExpressions;
 
         public NullConditionalExpressionBuilder()
         {
             _handledExpressions = new HashSet<IExpressionNode>();
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = CompilingComponentPriority.NullConditionalMember;
 
-        #endregion
+        private static bool HasNullCondition(IHasTargetExpressionNode<IExpressionNode>? target, [NotNullWhen(true)] out NullConditionalMemberExpressionNode? result)
+        {
+            while (target != null)
+            {
+                if (target is NullConditionalMemberExpressionNode r)
+                {
+                    result = r;
+                    return true;
+                }
 
-        #region Implementation of interfaces
+                target = target.Target as IHasTargetExpressionNode<IExpressionNode>;
+            }
+
+            result = null;
+            return false;
+        }
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
-            if (!(expression is IHasTargetExpressionNode<IExpressionNode> hasTarget) || !HasNullCondition(hasTarget, out var nullConditional) || !_handledExpressions.Add(nullConditional))
+            if (!(expression is IHasTargetExpressionNode<IExpressionNode> hasTarget) || !HasNullCondition(hasTarget, out var nullConditional) ||
+                !_handledExpressions.Add(nullConditional))
                 return null;
 
             try
@@ -83,28 +87,5 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 _handledExpressions.Remove(nullConditional);
             }
         }
-
-        #endregion
-
-        #region Methods
-
-        private static bool HasNullCondition(IHasTargetExpressionNode<IExpressionNode>? target, [NotNullWhen(true)] out NullConditionalMemberExpressionNode? result)
-        {
-            while (target != null)
-            {
-                if (target is NullConditionalMemberExpressionNode r)
-                {
-                    result = r;
-                    return true;
-                }
-
-                target = target.Target as IHasTargetExpressionNode<IExpressionNode>;
-            }
-
-            result = null;
-            return false;
-        }
-
-        #endregion
     }
 }

@@ -8,34 +8,20 @@ namespace MugenMvvm.Ios.App
 {
     public class IosPlatformInfo : PlatformInfo
     {
-        #region Fields
-
         private string? _applicationVersion;
         private string? _deviceVersion;
         private PlatformIdiom? _idiom;
-
-        #endregion
-
-        #region Constructors
 
         public IosPlatformInfo(IReadOnlyMetadataContext? metadata = null)
             : base(PlatformType.iOS, metadata)
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public override string ApplicationVersion => _applicationVersion ??= GetVersion();
 
         public override string DeviceVersion => _deviceVersion ??= UIDevice.CurrentDevice.SystemVersion;
 
         public override PlatformIdiom Idiom => _idiom ??= GetIdiom();
-
-        #endregion
-
-        #region Methods
 
         private static PlatformIdiom GetIdiom() =>
             UIDevice.CurrentDevice.UserInterfaceIdiom switch
@@ -55,7 +41,5 @@ namespace MugenMvvm.Ios.App
                 version = version.Substring(2);
             return version;
         }
-
-        #endregion
     }
 }

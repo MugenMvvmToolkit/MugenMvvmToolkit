@@ -11,28 +11,14 @@ namespace MugenMvvm.Entities.Components
 {
     public sealed class EntityTrackingCollectionProvider : IEntityTrackingCollectionProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IComponentCollectionManager? _componentCollectionManager;
-
-        #endregion
-
-        #region Constructors
 
         public EntityTrackingCollectionProvider(IComponentCollectionManager? componentCollectionManager = null)
         {
             _componentCollectionManager = componentCollectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = EntityComponentPriority.TrackingCollectionProvider;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IEntityTrackingCollection TryGetTrackingCollection(IEntityManager entityManager, object? request, IReadOnlyMetadataContext? metadata)
         {
@@ -40,7 +26,5 @@ namespace MugenMvvm.Entities.Components
             collection.AddComponent(EntityStateTransitionManager.Instance);
             return collection;
         }
-
-        #endregion
     }
 }

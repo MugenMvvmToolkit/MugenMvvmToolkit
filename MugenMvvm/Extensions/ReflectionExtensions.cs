@@ -12,19 +12,9 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Fields
-
         private static readonly Dictionary<Type, bool> HasClosureDictionary = new(47, InternalEqualityComparer.Type);
 
-        #endregion
-
-        #region Properties
-
         public static Func<Delegate, bool> ClosureDetector { get; set; } = DefaultClosureDetector;
-
-        #endregion
-
-        #region Methods
 
         public static bool HasClosure(this Delegate d)
         {
@@ -151,26 +141,31 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().CanCreateDelegate(delegateType, method);
+        public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionManager? reflectionManager = null) =>
+            reflectionManager.DefaultIfNull().CanCreateDelegate(delegateType, method);
 
         public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionManager? reflectionManager = null) =>
             reflectionManager.DefaultIfNull().TryCreateDelegate(delegateType, target, method);
 
-        public static Func<ItemOrArray<object?>, object> GetActivator(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetActivator(constructor);
+        public static Func<ItemOrArray<object?>, object> GetActivator(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null) =>
+            reflectionManager.DefaultIfNull().GetActivator(constructor);
 
         public static TDelegate GetActivator<TDelegate>(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null)
             where TDelegate : Delegate =>
             (TDelegate) reflectionManager.DefaultIfNull().GetActivator(constructor, typeof(TDelegate));
 
-        public static Delegate GetActivator(this ConstructorInfo constructor, Type delegateType, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetActivator(constructor, delegateType);
+        public static Delegate GetActivator(this ConstructorInfo constructor, Type delegateType, IReflectionManager? reflectionManager = null) =>
+            reflectionManager.DefaultIfNull().GetActivator(constructor, delegateType);
 
         public static TDelegate GetMethodInvoker<TDelegate>(this MethodInfo method, IReflectionManager? reflectionManager = null)
             where TDelegate : Delegate =>
             (TDelegate) reflectionManager.DefaultIfNull().GetMethodInvoker(method, typeof(TDelegate));
 
-        public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetMethodInvoker(method, delegateType);
+        public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionManager? reflectionManager = null) =>
+            reflectionManager.DefaultIfNull().GetMethodInvoker(method, delegateType);
 
-        public static Func<object?, ItemOrArray<object?>, object?> GetMethodInvoker(this MethodInfo method, IReflectionManager? reflectionManager = null) => reflectionManager.DefaultIfNull().GetMethodInvoker(method);
+        public static Func<object?, ItemOrArray<object?>, object?> GetMethodInvoker(this MethodInfo method, IReflectionManager? reflectionManager = null) =>
+            reflectionManager.DefaultIfNull().GetMethodInvoker(method);
 
         public static TDelegate GetMemberGetter<TDelegate>(this MemberInfo member, IReflectionManager? reflectionManager = null) where TDelegate : Delegate =>
             (TDelegate) reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(TDelegate));
@@ -199,7 +194,5 @@ namespace MugenMvvm.Extensions
                 return value;
             }
         }
-
-        #endregion
     }
 }

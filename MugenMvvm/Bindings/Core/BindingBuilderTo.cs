@@ -3,8 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Collections;
-using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core
 {
@@ -13,15 +11,9 @@ namespace MugenMvvm.Bindings.Core
         where TTarget : class
         where TSource : class
     {
-        #region Fields
-
         private readonly BindingBuilderFrom<TTarget, TSource> _fromBuilder;
         private ItemOrListEditor<KeyValuePair<string?, object>> _parameters;
         private readonly object _pathOrExpression;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingBuilderTo(BindingBuilderFrom<TTarget, TSource> from, object pathOrExpression, ItemOrIReadOnlyList<KeyValuePair<string?, object>> parameters)
@@ -32,10 +24,6 @@ namespace MugenMvvm.Bindings.Core
             _parameters = new ItemOrListEditor<KeyValuePair<string?, object>>(parameters);
         }
 
-        #endregion
-
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingBuilderTo<TTarget, TSource> BindingParameter(string? parameterName, object value)
         {
@@ -45,8 +33,7 @@ namespace MugenMvvm.Bindings.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder) => new(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.ToItemOrList());
-
-        #endregion
+        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder) =>
+            new(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.ToItemOrList());
     }
 }

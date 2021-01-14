@@ -9,16 +9,10 @@ namespace MugenMvvm.Entities
 {
     public sealed class EntityManager : ComponentOwnerBase<IEntityManager>, IEntityManager
     {
-        #region Constructors
-
         public EntityManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IEntityTrackingCollection? TryGetTrackingCollection(object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -35,7 +29,5 @@ namespace MugenMvvm.Entities
                 GetComponents<IEntityManagerListener>(metadata).OnSnapshotCreated(this, snapshot, entity, metadata);
             return snapshot;
         }
-
-        #endregion
     }
 }

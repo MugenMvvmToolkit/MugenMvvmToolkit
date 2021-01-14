@@ -9,26 +9,12 @@ using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core
 {
     public sealed class MultiBinding : Binding, IValueExpression
     {
-        #region Fields
-
         private ICompiledExpression? _expression;
-
-        #endregion
-
-        #region Constructors
-
-        internal MultiBinding(IMemberPathObserver target, object? source, ICompiledExpression expression)
-            : base(target, source)
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            _expression = expression;
-        }
 
         public MultiBinding(IMemberPathObserver target, ItemOrArray<object?> sources, ICompiledExpression expression)
             : base(target, sources.GetRawValue())
@@ -39,9 +25,12 @@ namespace MugenMvvm.Bindings.Core
                 ClearFlag(HasItem);
         }
 
-        #endregion
-
-        #region Properties
+        internal MultiBinding(IMemberPathObserver target, object? source, ICompiledExpression expression)
+            : base(target, source)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            _expression = expression;
+        }
 
         public ICompiledExpression Expression
         {
@@ -54,19 +43,12 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public object? Invoke(IReadOnlyMetadataContext? metadata = null) => _expression.Invoke(SourceRaw, metadata ?? this);
-
-        #endregion
-
-        #region Methods
 
         protected override int GetMetadataCount() => 2;
 
-        protected override ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() => new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true)};
+        protected override ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() =>
+            new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true)};
 
         protected override bool ContainsMetadata(IMetadataContextKey contextKey) => base.ContainsMetadata(contextKey) || BindingMetadata.IsMultiBinding.Equals(contextKey);
 
@@ -89,7 +71,5 @@ namespace MugenMvvm.Bindings.Core
                 return this;
             return _expression.Invoke(SourceRaw, this);
         }
-
-        #endregion
     }
 }

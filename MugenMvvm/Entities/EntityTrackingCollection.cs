@@ -9,28 +9,35 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Entities
 {
     public sealed class EntityTrackingCollection : ComponentOwnerBase<IEntityTrackingCollection>, IEntityTrackingCollection
     {
-        #region Fields
-
         private readonly Dictionary<object, EntityState> _dictionary;
 
-        #endregion
-
-        #region Constructors
-
-        public EntityTrackingCollection(IEqualityComparer<object>? comparer = null, IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
+        public EntityTrackingCollection(IEqualityComparer<object>? comparer = null, IComponentCollectionManager? componentCollectionManager = null) : base(
+            componentCollectionManager)
         {
             _dictionary = new Dictionary<object, EntityState>(comparer ?? EqualityComparer<object>.Default);
         }
 
-        #endregion
+        public IEqualityComparer<object> Comparer => _dictionary.Comparer;
 
-        #region Properties
+        public bool HasChanges
+        {
+            get
+            {
+                lock (_dictionary)
+                {
+                    foreach (var item in _dictionary)
+                        if (item.Value != EntityState.Unchanged)
+                            return true;
+
+                    return false;
+                }
+            }
+        }
 
         public int Count
         {
@@ -42,29 +49,6 @@ namespace MugenMvvm.Entities
                 }
             }
         }
-
-        public bool HasChanges
-        {
-            get
-            {
-                lock (_dictionary)
-                {
-                    foreach (var item in _dictionary)
-                    {
-                        if (item.Value != EntityState.Unchanged)
-                            return true;
-                    }
-
-                    return false;
-                }
-            }
-        }
-
-        public IEqualityComparer<object> Comparer => _dictionary.Comparer;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<TrackingEntity> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate)
         {
@@ -138,7 +122,5 @@ namespace MugenMvvm.Entities
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        #endregion
     }
 }

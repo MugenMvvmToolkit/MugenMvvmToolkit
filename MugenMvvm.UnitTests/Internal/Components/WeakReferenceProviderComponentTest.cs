@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public class WeakReferenceProviderComponentTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -19,7 +17,5 @@ namespace MugenMvvm.UnitTests.Internal.Components
             weakReference.TrackResurrection.ShouldEqual(trackResurrection);
             weakReference.Target.ShouldEqual(this);
         }
-
-        #endregion
     }
 }

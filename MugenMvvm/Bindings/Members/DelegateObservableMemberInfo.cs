@@ -13,20 +13,16 @@ namespace MugenMvvm.Bindings.Members
 {
     public class DelegateObservableMemberInfo<TTarget, TState> : INotifiableMemberInfo where TTarget : class?
     {
-        #region Fields
+        public readonly TState State;
 
         private readonly ushort _modifiers;
 
         private readonly RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _raise;
         private readonly TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _tryObserve;
-        public readonly TState State;
         private MemberObserver _observer;
 
-        #endregion
-
-        #region Constructors
-
-        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, TState state, bool tryObserveByMember,
+        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, TState state,
+            bool tryObserveByMember,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             Should.NotBeNull(name, nameof(name));
@@ -44,9 +40,7 @@ namespace MugenMvvm.Bindings.Members
                 _observer = MemberObserver.NoDo;
         }
 
-        #endregion
-
-        #region Properties
+        public virtual MemberType MemberType => MemberType.Event;
 
         public string Name { get; }
 
@@ -56,13 +50,7 @@ namespace MugenMvvm.Bindings.Members
 
         public object? UnderlyingMember { get; }
 
-        public virtual MemberType MemberType => MemberType.Event;
-
         public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null) => _raise?.Invoke(this, (TTarget) target!, message, metadata);
 
@@ -78,7 +66,5 @@ namespace MugenMvvm.Bindings.Members
 
             return _tryObserve(this, (TTarget) target!, listener, metadata);
         }
-
-        #endregion
     }
 }

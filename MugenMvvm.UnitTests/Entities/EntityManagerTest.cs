@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Entities
 {
     public class EntityManagerTest : ComponentOwnerTestBase<EntityManager>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -137,6 +135,8 @@ namespace MugenMvvm.UnitTests.Entities
             count.ShouldEqual(componentCount);
         }
 
+        protected override EntityManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+
         [Fact]
         public void GetSnapshotShouldThrowNoComponents()
         {
@@ -144,16 +144,11 @@ namespace MugenMvvm.UnitTests.Entities
             ShouldThrow<InvalidOperationException>(() => entityManager.GetSnapshot(this, DefaultMetadata));
         }
 
-
         [Fact]
         public void GetTrackingCollectionShouldThrowNoComponents()
         {
             var entityManager = GetComponentOwner();
             ShouldThrow<InvalidOperationException>(() => entityManager.GetTrackingCollection(entityManager, DefaultMetadata));
         }
-
-        protected override EntityManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        #endregion
     }
 }

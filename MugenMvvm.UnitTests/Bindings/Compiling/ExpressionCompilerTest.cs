@@ -23,30 +23,13 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class ExpressionCompilerTest : ComponentOwnerTestBase<ExpressionCompiler>
     {
-        #region Constructors
-
         public ExpressionCompilerTest()
         {
             DefaultMetadata = new MetadataContext();
             DefaultMetadata.Set(CompilingMetadata.CompilingErrors, new List<string>());
         }
 
-        #endregion
-
-        #region Properties
-
         protected new IMetadataContext DefaultMetadata { get; set; }
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void CompileShouldThrowNoComponents()
-        {
-            var compiler = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => compiler.Compile(ConstantExpressionNode.False));
-        }
 
         [Theory]
         [InlineData(1)]
@@ -85,13 +68,17 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             var result = value1.IndexOf("1") == 0 ? $"{value2} - {value3}" : value3 >= 10 ? "test" : null ?? "value";
             var node = new ConditionExpressionNode(
                 new BinaryExpressionNode(BinaryTokenType.Equality,
-                    new MethodCallExpressionNode(ConstantExpressionNode.Get(value1), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))}, new string[0]),
+                    new MethodCallExpressionNode(ConstantExpressionNode.Get(value1), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))},
+                        new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
                 new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string), typeof(Type)), nameof(string.Format),
-                    new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get(value3)}, new string[0]),
-                new ConditionExpressionNode(new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, ConstantExpressionNode.Get(value3), ConstantExpressionNode.Get(10, typeof(int))),
+                    new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get(value3)},
+                    new string[0]),
+                new ConditionExpressionNode(
+                    new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, ConstantExpressionNode.Get(value3), ConstantExpressionNode.Get(10, typeof(int))),
                     ConstantExpressionNode.Get("test", typeof(string)),
-                    new BinaryExpressionNode(BinaryTokenType.NullCoalescing, ConstantExpressionNode.Get(null, typeof(object)), ConstantExpressionNode.Get("value", typeof(string)))));
+                    new BinaryExpressionNode(BinaryTokenType.NullCoalescing, ConstantExpressionNode.Get(null, typeof(object)),
+                        ConstantExpressionNode.Get("value", typeof(string)))));
             var compiler = GetInitializedCompiler();
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
@@ -107,8 +94,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                 new BinaryExpressionNode(BinaryTokenType.Addition,
                     new BinaryExpressionNode(BinaryTokenType.Multiplication,
                         new BinaryExpressionNode(BinaryTokenType.Subtraction, ConstantExpressionNode.Get(value1),
-                            new BinaryExpressionNode(BinaryTokenType.Division, ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get(value3))), ConstantExpressionNode.Get(value1)),
-                    new BinaryExpressionNode(BinaryTokenType.Subtraction, new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(1000, typeof(int)), ConstantExpressionNode.Get(value1)),
+                            new BinaryExpressionNode(BinaryTokenType.Division, ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get(value3))),
+                        ConstantExpressionNode.Get(value1)),
+                    new BinaryExpressionNode(BinaryTokenType.Subtraction,
+                        new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(1000, typeof(int)), ConstantExpressionNode.Get(value1)),
                         ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(100, typeof(int)));
             var compiler = GetInitializedCompiler();
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
@@ -129,11 +118,14 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                             new IExpressionNode[]
                             {
                                 new LambdaExpressionNode(
-                                    new ConditionExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, parameterExpressionNode, ConstantExpressionNode.Get(null, typeof(object))),
+                                    new ConditionExpressionNode(
+                                        new BinaryExpressionNode(BinaryTokenType.Equality, parameterExpressionNode, ConstantExpressionNode.Get(null, typeof(object))),
                                         new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(10, typeof(int)), ConstantExpressionNode.Get(4, typeof(int))),
-                                        new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(3, typeof(int)), ConstantExpressionNode.Get(10, typeof(int)))),
+                                        new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(3, typeof(int)),
+                                            ConstantExpressionNode.Get(10, typeof(int)))),
                                     new IParameterExpressionNode[] {parameterExpressionNode})
-                            }, new string[0]), "FirstOrDefault", new IExpressionNode[0], new string[0]), ConstantExpressionNode.Get(0, typeof(int))), ConstantExpressionNode.Get(false, typeof(bool)),
+                            }, new string[0]), "FirstOrDefault", new IExpressionNode[0], new string[0]), ConstantExpressionNode.Get(0, typeof(int))),
+                ConstantExpressionNode.Get(false, typeof(bool)),
                 new BinaryExpressionNode(BinaryTokenType.ConditionalOr, ConstantExpressionNode.Get(true, typeof(bool)), ConstantExpressionNode.Get(true, typeof(bool))));
             var compiler = GetInitializedCompiler();
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
@@ -195,24 +187,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
 
-        [Fact]
-        public void CompileShouldCompileComplexExpression6()
-        {
-            var result = -1 + 2 * ~1 / 8 % 1 << 4 >> 5 < 10;
-            var node = new BinaryExpressionNode(BinaryTokenType.LessThan,
-                new BinaryExpressionNode(BinaryTokenType.RightShift,
-                    new BinaryExpressionNode(BinaryTokenType.LeftShift,
-                        new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.Minus, ConstantExpressionNode.Get(1, typeof(int))),
-                            new BinaryExpressionNode(BinaryTokenType.Remainder,
-                                new BinaryExpressionNode(BinaryTokenType.Division,
-                                    new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(2, typeof(int)),
-                                        new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(8, typeof(int))),
-                                ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(4, typeof(int))), ConstantExpressionNode.Get(5, typeof(int))),
-                ConstantExpressionNode.Get(10, typeof(int)));
-            var compiler = GetInitializedCompiler();
-            compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
-        }
-
         [Theory]
         [InlineData(null, null, null)]
         [InlineData("nn", null, null)]
@@ -234,20 +208,25 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                                 {
                                     new LambdaExpressionNode(
                                         new BinaryExpressionNode(BinaryTokenType.Equality,
-                                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(parameterExp), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(int))}),
-                                            new IndexExpressionNode(ConstantExpressionNode.Get("n", typeof(string)), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(int))})),
+                                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(parameterExp),
+                                                new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(int))}),
+                                            new IndexExpressionNode(ConstantExpressionNode.Get("n", typeof(string)),
+                                                new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(int))})),
                                         new IParameterExpressionNode[] {parameterExp})
                                 }, new string[0]), "FirstOrDefault", new IExpressionNode[0], new string[0]),
                         new MethodCallExpressionNode(
-                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value2)), new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
+                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value2)),
+                                new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
                             new IExpressionNode[0], new string[0])),
                     new MemberExpressionNode(
                         new NullConditionalMemberExpressionNode(new MethodCallExpressionNode(
-                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value3)), new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
+                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value3)),
+                                new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
                             new IExpressionNode[0], new string[0])), "Length")),
                 new MethodCallExpressionNode(
                     new NullConditionalMemberExpressionNode(new ConditionExpressionNode(
-                        new BinaryExpressionNode(BinaryTokenType.Equality, ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get("xx", typeof(string))), ConstantExpressionNode.Get(null, typeof(object)),
+                        new BinaryExpressionNode(BinaryTokenType.Equality, ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get("xx", typeof(string))),
+                        ConstantExpressionNode.Get(null, typeof(object)),
                         ConstantExpressionNode.Get(value2))), "ToString", new IExpressionNode[0], new string[0]));
             var compiler = GetInitializedCompiler();
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
@@ -276,6 +255,30 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
 
         protected override ExpressionCompiler GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void CompileShouldCompileComplexExpression6()
+        {
+            var result = ((-1 + 2 * ~1 / 8 % 1) << 4) >> 5 < 10;
+            var node = new BinaryExpressionNode(BinaryTokenType.LessThan,
+                new BinaryExpressionNode(BinaryTokenType.RightShift,
+                    new BinaryExpressionNode(BinaryTokenType.LeftShift,
+                        new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.Minus, ConstantExpressionNode.Get(1, typeof(int))),
+                            new BinaryExpressionNode(BinaryTokenType.Remainder,
+                                new BinaryExpressionNode(BinaryTokenType.Division,
+                                    new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(2, typeof(int)),
+                                        new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, ConstantExpressionNode.Get(1, typeof(int)))),
+                                    ConstantExpressionNode.Get(8, typeof(int))),
+                                ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(4, typeof(int))), ConstantExpressionNode.Get(5, typeof(int))),
+                ConstantExpressionNode.Get(10, typeof(int)));
+            var compiler = GetInitializedCompiler();
+            compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
+        }
+
+        [Fact]
+        public void CompileShouldThrowNoComponents()
+        {
+            var compiler = GetComponentOwner();
+            ShouldThrow<InvalidOperationException>(() => compiler.Compile(ConstantExpressionNode.False));
+        }
     }
 }

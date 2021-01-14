@@ -10,8 +10,6 @@ namespace MugenMvvm.Extensions
 {
     public static class BoxingExtensions
     {
-        #region Fields
-
         public const int CacheSize = 50;
         public static readonly object TrueObject = true;
         public static readonly object FalseObject = false;
@@ -20,9 +18,7 @@ namespace MugenMvvm.Extensions
         private static readonly Dictionary<Type, Func<bool>> CanBoxCache = new(InternalEqualityComparer.Type);
         private static Dictionary<Type, MethodInfo>? _boxMethods;
 
-        #endregion
-
-        #region Methods
+        public delegate object? BoxingDelegate<T>(T? value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(bool value)
@@ -165,29 +161,10 @@ namespace MugenMvvm.Extensions
             return _boxMethods;
         }
 
-        #endregion
-
-        #region Nested types
-
-        private static class BoxingType<T>
-        {
-            #region Fields
-
-            public static BoxingDelegate<T>? BoxDelegate;
-
-            #endregion
-        }
-
         internal static class IntCache
         {
-            #region Fields
-
             public static readonly object[] Positive = GenerateItems(false);
             public static readonly object[] Negative = GenerateItems(true);
-
-            #endregion
-
-            #region Methods
 
             private static object[] GenerateItems(bool negative)
             {
@@ -205,12 +182,11 @@ namespace MugenMvvm.Extensions
 
                 return items;
             }
-
-            #endregion
         }
 
-        public delegate object? BoxingDelegate<T>(T? value);
-
-        #endregion
+        private static class BoxingType<T>
+        {
+            public static BoxingDelegate<T>? BoxDelegate;
+        }
     }
 }

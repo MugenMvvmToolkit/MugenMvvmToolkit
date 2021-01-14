@@ -7,28 +7,14 @@ namespace MugenMvvm.Internal
     [StructLayout(LayoutKind.Auto)]
     public struct MonitorLocker : IDisposable
     {
-        #region Fields
-
         private object? _locker;
-
-        #endregion
-
-        #region Constructors
 
         private MonitorLocker(object locker)
         {
             _locker = locker;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => _locker == null;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void Dispose()
         {
@@ -38,10 +24,6 @@ namespace MugenMvvm.Internal
                 _locker = null;
             }
         }
-
-        #endregion
-
-        #region Methods
 
         public static MonitorLocker Lock(object locker)
         {
@@ -59,7 +41,5 @@ namespace MugenMvvm.Internal
                 throw;
             }
         }
-
-        #endregion
     }
 }

@@ -10,13 +10,15 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationTargetDispatcher : INavigationConditionComponent, INavigationListener, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = NavigationComponentPriority.Condition;
 
-        #endregion
+        private static ValueTask<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, object? target, object? toTarget, INavigationContext navigationContext,
+            CancellationToken cancellationToken)
+            => (target as IHasNavigationCondition)?.CanNavigateFromAsync(navigationDispatcher, navigationContext, toTarget, cancellationToken) ?? new ValueTask<bool>(true);
 
-        #region Implementation of interfaces
+        private static ValueTask<bool> CanNavigateToAsync(INavigationDispatcher navigationDispatcher, object? target, object? fromTarget, INavigationContext navigationContext,
+            CancellationToken cancellationToken)
+            => (target as IHasNavigationCondition)?.CanNavigateToAsync(navigationDispatcher, navigationContext, fromTarget, cancellationToken) ?? new ValueTask<bool>(true);
 
         public async ValueTask<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
@@ -26,7 +28,8 @@ namespace MugenMvvm.Navigation.Components
             {
                 return await CanNavigateFromAsync(navigationDispatcher, target, nextTarget, navigationContext, cancellationToken).ConfigureAwait(false) &&
                        await CanNavigateToAsync(navigationDispatcher, nextTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
-                       await ((navigationContext.Target as IHasCloseNavigationCondition)?.CanCloseAsync(navigationDispatcher, navigationContext, cancellationToken) ?? new ValueTask<bool>(true));
+                       await ((navigationContext.Target as IHasCloseNavigationCondition)?.CanCloseAsync(navigationDispatcher, navigationContext, cancellationToken) ??
+                              new ValueTask<bool>(true));
             }
 
             return await CanNavigateFromAsync(navigationDispatcher, nextTarget, target, navigationContext, cancellationToken).ConfigureAwait(false) &&
@@ -64,17 +67,5 @@ namespace MugenMvvm.Navigation.Components
                 (navigationContext.Target as IHasNavigatedHandler)?.OnNavigatedTo(navigationDispatcher, navigationContext, nextTarget);
             }
         }
-
-        #endregion
-
-        #region Methods
-
-        private static ValueTask<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, object? target, object? toTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-            => (target as IHasNavigationCondition)?.CanNavigateFromAsync(navigationDispatcher, navigationContext, toTarget, cancellationToken) ?? new ValueTask<bool>(true);
-
-        private static ValueTask<bool> CanNavigateToAsync(INavigationDispatcher navigationDispatcher, object? target, object? fromTarget, INavigationContext navigationContext, CancellationToken cancellationToken)
-            => (target as IHasNavigationCondition)?.CanNavigateToAsync(navigationDispatcher, navigationContext, fromTarget, cancellationToken) ?? new ValueTask<bool>(true);
-
-        #endregion
     }
 }

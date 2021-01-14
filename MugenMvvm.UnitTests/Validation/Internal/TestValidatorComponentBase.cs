@@ -9,26 +9,14 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 {
     public class TestValidatorComponentBase<T> : ValidatorComponentBase<T> where T : class
     {
-        #region Constructors
-
         public TestValidatorComponentBase(T target)
             : base(target)
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public Func<string, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ValidationResult>>? GetErrorsAsyncDelegate { get; set; }
-
-        #endregion
-
-        #region Methods
 
         protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             GetErrorsAsyncDelegate?.Invoke(memberName, cancellationToken, metadata) ?? default;
-
-        #endregion
     }
 }

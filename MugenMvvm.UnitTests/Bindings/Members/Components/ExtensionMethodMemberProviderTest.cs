@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class ExtensionMethodMemberProviderTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryGetMembersShouldReturnExtensionMethodsAddRemove()
         {
@@ -49,20 +47,16 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             members.Count.ShouldEqual(2);
 
             var methodInfos = typeof(Enumerable)
-                .GetMethods()
-                .Where(info => info.Name == nameof(Enumerable.FirstOrDefault))
-                .Select(info => info.MakeGenericMethod(typeof(char)))
-                .ToList();
+                              .GetMethods()
+                              .Where(info => info.Name == nameof(Enumerable.FirstOrDefault))
+                              .Select(info => info.MakeGenericMethod(typeof(char)))
+                              .ToList();
             methodInfos.ShouldEqual(members.AsList().Select(info => info.UnderlyingMember));
         }
-
-        #endregion
     }
 
     public static class ExtensionMethodMemberProviderComponentExtTest
     {
-        #region Methods
-
         public static void Method(this string value)
         {
         }
@@ -70,7 +64,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public static void Method(this int value)
         {
         }
-
-        #endregion
     }
 }

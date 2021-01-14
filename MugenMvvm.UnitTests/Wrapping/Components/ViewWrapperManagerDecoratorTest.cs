@@ -11,30 +11,6 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
 {
     public class ViewWrapperManagerDecoratorTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void CanWrapShouldIgnoreNonViewRequest()
-        {
-            var wrapperType = typeof(string);
-            var request = "";
-            var invokeCount = 0;
-
-            var wrapperManager = new WrapperManager();
-            wrapperManager.AddComponent(new ViewWrapperManagerDecorator());
-            wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) =>
-            {
-                ++invokeCount;
-                type.ShouldEqual(wrapperType);
-                r.ShouldEqual(request);
-                arg4.ShouldEqual(DefaultMetadata);
-                return false;
-            }, (type, r, arg4) => throw new NotSupportedException()));
-
-            wrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
-            invokeCount.ShouldEqual(1);
-        }
-
         [Fact]
         public void CanWrapShouldHandleViewRequest1()
         {
@@ -72,7 +48,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
         }
 
         [Fact]
-        public void WrapShouldIgnoreNonViewRequest()
+        public void CanWrapShouldIgnoreNonViewRequest()
         {
             var wrapperType = typeof(string);
             var request = "";
@@ -80,16 +56,16 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
 
             var wrapperManager = new WrapperManager();
             wrapperManager.AddComponent(new ViewWrapperManagerDecorator());
-            wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) => throw new NotSupportedException(), (type, r, arg4) =>
+            wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) =>
             {
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
                 r.ShouldEqual(request);
                 arg4.ShouldEqual(DefaultMetadata);
-                return this;
-            }));
+                return false;
+            }, (type, r, arg4) => throw new NotSupportedException()));
 
-            wrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            wrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
             invokeCount.ShouldEqual(1);
         }
 
@@ -119,6 +95,26 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
             invokeCount.ShouldEqual(1);
         }
 
-        #endregion
+        [Fact]
+        public void WrapShouldIgnoreNonViewRequest()
+        {
+            var wrapperType = typeof(string);
+            var request = "";
+            var invokeCount = 0;
+
+            var wrapperManager = new WrapperManager();
+            wrapperManager.AddComponent(new ViewWrapperManagerDecorator());
+            wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) => throw new NotSupportedException(), (type, r, arg4) =>
+            {
+                ++invokeCount;
+                type.ShouldEqual(wrapperType);
+                r.ShouldEqual(request);
+                arg4.ShouldEqual(DefaultMetadata);
+                return this;
+            }));
+
+            wrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            invokeCount.ShouldEqual(1);
+        }
     }
 }

@@ -3,14 +3,11 @@ using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
     public static class MetadataComponentExtensions
     {
-        #region Methods
-
         public static void OnAdded(this ItemOrArray<IMetadataContextListener> listeners, IMetadataContext context, IMetadataContextKey key, object? newValue)
         {
             Should.NotBeNull(context, nameof(context));
@@ -35,7 +32,7 @@ namespace MugenMvvm.Extensions.Components
                 c.OnRemoved(context, key, oldValue);
         }
 
-        public static void GetValues(this ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContext context, 
+        public static void GetValues(this ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContext context,
             MetadataOperationType operationType, ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             Should.NotBeNull(context, nameof(context));
@@ -59,38 +56,34 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             foreach (var c in components)
-            {
                 if (c.Contains(context, contextKey))
                     return true;
-            }
 
             return false;
         }
 
-        public static bool TryGetValue(this ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContext context, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue)
+        public static bool TryGetValue(this ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContext context, IMetadataContextKey contextKey,
+            MetadataOperationType operationType, out object? rawValue)
         {
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(operationType, nameof(operationType));
             foreach (var c in components)
-            {
                 if (c.TryGetValue(context, contextKey, operationType, out rawValue))
                     return true;
-            }
 
             rawValue = null;
             return false;
         }
 
-        public static bool TrySetValue(this ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContext context, IMetadataContextKey contextKey, object? rawValue)
+        public static bool TrySetValue(this ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContext context, IMetadataContextKey contextKey,
+            object? rawValue)
         {
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             foreach (var c in components)
-            {
                 if (c.TrySetValue(context, contextKey, rawValue))
                     return true;
-            }
 
             return false;
         }
@@ -101,10 +94,8 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(contextKey, nameof(contextKey));
             var clear = false;
             foreach (var c in components)
-            {
                 if (c.TryRemove(context, contextKey))
                     clear = true;
-            }
 
             return clear;
         }
@@ -115,7 +106,5 @@ namespace MugenMvvm.Extensions.Components
             foreach (var c in components)
                 c.Clear(context);
         }
-
-        #endregion
     }
 }

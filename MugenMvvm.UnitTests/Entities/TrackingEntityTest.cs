@@ -7,15 +7,6 @@ namespace MugenMvvm.UnitTests.Entities
 {
     public class TrackingEntityTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void IsEmptyShouldBeTrueDefault()
-        {
-            TrackingEntity v = default;
-            v.IsEmpty.ShouldBeTrue();
-        }
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -27,6 +18,11 @@ namespace MugenMvvm.UnitTests.Entities
             value.State.ShouldEqual(state);
         }
 
-        #endregion
+        [Fact]
+        public void IsEmptyShouldBeTrueDefault()
+        {
+            TrackingEntity v = default;
+            v.IsEmpty.ShouldBeTrue();
+        }
     }
 }

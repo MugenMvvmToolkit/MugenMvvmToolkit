@@ -5,16 +5,12 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class DelegateParameterInfo<TState> : IParameterInfo
     {
-        #region Fields
-
-        private readonly Func<DelegateParameterInfo<TState>, Type, bool>? _isDefined;
         public readonly TState State;
 
-        #endregion
+        private readonly Func<DelegateParameterInfo<TState>, Type, bool>? _isDefined;
 
-        #region Constructors
-
-        public DelegateParameterInfo(string name, Type parameterType, object? underlyingParameter, bool hasDefaultValue, object? defaultValue, TState state, Func<DelegateParameterInfo<TState>, Type, bool>? isDefined)
+        public DelegateParameterInfo(string name, Type parameterType, object? underlyingParameter, bool hasDefaultValue, object? defaultValue, TState state,
+            Func<DelegateParameterInfo<TState>, Type, bool>? isDefined)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(parameterType, nameof(parameterType));
@@ -27,10 +23,6 @@ namespace MugenMvvm.Bindings.Members
             _isDefined = isDefined;
         }
 
-        #endregion
-
-        #region Properties
-
         public object? UnderlyingParameter { get; }
 
         public string Name { get; }
@@ -41,17 +33,11 @@ namespace MugenMvvm.Bindings.Members
 
         public object? DefaultValue { get; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public bool IsDefined(Type type)
         {
             if (_isDefined == null)
                 return false;
             return _isDefined(this, type);
         }
-
-        #endregion
     }
 }

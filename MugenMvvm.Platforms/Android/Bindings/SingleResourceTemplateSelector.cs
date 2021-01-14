@@ -5,35 +5,16 @@ namespace MugenMvvm.Android.Bindings
 {
     public sealed class SingleResourceTemplateSelector : IResourceTemplateSelector
     {
-        #region Fields
-
-        private readonly int _templateId;
         private static readonly Dictionary<int, SingleResourceTemplateSelector> Cache = new();
 
-        #endregion
-
-        #region Constructors
+        private readonly int _templateId;
 
         private SingleResourceTemplateSelector(int templateId)
         {
             _templateId = templateId;
         }
 
-        #endregion
-
-        #region Properties
-
         public int TemplateTypeCount => 1;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public int SelectTemplate(object container, object? item) => _templateId;
-
-        #endregion
-
-        #region Methods
 
         public static SingleResourceTemplateSelector Get(int templateId)
         {
@@ -46,6 +27,6 @@ namespace MugenMvvm.Android.Bindings
             return value;
         }
 
-        #endregion
+        public int SelectTemplate(object container, object? item) => _templateId;
     }
 }

@@ -12,42 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingExpressionInitializerContextTest : MetadataOwnerTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void InitializeClearShouldInitializeClearValues()
-        {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Owner.ShouldEqual(this);
-            context.Components.ShouldBeEmpty();
-            context.AssignmentParameters.ShouldBeEmpty();
-            context.InlineParameters.ShouldBeEmpty();
-
-            var target = new object();
-            var source = new object();
-            var targetExp = MemberExpressionNode.Self;
-            var sourceExp = MemberExpressionNode.Source;
-            var parameters = new[] {MemberExpressionNode.Self, MemberExpressionNode.Source};
-            context.Initialize(target, source, targetExp, sourceExp, parameters, DefaultMetadata);
-
-            context.Target.ShouldEqual(target);
-            context.Source.ShouldEqual(source);
-            context.TargetExpression.ShouldEqual(targetExp);
-            context.SourceExpression.ShouldEqual(sourceExp);
-            context.ParameterExpressions.ShouldEqual(parameters);
-
-            context.Clear();
-            context.Owner.ShouldEqual(this);
-            context.Components.ShouldBeEmpty();
-            context.AssignmentParameters.ShouldBeEmpty();
-            context.InlineParameters.ShouldBeEmpty();
-            context.Target.ShouldBeNull();
-            context.Source.ShouldBeNull();
-            context.TargetExpression.ShouldBeNull();
-            context.SourceExpression.ShouldBeNull();
-            context.ParameterExpressions.IsEmpty.ShouldBeTrue();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -107,6 +71,47 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.TryGetParameterValue<bool?>(parameter4).ShouldEqual(parameterValue4);
         }
 
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Empty, default, metadata);
+            return context;
+        }
+
+        [Fact]
+        public void InitializeClearShouldInitializeClearValues()
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            context.Owner.ShouldEqual(this);
+            context.Components.ShouldBeEmpty();
+            context.AssignmentParameters.ShouldBeEmpty();
+            context.InlineParameters.ShouldBeEmpty();
+
+            var target = new object();
+            var source = new object();
+            var targetExp = MemberExpressionNode.Self;
+            var sourceExp = MemberExpressionNode.Source;
+            var parameters = new[] {MemberExpressionNode.Self, MemberExpressionNode.Source};
+            context.Initialize(target, source, targetExp, sourceExp, parameters, DefaultMetadata);
+
+            context.Target.ShouldEqual(target);
+            context.Source.ShouldEqual(source);
+            context.TargetExpression.ShouldEqual(targetExp);
+            context.SourceExpression.ShouldEqual(sourceExp);
+            context.ParameterExpressions.ShouldEqual(parameters);
+
+            context.Clear();
+            context.Owner.ShouldEqual(this);
+            context.Components.ShouldBeEmpty();
+            context.AssignmentParameters.ShouldBeEmpty();
+            context.InlineParameters.ShouldBeEmpty();
+            context.Target.ShouldBeNull();
+            context.Source.ShouldBeNull();
+            context.TargetExpression.ShouldBeNull();
+            context.SourceExpression.ShouldBeNull();
+            context.ParameterExpressions.IsEmpty.ShouldBeTrue();
+        }
+
         [Fact]
         public void TryGetParameterValueShouldReturnCorrectValues()
         {
@@ -127,14 +132,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.AssignmentParameters[parameter1] = new MemberExpressionNode(null, parameter1);
             ShouldThrow<InvalidOperationException>(() => context.TryGetParameterValue<int>(parameter1));
         }
-
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
-        {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Empty, default, metadata);
-            return context;
-        }
-
-        #endregion
     }
 }

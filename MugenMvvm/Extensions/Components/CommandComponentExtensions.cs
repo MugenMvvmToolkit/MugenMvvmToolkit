@@ -10,9 +10,8 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class CommandComponentExtensions
     {
-        #region Methods
-
-        public static ICompositeCommand? TryGetCommand<TParameter>(this ItemOrArray<ICommandProviderComponent> components, ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata)
+        public static ICompositeCommand? TryGetCommand<TParameter>(this ItemOrArray<ICommandProviderComponent> components, ICommandManager commandManager, object? owner,
+            object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(commandManager, nameof(commandManager));
             Should.NotBeNull(request, nameof(request));
@@ -26,7 +25,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnCommandCreated<TParameter>(this ItemOrArray<ICommandManagerListener> listeners, ICommandManager commandManager, ICompositeCommand command, object? owner, object request,
+        public static void OnCommandCreated<TParameter>(this ItemOrArray<ICommandManagerListener> listeners, ICommandManager commandManager, ICompositeCommand command,
+            object? owner, object request,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(commandManager, nameof(commandManager));
@@ -39,10 +39,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(command, nameof(command));
             foreach (var c in components)
-            {
                 if (c.HasCanExecute(command, metadata))
                     return true;
-            }
 
             return false;
         }
@@ -51,15 +49,14 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(command, nameof(command));
             foreach (var c in components)
-            {
                 if (!c.CanExecute(command, parameter, metadata))
                     return false;
-            }
 
             return true;
         }
 
-        public static void AddCanExecuteChanged(this ItemOrArray<ICommandEventHandlerComponent> components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
+        public static void AddCanExecuteChanged(this ItemOrArray<ICommandEventHandlerComponent> components, ICompositeCommand command, EventHandler? handler,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(handler, nameof(handler));
@@ -67,7 +64,8 @@ namespace MugenMvvm.Extensions.Components
                 c.AddCanExecuteChanged(command, handler, metadata);
         }
 
-        public static void RemoveCanExecuteChanged(this ItemOrArray<ICommandEventHandlerComponent> components, ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
+        public static void RemoveCanExecuteChanged(this ItemOrArray<ICommandEventHandlerComponent> components, ICompositeCommand command, EventHandler? handler,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(handler, nameof(handler));
@@ -82,12 +80,11 @@ namespace MugenMvvm.Extensions.Components
                 c.RaiseCanExecuteChanged(command, metadata);
         }
 
-        public static Task ExecuteAsync(this ItemOrArray<ICommandExecutorComponent> components, ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task ExecuteAsync(this ItemOrArray<ICommandExecutorComponent> components, ICompositeCommand command, object? parameter, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(command, nameof(command));
             return components.InvokeAllAsync((command, parameter), cancellationToken, metadata, (component, s, c, m) => component.ExecuteAsync(s.command, s.parameter, c, m));
         }
-
-        #endregion
     }
 }

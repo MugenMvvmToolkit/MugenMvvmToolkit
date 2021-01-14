@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
-using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
@@ -8,14 +7,11 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class MacrosBindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public MacrosBindingInitializer()
         {
@@ -24,10 +20,6 @@ namespace MugenMvvm.Bindings.Core.Components
             ParameterVisitors = new List<IExpressionVisitor>();
         }
 
-        #endregion
-
-        #region Properties
-
         public List<IExpressionVisitor> TargetVisitors { get; }
 
         public List<IExpressionVisitor> SourceVisitors { get; }
@@ -35,10 +27,6 @@ namespace MugenMvvm.Bindings.Core.Components
         public List<IExpressionVisitor> ParameterVisitors { get; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
@@ -65,7 +53,5 @@ namespace MugenMvvm.Bindings.Core.Components
                 context.ParameterExpressions = parameters.ToItemOrList();
             }
         }
-
-        #endregion
     }
 }

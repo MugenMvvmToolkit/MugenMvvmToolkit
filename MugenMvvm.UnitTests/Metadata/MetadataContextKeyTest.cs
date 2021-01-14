@@ -11,32 +11,9 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class MetadataContextKeyTest : UnitTestBase
     {
-        #region Fields
-
         public static IMetadataContextKey<int>? ContextKeyField;
 
-        #endregion
-
-        #region Properties
-
         public static IMetadataContextKey<int>? ContextKeyProperty { get; set; }
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void FromKeyShouldCreateMetadataKeyFromString()
-        {
-            var meta = new Dictionary<string, object?>();
-            var key = MetadataContextKey.FromKey<int>("test", meta);
-            key.Metadata.ShouldEqual(meta);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            key.IsSerializable.ShouldBeFalse();
-            key.ValueType.ShouldEqual(typeof(int));
-        }
 
         [Theory]
         [InlineData(true)]
@@ -90,50 +67,6 @@ namespace MugenMvvm.UnitTests.Metadata
             var restore = memento.Restore(EmptySerializationContext);
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyProperty);
-        }
-
-        [Fact]
-        public void FromBuilderTest0()
-        {
-            var key = MetadataContextKey.Create<int>("test").Build();
-            key.Metadata.ShouldBeEmpty();
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            key.IsSerializable.ShouldBeFalse();
-        }
-
-        [Fact]
-        public void FromBuilderTest1()
-        {
-            object? callbackKey = null;
-            var invokeCount = 0;
-            var metaKey1 = "k1";
-            var metaKey2 = "k2";
-            var metaKey3 = metaKey1;
-            object? metaValue1 = null;
-            var metaValue2 = new object();
-            var metaValue3 = new object();
-            var key = MetadataContextKey
-                .Create<int>("test")
-                .WithMetadata(metaKey1, metaValue1)
-                .WithMetadata(metaKey2, metaValue2)
-                .WithMetadata(metaKey3, metaValue3)
-                .WithBuildCallback(contextKey =>
-                {
-                    callbackKey = contextKey;
-                    invokeCount++;
-                })
-                .Build();
-            key.Metadata.Count.ShouldEqual(2);
-            key.Metadata[metaKey1].ShouldEqual(metaValue3);
-            key.Metadata[metaKey2].ShouldEqual(metaValue2);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            key.IsSerializable.ShouldBeFalse();
-            callbackKey.ShouldEqual(key);
-            invokeCount.ShouldEqual(1);
         }
 
         [Theory]
@@ -193,6 +126,32 @@ namespace MugenMvvm.UnitTests.Metadata
             var restore = memento.Restore(EmptySerializationContext);
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyProperty);
+        }
+
+        [Fact]
+        public void FromBuilderShouldSetCustomMemento()
+        {
+            var memento = new TestMemento();
+            var key = MetadataContextKey.Create<int>("k").WithMemento(contextKey => memento).Serializable().Build();
+            ((IHasMemento) key).GetMemento().ShouldEqual(memento);
+        }
+
+        [Fact]
+        public void FromBuilderShouldSetDefaultValue()
+        {
+            var key = MetadataContextKey.Create<int>(GetType(), nameof(ContextKeyField)).DefaultValue(int.MinValue).Build();
+            key.GetDefaultValue(DefaultMetadata, 0).ShouldEqual(int.MinValue);
+
+            var invokeCount = 0;
+            key = MetadataContextKey.Create<int>(GetType(), nameof(ContextKeyField)).DefaultValue((context, contextKey, arg3) =>
+            {
+                ++invokeCount;
+                context.ShouldEqual(DefaultMetadata);
+                contextKey.ShouldEqual(key);
+                return int.MinValue;
+            }).Build();
+            key.GetDefaultValue(DefaultMetadata, 0).ShouldEqual(int.MinValue);
+            invokeCount.ShouldEqual(1);
         }
 
         [Fact]
@@ -275,31 +234,60 @@ namespace MugenMvvm.UnitTests.Metadata
         }
 
         [Fact]
-        public void FromBuilderShouldSetDefaultValue()
+        public void FromBuilderTest0()
         {
-            var key = MetadataContextKey.Create<int>(GetType(), nameof(ContextKeyField)).DefaultValue(int.MinValue).Build();
-            key.GetDefaultValue(DefaultMetadata, 0).ShouldEqual(int.MinValue);
+            var key = MetadataContextKey.Create<int>("test").Build();
+            key.Metadata.ShouldBeEmpty();
+            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
+            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.IsSerializable.ShouldBeFalse();
+        }
 
+        [Fact]
+        public void FromBuilderTest1()
+        {
+            object? callbackKey = null;
             var invokeCount = 0;
-            key = MetadataContextKey.Create<int>(GetType(), nameof(ContextKeyField)).DefaultValue((context, contextKey, arg3) =>
-            {
-                ++invokeCount;
-                context.ShouldEqual(DefaultMetadata);
-                contextKey.ShouldEqual(key);
-                return int.MinValue;
-            }).Build();
-            key.GetDefaultValue(DefaultMetadata, 0).ShouldEqual(int.MinValue);
+            var metaKey1 = "k1";
+            var metaKey2 = "k2";
+            var metaKey3 = metaKey1;
+            object? metaValue1 = null;
+            var metaValue2 = new object();
+            var metaValue3 = new object();
+            var key = MetadataContextKey
+                      .Create<int>("test")
+                      .WithMetadata(metaKey1, metaValue1)
+                      .WithMetadata(metaKey2, metaValue2)
+                      .WithMetadata(metaKey3, metaValue3)
+                      .WithBuildCallback(contextKey =>
+                      {
+                          callbackKey = contextKey;
+                          invokeCount++;
+                      })
+                      .Build();
+            key.Metadata.Count.ShouldEqual(2);
+            key.Metadata[metaKey1].ShouldEqual(metaValue3);
+            key.Metadata[metaKey2].ShouldEqual(metaValue2);
+            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
+            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.IsSerializable.ShouldBeFalse();
+            callbackKey.ShouldEqual(key);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
-        public void FromBuilderShouldSetCustomMemento()
+        public void FromKeyShouldCreateMetadataKeyFromString()
         {
-            var memento = new TestMemento();
-            var key = MetadataContextKey.Create<int>("k").WithMemento(contextKey => memento).Serializable().Build();
-            ((IHasMemento) key).GetMemento().ShouldEqual(memento);
+            var meta = new Dictionary<string, object?>();
+            var key = MetadataContextKey.FromKey<int>("test", meta);
+            key.Metadata.ShouldEqual(meta);
+            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
+            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.IsSerializable.ShouldBeFalse();
+            key.ValueType.ShouldEqual(typeof(int));
         }
-
-        #endregion
     }
 }

@@ -15,8 +15,6 @@ namespace MugenMvvm.UnitTests.Presenters
 {
     public class PresenterTest : ComponentOwnerTestBase<Presenter>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -84,7 +82,5 @@ namespace MugenMvvm.UnitTests.Presenters
         }
 
         protected override Presenter GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        #endregion
     }
 }

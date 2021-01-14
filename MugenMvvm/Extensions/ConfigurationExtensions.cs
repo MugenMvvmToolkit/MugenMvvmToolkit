@@ -44,8 +44,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, SynchronizationContext? synchronizationContext,
             IServiceProvider? serviceProvider = null, bool isOnMainThread = true)
         {
@@ -57,51 +55,51 @@ namespace MugenMvvm.Extensions
             configuration.Application.AddComponent(new AppLifecycleTracker());
 
             configuration.WithAppService(new CommandManager())
-                .WithComponent(new DelegateCommandProvider())
-                .WithComponent(new CommandCleaner());
+                         .WithComponent(new DelegateCommandProvider())
+                         .WithComponent(new CommandCleaner());
 
             configuration.WithAppService(new EntityManager())
-                .WithComponent(new EntityTrackingCollectionProvider())
-                .WithComponent(new ReflectionEntityStateSnapshotProvider());
+                         .WithComponent(new EntityTrackingCollectionProvider())
+                         .WithComponent(new ReflectionEntityStateSnapshotProvider());
 
             configuration.WithAppService(new AttachedValueManager())
-                .WithComponent(new ConditionalWeakTableAttachedValueStorage())
-                .WithComponent(new MetadataOwnerAttachedValueStorage())
-                .WithComponent(new StaticTypeAttachedValueStorage())
-                .WithComponent(new ValueHolderAttachedValueStorage());
+                         .WithComponent(new ConditionalWeakTableAttachedValueStorage())
+                         .WithComponent(new MetadataOwnerAttachedValueStorage())
+                         .WithComponent(new StaticTypeAttachedValueStorage())
+                         .WithComponent(new ValueHolderAttachedValueStorage());
 
             configuration.WithAppService(new ReflectionManager())
-                .WithComponent(new ExpressionReflectionDelegateProvider())
-                .WithComponent(new ReflectionDelegateProviderCache());
+                         .WithComponent(new ExpressionReflectionDelegateProvider())
+                         .WithComponent(new ReflectionDelegateProviderCache());
 
             configuration.WithAppService(new Logger());
 
             configuration.WithAppService(new WeakReferenceManager())
-                .WithComponent(new ValueHolderWeakReferenceProviderCache())
-                .WithComponent(new WeakReferenceProviderComponent());
+                         .WithComponent(new ValueHolderWeakReferenceProviderCache())
+                         .WithComponent(new WeakReferenceProviderComponent());
 
             configuration.WithAppService(new Messenger())
-                .WithComponent(new MessagePublisher())
-                .WithComponent(new MessengerHandlerSubscriber());
+                         .WithComponent(new MessagePublisher())
+                         .WithComponent(new MessengerHandlerSubscriber());
 
             var entryManager = new NavigationEntryManager();
             configuration.WithAppService(new NavigationDispatcher())
-                .WithComponent(new NavigationCallbackInvoker())
-                .WithComponent(new NavigationCallbackManager())
-                .WithComponent(new NavigationContextProvider())
-                .WithComponent(new NavigationEntryDateTracker())
-                .WithComponent(new NavigationTargetDispatcher())
-                .WithComponent(entryManager);
+                         .WithComponent(new NavigationCallbackInvoker())
+                         .WithComponent(new NavigationCallbackManager())
+                         .WithComponent(new NavigationContextProvider())
+                         .WithComponent(new NavigationEntryDateTracker())
+                         .WithComponent(new NavigationTargetDispatcher())
+                         .WithComponent(entryManager);
 
             configuration.WithAppService(new Presenter())
-                .WithComponent(new NavigationCallbackPresenterDecorator())
-                .WithComponent(new ViewModelPresenter())
-                .WithComponent(new ViewPresenterDecorator())
-                .WithComponent(entryManager)
-                .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator));
+                         .WithComponent(new NavigationCallbackPresenterDecorator())
+                         .WithComponent(new ViewModelPresenter())
+                         .WithComponent(new ViewPresenterDecorator())
+                         .WithComponent(entryManager)
+                         .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator));
 
             configuration.WithAppService(new Serializer())
-                .WithComponent(new SerializationManager());
+                         .WithComponent(new SerializationManager());
 
             var threadDispatcher = new ThreadDispatcher();
             if (synchronizationContext != null)
@@ -109,35 +107,36 @@ namespace MugenMvvm.Extensions
             configuration.WithAppService(threadDispatcher);
 
             configuration.WithAppService(new ValidationManager())
-                .WithComponent(new ValidatorProviderComponent());
+                         .WithComponent(new ValidatorProviderComponent());
 
             configuration.WithAppService(new ViewModelManager())
-                .WithComponent(new CacheViewModelProvider())
-                .WithComponent(new TypeViewModelProvider())
-                .WithComponent(new ViewModelCleaner())
-                .WithComponent(new ViewModelLifecycleTracker())
-                .WithComponent(new ViewModelServiceResolver());
+                         .WithComponent(new CacheViewModelProvider())
+                         .WithComponent(new TypeViewModelProvider())
+                         .WithComponent(new ViewModelCleaner())
+                         .WithComponent(new ViewModelLifecycleTracker())
+                         .WithComponent(new ViewModelServiceResolver());
 
             configuration.WithAppService(new ViewManager())
-                .WithComponent(new ExecutionModeViewManagerDecorator())
-                .WithComponent(new RawViewLifecycleDispatcher())
-                .WithComponent(new ViewCleaner())
-                .WithComponent(new ViewInitializer())
-                .WithComponent(new ViewLifecycleTracker())
-                .WithComponent(new ViewManagerComponent())
-                .WithComponent(new ViewModelViewAwareInitializer())
-                .WithComponent(new ViewModelViewInitializerDecorator())
-                .WithComponent(new UndefinedMappingViewInitializer())
-                .WithComponent(new ViewLifecycleAwareViewModelHandler())
-                .WithComponent(new ViewMappingProvider());
+                         .WithComponent(new ExecutionModeViewManagerDecorator())
+                         .WithComponent(new RawViewLifecycleDispatcher())
+                         .WithComponent(new ViewCleaner())
+                         .WithComponent(new ViewInitializer())
+                         .WithComponent(new ViewLifecycleTracker())
+                         .WithComponent(new ViewManagerComponent())
+                         .WithComponent(new ViewModelViewAwareInitializer())
+                         .WithComponent(new ViewModelViewInitializerDecorator())
+                         .WithComponent(new UndefinedMappingViewInitializer())
+                         .WithComponent(new ViewLifecycleAwareViewModelHandler())
+                         .WithComponent(new ViewMappingProvider());
             configuration.WithAppService(new WrapperManager())
-                .WithComponent(new ViewWrapperManagerDecorator());
+                         .WithComponent(new ViewWrapperManagerDecorator());
 
             return configuration;
         }
 
         public static MugenApplicationConfiguration TraceConfiguration(this MugenApplicationConfiguration configuration, bool traceApp = true, bool traceBinding = true,
-            bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true, bool includeConsoleLogger = true)
+            bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true,
+            bool includeConsoleLogger = true)
         {
             if (traceApp)
                 DebugTracer.TraceApp(configuration.Application);
@@ -165,7 +164,8 @@ namespace MugenMvvm.Extensions
             return configuration.ServiceConfiguration<TService>();
         }
 
-        public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component, IReadOnlyMetadataContext? metadata = null)
+        public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component,
+            IReadOnlyMetadataContext? metadata = null)
             where TService : class, IComponentOwner
         {
             configuration.Service().Components.Add(component, metadata);
@@ -176,14 +176,13 @@ namespace MugenMvvm.Extensions
 
         public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration) => configuration.Application;
 
-        private static IViewModelPresenterMediator? GetViewModelPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
+        private static IViewModelPresenterMediator? GetViewModelPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,
+            IReadOnlyMetadataContext? metadata)
         {
             var viewPresenter = presenter.GetComponents<IViewPresenterProviderComponent>(metadata).TryGetViewPresenter(presenter, viewModel, mapping, metadata);
             if (viewPresenter == null)
                 return null;
             return new ViewModelPresenterMediator<object>(viewModel, mapping, viewPresenter);
         }
-
-        #endregion
     }
 }

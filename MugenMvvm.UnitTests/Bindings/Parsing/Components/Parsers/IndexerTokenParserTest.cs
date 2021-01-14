@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class IndexerTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotIndexerExpression()
         {
@@ -32,16 +30,16 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize("[1,2 , 3]", DefaultMetadata);
 
             var component = new IndexerTokenParser();
-            component.TryParse(ctx, null).ShouldEqual(new IndexExpressionNode(null, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
+            component.TryParse(ctx, null)
+                     .ShouldEqual(new IndexExpressionNode(null, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
 
             ctx.Initialize("[1,2 , 3]", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null)
-                .ShouldEqual(new IndexExpressionNode(ConstantExpressionNode.Null, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
+                     .ShouldEqual(new IndexExpressionNode(ConstantExpressionNode.Null,
+                         new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
 
             ctx.Initialize("[1,2,]", DefaultMetadata);
             component.TryParse(ctx, null).ShouldBeNull();
         }
-
-        #endregion
     }
 }

@@ -13,10 +13,6 @@ namespace MugenMvvm.Android.Observation
 {
     public sealed class ViewMemberChangedListener : Object, INativeMemberChangedListener
     {
-        #region Fields
-
-        private readonly AndroidViewMemberListenerCollection _listeners;
-
         public const string ParentMemberName = "Parent";
         public const string ParentEventName = "ParentChanged";
         public const string ClickEventName = "Click";
@@ -42,24 +38,12 @@ namespace MugenMvvm.Android.Observation
         private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new(3);
         private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new(3);
 
-        #endregion
-
-        #region Constructors
+        private readonly AndroidViewMemberListenerCollection _listeners;
 
         private ViewMemberChangedListener(Object view)
         {
             _listeners = new AndroidViewMemberListenerCollection(view);
         }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void OnChanged(Object target, ICharSequence path, Object? state) => _listeners.Raise(target, state, GetMember(path), null);
-
-        #endregion
-
-        #region Methods
 
         public static ActionToken Add(Object target, IEventListener listener, string memberName)
         {
@@ -138,28 +122,16 @@ namespace MugenMvvm.Android.Observation
             return r;
         }
 
-        #endregion
-
-        #region Nested types
+        public void OnChanged(Object target, ICharSequence path, Object? state) => _listeners.Raise(target, state, GetMember(path), null);
 
         private sealed class AndroidViewMemberListenerCollection : MemberListenerCollection
         {
-            #region Fields
-
             private readonly Object _view;
-
-            #endregion
-
-            #region Constructors
 
             public AndroidViewMemberListenerCollection(Object view)
             {
                 _view = view;
             }
-
-            #endregion
-
-            #region Methods
 
             protected override void OnListenerAdded(string memberName)
             {
@@ -174,10 +146,6 @@ namespace MugenMvvm.Android.Observation
                 if (_view.Handle != IntPtr.Zero)
                     ViewMugenExtensions.RemoveMemberListener(_view, GetMember(memberName));
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

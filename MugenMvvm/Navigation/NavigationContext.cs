@@ -7,9 +7,8 @@ namespace MugenMvvm.Navigation
 {
     public sealed class NavigationContext : MetadataOwnerBase, INavigationContext
     {
-        #region Constructors
-
-        public NavigationContext(object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
+        public NavigationContext(object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
+            IReadOnlyMetadataContext? metadata = null)
             : base(metadata)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
@@ -23,12 +22,6 @@ namespace MugenMvvm.Navigation
             NavigationProvider = navigationProvider;
         }
 
-        #endregion
-
-        #region Properties
-
-        public NavigationMode NavigationMode { get; }
-
         public NavigationType NavigationType { get; }
 
         public string NavigationId { get; }
@@ -37,6 +30,6 @@ namespace MugenMvvm.Navigation
 
         public object? Target { get; }
 
-        #endregion
+        public NavigationMode NavigationMode { get; }
     }
 }

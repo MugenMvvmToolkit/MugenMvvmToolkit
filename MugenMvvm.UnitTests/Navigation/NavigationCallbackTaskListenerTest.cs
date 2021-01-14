@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Enums;
-using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using Should;
 using Xunit;
@@ -9,7 +8,17 @@ namespace MugenMvvm.UnitTests.Navigation
 {
     public class NavigationCallbackTaskListenerTest : UnitTestBase
     {
-        #region Methods
+        [Fact]
+        public void OnCanceledShouldCompleteTask()
+        {
+            var ctx = new NavigationContext(this, NavigationProvider.System, "f", NavigationType.Alert, NavigationMode.New);
+            var listener = new NavigationCallbackTaskListener(false);
+            listener.Task.IsCompleted.ShouldBeFalse();
+            listener.OnCanceled(ctx, default);
+            listener.Task.IsCompleted.ShouldBeTrue();
+            listener.Task.IsFaulted.ShouldBeFalse();
+            listener.Task.IsCanceled.ShouldBeTrue();
+        }
 
         [Fact]
         public void OnCompletedShouldCompleteTask()
@@ -37,19 +46,5 @@ namespace MugenMvvm.UnitTests.Navigation
             listener.Task.IsFaulted.ShouldBeTrue();
             listener.Task.IsCanceled.ShouldBeFalse();
         }
-
-        [Fact]
-        public void OnCanceledShouldCompleteTask()
-        {
-            var ctx = new NavigationContext(this, NavigationProvider.System, "f", NavigationType.Alert, NavigationMode.New);
-            var listener = new NavigationCallbackTaskListener(false);
-            listener.Task.IsCompleted.ShouldBeFalse();
-            listener.OnCanceled(ctx, default);
-            listener.Task.IsCompleted.ShouldBeTrue();
-            listener.Task.IsFaulted.ShouldBeFalse();
-            listener.Task.IsCanceled.ShouldBeTrue();
-        }
-
-        #endregion
     }
 }

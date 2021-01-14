@@ -18,15 +18,9 @@ namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class ReflectionMemberProvider : IMemberProviderComponent, IEqualityComparer<ReflectionMemberProvider.CacheKey>, IHasPriority
     {
-        #region Fields
-
         private readonly IObservationManager? _observationManager;
         private readonly HashSet<Type> _types;
         private readonly Dictionary<CacheKey, object?> _cache;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ReflectionMemberProvider(IObservationManager? observationManager = null)
@@ -36,21 +30,41 @@ namespace MugenMvvm.Bindings.Members.Components
             _cache = new Dictionary<CacheKey, object?>(this);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = MemberComponentPriority.Instance;
 
-        #endregion
+        private static void AddMethodsInternal(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
+        {
+            var isGetter = name == BindingInternalConstant.IndexerGetterName;
+            var isSetter = name == BindingInternalConstant.IndexerSetterName;
+            if (isGetter || isSetter)
+            {
+                var propertyInfos = t.GetProperties(BindingFlagsEx.All);
+                for (var i = 0; i < propertyInfos.Length; i++)
+                {
+                    var propertyInfo = propertyInfos[i];
+                    var indexParameters = propertyInfo.GetIndexParameters();
+                    if (indexParameters.Length > 0)
+                    {
+                        var method = isGetter ? propertyInfo.GetGetMethod(true) : propertyInfo.GetSetMethod(true);
+                        if (method != null)
+                            result.Add(new MethodMemberInfo(name, method, false, requestedType, isGetter ? indexParameters : null, null));
+                    }
+                }
+            }
+            else
+            {
+                var methods = t.GetMethods(BindingFlagsEx.All);
+                for (var index = 0; index < methods.Length; index++)
+                {
+                    var methodInfo = methods[index];
+                    if (methodInfo.Name == name)
+                        result.Add(new MethodMemberInfo(name, methodInfo, false, requestedType));
+                }
+            }
+        }
 
-        #region Implementation of interfaces
-
-        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) => x.MemberType == y.MemberType && x.Name == y.Name && x.Type == y.Type;
-
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey obj) => HashCode.Combine(obj.MemberType, obj.Name, obj.Type);
-
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+            IReadOnlyMetadataContext? metadata)
         {
             _types.Clear();
             var hasProperty = !memberTypes.HasFlag(MemberType.Accessor);
@@ -82,10 +96,6 @@ namespace MugenMvvm.Bindings.Members.Components
 
             return result.ToItemOrList();
         }
-
-        #endregion
-
-        #region Methods
 
         private void AddMethods(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
         {
@@ -158,45 +168,12 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        private static void AddMethodsInternal(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
-        {
-            var isGetter = name == BindingInternalConstant.IndexerGetterName;
-            var isSetter = name == BindingInternalConstant.IndexerSetterName;
-            if (isGetter || isSetter)
-            {
-                var propertyInfos = t.GetProperties(BindingFlagsEx.All);
-                for (var i = 0; i < propertyInfos.Length; i++)
-                {
-                    var propertyInfo = propertyInfos[i];
-                    var indexParameters = propertyInfo.GetIndexParameters();
-                    if (indexParameters.Length > 0)
-                    {
-                        var method = isGetter ? propertyInfo.GetGetMethod(true) : propertyInfo.GetSetMethod(true);
-                        if (method != null)
-                            result.Add(new MethodMemberInfo(name, method, false, requestedType, isGetter ? indexParameters : null, null));
-                    }
-                }
-            }
-            else
-            {
-                var methods = t.GetMethods(BindingFlagsEx.All);
-                for (var index = 0; index < methods.Length; index++)
-                {
-                    var methodInfo = methods[index];
-                    if (methodInfo.Name == name)
-                        result.Add(new MethodMemberInfo(name, methodInfo, false, requestedType));
-                }
-            }
-        }
+        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) => x.MemberType == y.MemberType && x.Name == y.Name && x.Type == y.Type;
 
-        #endregion
-
-        #region Nested types
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey obj) => HashCode.Combine(obj.MemberType, obj.Name, obj.Type);
 
         internal readonly struct CacheKey
         {
-            #region Fields
-
             public const int Field = 1;
             public const int Property = 2;
             public const int Method = 3;
@@ -206,20 +183,12 @@ namespace MugenMvvm.Bindings.Members.Components
             public readonly string Name;
             public readonly Type Type;
 
-            #endregion
-
-            #region Constructors
-
             public CacheKey(int memberType, string name, Type type)
             {
                 MemberType = memberType;
                 Name = name;
                 Type = type;
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

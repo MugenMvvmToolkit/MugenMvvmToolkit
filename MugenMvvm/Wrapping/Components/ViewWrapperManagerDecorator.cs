@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -13,15 +12,9 @@ namespace MugenMvvm.Wrapping.Components
 {
     public sealed class ViewWrapperManagerDecorator : ComponentDecoratorBase<IWrapperManager, IWrapperManagerComponent>, IWrapperManagerComponent
     {
-        #region Constructors
-
         public ViewWrapperManagerDecorator(int priority = WrappingComponentPriority.ViewDecorator) : base(priority)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public bool CanWrap(IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -49,7 +42,5 @@ namespace MugenMvvm.Wrapping.Components
                 return item;
             }
         }
-
-        #endregion
     }
 }

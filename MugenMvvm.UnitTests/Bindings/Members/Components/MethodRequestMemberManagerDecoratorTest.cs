@@ -15,19 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class MethodRequestMemberManagerDecoratorTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetMembersShouldIgnoreNotSupportedRequest()
-        {
-            var manager = new MemberManager();
-            var component = new MethodRequestMemberManagerDecorator();
-            manager.AddComponent(component);
-            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
-            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Default.Array<Type>()), DefaultMetadata).IsEmpty.ShouldBeTrue();
-            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryGetMembersShouldSelectMethod(IMemberInfo[] members, Type[] memberTypes, IMemberInfo[] expectedResult)
@@ -123,6 +110,16 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             };
         }
 
-        #endregion
+        [Fact]
+        public void TryGetMembersShouldIgnoreNotSupportedRequest()
+        {
+            var manager = new MemberManager();
+            var component = new MethodRequestMemberManagerDecorator();
+            manager.AddComponent(component);
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Default.Array<Type>()), DefaultMetadata).IsEmpty
+                     .ShouldBeTrue();
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
     }
 }

@@ -11,13 +11,7 @@ namespace MugenMvvm.Validation.Components
 {
     public sealed class ValidatorProviderComponent : IValidatorProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IComponentCollectionManager? _componentCollectionManager;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ValidatorProviderComponent(IComponentCollectionManager? componentCollectionManager = null)
@@ -25,15 +19,7 @@ namespace MugenMvvm.Validation.Components
             _componentCollectionManager = componentCollectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ValidationComponentPriority.ValidatorProvider;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IValidator TryGetValidator(IValidationManager validationManager, object? request, IReadOnlyMetadataContext? metadata)
         {
@@ -43,7 +29,5 @@ namespace MugenMvvm.Validation.Components
             validator.AddComponent(new CycleHandlerValidatorComponent());
             return validator;
         }
-
-        #endregion
     }
 }

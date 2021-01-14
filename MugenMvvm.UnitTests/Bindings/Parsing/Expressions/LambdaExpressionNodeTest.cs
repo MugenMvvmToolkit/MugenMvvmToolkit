@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -12,20 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class LambdaExpressionNodeTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IParameterExpressionNode[] {new ParameterExpressionNode("Test")};
-            var exp = new LambdaExpressionNode(target, args);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Lambda);
-            exp.Body.ShouldEqual(target);
-            exp.Parameters.ShouldEqual(args);
-            exp.ToString().ShouldEqual("(Test) => \"1\"");
-        }
-
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -49,11 +34,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var arg2 = new ParameterExpressionNode("3");
             var exp = new LambdaExpressionNode(target, new[] {arg1, arg2});
 
-            var result = visitor.TraversalType == ExpressionTraversalType.Preorder ? new IExpressionNode[] {exp, target, arg1, arg2} : new IExpressionNode[] {target, arg1, arg2, exp};
+            var result = visitor.TraversalType == ExpressionTraversalType.Preorder
+                ? new IExpressionNode[] {exp, target, arg1, arg2}
+                : new IExpressionNode[] {target, arg1, arg2, exp};
             exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
             result.ShouldEqual(nodes);
         }
-
 
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
@@ -87,18 +73,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Body.ShouldEqual(targetChanged);
             expressionNode.Parameters.AsList().ShouldEqual(new[] {arg1Changed, arg2Changed});
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new[] {new ParameterExpressionNode("2")};
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => target
-            };
-            new LambdaExpressionNode(target, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
         }
 
         [Theory]
@@ -160,6 +134,28 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             ((TestExpressionNode) exp1.Body).EqualsCount.ShouldEqual(1);
         }
 
-        #endregion
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new[] {new ParameterExpressionNode("2")};
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => target
+            };
+            new LambdaExpressionNode(target, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IParameterExpressionNode[] {new ParameterExpressionNode("Test")};
+            var exp = new LambdaExpressionNode(target, args);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Lambda);
+            exp.Body.ShouldEqual(target);
+            exp.Parameters.ShouldEqual(args);
+            exp.ToString().ShouldEqual("(Test) => \"1\"");
+        }
     }
 }

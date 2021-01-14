@@ -11,20 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class StringTokenParserTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryParseShouldIgnoreNotStringExpression()
-        {
-            var component = new StringTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new DigitTokenParser()}
-            };
-            ctx.Initialize("1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
-        }
-
         [Theory]
         [InlineData("'test'", "test")]
         [InlineData("'t'", "t")]
@@ -46,6 +32,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                 component.TryParse(ctx, null).ShouldBeNull();
             else
                 component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(result));
+        }
+
+        [Fact]
+        public void TryParseShouldIgnoreNotStringExpression()
+        {
+            var component = new StringTokenParser();
+            var ctx = new TokenParserContext
+            {
+                Parsers = new[] {new DigitTokenParser()}
+            };
+            ctx.Initialize("1", DefaultMetadata);
+            component.TryParse(ctx, null).ShouldBeNull();
         }
 
         [Fact]
@@ -81,7 +79,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize("$'{1+1:n} {{test}} {2:t}'", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(expected);
         }
-
-        #endregion
     }
 }

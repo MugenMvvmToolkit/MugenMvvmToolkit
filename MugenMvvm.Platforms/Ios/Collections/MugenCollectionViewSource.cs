@@ -10,13 +10,7 @@ namespace MugenMvvm.Ios.Collections
 {
     public class MugenCollectionViewSource : UICollectionViewSource
     {
-        #region Fields
-
         private const int InitializedStateMask = 1;
-
-        #endregion
-
-        #region Constructors
 
         public MugenCollectionViewSource(UICollectionView collectionView, ICellTemplateSelector itemTemplateSelector)
             : this(new ItemsSourceBindableCollectionAdapter(new CollectionViewAdapter(collectionView), itemTemplateSelector as IDiffableEqualityComparer), itemTemplateSelector)
@@ -31,17 +25,9 @@ namespace MugenMvvm.Ios.Collections
             ItemTemplateSelector = itemTemplateSelector;
         }
 
-        #endregion
-
-        #region Properties
-
         public ItemsSourceBindableCollectionAdapter CollectionAdapter { get; }
 
         public ICellTemplateSelector ItemTemplateSelector { get; }
-
-        #endregion
-
-        #region Methods
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
@@ -61,7 +47,5 @@ namespace MugenMvvm.Ios.Collections
         public override nint GetItemsCount(UICollectionView collectionView, nint section) => CollectionAdapter.Count;
 
         protected virtual object? GetItemAt(NSIndexPath indexPath) => CollectionAdapter[indexPath.Row];
-
-        #endregion
     }
 }

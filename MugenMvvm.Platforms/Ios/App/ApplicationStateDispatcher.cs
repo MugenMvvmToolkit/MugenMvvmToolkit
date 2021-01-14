@@ -25,16 +25,10 @@ namespace MugenMvvm.Ios.App
 {
     public sealed class ApplicationStateDispatcher : IApplicationLifecycleListener, IViewLifecycleListener, IHasPriority
     {
-        #region Fields
-
         private readonly IPresenter? _presenter;
         private readonly ISerializer? _serializer;
         private readonly IServiceProvider? _serviceProvider;
         private readonly IViewManager? _viewManager;
-
-        #endregion
-
-        #region Constructors
 
         public ApplicationStateDispatcher(IPresenter? presenter = null, ISerializer? serializer = null, IViewManager? viewManager = null, IServiceProvider? serviceProvider = null)
         {
@@ -44,21 +38,14 @@ namespace MugenMvvm.Ios.App
             _serviceProvider = serviceProvider;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ViewComponentPriority.StateManager;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == IosApplicationLifecycleState.Preserving && state is ICancelableRequest cancelableRequest
                                                                           && cancelableRequest.Cancel == null)
-                cancelableRequest.Cancel = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController == null || !_serializer.DefaultIfNull().IsSupported(SerializationFormat.AppStateBytes);
+                cancelableRequest.Cancel = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController == null ||
+                                           !_serializer.DefaultIfNull().IsSupported(SerializationFormat.AppStateBytes);
             else if (lifecycleState == IosApplicationLifecycleState.Preserved && state is NSCoder coder)
             {
                 var rootViewController = UIApplication.SharedApplication.Delegate.GetWindow()?.RootViewController;
@@ -130,7 +117,5 @@ namespace MugenMvvm.Ios.App
                     coder.Encode(vc.GetType().AssemblyQualifiedName, IosInternalConstants.ViewControllerTypeKey);
             }
         }
-
-        #endregion
     }
 }

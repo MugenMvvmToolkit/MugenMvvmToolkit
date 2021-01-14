@@ -11,24 +11,14 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class MemberPathObserverProvider : IMemberPathObserverProviderComponent, IHasPriority
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public MemberPathObserverProvider()
         {
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ObserverComponentPriority.MemberPathObserverProvider;
-
         public HashSet<string>? ObservableMethods { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; } = ObserverComponentPriority.MemberPathObserverProvider;
 
         public IMemberPathObserver? TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -43,7 +33,8 @@ namespace MugenMvvm.Bindings.Observation.Components
                     return new MethodEmptyPathObserver(observerRequest.ObservableMethodName, target, observerRequest.MemberFlags);
                 if (membersCount == 1)
                     return new MethodSinglePathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.Optional);
-                return new MethodMultiPathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+                return new MethodMultiPathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.HasStablePath,
+                    observerRequest.Optional);
             }
 
             if (membersCount == 0)
@@ -55,7 +46,5 @@ namespace MugenMvvm.Bindings.Observation.Components
                 return new MultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
             return new RootMultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
         }
-
-        #endregion
     }
 }

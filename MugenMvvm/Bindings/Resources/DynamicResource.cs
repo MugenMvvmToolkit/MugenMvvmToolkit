@@ -8,13 +8,9 @@ namespace MugenMvvm.Bindings.Resources
 {
     public sealed class DynamicResource : IValueHolder<IWeakReference>, IValueHolder<IDictionary<string, object?>>, IDynamicResource
     {
-        #region Fields
-
         private object? _value;
 
-        #endregion
-
-        #region Properties
+        [Preserve] public event EventHandler? ValueChanged;
 
         [Preserve]
         public object? Value
@@ -29,23 +25,10 @@ namespace MugenMvvm.Bindings.Resources
             }
         }
 
-        IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
         IDictionary<string, object?>? IValueHolder<IDictionary<string, object?>>.Value { get; set; }
 
-        #endregion
-
-        #region Events
-
-        [Preserve]
-        public event EventHandler? ValueChanged;
-
-        #endregion
-
-        #region Methods
+        IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
         public void RaiseValueChanged() => ValueChanged?.Invoke(this, EventArgs.Empty);
-
-        #endregion
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -8,15 +7,9 @@ namespace MugenMvvm.Collections
     [StructLayout(LayoutKind.Auto)]
     public struct ItemOrListEditor<T>
     {
-        #region Fields
-
         private bool _hasItem;
         private T? _item;
         private List<T>? _list;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ItemOrListEditor(object? rawValue)
@@ -82,10 +75,6 @@ namespace MugenMvvm.Collections
             _hasItem = hasItem;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -125,10 +114,6 @@ namespace MugenMvvm.Collections
                     _item = value;
             }
         }
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrListEditor<T> FromRawValue(object? rawValue) => new(rawValue);
@@ -278,7 +263,5 @@ namespace MugenMvvm.Collections
                 return new ItemOrArray<T>(_list[0], true);
             return new ItemOrArray<T>(_list.ToArray());
         }
-
-        #endregion
     }
 }

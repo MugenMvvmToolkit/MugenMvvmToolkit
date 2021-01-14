@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Constants;
 using MugenMvvm.Entities;
 using MugenMvvm.Entities.Components;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -11,8 +9,6 @@ namespace MugenMvvm.UnitTests.Entities.Components
 {
     public class EntityTrackingCollectionProviderTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldReturnCollection()
         {
@@ -26,7 +22,5 @@ namespace MugenMvvm.UnitTests.Entities.Components
             collection.Components.Get<object>().Single().ShouldEqual(EntityStateTransitionManager.Instance);
             collection.Comparer.ShouldEqual(ReferenceEqualityComparer.Instance);
         }
-
-        #endregion
     }
 }

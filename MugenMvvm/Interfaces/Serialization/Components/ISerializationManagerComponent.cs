@@ -11,7 +11,8 @@ namespace MugenMvvm.Interfaces.Serialization.Components
         bool TrySerialize<TRequest, TResult>(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,
             [NotNullWhen(true)] ref TResult? result);
 
-        bool TryDeserialize<TRequest, TResult>(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,
+        bool TryDeserialize<TRequest, TResult>(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
+            ISerializationContext serializationContext,
             [NotNullWhen(true)] ref TResult? result);
     }
 }

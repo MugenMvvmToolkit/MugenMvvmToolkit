@@ -7,13 +7,7 @@ namespace MugenMvvm.App
 {
     public class PlatformInfo : MetadataOwnerBase, IPlatformInfo
     {
-        #region Fields
-
         public static readonly IPlatformInfo UnitTest = new PlatformInfo(PlatformType.UnitTest);
-
-        #endregion
-
-        #region Constructors
 
         protected internal PlatformInfo(PlatformType type, IReadOnlyMetadataContext? metadata = null) : base(metadata)
         {
@@ -21,18 +15,12 @@ namespace MugenMvvm.App
             Type = type;
         }
 
-        #endregion
-
-        #region Properties
-
-        public PlatformType Type { get; }
-
         public virtual PlatformIdiom Idiom => PlatformIdiom.Unknown;
 
         public virtual string ApplicationVersion => "0.0";
 
         public virtual string DeviceVersion => "0.0";
 
-        #endregion
+        public PlatformType Type { get; }
     }
 }

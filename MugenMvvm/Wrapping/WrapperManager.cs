@@ -11,19 +11,14 @@ namespace MugenMvvm.Wrapping
 {
     public sealed class WrapperManager : ComponentOwnerBase<IWrapperManager>, IWrapperManager
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public WrapperManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public bool CanWrap(Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null) => GetComponents<IWrapperManagerComponent>(metadata).CanWrap(this, wrapperType, request, metadata);
+        public bool CanWrap(Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IWrapperManagerComponent>(metadata).CanWrap(this, wrapperType, request, metadata);
 
         public object? TryWrap(Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
         {
@@ -32,7 +27,5 @@ namespace MugenMvvm.Wrapping
                 GetComponents<IWrapperManagerListener>(metadata).OnWrapped(this, wrapper, request, metadata);
             return wrapper;
         }
-
-        #endregion
     }
 }

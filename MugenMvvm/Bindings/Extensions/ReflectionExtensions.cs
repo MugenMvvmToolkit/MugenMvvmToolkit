@@ -15,13 +15,7 @@ namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
-        #region Fields
-
         private static readonly Dictionary<Type, object?> DefaultValueCache = new(23, InternalEqualityComparer.Type);
-
-        #endregion
-
-        #region Methods
 
         public static Expression GenerateExpression(this Expression left, Expression right, Func<Expression, Expression, Expression> getExpr)
         {
@@ -94,10 +88,8 @@ namespace MugenMvvm.Bindings.Extensions
                     return default;
                 var constraints = arg.GetGenericParameterConstraints();
                 for (var j = 0; j < constraints.Length; j++)
-                {
                     if (!constraints[j].IsAssignableFrom(inferredType))
                         return default;
-                }
             }
 
             return inferredTypes;
@@ -359,10 +351,8 @@ namespace MugenMvvm.Bindings.Extensions
         private static Type? FindCommonType(Type genericDefinition, Type type)
         {
             foreach (var baseType in SelfAndBaseTypes(type))
-            {
                 if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericDefinition)
                     return baseType;
-            }
 
             return null;
         }
@@ -420,7 +410,5 @@ namespace MugenMvvm.Bindings.Extensions
             for (var index = 0; index < interfaces.Length; index++)
                 AddInterface(types, interfaces[index], false);
         }
-
-        #endregion
     }
 }

@@ -14,25 +14,12 @@ namespace MugenMvvm.UnitTests.Commands.Components
 {
     public class DelegateCommandProviderTest : UnitTestBase
     {
-        #region Fields
-
-        private readonly DelegateCommandProvider _component;
-
-        #endregion
-
-        #region Constructors
-
         public DelegateCommandProviderTest()
         {
             _component = new DelegateCommandProvider();
         }
 
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void TryGetCommandShouldReturnNullNotSupportedType() => _component.TryGetCommand<object>(null!, this, _component, DefaultMetadata).ShouldBeNull();
+        private readonly DelegateCommandProvider _component;
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
@@ -101,6 +88,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             return null;
         }
 
-        #endregion
+        [Fact]
+        public void TryGetCommandShouldReturnNullNotSupportedType() => _component.TryGetCommand<object>(null!, this, _component, DefaultMetadata).ShouldBeNull();
     }
 }

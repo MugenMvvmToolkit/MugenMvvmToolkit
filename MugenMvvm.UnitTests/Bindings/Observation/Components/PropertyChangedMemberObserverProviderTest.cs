@@ -12,15 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class PropertyChangedMemberObserverProviderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
-        {
-            var component = new PropertyChangedMemberObserverProvider();
-            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
         [Fact]
         public void TryGetMemberObserverShouldObservePropertyChanged1()
         {
@@ -117,6 +108,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             listener.InvokeCount.ShouldEqual(1);
         }
 
-        #endregion
+        [Fact]
+        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
+        {
+            var component = new PropertyChangedMemberObserverProvider();
+            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
     }
 }

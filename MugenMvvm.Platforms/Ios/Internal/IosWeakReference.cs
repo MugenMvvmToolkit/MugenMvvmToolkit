@@ -8,22 +8,12 @@ namespace MugenMvvm.Ios.Internal
 {
     public sealed class IosWeakReference : WeakReference, IWeakReference
     {
-        #region Fields
-
         private IntPtr _targetHandle;
-
-        #endregion
-
-        #region Constructors
 
         public IosWeakReference(NSObject target) : base(target, true)
         {
             _targetHandle = target.Handle;
         }
-
-        #endregion
-
-        #region Properties
 
         public override object? Target
         {
@@ -43,24 +33,14 @@ namespace MugenMvvm.Ios.Internal
             set => ExceptionManager.ThrowNotSupported(nameof(Target));
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IWeakReference.Release()
-        {
-        }
-
-        #endregion
-
-        #region Methods
-
         internal void OnDealloc()
         {
             _targetHandle = IntPtr.Zero;
             base.Target = null;
         }
 
-        #endregion
+        void IWeakReference.Release()
+        {
+        }
     }
 }

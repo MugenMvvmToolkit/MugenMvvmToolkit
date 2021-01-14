@@ -14,8 +14,6 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class PropertyAccessorMemberInfo : IAccessorMemberInfo
     {
-        #region Fields
-
         private readonly ushort _modifiers;
 
         private readonly PropertyInfo _propertyInfo;
@@ -24,10 +22,6 @@ namespace MugenMvvm.Bindings.Members
 
         private MemberObserver _observer;
         private Action<object?, object?> _setterFunc;
-
-        #endregion
-
-        #region Constructors
 
         public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType)
         {
@@ -66,9 +60,9 @@ namespace MugenMvvm.Bindings.Members
             _modifiers = (getMethod ?? setMethod).GetAccessModifiers().Value();
         }
 
-        #endregion
+        public bool CanRead { get; }
 
-        #region Properties
+        public bool CanWrite { get; }
 
         public string Name { get; }
 
@@ -82,13 +76,9 @@ namespace MugenMvvm.Bindings.Members
 
         public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
-        public bool CanRead { get; }
+        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => _getterFunc(target);
 
-        public bool CanWrite { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
+        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null) => _setterFunc(target, value);
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
@@ -96,14 +86,6 @@ namespace MugenMvvm.Bindings.Members
                 _observer = MugenService.ObservationManager.TryGetMemberObserver(_reflectedType, this, metadata).NoDoIfEmpty();
             return _observer.TryObserve(target, listener, metadata);
         }
-
-        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => _getterFunc(target);
-
-        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null) => _setterFunc(target, value);
-
-        #endregion
-
-        #region Methods
 
         private void MustBeWritable(object? _, object? __) => ExceptionManager.ThrowBindingMemberMustBeWritable(this);
 
@@ -124,7 +106,5 @@ namespace MugenMvvm.Bindings.Members
             _getterFunc = _propertyInfo.GetMemberGetter<object?, object?>();
             return _getterFunc(arg);
         }
-
-        #endregion
     }
 }

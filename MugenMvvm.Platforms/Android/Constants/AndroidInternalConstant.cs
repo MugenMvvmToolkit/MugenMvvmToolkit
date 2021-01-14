@@ -2,8 +2,6 @@
 {
     internal static class AndroidInternalConstant
     {
-        #region Fields
-
         public const string BundleVmId = "@!vm";
         public const string BundleViewState = "@!v";
         public const string MenuItemsSource = "`@mi";
@@ -24,7 +22,5 @@
         public const string IdResource = "id";
         public const string IntegerResource = "integer";
         public const string StringResource = "string";
-
-        #endregion
     }
 }

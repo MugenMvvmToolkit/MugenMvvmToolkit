@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Android.Interfaces;
+﻿using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
@@ -9,21 +8,14 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Views
 {
     public sealed class ResourceViewMappingDecorator : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent
     {
-        #region Constructors
-
         public ResourceViewMappingDecorator(int priority = ViewComponentPriority.ResourceMappingDecorator) : base(priority)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IViewMapping> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -41,16 +33,12 @@ namespace MugenMvvm.Android.Views
 
             var result = new ItemOrListEditor<IViewMapping>();
             foreach (var mapping in mappings)
-            {
                 if (!mapping.ViewType.IsInterface && mapping.ViewType.IsInstanceOfType(view))
                     result.Add(mapping);
                 else if (mapping is IResourceViewMapping map && map.ResourceId == viewId)
                     result.Add(mapping);
-            }
 
             return result.ToItemOrList();
         }
-
-        #endregion
     }
 }

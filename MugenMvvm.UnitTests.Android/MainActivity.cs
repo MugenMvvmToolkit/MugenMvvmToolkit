@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Android
     [Activity(Label = "xUnit Android Runner", MainLauncher = true, Theme = "@android:style/Theme.Material.Light")]
     public class MainActivity : RunnerActivity
     {
-        #region Methods
-
         protected override void OnCreate(Bundle bundle)
         {
             // tests can be inside the main assembly
@@ -33,7 +31,5 @@ namespace MugenMvvm.UnitTests.Android
             // you cannot add more assemblies once calling base
             base.OnCreate(bundle);
         }
-
-        #endregion
     }
 }

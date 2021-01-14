@@ -2,8 +2,6 @@
 {
     public static class ParsingComponentPriority
     {
-        #region Fields
-
         public const int Constant = 1000;
         public const int Method = 990;
         public const int Indexer = 990;
@@ -19,7 +17,5 @@
         public const int TokenParser = 0;
         public const int Converter = 0;
         public const int Optimizer = 100;
-
-        #endregion
     }
 }

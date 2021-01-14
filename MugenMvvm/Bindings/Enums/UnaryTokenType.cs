@@ -10,8 +10,6 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class UnaryTokenType : EnumBase<UnaryTokenType, string>
     {
-        #region Fields
-
         public static readonly UnaryTokenType DynamicExpression = new("$") {IsSingleExpression = true};
         public static readonly UnaryTokenType StaticExpression = new("$$") {IsSingleExpression = true};
         public static readonly UnaryTokenType Minus = new("-");
@@ -19,26 +17,16 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly UnaryTokenType LogicalNegation = new("!");
         public static readonly UnaryTokenType BitwiseNegation = new("~");
 
-        #endregion
-
-        #region Constructors
+        public UnaryTokenType(string value, string? name = null)
+            : base(value, name)
+        {
+        }
 
         [Preserve(Conditional = true)]
         protected UnaryTokenType()
         {
         }
 
-        public UnaryTokenType(string value, string? name = null)
-            : base(value, name)
-        {
-        }
-
-        #endregion
-
-        #region Properties
-
         public bool IsSingleExpression { get; set; }
-
-        #endregion
     }
 }

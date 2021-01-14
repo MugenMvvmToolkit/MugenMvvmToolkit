@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class TypeViewModelProviderTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldIgnoreNonGuidRequest()
         {
@@ -50,7 +48,5 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             lifeCycles[0].ShouldEqual(ViewModelLifecycleState.Initializing);
             lifeCycles[1].ShouldEqual(ViewModelLifecycleState.Initialized);
         }
-
-        #endregion
     }
 }

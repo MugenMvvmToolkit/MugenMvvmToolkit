@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public sealed class TestEqualityComparer<T> : IEqualityComparer<T>
     {
-        #region Properties
-
 #pragma warning disable CS0108 // Member hides inherited member; missing new keyword
         public Func<T, T, bool>? Equals { get; set; }
 #pragma warning restore CS0108 // Member hides inherited member; missing new keyword
 
         public new Func<T, int>? GetHashCode { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         bool IEqualityComparer<T>.Equals(T? x, T? y)
         {
@@ -31,7 +24,5 @@ namespace MugenMvvm.UnitTests.Internal.Internal
                 return obj!.GetHashCode();
             return GetHashCode(obj!);
         }
-
-        #endregion
     }
 }

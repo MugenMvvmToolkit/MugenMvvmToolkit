@@ -8,38 +8,35 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public abstract class ReadOnlyMetadataContextTestBase : UnitTestBase
     {
-        #region Fields
-
         protected const string DefaultGetterValue = "Testf";
 
         protected static readonly IMetadataContextKey<string?> CustomGetterKey = MetadataContextKey
-            .Create<string?>(nameof(CustomGetterKey))
-            .Getter(Getter)
-            .Build();
+                                                                                 .Create<string?>(nameof(CustomGetterKey))
+                                                                                 .Getter(Getter)
+                                                                                 .Build();
 
         protected static readonly IMetadataContextKey<int> CustomSetterKey = MetadataContextKey
-            .Create<int>(nameof(CustomSetterKey))
-            .Setter(Setter)
-            .Build();
-
-        #endregion
-
-        #region Properties
+                                                                             .Create<int>(nameof(CustomSetterKey))
+                                                                             .Setter(Setter)
+                                                                             .Build();
 
         protected static IReadOnlyMetadataContext? CurrentGetterContext { get; set; }
+
         protected static object? CurrentGetterValue { get; set; }
+
         protected static int GetterCount { get; set; }
+
         protected static string? GetterValue { get; set; }
 
         protected static IReadOnlyMetadataContext? CurrentSetterContext { get; set; }
+
         protected static int CurrentSetterValue { get; set; }
+
         protected static int SetterCount { get; set; }
+
         protected static object? CurrentSetterOldValue { get; set; }
+
         protected static object? SetterValue { get; set; }
-
-        #endregion
-
-        #region Methods
 
         private static string? Getter(IReadOnlyMetadataContext arg1, IMetadataContextKey<string?> arg2, object? arg3)
         {
@@ -60,12 +57,6 @@ namespace MugenMvvm.UnitTests.Metadata
             return SetterValue;
         }
 
-        protected void EnumeratorCountTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)
-        {
-            metadataContext.Count.ShouldEqual(values.Count);
-            metadataContext.GetValues().AsList().ShouldEqual(values);
-        }
-
         public void ContainsTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             foreach (var metadataContextValue in values)
@@ -74,7 +65,7 @@ namespace MugenMvvm.UnitTests.Metadata
 
         public void TryGetTest<T>(IReadOnlyMetadataContext context, IReadOnlyMetadataContextKey<T> key, T expectedValue)
         {
-            context.TryGet(key, out var value, default!).ShouldBeTrue();
+            context.TryGet(key, out var value).ShouldBeTrue();
             value!.ShouldEqual(expectedValue);
 
             context.TryGet(key, out var v).ShouldBeTrue();
@@ -87,7 +78,7 @@ namespace MugenMvvm.UnitTests.Metadata
             GetterCount = 0;
             GetterValue = getterValueToSet;
 
-            metadataContext.TryGet(CustomGetterKey, out var value, null).ShouldBeTrue();
+            metadataContext.TryGet(CustomGetterKey, out var value).ShouldBeTrue();
             GetterCount.ShouldEqual(1);
             CurrentGetterContext.ShouldEqual(metadataContext);
             CurrentGetterValue.ShouldEqual(DefaultGetterValue);
@@ -99,7 +90,7 @@ namespace MugenMvvm.UnitTests.Metadata
             const string defaultValue = "Test1";
             const string defaultValueGet = "t";
             var contextKey = MetadataContextKey.Create<string?>("Test").DefaultValue(defaultValue).Build();
-            metadataContext.TryGet(contextKey!, out var value, null).ShouldBeFalse();
+            metadataContext.TryGet(contextKey!, out var value).ShouldBeFalse();
             value.ShouldEqual(defaultValue);
 
             metadataContext.TryGet(contextKey!, out value, defaultValueGet).ShouldBeFalse();
@@ -120,6 +111,10 @@ namespace MugenMvvm.UnitTests.Metadata
             invokedCount.ShouldEqual(1);
         }
 
-        #endregion
+        protected void EnumeratorCountTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)
+        {
+            metadataContext.Count.ShouldEqual(values.Count);
+            metadataContext.GetValues().AsList().ShouldEqual(values);
+        }
     }
 }

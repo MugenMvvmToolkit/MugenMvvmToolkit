@@ -4,19 +4,12 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
     public abstract class MultiAttachableComponentBase<T> : IAttachableComponent, IDetachableComponent where T : class
     {
-        #region Fields
-
         private object? _owners;
-
-        #endregion
-
-        #region Properties
 
         protected ItemOrArray<T> Owners
         {
@@ -25,9 +18,17 @@ namespace MugenMvvm.Components
             get => ItemOrArray.FromRawValue<T>(_owners);
         }
 
-        #endregion
+        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => true;
 
-        #region Implementation of interfaces
+        protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => true;
+
+        protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -76,23 +77,5 @@ namespace MugenMvvm.Components
                 MugenExtensions.RemoveRaw(ref _owners, o);
             }
         }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => true;
-
-        protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => true;
-
-        protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        #endregion
     }
 }

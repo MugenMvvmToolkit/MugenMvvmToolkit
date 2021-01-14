@@ -12,14 +12,8 @@ namespace MugenMvvm.Android.Bindings
 {
     public sealed class MenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
     {
-        #region Fields
-
         private readonly EventListenerCollection? _listeners;
         private readonly IMenuItem? _menuItem;
-
-        #endregion
-
-        #region Constructors
 
         private MenuItemClickListener(IMenuItem menuItem)
         {
@@ -32,9 +26,13 @@ namespace MugenMvvm.Android.Bindings
         {
         }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public static ActionToken AddListener(IMenuItem menuItem, IEventListener listener) =>
+            menuItem.AttachedValues().GetOrAdd(AndroidInternalConstant.MenuClickListener, menuItem, (key, item) =>
+            {
+                var l = new MenuItemClickListener(item);
+                item.SetOnMenuItemClickListener(l);
+                return l;
+            }).AddListener(listener);
 
         public bool OnMenuItemClick(IMenuItem? item)
         {
@@ -45,25 +43,11 @@ namespace MugenMvvm.Android.Bindings
             return true;
         }
 
-        #endregion
-
-        #region Methods
-
-        public static ActionToken AddListener(IMenuItem menuItem, IEventListener listener) =>
-            menuItem.AttachedValues().GetOrAdd(AndroidInternalConstant.MenuClickListener, menuItem, (key, item) =>
-            {
-                var l = new MenuItemClickListener(item);
-                item.SetOnMenuItemClickListener(l);
-                return l;
-            }).AddListener(listener);
-
         private ActionToken AddListener(IEventListener listener)
         {
             if (_listeners == null)
                 return default;
             return _listeners.Add(listener);
         }
-
-        #endregion
     }
 }

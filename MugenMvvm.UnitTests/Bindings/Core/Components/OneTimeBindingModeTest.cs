@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Members;
@@ -16,8 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class OneTimeBindingModeTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -119,7 +116,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             disposeCount.ShouldEqual(dispose ? 1 : 0);
             updateCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

@@ -10,14 +10,8 @@ namespace MugenMvvm.Collections
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ItemOrArray<T>
     {
-        #region Fields
-
         public readonly T? Item;
         public readonly T[]? List;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrArray(T? item, bool hasItem)
@@ -66,10 +60,6 @@ namespace MugenMvvm.Collections
             Count = count;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,10 +91,6 @@ namespace MugenMvvm.Collections
                 return default!;
             }
         }
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrArray<T>(T? item) => new(item, item != null);
@@ -144,23 +130,13 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() => new(this);
 
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator
         {
-            #region Fields
-
             private readonly T _item;
             private readonly T[]? _array;
             private readonly int _count;
             private int _index;
-
-            #endregion
-
-            #region Constructors
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Enumerator(ItemOrArray<T> itemOrList)
@@ -170,10 +146,6 @@ namespace MugenMvvm.Collections
                 _item = itemOrList.Item!;
                 _array = itemOrList.List;
             }
-
-            #endregion
-
-            #region Properties
 
             public readonly T Current
             {
@@ -186,19 +158,11 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset() => _index = -1;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext() => ++_index < _count;
-
-            #endregion
         }
-
-        #endregion
     }
 }

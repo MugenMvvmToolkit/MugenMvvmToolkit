@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class MemberTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotMemberExpression()
         {
@@ -41,7 +39,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize($"{memberName}", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null).ShouldBeNull();
         }
-
-        #endregion
     }
 }

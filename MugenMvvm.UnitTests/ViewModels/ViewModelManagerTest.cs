@@ -13,8 +13,6 @@ namespace MugenMvvm.UnitTests.ViewModels
 {
     public class ViewModelManagerTest : ComponentOwnerTestBase<ViewModelManager>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -79,13 +77,6 @@ namespace MugenMvvm.UnitTests.ViewModels
 
             manager.OnLifecycleChanged(viewModel, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(count);
-        }
-
-        [Fact]
-        public void GetServiceShouldThrowNoComponents()
-        {
-            var manager = new ViewModelManager();
-            ShouldThrow<InvalidOperationException>(() => manager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
         }
 
         [Theory]
@@ -155,6 +146,11 @@ namespace MugenMvvm.UnitTests.ViewModels
 
         protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void GetServiceShouldThrowNoComponents()
+        {
+            var manager = new ViewModelManager();
+            ShouldThrow<InvalidOperationException>(() => manager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
+        }
     }
 }

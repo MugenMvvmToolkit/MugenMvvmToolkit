@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
@@ -17,16 +16,57 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public abstract class MultiPathObserverTestBase<TObserver> : ObserverBaseTest<TObserver> where TObserver : MultiPathObserverBase
     {
-        #region Fields
-
         protected const string MemberPath1 = "Test1";
         protected const string MemberPath2 = "Test2";
         protected const string MemberPath3 = "Test3";
         protected static readonly IMemberPath DefaultPath = MemberPath.Get($"{MemberPath1}.{MemberPath2}.{MemberPath3}");
 
-        #endregion
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public virtual void ObserverShouldNotifyListenersLastMember(int count)
+        {
+            IEventListener? currentListener = null;
+            IEventListener? lastListener = null;
+            var root = this;
+            var target1 = new object();
+            var target2 = "";
+            var accessorInfo1 = new TestAccessorMemberInfo
+            {
+                GetValue = (o, context) => target1
+            };
+            var accessorInfo2 = new TestAccessorMemberInfo
+            {
+                GetValue = (o, context) => target2
+            };
+            var accessorInfo3 = new TestAccessorMemberInfo
+            {
+                TryObserve = (o, listener, arg3) =>
+                {
+                    currentListener = listener;
+                    lastListener = listener;
+                    return new ActionToken((o1, o2) => currentListener = null);
+                }
+            };
+            var component = new TestMemberManagerComponent
+            {
+                TryGetMembers = (t, m, f, r, meta) =>
+                {
+                    if (t == target2.GetType())
+                        return accessorInfo3;
+                    if (t == root.GetType())
+                        return accessorInfo1;
+                    if (t == target1.GetType())
+                        return accessorInfo2;
+                    throw new NotSupportedException();
+                }
+            };
 
-        #region Methods
+            using var _ = MugenService.AddComponent(component);
+            var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+                disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
+        }
 
         [Theory]
         [InlineData(false, false, false)]
@@ -360,52 +400,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void ObserverShouldNotifyListenersLastMember(int count)
-        {
-            IEventListener? currentListener = null;
-            IEventListener? lastListener = null;
-            var root = this;
-            var target1 = new object();
-            var target2 = "";
-            var accessorInfo1 = new TestAccessorMemberInfo
-            {
-                GetValue = (o, context) => target1
-            };
-            var accessorInfo2 = new TestAccessorMemberInfo
-            {
-                GetValue = (o, context) => target2
-            };
-            var accessorInfo3 = new TestAccessorMemberInfo
-            {
-                TryObserve = (o, listener, arg3) =>
-                {
-                    currentListener = listener;
-                    lastListener = listener;
-                    return new ActionToken((o1, o2) => currentListener = null);
-                }
-            };
-            var component = new TestMemberManagerComponent
-            {
-                TryGetMembers = (t, m, f, r, meta) =>
-                {
-                    if (t == target2.GetType())
-                        return accessorInfo3;
-                    if (t == root.GetType())
-                        return accessorInfo1;
-                    if (t == target1.GetType())
-                        return accessorInfo2;
-                    throw new NotSupportedException();
-                }
-            };
-
-            using var _ = MugenService.AddComponent(component);
-            var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
         public void ObserverShouldNotifyListenersError(int count)
         {
             IEventListener? currentListener = null;
@@ -420,7 +414,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         }
 
         protected abstract TObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional);
-
-        #endregion
     }
 }

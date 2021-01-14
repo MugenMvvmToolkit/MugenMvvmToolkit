@@ -8,30 +8,16 @@ namespace MugenMvvm.UnitTests.Busy.Internal
 {
     public sealed class TestBusyManagerListener : IBusyManagerListener
     {
-        #region Fields
-
         private readonly IBusyManager? _owner;
-
-        #endregion
-
-        #region Constructors
 
         public TestBusyManagerListener(IBusyManager? owner = null)
         {
             _owner = owner;
         }
 
-        #endregion
-
-        #region Properties
-
         public Action<IBusyToken, IReadOnlyMetadataContext?>? OnBeginBusy { get; set; }
 
         public Action<IReadOnlyMetadataContext?>? OnBusyChanged { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         void IBusyManagerListener.OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
@@ -44,7 +30,5 @@ namespace MugenMvvm.UnitTests.Busy.Internal
             _owner?.ShouldEqual(busyManager);
             OnBusyChanged?.Invoke(metadata);
         }
-
-        #endregion
     }
 }

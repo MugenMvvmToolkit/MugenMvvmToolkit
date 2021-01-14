@@ -10,28 +10,14 @@ namespace MugenMvvm.Android.Views
 {
     public sealed class NativeViewLifecycleDispatcher : Object, INativeLifecycleDispatcher
     {
-        #region Fields
-
         private readonly IViewManager? _viewManager;
-
-        #endregion
-
-        #region Constructors
 
         public NativeViewLifecycleDispatcher(IViewManager? viewManager = null)
         {
             _viewManager = viewManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority => PriorityConstants.PreInitializer + 1;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnLifecycleChanged(Object target, int lifecycleState, Object? state)
         {
@@ -52,7 +38,5 @@ namespace MugenMvvm.Android.Views
 
             return true;
         }
-
-        #endregion
     }
 }

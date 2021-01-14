@@ -11,7 +11,6 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
@@ -23,8 +22,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class MultiBindingTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public virtual void DisposeShouldDisposeExpression()
         {
@@ -101,6 +98,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         }
 
         [Fact]
+        public void MetadataShouldReturnBindingAndMultiBinding()
+        {
+            var binding = new MultiBinding(EmptyPathObserver.Empty, sources: default, new TestCompiledExpression());
+            var context = (IReadOnlyMetadataContext) binding;
+            context.Count.ShouldEqual(2);
+            context.Contains(BindingMetadata.Binding).ShouldBeTrue();
+            context.Contains(BindingMetadata.IsMultiBinding).ShouldBeTrue();
+            context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
+            context.TryGet(BindingMetadata.IsMultiBinding, out var isMulti).ShouldBeTrue();
+            b.ShouldEqual(binding);
+            isMulti.ShouldBeTrue();
+            context.GetValues().AsList().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsMultiBinding.ToValue(true)});
+        }
+
+        [Fact]
         public void UpdateTargetShouldUseObserverValue()
         {
             MultiBinding? binding = null;
@@ -170,22 +182,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             sourceGet.ShouldEqual(2);
             expressionInvoke.ShouldEqual(2);
         }
-
-        [Fact]
-        public void MetadataShouldReturnBindingAndMultiBinding()
-        {
-            var binding = new MultiBinding(EmptyPathObserver.Empty, sources: default, new TestCompiledExpression());
-            var context = (IReadOnlyMetadataContext) binding;
-            context.Count.ShouldEqual(2);
-            context.Contains(BindingMetadata.Binding).ShouldBeTrue();
-            context.Contains(BindingMetadata.IsMultiBinding).ShouldBeTrue();
-            context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
-            context.TryGet(BindingMetadata.IsMultiBinding, out var isMulti).ShouldBeTrue();
-            b.ShouldEqual(binding);
-            isMulti.ShouldBeTrue();
-            context.GetValues().AsList().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsMultiBinding.ToValue(true)});
-        }
-
-        #endregion
     }
 }

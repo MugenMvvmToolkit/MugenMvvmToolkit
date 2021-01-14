@@ -6,8 +6,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class ActionTokenTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(null, null)]
         [InlineData("1", null)]
@@ -63,7 +61,5 @@ namespace MugenMvvm.UnitTests.Internal
             ActionToken.NoDoToken.Dispose();
             ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
         }
-
-        #endregion
     }
 }

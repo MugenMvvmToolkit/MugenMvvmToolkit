@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MemberManagerTest : ComponentOwnerTestBase<IMemberManager>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -55,7 +53,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         }
 
         protected override IMemberManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new MemberManager(collectionProvider);
-
-        #endregion
     }
 }

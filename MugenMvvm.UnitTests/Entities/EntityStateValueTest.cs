@@ -6,15 +6,6 @@ namespace MugenMvvm.UnitTests.Entities
 {
     public class EntityStateValueTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void IsEmptyShouldBeTrueDefault()
-        {
-            EntityStateValue v = default;
-            v.IsEmpty.ShouldBeTrue();
-        }
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -28,6 +19,11 @@ namespace MugenMvvm.UnitTests.Entities
             value.NewValue.ShouldEqual(newValue);
         }
 
-        #endregion
+        [Fact]
+        public void IsEmptyShouldBeTrueDefault()
+        {
+            EntityStateValue v = default;
+            v.IsEmpty.ShouldBeTrue();
+        }
     }
 }

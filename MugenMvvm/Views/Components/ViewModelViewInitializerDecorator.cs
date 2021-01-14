@@ -16,28 +16,20 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class ViewModelViewInitializerDecorator : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
-        #region Fields
-
         private readonly IServiceProvider? _serviceProvider;
         private readonly IViewModelManager? _viewModelManager;
 
-        #endregion
-
-        #region Constructors
-
         [Preserve(Conditional = true)]
-        public ViewModelViewInitializerDecorator(IViewModelManager? viewModelManager = null, IServiceProvider? serviceProvider = null, int priority = ViewComponentPriority.ViewModelViewProviderDecorator)
+        public ViewModelViewInitializerDecorator(IViewModelManager? viewModelManager = null, IServiceProvider? serviceProvider = null,
+            int priority = ViewComponentPriority.ViewModelViewProviderDecorator)
             : base(priority)
         {
             _viewModelManager = viewModelManager;
             _serviceProvider = serviceProvider;
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             if (!mapping.IsUndefined())
             {
@@ -52,14 +44,8 @@ namespace MugenMvvm.Views.Components
         public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
 
-        #endregion
-
-        #region Methods
-
         private object ToViewModelViewRequest(IViewMapping mapping, object request, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata) =>
             ViewModelViewRequest.GetRequestOrRaw(request, viewModel ?? _viewModelManager.DefaultIfNull().TryGetViewModel(mapping.ViewModelType, metadata),
                 view ?? _serviceProvider.DefaultIfNull().GetService(mapping.ViewType));
-
-        #endregion
     }
 }

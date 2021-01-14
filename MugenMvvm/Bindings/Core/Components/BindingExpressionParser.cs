@@ -15,25 +15,17 @@ using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingExpressionParser : AttachableComponentBase<IBindingManager>, IBindingExpressionParserComponent, IHasPriority
     {
-        #region Fields
-
         private readonly BindingExpressionInitializerContext _context;
         private readonly BindingMemberExpressionCollectorVisitor _expressionCollectorVisitor;
         private readonly IExpressionCompiler? _expressionCompiler;
         private readonly IExpressionParser? _parser;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public BindingExpressionParser(IExpressionParser? parser = null, IExpressionCompiler? expressionCompiler = null)
@@ -44,15 +36,7 @@ namespace MugenMvvm.Bindings.Core.Components
             _context = new BindingExpressionInitializerContext(this);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.ExpressionParser;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
@@ -64,30 +48,20 @@ namespace MugenMvvm.Bindings.Core.Components
                 return new BindingBuilder(_context, parserResult.Item.Target!, parserResult.Item.Source!, parserResult.Item.Parameters.GetRawValue());
 
             var bindingExpressions = new IBindingBuilder[count];
-            int index = 0;
+            var index = 0;
             foreach (var result in parserResult)
                 bindingExpressions[index++] = new BindingBuilder(_context, result.Target!, result.Source!, result.Parameters.GetRawValue());
             return bindingExpressions;
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class BindingBuilder : IHasTargetExpressionBindingBuilder
         {
-            #region Fields
+            private static readonly object InitializedState = new();
 
             private readonly BindingExpressionInitializerContext _context;
             private object? _compiledExpression;
             private object? _parametersRaw;
             private object _sourceExpression;
-
-            private static readonly object InitializedState = new();
-
-            #endregion
-
-            #region Constructors
 
             public BindingBuilder(BindingExpressionInitializerContext context, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw)
             {
@@ -100,15 +74,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 _parametersRaw = parametersRaw;
             }
 
-            #endregion
-
-            #region Properties
-
             public IExpressionNode TargetExpression { get; private set; }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
             {
@@ -125,10 +91,6 @@ namespace MugenMvvm.Bindings.Core.Components
                     BindingMugenExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression) _compiledExpression!), target, source, metadata);
             }
 
-            #endregion
-
-            #region Methods
-
             private IBinding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 if (_parametersRaw != null)
@@ -136,7 +98,8 @@ namespace MugenMvvm.Bindings.Core.Components
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
-                        binding.Initialize(ItemOrArray.FromItem<object?>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)), metadata);
+                        binding.Initialize(ItemOrArray.FromItem<object?>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)),
+                            metadata);
                 }
 
                 if (binding.State == BindingState.Valid)
@@ -168,23 +131,19 @@ namespace MugenMvvm.Bindings.Core.Components
                     _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
                 }
 
-                int size = _context.Components.Count;
+                var size = _context.Components.Count;
                 if (size > 1)
                 {
                     foreach (var componentPair in _context.Components)
-                    {
                         if (componentPair.Value != null)
                             ++size;
-                    }
                 }
 
                 var components = ItemOrArray.Get<object>(size);
                 size = 0;
                 foreach (var componentPair in _context.Components)
-                {
                     if (componentPair.Value != null)
                         components.SetAt(size++, componentPair.Value);
-                }
 
                 _parametersRaw = components.GetRawValue();
                 _context.Clear();
@@ -198,10 +157,6 @@ namespace MugenMvvm.Bindings.Core.Components
                     return new ItemOrIReadOnlyList<IExpressionNode>(parameters.ToList());
                 return new ItemOrIReadOnlyList<IExpressionNode>((IExpressionNode) _parametersRaw, true);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

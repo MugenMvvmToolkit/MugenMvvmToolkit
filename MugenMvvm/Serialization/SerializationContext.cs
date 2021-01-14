@@ -8,8 +8,6 @@ namespace MugenMvvm.Serialization
 {
     public sealed class SerializationContext<TRequest, TResult> : MetadataOwnerBase, ISerializationContext
     {
-        #region Constructors
-
         public SerializationContext(ISerializationFormatBase<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata = null)
             : base(metadata)
         {
@@ -18,28 +16,18 @@ namespace MugenMvvm.Serialization
             Request = request;
         }
 
-        #endregion
+        public ISerializationFormatBase<TRequest, TResult> Format { get; }
 
-        #region Properties
-
-        ISerializationFormatBase ISerializationContext.Format => Format;
-
-        object ISerializationContext.Request => Request!;
+        public TRequest Request { get; }
 
         public Type RequestType => typeof(TRequest);
 
         public Type ResultType => typeof(TResult);
 
-        public ISerializationFormatBase<TRequest, TResult> Format { get; }
+        ISerializationFormatBase ISerializationContext.Format => Format;
 
-        public TRequest Request { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
+        object ISerializationContext.Request => Request!;
 
         public void Dispose() => this.ClearMetadata(true);
-
-        #endregion
     }
 }

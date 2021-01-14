@@ -12,25 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class UnaryExpressionConverterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotUnaryExpression()
-        {
-            var component = new UnaryExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotSupportUnaryExpression()
-        {
-            var component = new UnaryExpressionConverter();
-            component.Mapping.Clear();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.MakeUnary(ExpressionType.Negate, Expression.Constant(1), null!)).ShouldBeNull();
-        }
-
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryConvertShouldConvertUnaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
@@ -62,6 +43,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             return new object[] {context, Expression.MakeUnary(expressionType, operand, unaryTokenType == null ? typeof(T) : null!), result};
         }
 
-        #endregion
+        [Fact]
+        public void TryConvertShouldIgnoreNotSupportUnaryExpression()
+        {
+            var component = new UnaryExpressionConverter();
+            component.Mapping.Clear();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.MakeUnary(ExpressionType.Negate, Expression.Constant(1), null!)).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryConvertShouldIgnoreNotUnaryExpression()
+        {
+            var component = new UnaryExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
+        }
     }
 }

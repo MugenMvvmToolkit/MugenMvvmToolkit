@@ -4,8 +4,6 @@ namespace MugenMvvm.Collections
 {
     public static class ItemOrArray
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrArray<T> Get<T>(int count)
         {
@@ -34,7 +32,5 @@ namespace MugenMvvm.Collections
                 return default;
             return new ItemOrArray<T>((T) value, true);
         }
-
-        #endregion
     }
 }

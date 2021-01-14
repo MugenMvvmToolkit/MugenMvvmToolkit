@@ -10,18 +10,12 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class UnaryExpressionNode : ExpressionNodeBase<IUnaryExpressionNode>, IUnaryExpressionNode
     {
-        #region Fields
-
         public static readonly UnaryExpressionNode ActionMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Action);
         public static readonly UnaryExpressionNode EventArgsMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.EventArgs);
         public static readonly UnaryExpressionNode TargetMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self);
         public static readonly UnaryExpressionNode SourceMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Source);
         public static readonly UnaryExpressionNode ContextMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context);
         public static readonly UnaryExpressionNode BindingMacros = new(UnaryTokenType.DynamicExpression, MemberExpressionNode.Binding);
-
-        #endregion
-
-        #region Constructors
 
         public UnaryExpressionNode(UnaryTokenType token, IExpressionNode operand, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
@@ -31,19 +25,11 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             Operand = operand;
         }
 
-        #endregion
-
-        #region Properties
-
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Unary;
 
         public UnaryTokenType Token { get; }
 
         public IExpressionNode Operand { get; }
-
-        #endregion
-
-        #region Methods
 
         public static UnaryExpressionNode Get(UnaryTokenType token, IExpressionNode operand)
         {
@@ -71,6 +57,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return new UnaryExpressionNode(token, operand);
         }
 
+        public override string ToString() => $"{Token.Value}{Operand}";
+
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             var changed = false;
@@ -85,9 +73,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         protected override bool Equals(IUnaryExpressionNode other, IExpressionEqualityComparer? comparer) => Token == other.Token && Operand.Equals(other.Operand, comparer);
 
         protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => HashCode.Combine(hashCode, Token.GetHashCode(), Operand.GetHashCode(comparer));
-
-        public override string ToString() => $"{Token.Value}{Operand}";
-
-        #endregion
     }
 }

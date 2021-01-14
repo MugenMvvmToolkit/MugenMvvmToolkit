@@ -10,8 +10,6 @@ namespace MugenMvvm.Enums
         where TEnum : FlagsEnumBase<TEnum, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>, IConvertible
     {
-        #region Constructors
-
         protected FlagsEnumBase()
         {
         }
@@ -22,16 +20,7 @@ namespace MugenMvvm.Enums
             Flag = flag ?? ConvertValue(value);
         }
 
-        #endregion
-
-        #region Properties
-
-        [DataMember(Name = "_f")]
-        public long Flag { get; internal set; }
-
-        #endregion
-
-        #region Methods
+        [DataMember(Name = "_f")] public long Flag { get; internal set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue>? value) => ReferenceEquals(value, null) ? default : new EnumFlags<TEnum>(value.Flag);
@@ -70,7 +59,5 @@ namespace MugenMvvm.Enums
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EnumFlags<TEnum> AsFlags() => new(Flag);
-
-        #endregion
     }
 }

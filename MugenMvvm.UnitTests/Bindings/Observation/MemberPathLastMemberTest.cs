@@ -10,20 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberPathLastMemberTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            var member = default(MemberPathLastMember);
-            member.IsAvailable.ShouldBeFalse();
-            member.Error.ShouldBeNull();
-            member.Target.ShouldEqual(BindingMetadata.UnsetValue);
-            member.Member.ShouldEqual(ConstantMemberInfo.Unset);
-            member.ThrowIfError().ShouldBeFalse();
-            member.GetValueOrThrow(DefaultMetadata).ShouldEqual(BindingMetadata.UnsetValue);
-        }
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -97,6 +83,16 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             setCount.ShouldEqual(1);
         }
 
-        #endregion
+        [Fact]
+        public void DefaultShouldBeEmpty()
+        {
+            var member = default(MemberPathLastMember);
+            member.IsAvailable.ShouldBeFalse();
+            member.Error.ShouldBeNull();
+            member.Target.ShouldEqual(BindingMetadata.UnsetValue);
+            member.Member.ShouldEqual(ConstantMemberInfo.Unset);
+            member.ThrowIfError().ShouldBeFalse();
+            member.GetValueOrThrow(DefaultMetadata).ShouldEqual(BindingMetadata.UnsetValue);
+        }
     }
 }

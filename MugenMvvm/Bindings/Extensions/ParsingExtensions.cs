@@ -17,20 +17,13 @@ using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
-        #region Fields
-
         private static readonly HashSet<char> BindingTargetDelimiters = new() {',', ';', ' '};
         private static readonly HashSet<char> BindingDelimiters = new() {',', ';'};
-
-        #endregion
-
-        #region Methods
 
         public static EnumFlags<T> GetFlags<T>(this IExpressionNode expression, string key, EnumFlags<T> defaultFlags) where T : class, IFlagsEnum
         {
@@ -67,10 +60,8 @@ namespace MugenMvvm.Bindings.Extensions
                 return false;
 
             foreach (var pair in metadata)
-            {
                 if (!otherMetadata.TryGetValue(pair.Key, out var v) || !Equals(v, pair.Value))
                     return false;
-            }
 
             return true;
         }
@@ -94,7 +85,8 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         [return: NotNullIfNotNull("expression")]
-        public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression) => expression == null ? null : context.Convert(expression);
+        public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression) =>
+            expression == null ? null : context.Convert(expression);
 
         public static ItemOrListEditor<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, ItemOrIReadOnlyList<Expression> expressions)
         {
@@ -104,7 +96,8 @@ namespace MugenMvvm.Bindings.Extensions
             return nodes;
         }
 
-        public static IMethodCallExpressionNode ConvertMethodCall(this IExpressionConverterContext<Expression> context, MethodCallExpression methodCallExpression, string? methodName = null)
+        public static IMethodCallExpressionNode ConvertMethodCall(this IExpressionConverterContext<Expression> context, MethodCallExpression methodCallExpression,
+            string? methodName = null)
         {
             var method = methodCallExpression.Method;
             ParameterInfo[]? parameters = null;
@@ -156,7 +149,7 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static List<string>? TryGetErrors(this IParserContext context) => context.GetOrDefault(ParsingMetadata.ParsingErrors, null);
+        public static List<string>? TryGetErrors(this IParserContext context) => context.GetOrDefault(ParsingMetadata.ParsingErrors);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetPosition(this ITokenParserContext context, int? position = null)
@@ -204,21 +197,22 @@ namespace MugenMvvm.Bindings.Extensions
             if (p + token.Length > ctxLength)
                 return false;
 
-            for (int i = 0; i < token.Length; i++)
-            {
+            for (var i = 0; i < token.Length; i++)
                 if (context.TokenAt(p++) != token[i])
                     return false;
-            }
             return isPartOfIdentifier || p >= ctxLength || !context.TokenAt(p).IsValidIdentifierSymbol(false);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null) => !context.IsEof(position) && tokens.Contains(context.TokenAt(position));
+        public static bool IsAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null) =>
+            !context.IsEof(position) && tokens.Contains(context.TokenAt(position));
 
-        public static bool IsEofOrAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null) => context.IsEof(position) || tokens != null && context.IsAnyOf(tokens, position);
+        public static bool IsEofOrAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null) =>
+            context.IsEof(position) || tokens != null && context.IsAnyOf(tokens, position);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int? position = null) => context.IsIdentifier(out endPosition, context.GetPosition(position));
+        public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int? position = null) =>
+            context.IsIdentifier(out endPosition, context.GetPosition(position));
 
         public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int position)
         {
@@ -242,10 +236,8 @@ namespace MugenMvvm.Bindings.Extensions
             var start = context.GetPosition(position);
             var length = context.Length;
             for (var i = start; i < length; i++)
-            {
                 if (tokens.Contains(context.TokenAt(i)))
                     return i;
-            }
 
             return -1;
         }
@@ -468,7 +460,5 @@ namespace MugenMvvm.Bindings.Extensions
 
         private static string? Format(this ITokenParserContext context, ItemOrListEditor<(int start, int end)> args) =>
             args.IsEmpty ? null : string.Join(",", args.AsList().Select(tuple => context.GetValue(tuple.start, tuple.end)));
-
-        #endregion
     }
 }

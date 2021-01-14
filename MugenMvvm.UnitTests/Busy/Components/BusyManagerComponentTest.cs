@@ -12,17 +12,6 @@ namespace MugenMvvm.UnitTests.Busy.Components
 {
     public class BusyManagerComponentTest : UnitTestBase
     {
-        #region Fields
-
-        private readonly BusyManager _busyManager;
-        private readonly TestBusyManagerListener _listener;
-
-        private const int DefaultDelay = 150;
-
-        #endregion
-
-        #region Constructors
-
         public BusyManagerComponentTest()
         {
             _busyManager = new BusyManager();
@@ -30,77 +19,10 @@ namespace MugenMvvm.UnitTests.Busy.Components
             _busyManager.AddComponent(_listener);
         }
 
-        #endregion
+        private readonly BusyManager _busyManager;
+        private readonly TestBusyManagerListener _listener;
 
-        #region Methods
-
-        [Fact]
-        public void OnAttachShouldNotifyListeners()
-        {
-            var count = 0;
-            var busyManagerComponent = new BusyManagerComponent();
-            _listener.OnBusyChanged = metadata => { ++count; };
-
-            count.ShouldEqual(0);
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            count.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void OnDetachShouldNotifyListeners()
-        {
-            var count = 0;
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-
-            _listener.OnBusyChanged = metadata => { ++count; };
-            count.ShouldEqual(0);
-            t.Dispose();
-            count.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryBeginBusyShouldNotifyListeners()
-        {
-            var count = 0;
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-
-            _listener.OnBusyChanged = metadata => { ++count; };
-            count.ShouldEqual(0);
-            busyManagerComponent.TryBeginBusy(_busyManager, busyManagerComponent, null);
-            count.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void SuspendTokenShouldNotifyListeners()
-        {
-            var count = 0;
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var busyToken = busyManagerComponent.TryBeginBusy(_busyManager, busyManagerComponent, null)!;
-
-            _listener.OnBusyChanged = metadata => { ++count; };
-            count.ShouldEqual(0);
-            var actionToken = busyToken.Suspend(this, DefaultMetadata);
-            count.ShouldEqual(1);
-            actionToken.Dispose();
-            count.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void DisposeTokenShouldNotifyListeners()
-        {
-            var count = 0;
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var busyToken = busyManagerComponent.TryBeginBusy(_busyManager, busyManagerComponent, null)!;
-
-            _listener.OnBusyChanged = metadata => { ++count; };
-            count.ShouldEqual(0);
-            busyToken.Dispose();
-            count.ShouldEqual(1);
-        }
+        private const int DefaultDelay = 150;
 
         [Theory]
         [InlineData(null, 0, true)]
@@ -224,179 +146,6 @@ namespace MugenMvvm.UnitTests.Busy.Components
             count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void TokenShouldUpdateCompletedState()
-        {
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var token = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
-            var callback = new TestBusyTokenCallback();
-            var count = 0;
-            callback.OnCompleted += busyToken =>
-            {
-                ++count;
-                busyToken.ShouldEqual(token);
-            };
-
-            token.RegisterCallback(callback);
-            count.ShouldEqual(0);
-            token.IsCompleted.ShouldBeFalse();
-
-            token.Dispose();
-            count.ShouldEqual(1);
-            token.IsCompleted.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void TokenShouldUpdateSuspendedState()
-        {
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var token = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
-            var callback = new TestBusyTokenCallback();
-            var count = 0;
-            var suspendValue = false;
-            callback.OnSuspendChanged += suspended =>
-            {
-                ++count;
-                suspended.ShouldEqual(suspendValue);
-            };
-
-            token.RegisterCallback(callback);
-            count.ShouldEqual(0);
-            token.IsSuspended.ShouldBeFalse();
-
-            suspendValue = true;
-            var actionToken = token.Suspend(this, DefaultMetadata);
-            token.IsSuspended.ShouldBeTrue();
-            count.ShouldEqual(1);
-
-            suspendValue = false;
-            actionToken.Dispose();
-            count.ShouldEqual(2);
-            token.IsSuspended.ShouldBeFalse();
-        }
-
-        [Fact]
-        public void TokenShouldUpdateCompletedStateParentToken()
-        {
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
-            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
-            var callback = new TestBusyTokenCallback();
-            var count = 0;
-            callback.OnCompleted += busyToken =>
-            {
-                ++count;
-                busyToken.ShouldEqual(token);
-            };
-
-            token.RegisterCallback(callback);
-            count.ShouldEqual(0);
-            token.IsCompleted.ShouldBeFalse();
-            parentToken.IsCompleted.ShouldBeFalse();
-
-            token.Dispose();
-            count.ShouldEqual(1);
-            parentToken.IsCompleted.ShouldBeFalse();
-            token.IsCompleted.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void TokenShouldUpdateSuspendedStateParentToken()
-        {
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
-            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
-            var callback = new TestBusyTokenCallback();
-            var count = 0;
-            var suspendValue = false;
-            callback.OnSuspendChanged += suspended =>
-            {
-                ++count;
-                suspended.ShouldEqual(suspendValue);
-            };
-
-            token.RegisterCallback(callback);
-            count.ShouldEqual(0);
-            token.IsSuspended.ShouldBeFalse();
-            parentToken.IsSuspended.ShouldBeFalse();
-
-            suspendValue = true;
-            var actionToken = token.Suspend(this, DefaultMetadata);
-            parentToken.IsSuspended.ShouldBeFalse();
-            token.IsSuspended.ShouldBeTrue();
-            count.ShouldEqual(1);
-
-            suspendValue = false;
-            actionToken.Dispose();
-            count.ShouldEqual(2);
-            parentToken.IsSuspended.ShouldBeFalse();
-            token.IsSuspended.ShouldBeFalse();
-        }
-
-        [Fact]
-        public void TokenShouldUpdateCompletedStateParentTokenDisposed()
-        {
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
-            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
-            var callback = new TestBusyTokenCallback();
-            var count = 0;
-            callback.OnCompleted += busyToken =>
-            {
-                ++count;
-                busyToken.ShouldEqual(token);
-            };
-
-            token.RegisterCallback(callback);
-            count.ShouldEqual(0);
-            token.IsCompleted.ShouldBeFalse();
-            parentToken.IsCompleted.ShouldBeFalse();
-
-            parentToken.Dispose();
-            count.ShouldEqual(1);
-            parentToken.IsCompleted.ShouldBeTrue();
-            token.IsCompleted.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void TokenShouldUpdateSuspendedStateParentTokenSuspended()
-        {
-            var busyManagerComponent = new BusyManagerComponent();
-            using var t = _busyManager.AddComponent(busyManagerComponent);
-            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
-            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
-            var callback = new TestBusyTokenCallback();
-            var count = 0;
-            var suspendValue = false;
-            callback.OnSuspendChanged += suspended =>
-            {
-                ++count;
-                suspended.ShouldEqual(suspendValue);
-            };
-
-            token.RegisterCallback(callback);
-            count.ShouldEqual(0);
-            token.IsSuspended.ShouldBeFalse();
-            parentToken.IsSuspended.ShouldBeFalse();
-
-            suspendValue = true;
-            var actionToken = parentToken.Suspend(this, DefaultMetadata);
-            parentToken.IsSuspended.ShouldBeTrue();
-            token.IsSuspended.ShouldBeTrue();
-            count.ShouldEqual(1);
-
-            suspendValue = false;
-            actionToken.Dispose();
-            count.ShouldEqual(2);
-            parentToken.IsSuspended.ShouldBeFalse();
-            token.IsSuspended.ShouldBeFalse();
-        }
-
         [Theory]
         [InlineData(1, false)]
         [InlineData(10, false)]
@@ -486,26 +235,244 @@ namespace MugenMvvm.UnitTests.Busy.Components
         }
 
         [Fact]
-        public void TryGetTokensShouldReturnAllTokens()
+        public void DisposeTokenShouldNotifyListeners()
+        {
+            var count = 0;
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var busyToken = busyManagerComponent.TryBeginBusy(_busyManager, busyManagerComponent, null)!;
+
+            _listener.OnBusyChanged = metadata => { ++count; };
+            count.ShouldEqual(0);
+            busyToken.Dispose();
+            count.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void OnAttachShouldNotifyListeners()
+        {
+            var count = 0;
+            var busyManagerComponent = new BusyManagerComponent();
+            _listener.OnBusyChanged = metadata => { ++count; };
+
+            count.ShouldEqual(0);
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            count.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void OnDetachShouldNotifyListeners()
+        {
+            var count = 0;
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+
+            _listener.OnBusyChanged = metadata => { ++count; };
+            count.ShouldEqual(0);
+            t.Dispose();
+            count.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void SuspendTokenShouldNotifyListeners()
+        {
+            var count = 0;
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var busyToken = busyManagerComponent.TryBeginBusy(_busyManager, busyManagerComponent, null)!;
+
+            _listener.OnBusyChanged = metadata => { ++count; };
+            count.ShouldEqual(0);
+            var actionToken = busyToken.Suspend(this, DefaultMetadata);
+            count.ShouldEqual(1);
+            actionToken.Dispose();
+            count.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void TokenShouldUpdateCompletedState()
         {
             var busyManagerComponent = new BusyManagerComponent();
             using var t = _busyManager.AddComponent(busyManagerComponent);
-            var token1 = busyManagerComponent.TryBeginBusy(_busyManager, "Test1", null)!;
-            var token2 = busyManagerComponent.TryBeginBusy(_busyManager, "Test2", null)!;
+            var token = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
+            var callback = new TestBusyTokenCallback();
+            var count = 0;
+            callback.OnCompleted += busyToken =>
+            {
+                ++count;
+                busyToken.ShouldEqual(token);
+            };
 
-            var tokens = busyManagerComponent.TryGetTokens(_busyManager, DefaultMetadata)!.AsList();
-            tokens.Count.ShouldEqual(2);
-            tokens.ShouldContain(token1);
-            tokens.ShouldContain(token2);
+            token.RegisterCallback(callback);
+            count.ShouldEqual(0);
+            token.IsCompleted.ShouldBeFalse();
 
-            token1.Dispose();
-            tokens = busyManagerComponent.TryGetTokens(_busyManager, DefaultMetadata)!.AsList();
-            tokens.Count.ShouldEqual(1);
-            tokens.ShouldContain(token2);
+            token.Dispose();
+            count.ShouldEqual(1);
+            token.IsCompleted.ShouldBeTrue();
+        }
 
-            token2.Dispose();
-            tokens = busyManagerComponent.TryGetTokens(_busyManager, DefaultMetadata)!.AsList();
-            (tokens == null || tokens.Count == 0).ShouldBeTrue();
+        [Fact]
+        public void TokenShouldUpdateCompletedStateParentToken()
+        {
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
+            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
+            var callback = new TestBusyTokenCallback();
+            var count = 0;
+            callback.OnCompleted += busyToken =>
+            {
+                ++count;
+                busyToken.ShouldEqual(token);
+            };
+
+            token.RegisterCallback(callback);
+            count.ShouldEqual(0);
+            token.IsCompleted.ShouldBeFalse();
+            parentToken.IsCompleted.ShouldBeFalse();
+
+            token.Dispose();
+            count.ShouldEqual(1);
+            parentToken.IsCompleted.ShouldBeFalse();
+            token.IsCompleted.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void TokenShouldUpdateCompletedStateParentTokenDisposed()
+        {
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
+            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
+            var callback = new TestBusyTokenCallback();
+            var count = 0;
+            callback.OnCompleted += busyToken =>
+            {
+                ++count;
+                busyToken.ShouldEqual(token);
+            };
+
+            token.RegisterCallback(callback);
+            count.ShouldEqual(0);
+            token.IsCompleted.ShouldBeFalse();
+            parentToken.IsCompleted.ShouldBeFalse();
+
+            parentToken.Dispose();
+            count.ShouldEqual(1);
+            parentToken.IsCompleted.ShouldBeTrue();
+            token.IsCompleted.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void TokenShouldUpdateSuspendedState()
+        {
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var token = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
+            var callback = new TestBusyTokenCallback();
+            var count = 0;
+            var suspendValue = false;
+            callback.OnSuspendChanged += suspended =>
+            {
+                ++count;
+                suspended.ShouldEqual(suspendValue);
+            };
+
+            token.RegisterCallback(callback);
+            count.ShouldEqual(0);
+            token.IsSuspended.ShouldBeFalse();
+
+            suspendValue = true;
+            var actionToken = token.Suspend(this, DefaultMetadata);
+            token.IsSuspended.ShouldBeTrue();
+            count.ShouldEqual(1);
+
+            suspendValue = false;
+            actionToken.Dispose();
+            count.ShouldEqual(2);
+            token.IsSuspended.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void TokenShouldUpdateSuspendedStateParentToken()
+        {
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
+            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
+            var callback = new TestBusyTokenCallback();
+            var count = 0;
+            var suspendValue = false;
+            callback.OnSuspendChanged += suspended =>
+            {
+                ++count;
+                suspended.ShouldEqual(suspendValue);
+            };
+
+            token.RegisterCallback(callback);
+            count.ShouldEqual(0);
+            token.IsSuspended.ShouldBeFalse();
+            parentToken.IsSuspended.ShouldBeFalse();
+
+            suspendValue = true;
+            var actionToken = token.Suspend(this, DefaultMetadata);
+            parentToken.IsSuspended.ShouldBeFalse();
+            token.IsSuspended.ShouldBeTrue();
+            count.ShouldEqual(1);
+
+            suspendValue = false;
+            actionToken.Dispose();
+            count.ShouldEqual(2);
+            parentToken.IsSuspended.ShouldBeFalse();
+            token.IsSuspended.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void TokenShouldUpdateSuspendedStateParentTokenSuspended()
+        {
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var parentToken = busyManagerComponent.TryBeginBusy(_busyManager, "Test", null)!;
+            var token = busyManagerComponent.TryBeginBusy(_busyManager, parentToken, null)!;
+            var callback = new TestBusyTokenCallback();
+            var count = 0;
+            var suspendValue = false;
+            callback.OnSuspendChanged += suspended =>
+            {
+                ++count;
+                suspended.ShouldEqual(suspendValue);
+            };
+
+            token.RegisterCallback(callback);
+            count.ShouldEqual(0);
+            token.IsSuspended.ShouldBeFalse();
+            parentToken.IsSuspended.ShouldBeFalse();
+
+            suspendValue = true;
+            var actionToken = parentToken.Suspend(this, DefaultMetadata);
+            parentToken.IsSuspended.ShouldBeTrue();
+            token.IsSuspended.ShouldBeTrue();
+            count.ShouldEqual(1);
+
+            suspendValue = false;
+            actionToken.Dispose();
+            count.ShouldEqual(2);
+            parentToken.IsSuspended.ShouldBeFalse();
+            token.IsSuspended.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void TryBeginBusyShouldNotifyListeners()
+        {
+            var count = 0;
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+
+            _listener.OnBusyChanged = metadata => { ++count; };
+            count.ShouldEqual(0);
+            busyManagerComponent.TryBeginBusy(_busyManager, busyManagerComponent, null);
+            count.ShouldEqual(1);
         }
 
         [Fact]
@@ -548,6 +515,27 @@ namespace MugenMvvm.UnitTests.Busy.Components
                 .ShouldBeNull();
         }
 
-        #endregion
+        [Fact]
+        public void TryGetTokensShouldReturnAllTokens()
+        {
+            var busyManagerComponent = new BusyManagerComponent();
+            using var t = _busyManager.AddComponent(busyManagerComponent);
+            var token1 = busyManagerComponent.TryBeginBusy(_busyManager, "Test1", null)!;
+            var token2 = busyManagerComponent.TryBeginBusy(_busyManager, "Test2", null)!;
+
+            var tokens = busyManagerComponent.TryGetTokens(_busyManager, DefaultMetadata)!.AsList();
+            tokens.Count.ShouldEqual(2);
+            tokens.ShouldContain(token1);
+            tokens.ShouldContain(token2);
+
+            token1.Dispose();
+            tokens = busyManagerComponent.TryGetTokens(_busyManager, DefaultMetadata)!.AsList();
+            tokens.Count.ShouldEqual(1);
+            tokens.ShouldContain(token2);
+
+            token2.Dispose();
+            tokens = busyManagerComponent.TryGetTokens(_busyManager, DefaultMetadata)!.AsList();
+            (tokens == null || tokens.Count == 0).ShouldBeTrue();
+        }
     }
 }

@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class EventListenerCollectionTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(150)]
@@ -107,6 +105,27 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             ValidateInvokeCount(listeners, 0);
         }
 
+        private static void ValidateInvokeCount(TestWeakEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
+        {
+            for (var i = start.GetValueOrDefault(); i < end.GetValueOrDefault(listeners.Length); i++)
+            {
+                listeners[i].InvokeCount.ShouldEqual(count);
+                if (clear)
+                    listeners[i].InvokeCount = 0;
+            }
+        }
+
+        private sealed class TestEventListenerCollection : EventListenerCollection
+        {
+            public int RemovedCount { get; set; }
+
+            public int AddedCount { get; set; }
+
+            protected override void OnListenersAdded() => ++AddedCount;
+
+            protected override void OnListenersRemoved() => ++RemovedCount;
+        }
+
         [Fact]
         public void ShouldInvokeVirtualMethods()
         {
@@ -171,40 +190,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             collection.AddedCount.ShouldEqual(1);
             collection.RemovedCount.ShouldEqual(1);
         }
-
-        private static void ValidateInvokeCount(TestWeakEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
-        {
-            for (var i = start.GetValueOrDefault(); i < end.GetValueOrDefault(listeners.Length); i++)
-            {
-                listeners[i].InvokeCount.ShouldEqual(count);
-                if (clear)
-                    listeners[i].InvokeCount = 0;
-            }
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestEventListenerCollection : EventListenerCollection
-        {
-            #region Properties
-
-            public int RemovedCount { get; set; }
-
-            public int AddedCount { get; set; }
-
-            #endregion
-
-            #region Methods
-
-            protected override void OnListenersAdded() => ++AddedCount;
-
-            protected override void OnListenersRemoved() => ++RemovedCount;
-
-            #endregion
-        }
-
-        #endregion
     }
 }

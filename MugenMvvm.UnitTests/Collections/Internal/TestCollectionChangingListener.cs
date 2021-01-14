@@ -9,22 +9,12 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 {
     public class TestCollectionChangingListener<T> : ICollectionChangingListener<T>, IHasPriority
     {
-        #region Fields
-
         private readonly object _collection;
-
-        #endregion
-
-        #region Constructors
 
         public TestCollectionChangingListener(IObservableCollection<T> collection)
         {
             _collection = collection;
         }
-
-        #endregion
-
-        #region Properties
 
         public Action<T, int>? OnAdding { get; set; }
 
@@ -39,10 +29,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
         public bool ThrowErrorNullDelegate { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         void ICollectionChangingListener<T>.OnAdding(IReadOnlyCollection<T> collection, T item, int index)
         {
@@ -83,7 +69,5 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 throw new NotSupportedException();
             OnResetting?.Invoke(items);
         }
-
-        #endregion
     }
 }

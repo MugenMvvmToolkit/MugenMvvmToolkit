@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class EmptyMetadataContextTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void InstanceShouldBeValid()
         {
@@ -17,7 +15,5 @@ namespace MugenMvvm.UnitTests.Metadata
             EmptyMetadataContext.Instance.GetValues().IsEmpty.ShouldBeTrue();
             EmptyMetadataContext.Instance.TryGet(MetadataContextKey.FromKey<object>("test"), out _).ShouldBeFalse();
         }
-
-        #endregion
     }
 }

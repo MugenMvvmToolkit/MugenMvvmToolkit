@@ -9,12 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 {
     public class TestMethodMemberInfo : TestMemberInfoBase, IMethodMemberInfo
     {
-        #region Properties
-
-        public bool IsGenericMethod { get; set; }
-
-        public bool IsGenericMethodDefinition { get; set; }
-
         public Func<ItemOrIReadOnlyList<IParameterInfo>>? GetParameters { get; set; }
 
         public Func<ItemOrIReadOnlyList<Type>>? GetGenericArguments { get; set; }
@@ -27,9 +21,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         public Func<EnumFlags<ArgumentFlags>, ItemOrIReadOnlyList<object?>, IReadOnlyMetadataContext?, IAccessorMemberInfo?>? TryGetAccessor { get; set; }
 
-        #endregion
+        public bool IsGenericMethod { get; set; }
 
-        #region Implementation of interfaces
+        public bool IsGenericMethodDefinition { get; set; }
 
         ItemOrIReadOnlyList<IParameterInfo> IMethodMemberInfo.GetParameters() => GetParameters?.Invoke() ?? default;
 
@@ -43,7 +37,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
             TryGetAccessor?.Invoke(argumentFlags, args, metadata);
 
         object? IMethodMemberInfo.Invoke(object? target, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata) => Invoke?.Invoke(target, args, metadata);
-
-        #endregion
     }
 }

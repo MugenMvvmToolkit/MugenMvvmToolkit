@@ -5,7 +5,6 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Metadata.Internal;
 using Should;
@@ -15,27 +14,7 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class MetadataContextTest : ReadOnlyMetadataContextTestBase
     {
-        #region Fields
-
         protected IMetadataContextKey<int> TestKey = MetadataContextKey.FromKey<int>(nameof(TestKey));
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void TryGetShouldUseCustomGetter()
-        {
-            var context = new MetadataContext(new ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
-            TryGetGetterTest(context);
-        }
-
-        [Fact]
-        public void TryGetShouldUseDefaultValues()
-        {
-            var context = new MetadataContext();
-            TryGetDefaultTest(context);
-        }
 
         [Theory]
         [InlineData(1)]
@@ -79,15 +58,6 @@ namespace MugenMvvm.UnitTests.Metadata
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
                 TryGetTest(context, valueTuple.Item1, valueTuple.Item2);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeContext3()
-        {
-            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
-            var context = new MetadataContext(default(ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>));
-            EnumeratorCountTest(context, values);
-            ContainsTest(context, values);
         }
 
         [Theory]
@@ -600,6 +570,8 @@ namespace MugenMvvm.UnitTests.Metadata
                 listenerInvokedCount.ShouldEqual(count);
         }
 
+        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null) => new(values);
+
         [Fact]
         public void AddOrUpdateShouldUseSetter1()
         {
@@ -665,6 +637,15 @@ namespace MugenMvvm.UnitTests.Metadata
         }
 
         [Fact]
+        public void ConstructorShouldInitializeContext3()
+        {
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
+            var context = new MetadataContext(default(ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>));
+            EnumeratorCountTest(context, values);
+            ContainsTest(context, values);
+        }
+
+        [Fact]
         public void GetOrAddShouldUseSetter1()
         {
             var context = GetMetadataContext();
@@ -718,8 +699,18 @@ namespace MugenMvvm.UnitTests.Metadata
             CurrentSetterOldValue.ShouldEqual(int.MinValue);
         }
 
-        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null) => new(values);
+        [Fact]
+        public void TryGetShouldUseCustomGetter()
+        {
+            var context = new MetadataContext(new ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
+            TryGetGetterTest(context);
+        }
 
-        #endregion
+        [Fact]
+        public void TryGetShouldUseDefaultValues()
+        {
+            var context = new MetadataContext();
+            TryGetDefaultTest(context);
+        }
     }
 }

@@ -9,35 +9,46 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
 {
     public sealed class ViewMappingProvider : IViewMappingProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly List<MappingInfo> _mappings;
-
-        #endregion
-
-        #region Constructors
 
         public ViewMappingProvider()
         {
             _mappings = new List<MappingInfo>();
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ViewComponentPriority.MappingProvider;
 
-        #endregion
+        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.BeOfType(viewModelType, typeof(IViewModelBase), nameof(viewModelType));
+            Should.NotBeNull(viewType, nameof(viewType));
+            var mapping = new ViewMapping(id ?? $"{viewModelType.Name}{viewType.Name}{name}", viewModelType, viewType, metadata);
+            AddMapping(mapping, exactlyEqual, name);
+        }
 
-        #region Implementation of interfaces
+        public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null)
+        {
+            Should.NotBeNull(mapping, nameof(mapping));
+            var mappingInfo = new MappingInfo(mapping, exactlyEqual, name);
+            lock (_mappings)
+            {
+                _mappings.Add(mappingInfo);
+            }
+        }
+
+        public void ClearMappings()
+        {
+            lock (_mappings)
+            {
+                _mappings.Clear();
+            }
+        }
 
         public ItemOrIReadOnlyList<IViewMapping> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -82,52 +93,12 @@ namespace MugenMvvm.Views.Components
             return mappings.ToItemOrList();
         }
 
-        #endregion
-
-        #region Methods
-
-        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.BeOfType(viewModelType, typeof(IViewModelBase), nameof(viewModelType));
-            Should.NotBeNull(viewType, nameof(viewType));
-            var mapping = new ViewMapping(id ?? $"{viewModelType.Name}{viewType.Name}{name}", viewModelType, viewType, metadata);
-            AddMapping(mapping, exactlyEqual, name);
-        }
-
-        public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null)
-        {
-            Should.NotBeNull(mapping, nameof(mapping));
-            var mappingInfo = new MappingInfo(mapping, exactlyEqual, name);
-            lock (_mappings)
-            {
-                _mappings.Add(mappingInfo);
-            }
-        }
-
-        public void ClearMappings()
-        {
-            lock (_mappings)
-            {
-                _mappings.Clear();
-            }
-        }
-
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         private readonly struct MappingInfo
         {
-            #region Fields
-
             private readonly bool _exactlyEqual;
             private readonly string? _name;
             public readonly IViewMapping Mapping;
-
-            #endregion
-
-            #region Constructors
 
             public MappingInfo(IViewMapping mapping, bool exactlyEqual, string? name)
             {
@@ -135,10 +106,6 @@ namespace MugenMvvm.Views.Components
                 _name = name;
                 Mapping = mapping;
             }
-
-            #endregion
-
-            #region Methods
 
             public bool IsValidViewType(Type viewType, object? target, IReadOnlyMetadataContext? metadata)
             {
@@ -174,10 +141,6 @@ namespace MugenMvvm.Views.Components
 
             private static string? GetViewNameFromContext(object? target, IReadOnlyMetadataContext? metadata) =>
                 metadata?.Get(NavigationMetadata.ViewName) ?? (target as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata.Get(NavigationMetadata.ViewName);
-
-            #endregion
         }
-
-        #endregion
     }
 }

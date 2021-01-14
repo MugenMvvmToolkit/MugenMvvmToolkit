@@ -18,102 +18,22 @@ namespace MugenMvvm.Presenters
 {
     public class ViewModelPresenterMediator<TView> : ViewModelPresenterMediatorBase<TView>, IViewLifecycleListener, IHasPriority where TView : class
     {
-        #region Fields
-
         protected readonly IViewPresenter ViewPresenter;
         protected bool IsAppeared;
         protected bool LifecycleAdded;
 
-        #endregion
-
-        #region Constructors
-
         public ViewModelPresenterMediator(IViewModelBase viewModel, IViewMapping mapping, IViewPresenter viewPresenter,
-            IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
+            IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null,
+            IThreadDispatcher? threadDispatcher = null)
             : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher)
         {
             Should.NotBeNull(viewPresenter, nameof(viewPresenter));
             ViewPresenter = viewPresenter;
         }
 
-        #endregion
-
-        #region Properties
-
         public override NavigationType NavigationType => ViewPresenter.NavigationType;
 
         public int Priority { get; set; } = ComponentPriority.Min;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            try
-            {
-                if (View == null && lifecycleState == ViewLifecycleState.Initializing && view is IView v &&
-                    Equals(v.ViewModel, ViewModel) && v.Mapping.Id == Mapping.Id && !viewManager.IsInState(v.Target, ViewLifecycleState.Closed, metadata))
-                    UpdateView(v, ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
-
-                if (View != null && Equals(View.Target, MugenExtensions.Unwrap(view)))
-                    OnViewLifecycleChanged(lifecycleState, state, metadata);
-            }
-            catch (Exception e)
-            {
-                OnNavigationFailed(ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata), e);
-            }
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected override object GetViewRequest(object? view, INavigationContext navigationContext)
-            => ViewPresenter.TryGetViewRequest(this, view, navigationContext) ?? base.GetViewRequest(view, navigationContext);
-
-        protected override async Task ShowViewAsync(TView view, INavigationContext navigationContext)
-        {
-            var isAppeared = IsAppeared;
-            await ViewPresenter.ShowAsync(this, view, navigationContext).ConfigureAwait(false);
-            if (IsAppeared && isAppeared)
-                OnViewShown(null);
-        }
-
-        protected override async ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
-        {
-            var isAppeared = IsAppeared;
-            await ViewPresenter.ActivateAsync(this, view, navigationContext).ConfigureAwait(false);
-            if (IsAppeared && isAppeared)
-                OnViewActivated(null);
-            return true;
-        }
-
-        protected override void InitializeView(TView view, INavigationContext navigationContext)
-        {
-            if (!LifecycleAdded)
-            {
-                LifecycleAdded = true;
-                ViewManager.AddComponent(this);
-            }
-
-            var meta = navigationContext.GetMetadataOrDefault();
-            if (ViewManager.IsInState(view, ViewLifecycleState.Closed, meta))
-            {
-                ExceptionManager.ThrowCanceledException();
-                return;
-            }
-
-            ViewPresenter.Initialize(this, view, navigationContext);
-            if (ViewManager.IsInState(view, ViewLifecycleState.Appeared, meta))
-                IsAppeared = true;
-            else if (ViewManager.IsInState(view, ViewLifecycleState.Disappeared, meta))
-                IsAppeared = false;
-        }
-
-        protected override Task CloseViewAsync(TView view, INavigationContext navigationContext) => ViewPresenter.CloseAsync(this, view, navigationContext);
-
-        protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenter.Cleanup(this, view, navigationContext);
 
         protected internal override void OnViewClosed(IReadOnlyMetadataContext? metadata)
         {
@@ -169,7 +89,8 @@ namespace MugenMvvm.Presenters
                 OnViewClosed(metadata);
         }
 
-        protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata) => UpdateView(null, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+        protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata) =>
+            UpdateView(null, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
 
         protected virtual void OnViewLifecycleChanged(ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -187,6 +108,67 @@ namespace MugenMvvm.Presenters
                 OnViewCleared(state, metadata);
         }
 
-        #endregion
+        protected override object GetViewRequest(object? view, INavigationContext navigationContext)
+            => ViewPresenter.TryGetViewRequest(this, view, navigationContext) ?? base.GetViewRequest(view, navigationContext);
+
+        protected override async Task ShowViewAsync(TView view, INavigationContext navigationContext)
+        {
+            var isAppeared = IsAppeared;
+            await ViewPresenter.ShowAsync(this, view, navigationContext).ConfigureAwait(false);
+            if (IsAppeared && isAppeared)
+                OnViewShown(null);
+        }
+
+        protected override async ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
+        {
+            var isAppeared = IsAppeared;
+            await ViewPresenter.ActivateAsync(this, view, navigationContext).ConfigureAwait(false);
+            if (IsAppeared && isAppeared)
+                OnViewActivated(null);
+            return true;
+        }
+
+        protected override void InitializeView(TView view, INavigationContext navigationContext)
+        {
+            if (!LifecycleAdded)
+            {
+                LifecycleAdded = true;
+                ViewManager.AddComponent(this);
+            }
+
+            var meta = navigationContext.GetMetadataOrDefault();
+            if (ViewManager.IsInState(view, ViewLifecycleState.Closed, meta))
+            {
+                ExceptionManager.ThrowCanceledException();
+                return;
+            }
+
+            ViewPresenter.Initialize(this, view, navigationContext);
+            if (ViewManager.IsInState(view, ViewLifecycleState.Appeared, meta))
+                IsAppeared = true;
+            else if (ViewManager.IsInState(view, ViewLifecycleState.Disappeared, meta))
+                IsAppeared = false;
+        }
+
+        protected override Task CloseViewAsync(TView view, INavigationContext navigationContext) => ViewPresenter.CloseAsync(this, view, navigationContext);
+
+        protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenter.Cleanup(this, view, navigationContext);
+
+        void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            try
+            {
+                if (View == null && lifecycleState == ViewLifecycleState.Initializing && view is IView v &&
+                    Equals(v.ViewModel, ViewModel) && v.Mapping.Id == Mapping.Id && !viewManager.IsInState(v.Target, ViewLifecycleState.Closed, metadata))
+                    UpdateView(v, ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+
+                if (View != null && Equals(View.Target, MugenExtensions.Unwrap(view)))
+                    OnViewLifecycleChanged(lifecycleState, state, metadata);
+            }
+            catch (Exception e)
+            {
+                OnNavigationFailed(ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata), e);
+            }
+        }
     }
 }

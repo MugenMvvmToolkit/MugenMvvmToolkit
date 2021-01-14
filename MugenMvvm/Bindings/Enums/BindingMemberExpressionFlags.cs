@@ -10,8 +10,6 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class BindingMemberExpressionFlags : FlagsEnumBase<BindingMemberExpressionFlags, ushort>
     {
-        #region Fields
-
         public static readonly BindingMemberExpressionFlags StablePath = new(1 << 0, nameof(StablePath));
         public static readonly BindingMemberExpressionFlags Observable = new(1 << 1, nameof(Observable));
         public static readonly BindingMemberExpressionFlags ObservableMethods = new(1 << 2, nameof(ObservableMethods));
@@ -19,19 +17,13 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly BindingMemberExpressionFlags Target = new(1 << 4, nameof(Target));
         public static readonly BindingMemberExpressionFlags ParentDataContext = new(1 << 5, nameof(ParentDataContext));
 
-        #endregion
-
-        #region Constructors
+        public BindingMemberExpressionFlags(ushort value, string? name = null, long? flag = null) : base(value, name, flag)
+        {
+        }
 
         [Preserve(Conditional = true)]
         protected BindingMemberExpressionFlags()
         {
         }
-
-        public BindingMemberExpressionFlags(ushort value, string? name = null, long? flag = null) : base(value, name, flag)
-        {
-        }
-
-        #endregion
     }
 }

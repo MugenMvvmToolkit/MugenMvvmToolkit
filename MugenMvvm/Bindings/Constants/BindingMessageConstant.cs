@@ -2,8 +2,6 @@
 {
     internal static class BindingMessageConstant
     {
-        #region Fields
-
         public const string PossibleReasons = "\nPossible reasons:\n";
         public const string CannotParseBinaryExpressionFormat2 = "Cannot parse binary expression '{0} {1} ' right expression expected";
         public const string CannotParseConditionExpressionFormat1 = "Cannot parse condition expression '{0} ? ' expected expression";
@@ -31,8 +29,12 @@
         public const string CannotCompileLambdaExpressionParameterCountFormat2 = "Cannot compile lambda expression '{0}' wrong parameter count '{1}'";
         public const string CannotCompileIndexerMethodExpressionNullTargetFormat1 = "Cannot compile indexer/method expression '{0}' with null target";
 
-        public const string BindingMemberMustBeWritableFormat4 = "The binding member must be writable, if it uses the SetValue method, path '{0}', type '{1}', member type '{2}', underlying member '{3}'";
-        public const string BindingMemberMustBeReadableFormat4 = "The binding member must be readable, if it uses the GetValue method, path '{0}', type '{1}', member type '{2}', underlying member '{3}'";
+        public const string BindingMemberMustBeWritableFormat4 =
+            "The binding member must be writable, if it uses the SetValue method, path '{0}', type '{1}', member type '{2}', underlying member '{3}'";
+
+        public const string BindingMemberMustBeReadableFormat4 =
+            "The binding member must be readable, if it uses the GetValue method, path '{0}', type '{1}', member type '{2}', underlying member '{3}'";
+
         public const string InvalidBindingMemberFormat2 = "The binding member cannot be obtained from the path '{0}' on the '{1}'.";
         public const string CannotParseExpressionFormat2 = "Cannot parse expression '{0}' {1}";
         public const string CannotCompileExpressionFormat2 = "Cannot compile expression '{0}' {1}";
@@ -44,7 +46,5 @@
         public const string CannotParseBindingParameterFormat3 = "Cannot parse binding parameter '{0}' expected parameter value '{1}' current value '{2}'";
         public const string CannotConvertTypeFormat2 = "Cannot convert value from '{0}' to type '{1}'";
         public const string CannotUseExpressionClosureFormat1 = "Cannot use expression '{0}' because it has closure, please review and fix it";
-
-        #endregion
     }
 }

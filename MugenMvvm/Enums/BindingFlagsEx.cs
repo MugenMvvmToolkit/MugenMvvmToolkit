@@ -4,8 +4,6 @@ namespace MugenMvvm.Enums
 {
     public static class BindingFlagsEx
     {
-        #region Fields
-
         public const BindingFlags All = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         public const BindingFlags InstancePublic = BindingFlags.Instance | BindingFlags.Public;
         public const BindingFlags InstanceNonPublic = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -13,7 +11,5 @@ namespace MugenMvvm.Enums
         public const BindingFlags StaticNonPublic = BindingFlags.Static | BindingFlags.NonPublic;
         public const BindingFlags StaticOnly = StaticPublic | BindingFlags.NonPublic;
         public const BindingFlags InstanceOnly = InstancePublic | BindingFlags.NonPublic;
-
-        #endregion
     }
 }

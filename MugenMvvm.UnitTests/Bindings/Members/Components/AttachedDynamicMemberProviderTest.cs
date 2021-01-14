@@ -16,15 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class AttachedDynamicMemberProviderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetMembersShouldReturnNullResult()
-        {
-            var component = new AttachedDynamicMemberProvider();
-            component.TryGetMembers(null!, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
         [Theory]
         [InlineData(1, true)]
         [InlineData(1, false)]
@@ -80,6 +71,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             invalidateCount.ShouldEqual(clear ? 1 : count);
         }
 
-        #endregion
+        [Fact]
+        public void TryGetMembersShouldReturnNullResult()
+        {
+            var component = new AttachedDynamicMemberProvider();
+            component.TryGetMembers(null!, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
     }
 }

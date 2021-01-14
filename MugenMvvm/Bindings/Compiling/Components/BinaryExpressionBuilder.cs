@@ -17,16 +17,10 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class BinaryExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        #region Fields
-
         private static readonly MethodInfo StringConcatMethod =
             typeof(string).GetMethodOrThrow(nameof(string.Concat), BindingFlagsEx.StaticPublic, new[] {typeof(object), typeof(object)});
 
         private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), BindingFlagsEx.StaticPublic);
-
-        #endregion
-
-        #region Constructors
 
         public BinaryExpressionBuilder()
         {
@@ -54,34 +48,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>> Mapping { get; }
 
         public int Priority { get; set; } = CompilingComponentPriority.Binary;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
-        {
-            if (expression is IBinaryExpressionNode binaryExpression)
-            {
-                if (Mapping.TryGetValue(binaryExpression.Token, out var func))
-                    return func(context.Build(binaryExpression.Left), context.Build(binaryExpression.Right));
-
-                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBinaryExpressionFormat2.Format(expression, binaryExpression.Token));
-            }
-
-            return null;
-        }
-
-        #endregion
-
-        #region Methods
 
         private static Expression GeneratePlusExpression(Expression left, Expression right)
         {
@@ -116,6 +85,17 @@ namespace MugenMvvm.Bindings.Compiling.Components
         // ReSharper restore ReturnValueOfPureMethodIsNotUsed
         // ReSharper restore UnusedMember.Local
 
-        #endregion
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
+        {
+            if (expression is IBinaryExpressionNode binaryExpression)
+            {
+                if (Mapping.TryGetValue(binaryExpression.Token, out var func))
+                    return func(context.Build(binaryExpression.Left), context.Build(binaryExpression.Right));
+
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBinaryExpressionFormat2.Format(expression, binaryExpression.Token));
+            }
+
+            return null;
+        }
     }
 }

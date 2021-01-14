@@ -15,16 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class NullConditionalExpressionBuilderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotNullConditionalExpression()
-        {
-            var component = new NullConditionalExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
-
         [Theory]
         [InlineData(null, null)]
         [InlineData("t", 1)]
@@ -57,7 +47,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         [InlineData(1, "1")]
         public void TryBuildShouldBuildNullConditionalExpression2(int? value, string? result)
         {
-            var node = new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, value.HasValue ? typeof(int) : typeof(int?))), nameof(ToString),
+            var node = new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, value.HasValue ? typeof(int) : typeof(int?))),
+                nameof(ToString),
                 Default.Array<IExpressionNode>());
             var component = new NullConditionalExpressionBuilder();
             TestExpressionBuilderContext ctx = null!;
@@ -80,6 +71,12 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             expression.Invoke().ShouldEqual(result);
         }
 
-        #endregion
+        [Fact]
+        public void TryBuildShouldIgnoreNotNullConditionalExpression()
+        {
+            var component = new NullConditionalExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+        }
     }
 }

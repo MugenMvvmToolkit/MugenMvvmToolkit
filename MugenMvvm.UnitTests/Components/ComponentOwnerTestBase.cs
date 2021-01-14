@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Components
 {
     public abstract class ComponentOwnerTestBase<T> : UnitTestBase where T : class, IComponentOwner
     {
-        #region Methods
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -42,6 +40,8 @@ namespace MugenMvvm.UnitTests.Components
             componentOwner.Components.ShouldEqual(collection);
         }
 
+        protected abstract T GetComponentOwner(IComponentCollectionManager? collectionProvider = null);
+
         [Fact]
         public virtual void ComponentOwnerShouldReturnCorrectHasComponentsValue()
         {
@@ -54,9 +54,5 @@ namespace MugenMvvm.UnitTests.Components
             componentOwner.Components.Remove(this);
             componentOwner.HasComponents.ShouldBeFalse();
         }
-
-        protected abstract T GetComponentOwner(IComponentCollectionManager? collectionProvider = null);
-
-        #endregion
     }
 }

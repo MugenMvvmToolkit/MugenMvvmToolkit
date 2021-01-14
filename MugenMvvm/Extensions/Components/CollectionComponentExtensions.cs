@@ -7,8 +7,6 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class CollectionComponentExtensions
     {
-        #region Methods
-
         public static void OnBeginBatchUpdate(this ItemOrArray<ICollectionBatchUpdateListener> listeners, ICollection collection)
         {
             Should.NotBeNull(collection, nameof(collection));
@@ -27,10 +25,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in components)
-            {
                 if (!c.CanAdd(collection, item, index))
                     return false;
-            }
 
             return true;
         }
@@ -39,10 +35,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in components)
-            {
                 if (!c.CanReplace(collection, oldItem, newItem, index))
                     return false;
-            }
 
             return true;
         }
@@ -51,10 +45,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in components)
-            {
                 if (!c.CanMove(collection, item, oldIndex, newIndex))
                     return false;
-            }
 
             return true;
         }
@@ -63,10 +55,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in components)
-            {
                 if (!c.CanRemove(collection, item, index))
                     return false;
-            }
 
             return true;
         }
@@ -75,10 +65,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in components)
-            {
                 if (!c.CanReset(collection, items))
                     return false;
-            }
 
             return true;
         }
@@ -201,7 +189,5 @@ namespace MugenMvvm.Extensions.Components
             foreach (var c in listeners)
                 c.OnReset(collection, items);
         }
-
-        #endregion
     }
 }

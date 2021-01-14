@@ -8,25 +8,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestSourceValueSetterComponent : ISourceValueSetterComponent, IHasPriority
     {
-        #region Properties
-
-        public int Priority { get; set; }
+        public delegate bool TrySetSourceValueDelegate(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata);
 
         public TrySetSourceValueDelegate? TrySetSourceValue { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; }
 
         bool ISourceValueSetterComponent.TrySetSourceValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) =>
             TrySetSourceValue?.Invoke(binding, targetMember, value, metadata) ?? false;
-
-        #endregion
-
-        #region Nested types
-
-        public delegate bool TrySetSourceValueDelegate(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata);
-
-        #endregion
     }
 }

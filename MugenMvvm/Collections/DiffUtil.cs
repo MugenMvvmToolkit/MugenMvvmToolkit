@@ -7,7 +7,27 @@ namespace MugenMvvm.Collections
 {
     public static class DiffUtil
     {
-        #region Methods
+        public interface ICallback
+        {
+            public int GetOldListSize();
+
+            public int GetNewListSize();
+
+            public bool AreItemsTheSame(int oldItemPosition, int newItemPosition);
+
+            public bool AreContentsTheSame(int oldItemPosition, int newItemPosition);
+        }
+
+        public interface IListUpdateCallback
+        {
+            void OnInserted(int position, int finalPosition, int count);
+
+            void OnRemoved(int position, int count);
+
+            void OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition);
+
+            void OnChanged(int position, int finalPosition, int count, bool isMove);
+        }
 
         public static DiffResult CalculateDiff(ICallback cb, bool detectMoves = true)
         {
@@ -95,7 +115,6 @@ namespace MugenMvvm.Collections
             result = Snake.Undefined;
         }
 
-
         private static void Forward(
             Range range,
             ICallback cb,
@@ -157,7 +176,6 @@ namespace MugenMvvm.Collections
 
             result = Snake.Undefined;
         }
-
 
         private static void Backward(
             Range range,
@@ -234,164 +252,9 @@ namespace MugenMvvm.Collections
             return foo;
         }
 
-        #endregion
-
-        #region Nested types
-
-        public interface ICallback
-        {
-            public int GetOldListSize();
-
-            public int GetNewListSize();
-
-            public bool AreItemsTheSame(int oldItemPosition, int newItemPosition);
-
-            public bool AreContentsTheSame(int oldItemPosition, int newItemPosition);
-        }
-
-        public interface IListUpdateCallback
-        {
-            void OnInserted(int position, int finalPosition, int count);
-
-            void OnRemoved(int position, int count);
-
-            void OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition);
-
-            void OnChanged(int position, int finalPosition, int count, bool isMove);
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        internal readonly struct Diagonal
-        {
-            #region Fields
-
-            public readonly int Size;
-            public readonly int X;
-            public readonly int Y;
-
-            #endregion
-
-            #region Constructors
-
-            public Diagonal(int x, int y, int size)
-            {
-                X = x;
-                Y = y;
-                Size = size;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public int EndX => X + Size;
-
-            public int EndY => Y + Size;
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct Snake
-        {
-            #region Fields
-
-            public readonly int EndX;
-            public readonly int EndY;
-            private readonly bool _reverse;
-            public readonly int StartX;
-            public readonly int StartY;
-
-            public static readonly Snake Undefined = new(int.MinValue, int.MinValue, int.MinValue, int.MinValue, false);
-
-            #endregion
-
-            #region Constructors
-
-            public Snake(int startX, int startY, int endX, int endY, bool reverse)
-            {
-                EndX = endX;
-                EndY = endY;
-                _reverse = reverse;
-                StartX = startX;
-                StartY = startY;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public bool IsUndefined => EndX == int.MinValue && StartX == int.MinValue;
-
-            private bool HasAdditionOrRemoval => EndY - StartY != EndX - StartX;
-
-            private bool IsAddition => EndY - StartY > EndX - StartX;
-
-            public int DiagonalSize => Math.Min(EndX - StartX, EndY - StartY);
-
-            #endregion
-
-            #region Methods
-
-            public Diagonal ToDiagonal()
-            {
-                if (HasAdditionOrRemoval)
-                {
-                    if (_reverse)
-                    {
-                        // snake edge it at the end
-                        return new Diagonal(StartX, StartY, DiagonalSize);
-                    }
-
-                    // snake edge it at the beginning
-                    if (IsAddition)
-                        return new Diagonal(StartX, StartY + 1, DiagonalSize);
-                    return new Diagonal(StartX + 1, StartY, DiagonalSize);
-                }
-
-                // we are a pure diagonal
-                return new Diagonal(StartX, StartY, EndX - StartX);
-            }
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private struct Range
-        {
-            #region Fields
-
-            public int NewListStart, NewListEnd;
-            public int OldListStart, OldListEnd;
-
-            #endregion
-
-            #region Constructors
-
-            public Range(int oldListStart, int oldListEnd, int newListStart, int newListEnd)
-            {
-                OldListStart = oldListStart;
-                OldListEnd = oldListEnd;
-                NewListStart = newListStart;
-                NewListEnd = newListEnd;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public int OldSize => OldListEnd - OldListStart;
-
-            public int NewSize => NewListEnd - NewListStart;
-
-            #endregion
-        }
-
         [StructLayout(LayoutKind.Auto)]
         public readonly struct DiffResult
         {
-            #region Fields
-
             private readonly ICallback _callback;
             private readonly bool _detectMoves;
             private readonly List<Diagonal> _diagonals;
@@ -409,10 +272,6 @@ namespace MugenMvvm.Collections
             private const int FlagOffset = 4;
             private const int FlagMask = (1 << FlagOffset) - 1;
 
-            #endregion
-
-            #region Constructors
-
             internal DiffResult(ICallback callback, List<Diagonal> diagonals, int[] oldItemStatuses, int[] newItemStatuses, bool detectMoves)
             {
                 _diagonals = diagonals;
@@ -427,10 +286,6 @@ namespace MugenMvvm.Collections
                 AddEdgeDiagonals();
                 FindMatchingItems();
             }
-
-            #endregion
-
-            #region Methods
 
             private void AddEdgeDiagonals()
             {
@@ -459,8 +314,8 @@ namespace MugenMvvm.Collections
                         var posY = diagonal.Y + offset;
                         var theSame = _callback.AreContentsTheSame(posX, posY);
                         var changeFlag = theSame ? FlagNotChanged : FlagChanged;
-                        _oldItemStatuses[posX] = posY << FlagOffset | changeFlag;
-                        _newItemStatuses[posY] = posX << FlagOffset | changeFlag;
+                        _oldItemStatuses[posX] = (posY << FlagOffset) | changeFlag;
+                        _newItemStatuses[posY] = (posX << FlagOffset) | changeFlag;
                     }
                 }
 
@@ -518,8 +373,8 @@ namespace MugenMvvm.Collections
                                     ? FlagMovedNotChanged
                                     : FlagMovedChanged;
                                 // once we process one of these, it will mark the other one as ignored.
-                                _oldItemStatuses[posX] = posY << FlagOffset | changeFlag;
-                                _newItemStatuses[posY] = posX << FlagOffset | changeFlag;
+                                _oldItemStatuses[posX] = (posY << FlagOffset) | changeFlag;
+                                _newItemStatuses[posY] = (posX << FlagOffset) | changeFlag;
                                 return;
                             }
                         }
@@ -699,15 +554,98 @@ namespace MugenMvvm.Collections
 
                 return postponedUpdate;
             }
+        }
 
-            #endregion
+        [StructLayout(LayoutKind.Auto)]
+        internal readonly struct Diagonal
+        {
+            public readonly int Size;
+            public readonly int X;
+            public readonly int Y;
+
+            public Diagonal(int x, int y, int size)
+            {
+                X = x;
+                Y = y;
+                Size = size;
+            }
+
+            public int EndX => X + Size;
+
+            public int EndY => Y + Size;
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        private readonly struct Snake
+        {
+            public readonly int EndX;
+            public readonly int EndY;
+            private readonly bool _reverse;
+            public readonly int StartX;
+            public readonly int StartY;
+
+            public static readonly Snake Undefined = new(int.MinValue, int.MinValue, int.MinValue, int.MinValue, false);
+
+            public Snake(int startX, int startY, int endX, int endY, bool reverse)
+            {
+                EndX = endX;
+                EndY = endY;
+                _reverse = reverse;
+                StartX = startX;
+                StartY = startY;
+            }
+
+            public bool IsUndefined => EndX == int.MinValue && StartX == int.MinValue;
+
+            private bool HasAdditionOrRemoval => EndY - StartY != EndX - StartX;
+
+            private bool IsAddition => EndY - StartY > EndX - StartX;
+
+            public int DiagonalSize => Math.Min(EndX - StartX, EndY - StartY);
+
+            public Diagonal ToDiagonal()
+            {
+                if (HasAdditionOrRemoval)
+                {
+                    if (_reverse)
+                    {
+                        // snake edge it at the end
+                        return new Diagonal(StartX, StartY, DiagonalSize);
+                    }
+
+                    // snake edge it at the beginning
+                    if (IsAddition)
+                        return new Diagonal(StartX, StartY + 1, DiagonalSize);
+                    return new Diagonal(StartX + 1, StartY, DiagonalSize);
+                }
+
+                // we are a pure diagonal
+                return new Diagonal(StartX, StartY, EndX - StartX);
+            }
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        private struct Range
+        {
+            public int NewListStart, NewListEnd;
+            public int OldListStart, OldListEnd;
+
+            public Range(int oldListStart, int oldListEnd, int newListStart, int newListEnd)
+            {
+                OldListStart = oldListStart;
+                OldListEnd = oldListEnd;
+                NewListStart = newListStart;
+                NewListEnd = newListEnd;
+            }
+
+            public int OldSize => OldListEnd - OldListStart;
+
+            public int NewSize => NewListEnd - NewListStart;
         }
 
         [StructLayout(LayoutKind.Auto)]
         private ref struct BatchingListUpdateCallback
         {
-            #region Fields
-
             private readonly IListUpdateCallback _callback;
             private int _lastEventCount;
             private int _lastEventPosition;
@@ -720,10 +658,6 @@ namespace MugenMvvm.Collections
             private const int TypeRemove = 2;
             private const int TypeChange = 3;
 
-            #endregion
-
-            #region Constructors
-
             public BatchingListUpdateCallback(IListUpdateCallback callback)
             {
                 _lastEventCount = -1;
@@ -733,10 +667,6 @@ namespace MugenMvvm.Collections
                 _lastEventType = TypeNone;
                 _callback = callback;
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnInserted(int position, int finalPosition, int count)
             {
@@ -800,10 +730,6 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            #endregion
-
-            #region Methods
-
             public void DispatchLastEvent()
             {
                 if (_lastEventType == TypeNone)
@@ -823,24 +749,16 @@ namespace MugenMvvm.Collections
 
                 _lastEventType = TypeNone;
             }
-
-            #endregion
         }
 
         [StructLayout(LayoutKind.Auto)]
         private struct PostponedUpdate
         {
-            #region Fields
-
             public static readonly PostponedUpdate Undefined = new(int.MinValue, int.MinValue, false);
 
             public readonly bool Removal;
             public readonly int PosInOwnerList;
             public int CurrentPos;
-
-            #endregion
-
-            #region Constructors
 
             public PostponedUpdate(int posInOwnerList, int currentPos, bool removal)
             {
@@ -849,26 +767,14 @@ namespace MugenMvvm.Collections
                 Removal = removal;
             }
 
-            #endregion
-
-            #region Properties
-
             public bool IsUndefined => PosInOwnerList == int.MinValue;
-
-            #endregion
         }
 
         [StructLayout(LayoutKind.Auto)]
         private readonly struct CenteredArray
         {
-            #region Fields
-
             public readonly int[] Data;
             private readonly int _mid;
-
-            #endregion
-
-            #region Constructors
 
             public CenteredArray(int size)
             {
@@ -876,19 +782,11 @@ namespace MugenMvvm.Collections
                 _mid = Data.Length / 2;
             }
 
-            #endregion
-
-            #region Properties
-
             public int this[int index]
             {
                 get => Data[index + _mid];
                 set => Data[index + _mid] = value;
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

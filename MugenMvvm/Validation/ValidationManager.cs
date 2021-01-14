@@ -10,17 +10,11 @@ namespace MugenMvvm.Validation
 {
     public sealed class ValidationManager : ComponentOwnerBase<IValidationManager>, IValidationManager
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public ValidationManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IValidator? TryGetValidator(object? request, IReadOnlyMetadataContext? metadata = null)
         {
@@ -29,7 +23,5 @@ namespace MugenMvvm.Validation
                 GetComponents<IValidatorProviderListener>(metadata).OnValidatorCreated(this, result, request, metadata);
             return result;
         }
-
-        #endregion
     }
 }

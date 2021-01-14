@@ -4,8 +4,6 @@ namespace MugenMvvm.Ios.Enums
 {
     public sealed class IosViewLifecycleState : ViewLifecycleState
     {
-        #region Fields
-
         public static readonly ViewLifecycleState DecodingRestorableState = new(nameof(DecodingRestorableState));
         public static readonly ViewLifecycleState DecodedRestorableState = new(nameof(DecodedRestorableState));
         public static readonly ViewLifecycleState EncodingRestorableState = new(nameof(EncodingRestorableState));
@@ -23,14 +21,8 @@ namespace MugenMvvm.Ios.Enums
         public static readonly ViewLifecycleState RemovingFromParentViewController = new(nameof(RemovingFromParentViewController));
         public static readonly ViewLifecycleState RemovedFromParentViewController = new(nameof(RemovedFromParentViewController));
 
-        #endregion
-
-        #region Constructors
-
         private IosViewLifecycleState()
         {
         }
-
-        #endregion
     }
 }

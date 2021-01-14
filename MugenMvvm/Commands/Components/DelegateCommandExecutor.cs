@@ -13,17 +13,11 @@ namespace MugenMvvm.Commands.Components
 {
     public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IHasDisposeCondition, IHasPriority
     {
-        #region Fields
-
         private readonly bool _allowMultipleExecution;
         private readonly CommandExecutionBehavior _executionBehavior;
         private Delegate? _canExecute;
         private Delegate? _execute;
         private ICompositeCommand? _executingCommand;
-
-        #endregion
-
-        #region Constructors
 
         public DelegateCommandExecutor(Delegate execute, Delegate? canExecute, CommandExecutionBehavior executionBehavior, bool allowMultipleExecution)
         {
@@ -36,17 +30,9 @@ namespace MugenMvvm.Commands.Components
             IsDisposable = true;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority => CommandComponentPriority.Executor;
-
         public bool IsDisposable { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority => CommandComponentPriority.Executor;
 
         public bool HasCanExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => !_allowMultipleExecution || _canExecute != null;
 
@@ -95,10 +81,6 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        #endregion
-
-        #region Methods
-
         private async Task ExecuteInternalAsync(ICommand command, object? parameter, CancellationToken cancellationToken)
         {
             var executeAction = _execute;
@@ -119,7 +101,5 @@ namespace MugenMvvm.Commands.Components
 
             _executionBehavior.AfterExecute(command, parameter);
         }
-
-        #endregion
     }
 }

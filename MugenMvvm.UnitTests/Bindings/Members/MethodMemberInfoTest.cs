@@ -13,8 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MethodMemberInfoTest : UnitTestBase
     {
-        #region Methods
-
         public string Method1([Obfuscation] string v) => v;
 
         public T Method2<T>(T v) => v;
@@ -136,7 +134,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
             memberInfo.Invoke("st", Default.Array<object?>(), DefaultMetadata).ShouldEqual('s');
         }
-
-        #endregion
     }
 }

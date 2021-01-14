@@ -9,32 +9,18 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public class TestReflectionDelegateProviderComponent : IReflectionDelegateProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IReflectionManager? _reflectionManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestReflectionDelegateProviderComponent(IReflectionManager? reflectionManager)
         {
             _reflectionManager = reflectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public Func<Type, MethodInfo, bool>? CanCreateDelegate { get; set; }
 
         public Func<Type, object?, MethodInfo, Delegate?>? TryCreateDelegate { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         bool IReflectionDelegateProviderComponent.CanCreateDelegate(IReflectionManager reflectionManager, Type delegateType, MethodInfo method)
         {
@@ -47,7 +33,5 @@ namespace MugenMvvm.UnitTests.Internal.Internal
             _reflectionManager?.ShouldEqual(reflectionManager);
             return TryCreateDelegate?.Invoke(delegateType, target, method);
         }
-
-        #endregion
     }
 }

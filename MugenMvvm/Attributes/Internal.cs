@@ -35,7 +35,6 @@ namespace System.Diagnostics.CodeAnalysis
     [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class MaybeNullWhenAttribute : Attribute
     {
-        #region Constructors
 
         /// <summary>Initializes the attribute with the specified return value condition.</summary>
         /// <param name="returnValue">
@@ -46,14 +45,11 @@ namespace System.Diagnostics.CodeAnalysis
             ReturnValue = returnValue;
         }
 
-        #endregion
 
-        #region Properties
 
         /// <summary>Gets the return value condition.</summary>
         public bool ReturnValue { get; }
 
-        #endregion
     }
 
     /// <summary>
@@ -63,7 +59,6 @@ namespace System.Diagnostics.CodeAnalysis
     [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class NotNullWhenAttribute : Attribute
     {
-        #region Constructors
 
         /// <summary>Initializes the attribute with the specified return value condition.</summary>
         /// <param name="returnValue">
@@ -74,21 +69,17 @@ namespace System.Diagnostics.CodeAnalysis
             ReturnValue = returnValue;
         }
 
-        #endregion
 
-        #region Properties
 
         /// <summary>Gets the return value condition.</summary>
         public bool ReturnValue { get; }
 
-        #endregion
     }
 
     /// <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true)]
     internal sealed class NotNullIfNotNullAttribute : Attribute
     {
-        #region Constructors
 
         /// <summary>Initializes the attribute with the associated parameter name.</summary>
         /// <param name="parameterName">
@@ -99,14 +90,11 @@ namespace System.Diagnostics.CodeAnalysis
             ParameterName = parameterName;
         }
 
-        #endregion
 
-        #region Properties
 
         /// <summary>Gets the associated parameter name.</summary>
         public string ParameterName { get; }
 
-        #endregion
     }
 
     /// <summary>Applied to a method that will never return under any circumstance.</summary>
@@ -119,7 +107,6 @@ namespace System.Diagnostics.CodeAnalysis
     [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class DoesNotReturnIfAttribute : Attribute
     {
-        #region Constructors
 
         /// <summary>Initializes the attribute with the specified parameter value.</summary>
         /// <param name="parameterValue">
@@ -132,14 +119,11 @@ namespace System.Diagnostics.CodeAnalysis
             ParameterValue = parameterValue;
         }
 
-        #endregion
 
-        #region Properties
 
         /// <summary>Gets the condition parameter value.</summary>
         public bool ParameterValue { get; }
 
-        #endregion
     }
 }
 #endif
@@ -151,13 +135,9 @@ namespace MugenMvvm.Attributes
         AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Event | AttributeTargets.Interface | AttributeTargets.Delegate)]
     public sealed class PreserveAttribute : Attribute
     {
-        #region Fields
-
         public bool AllMembers;
 
         public bool Conditional;
-
-        #endregion
     }
 
     [AttributeUsage(AttributeTargets.Assembly)]

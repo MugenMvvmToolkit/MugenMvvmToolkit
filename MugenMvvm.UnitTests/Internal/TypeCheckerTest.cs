@@ -6,8 +6,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class TypeCheckerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldReturnCorrectValues()
         {
@@ -17,7 +15,5 @@ namespace MugenMvvm.UnitTests.Internal
             TypeChecker.IsValueType<bool>().ShouldBeTrue();
             TypeChecker.IsValueType<object>().ShouldBeFalse();
         }
-
-        #endregion
     }
 }

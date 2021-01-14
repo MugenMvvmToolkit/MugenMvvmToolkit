@@ -9,14 +9,8 @@ namespace MugenMvvm.Bindings.Core
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindingParameterExpression
     {
-        #region Fields
-
         private readonly ICompiledExpression? _compiledExpression;
         private readonly object? _value;
-
-        #endregion
-
-        #region Constructors
 
         public BindingParameterExpression(object? value, ICompiledExpression? compiledExpression)
         {
@@ -26,19 +20,9 @@ namespace MugenMvvm.Bindings.Core
             _compiledExpression = compiledExpression;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => _value == null && _compiledExpression == null;
-
-        #endregion
-
-        #region Methods
 
         public BindingParameterValue ToBindingParameter(object target, object? source, IReadOnlyMetadataContext? metadata) =>
             new(BindingMugenExtensions.ToBindingSource(_value, target, source, metadata), _compiledExpression);
-
-        #endregion
     }
 }

@@ -14,21 +14,7 @@ namespace MugenMvvm.Collections
 {
     public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection, IReadOnlyList<T>
     {
-        #region Fields
-
         private int _batchCount;
-
-        #endregion
-
-        #region Constructors
-
-        protected SynchronizedObservableCollection(IList<T> list, IComponentCollectionManager? componentCollectionManager = null)
-            : base(componentCollectionManager)
-        {
-            Should.NotBeNull(list, nameof(list));
-            Items = list;
-            Locker = new object();
-        }
 
         public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollectionManager? componentCollectionManager = null)
             : this(new List<T>(items), componentCollectionManager)
@@ -40,11 +26,13 @@ namespace MugenMvvm.Collections
         {
         }
 
-        #endregion
-
-        #region Properties
-
-        protected IList<T> Items { get; }
+        protected SynchronizedObservableCollection(IList<T> list, IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
+        {
+            Should.NotBeNull(list, nameof(list));
+            Items = list;
+            Locker = new object();
+        }
 
         public int Count
         {
@@ -57,7 +45,9 @@ namespace MugenMvvm.Collections
             }
         }
 
-        Type IObservableCollectionBase.ItemType => typeof(T);
+        public bool IsReadOnly => false;
+
+        protected IList<T> Items { get; }
 
         protected object Locker { get; }
 
@@ -65,13 +55,9 @@ namespace MugenMvvm.Collections
 
         object ICollection.SyncRoot => Locker;
 
-        public bool IsReadOnly => false;
+        bool IList.IsFixedSize => false;
 
-        object? IList.this[int index]
-        {
-            get => BoxingExtensions.Box(this[index])!;
-            set => this[index] = (T) value!;
-        }
+        Type IObservableCollectionBase.ItemType => typeof(T);
 
         public T this[int index]
         {
@@ -93,66 +79,24 @@ namespace MugenMvvm.Collections
             }
         }
 
-        bool IList.IsFixedSize => false;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void ICollection.CopyTo(Array array, int index)
+        object? IList.this[int index]
         {
-            Should.NotBeNull(array, nameof(array));
-            lock (Locker)
-            {
-                CopyToInternal(array, index);
-            }
+            get => BoxingExtensions.Box(this[index])!;
+            set => this[index] = (T) value!;
         }
 
-        int IList.Add(object? value)
+        protected static bool IsCompatibleObject(object? value)
         {
-            lock (Locker)
-            {
-                InsertInternal(GetCountInternal(), (T) value!, true);
-                return GetCountInternal() - 1;
-            }
-        }
+            if (value is T)
+                return true;
 
-        bool IList.Contains(object? value)
-        {
-            if (IsCompatibleObject(value))
-                return Contains((T) value!);
+            if (value == null)
+                return TypeChecker.IsNullable<T>();
+
             return false;
         }
 
-        int IList.IndexOf(object? value)
-        {
-            if (IsCompatibleObject(value!))
-                return IndexOf((T) value!);
-            return -1;
-        }
-
-        void IList.Insert(int index, object? value) => Insert(index, (T) value!);
-
-        void IList.Remove(object? value)
-        {
-            if (IsCompatibleObject(value!))
-                Remove((T) value!);
-        }
-
-        void IObservableCollection.Reset(IEnumerable<object> items) => Reset((IEnumerable<T>) items);
-
-        void IObservableCollection.RaiseItemChanged(object item, object? args) => RaiseItemChanged((T) item, args);
-
-        public void RemoveAt(int index)
-        {
-            lock (Locker)
-            {
-                if (index < 0 || index >= GetCountInternal())
-                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-
-                RemoveInternal(index);
-            }
-        }
+        public Enumerator GetEnumerator() => new(this);
 
         public void Clear()
         {
@@ -160,17 +104,6 @@ namespace MugenMvvm.Collections
             {
                 ResetInternal(null);
             }
-        }
-
-        public ActionToken BeginBatchUpdate()
-        {
-            lock (Locker)
-            {
-                if (++_batchCount == 1)
-                    GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this);
-            }
-
-            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
         }
 
         public bool Remove(T item)
@@ -182,52 +115,6 @@ namespace MugenMvvm.Collections
                     return false;
                 RemoveInternal(index);
                 return true;
-            }
-        }
-
-        public int IndexOf(T item)
-        {
-            lock (Locker)
-            {
-                return IndexOfInternal(item);
-            }
-        }
-
-        public void Insert(int index, T item)
-        {
-            lock (Locker)
-            {
-                if (index < 0 || index > GetCountInternal())
-                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-
-                InsertInternal(index, item, false);
-            }
-        }
-
-        public void Move(int oldIndex, int newIndex)
-        {
-            lock (Locker)
-            {
-                MoveInternal(oldIndex, newIndex);
-            }
-        }
-
-        public void Reset(IEnumerable<T> items)
-        {
-            Should.NotBeNull(items, nameof(items));
-            lock (Locker)
-            {
-                ResetInternal(items);
-            }
-        }
-
-        public void RaiseItemChanged(T item, object? args)
-        {
-            lock (Locker)
-            {
-                var index = IndexOfInternal(item);
-                if (index >= 0)
-                    GetComponents<ICollectionChangedListener<T>>().OnItemChanged(this, item, index, args);
             }
         }
 
@@ -256,25 +143,79 @@ namespace MugenMvvm.Collections
             }
         }
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+        public void RemoveAt(int index)
+        {
+            lock (Locker)
+            {
+                if (index < 0 || index >= GetCountInternal())
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+                RemoveInternal(index);
+            }
+        }
 
-        #endregion
+        public int IndexOf(T item)
+        {
+            lock (Locker)
+            {
+                return IndexOfInternal(item);
+            }
+        }
 
-        #region Methods
+        public void Insert(int index, T item)
+        {
+            lock (Locker)
+            {
+                if (index < 0 || index > GetCountInternal())
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
-        public Enumerator GetEnumerator() => new(this);
+                InsertInternal(index, item, false);
+            }
+        }
+
+        public void Reset(IEnumerable<T> items)
+        {
+            Should.NotBeNull(items, nameof(items));
+            lock (Locker)
+            {
+                ResetInternal(items);
+            }
+        }
+
+        public void RaiseItemChanged(T item, object? args)
+        {
+            lock (Locker)
+            {
+                var index = IndexOfInternal(item);
+                if (index >= 0)
+                    GetComponents<ICollectionChangedListener<T>>().OnItemChanged(this, item, index, args);
+            }
+        }
+
+        public ActionToken BeginBatchUpdate()
+        {
+            lock (Locker)
+            {
+                if (++_batchCount == 1)
+                    GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this);
+            }
+
+            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
+        }
+
+        public void Move(int oldIndex, int newIndex)
+        {
+            lock (Locker)
+            {
+                MoveInternal(oldIndex, newIndex);
+            }
+        }
 
         protected virtual void CopyToInternal(Array array, int index) => ((ICollection) Items).CopyTo(array, index);
 
         protected virtual void CopyToInternal(T[] array, int index) => Items.CopyTo(array, index);
 
         protected virtual int GetCountInternal() => Items.Count;
-
-        protected int IndexOfInternal(T item) => Items.IndexOf(item);
-
-        protected bool ContainsInternal(T item) => Items.Contains(item);
 
         protected virtual void MoveInternal(int oldIndex, int newIndex)
         {
@@ -340,16 +281,9 @@ namespace MugenMvvm.Collections
             GetComponents<ICollectionChangedListener<T>>().OnReplaced(this, oldItem, item, index);
         }
 
-        protected static bool IsCompatibleObject(object? value)
-        {
-            if (value is T)
-                return true;
+        protected int IndexOfInternal(T item) => Items.IndexOf(item);
 
-            if (value == null)
-                return TypeChecker.IsNullable<T>();
-
-            return false;
-        }
+        protected bool ContainsInternal(T item) => Items.Contains(item);
 
         private void EndBatchUpdate()
         {
@@ -360,21 +294,59 @@ namespace MugenMvvm.Collections
             }
         }
 
-        #endregion
+        void ICollection.CopyTo(Array array, int index)
+        {
+            Should.NotBeNull(array, nameof(array));
+            lock (Locker)
+            {
+                CopyToInternal(array, index);
+            }
+        }
 
-        #region Nested types
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+
+        int IList.Add(object? value)
+        {
+            lock (Locker)
+            {
+                InsertInternal(GetCountInternal(), (T) value!, true);
+                return GetCountInternal() - 1;
+            }
+        }
+
+        bool IList.Contains(object? value)
+        {
+            if (IsCompatibleObject(value))
+                return Contains((T) value!);
+            return false;
+        }
+
+        int IList.IndexOf(object? value)
+        {
+            if (IsCompatibleObject(value!))
+                return IndexOf((T) value!);
+            return -1;
+        }
+
+        void IList.Insert(int index, object? value) => Insert(index, (T) value!);
+
+        void IList.Remove(object? value)
+        {
+            if (IsCompatibleObject(value!))
+                Remove((T) value!);
+        }
+
+        void IObservableCollection.Reset(IEnumerable<object> items) => Reset((IEnumerable<T>) items);
+
+        void IObservableCollection.RaiseItemChanged(object item, object? args) => RaiseItemChanged((T) item, args);
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>
         {
-            #region Fields
-
             private readonly SynchronizedObservableCollection<T>? _collection;
             private int _index;
-
-            #endregion
-
-            #region Constructors
 
             public Enumerator(SynchronizedObservableCollection<T> collection)
             {
@@ -383,17 +355,9 @@ namespace MugenMvvm.Collections
                 Current = default!;
             }
 
-            #endregion
-
-            #region Properties
-
             public T Current { get; private set; }
 
             object IEnumerator.Current => Current!;
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public bool MoveNext()
             {
@@ -417,10 +381,6 @@ namespace MugenMvvm.Collections
             public void Dispose()
             {
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

@@ -10,13 +10,7 @@ namespace MugenMvvm.Internal.Components
 {
     public abstract class LifecycleTrackerBase<T, TTarget> : ILifecycleTrackerComponent<T> where TTarget : class where T : class, IEnum
     {
-        #region Fields
-
         private readonly HashSet<T> _commonStates;
-
-        #endregion
-
-        #region Constructors
 
         protected LifecycleTrackerBase()
         {
@@ -24,21 +18,7 @@ namespace MugenMvvm.Internal.Components
             Trackers = new List<Action<TTarget, HashSet<T>, T, IReadOnlyMetadataContext?>>(2);
         }
 
-        #endregion
-
-        #region Properties
-
         public List<Action<TTarget, HashSet<T>, T, IReadOnlyMetadataContext?>> Trackers { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        bool ILifecycleTrackerComponent<T>.IsInState(object owner, object target, T state, IReadOnlyMetadataContext? metadata) => IsInState(owner, (TTarget) target, state, metadata);
-
-        #endregion
-
-        #region Methods
 
         protected virtual bool IsInState(object owner, TTarget target, T state, IReadOnlyMetadataContext? metadata)
         {
@@ -80,6 +60,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        #endregion
+        bool ILifecycleTrackerComponent<T>.IsInState(object owner, object target, T state, IReadOnlyMetadataContext? metadata) =>
+            IsInState(owner, (TTarget) target, state, metadata);
     }
 }

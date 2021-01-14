@@ -12,14 +12,8 @@ namespace MugenMvvm.Bindings.Observation
     [StructLayout(LayoutKind.Auto)]
     public readonly ref struct MemberPathLastMember
     {
-        #region Fields
-
         private readonly IMemberInfo? _member;
         private readonly object? _target;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemberPathLastMember(object? target, IMemberInfo member)
@@ -35,10 +29,6 @@ namespace MugenMvvm.Bindings.Observation
             _target = exception;
             _member = null;
         }
-
-        #endregion
-
-        #region Properties
 
         public bool IsAvailable
         {
@@ -79,10 +69,6 @@ namespace MugenMvvm.Bindings.Observation
             }
         }
 
-        #endregion
-
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ThrowIfError()
         {
@@ -117,7 +103,5 @@ namespace MugenMvvm.Bindings.Observation
             if (_member is IAccessorMemberInfo member)
                 member.SetValue(_target, MugenService.GlobalValueConverter.Convert(value, member.Type, member, metadata), metadata);
         }
-
-        #endregion
     }
 }

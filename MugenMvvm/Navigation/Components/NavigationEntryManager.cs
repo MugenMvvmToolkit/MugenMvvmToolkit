@@ -13,21 +13,14 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationEntryManager : ComponentDecoratorBase<IPresenter, IPresenterComponent>, INavigationEntryProviderComponent,
         INavigationListener, INavigationErrorListener, IPresenterComponent
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly Dictionary<NavigationType, List<INavigationEntry>> _navigationEntries;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public NavigationEntryManager(INavigationDispatcher? navigationDispatcher = null, int priority = ComponentPriority.Max)
@@ -37,9 +30,14 @@ namespace MugenMvvm.Navigation.Components
             _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
         }
 
-        #endregion
+        private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
+        {
+            for (var i = 0; i < entries.Count; i++)
+                if (entries[i].NavigationId == id)
+                    return entries[i];
 
-        #region Implementation of interfaces
+            return null;
+        }
 
         public ItemOrIReadOnlyList<INavigationEntry> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
@@ -63,7 +61,8 @@ namespace MugenMvvm.Navigation.Components
         {
             if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
             {
-                UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
+                UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext,
+                    !navigationContext.NavigationMode.IsClose,
                     navigationContext.GetMetadataOrDefault());
             }
         }
@@ -72,7 +71,8 @@ namespace MugenMvvm.Navigation.Components
         {
             if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsClose || navigationContext.NavigationMode.IsNew)
             {
-                UpdateEntries(navigationDispatcher, false, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, !navigationContext.NavigationMode.IsClose,
+                UpdateEntries(navigationDispatcher, false, navigationContext.Target, navigationContext.NavigationProvider, navigationContext,
+                    !navigationContext.NavigationMode.IsClose,
                     navigationContext.GetMetadataOrDefault());
             }
         }
@@ -88,12 +88,9 @@ namespace MugenMvvm.Navigation.Components
         public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             => Components.TryClose(presenter, request, cancellationToken, metadata);
 
-        #endregion
-
-        #region Methods
-
         private void UpdateEntries(INavigationDispatcher navigationDispatcher, bool isPending, INavigationContext navigationContext, bool isAdd)
-            => UpdateEntries(navigationDispatcher, isPending, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, isAdd, navigationContext.GetMetadataOrDefault());
+            => UpdateEntries(navigationDispatcher, isPending, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, isAdd,
+                navigationContext.GetMetadataOrDefault());
 
         private void UpdateEntries(INavigationDispatcher navigationDispatcher, bool isPending, object? target, INavigationProvider navigationProvider,
             IHasNavigationInfo navigationInfo, bool isAdd, IReadOnlyMetadataContext? metadata)
@@ -152,18 +149,5 @@ namespace MugenMvvm.Navigation.Components
                     .OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationInfo);
             }
         }
-
-        private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
-        {
-            for (var i = 0; i < entries.Count; i++)
-            {
-                if (entries[i].NavigationId == id)
-                    return entries[i];
-            }
-
-            return null;
-        }
-
-        #endregion
     }
 }

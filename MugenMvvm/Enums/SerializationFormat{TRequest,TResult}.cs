@@ -10,23 +10,15 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class SerializationFormat<TRequest, TResult> : EnumBase<SerializationFormat<TRequest, TResult>, int>, ISerializationFormat<TRequest, TResult>
     {
-        #region Constructors
+        public SerializationFormat(int value, string? name = null) : base(value, name)
+        {
+        }
 
         [Preserve(Conditional = true)]
         protected SerializationFormat()
         {
         }
 
-        public SerializationFormat(int value, string? name = null) : base(value, name)
-        {
-        }
-
-        #endregion
-
-        #region Properties
-
         public bool IsSerialization => true;
-
-        #endregion
     }
 }

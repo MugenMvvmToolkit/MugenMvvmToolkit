@@ -13,20 +13,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
 {
     public class MessengerHandlerSubscriberTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TrySubscribeUnsubscribeShouldReturnFalseNotSupported()
-        {
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
-
-            component.TrySubscribe(messenger, this, null, DefaultMetadata).ShouldBeFalse();
-            component.TryGetSubscribers(messenger, null).AsList().ShouldBeEmpty();
-            component.TryUnsubscribe(messenger, this, DefaultMetadata).ShouldBeFalse();
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -261,21 +247,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         }
 
         [Fact]
-        public void TryGetMessengerHandlersShouldUnsubscribeIfSubscriberIsNotAlive()
-        {
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
-            var handler = new TestMessengerHandler();
-            var weakRef = handler.ToWeakReference();
-            component.TrySubscribe(messenger, weakRef, null, null);
-
-            component.TryGetMessengerHandlers(messenger, typeof(string), null)!.AsList().Count.ShouldEqual(1);
-            weakRef.Release();
-            component.TryGetMessengerHandlers(messenger, typeof(string), null).AsList().ShouldBeEmpty();
-        }
-
-        [Fact]
         public void HandleShouldReturnInvalidResultTargetIsNotAlive()
         {
             var invokedCount = 0;
@@ -294,6 +265,31 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             handlers[0].Handle(new MessageContext(this, "")).ShouldEqual(MessengerResult.Invalid);
         }
 
-        #endregion
+        [Fact]
+        public void TryGetMessengerHandlersShouldUnsubscribeIfSubscriberIsNotAlive()
+        {
+            var messenger = new Messenger();
+            var component = new MessengerHandlerSubscriber();
+            messenger.AddComponent(component);
+            var handler = new TestMessengerHandler();
+            var weakRef = handler.ToWeakReference();
+            component.TrySubscribe(messenger, weakRef, null, null);
+
+            component.TryGetMessengerHandlers(messenger, typeof(string), null)!.AsList().Count.ShouldEqual(1);
+            weakRef.Release();
+            component.TryGetMessengerHandlers(messenger, typeof(string), null).AsList().ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void TrySubscribeUnsubscribeShouldReturnFalseNotSupported()
+        {
+            var messenger = new Messenger();
+            var component = new MessengerHandlerSubscriber();
+            messenger.AddComponent(component);
+
+            component.TrySubscribe(messenger, this, null, DefaultMetadata).ShouldBeFalse();
+            component.TryGetSubscribers(messenger, null).AsList().ShouldBeEmpty();
+            component.TryUnsubscribe(messenger, this, DefaultMetadata).ShouldBeFalse();
+        }
     }
 }

@@ -15,8 +15,6 @@ namespace MugenMvvm.UnitTests.Validation
 {
     public class ValidatorTest : ComponentOwnerTestBase<Validator>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1, true)]
         [InlineData(10, true)]
@@ -244,7 +242,5 @@ namespace MugenMvvm.UnitTests.Validation
         }
 
         protected override Validator GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(null, collectionProvider);
-
-        #endregion
     }
 }

@@ -8,23 +8,13 @@ namespace MugenMvvm.Bindings.Members.Descriptors
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindableMethodDescriptor<TTarget, TArg1, TReturn> where TTarget : class
     {
-        #region Fields
-
         public readonly MemberTypesRequest? Request;
-
-        #endregion
-
-        #region Constructors
 
         public BindableMethodDescriptor(MemberTypesRequest request)
         {
             Should.NotBeNull(request, nameof(request));
             Request = request;
         }
-
-        #endregion
-
-        #region Properties
 
         public bool IsStatic
         {
@@ -37,10 +27,6 @@ namespace MugenMvvm.Bindings.Members.Descriptors
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this;
         }
-
-        #endregion
-
-        #region Methods
 
         [Pure]
         public BindableMethodDescriptor<TNewTarget, TArg1, TReturn> Override<TNewTarget>() where TNewTarget : class => Request!;
@@ -58,7 +44,5 @@ namespace MugenMvvm.Bindings.Members.Descriptors
         public static implicit operator BindableMethodDescriptor<TTarget, TReturn>(BindableMethodDescriptor<TTarget, TArg1, TReturn> member) => new(member.Request!);
 
         public override string ToString() => Request?.ToString() ?? "";
-
-        #endregion
     }
 }

@@ -2,8 +2,6 @@
 {
     internal static class MessageConstant
     {
-        #region Fields
-
         public const string StaticDelegateCannotBeWeak = "The static delegate cannot be converted to weak delegate";
         public const string AnonymousDelegateCannotBeWeak = "The anonymous delegate cannot be converted to weak delegate";
         public const string CommandCannotBeExecutedString = "The method Execute in command cannot be executed because the CanExecute method returns a false value";
@@ -29,7 +27,5 @@
         public const string ObjectNotInitializedOrRequestNotSupportedFormat4 = "The '{0}' is not initialized ({1}) or request '{2}' is not supported {3}";
         public const string AdapterSupportsOnlySynchronizedMode = "The collection adapter supports only synchronized execution mode";
         public const string CannotAddComponentFormat2 = "The component collection with owner {0} cannot add component {1}";
-
-        #endregion
     }
 }

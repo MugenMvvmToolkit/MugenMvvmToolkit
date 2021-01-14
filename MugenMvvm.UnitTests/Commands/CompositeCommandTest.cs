@@ -18,7 +18,26 @@ namespace MugenMvvm.UnitTests.Commands
 {
     public class CompositeCommandTest : SuspendableComponentOwnerTestBase<CompositeCommand>
     {
-        #region Methods
+        private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
+        {
+            if (value)
+                return (_, _) => true;
+            return null;
+        }
+
+        private static Func<bool>? GetCanExecuteNoObject(bool value)
+        {
+            if (value)
+                return () => true;
+            return null;
+        }
+
+        private static Func<object?, bool>? GetCanExecute(bool value)
+        {
+            if (value)
+                return t => true;
+            return null;
+        }
 
         [Theory]
         [InlineData(1)]
@@ -395,29 +414,6 @@ namespace MugenMvvm.UnitTests.Commands
                 DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
-        private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
-        {
-            if (value)
-                return (_, _) => true;
-            return null;
-        }
-
-        private static Func<bool>? GetCanExecuteNoObject(bool value)
-        {
-            if (value)
-                return () => true;
-            return null;
-        }
-
-        private static Func<object?, bool>? GetCanExecute(bool value)
-        {
-            if (value)
-                return t => true;
-            return null;
-        }
-
         protected override CompositeCommand GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(null, collectionProvider);
-
-        #endregion
     }
 }

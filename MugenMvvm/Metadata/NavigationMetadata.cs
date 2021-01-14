@@ -8,8 +8,6 @@ namespace MugenMvvm.Metadata
 {
     public static class NavigationMetadata
     {
-        #region Fields
-
         private static IMetadataContextKey<string>? _viewName;
         private static IMetadataContextKey<bool>? _nonModal;
         private static IMetadataContextKey<bool>? _animated;
@@ -17,10 +15,6 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<NavigationType>? _navigationType;
         private static IMetadataContextKey<bool>? _clearBackStack;
         private static IMetadataContextKey<DateTime>? _navigationDate;
-
-        #endregion
-
-        #region Properties
 
         [AllowNull]
         public static IMetadataContextKey<NavigationType> NavigationType
@@ -71,12 +65,6 @@ namespace MugenMvvm.Metadata
             set => _clearBackStack = value;
         }
 
-        #endregion
-
-        #region Methods
-
         private static MetadataContextKey.Builder<T> GetBuilder<T>(IMetadataContextKey<T>? _, string name) => MetadataContextKey.Create<T>(typeof(NavigationMetadata), name);
-
-        #endregion
     }
 }

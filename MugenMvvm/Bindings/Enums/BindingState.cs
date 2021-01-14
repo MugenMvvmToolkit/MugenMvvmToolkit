@@ -10,25 +10,17 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class BindingState : EnumBase<BindingState, int>
     {
-        #region Fields
-
         public static readonly BindingState Valid = new(1);
         public static readonly BindingState Disposed = new(2);
         public static readonly BindingState Invalid = new(3);
-
-        #endregion
-
-        #region Constructors
-
-        [Preserve(Conditional = true)]
-        protected BindingState()
-        {
-        }
 
         public BindingState(int value, string? name = null) : base(value, name)
         {
         }
 
-        #endregion
+        [Preserve(Conditional = true)]
+        protected BindingState()
+        {
+        }
     }
 }

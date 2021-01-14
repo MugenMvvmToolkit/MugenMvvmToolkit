@@ -2,8 +2,6 @@
 {
     internal static class BindingInternalConstant
     {
-        #region Fields
-
         public const string ItemTemplate = nameof(ItemTemplate);
         public const string ItemTemplateSelector = nameof(ItemTemplateSelector);
         public const string ContentTemplate = nameof(ContentTemplate);
@@ -30,7 +28,5 @@
         public const string AttachedHandlerMethodPrefix = "$#3";
 
         public const string RootObserver = "@$r$";
-
-        #endregion
     }
 }

@@ -17,18 +17,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingParameterInitializerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void InitializeShouldIgnoreEmptyParameters()
-        {
-            var initializer = new BindingParameterInitializer();
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            initializer.Initialize(null!, context);
-            context.Components.ShouldBeEmpty();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -46,31 +34,33 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var parameters = new[]
             {
                 new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Converter), ConstantExpressionNode.Get(converter)),
-                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.ConverterParameter), new TestBindingMemberExpressionNode
-                {
-                    GetBindingSource = (t, s, m) =>
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.ConverterParameter),
+                    new TestBindingMemberExpressionNode
                     {
-                        t.ShouldEqual(target);
-                        src.ShouldEqual(s);
-                        m.ShouldEqual(context.GetMetadataOrDefault());
-                        return converterParameter;
-                    },
-                    VisitHandler = (visitor, metadataContext) =>
-                    {
-                        ++parameterVisitCount;
-                        metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                        if (visitor is BindingMemberExpressionVisitor expressionVisitor)
+                        GetBindingSource = (t, s, m) =>
                         {
-                            expressionVisitor.Flags.ShouldEqual(BindingMemberExpressionFlags.Observable);
-                            expressionVisitor.SuppressIndexAccessors.ShouldBeTrue();
-                            expressionVisitor.SuppressMethodAccessors.ShouldBeTrue();
-                            expressionVisitor.MemberFlags.ShouldEqual(MemberFlags.All & ~MemberFlags.NonPublic);
-                        }
+                            t.ShouldEqual(target);
+                            src.ShouldEqual(s);
+                            m.ShouldEqual(context.GetMetadataOrDefault());
+                            return converterParameter;
+                        },
+                        VisitHandler = (visitor, metadataContext) =>
+                        {
+                            ++parameterVisitCount;
+                            metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                            if (visitor is BindingMemberExpressionVisitor expressionVisitor)
+                            {
+                                expressionVisitor.Flags.ShouldEqual(BindingMemberExpressionFlags.Observable);
+                                expressionVisitor.SuppressIndexAccessors.ShouldBeTrue();
+                                expressionVisitor.SuppressMethodAccessors.ShouldBeTrue();
+                                expressionVisitor.MemberFlags.ShouldEqual(MemberFlags.All & ~MemberFlags.NonPublic);
+                            }
 
-                        return null;
-                    }
-                }),
-                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Fallback), new UnaryExpressionNode(UnaryTokenType.Minus,
+                            return null;
+                        }
+                    }),
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Fallback), new UnaryExpressionNode(
+                    UnaryTokenType.Minus,
                     new TestBindingMemberExpressionNode
                     {
                         GetBindingSource = (t, s, m) =>
@@ -81,7 +71,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                             return fallback;
                         }
                     })),
-                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetNullValue), ConstantExpressionNode.Get(nullValue))
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetNullValue),
+                    ConstantExpressionNode.Get(nullValue))
             };
             var exp = new TestCompiledExpression();
             var compiler = new ExpressionCompiler();
@@ -124,6 +115,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             component.TargetNullValue.Expression.ShouldBeNull();
         }
 
-        #endregion
+        [Fact]
+        public void InitializeShouldIgnoreEmptyParameters()
+        {
+            var initializer = new BindingParameterInitializer();
+            var context = new BindingExpressionInitializerContext(this);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            initializer.Initialize(null!, context);
+            context.Components.ShouldBeEmpty();
+        }
     }
 }

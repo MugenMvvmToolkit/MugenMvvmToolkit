@@ -16,8 +16,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         public static IViewModelBase GetViewModel(this IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
@@ -53,7 +51,8 @@ namespace MugenMvvm.Extensions
             return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).Result;
         }
 
-        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null, IReadOnlyMetadataContext? metadata = null,
+        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null,
+            IReadOnlyMetadataContext? metadata = null,
             IViewModelManager? viewModelManager = null)
             where TViewModel : class, IViewModelBase
             where T : class
@@ -82,7 +81,8 @@ namespace MugenMvvm.Extensions
             return viewModel.Metadata.Get(ViewModelMetadata.Id)!;
         }
 
-        public static bool IsInState(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null, IViewModelManager? viewModelManager = null)
+        public static bool IsInState(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null,
+            IViewModelManager? viewModelManager = null)
             => viewModelManager.DefaultIfNull().IsInState(viewModel, state, metadata);
 
         public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
@@ -140,7 +140,5 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(token, nameof(token));
             viewModel.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable) o!).Dispose(), token));
         }
-
-        #endregion
     }
 }

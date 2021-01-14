@@ -9,32 +9,23 @@ namespace MugenMvvm.Ios.Internal
 {
     public sealed class IosAttachedValueHolder : NSObject
     {
-        #region Fields
-
-        public readonly IosWeakReference WeakReference;
-
-        private SortedList<string, object?>? _values;
-        private const int OBJC_ASSOCIATION_RETAIN_NONATOMIC = 1;
-        private static readonly IntPtr KeyHandle = NSString.CreateNative(IosInternalConstants.AttachedHolderKey, false);
-
-        #endregion
-
-        #region Constructors
-
-        private IosAttachedValueHolder(NSObject nativeObject)
-        {
-            WeakReference = new IosWeakReference(nativeObject);
-        }
-
-        #endregion
-
-        #region Methods
-
         [DllImport(ObjCRuntime.Constants.ObjectiveCLibrary)]
         private static extern void objc_setAssociatedObject(IntPtr target, IntPtr key, IntPtr value, int policy);
 
         [DllImport(ObjCRuntime.Constants.ObjectiveCLibrary)]
         private static extern IntPtr objc_getAssociatedObject(IntPtr target, IntPtr key);
+
+        private const int OBJC_ASSOCIATION_RETAIN_NONATOMIC = 1;
+        private static readonly IntPtr KeyHandle = NSString.CreateNative(IosInternalConstants.AttachedHolderKey, false);
+
+        public readonly IosWeakReference WeakReference;
+
+        private SortedList<string, object?>? _values;
+
+        private IosAttachedValueHolder(NSObject nativeObject)
+        {
+            WeakReference = new IosWeakReference(nativeObject);
+        }
 
         public static IosAttachedValueHolder? Get(NSObject target, bool optional)
         {
@@ -64,7 +55,5 @@ namespace MugenMvvm.Ios.Internal
 
         [Export("dealloc")]
         private void Dealloc() => WeakReference.OnDealloc();
-
-        #endregion
     }
 }

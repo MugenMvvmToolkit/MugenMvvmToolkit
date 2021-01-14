@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IMetadataContext : IReadOnlyMetadataContext, IComponentOwner<IMetadataContext>
     {
-        T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state, Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory);
+        T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state,
+            Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory);
 
         T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, IMetadataContextKey<T>, TState, T> valueFactory,
             Func<IMetadataContext, IMetadataContextKey<T>, object?, TState, T> updateValueFactory);

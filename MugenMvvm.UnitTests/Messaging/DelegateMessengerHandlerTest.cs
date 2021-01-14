@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Messaging
 {
     public class DelegateMessengerHandlerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldHandleOnlySupportedTypes()
         {
@@ -39,7 +37,5 @@ namespace MugenMvvm.UnitTests.Messaging
             subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Handled);
             count.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

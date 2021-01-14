@@ -10,37 +10,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public abstract class AttachedValueStorageProviderTestBase : UnitTestBase
     {
-        #region Fields
-
         protected const string TestPath = "Test";
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public virtual void ShouldGetSetValues()
-        {
-            var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
-            attachedValues.Contains(TestPath).ShouldBeFalse();
-            attachedValues.TryGet(TestPath, out var value).ShouldBeFalse();
-            attachedValues.GetCount().ShouldEqual(0);
-            value.ShouldBeNull();
-
-            attachedValues.Set(TestPath, this, out var old);
-            old.ShouldBeNull();
-            attachedValues.TryGet(TestPath, out value).ShouldBeTrue();
-            attachedValues.Contains(TestPath).ShouldBeTrue();
-            attachedValues.GetCount().ShouldEqual(1);
-            value.ShouldEqual(this);
-
-            attachedValues.Set(TestPath, new object(), out old);
-            old.ShouldEqual(this);
-        }
 
         [Theory]
         [InlineData(1)]
@@ -70,6 +40,80 @@ namespace MugenMvvm.UnitTests.Internal.Components
             }).AsList().ShouldBeEmpty();
             hashSet.Count.ShouldEqual(0);
             attachedValues.GetValues().AsList().ShouldEqual(values);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public virtual void ClearShouldClearByPath(int count)
+        {
+            var item = GetSupportedItem();
+            var manager = new AttachedValueManager();
+            manager.AddComponent(GetComponent());
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+
+            for (var i = 0; i < count; i++)
+            {
+                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
+                attachedValues.Set(pair.Key, pair.Value, out _);
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                attachedValues.TryGet(TestPath + i, out var v).ShouldBeTrue();
+                v.ShouldEqual(i + 1);
+
+                attachedValues.Remove(TestPath + i, out var old).ShouldBeTrue();
+                old.ShouldEqual(i + 1);
+
+                attachedValues.TryGet(TestPath + i, out v).ShouldBeFalse();
+                v.ShouldNotEqual(i + 1);
+            }
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public virtual void ClearShouldClearAll(int count)
+        {
+            var item = GetSupportedItem();
+            var manager = new AttachedValueManager();
+            manager.AddComponent(GetComponent());
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+
+            for (var i = 0; i < count; i++)
+            {
+                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
+                attachedValues.Set(pair.Key, pair.Value, out _);
+            }
+
+            attachedValues.Clear();
+            for (var i = 0; i < count; i++)
+            {
+                attachedValues.TryGet(TestPath + i, out var v).ShouldBeFalse();
+                v.ShouldNotEqual(i + 1);
+            }
+        }
+
+        protected abstract object GetSupportedItem();
+
+        protected abstract IAttachedValueStorageProviderComponent GetComponent();
+
+        private WeakReference ClearShouldNotKeepRefImpl(object item, AttachedValueManager manager)
+        {
+            var value = new object();
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.Set(TestPath, value, out _);
+            attachedValues.Remove(TestPath, out value);
+            return new WeakReference(value);
+        }
+
+        private WeakReference ShouldBeEphemeronImpl1(object item, AttachedValueManager manager)
+        {
+            var value = new object();
+            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.Set(TestPath, value, out _);
+            return new WeakReference(value);
         }
 
         [Fact]
@@ -163,6 +207,17 @@ namespace MugenMvvm.UnitTests.Internal.Components
             invokeCount.ShouldEqual(1);
         }
 
+        [Fact(Skip = ReleaseTest)]
+        public virtual void ClearShouldNotKeepRef()
+        {
+            var item = GetSupportedItem();
+            var manager = new AttachedValueManager();
+            manager.AddComponent(GetComponent());
+            var weakReference = ClearShouldNotKeepRefImpl(item, manager);
+            GcCollect();
+            weakReference.IsAlive.ShouldBeFalse();
+        }
+
         [Fact]
         public virtual void GetOrAddShouldAddNewValue1()
         {
@@ -228,74 +283,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
             v.ShouldEqual(oldValue);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public virtual void ClearShouldClearByPath(int count)
-        {
-            var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
-            for (var i = 0; i < count; i++)
-            {
-                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
-                attachedValues.Set(pair.Key, pair.Value, out _);
-            }
-
-            for (var i = 0; i < count; i++)
-            {
-                attachedValues.TryGet(TestPath + i, out var v).ShouldBeTrue();
-                v.ShouldEqual(i + 1);
-
-                attachedValues.Remove(TestPath + i, out var old).ShouldBeTrue();
-                old.ShouldEqual(i + 1);
-
-                attachedValues.TryGet(TestPath + i, out v).ShouldBeFalse();
-                v.ShouldNotEqual(i + 1);
-            }
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public virtual void ClearShouldClearAll(int count)
-        {
-            var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
-            for (var i = 0; i < count; i++)
-            {
-                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
-                attachedValues.Set(pair.Key, pair.Value, out _);
-            }
-
-            attachedValues.Clear();
-            for (var i = 0; i < count; i++)
-            {
-                attachedValues.TryGet(TestPath + i, out var v).ShouldBeFalse();
-                v.ShouldNotEqual(i + 1);
-            }
-        }
-
-        protected abstract object GetSupportedItem();
-
-        protected abstract IAttachedValueStorageProviderComponent GetComponent();
-
-        [Fact(Skip = ReleaseTest)]
-        public virtual void ClearShouldNotKeepRef()
-        {
-            var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var weakReference = ClearShouldNotKeepRefImpl(item, manager);
-            GcCollect();
-            weakReference.IsAlive.ShouldBeFalse();
-        }
-
         [Fact(Skip = ReleaseTest)]
         public virtual void ShouldBeEphemeron1()
         {
@@ -328,23 +315,28 @@ namespace MugenMvvm.UnitTests.Internal.Components
             weakReference.IsAlive.ShouldBeFalse();
         }
 
-        private WeakReference ClearShouldNotKeepRefImpl(object item, AttachedValueManager manager)
+        [Fact]
+        public virtual void ShouldGetSetValues()
         {
-            var value = new object();
+            var item = GetSupportedItem();
+            var manager = new AttachedValueManager();
+            manager.AddComponent(GetComponent());
             var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-            attachedValues.Set(TestPath, value, out _);
-            attachedValues.Remove(TestPath, out value);
-            return new WeakReference(value);
-        }
 
-        private WeakReference ShouldBeEphemeronImpl1(object item, AttachedValueManager manager)
-        {
-            var value = new object();
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-            attachedValues.Set(TestPath, value, out _);
-            return new WeakReference(value);
-        }
+            attachedValues.Contains(TestPath).ShouldBeFalse();
+            attachedValues.TryGet(TestPath, out var value).ShouldBeFalse();
+            attachedValues.GetCount().ShouldEqual(0);
+            value.ShouldBeNull();
 
-        #endregion
+            attachedValues.Set(TestPath, this, out var old);
+            old.ShouldBeNull();
+            attachedValues.TryGet(TestPath, out value).ShouldBeTrue();
+            attachedValues.Contains(TestPath).ShouldBeTrue();
+            attachedValues.GetCount().ShouldEqual(1);
+            value.ShouldEqual(this);
+
+            attachedValues.Set(TestPath, new object(), out old);
+            old.ShouldEqual(this);
+        }
     }
 }

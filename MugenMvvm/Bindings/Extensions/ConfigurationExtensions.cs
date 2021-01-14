@@ -42,27 +42,25 @@ namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
-        #region Methods
-
         public static MugenApplicationConfiguration DefaultBindingConfiguration(this MugenApplicationConfiguration configuration, bool cacheResources = true)
         {
             configuration.WithAppService(new ExpressionCompiler())
-                .WithComponent(new ExpressionCompilerCache())
-                .WithComponent(new ExpressionCompilerComponent())
-                .WithComponent(new BinaryExpressionBuilder())
-                .WithComponent(new ConditionExpressionBuilder())
-                .WithComponent(new ConstantExpressionBuilder())
-                .WithComponent(new LambdaExpressionBuilder())
-                .WithComponent(new MemberExpressionBuilder())
-                .WithComponent(new MethodCallIndexerExpressionBuilder())
-                .WithComponent(new NullConditionalExpressionBuilder())
-                .WithComponent(new ExpressionOptimizer())
-                .WithComponent(new UnaryExpressionBuilder());
+                         .WithComponent(new ExpressionCompilerCache())
+                         .WithComponent(new ExpressionCompilerComponent())
+                         .WithComponent(new BinaryExpressionBuilder())
+                         .WithComponent(new ConditionExpressionBuilder())
+                         .WithComponent(new ConstantExpressionBuilder())
+                         .WithComponent(new LambdaExpressionBuilder())
+                         .WithComponent(new MemberExpressionBuilder())
+                         .WithComponent(new MethodCallIndexerExpressionBuilder())
+                         .WithComponent(new NullConditionalExpressionBuilder())
+                         .WithComponent(new ExpressionOptimizer())
+                         .WithComponent(new UnaryExpressionBuilder());
 
             configuration.WithAppService(new GlobalValueConverter())
-                .WithComponent(new GlobalValueConverterComponent());
+                         .WithComponent(new GlobalValueConverterComponent());
 
-            var macrosPreInitializer = new MacrosBindingInitializer{Priority = BindingComponentPriority.MacrosPreInitializer};
+            var macrosPreInitializer = new MacrosBindingInitializer {Priority = BindingComponentPriority.MacrosPreInitializer};
             var macrosVisitor = new MacrosExpressionVisitor();
             macrosPreInitializer.TargetVisitors.Add(macrosVisitor);
             macrosPreInitializer.SourceVisitors.Add(macrosVisitor);
@@ -74,74 +72,74 @@ namespace MugenMvvm.Bindings.Extensions
             macrosPostInitializer.ParameterVisitors.Add(constantToBindingParameterVisitor);
 
             configuration.WithAppService(new BindingManager())
-                .WithComponent(macrosPreInitializer)
-                .WithComponent(macrosPostInitializer)
-                .WithComponent(new BindingBuilderDelegateExpressionParser())
-                .WithComponent(new BindingCleaner())
-                .WithComponent(new BindingExpressionExceptionDecorator())
-                .WithComponent(new BindingExpressionParser())
-                .WithComponent(new BindingExpressionParserCache())
-                .WithComponent(new BindingExpressionPriorityDecorator())
-                .WithComponent(new BindingHolder())
-                .WithComponent(new BindingHolderLifecycleHandler())
-                .WithComponent(new BindingExpressionInitializer())
-                .WithComponent(new BindingModeInitializer())
-                .WithComponent(new BindingParameterInitializer())
-                .WithComponent(new InlineBindingExpressionInitializer())
-                .WithComponent(new DelayBindingInitializer());
+                         .WithComponent(macrosPreInitializer)
+                         .WithComponent(macrosPostInitializer)
+                         .WithComponent(new BindingBuilderDelegateExpressionParser())
+                         .WithComponent(new BindingCleaner())
+                         .WithComponent(new BindingExpressionExceptionDecorator())
+                         .WithComponent(new BindingExpressionParser())
+                         .WithComponent(new BindingExpressionParserCache())
+                         .WithComponent(new BindingExpressionPriorityDecorator())
+                         .WithComponent(new BindingHolder())
+                         .WithComponent(new BindingHolderLifecycleHandler())
+                         .WithComponent(new BindingExpressionInitializer())
+                         .WithComponent(new BindingModeInitializer())
+                         .WithComponent(new BindingParameterInitializer())
+                         .WithComponent(new InlineBindingExpressionInitializer())
+                         .WithComponent(new DelayBindingInitializer());
 
             configuration.WithAppService(new MemberManager())
-                .WithComponent(new AttachedMemberProvider())
-                .WithComponent(new ExtensionMethodMemberProvider())
-                .WithComponent(new FakeMemberProvider())
-                .WithComponent(new IndexerAccessorMemberDecorator())
-                .WithComponent(new MemberCache())
-                .WithComponent(new MemberSelector())
-                .WithComponent(new MethodMemberAccessorDecorator())
-                .WithComponent(new MethodRequestMemberManagerDecorator())
-                .WithComponent(new NameRequestMemberManagerDecorator())
-                .WithComponent(new ReflectionMemberProvider());
+                         .WithComponent(new AttachedMemberProvider())
+                         .WithComponent(new ExtensionMethodMemberProvider())
+                         .WithComponent(new FakeMemberProvider())
+                         .WithComponent(new IndexerAccessorMemberDecorator())
+                         .WithComponent(new MemberCache())
+                         .WithComponent(new MemberSelector())
+                         .WithComponent(new MethodMemberAccessorDecorator())
+                         .WithComponent(new MethodRequestMemberManagerDecorator())
+                         .WithComponent(new NameRequestMemberManagerDecorator())
+                         .WithComponent(new ReflectionMemberProvider());
 
             var cfg = configuration.WithAppService(new ObservationManager())
-                .WithComponent(new EventInfoMemberObserverProvider())
-                .WithComponent(new EventMemberObserverProvider())
-                .WithComponent(new MemberPathObserverProvider())
-                .WithComponent(new MemberPathProvider())
-                .WithComponent(new MemberPathProviderCache())
-                .WithComponent(new PropertyChangedMemberObserverProvider());
+                                   .WithComponent(new EventInfoMemberObserverProvider())
+                                   .WithComponent(new EventMemberObserverProvider())
+                                   .WithComponent(new MemberPathObserverProvider())
+                                   .WithComponent(new MemberPathProvider())
+                                   .WithComponent(new MemberPathProviderCache())
+                                   .WithComponent(new PropertyChangedMemberObserverProvider());
             if (cacheResources)
                 cfg.WithComponent(new ResourceMemberPathObserverCache());
 
             configuration.WithAppService(new ExpressionParser())
-                .WithComponent(new ExpressionParserComponent())
-                .WithComponent(new UnaryTokenParser())
-                .WithComponent(new MemberTokenParser())
-                .WithComponent(new BinaryTokenParser())
-                .WithComponent(new ParenTokenParser())
-                .WithComponent(new ConditionTokenParser())
-                .WithComponent(new DigitTokenParser())
-                .WithComponent(new MethodCallTokenParser())
-                .WithComponent(new ConstantTokenParser())
-                .WithComponent(new IndexerTokenParser())
-                .WithComponent(new LambdaTokenParser())
-                .WithComponent(new StringTokenParser())
-                .WithComponent(new NullConditionalMemberTokenParser())
-                .WithComponent(new AssignmentTokenParser())
-                .WithComponent(new ExpressionConverterComponent())
-                .WithComponent(new BinaryExpressionConverter())
-                .WithComponent(new UnaryExpressionConverter())
-                .WithComponent(new ConstantExpressionConverter())
-                .WithComponent(new MemberExpressionConverter())
-                .WithComponent(new MethodCallExpressionConverter())
-                .WithComponent(new ConditionExpressionConverter())
-                .WithComponent(new IndexerExpressionConverter())
-                .WithComponent(new LambdaExpressionConverter())
-                .WithComponent(new NewArrayExpressionConverter())
-                .WithComponent(new DefaultExpressionConverter());
+                         .WithComponent(new ExpressionParserComponent())
+                         .WithComponent(new UnaryTokenParser())
+                         .WithComponent(new MemberTokenParser())
+                         .WithComponent(new BinaryTokenParser())
+                         .WithComponent(new ParenTokenParser())
+                         .WithComponent(new ConditionTokenParser())
+                         .WithComponent(new DigitTokenParser())
+                         .WithComponent(new MethodCallTokenParser())
+                         .WithComponent(new ConstantTokenParser())
+                         .WithComponent(new IndexerTokenParser())
+                         .WithComponent(new LambdaTokenParser())
+                         .WithComponent(new StringTokenParser())
+                         .WithComponent(new NullConditionalMemberTokenParser())
+                         .WithComponent(new AssignmentTokenParser())
+                         .WithComponent(new ExpressionConverterComponent())
+                         .WithComponent(new BinaryExpressionConverter())
+                         .WithComponent(new UnaryExpressionConverter())
+                         .WithComponent(new ConstantExpressionConverter())
+                         .WithComponent(new MemberExpressionConverter())
+                         .WithComponent(new MethodCallExpressionConverter())
+                         .WithComponent(new ConditionExpressionConverter())
+                         .WithComponent(new IndexerExpressionConverter())
+                         .WithComponent(new LambdaExpressionConverter())
+                         .WithComponent(new NewArrayExpressionConverter())
+                         .WithComponent(new DefaultExpressionConverter());
 
             configuration.WithAppService(new ResourceResolver())
-                .WithComponent(new ResourceResolverComponent())
-                .WithComponent(new TypeResolverComponent());
+                         .WithComponent(new ResourceResolverComponent())
+                         .WithComponent(new TypeResolverComponent());
 
             return configuration;
         }
@@ -159,55 +157,60 @@ namespace MugenMvvm.Bindings.Extensions
         public static void RegisterObjectAttachedMembers(AttachedMemberProvider attachedMemberProvider)
         {
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
-                .DataContext()
-                .GetBuilder()
-                .Inherits()
-                .Build());
+                                                   .DataContext()
+                                                   .GetBuilder()
+                                                   .Inherits()
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
-                .Root()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => GetRoot(target, metadata))
-                .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
-                .Build());
+                                                   .Root()
+                                                   .GetBuilder()
+                                                   .CustomGetter((member, target, metadata) => GetRoot(target, metadata))
+                                                   .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
-                .RelativeSourceMethod()
-                .RawMethod
-                .GetBuilder(false)
-                .WithParameters(new[] {AttachedMemberBuilder.Parameter<string>().Build(), AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build()})
-                .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string) args[0]!, (int) args[1]!, metadata))
-                .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
-                .Build());
+                                                   .RelativeSourceMethod()
+                                                   .RawMethod
+                                                   .GetBuilder(false)
+                                                   .WithParameters(new[]
+                                                   {
+                                                       AttachedMemberBuilder.Parameter<string>().Build(),
+                                                       AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build()
+                                                   })
+                                                   .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string) args[0]!, (int) args[1]!, metadata))
+                                                   .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
-                .Parent()
-                .GetBuilder()
-                .WrapMember(Members.BindableMembers.For<object>().ParentNative())
-                .Build());
+                                                   .Parent()
+                                                   .GetBuilder()
+                                                   .WrapMember(Members.BindableMembers.For<object>().ParentNative())
+                                                   .Build());
         }
 
         public static void RegisterCollectionAttachedMembers(AttachedMemberProvider attachedMemberProvider)
         {
             attachedMemberProvider.Register(AttachedMemberBuilder
-                .Event<IComponentOwner<ICollection>>(nameof(ICollection.Count) + BindingInternalConstant.ChangedEventPostfix)
-                .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
-                .Build());
+                                            .Event<IComponentOwner<ICollection>>(nameof(ICollection.Count) + BindingInternalConstant.ChangedEventPostfix)
+                                            .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
+                                            .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                .Event<IComponentOwner<ICollection>>(BindingInternalConstant.IndexerGetterName + BindingInternalConstant.ChangedEventPostfix)
-                .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
-                .Build());
+                                            .Event<IComponentOwner<ICollection>>(BindingInternalConstant.IndexerGetterName + BindingInternalConstant.ChangedEventPostfix)
+                                            .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
+                                            .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                .Property<IObservableCollection, int>(nameof(IObservableCollection.Count))
-                .CustomGetter((member, target, metadata) => BindingCollectionAdapter.GetOrAdd(target).Count)
-                .Build());
+                                            .Property<IObservableCollection, int>(nameof(IObservableCollection.Count))
+                                            .CustomGetter((member, target, metadata) => BindingCollectionAdapter.GetOrAdd(target).Count)
+                                            .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                .Method<IObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
-                .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
-                .InvokeHandler((member, target, args, metadata) => BindingCollectionAdapter.GetOrAdd(target)[(int) args[0]!])
-                .Build());
+                                            .Method<IObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
+                                            .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
+                                            .InvokeHandler((member, target, args, metadata) => BindingCollectionAdapter.GetOrAdd(target)[(int) args[0]!])
+                                            .Build());
         }
 
         public static void RegisterValidationAttachedMembers(IMemberManager memberManager, AttachedMemberProvider attachedMemberProvider)
         {
-            var errorsChangedEvent = memberManager.TryGetMember(typeof(INotifyDataErrorInfo), MemberType.Event, MemberFlags.InstancePublic, nameof(INotifyDataErrorInfo.ErrorsChanged));
+            var errorsChangedEvent =
+                memberManager.TryGetMember(typeof(INotifyDataErrorInfo), MemberType.Event, MemberFlags.InstancePublic, nameof(INotifyDataErrorInfo.ErrorsChanged));
             if (errorsChangedEvent != null)
             {
                 attachedMemberProvider.Register(errorsChangedEvent, nameof(Members.BindableMembers.GetError) + BindingInternalConstant.ChangedEventPostfix);
@@ -216,18 +219,18 @@ namespace MugenMvvm.Bindings.Extensions
             }
 
             var errorsChangedEventValidator = AttachedMemberBuilder
-                .Event<IHasService<IValidator>>(nameof(INotifyDataErrorInfo.ErrorsChanged))
-                .CustomImplementation((member, target, listener, metadata) =>
-                {
-                    var component = new ErrorsChangedValidatorListener(listener);
-                    target.Service.AddComponent(component);
-                    return new ActionToken((t, c) =>
-                    {
-                        var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
-                        hasService?.Service.RemoveComponent((IComponent<IValidator>) c!);
-                    }, target.ToWeakReference(), component);
-                })
-                .Build();
+                                              .Event<IHasService<IValidator>>(nameof(INotifyDataErrorInfo.ErrorsChanged))
+                                              .CustomImplementation((member, target, listener, metadata) =>
+                                              {
+                                                  var component = new ErrorsChangedValidatorListener(listener);
+                                                  target.Service.AddComponent(component);
+                                                  return new ActionToken((t, c) =>
+                                                  {
+                                                      var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
+                                                      hasService?.Service.RemoveComponent((IComponent<IValidator>) c!);
+                                                  }, target.ToWeakReference(), component);
+                                              })
+                                              .Build();
             attachedMemberProvider.Register(errorsChangedEventValidator);
             attachedMemberProvider.Register(errorsChangedEventValidator, nameof(Members.BindableMembers.GetError) + BindingInternalConstant.ChangedEventPostfix);
             attachedMemberProvider.Register(errorsChangedEventValidator, nameof(Members.BindableMembers.GetErrors) + BindingInternalConstant.ChangedEventPostfix);
@@ -240,115 +243,101 @@ namespace MugenMvvm.Bindings.Extensions
             var getErrorsHandler = new InvokeMethodDelegate<IMethodMemberInfo, object, IReadOnlyList<object>>((_, target, args, _) => GetErrors(target, args[0] ?? ""));
 
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
-                .HasErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringParameter)
-                .InvokeHandler(hasErrorHandler)
-                .Build());
+                                                   .HasErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringParameter)
+                                                   .InvokeHandler(hasErrorHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
-                .HasErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringParameter)
-                .InvokeHandler(hasErrorHandler)
-                .Build());
+                                                   .HasErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringParameter)
+                                                   .InvokeHandler(hasErrorHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
-                .HasErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringsParameter)
-                .InvokeHandler(hasErrorHandler)
-                .Build());
+                                                   .HasErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringsParameter)
+                                                   .InvokeHandler(hasErrorHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
-                .HasErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringsParameter)
-                .InvokeHandler(hasErrorHandler)
-                .Build());
+                                                   .HasErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringsParameter)
+                                                   .InvokeHandler(hasErrorHandler)
+                                                   .Build());
 
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
-                .GetErrorMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringParameter)
-                .InvokeHandler(getErrorHandler)
-                .Build());
+                                                   .GetErrorMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringParameter)
+                                                   .InvokeHandler(getErrorHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
-                .GetErrorMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringParameter)
-                .InvokeHandler(getErrorHandler)
-                .Build());
+                                                   .GetErrorMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringParameter)
+                                                   .InvokeHandler(getErrorHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
-                .GetErrorMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringsParameter)
-                .InvokeHandler(getErrorHandler)
-                .Build());
+                                                   .GetErrorMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringsParameter)
+                                                   .InvokeHandler(getErrorHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
-                .GetErrorMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringsParameter)
-                .InvokeHandler(getErrorHandler)
-                .Build());
+                                                   .GetErrorMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringsParameter)
+                                                   .InvokeHandler(getErrorHandler)
+                                                   .Build());
 
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
-                .GetErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringParameter)
-                .InvokeHandler(getErrorsHandler)
-                .Build());
+                                                   .GetErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringParameter)
+                                                   .InvokeHandler(getErrorsHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
-                .GetErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringParameter)
-                .InvokeHandler(getErrorsHandler)
-                .Build());
+                                                   .GetErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringParameter)
+                                                   .InvokeHandler(getErrorsHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
-                .GetErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringsParameter)
-                .InvokeHandler(getErrorsHandler)
-                .Build());
+                                                   .GetErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringsParameter)
+                                                   .InvokeHandler(getErrorsHandler)
+                                                   .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<IHasService<IValidator>>()
-                .GetErrorsMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(stringsParameter)
-                .InvokeHandler(getErrorsHandler)
-                .Build());
+                                                   .GetErrorsMethod()
+                                                   .RawMethod
+                                                   .GetBuilder()
+                                                   .WithParameters(stringsParameter)
+                                                   .InvokeHandler(getErrorsHandler)
+                                                   .Build());
         }
-
-        #endregion
-
-        #region Nested types
 
         private sealed class BindingCollectionAdapter : BindableCollectionAdapter, IComponent<ICollection>
         {
-            #region Constructors
-
             private BindingCollectionAdapter()
             {
                 Listeners = new EventListenerCollection();
             }
 
-            #endregion
-
-            #region Properties
-
             public EventListenerCollection Listeners { get; }
-
-            #endregion
-
-            #region Methods
 
             public static BindingCollectionAdapter GetOrAdd(IComponentOwner<ICollection> collection)
                 => collection.GetOrAddComponent(collection, (owner, context) => new BindingCollectionAdapter {Collection = (IEnumerable) owner});
@@ -395,28 +384,16 @@ namespace MugenMvvm.Bindings.Extensions
             }
 
             private void Raise() => Listeners.Raise(Collection, EventArgs.Empty, null);
-
-            #endregion
         }
 
         private sealed class ErrorsChangedValidatorListener : IValidatorListener
         {
-            #region Fields
-
             private readonly WeakEventListener _eventListener;
-
-            #endregion
-
-            #region Constructors
 
             public ErrorsChangedValidatorListener(IEventListener eventListener)
             {
                 _eventListener = eventListener.ToWeak();
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
             {
@@ -431,10 +408,6 @@ namespace MugenMvvm.Bindings.Extensions
             public void OnDisposed(IValidator validator)
             {
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

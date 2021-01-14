@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class UnaryTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotUnaryExpression()
         {
@@ -51,7 +49,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize($"-{memberName}.{memberName}", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(new UnaryExpressionNode(token, new MemberExpressionNode(null, memberName)));
         }
-
-        #endregion
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Enums;
@@ -14,8 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class MethodMultiPathObserverTest : MultiPathObserverTest
     {
-        #region Methods
-
         [Theory]
         [InlineData(1, false)]
         [InlineData(1, true)]
@@ -79,7 +76,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 
             using var _ = MugenService.AddComponent(component);
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(),
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+                disposed => currentListener.ShouldBeNull(),
                 isValueType ? 0 : 1, false);
         }
 
@@ -87,7 +85,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             new MethodMultiPathObserver(MethodName, target, path, memberFlags, hasStablePath, optional);
 
         protected override MultiPathObserver GetObserver(object target) => new MethodMultiPathObserver(MethodName, target, DefaultPath, MemberFlags.All, false, false);
-
-        #endregion
     }
 }

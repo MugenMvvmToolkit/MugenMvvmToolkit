@@ -5,20 +5,12 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public class TestWeakReference : IWeakReference
     {
-        #region Properties
+        public Action? Release { get; set; }
 
         public bool IsAlive { get; set; }
 
         public object? Target { get; set; }
 
-        public Action? Release { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
         void IWeakReference.Release() => Release?.Invoke();
-
-        #endregion
     }
 }

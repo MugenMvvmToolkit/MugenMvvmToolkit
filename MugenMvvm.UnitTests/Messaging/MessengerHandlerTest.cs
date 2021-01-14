@@ -9,15 +9,6 @@ namespace MugenMvvm.UnitTests.Messaging
 {
     public class MessengerHandlerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void IsEmptyShouldReturnTrueForDefault()
-        {
-            MessengerHandler handler = default;
-            handler.IsEmpty.ShouldBeTrue();
-        }
-
         [Fact]
         public void HandleShouldReturnIgnoredDefault()
         {
@@ -59,6 +50,11 @@ namespace MugenMvvm.UnitTests.Messaging
             invokeCount.ShouldEqual(2);
         }
 
-        #endregion
+        [Fact]
+        public void IsEmptyShouldReturnTrueForDefault()
+        {
+            MessengerHandler handler = default;
+            handler.IsEmpty.ShouldBeTrue();
+        }
     }
 }

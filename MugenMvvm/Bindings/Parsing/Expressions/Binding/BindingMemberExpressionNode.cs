@@ -13,23 +13,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 {
     public sealed class BindingMemberExpressionNode : BindingMemberExpressionNodeBase<BindingMemberExpressionNode>
     {
-        #region Fields
-
         private MemberPathObserverRequest? _dataContextRequest;
         private MemberPathObserverRequest? _request;
 
-        #endregion
-
-        #region Constructors
-
-        public BindingMemberExpressionNode(string path, int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName = null,
-            IExpressionNode? expression = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(path, index, flags, memberFlags, observableMethodName, expression, metadata)
+        public BindingMemberExpressionNode(string path, int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags,
+            string? observableMethodName = null,
+            IExpressionNode? expression = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(path, index, flags, memberFlags, observableMethodName, expression,
+            metadata)
         {
         }
-
-        #endregion
-
-        #region Methods
 
         public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
@@ -58,7 +50,11 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
             return GetObserver(source, metadata);
         }
 
-        private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata) => MugenService.ObservationManager.GetMemberPathObserver(target.ToWeakReference(), Request(metadata), metadata);
+        protected override BindingMemberExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) =>
+            new(Path, Index, Flags, MemberFlags, ObservableMethodName, Expression, metadata);
+
+        private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata) =>
+            MugenService.ObservationManager.GetMemberPathObserver(target.ToWeakReference(), Request(metadata), metadata);
 
         private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata) => _request ??= GetObserverRequest(Path, metadata);
 
@@ -71,9 +67,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
                 path = BindableMembers.For<object>().Parent().Name + "." + path;
             return path;
         }
-
-        protected override BindingMemberExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new(Path, Index, Flags, MemberFlags, ObservableMethodName, Expression, metadata);
-
-        #endregion
     }
 }

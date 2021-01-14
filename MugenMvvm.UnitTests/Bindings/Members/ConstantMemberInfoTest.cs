@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class ConstantMemberInfoTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData("test1", false, false)]
         [InlineData("test2", true, true)]
@@ -32,7 +30,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             else
                 ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, result, DefaultMetadata));
         }
-
-        #endregion
     }
 }

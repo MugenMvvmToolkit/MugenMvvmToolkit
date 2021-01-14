@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class RuleValidatorProviderComponentTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldAddResolveRulesBasedOnCondition()
         {
@@ -69,7 +67,5 @@ namespace MugenMvvm.UnitTests.Validation.Components
             rules.Count.ShouldEqual(1);
             rules.Remove(rule3).ShouldBeTrue();
         }
-
-        #endregion
     }
 }

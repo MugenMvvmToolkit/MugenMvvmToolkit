@@ -7,13 +7,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
     [BindingMacros(Name, true)]
     public class BindingSyntaxExtensionAttributeTest : UnitTestBase
     {
-        #region Fields
-
         private const string Name = "Test";
-
-        #endregion
-
-        #region Methods
 
         [Fact]
         public void TryGetShouldReturnCorrectAttribute()
@@ -24,7 +18,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
 
             BindingSyntaxExtensionAttributeBase.TryGet(typeof(object)).ShouldBeNull();
         }
-
-        #endregion
     }
 }

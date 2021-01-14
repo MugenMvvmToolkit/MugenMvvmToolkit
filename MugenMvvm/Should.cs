@@ -10,8 +10,6 @@ namespace MugenMvvm
 {
     public static class Should
     {
-        #region Methods
-
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -93,7 +91,5 @@ namespace MugenMvvm
         public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool isSupported, string methodName) =>
             BeSupported(isSupported, MessageConstant.ShouldMethodBeSupportedFormat1.Format(methodName));
-
-        #endregion
     }
 }

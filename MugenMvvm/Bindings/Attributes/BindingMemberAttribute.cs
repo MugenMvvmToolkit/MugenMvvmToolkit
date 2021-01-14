@@ -12,14 +12,8 @@ namespace MugenMvvm.Bindings.Attributes
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class BindingMemberAttribute : BindingSyntaxExtensionAttributeBase
     {
-        #region Fields
-
         private IExpressionNode? _expressionNode;
         private bool _initialized;
-
-        #endregion
-
-        #region Constructors
 
         public BindingMemberAttribute(string memberName)
         {
@@ -34,37 +28,9 @@ namespace MugenMvvm.Bindings.Attributes
             MemberNameIndex = memberNameIndex;
         }
 
-        #endregion
-
-        #region Properties
-
         public string? MemberName { get; }
 
         public int MemberNameIndex { get; }
-
-        #endregion
-
-        #region Methods
-
-        protected override bool TryConvertInternal(IExpressionConverterContext<Expression> context, Expression? expression, out IExpressionNode? result)
-        {
-            if (!_initialized)
-            {
-                string? memberName;
-                //T Resource<T>(this IBindingBuilderContext ctx, string resource);
-                if (MemberNameIndex >= 0 && expression is MethodCallExpression methodCall &&
-                    methodCall.Arguments.Count > MemberNameIndex && methodCall.Arguments[MemberNameIndex] is ConstantExpression constant && constant.Value != null)
-                    memberName = constant.Value.ToString();
-                else
-                    memberName = MemberName;
-                if (memberName != null)
-                    _expressionNode = MemberExpressionNode.Get(GetTarget(context, expression), memberName);
-                _initialized = true;
-            }
-
-            result = _expressionNode;
-            return _expressionNode != null;
-        }
 
         internal static IExpressionNode? GetTarget(IExpressionConverterContext<Expression> context, Expression? expression)
         {
@@ -89,6 +55,24 @@ namespace MugenMvvm.Bindings.Attributes
             return null;
         }
 
-        #endregion
+        protected override bool TryConvertInternal(IExpressionConverterContext<Expression> context, Expression? expression, out IExpressionNode? result)
+        {
+            if (!_initialized)
+            {
+                string? memberName;
+                //T Resource<T>(this IBindingBuilderContext ctx, string resource);
+                if (MemberNameIndex >= 0 && expression is MethodCallExpression methodCall &&
+                    methodCall.Arguments.Count > MemberNameIndex && methodCall.Arguments[MemberNameIndex] is ConstantExpression constant && constant.Value != null)
+                    memberName = constant.Value.ToString();
+                else
+                    memberName = MemberName;
+                if (memberName != null)
+                    _expressionNode = MemberExpressionNode.Get(GetTarget(context, expression), memberName);
+                _initialized = true;
+            }
+
+            result = _expressionNode;
+            return _expressionNode != null;
+        }
     }
 }

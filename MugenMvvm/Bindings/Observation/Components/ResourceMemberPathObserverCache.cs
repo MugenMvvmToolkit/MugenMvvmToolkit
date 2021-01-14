@@ -13,22 +13,35 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class ResourceMemberPathObserverCache : ComponentCacheBase<IObservationManager, IMemberPathObserverProviderComponent>, IMemberPathObserverProviderComponent
     {
-        #region Fields
-
         private readonly Dictionary<string, IMemberPathObserver?> _cache;
-
-        #endregion
-
-        #region Constructors
 
         public ResourceMemberPathObserverCache(int priority = ObserverComponentPriority.Cache) : base(priority)
         {
             _cache = new Dictionary<string, IMemberPathObserver?>(3, StringComparer.Ordinal);
         }
 
-        #endregion
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (state is string key)
+            {
+#if NET_CORE
+                _cache.Remove(key, out var v);
+#else
+                if (_cache.TryGetValue(key, out var v))
+                    _cache.Remove(key);
+#endif
+                if (v != null)
+                    v.IsDisposable = true;
+            }
+            else
+            {
+                foreach (var observer in _cache)
+                    if (observer.Value != null)
+                        observer.Value.IsDisposable = true;
 
-        #region Implementation of interfaces
+                _cache.Clear();
+            }
+        }
 
         public IMemberPathObserver? TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -47,36 +60,5 @@ namespace MugenMvvm.Bindings.Observation.Components
 
             return Components.TryGetMemberPathObserver(observationManager, target, request, metadata);
         }
-
-        #endregion
-
-        #region Methods
-
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (state is string key)
-            {
-#if NET_CORE
-                _cache.Remove(key, out var v);
-#else
-                if (_cache.TryGetValue(key, out var v))
-                    _cache.Remove(key);
-#endif
-                if (v != null)
-                    v.IsDisposable = true;
-            }
-            else
-            {
-                foreach (var observer in _cache)
-                {
-                    if (observer.Value != null)
-                        observer.Value.IsDisposable = true;
-                }
-
-                _cache.Clear();
-            }
-        }
-
-        #endregion
     }
 }

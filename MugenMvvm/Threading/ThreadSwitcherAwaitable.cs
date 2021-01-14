@@ -10,14 +10,8 @@ namespace MugenMvvm.Threading
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ThreadSwitcherAwaitable
     {
-        #region Fields
-
         private readonly ThreadExecutionMode? _executionMode;
         private readonly IThreadDispatcher? _threadDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ThreadSwitcherAwaitable(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode)
@@ -28,28 +22,14 @@ namespace MugenMvvm.Threading
             _executionMode = executionMode;
         }
 
-        #endregion
-
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ThreadSwitcherAwaiter GetAwaiter() => new(_threadDispatcher, _executionMode);
-
-        #endregion
-
-        #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
         public readonly struct ThreadSwitcherAwaiter : ICriticalNotifyCompletion
         {
-            #region Fields
-
             private readonly ThreadExecutionMode? _executionMode;
             private readonly IThreadDispatcher? _threadDispatcher;
-
-            #endregion
-
-            #region Constructors
 
             internal ThreadSwitcherAwaiter(IThreadDispatcher? threadDispatcher, ThreadExecutionMode? executionMode)
             {
@@ -57,29 +37,17 @@ namespace MugenMvvm.Threading
                 _executionMode = executionMode;
             }
 
-            #endregion
-
-            #region Properties
-
             public bool IsCompleted
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => _threadDispatcher == null || _threadDispatcher.CanExecuteInline(_executionMode!);
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnCompleted(Action continuation) => OnCompletedInternal(continuation);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UnsafeOnCompleted(Action continuation) => OnCompletedInternal(continuation);
-
-            #endregion
-
-            #region Methods
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void GetResult()
@@ -93,10 +61,6 @@ namespace MugenMvvm.Threading
                 else
                     _threadDispatcher.Execute(_executionMode!, continuation);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 {
     public class TestViewModelPresenterMediator : IViewModelPresenterMediator, INavigationProvider
     {
-        #region Properties
-
         public Func<object?, CancellationToken, IReadOnlyMetadataContext?, IPresenterResult?>? TryShow { get; set; }
 
         public Func<object?, CancellationToken, IReadOnlyMetadataContext?, IPresenterResult?>? TryClose { get; set; }
@@ -24,14 +22,10 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         public IView? View { get; set; } = null!;
 
-        #endregion
+        IPresenterResult? IViewModelPresenterMediator.TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            TryShow?.Invoke(view, cancellationToken, metadata);
 
-        #region Implementation of interfaces
-
-        IPresenterResult? IViewModelPresenterMediator.TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryShow?.Invoke(view, cancellationToken, metadata);
-
-        IPresenterResult? IViewModelPresenterMediator.TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => TryClose?.Invoke(view, cancellationToken, metadata);
-
-        #endregion
+        IPresenterResult? IViewModelPresenterMediator.TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            TryClose?.Invoke(view, cancellationToken, metadata);
     }
 }

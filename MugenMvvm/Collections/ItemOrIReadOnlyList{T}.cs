@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -11,15 +10,9 @@ namespace MugenMvvm.Collections
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ItemOrIReadOnlyList<T>
     {
-        #region Fields
-
         private readonly int _fixedCount;
         public readonly T? Item;
         public readonly IReadOnlyList<T>? List;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrIReadOnlyList(T? item, bool hasItem)
@@ -117,10 +110,6 @@ namespace MugenMvvm.Collections
             _fixedCount = fixedCount;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -157,6 +146,7 @@ namespace MugenMvvm.Collections
                         return ((T[]) List)[index];
                     return List[index];
                 }
+
                 if ((uint) index < (uint) _fixedCount)
                     return Item!;
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
@@ -164,16 +154,12 @@ namespace MugenMvvm.Collections
             }
         }
 
-        #endregion
-
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(T? item) => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(T[]? items) => new(items);
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(List<T>? items) => new(items);
 
@@ -190,7 +176,7 @@ namespace MugenMvvm.Collections
                 return List;
             if (_fixedCount == 0)
                 return Default.Array<T>();
-            return new T[] {Item!};
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -206,25 +192,15 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() => new(this);
 
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator
         {
-            #region Fields
-
             private readonly T _item;
             private readonly IReadOnlyList<T>? _readOnlyList;
             private readonly List<T>? _list;
             private readonly T[]? _array;
             private readonly int _count;
             private int _index;
-
-            #endregion
-
-            #region Constructors
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Enumerator(ItemOrIReadOnlyList<T> itemOrList)
@@ -264,10 +240,6 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            #endregion
-
-            #region Properties
-
             public readonly T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -283,19 +255,11 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset() => _index = -1;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext() => ++_index < _count;
-
-            #endregion
         }
-
-        #endregion
     }
 }

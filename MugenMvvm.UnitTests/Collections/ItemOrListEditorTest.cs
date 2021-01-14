@@ -9,18 +9,6 @@ namespace MugenMvvm.UnitTests.Collections
 {
     public class ItemOrListEditorTest
     {
-        #region Methods
-
-        [Fact]
-        public void IsNullOrEmptyShouldBeTrueDefault()
-        {
-            ItemOrListEditor<object> editor = default;
-            editor.IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void IndexShouldThrowOutOfRange() => Assert.Throws<ArgumentOutOfRangeException>(() => new ItemOrListEditor<object>()[0]);
-
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -148,6 +136,14 @@ namespace MugenMvvm.UnitTests.Collections
             }
         }
 
-        #endregion
+        [Fact]
+        public void IndexShouldThrowOutOfRange() => Assert.Throws<ArgumentOutOfRangeException>(() => new ItemOrListEditor<object>()[0]);
+
+        [Fact]
+        public void IsNullOrEmptyShouldBeTrueDefault()
+        {
+            ItemOrListEditor<object> editor = default;
+            editor.IsEmpty.ShouldBeTrue();
+        }
     }
 }

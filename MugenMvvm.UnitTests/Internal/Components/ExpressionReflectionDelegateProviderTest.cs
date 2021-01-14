@@ -10,7 +10,123 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public class ExpressionReflectionDelegateProviderTest : UnitTestBase
     {
-        #region Methods
+        private delegate T RefGetter<TTarget, T>(ref TTarget target);
+
+        private delegate void RefSetter<TTarget, T>(ref TTarget target, T value);
+
+        private delegate void RefInvoker<TTarget, T>(TTarget target, ref T value, T result);
+
+        public class TestMemberGetterSetter
+        {
+            public static string? FieldStatic;
+
+            public string? Field;
+
+            public static string? PropertyStatic { get; set; }
+
+            public string? Property { get; set; }
+        }
+
+        public struct TestMemberGetterSetterValue
+        {
+            public string? Field;
+
+            public string? Property { get; set; }
+        }
+
+        public class TestConstructorReflectionClass
+        {
+            public TestConstructorReflectionClass(string constructorStringValue)
+            {
+                ConstructorStringValue = constructorStringValue;
+            }
+
+            public TestConstructorReflectionClass(string constructorStringValue, int constructorIntValue)
+            {
+                ConstructorStringValue = constructorStringValue;
+                ConstructorIntValue = constructorIntValue;
+            }
+
+            public TestConstructorReflectionClass()
+            {
+            }
+
+            public string? ConstructorStringValue { get; }
+
+            public int ConstructorIntValue { get; }
+        }
+
+        public class TestMethodClass
+        {
+            public static bool IsNoArgsStaticInvoked { get; set; }
+
+            public static object?[]? ArgsStatic { get; set; }
+
+            public bool IsNoArgsInvoked { get; set; }
+
+            public object?[]? Args { get; set; }
+
+            public static void NoArgsStatic() => IsNoArgsStaticInvoked = true;
+
+            public static object MethodWithArgsStatic(int value1, string value2)
+            {
+                ArgsStatic = new object[] {value1, value2};
+                return value2;
+            }
+
+            public static void HandleMethodStatic(object sender, object value) => ArgsStatic = new[] {sender, value};
+
+            public void NoArgs() => IsNoArgsInvoked = true;
+
+            public object MethodWithArgs(int value1, string value2)
+            {
+                Args = new object[] {value1, value2};
+                return value2;
+            }
+
+            public void RefMethod(ref int value, int result) => value = result;
+
+            public void HandleMethod(object sender, object value) => Args = new[] {sender, value};
+
+            public void HandleMethodGeneric<T>(object sender, T value) => Args = new[] {sender, value};
+        }
+
+        [Fact]
+        public void CanCreateDelegateTest()
+        {
+            IReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!).ShouldBeTrue();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!).ShouldBeTrue();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!).ShouldBeTrue();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeFalse();
+        }
+
+        [Fact]
+        public void TryCreateDelegateTest()
+        {
+            IReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
+            var target = new TestMethodClass();
+            var handler = (EventHandler) component.TryCreateDelegate(null!, typeof(EventHandler), target,
+                typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!)!;
+            handler.Invoke(this, EventArgs.Empty);
+            target.Args![0].ShouldEqual(this);
+            target.Args![1].ShouldEqual(EventArgs.Empty);
+
+            target.Args = null;
+            handler = (EventHandler) component.TryCreateDelegate(null!, typeof(EventHandler), target,
+                typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!)!;
+            handler.Invoke(this, EventArgs.Empty);
+            target.Args![0].ShouldEqual(this);
+            target.Args![1].ShouldEqual(EventArgs.Empty);
+
+            handler = (EventHandler) component.TryCreateDelegate(null!, typeof(EventHandler), null,
+                typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!)!;
+            handler.Invoke(this, EventArgs.Empty);
+            TestMethodClass.ArgsStatic![0].ShouldEqual(this);
+            TestMethodClass.ArgsStatic![1].ShouldEqual(EventArgs.Empty);
+
+            component.TryCreateDelegate(null!, typeof(EventHandler), null, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeNull();
+        }
 
         [Fact]
         public void TryGetActivatorShouldGenerateCorrectDelegate1()
@@ -75,7 +191,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
             const int value2 = 2;
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var activator = (Func<string, int, TestConstructorReflectionClass>) component
-                .TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(new[] {typeof(string), typeof(int)})!, typeof(Func<string, int, TestConstructorReflectionClass>))!;
+                .TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(new[] {typeof(string), typeof(int)})!,
+                    typeof(Func<string, int, TestConstructorReflectionClass>))!;
             var o = activator(value1, value2);
             o.ConstructorIntValue.ShouldEqual(value2);
             o.ConstructorStringValue.ShouldEqual(value1);
@@ -128,7 +245,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
             getter().ShouldEqual(TestMemberGetterSetter.FieldStatic);
         }
 
-
         [Fact]
         public void TryGetMemberGetterSetterShouldGenerateCorrectDelegateFieldStatic2()
         {
@@ -142,36 +258,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
             setter.Invoke(null, value);
             TestMemberGetterSetter.FieldStatic.ShouldEqual(value);
             getter(null).ShouldEqual(TestMemberGetterSetter.FieldStatic);
-        }
-
-        [Fact]
-        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegatePropertyStatic1()
-        {
-            const string value = "Test";
-            IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            var property = typeof(TestMemberGetterSetter).GetProperty(nameof(TestMemberGetterSetter.PropertyStatic), BindingFlags.Static | BindingFlags.Public)!;
-            var getter = (Func<string>) component.TryGetMemberGetter(null!, property, typeof(Func<string>))!;
-            var setter = (Action<string>) component.TryGetMemberSetter(null!, property, typeof(Action<string>))!;
-            getter().ShouldEqual(TestMemberGetterSetter.PropertyStatic);
-
-            setter.Invoke(value);
-            TestMemberGetterSetter.PropertyStatic.ShouldEqual(value);
-            getter().ShouldEqual(TestMemberGetterSetter.PropertyStatic);
-        }
-
-        [Fact]
-        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegatePropertyStatic2()
-        {
-            const string value = "Test";
-            IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            var property = typeof(TestMemberGetterSetter).GetProperty(nameof(TestMemberGetterSetter.PropertyStatic), BindingFlags.Static | BindingFlags.Public)!;
-            var getter = (Func<object?, string>) component.TryGetMemberGetter(null!, property, typeof(Func<object?, string>))!;
-            var setter = (Action<object?, string>) component.TryGetMemberSetter(null!, property, typeof(Action<object?, string>))!;
-            getter(null).ShouldEqual(TestMemberGetterSetter.PropertyStatic);
-
-            setter.Invoke(null, value);
-            TestMemberGetterSetter.PropertyStatic.ShouldEqual(value);
-            getter(null).ShouldEqual(TestMemberGetterSetter.PropertyStatic);
         }
 
         [Fact]
@@ -204,6 +290,36 @@ namespace MugenMvvm.UnitTests.Internal.Components
             setter.Invoke(ref target, value);
             target.Property.ShouldEqual(value);
             getter(ref target).ShouldEqual(target.Property);
+        }
+
+        [Fact]
+        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegatePropertyStatic1()
+        {
+            const string value = "Test";
+            IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
+            var property = typeof(TestMemberGetterSetter).GetProperty(nameof(TestMemberGetterSetter.PropertyStatic), BindingFlags.Static | BindingFlags.Public)!;
+            var getter = (Func<string>) component.TryGetMemberGetter(null!, property, typeof(Func<string>))!;
+            var setter = (Action<string>) component.TryGetMemberSetter(null!, property, typeof(Action<string>))!;
+            getter().ShouldEqual(TestMemberGetterSetter.PropertyStatic);
+
+            setter.Invoke(value);
+            TestMemberGetterSetter.PropertyStatic.ShouldEqual(value);
+            getter().ShouldEqual(TestMemberGetterSetter.PropertyStatic);
+        }
+
+        [Fact]
+        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegatePropertyStatic2()
+        {
+            const string value = "Test";
+            IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
+            var property = typeof(TestMemberGetterSetter).GetProperty(nameof(TestMemberGetterSetter.PropertyStatic), BindingFlags.Static | BindingFlags.Public)!;
+            var getter = (Func<object?, string>) component.TryGetMemberGetter(null!, property, typeof(Func<object?, string>))!;
+            var setter = (Action<object?, string>) component.TryGetMemberSetter(null!, property, typeof(Action<object?, string>))!;
+            getter(null).ShouldEqual(TestMemberGetterSetter.PropertyStatic);
+
+            setter.Invoke(null, value);
+            TestMemberGetterSetter.PropertyStatic.ShouldEqual(value);
+            getter(null).ShouldEqual(TestMemberGetterSetter.PropertyStatic);
         }
 
         [Fact]
@@ -319,158 +435,5 @@ namespace MugenMvvm.UnitTests.Internal.Components
             invoker.Invoke(target, ref value, resultValue);
             value.ShouldEqual(resultValue);
         }
-
-        [Fact]
-        public void CanCreateDelegateTest()
-        {
-            IReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!).ShouldBeTrue();
-            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!).ShouldBeTrue();
-            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!).ShouldBeTrue();
-            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeFalse();
-        }
-
-        [Fact]
-        public void TryCreateDelegateTest()
-        {
-            IReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            var target = new TestMethodClass();
-            var handler = (EventHandler) component.TryCreateDelegate(null!, typeof(EventHandler), target, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!)!;
-            handler.Invoke(this, EventArgs.Empty);
-            target.Args![0].ShouldEqual(this);
-            target.Args![1].ShouldEqual(EventArgs.Empty);
-
-            target.Args = null;
-            handler = (EventHandler) component.TryCreateDelegate(null!, typeof(EventHandler), target, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!)!;
-            handler.Invoke(this, EventArgs.Empty);
-            target.Args![0].ShouldEqual(this);
-            target.Args![1].ShouldEqual(EventArgs.Empty);
-
-            handler = (EventHandler) component.TryCreateDelegate(null!, typeof(EventHandler), null, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!)!;
-            handler.Invoke(this, EventArgs.Empty);
-            TestMethodClass.ArgsStatic![0].ShouldEqual(this);
-            TestMethodClass.ArgsStatic![1].ShouldEqual(EventArgs.Empty);
-
-            component.TryCreateDelegate(null!, typeof(EventHandler), null, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeNull();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private delegate T RefGetter<TTarget, T>(ref TTarget target);
-
-        private delegate void RefSetter<TTarget, T>(ref TTarget target, T value);
-
-        private delegate void RefInvoker<TTarget, T>(TTarget target, ref T value, T result);
-
-        public class TestMemberGetterSetter
-        {
-            #region Fields
-
-            public string? Field;
-
-            public static string? FieldStatic;
-
-            #endregion
-
-            #region Properties
-
-            public string? Property { get; set; }
-
-            public static string? PropertyStatic { get; set; }
-
-            #endregion
-        }
-
-        public struct TestMemberGetterSetterValue
-        {
-            #region Fields
-
-            public string? Field;
-
-            #endregion
-
-            #region Properties
-
-            public string? Property { get; set; }
-
-            #endregion
-        }
-
-        public class TestConstructorReflectionClass
-        {
-            #region Constructors
-
-            public TestConstructorReflectionClass(string constructorStringValue)
-            {
-                ConstructorStringValue = constructorStringValue;
-            }
-
-            public TestConstructorReflectionClass(string constructorStringValue, int constructorIntValue)
-            {
-                ConstructorStringValue = constructorStringValue;
-                ConstructorIntValue = constructorIntValue;
-            }
-
-            public TestConstructorReflectionClass()
-            {
-            }
-
-            #endregion
-
-            #region Properties
-
-            public string? ConstructorStringValue { get; }
-
-            public int ConstructorIntValue { get; }
-
-            #endregion
-        }
-
-        public class TestMethodClass
-        {
-            #region Properties
-
-            public bool IsNoArgsInvoked { get; set; }
-
-            public static bool IsNoArgsStaticInvoked { get; set; }
-
-            public object?[]? Args { get; set; }
-
-            public static object?[]? ArgsStatic { get; set; }
-
-            #endregion
-
-            #region Methods
-
-            public void NoArgs() => IsNoArgsInvoked = true;
-
-            public static void NoArgsStatic() => IsNoArgsStaticInvoked = true;
-
-            public object MethodWithArgs(int value1, string value2)
-            {
-                Args = new object[] {value1, value2};
-                return value2;
-            }
-
-            public static object MethodWithArgsStatic(int value1, string value2)
-            {
-                ArgsStatic = new object[] {value1, value2};
-                return value2;
-            }
-
-            public void RefMethod(ref int value, int result) => value = result;
-
-            public void HandleMethod(object sender, object value) => Args = new[] {sender, value};
-
-            public static void HandleMethodStatic(object sender, object value) => ArgsStatic = new[] {sender, value};
-
-            public void HandleMethodGeneric<T>(object sender, T value) => Args = new[] {sender, value};
-
-            #endregion
-        }
-
-        #endregion
     }
 }

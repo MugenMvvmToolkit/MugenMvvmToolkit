@@ -9,8 +9,6 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class ViewModelLifecycleState : EnumBase<ViewModelLifecycleState, string>
     {
-        #region Fields
-
         public static readonly ViewModelLifecycleState Created = new(nameof(Created));
         public static readonly ViewModelLifecycleState Initializing = new(nameof(Initializing));
         public static readonly ViewModelLifecycleState Initialized = new(nameof(Initialized));
@@ -22,20 +20,14 @@ namespace MugenMvvm.Enums
         public static readonly ViewModelLifecycleState Restoring = new(nameof(Restoring));
         public static readonly ViewModelLifecycleState Restored = new(nameof(Restored));
 
-        #endregion
-
-        #region Constructors
-
-        [Preserve(Conditional = true)]
-        protected ViewModelLifecycleState()
-        {
-        }
-
         public ViewModelLifecycleState(string value, string? name = null)
             : base(value, name)
         {
         }
 
-        #endregion
+        [Preserve(Conditional = true)]
+        protected ViewModelLifecycleState()
+        {
+        }
     }
 }

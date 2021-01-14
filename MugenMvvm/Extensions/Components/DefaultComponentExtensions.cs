@@ -10,8 +10,6 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class DefaultComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invalidate(this ItemOrArray<IHasCache> components, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -40,10 +38,8 @@ namespace MugenMvvm.Extensions.Components
         public static bool IsSuspended(this ItemOrArray<ISuspendable> components)
         {
             foreach (var c in components)
-            {
                 if (c.IsSuspended)
                     return true;
-            }
 
             return false;
         }
@@ -60,7 +56,5 @@ namespace MugenMvvm.Extensions.Components
                 tokens[i] = components[i].Suspend(state, metadata);
             return new ActionToken(tokens);
         }
-
-        #endregion
     }
 }

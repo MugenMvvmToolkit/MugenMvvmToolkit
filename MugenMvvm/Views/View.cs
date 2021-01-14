@@ -9,14 +9,8 @@ namespace MugenMvvm.Views
 {
     public sealed class View : MetadataOwnerBase, IView
     {
-        #region Fields
-
         private readonly IComponentCollectionManager? _componentCollectionManager;
         private IComponentCollection? _components;
-
-        #endregion
-
-        #region Constructors
 
         public View(IViewMapping mapping, object view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null,
             IComponentCollectionManager? componentCollectionManager = null)
@@ -31,20 +25,14 @@ namespace MugenMvvm.Views
             _componentCollectionManager = componentCollectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool HasComponents => _components != null && _components.Count != 0;
 
         public IComponentCollection Components => _components ?? _componentCollectionManager.DefaultIfNull().EnsureInitialized(ref _components, this);
 
+        public object Target { get; }
+
         public IViewMapping Mapping { get; }
 
         public IViewModelBase ViewModel { get; }
-
-        public object Target { get; }
-
-        #endregion
     }
 }

@@ -7,7 +7,6 @@ using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -15,8 +14,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class ResourceMemberPathObserverCacheTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldCacheInvalidateResourceRequest()
         {
@@ -82,7 +79,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             memberPathObserver1.IsDisposable.ShouldBeTrue();
             memberPathObserver2.IsDisposable.ShouldBeTrue();
         }
-
-        #endregion
     }
 }

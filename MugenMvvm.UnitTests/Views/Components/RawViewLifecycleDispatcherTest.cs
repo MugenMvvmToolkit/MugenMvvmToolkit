@@ -1,8 +1,6 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.UnitTests.Views.Internal;
 using MugenMvvm.Views;
@@ -14,8 +12,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class RawViewLifecycleDispatcherTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldResendEvent1()
         {
@@ -89,7 +85,5 @@ namespace MugenMvvm.UnitTests.Views.Components
             viewManager.OnLifecycleChanged(view, st, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

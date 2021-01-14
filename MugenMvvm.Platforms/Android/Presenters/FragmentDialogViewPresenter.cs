@@ -13,30 +13,16 @@ namespace MugenMvvm.Android.Presenters
 {
     public class FragmentDialogViewPresenter : ViewPresenterBase<IDialogFragmentView>
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         public FragmentDialogViewPresenter(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
         }
 
-        #endregion
-
-        #region Properties
-
         public override NavigationType NavigationType => NavigationType.Popup;
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
-
-        #endregion
-
-        #region Methods
 
         protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext) => Default.CompletedTask;
 
@@ -56,7 +42,5 @@ namespace MugenMvvm.Android.Presenters
             view.DismissAllowingStateLoss();
             return Default.CompletedTask;
         }
-
-        #endregion
     }
 }

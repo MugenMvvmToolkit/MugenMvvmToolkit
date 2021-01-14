@@ -12,8 +12,6 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class BinaryTokenType : EnumBase<BinaryTokenType, string>
     {
-        #region Fields
-
         public static readonly BinaryTokenType Multiplication = new("*", 990);
         public static readonly BinaryTokenType Division = new("/", 990);
         public static readonly BinaryTokenType Remainder = new("%", 990, "mod");
@@ -35,15 +33,6 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly BinaryTokenType NullCoalescing = new("??", 890);
         public static readonly BinaryTokenType Assignment = new("=", 880);
 
-        #endregion
-
-        #region Constructors
-
-        [Preserve(Conditional = true)]
-        protected BinaryTokenType()
-        {
-        }
-
         public BinaryTokenType(string value, int priority)
             : this(value, null, priority, default)
         {
@@ -61,16 +50,13 @@ namespace MugenMvvm.Bindings.Enums
             Aliases = aliases;
         }
 
-        #endregion
+        [Preserve(Conditional = true)]
+        protected BinaryTokenType()
+        {
+        }
 
-        #region Properties
+        [DataMember(Name = "P")] public int Priority { get; set; }
 
-        [DataMember(Name = "P")]
-        public int Priority { get; set; }
-
-        [DataMember(Name = "A")]
-        public ItemOrArray<string> Aliases { get; set; }
-
-        #endregion
+        [DataMember(Name = "A")] public ItemOrArray<string> Aliases { get; set; }
     }
 }

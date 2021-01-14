@@ -8,16 +8,16 @@ namespace MugenMvvm.Android.Bindings
 {
     public sealed class BindViewCallback : Object, IBindViewCallback
     {
-        #region Fields
-
-        private IViewAttributeAccessor _accessor = null!;
-
         public static readonly BindViewCallback Instance = new();
         private static readonly BindablePropertyDescriptor<object, object?> ItemTemplateSelector = nameof(ItemTemplateSelector);
 
-        #endregion
+        private IViewAttributeAccessor _accessor = null!;
 
-        #region Implementation of interfaces
+        private static void Bind(Object view, string? bind)
+        {
+            if (bind != null)
+                view.Bind(bind, includeResult: false);
+        }
 
         public void SetViewAccessor(IViewAttributeAccessor accessor) => _accessor = accessor;
 
@@ -31,17 +31,5 @@ namespace MugenMvvm.Android.Bindings
             Bind(view, _accessor.Bind);
             Bind(view, _accessor.BindStyle);
         }
-
-        #endregion
-
-        #region Methods
-
-        private static void Bind(Object view, string? bind)
-        {
-            if (bind != null)
-                view.Bind(bind, includeResult: false);
-        }
-
-        #endregion
     }
 }

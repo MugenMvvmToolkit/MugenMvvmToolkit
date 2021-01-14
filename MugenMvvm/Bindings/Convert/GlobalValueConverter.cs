@@ -9,21 +9,14 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Convert
 {
     public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter, IHasComponentAddedHandler, IHasComponentRemovedHandler
     {
-        #region Fields
-
         private readonly ComponentTracker _componentTracker;
         private GlobalValueConverterComponent? _component;
         private ItemOrArray<IGlobalValueConverterComponent> _components;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public GlobalValueConverter(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
@@ -39,10 +32,6 @@ namespace MugenMvvm.Bindings.Convert
             }, this);
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public bool TryConvert(ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
         {
             var component = _component;
@@ -51,10 +40,10 @@ namespace MugenMvvm.Bindings.Convert
             return BindingMugenExtensions.TryConvert(ref value, targetType, component.FormatProvider);
         }
 
-        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
+        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(component, collection, metadata);
 
-        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => _componentTracker.OnComponentChanged(component, collection, metadata);
-
-        #endregion
+        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(component, collection, metadata);
     }
 }

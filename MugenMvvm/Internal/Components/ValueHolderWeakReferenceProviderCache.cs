@@ -9,15 +9,9 @@ namespace MugenMvvm.Internal.Components
 {
     public sealed class ValueHolderWeakReferenceProviderCache : ComponentDecoratorBase<IWeakReferenceManager, IWeakReferenceProviderComponent>, IWeakReferenceProviderComponent
     {
-        #region Constructors
-
         public ValueHolderWeakReferenceProviderCache(int priority = InternalComponentPriority.ValueHolderWeakReferenceCache) : base(priority)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IWeakReference? TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {
@@ -30,7 +24,5 @@ namespace MugenMvvm.Internal.Components
 
             return Components.TryGetWeakReference(weakReferenceManager, item, metadata);
         }
-
-        #endregion
     }
 }

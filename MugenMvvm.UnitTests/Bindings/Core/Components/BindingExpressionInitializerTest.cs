@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
@@ -27,65 +26,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionInitializerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void InitializeShouldIgnoreHasEventComponent()
-        {
-            var context = new BindingExpressionInitializerContext(this);
-            var bindingManager = new BindingManager();
-            var component = new BindingExpressionInitializer();
-            bindingManager.AddComponent(component);
-            var target = new TestExpressionNode
-            {
-                VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
-            };
-            var source = new TestExpressionNode
-            {
-                VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
-            };
-            context.Initialize(this, this, target, source, default, DefaultMetadata);
-            context.Components[BindingParameterNameConstant.EventHandler] = null;
-            component.Initialize(null!, context);
-        }
-
-        [Fact]
-        public void ShouldUseParentDataContextForDataContextBind()
-        {
-            var context = new BindingExpressionInitializerContext(this);
-            var bindingManager = new BindingManager();
-            var component = new BindingExpressionInitializer();
-            bindingManager.AddComponent(component);
-
-            var sourceVisitCount = 0;
-            var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
-            {
-                MemberFlags = MemberFlags.Instance,
-                GetSource = (o, o1, arg3) => (this, MemberPath.Empty)
-            };
-            var source = new TestExpressionNode
-            {
-                VisitHandler = (visitor, metadataContext) =>
-                {
-                    ++sourceVisitCount;
-                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
-                    expressionVisitor.Flags.HasFlag(BindingMemberExpressionFlags.ParentDataContext);
-                    return null;
-                }
-            };
-            context.Initialize(this, this, target, source, default, DefaultMetadata);
-            component.Initialize(null!, context);
-            sourceVisitCount.ShouldEqual(1);
-            context.Components.ShouldBeEmpty();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void InitializeShouldRespectSettings(bool parametersSetting)
         {
-            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods | BindingMemberExpressionFlags.Optional;
+            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods |
+                        BindingMemberExpressionFlags.Optional;
             var suppressMethodAccessors = true;
             var suppressIndexAccessors = true;
             var memberFlags = MemberFlags.Static;
@@ -170,7 +117,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var targetSrc = "";
             var sourceSrc = new object();
             var targetPath = MemberPath.Get("Member1.Member2");
-            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods | BindingMemberExpressionFlags.Optional;
+            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods |
+                        BindingMemberExpressionFlags.Optional;
             var suppressMethodAccessors = true;
             var suppressIndexAccessors = true;
             var toggleEnabledState = true;
@@ -299,7 +247,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             else
             {
                 binding.Metadata = BindingMetadata.IsMultiBinding.ToContext(false);
-                parameters = new[] {new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)};
+                parameters = new[]
+                    {new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)};
                 component.Flags = flags;
                 component.SuppressIndexAccessors = suppressIndexAccessors;
                 component.SuppressMethodAccessors = suppressMethodAccessors;
@@ -381,6 +330,55 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
         }
 
-        #endregion
+        [Fact]
+        public void InitializeShouldIgnoreHasEventComponent()
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            var bindingManager = new BindingManager();
+            var component = new BindingExpressionInitializer();
+            bindingManager.AddComponent(component);
+            var target = new TestExpressionNode
+            {
+                VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
+            };
+            var source = new TestExpressionNode
+            {
+                VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
+            };
+            context.Initialize(this, this, target, source, default, DefaultMetadata);
+            context.Components[BindingParameterNameConstant.EventHandler] = null;
+            component.Initialize(null!, context);
+        }
+
+        [Fact]
+        public void ShouldUseParentDataContextForDataContextBind()
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            var bindingManager = new BindingManager();
+            var component = new BindingExpressionInitializer();
+            bindingManager.AddComponent(component);
+
+            var sourceVisitCount = 0;
+            var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
+            {
+                MemberFlags = MemberFlags.Instance,
+                GetSource = (o, o1, arg3) => (this, MemberPath.Empty)
+            };
+            var source = new TestExpressionNode
+            {
+                VisitHandler = (visitor, metadataContext) =>
+                {
+                    ++sourceVisitCount;
+                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
+                    expressionVisitor.Flags.HasFlag(BindingMemberExpressionFlags.ParentDataContext);
+                    return null;
+                }
+            };
+            context.Initialize(this, this, target, source, default, DefaultMetadata);
+            component.Initialize(null!, context);
+            sourceVisitCount.ShouldEqual(1);
+            context.Components.ShouldBeEmpty();
+        }
     }
 }

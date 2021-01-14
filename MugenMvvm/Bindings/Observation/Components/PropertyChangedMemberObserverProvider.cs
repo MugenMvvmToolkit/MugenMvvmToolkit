@@ -18,17 +18,11 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class PropertyChangedMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly IAttachedValueManager? _attachedValueManager;
-        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
-
         public static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHolderHandler = TryObserveHolder;
         private static readonly Func<object, object?, MemberListenerCollection> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
-        #endregion
-
-        #region Constructors
+        private readonly IAttachedValueManager? _attachedValueManager;
+        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
 
         [Preserve(Conditional = true)]
         public PropertyChangedMemberObserverProvider(IAttachedValueManager? attachedValueManager = null)
@@ -37,15 +31,22 @@ namespace MugenMvvm.Bindings.Observation.Components
             _memberObserverHandler = TryObserve;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ObserverComponentPriority.PropertyChangedObserverProvider;
 
-        #endregion
+        private static ActionToken TryObserveHolder(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        {
+            if (target == null)
+                return default;
 
-        #region Implementation of interfaces
+            return (((IValueHolder<MemberListenerCollection>) target).Value ??= new MemberListenerCollection()).Add(listener, (string) member);
+        }
+
+        private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
+        {
+            var listener = new MemberListenerCollection();
+            ((INotifyPropertyChanged) item).PropertyChanged += listener.RaisePropertyChanged;
+            return listener;
+        }
 
         public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
@@ -56,25 +57,13 @@ namespace MugenMvvm.Bindings.Observation.Components
             return default;
         }
 
-        #endregion
-
-        #region Methods
-
-        private static ActionToken TryObserveHolder(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            if (target == null)
-                return default;
-
-            return (((IValueHolder<MemberListenerCollection>) target).Value ??= new MemberListenerCollection()).Add(listener, (string) member);
-        }
-
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return default;
             return target.AttachedValues(metadata, _attachedValueManager)
-                .GetOrAdd(BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string) member);
+                         .GetOrAdd(BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
+                         .Add(listener, (string) member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)
@@ -85,14 +74,5 @@ namespace MugenMvvm.Bindings.Observation.Components
                 return new MemberObserver(MemberObserverHolderHandler, member);
             return default;
         }
-
-        private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
-        {
-            var listener = new MemberListenerCollection();
-            ((INotifyPropertyChanged) item).PropertyChanged += listener.RaisePropertyChanged;
-            return listener;
-        }
-
-        #endregion
     }
 }

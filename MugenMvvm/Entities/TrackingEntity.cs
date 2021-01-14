@@ -6,14 +6,8 @@ namespace MugenMvvm.Entities
     [StructLayout(LayoutKind.Auto)]
     public readonly struct TrackingEntity
     {
-        #region Fields
-
         public readonly object? Entity;
         public readonly EntityState? State;
-
-        #endregion
-
-        #region Constructors
 
         public TrackingEntity(object entity, EntityState state)
         {
@@ -23,12 +17,6 @@ namespace MugenMvvm.Entities
             State = state;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => Entity == null;
-
-        #endregion
     }
 }

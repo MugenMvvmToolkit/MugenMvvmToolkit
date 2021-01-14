@@ -13,16 +13,11 @@ namespace MugenMvvm.Presenters.Components
 {
     public sealed class ViewModelPresenterMediatorProvider : IViewModelPresenterMediatorProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> _getMediator;
         private readonly IWrapperManager? _wrapperManager;
 
-        #endregion
-
-        #region Constructors
-
-        private ViewModelPresenterMediatorProvider(Type viewType, bool isExactlyEqual, Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
+        private ViewModelPresenterMediatorProvider(Type viewType, bool isExactlyEqual,
+            Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
             IWrapperManager? wrapperManager)
         {
             Should.NotBeNull(viewType, nameof(viewType));
@@ -33,19 +28,27 @@ namespace MugenMvvm.Presenters.Components
             IsExactlyEqual = isExactlyEqual;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; private set; }
-
         public Type ViewType { get; }
 
         public bool IsExactlyEqual { get; }
 
-        #endregion
+        public int Priority { get; private set; }
 
-        #region Implementation of interfaces
+        public static ViewModelPresenterMediatorProvider Get<TMediator, TView>(bool isExactlyEqual,
+            Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, TMediator?> getMediator,
+            int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null)
+            where TMediator : ViewModelPresenterMediatorBase<TView>
+            where TView : class =>
+            Get(typeof(TView), isExactlyEqual, getMediator, priority, wrapperManager);
+
+        public static ViewModelPresenterMediatorProvider Get(Type viewType, bool isExactlyEqual,
+            Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
+            int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null) =>
+            new(viewType, isExactlyEqual, getMediator, wrapperManager) {Priority = priority};
+
+        public static ViewModelPresenterMediatorProvider Get(Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
+            int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null) =>
+            new(typeof(object), false, getMediator, wrapperManager) {Priority = priority};
 
         public IViewModelPresenterMediator? TryGetPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
         {
@@ -60,25 +63,5 @@ namespace MugenMvvm.Presenters.Components
                 return _getMediator(presenter, viewModel, mapping, metadata);
             return null;
         }
-
-        #endregion
-
-        #region Methods
-
-        public static ViewModelPresenterMediatorProvider Get<TMediator, TView>(bool isExactlyEqual, Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, TMediator?> getMediator,
-            int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null)
-            where TMediator : ViewModelPresenterMediatorBase<TView>
-            where TView : class =>
-            Get(typeof(TView), isExactlyEqual, getMediator, priority, wrapperManager);
-
-        public static ViewModelPresenterMediatorProvider Get(Type viewType, bool isExactlyEqual, Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
-            int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null) =>
-            new(viewType, isExactlyEqual, getMediator, wrapperManager) {Priority = priority};
-
-        public static ViewModelPresenterMediatorProvider Get(Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
-            int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null) =>
-            new(typeof(object), false, getMediator, wrapperManager) {Priority = priority};
-
-        #endregion
     }
 }

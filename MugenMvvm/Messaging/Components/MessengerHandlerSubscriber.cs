@@ -18,19 +18,13 @@ namespace MugenMvvm.Messaging.Components
 {
     public sealed class MessengerHandlerSubscriber : HashSet<MessengerHandlerSubscriber.HandlerSubscriber>, IMessengerSubscriberComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly IReflectionManager? _reflectionManager;
-
         private static readonly Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?> Cache =
             new(59, InternalEqualityComparer.TypeType);
 
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerDelegate = Handle;
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerRawDelegate = HandleRaw;
 
-        #endregion
-
-        #region Constructors
+        private readonly IReflectionManager? _reflectionManager;
 
         [Preserve(Conditional = true)]
         public MessengerHandlerSubscriber(IReflectionManager? reflectionManager = null)
@@ -39,15 +33,53 @@ namespace MugenMvvm.Messaging.Components
             _reflectionManager = reflectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = MessengerComponentPriority.Subscriber;
 
-        #endregion
+        private static MessengerResult Handle(object subscriber, IMessageContext context, object? handler)
+        {
+            if (subscriber is IWeakReference weakReference)
+                subscriber = weakReference.Target!;
+            if (subscriber == null || handler == null)
+                return MessengerResult.Invalid;
 
-        #region Implementation of interfaces
+            ((Action<object?, object?, IMessageContext>) handler).Invoke(subscriber, context.Message, context);
+            return MessengerResult.Handled;
+        }
+
+        private static MessengerResult HandleRaw(object subscriber, IMessageContext context, object? _)
+        {
+            if (subscriber is IWeakReference weakReference)
+                subscriber = weakReference.Target!;
+            if (subscriber == null)
+                return MessengerResult.Invalid;
+            return ((IMessengerHandler) subscriber).Handle(context);
+        }
+
+        private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
+        {
+            var key = new KeyValuePair<Type, Type>(handlerType, messageType);
+            lock (Cache)
+            {
+                if (!Cache.TryGetValue(key, out var action))
+                {
+                    var interfaces = key.Key.GetInterfaces();
+                    for (var index = 0; index < interfaces.Length; index++)
+                    {
+                        var @interface = interfaces[index];
+                        if (!@interface.IsGenericType || @interface.GetGenericTypeDefinition() != typeof(IMessengerHandler<>))
+                            continue;
+                        var typeMessage = @interface.GetGenericArguments()[0];
+                        var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
+                        if (method != null && typeMessage.IsAssignableFrom(key.Value))
+                            action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionManager);
+                    }
+
+                    Cache[key] = action;
+                }
+
+                return action;
+            }
+        }
 
         public bool TrySubscribe(IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
@@ -127,35 +159,11 @@ namespace MugenMvvm.Messaging.Components
                     return default;
 
                 var array = ItemOrArray.Get<MessengerSubscriberInfo>(Count);
-                int index = 0;
+                var index = 0;
                 foreach (var item in this)
                     array.SetAt(index++, new MessengerSubscriberInfo(item.Subscriber, item.ExecutionMode));
                 return array;
             }
-        }
-
-        #endregion
-
-        #region Methods
-
-        private static MessengerResult Handle(object subscriber, IMessageContext context, object? handler)
-        {
-            if (subscriber is IWeakReference weakReference)
-                subscriber = weakReference.Target!;
-            if (subscriber == null || handler == null)
-                return MessengerResult.Invalid;
-
-            ((Action<object?, object?, IMessageContext>) handler).Invoke(subscriber, context.Message, context);
-            return MessengerResult.Handled;
-        }
-
-        private static MessengerResult HandleRaw(object subscriber, IMessageContext context, object? _)
-        {
-            if (subscriber is IWeakReference weakReference)
-                subscriber = weakReference.Target!;
-            if (subscriber == null)
-                return MessengerResult.Invalid;
-            return ((IMessengerHandler) subscriber).Handle(context);
         }
 
         private new bool Add(HandlerSubscriber subscriber)
@@ -179,57 +187,19 @@ namespace MugenMvvm.Messaging.Components
             lock (this)
             {
                 foreach (var item in this)
-                {
                     if (item.Subscriber == subscriber)
                         return Remove(item);
-                }
             }
 
             return false;
         }
 
-        private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
-        {
-            var key = new KeyValuePair<Type, Type>(handlerType, messageType);
-            lock (Cache)
-            {
-                if (!Cache.TryGetValue(key, out var action))
-                {
-                    var interfaces = key.Key.GetInterfaces();
-                    for (var index = 0; index < interfaces.Length; index++)
-                    {
-                        var @interface = interfaces[index];
-                        if (!@interface.IsGenericType || @interface.GetGenericTypeDefinition() != typeof(IMessengerHandler<>))
-                            continue;
-                        var typeMessage = @interface.GetGenericArguments()[0];
-                        var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
-                        if (method != null && typeMessage.IsAssignableFrom(key.Value))
-                            action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionManager);
-                    }
-
-                    Cache[key] = action;
-                }
-
-                return action;
-            }
-        }
-
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         public readonly struct HandlerSubscriber
         {
-            #region Fields
-
             public readonly ThreadExecutionMode? ExecutionMode;
             public readonly int Hash;
             public readonly object Subscriber;
-
-            #endregion
-
-            #region Constructors
 
             public HandlerSubscriber(object subscriber, int hashCode, ThreadExecutionMode? executionMode)
             {
@@ -238,45 +208,25 @@ namespace MugenMvvm.Messaging.Components
                 ExecutionMode = executionMode;
             }
 
-            #endregion
-
-            #region Methods
-
             public object? GetSubscriber()
             {
                 if (Subscriber is IWeakReference w)
                     return w.Target;
                 return Subscriber;
             }
-
-            #endregion
         }
 
         private sealed class HandlerSubscriberEqualityComparer : IEqualityComparer<HandlerSubscriber>
         {
-            #region Fields
-
             public static readonly IEqualityComparer<HandlerSubscriber> Instance = new HandlerSubscriberEqualityComparer();
-
-            #endregion
-
-            #region Constructors
 
             private HandlerSubscriberEqualityComparer()
             {
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             public bool Equals(HandlerSubscriber x, HandlerSubscriber y) => x.Subscriber == y.Subscriber || x.GetSubscriber() == y.GetSubscriber();
 
             public int GetHashCode(HandlerSubscriber obj) => obj.Hash;
-
-            #endregion
         }
-
-        #endregion
     }
 }

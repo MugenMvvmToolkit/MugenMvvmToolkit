@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public class ValueHolderWeakReferenceProviderCacheTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldCacheWeakReference()
         {
@@ -34,7 +32,5 @@ namespace MugenMvvm.UnitTests.Internal.Components
             target.Value.ShouldEqual(weak);
             invokeCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

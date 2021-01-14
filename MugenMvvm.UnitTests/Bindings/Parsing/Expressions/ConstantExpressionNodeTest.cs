@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -14,28 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class ConstantExpressionNodeTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void StaticFieldsShouldBeCorrect()
-        {
-            ConstantExpressionNode.EmptyString.Type.ShouldEqual(typeof(string));
-            ConstantExpressionNode.EmptyString.Value.ShouldEqual("");
-            ConstantExpressionNode.EmptyString.ConstantExpression!.Value.ShouldEqual("");
-
-            ConstantExpressionNode.True.Type.ShouldEqual(typeof(bool));
-            ConstantExpressionNode.True.Value.ShouldEqual(true);
-            ConstantExpressionNode.True.ConstantExpression!.Value.ShouldEqual(true);
-
-            ConstantExpressionNode.False.Type.ShouldEqual(typeof(bool));
-            ConstantExpressionNode.False.Value.ShouldEqual(false);
-            ConstantExpressionNode.False.ConstantExpression!.Value.ShouldEqual(false);
-
-            ConstantExpressionNode.Null.Type.ShouldEqual(typeof(object));
-            ConstantExpressionNode.Null.Value.ShouldEqual(null);
-            ConstantExpressionNode.Null.ConstantExpression!.Value.ShouldBeNull();
-        }
-
         [Theory]
         [InlineData(null)]
         [InlineData(typeof(string))]
@@ -50,9 +27,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp.ConstantExpression.ShouldEqual(constantExpression);
             exp.ToString().ShouldEqual("\"d\"");
         }
-
-        [Fact]
-        public void ConstructorShouldThrowWrongType() => ShouldThrow<ArgumentException>(() => new ConstantExpressionNode("", typeof(int)));
 
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
@@ -78,6 +52,26 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             result.ShouldEqual(nodes);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
+        {
+            var node = new ConstantExpressionNode("1", null, null, EmptyDictionary);
+            if (equal)
+                node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
+            else
+            {
+                var metadata = new Dictionary<string, object?> {{"k", null}};
+                var updated = (ConstantExpressionNode) node.UpdateMetadata(metadata);
+                updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
+                updated.Metadata.ShouldEqual(metadata);
+                updated.Type.ShouldEqual(node.Type);
+                updated.Value.ShouldEqual(node.Value);
+                updated.ConstantExpression.ShouldEqual(node.ConstantExpression);
+            }
+        }
+
         [Fact]
         public void AcceptShouldCreateNewNode2()
         {
@@ -90,14 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Fact]
-        public void GetTypeShouldUseCache()
-        {
-            var exp = ConstantExpressionNode.Get<string>();
-            exp.Type.ShouldEqual(typeof(string).GetType());
-            exp.ConstantExpression!.Value.ShouldEqual(typeof(string));
-            exp.Value.ShouldEqual(typeof(string));
-            exp.ShouldEqual(ConstantExpressionNode.Get<string>());
-        }
+        public void ConstructorShouldThrowWrongType() => ShouldThrow<ArgumentException>(() => new ConstantExpressionNode("", typeof(int)));
 
         [Fact]
         public void GetBoolShouldUseCache()
@@ -107,20 +94,15 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Fact]
-        public void GetShouldUseCacheBool()
+        public void GetHashCodeEqualsShouldBeValid()
         {
-            ConstantExpressionNode.Get((object) true).ShouldEqual(ConstantExpressionNode.True);
-            ConstantExpressionNode.Get((object) false).ShouldEqual(ConstantExpressionNode.False);
-        }
+            var exp1 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
+            var exp2 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
+            HashCode.Combine(GetBaseHashCode(exp1), exp1.Type, exp1.Value).ShouldEqual(exp1.GetHashCode());
 
-        [Fact]
-        public void GetShouldUseCacheNull()
-        {
-            ConstantExpressionNode.Get(null, typeof(object)).ShouldEqual(ConstantExpressionNode.Null);
-            ConstantExpressionNode.Get(null).ShouldEqual(ConstantExpressionNode.Null);
-            var constantExpressionNode = ConstantExpressionNode.Get(null, typeof(string));
-            constantExpressionNode.Type.ShouldEqual(typeof(string));
-            constantExpressionNode.Value.ShouldEqual(null);
+            exp1.Equals(exp2).ShouldBeTrue();
+            exp1.Equals(exp2.UpdateMetadata(null)).ShouldBeFalse();
+            exp1.Equals(new ConstantExpressionNode("2", metadata: exp1.Metadata)).ShouldBeFalse();
         }
 
         [Fact]
@@ -146,38 +128,51 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             nodes.Count.ShouldEqual(2);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
+        [Fact]
+        public void GetShouldUseCacheBool()
         {
-            var node = new ConstantExpressionNode("1", null, null, EmptyDictionary);
-            if (equal)
-                node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
-            else
-            {
-                var metadata = new Dictionary<string, object?> {{"k", null}};
-                var updated = (ConstantExpressionNode) node.UpdateMetadata(metadata);
-                updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
-                updated.Metadata.ShouldEqual(metadata);
-                updated.Type.ShouldEqual(node.Type);
-                updated.Value.ShouldEqual(node.Value);
-                updated.ConstantExpression.ShouldEqual(node.ConstantExpression);
-            }
+            ConstantExpressionNode.Get((object) true).ShouldEqual(ConstantExpressionNode.True);
+            ConstantExpressionNode.Get((object) false).ShouldEqual(ConstantExpressionNode.False);
         }
 
         [Fact]
-        public void GetHashCodeEqualsShouldBeValid()
+        public void GetShouldUseCacheNull()
         {
-            var exp1 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
-            var exp2 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
-            HashCode.Combine(GetBaseHashCode(exp1), exp1.Type, exp1.Value).ShouldEqual(exp1.GetHashCode());
-
-            exp1.Equals(exp2).ShouldBeTrue();
-            exp1.Equals(exp2.UpdateMetadata(null)).ShouldBeFalse();
-            exp1.Equals(new ConstantExpressionNode("2", metadata: exp1.Metadata)).ShouldBeFalse();
+            ConstantExpressionNode.Get(null, typeof(object)).ShouldEqual(ConstantExpressionNode.Null);
+            ConstantExpressionNode.Get(null).ShouldEqual(ConstantExpressionNode.Null);
+            var constantExpressionNode = ConstantExpressionNode.Get(null, typeof(string));
+            constantExpressionNode.Type.ShouldEqual(typeof(string));
+            constantExpressionNode.Value.ShouldEqual(null);
         }
 
-        #endregion
+        [Fact]
+        public void GetTypeShouldUseCache()
+        {
+            var exp = ConstantExpressionNode.Get<string>();
+            exp.Type.ShouldEqual(typeof(string).GetType());
+            exp.ConstantExpression!.Value.ShouldEqual(typeof(string));
+            exp.Value.ShouldEqual(typeof(string));
+            exp.ShouldEqual(ConstantExpressionNode.Get<string>());
+        }
+
+        [Fact]
+        public void StaticFieldsShouldBeCorrect()
+        {
+            ConstantExpressionNode.EmptyString.Type.ShouldEqual(typeof(string));
+            ConstantExpressionNode.EmptyString.Value.ShouldEqual("");
+            ConstantExpressionNode.EmptyString.ConstantExpression!.Value.ShouldEqual("");
+
+            ConstantExpressionNode.True.Type.ShouldEqual(typeof(bool));
+            ConstantExpressionNode.True.Value.ShouldEqual(true);
+            ConstantExpressionNode.True.ConstantExpression!.Value.ShouldEqual(true);
+
+            ConstantExpressionNode.False.Type.ShouldEqual(typeof(bool));
+            ConstantExpressionNode.False.Value.ShouldEqual(false);
+            ConstantExpressionNode.False.ConstantExpression!.Value.ShouldEqual(false);
+
+            ConstantExpressionNode.Null.Type.ShouldEqual(typeof(object));
+            ConstantExpressionNode.Null.Value.ShouldEqual(null);
+            ConstantExpressionNode.Null.ConstantExpression!.Value.ShouldBeNull();
+        }
     }
 }

@@ -13,15 +13,10 @@ namespace MugenMvvm.Android.Internal
 {
     public sealed class AndroidAttachedValueStorageProvider : AttachedValueStorageProviderBase<Object>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
 
-        #endregion
-
-        #region Methods
-
-        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is Object v && ViewMugenExtensions.IsSupportAttachedValues(v);
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) =>
+            item is Object v && ViewMugenExtensions.IsSupportAttachedValues(v);
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(Object item, bool optional)
         {
@@ -45,19 +40,9 @@ namespace MugenMvvm.Android.Internal
             return false;
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class AttachedValueHolder : Object
         {
-            #region Fields
-
             public readonly SortedList<string, object?> Values;
-
-            #endregion
-
-            #region Constructors
 
             public AttachedValueHolder()
             {
@@ -68,10 +53,6 @@ namespace MugenMvvm.Android.Internal
             {
                 Values = new SortedList<string, object?>(3, StringComparer.Ordinal);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

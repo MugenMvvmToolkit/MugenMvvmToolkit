@@ -13,26 +13,6 @@ namespace MugenMvvm.UnitTests.App
 {
     public class MugenApplicationTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeDefaultValues()
-        {
-            var mugenApplication = new MugenApplication();
-            mugenApplication.Metadata.ShouldNotBeNull();
-            mugenApplication.HasMetadata.ShouldBeFalse();
-            mugenApplication.Components.ShouldNotBeNull();
-            mugenApplication.HasComponents.ShouldBeFalse();
-            var deviceInfo = mugenApplication.PlatformInfo;
-            deviceInfo.ShouldNotBeNull();
-            deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
-            deviceInfo.Type.ShouldEqual(new PlatformType("-"));
-            deviceInfo.ApplicationVersion.ShouldEqual("0.0");
-            deviceInfo.DeviceVersion.ShouldEqual("0.0");
-            deviceInfo.Metadata.ShouldNotBeNull();
-            MugenService.Application.ShouldEqual(mugenApplication);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -97,7 +77,6 @@ namespace MugenMvvm.UnitTests.App
             invokeCount.ShouldEqual(count);
         }
 
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -128,6 +107,24 @@ namespace MugenMvvm.UnitTests.App
         }
 
         [Fact]
+        public void ConstructorShouldInitializeDefaultValues()
+        {
+            var mugenApplication = new MugenApplication();
+            mugenApplication.Metadata.ShouldNotBeNull();
+            mugenApplication.HasMetadata.ShouldBeFalse();
+            mugenApplication.Components.ShouldNotBeNull();
+            mugenApplication.HasComponents.ShouldBeFalse();
+            var deviceInfo = mugenApplication.PlatformInfo;
+            deviceInfo.ShouldNotBeNull();
+            deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
+            deviceInfo.Type.ShouldEqual(new PlatformType("-"));
+            deviceInfo.ApplicationVersion.ShouldEqual("0.0");
+            deviceInfo.DeviceVersion.ShouldEqual("0.0");
+            deviceInfo.Metadata.ShouldNotBeNull();
+            MugenService.Application.ShouldEqual(mugenApplication);
+        }
+
+        [Fact]
         public void InitializeShouldBeHandledByComponent()
         {
             var state = this;
@@ -149,7 +146,5 @@ namespace MugenMvvm.UnitTests.App
             states[0].ShouldEqual(ApplicationLifecycleState.Initializing);
             states[1].ShouldEqual(ApplicationLifecycleState.Initialized);
         }
-
-        #endregion
     }
 }

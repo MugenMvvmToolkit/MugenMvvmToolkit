@@ -12,13 +12,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class IndexerExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Indexer;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
@@ -30,7 +24,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
             return new IndexExpressionNode(context.ConvertTarget(index.Object, index.Indexer), context.Convert(new ItemOrIReadOnlyList<Expression>(index.Arguments)));
         }
-
-        #endregion
     }
 }

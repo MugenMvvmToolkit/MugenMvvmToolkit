@@ -8,15 +8,9 @@ namespace MugenMvvm.Enums
 {
     public static class EnumBase
     {
-        #region Fields
-
         private static readonly Dictionary<Type, Func<IEnum[]>> TypeToEnums = new(InternalEqualityComparer.Type);
         private static readonly Dictionary<Type, Func<string?, IEnum?, bool, IEnum?>> TypeToNameResolver = new(InternalEqualityComparer.Type);
         private static readonly Dictionary<Type, Delegate> TypeToValueResolver = new(InternalEqualityComparer.Type);
-
-        #endregion
-
-        #region Methods
 
         [return: NotNullIfNotNull("defaultValue")]
         public static IEnum? TryGet<TValue>(Type enumType, TValue value, IEnum? defaultValue = null)
@@ -83,29 +77,15 @@ namespace MugenMvvm.Enums
         private static IEnum? TryGetByValue<TEnum, TValue>(this Func<TValue, TEnum?, TEnum?> resolver, TValue value, IEnum? defaultValue) where TEnum : class, IEnum
             => resolver(value, (TEnum?) defaultValue);
 
-        #endregion
-
-        #region Nested types
-
         private static class EnumProvider<TEnum> where TEnum : class, IEnum
         {
-            #region Fields
-
             public static Func<TEnum[]>? Provider;
             public static Func<string?, TEnum?, bool, TEnum?>? NameResolver;
-
-            #endregion
         }
 
         private static class EnumProvider<TEnum, TValue> where TEnum : class, IEnum
         {
-            #region Fields
-
             public static Func<TValue, TEnum?, TEnum?>? ValueResolver;
-
-            #endregion
         }
-
-        #endregion
     }
 }

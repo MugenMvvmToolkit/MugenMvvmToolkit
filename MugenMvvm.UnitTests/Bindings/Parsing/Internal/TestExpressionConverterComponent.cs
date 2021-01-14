@@ -8,18 +8,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public class TestExpressionConverterComponent<T> : IExpressionConverterComponent<T>, IHasPriority where T : class
     {
-        #region Properties
+        public Func<IExpressionConverterContext<T>, T, IExpressionNode?>? TryConvert { get; set; }
 
         public int Priority { get; set; }
 
-        public Func<IExpressionConverterContext<T>, T, IExpressionNode?>? TryConvert { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
         IExpressionNode? IExpressionConverterComponent<T>.TryConvert(IExpressionConverterContext<T> context, T expression) => TryConvert?.Invoke(context, expression);
-
-        #endregion
     }
 }

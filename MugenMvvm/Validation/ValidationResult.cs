@@ -10,17 +10,11 @@ namespace MugenMvvm.Validation
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ValidationResult
     {
-        #region Fields
-
         public static readonly ValidationResult NoErrors = new(null, Default.ReadOnlyDictionary<string, object?>());
 
         public readonly object? RawErrors;
         public readonly string? SingleMemberName;
         public readonly IReadOnlyMetadataContext Metadata;
-
-        #endregion
-
-        #region Constructors
 
         private ValidationResult(string? member, object? errors, IReadOnlyMetadataContext? metadata = null)
         {
@@ -28,10 +22,6 @@ namespace MugenMvvm.Validation
             SingleMemberName = member;
             Metadata = metadata.DefaultIfNull();
         }
-
-        #endregion
-
-        #region Properties
 
         public bool HasResult => RawErrors != null;
 
@@ -46,10 +36,6 @@ namespace MugenMvvm.Validation
         }
 
         public IReadOnlyDictionary<string, object?>? Errors => RawErrors as IReadOnlyDictionary<string, object?>;
-
-        #endregion
-
-        #region Methods
 
         public static ValidationResult Get(IReadOnlyDictionary<string, object?> errors, IReadOnlyMetadataContext? metadata = null)
         {
@@ -74,7 +60,5 @@ namespace MugenMvvm.Validation
                 result[pair.Key] = pair.Value;
             return result;
         }
-
-        #endregion
     }
 }

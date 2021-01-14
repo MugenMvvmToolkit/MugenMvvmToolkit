@@ -16,14 +16,8 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 {
     public class TestViewModelPresenterMediatorBase<T> : ViewModelPresenterMediatorBase<T> where T : class
     {
-        #region Fields
-
         public ThreadExecutionMode? ExecutionModeField;
         public NavigationType NavigationTypeField = NavigationType.Popup;
-
-        #endregion
-
-        #region Constructors
 
         public TestViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null,
             INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
@@ -31,22 +25,15 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
         {
         }
 
-        #endregion
-
-        #region Properties
-
-        public new T? CurrentView => base.CurrentView;
-
         public override NavigationType NavigationType => NavigationTypeField;
 
-        protected override ThreadExecutionMode ExecutionMode => ExecutionModeField ?? base.ExecutionMode;
+        public new T? CurrentView => base.CurrentView;
 
         public Func<INavigationContext, ValueTask<bool>>? ActivateViewHandler { get; set; }
 
         public Func<NavigationMode, IReadOnlyMetadataContext?, INavigationContext>? GetNavigationContextHandler { get; set; }
 
         public Func<bool, IReadOnlyMetadataContext?, IPresenterResult>? GetPresenterResultHandler { get; set; }
-
 
         public Func<INavigationContext, bool>? OnNavigatedHandler { get; set; }
 
@@ -62,16 +49,15 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         public Action<INavigationContext>? CleanupViewHandler { get; set; }
 
-        #endregion
-
-        #region Methods
+        protected override ThreadExecutionMode ExecutionMode => ExecutionModeField ?? base.ExecutionMode;
 
         protected override ValueTask<bool> ActivateViewAsync(T view, INavigationContext context) => ActivateViewHandler?.Invoke(context) ?? base.ActivateViewAsync(view, context);
 
         protected override INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata) =>
             GetNavigationContextHandler?.Invoke(mode, metadata) ?? base.GetNavigationContext(mode, metadata);
 
-        protected override IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) => GetPresenterResultHandler?.Invoke(show, metadata) ?? base.GetPresenterResult(show, metadata);
+        protected override IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) =>
+            GetPresenterResultHandler?.Invoke(show, metadata) ?? base.GetPresenterResult(show, metadata);
 
         protected override void OnNavigated(INavigationContext navigationContext)
         {
@@ -98,7 +84,5 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
         protected override Task CloseViewAsync(T view, INavigationContext context) => CloseViewHandler?.Invoke(context) ?? Default.CompletedTask;
 
         protected override void CleanupView(T view, INavigationContext context) => CleanupViewHandler?.Invoke(context);
-
-        #endregion
     }
 }

@@ -7,7 +7,6 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
@@ -19,8 +18,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingCleanerTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -61,11 +58,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             var disposeComponentCount = 0;
             var components = Enumerable
-                .Range(0, count)
-                .Select(i => new TestComponent<IBinding> {Dispose = () => ++disposeComponentCount})
-                .OfType<IComponent<IBinding>>()
-                .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
-                .ToArray();
+                             .Range(0, count)
+                             .Select(i => new TestComponent<IBinding> {Dispose = () => ++disposeComponentCount})
+                             .OfType<IComponent<IBinding>>()
+                             .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
+                             .ToArray();
 
             var binding = new Binding(target, source);
             binding.State.ShouldEqual(BindingState.Valid);
@@ -171,7 +168,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
             binding.GetComponents<object>().AsList().ShouldBeEmpty();
         }
-
-        #endregion
     }
 }

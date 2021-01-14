@@ -12,14 +12,8 @@ namespace MugenMvvm.Serialization.Components
 {
     public sealed class SurrogateProviderResolver : ISurrogateProviderResolverComponent, IHasPriority, IHasCache
     {
-        #region Fields
-
         private readonly Dictionary<Type, ISurrogateProvider?> _cache;
         private readonly Dictionary<Type, ISurrogateProvider> _surrogateProviders;
-
-        #endregion
-
-        #region Constructors
 
         public SurrogateProviderResolver()
         {
@@ -27,32 +21,7 @@ namespace MugenMvvm.Serialization.Components
             _cache = new Dictionary<Type, ISurrogateProvider?>(InternalEqualityComparer.Type);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = SerializationComponentPriority.SurrogateProvider;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
-        public ISurrogateProvider? TryGetSurrogateProvider(ISerializer serializer, Type type, ISerializationContext? serializationContext)
-        {
-            if (!_cache.TryGetValue(type, out var value))
-            {
-                value = TryGetSurrogateProvider(type);
-                _cache[type] = value;
-            }
-
-            return value;
-        }
-
-        #endregion
-
-        #region Methods
 
         public void Add<TFrom, TSurrogate>(DelegateSurrogateProvider<TFrom, TSurrogate> surrogateProvider)
             where TFrom : class
@@ -77,20 +46,29 @@ namespace MugenMvvm.Serialization.Components
             _cache.Clear();
         }
 
-        private ISurrogateProvider? TryGetSurrogateProvider(Type type)
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
+
+        public ISurrogateProvider? TryGetSurrogateProvider(ISerializer serializer, Type type, ISerializationContext? serializationContext)
         {
-            if (!_surrogateProviders.TryGetValue(type, out var value))
+            if (!_cache.TryGetValue(type, out var value))
             {
-                foreach (var provider in _surrogateProviders)
-                {
-                    if (provider.Key.IsAssignableFrom(type))
-                        return provider.Value;
-                }
+                value = TryGetSurrogateProvider(type);
+                _cache[type] = value;
             }
 
             return value;
         }
 
-        #endregion
+        private ISurrogateProvider? TryGetSurrogateProvider(Type type)
+        {
+            if (!_surrogateProviders.TryGetValue(type, out var value))
+            {
+                foreach (var provider in _surrogateProviders)
+                    if (provider.Key.IsAssignableFrom(type))
+                        return provider.Value;
+            }
+
+            return value;
+        }
     }
 }

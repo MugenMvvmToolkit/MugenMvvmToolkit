@@ -10,15 +10,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public class TestExpressionNode : ExpressionNodeBase<TestExpressionNode>
     {
-        #region Constructors
-
         public TestExpressionNode(IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
         }
-
-        #endregion
-
-        #region Properties
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Parameter;
 
@@ -36,10 +30,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         public int GetHashCodeCount { get; set; }
 
-        #endregion
-
-        #region Methods
-
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => VisitHandler?.Invoke(visitor, metadata) ?? this;
 
         protected override TestExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => CloneHandler?.Invoke(metadata) ?? this;
@@ -55,7 +45,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
             ++GetHashCodeCount;
             return GetHashCodeHandler?.Invoke(this, hashCode, comparer) ?? hashCode;
         }
-
-        #endregion
     }
 }

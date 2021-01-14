@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Internal
 {
     public static class ExpressionDumper
     {
-        #region Methods
-
         public static string ToCode(this IExpressionNode? expression, bool valueToConstant)
         {
             if (expression == null)
@@ -33,7 +31,8 @@ namespace MugenMvvm.UnitTests.Bindings.Internal
                         return $"ConstantExpressionNode.Get({ex.Member})";
                     return $"new MemberExpressionNode({ToCode(ex.Target, valueToConstant)}, \"{ex.Member}\")";
                 case IMethodCallExpressionNode ex:
-                    return $"new MethodCallExpressionNode({ToCode(ex.Target, valueToConstant)}, \"{ex.Method}\", {ToCode(ex.Arguments.AsList(), valueToConstant)}, {ToCode(ex.TypeArgs.AsList())})";
+                    return
+                        $"new MethodCallExpressionNode({ToCode(ex.Target, valueToConstant)}, \"{ex.Method}\", {ToCode(ex.Arguments.AsList(), valueToConstant)}, {ToCode(ex.TypeArgs.AsList())})";
                 case IUnaryExpressionNode ex:
                     return $"new UnaryExpressionNode({ToCode(ex.Token)}, {ToCode(ex.Operand, valueToConstant)})";
                 case IParameterExpressionNode ex:
@@ -91,7 +90,5 @@ namespace MugenMvvm.UnitTests.Bindings.Internal
             stringBuilder.Remove(stringBuilder.Length - 1, 1).Append("}");
             return stringBuilder.ToString();
         }
-
-        #endregion
     }
 }

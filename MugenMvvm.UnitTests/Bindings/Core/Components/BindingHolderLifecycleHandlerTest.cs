@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingHolderLifecycleHandlerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void OnLifecycleChangedShouldBeHandledByBindingHolderComponent()
         {
@@ -63,7 +61,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

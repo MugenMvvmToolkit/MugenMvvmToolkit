@@ -10,40 +10,12 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 {
     public class ObservableCollectionTracker<T> : ICollectionChangedListener<T>
     {
-        #region Constructors
-
         public ObservableCollectionTracker()
         {
             ChangedItems = new List<T>();
         }
 
-        #endregion
-
-        #region Properties
-
         public List<T> ChangedItems { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void OnItemChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
-        {
-        }
-
-        public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
-
-        public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) => OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
-
-        public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
-
-        public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
-
-        public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset(ChangedItems, items);
-
-        #endregion
-
-        #region Methods
 
         private static void OnAddEvent(List<T> items, IList? newItems, int index)
         {
@@ -82,13 +54,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             items[index] = (T) newItems[0]!;
         }
 
-        private void OnReset(List<T> items, IEnumerable<T>? resetItems)
-        {
-            items.Clear();
-            if (resetItems != null)
-                items.AddRange(resetItems);
-        }
-
         public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
         {
             Should.NotBeNull(sender, nameof(sender));
@@ -116,6 +81,25 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             }
         }
 
-        #endregion
+        public void OnItemChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
+        {
+        }
+
+        public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
+
+        public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) => OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
+
+        public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
+
+        public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
+
+        public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset(ChangedItems, items);
+
+        private void OnReset(List<T> items, IEnumerable<T>? resetItems)
+        {
+            items.Clear();
+            if (resetItems != null)
+                items.AddRange(resetItems);
+        }
     }
 }

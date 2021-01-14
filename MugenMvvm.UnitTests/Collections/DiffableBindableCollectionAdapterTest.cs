@@ -12,49 +12,12 @@ namespace MugenMvvm.UnitTests.Collections
 {
     public class DiffableBindableCollectionAdapterTest : BindableCollectionAdapterTest
     {
-        #region Fields
-
-        private readonly ITestOutputHelper _outputHelper;
-
-        #endregion
-
-        #region Constructors
-
         public DiffableBindableCollectionAdapterTest(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }
 
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void ShouldUseDiffableComparer()
-        {
-            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
-            var comparer = new TestDiffableEqualityComparer
-            {
-                AreItemsTheSame = (x1, x2) => true
-            };
-
-            var items = new object[] {1, 2, 3, 4};
-            var resetItems = new object[] {4, 3, 2, 1};
-
-            var observableCollection = new SynchronizedObservableCollection<object?>(items);
-            var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = (DiffableBindableCollectionAdapter) GetCollection(adapterCollection);
-            collectionAdapter.DiffableComparer = comparer;
-            var tracker = new ObservableCollectionTracker<object?>();
-            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
-            collectionAdapter.Collection = observableCollection;
-
-            observableCollection.Reset(resetItems);
-            tracker.ChangedItems.ShouldEqual(items);
-            collectionAdapter.ShouldEqual(items);
-        }
+        private readonly ITestOutputHelper _outputHelper;
 
         [Theory]
         [InlineData(100, true)]
@@ -95,6 +58,31 @@ namespace MugenMvvm.UnitTests.Collections
 
         protected override BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new DiffableBindableCollectionAdapter(source);
 
-        #endregion
+        [Fact]
+        public void ShouldUseDiffableComparer()
+        {
+            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
+            using var t = MugenService.AddComponent(dispatcherComponent);
+
+            var comparer = new TestDiffableEqualityComparer
+            {
+                AreItemsTheSame = (x1, x2) => true
+            };
+
+            var items = new object[] {1, 2, 3, 4};
+            var resetItems = new object[] {4, 3, 2, 1};
+
+            var observableCollection = new SynchronizedObservableCollection<object?>(items);
+            var adapterCollection = new ObservableCollection<object?>();
+            var collectionAdapter = (DiffableBindableCollectionAdapter) GetCollection(adapterCollection);
+            collectionAdapter.DiffableComparer = comparer;
+            var tracker = new ObservableCollectionTracker<object?>();
+            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
+            collectionAdapter.Collection = observableCollection;
+
+            observableCollection.Reset(resetItems);
+            tracker.ChangedItems.ShouldEqual(items);
+            collectionAdapter.ShouldEqual(items);
+        }
     }
 }

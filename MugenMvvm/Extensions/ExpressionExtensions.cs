@@ -11,8 +11,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Fields
-
         public static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
         public static readonly ConstantExpression NullArrayConstantExpression = Expression.Constant(null, typeof(object[]));
         public static readonly ConstantExpression TrueConstantExpression = Expression.Constant(BoxingExtensions.TrueObject);
@@ -26,14 +24,11 @@ namespace MugenMvvm.Extensions
         };
 
         private static readonly Expression ItemOrArrayListFieldExpression =
-            Expression.Field(GetParameterExpression<ItemOrArray<object>>(), typeof(ItemOrArray<object>).GetFieldOrThrow(nameof(ItemOrArray<object>.List), BindingFlagsEx.InstancePublic));
+            Expression.Field(GetParameterExpression<ItemOrArray<object>>(),
+                typeof(ItemOrArray<object>).GetFieldOrThrow(nameof(ItemOrArray<object>.List), BindingFlagsEx.InstancePublic));
 
         private static readonly Expression[] ArrayIndexesCache = GenerateArrayIndexes(10);
         private static readonly Expression[] ItemOrArrayIndexesCache = GenerateItemOrArrayIndexes(10);
-
-        #endregion
-
-        #region Methods
 
         [return: NotNullIfNotNull("expression")]
         public static Expression? ConvertIfNeed(this Expression? expression, Type? type, bool exactly)
@@ -115,30 +110,10 @@ namespace MugenMvvm.Extensions
             return expressions;
         }
 
-        #endregion
-
-        #region Nested types
-
-        private static class ParameterExpressionCache<TType>
-        {
-            #region Fields
-
-            public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
-            public static readonly ParameterExpression[] Parameters = {Parameter};
-
-            #endregion
-        }
-
         internal static class IntCache
         {
-            #region Fields
-
             public static readonly ConstantExpression[] Positive = GenerateItems(BoxingExtensions.IntCache.Positive);
             public static readonly ConstantExpression[] Negative = GenerateItems(BoxingExtensions.IntCache.Negative);
-
-            #endregion
-
-            #region Methods
 
             private static ConstantExpression[] GenerateItems(object[] values)
             {
@@ -147,10 +122,12 @@ namespace MugenMvvm.Extensions
                     items[i] = Expression.Constant(values[i]);
                 return items;
             }
-
-            #endregion
         }
 
-        #endregion
+        private static class ParameterExpressionCache<TType>
+        {
+            public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
+            public static readonly ParameterExpression[] Parameters = {Parameter};
+        }
     }
 }

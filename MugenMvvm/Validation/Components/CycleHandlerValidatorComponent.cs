@@ -16,24 +16,14 @@ namespace MugenMvvm.Validation.Components
 {
     public sealed class CycleHandlerValidatorComponent : ComponentDecoratorBase<IValidator, IValidatorComponent>, IValidatorComponent
     {
-        #region Fields
-
         private readonly HashSet<string> _validatingMembers;
         private readonly Dictionary<string, CancellationTokenSource> _validatingTasks;
-
-        #endregion
-
-        #region Constructors
 
         public CycleHandlerValidatorComponent(int priority = ValidationComponentPriority.CycleHandlerDecorator) : base(priority)
         {
             _validatingTasks = new Dictionary<string, CancellationTokenSource>(3, StringComparer.Ordinal);
             _validatingMembers = new HashSet<string>(StringComparer.Ordinal);
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public bool HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
         {
@@ -42,7 +32,8 @@ namespace MugenMvvm.Validation.Components
             return Components.HasErrors(validator, memberName, metadata);
         }
 
-        public ItemOrIReadOnlyList<object> TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => Components.TryGetErrors(validator, memberName, metadata);
+        public ItemOrIReadOnlyList<object> TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) =>
+            Components.TryGetErrors(validator, memberName, metadata);
 
         public IReadOnlyDictionary<string, object>? TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata) => Components.TryGetErrors(validator, metadata);
 
@@ -98,10 +89,6 @@ namespace MugenMvvm.Validation.Components
 
         public void ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => Components.TryGetErrors(validator, memberName, metadata);
 
-        #endregion
-
-        #region Methods
-
         private void OnAsyncValidationCompleted(string member, CancellationTokenSource cts, IReadOnlyMetadataContext? metadata)
         {
             bool notify;
@@ -113,7 +100,5 @@ namespace MugenMvvm.Validation.Components
             if (notify)
                 OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, null, member, metadata);
         }
-
-        #endregion
     }
 }

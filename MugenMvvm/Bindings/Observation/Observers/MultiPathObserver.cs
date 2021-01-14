@@ -11,26 +11,14 @@ namespace MugenMvvm.Bindings.Observation.Observers
 {
     public class MultiPathObserver : MultiPathObserverBase
     {
-        #region Fields
-
         private readonly ActionToken[] _listeners;
         private IEventListener? _lastMemberListener;
-
-        #endregion
-
-        #region Constructors
 
         public MultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
             _listeners = new ActionToken[path.Members.Count];
         }
-
-        #endregion
-
-        #region Methods
-
-        protected IEventListener GetLastMemberListener() => _lastMemberListener ??= new LastMemberListener(this.ToWeakReference());
 
         protected override void OnListenersAdded()
         {
@@ -43,7 +31,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
             }
         }
 
-        protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata) => _listeners[index] = member.TryObserve(target, this, metadata);
+        protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata) =>
+            _listeners[index] = member.TryObserve(target, this, metadata);
 
         protected override void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
@@ -66,36 +55,20 @@ namespace MugenMvvm.Bindings.Observation.Observers
             UnsubscribeLastMember();
         }
 
-        #endregion
-
-        #region Nested types
+        protected IEventListener GetLastMemberListener() => _lastMemberListener ??= new LastMemberListener(this.ToWeakReference());
 
         private sealed class LastMemberListener : IWeakEventListener
         {
-            #region Fields
-
             private readonly IWeakReference _observer;
-
-            #endregion
-
-            #region Constructors
 
             public LastMemberListener(IWeakReference observer)
             {
                 _observer = observer;
             }
 
-            #endregion
-
-            #region Properties
-
-            public bool IsAlive => _observer.IsAlive;
-
             public bool IsWeak => true;
 
-            #endregion
-
-            #region Implementation of interfaces
+            public bool IsAlive => _observer.IsAlive;
 
             public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
@@ -105,10 +78,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 observer.OnLastMemberChanged();
                 return true;
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

@@ -7,23 +7,7 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class DelayBindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.ParameterPostInitializer;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
-        {
-            TryAddDelay(context, BindingParameterNameConstant.Delay);
-            TryAddDelay(context, BindingParameterNameConstant.TargetDelay);
-        }
-
-        #endregion
-
-        #region Methods
 
         private static void TryAddDelay(IBindingExpressionInitializerContext context, string parameterName)
         {
@@ -40,6 +24,10 @@ namespace MugenMvvm.Bindings.Core.Components
             }
         }
 
-        #endregion
+        public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
+        {
+            TryAddDelay(context, BindingParameterNameConstant.Delay);
+            TryAddDelay(context, BindingParameterNameConstant.TargetDelay);
+        }
     }
 }

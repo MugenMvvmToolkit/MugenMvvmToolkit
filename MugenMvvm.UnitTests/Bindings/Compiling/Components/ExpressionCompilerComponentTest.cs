@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using MugenMvvm.Bindings.Compiling;
+﻿using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Compiling.Components;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
@@ -11,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class ExpressionCompilerComponentTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryCompileShouldReturnCompiledExpressionWithComponents()
         {
@@ -33,7 +30,5 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             compiledExpression = (CompiledExpression) component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;
             compiledExpression.ExpressionBuilders.ShouldBeEmpty();
         }
-
-        #endregion
     }
 }

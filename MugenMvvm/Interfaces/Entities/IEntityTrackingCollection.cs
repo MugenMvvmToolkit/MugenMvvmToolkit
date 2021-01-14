@@ -5,7 +5,6 @@ using MugenMvvm.Entities;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Entities
 {

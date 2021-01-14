@@ -5,25 +5,15 @@ namespace MugenMvvm.Requests
 {
     public class ViewModelViewRequest
     {
-        #region Constructors
-
         public ViewModelViewRequest(IViewModelBase? viewModel, object? view)
         {
             ViewModel = viewModel;
             View = view;
         }
 
-        #endregion
-
-        #region Properties
-
         public object? View { get; set; }
 
         public IViewModelBase? ViewModel { get; set; }
-
-        #endregion
-
-        #region Methods
 
         [return: NotNullIfNotNull("viewModel")]
         [return: NotNullIfNotNull("view")]
@@ -48,7 +38,5 @@ namespace MugenMvvm.Requests
 
             return GetRequestOrRaw(viewModel, view);
         }
-
-        #endregion
     }
 }

@@ -12,17 +12,11 @@ namespace MugenMvvm.ViewModels
 {
     public sealed class ViewModelManager : ComponentOwnerBase<IViewModelManager>, IViewModelManager
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public ViewModelManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public bool IsInState(IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null)
             => GetComponents<ILifecycleTrackerComponent<ViewModelLifecycleState>>(metadata).IsInState(this, viewModel, state, metadata);
@@ -33,8 +27,7 @@ namespace MugenMvvm.ViewModels
         public object? TryGetService(IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(this, viewModel, request, metadata);
 
-        public IViewModelBase? TryGetViewModel(object request, IReadOnlyMetadataContext? metadata = null) => GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(this, request, metadata);
-
-        #endregion
+        public IViewModelBase? TryGetViewModel(object request, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(this, request, metadata);
     }
 }

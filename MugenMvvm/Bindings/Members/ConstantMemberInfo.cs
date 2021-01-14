@@ -11,19 +11,12 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class ConstantMemberInfo : IAccessorMemberInfo
     {
-        #region Fields
-
-        private readonly object? _result;
-
         private static readonly object TargetObj = new();
-
         public static readonly ConstantMemberInfo Target = new("", TargetObj, false);
         public static readonly ConstantMemberInfo Null = new("", null, false);
         public static readonly ConstantMemberInfo Unset = new("", BindingMetadata.UnsetValue, false);
 
-        #endregion
-
-        #region Constructors
+        private readonly object? _result;
 
         public ConstantMemberInfo(string name, object? result, bool canWrite)
         {
@@ -33,9 +26,9 @@ namespace MugenMvvm.Bindings.Members
             CanWrite = canWrite;
         }
 
-        #endregion
+        public bool CanRead => true;
 
-        #region Properties
+        public bool CanWrite { get; }
 
         public string Name { get; }
 
@@ -49,16 +42,6 @@ namespace MugenMvvm.Bindings.Members
 
         public EnumFlags<MemberFlags> AccessModifiers => MemberFlags.Public | MemberFlags.Dynamic;
 
-        public bool CanRead => true;
-
-        public bool CanWrite { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null) => default;
-
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => TargetObj == _result ? target : _result;
 
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
@@ -67,6 +50,6 @@ namespace MugenMvvm.Bindings.Members
                 ExceptionManager.ThrowBindingMemberMustBeWritable(this);
         }
 
-        #endregion
+        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null) => default;
     }
 }

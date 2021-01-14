@@ -9,10 +9,6 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 {
     public class TestViewPresenter : IViewPresenter
     {
-        #region Properties
-
-        public NavigationType NavigationType { get; set; } = NavigationType.Alert;
-
         public Func<IViewModelPresenterMediator, object?, INavigationContext, object?>? TryGetViewRequest { get; set; }
 
         public Action<IViewModelPresenterMediator, object, INavigationContext>? Initialize { get; set; }
@@ -25,9 +21,7 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         public Func<IViewModelPresenterMediator, object, INavigationContext, Task>? Close { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public NavigationType NavigationType { get; set; } = NavigationType.Alert;
 
         object? IViewPresenter.TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext)
             => TryGetViewRequest?.Invoke(mediator, view, navigationContext);
@@ -46,7 +40,5 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
 
         Task IViewPresenter.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
             => Close?.Invoke(mediator, view, navigationContext) ?? Default.CompletedTask;
-
-        #endregion
     }
 }

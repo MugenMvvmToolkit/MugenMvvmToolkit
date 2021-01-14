@@ -11,19 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class PropertyAccessorMemberInfoTest : UnitTestBase
     {
-        #region Properties
-
-        public string? Property1 { get; set; }
-
-        public int Property2 { get; set; }
-
-        public string ReadOnlyProperty => nameof(ReadOnlyProperty);
-
-        public string WriteOnlyProperty
-        {
-            set { ; }
-        }
-
         public static string? Property1Static { get; set; }
 
         public static int Property2Static { get; set; }
@@ -35,9 +22,16 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             set { ; }
         }
 
-        #endregion
+        public string? Property1 { get; set; }
 
-        #region Methods
+        public int Property2 { get; set; }
+
+        public string ReadOnlyProperty => nameof(ReadOnlyProperty);
+
+        public string WriteOnlyProperty
+        {
+            set { ; }
+        }
 
         [Theory]
         [InlineData(nameof(Property1))]
@@ -123,7 +117,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }
         }
 
-
         [Theory]
         [InlineData(nameof(Property1Static))]
         [InlineData(nameof(Property2Static))]
@@ -207,7 +200,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 Property2Static.ShouldEqual(int.MaxValue);
             }
         }
-
-        #endregion
     }
 }

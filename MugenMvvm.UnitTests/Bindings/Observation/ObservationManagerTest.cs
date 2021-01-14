@@ -15,15 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class ObservationManagerTest : ComponentOwnerTestBase<IObservationManager>
     {
-        #region Methods
-
-        [Fact]
-        public void GetMemberPathShouldThrowEmpty()
-        {
-            var provider = new ObservationManager();
-            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPath(this, DefaultMetadata));
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -54,13 +45,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
             provider.GetMemberPath(request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
-        }
-
-        [Fact]
-        public void GetMemberObserverShouldReturnEmptyObserver()
-        {
-            var provider = new ObservationManager();
-            provider.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -95,13 +79,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
             provider.TryGetMemberObserver(type, request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
-        }
-
-        [Fact]
-        public void GetMemberPathObserverShouldThrowEmpty()
-        {
-            var provider = new ObservationManager();
-            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPathObserver(this, this, DefaultMetadata));
         }
 
         [Theory]
@@ -140,6 +117,25 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
         protected override IObservationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ObservationManager(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void GetMemberObserverShouldReturnEmptyObserver()
+        {
+            var provider = new ObservationManager();
+            provider.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void GetMemberPathObserverShouldThrowEmpty()
+        {
+            var provider = new ObservationManager();
+            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPathObserver(this, this, DefaultMetadata));
+        }
+
+        [Fact]
+        public void GetMemberPathShouldThrowEmpty()
+        {
+            var provider = new ObservationManager();
+            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPath(this, DefaultMetadata));
+        }
     }
 }

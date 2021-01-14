@@ -12,27 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class IndexerExpressionConverterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotIndexExpression()
-        {
-            var component = new IndexerExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryConvertShouldConvertResourceIndexer()
-        {
-            var target = new TestResourceExtensionClass();
-            var propertyInfo = target.GetType().GetProperties().Single(info => info.GetIndexParameters().FirstOrDefault()?.ParameterType == typeof(int));
-            var ctx = new ExpressionConverterContext<Expression>();
-            var component = new IndexerExpressionConverter();
-            var expressionNode = component.TryConvert(ctx, Expression.MakeIndex(Expression.Constant(target), propertyInfo, new[] {Expression.Constant(1)}));
-            expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.IndexerResource)));
-        }
-
         [Fact]
         public void TryConvertShouldConvertIndexer()
         {
@@ -53,6 +32,17 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
         }
 
         [Fact]
+        public void TryConvertShouldConvertResourceIndexer()
+        {
+            var target = new TestResourceExtensionClass();
+            var propertyInfo = target.GetType().GetProperties().Single(info => info.GetIndexParameters().FirstOrDefault()?.ParameterType == typeof(int));
+            var ctx = new ExpressionConverterContext<Expression>();
+            var component = new IndexerExpressionConverter();
+            var expressionNode = component.TryConvert(ctx, Expression.MakeIndex(Expression.Constant(target), propertyInfo, new[] {Expression.Constant(1)}));
+            expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.IndexerResource)));
+        }
+
+        [Fact]
         public void TryConvertShouldConvertTargetResourceIndexer()
         {
             var target = new TestResourceExtensionClass();
@@ -63,13 +53,20 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var component = new IndexerExpressionConverter();
             var expressionNode = component.TryConvert(ctx, Expression.MakeIndex(Expression.Constant(target), propertyInfo, new[] {argExp}));
 
-            var expectedResult = new IndexExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.ClassResource)), new[]
-            {
-                ConstantExpressionNode.Null
-            });
+            var expectedResult = new IndexExpressionNode(
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.ClassResource)), new[]
+                {
+                    ConstantExpressionNode.Null
+                });
             expressionNode.ShouldEqual(expectedResult);
         }
 
-        #endregion
+        [Fact]
+        public void TryConvertShouldIgnoreNotIndexExpression()
+        {
+            var component = new IndexerExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
+        }
     }
 }

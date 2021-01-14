@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationContextProviderTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryGetNavigationContextShouldReturnNavigationContext()
         {
@@ -30,7 +28,5 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             context.NavigationMode.ShouldEqual(mode);
             context.Metadata.ShouldEqual(metadata);
         }
-
-        #endregion
     }
 }

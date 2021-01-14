@@ -13,16 +13,11 @@ namespace MugenMvvm.Validation
     [StructLayout(LayoutKind.Auto)]
     public ref struct ValidationRuleBuilder<T> where T : class
     {
-        #region Fields
-
         private ItemOrListEditor<IValidationRule> _rules;
 
-        #endregion
-
-        #region Methods
-
         public ValidationRuleBuilder<T> AddValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
-            Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
+            Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
+            ICollection<string>? dependencyMembers = null)
         {
             _rules.Add(new Rule<TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
             return this;
@@ -38,14 +33,8 @@ namespace MugenMvvm.Validation
 
         public ItemOrIReadOnlyList<IValidationRule> Build() => _rules.ToItemOrList();
 
-        #endregion
-
-        #region Nested types
-
         private sealed class Rule<TValue, TState> : IValidationRule
         {
-            #region Fields
-
             private readonly Action<Task<object?>, object?>? _addErrorDelegate;
             private readonly Func<T, TState, IReadOnlyMetadataContext?, bool>? _condition;
             private readonly ICollection<string>? _dependencyMembers;
@@ -53,10 +42,6 @@ namespace MugenMvvm.Validation
             private readonly string _memberName;
             private readonly TState _state;
             private readonly Delegate _validator;
-
-            #endregion
-
-            #region Constructors
 
             public Rule(string memberName, Func<T, TValue> memberAccessor,
                 Delegate validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition, ICollection<string>? dependencyMembers, TState state)
@@ -74,15 +59,7 @@ namespace MugenMvvm.Validation
                     _addErrorDelegate = AddError;
             }
 
-            #endregion
-
-            #region Properties
-
             public bool IsAsync => _validator is Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>;
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public Task ValidateAsync(object t, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
@@ -99,13 +76,9 @@ namespace MugenMvvm.Validation
                 }
 
                 return ((Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>) _validator)
-                    .Invoke(target, _memberAccessor(target), _state, cancellationToken, metadata)
-                    .ContinueWith(_addErrorDelegate!, errors, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+                       .Invoke(target, _memberAccessor(target), _state, cancellationToken, metadata)
+                       .ContinueWith(_addErrorDelegate!, errors, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             }
-
-            #endregion
-
-            #region Methods
 
             private void AddError(Task<object?> task, object? state) => AddError((IDictionary<string, object?>) state!, task.Result);
 
@@ -130,10 +103,6 @@ namespace MugenMvvm.Validation
                     }
                 }
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

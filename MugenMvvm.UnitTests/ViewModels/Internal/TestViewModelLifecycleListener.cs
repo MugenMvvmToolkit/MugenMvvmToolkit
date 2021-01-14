@@ -10,30 +10,16 @@ namespace MugenMvvm.UnitTests.ViewModels.Internal
 {
     public class TestViewModelLifecycleListener : IViewModelLifecycleListener, IHasPriority
     {
-        #region Fields
-
         private readonly IViewModelManager? _viewModelManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestViewModelLifecycleListener(IViewModelManager? viewModelManager = null)
         {
             _viewModelManager = viewModelManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public Action<IViewModelBase, ViewModelLifecycleState, object?, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         void IViewModelLifecycleListener.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
@@ -41,7 +27,5 @@ namespace MugenMvvm.UnitTests.ViewModels.Internal
             _viewModelManager?.ShouldEqual(viewModelManager);
             OnLifecycleChanged?.Invoke(viewModel, lifecycleState, state, metadata);
         }
-
-        #endregion
     }
 }

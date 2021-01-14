@@ -11,16 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class LambdaExpressionConverterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotLambdaExpression()
-        {
-            var component = new LambdaExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
-
         [Fact]
         public void TryConvertShouldConvertLambdaExpression()
         {
@@ -54,6 +44,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             ctx.TryGetExpression(p2).ShouldBeNull();
         }
 
-        #endregion
+        [Fact]
+        public void TryConvertShouldIgnoreNotLambdaExpression()
+        {
+            var component = new LambdaExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MugenMvvm.Busy;
@@ -14,8 +13,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         public static Task WhenAll(this ItemOrListEditor<Task> editor)
         {
             if (editor.Count == 0)
@@ -27,8 +24,8 @@ namespace MugenMvvm.Extensions
 
         public static async ValueTask<bool> WhenAll(this ItemOrListEditor<INavigationCallback> callbacks, bool handleCancel, bool isSerializable)
         {
-            bool result = false;
-            for (int i = 0; i < callbacks.Count; i++)
+            var result = false;
+            for (var i = 0; i < callbacks.Count; i++)
             {
                 var callback = callbacks[i];
                 if (callback == null)
@@ -56,7 +53,8 @@ namespace MugenMvvm.Extensions
             return task.WithBusyIndicator(busyManager.Service, message, millisecondsDelay, metadata);
         }
 
-        public static TTask WithBusyIndicator<TTask>(this TTask task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0, IReadOnlyMetadataContext? metadata = null)
+        public static TTask WithBusyIndicator<TTask>(this TTask task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0,
+            IReadOnlyMetadataContext? metadata = null)
             where TTask : Task
         {
             Should.NotBeNull(task, nameof(task));
@@ -70,13 +68,15 @@ namespace MugenMvvm.Extensions
             return task;
         }
 
-        public static ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IHasService<IBusyManager> busyManager, object? message = null, int millisecondsDelay = 0, IReadOnlyMetadataContext? metadata = null)
+        public static ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IHasService<IBusyManager> busyManager, object? message = null, int millisecondsDelay = 0,
+            IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
             return task.WithBusyIndicator(busyManager.Service, message, millisecondsDelay, metadata);
         }
 
-        public static async ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0, IReadOnlyMetadataContext? metadata = null)
+        public static async ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0,
+            IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
             if (task.IsCompleted)
@@ -99,7 +99,8 @@ namespace MugenMvvm.Extensions
             return Task.FromCanceled<T>(canceledException.CancellationToken);
         }
 
-        public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, ValueTask<TResult> task, TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
+        public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, ValueTask<TResult> task,
+            TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
         {
             Should.NotBeNull(tcs, nameof(tcs));
             if (task.IsCompleted)
@@ -117,7 +118,8 @@ namespace MugenMvvm.Extensions
                 tcs.TrySetFromTask(task.AsTask(), continuationOptions);
         }
 
-        public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task, TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
+        public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task,
+            TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
         {
             Should.NotBeNull(tcs, nameof(tcs));
             Should.NotBeNull(task, nameof(task));
@@ -179,7 +181,5 @@ namespace MugenMvvm.Extensions
                 return e;
             }
         }
-
-        #endregion
     }
 }

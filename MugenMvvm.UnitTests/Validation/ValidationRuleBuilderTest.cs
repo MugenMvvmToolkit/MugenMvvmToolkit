@@ -12,44 +12,9 @@ namespace MugenMvvm.UnitTests.Validation
 {
     public class ValidationRuleBuilderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void AddValidatorShouldUseDelegate()
+        private sealed class ValidationModel
         {
-            var memberName = "Test";
-            var target = new object();
-            var value = "";
-            var error = "error";
-            var invokeCount = 0;
-            var builder = new ValidationRuleBuilder<object>();
-            var rule = builder.AddValidator(memberName, o => value, this, (o, s, state, m) =>
-            {
-                ++invokeCount;
-                o.ShouldEqual(target);
-                s.ShouldEqual(value);
-                state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
-                return error;
-            }).Build().Item!;
-            rule.IsAsync.ShouldBeFalse();
-
-            var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            invokeCount.ShouldEqual(1);
-            errors.Count.ShouldEqual(1);
-            errors[memberName].ShouldEqual(error);
-
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            invokeCount.ShouldEqual(2);
-            errors.Count.ShouldEqual(1);
-            ((IEnumerable<object>) errors[memberName]!).ShouldEqual(new[] {error, error});
-
-            error = null;
-            errors.Clear();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            invokeCount.ShouldEqual(3);
-            errors.Count.ShouldEqual(0);
+            public string? Property { get; set; }
         }
 
         [Fact]
@@ -107,9 +72,8 @@ namespace MugenMvvm.UnitTests.Validation
         }
 
         [Fact]
-        public void ValidatorShouldUseDependencyMembers()
+        public void AddValidatorShouldUseDelegate()
         {
-            var dMember = "DM";
             var memberName = "Test";
             var target = new object();
             var value = "";
@@ -124,7 +88,8 @@ namespace MugenMvvm.UnitTests.Validation
                 state.ShouldEqual(this);
                 m.ShouldEqual(DefaultMetadata);
                 return error;
-            }, null, new[] {dMember}).Build().Item!;
+            }).Build().Item!;
+            rule.IsAsync.ShouldBeFalse();
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
@@ -132,179 +97,15 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(1);
             errors[memberName].ShouldEqual(error);
 
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, dMember, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(2);
             errors.Count.ShouldEqual(1);
-            errors[memberName].ShouldEqual(error);
+            ((IEnumerable<object>) errors[memberName]!).ShouldEqual(new[] {error, error});
 
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, "", errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            invokeCount.ShouldEqual(3);
-            errors.Count.ShouldEqual(1);
-            errors[memberName].ShouldEqual(error);
-
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, "e", errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            invokeCount.ShouldEqual(3);
-            errors.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void ValidatorShouldUseCondition()
-        {
-            var memberName = "Test";
-            var target = new object();
-            var value = "";
-            var error = "error";
-            var invokeCount = 0;
-            var canValidate = true;
-            var builder = new ValidationRuleBuilder<object>();
-            var rule = builder.AddValidator(memberName, o => value, this, (o, s, state, m) =>
-            {
-                ++invokeCount;
-                o.ShouldEqual(target);
-                s.ShouldEqual(value);
-                state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
-                return error;
-            }, (o, state, m) =>
-            {
-                o.ShouldEqual(target);
-                state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
-                return canValidate;
-            }).Build().Item!;
-
-            var errors = new Dictionary<string, object?>();
+            error = null;
+            errors.Clear();
             rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            invokeCount.ShouldEqual(1);
-            errors.Count.ShouldEqual(1);
-            errors[memberName].ShouldEqual(error);
-
-            canValidate = false;
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            invokeCount.ShouldEqual(1);
-            errors.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void ForExtensionShouldBeCorrect1()
-        {
-            var validationModel = new ValidationModel {Property = "G"};
-            var builder = new ValidationRuleBuilder<ValidationModel>();
-            var memberBuilder = builder.For(model => model.Property);
-            memberBuilder.MemberName.ShouldEqual(nameof(ValidationModel.Property));
-            memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
-        }
-
-        [Fact]
-        public void ForExtensionShouldBeCorrect2()
-        {
-            var validationModel = new ValidationModel {Property = "G"};
-            var builder = new ValidationRuleBuilder<ValidationModel>();
-            var memberBuilder = builder.For(nameof(validationModel.Property), model => model.Property);
-            memberBuilder.MemberName.ShouldEqual(nameof(ValidationModel.Property));
-            memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
-        }
-
-        [Fact]
-        public void NotNullExtensionShouldBeCorrect()
-        {
-            var error = "error";
-            var propertyName = nameof(ValidationModel.Property);
-            var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotNull(error).Build().Item!;
-
-            var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(1);
-            errors[propertyName].ShouldEqual(error);
-
-            validationModel.Property = "test";
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void NullExtensionShouldBeCorrect()
-        {
-            var error = "error";
-            var propertyName = nameof(ValidationModel.Property);
-            var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Null(error).Build().Item!;
-
-            validationModel.Property = "test";
-            var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(1);
-            errors[propertyName].ShouldEqual(error);
-
-            validationModel.Property = null;
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void NotEmptyExtensionShouldBeCorrect1()
-        {
-            var error = "error";
-            var propertyName = nameof(ValidationModel.Property);
-            var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotEmpty(error).Build().Item!;
-
-            validationModel.Property = "";
-            var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(1);
-            errors[propertyName].ShouldEqual(error);
-
-            validationModel.Property = "test";
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void NotEmptyExtensionShouldBeCorrect2()
-        {
-            var error = "error";
-            var propertyName = nameof(ValidationModel.Property);
-            var value = 0;
-            var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
-
-            var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(1);
-            errors[propertyName].ShouldEqual(error);
-
-            value = 1;
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void NotEmptyExtensionShouldBeCorrect3()
-        {
-            var error = "error";
-            var propertyName = nameof(ValidationModel.Property);
-            var value = new string[0];
-            var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
-
-            var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(1);
-            errors[propertyName].ShouldEqual(error);
-
-            value = new[] {""};
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            invokeCount.ShouldEqual(3);
             errors.Count.ShouldEqual(0);
         }
 
@@ -369,6 +170,26 @@ namespace MugenMvvm.UnitTests.Validation
         }
 
         [Fact]
+        public void ForExtensionShouldBeCorrect1()
+        {
+            var validationModel = new ValidationModel {Property = "G"};
+            var builder = new ValidationRuleBuilder<ValidationModel>();
+            var memberBuilder = builder.For(model => model.Property);
+            memberBuilder.MemberName.ShouldEqual(nameof(ValidationModel.Property));
+            memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
+        }
+
+        [Fact]
+        public void ForExtensionShouldBeCorrect2()
+        {
+            var validationModel = new ValidationModel {Property = "G"};
+            var builder = new ValidationRuleBuilder<ValidationModel>();
+            var memberBuilder = builder.For(nameof(validationModel.Property), model => model.Property);
+            memberBuilder.MemberName.ShouldEqual(nameof(ValidationModel.Property));
+            memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
+        }
+
+        [Fact]
         public void LengthExtensionShouldBeCorrect()
         {
             var error = "error";
@@ -394,48 +215,6 @@ namespace MugenMvvm.UnitTests.Validation
         }
 
         [Fact]
-        public void MustExtensionShouldBeCorrect()
-        {
-            var dpMember = "d";
-            var error = "error";
-            var canValidate = true;
-            var propertyName = nameof(ValidationModel.Property);
-            var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>()
-                .For(propertyName, model => model.Property).Must((model, s, m) =>
-                {
-                    m.ShouldEqual(DefaultMetadata);
-                    return !string.IsNullOrEmpty(model.Property) && !string.IsNullOrEmpty(s);
-                }, new Func<string>(() => error), (model, context) =>
-                {
-                    model.ShouldEqual(validationModel);
-                    context.ShouldEqual(DefaultMetadata);
-                    return canValidate;
-                }, new[] {dpMember}).Build().Item!;
-
-            var errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(1);
-            errors[propertyName].ShouldEqual(error);
-
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, dpMember, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(1);
-            errors[propertyName].ShouldEqual(error);
-
-            canValidate = false;
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(0);
-
-            canValidate = true;
-            validationModel.Property = "test";
-            errors = new Dictionary<string, object?>();
-            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
-            errors.Count.ShouldEqual(0);
-        }
-
-        [Fact]
         public async Task MustAsyncExtensionShouldBeCorrect()
         {
             var dpMember = "d";
@@ -446,19 +225,19 @@ namespace MugenMvvm.UnitTests.Validation
             var tcs = new TaskCompletionSource<bool>();
             var cts = new CancellationTokenSource();
             var rule = new ValidationRuleBuilder<ValidationModel>()
-                .For(propertyName, model => model.Property).MustAsync((model, s, c, m) =>
-                {
-                    model.ShouldEqual(validationModel);
-                    s.ShouldEqual(validationModel.Property);
-                    m.ShouldEqual(DefaultMetadata);
-                    c.ShouldEqual(cts.Token);
-                    return tcs.Task;
-                }, new Func<string>(() => error), (model, context) =>
-                {
-                    model.ShouldEqual(validationModel);
-                    context.ShouldEqual(DefaultMetadata);
-                    return canValidate;
-                }, new[] {dpMember}).Build().Item!;
+                       .For(propertyName, model => model.Property).MustAsync((model, s, c, m) =>
+                       {
+                           model.ShouldEqual(validationModel);
+                           s.ShouldEqual(validationModel.Property);
+                           m.ShouldEqual(DefaultMetadata);
+                           c.ShouldEqual(cts.Token);
+                           return tcs.Task;
+                       }, new Func<string>(() => error), (model, context) =>
+                       {
+                           model.ShouldEqual(validationModel);
+                           context.ShouldEqual(DefaultMetadata);
+                           return canValidate;
+                       }, new[] {dpMember}).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             var task = rule.ValidateAsync(validationModel, propertyName, errors, cts.Token, DefaultMetadata)!;
@@ -496,19 +275,228 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class ValidationModel
+        [Fact]
+        public void MustExtensionShouldBeCorrect()
         {
-            #region Properties
+            var dpMember = "d";
+            var error = "error";
+            var canValidate = true;
+            var propertyName = nameof(ValidationModel.Property);
+            var validationModel = new ValidationModel();
+            var rule = new ValidationRuleBuilder<ValidationModel>()
+                       .For(propertyName, model => model.Property).Must((model, s, m) =>
+                       {
+                           m.ShouldEqual(DefaultMetadata);
+                           return !string.IsNullOrEmpty(model.Property) && !string.IsNullOrEmpty(s);
+                       }, new Func<string>(() => error), (model, context) =>
+                       {
+                           model.ShouldEqual(validationModel);
+                           context.ShouldEqual(DefaultMetadata);
+                           return canValidate;
+                       }, new[] {dpMember}).Build().Item!;
 
-            public string? Property { get; set; }
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(1);
+            errors[propertyName].ShouldEqual(error);
 
-            #endregion
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, dpMember, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(1);
+            errors[propertyName].ShouldEqual(error);
+
+            canValidate = false;
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(0);
+
+            canValidate = true;
+            validationModel.Property = "test";
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(0);
         }
 
-        #endregion
+        [Fact]
+        public void NotEmptyExtensionShouldBeCorrect1()
+        {
+            var error = "error";
+            var propertyName = nameof(ValidationModel.Property);
+            var validationModel = new ValidationModel();
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotEmpty(error).Build().Item!;
+
+            validationModel.Property = "";
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(1);
+            errors[propertyName].ShouldEqual(error);
+
+            validationModel.Property = "test";
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void NotEmptyExtensionShouldBeCorrect2()
+        {
+            var error = "error";
+            var propertyName = nameof(ValidationModel.Property);
+            var value = 0;
+            var validationModel = new ValidationModel();
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
+
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(1);
+            errors[propertyName].ShouldEqual(error);
+
+            value = 1;
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void NotEmptyExtensionShouldBeCorrect3()
+        {
+            var error = "error";
+            var propertyName = nameof(ValidationModel.Property);
+            var value = new string[0];
+            var validationModel = new ValidationModel();
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
+
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(1);
+            errors[propertyName].ShouldEqual(error);
+
+            value = new[] {""};
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void NotNullExtensionShouldBeCorrect()
+        {
+            var error = "error";
+            var propertyName = nameof(ValidationModel.Property);
+            var validationModel = new ValidationModel();
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotNull(error).Build().Item!;
+
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(1);
+            errors[propertyName].ShouldEqual(error);
+
+            validationModel.Property = "test";
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void NullExtensionShouldBeCorrect()
+        {
+            var error = "error";
+            var propertyName = nameof(ValidationModel.Property);
+            var validationModel = new ValidationModel();
+            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Null(error).Build().Item!;
+
+            validationModel.Property = "test";
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(1);
+            errors[propertyName].ShouldEqual(error);
+
+            validationModel.Property = null;
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
+            errors.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void ValidatorShouldUseCondition()
+        {
+            var memberName = "Test";
+            var target = new object();
+            var value = "";
+            var error = "error";
+            var invokeCount = 0;
+            var canValidate = true;
+            var builder = new ValidationRuleBuilder<object>();
+            var rule = builder.AddValidator(memberName, o => value, this, (o, s, state, m) =>
+            {
+                ++invokeCount;
+                o.ShouldEqual(target);
+                s.ShouldEqual(value);
+                state.ShouldEqual(this);
+                m.ShouldEqual(DefaultMetadata);
+                return error;
+            }, (o, state, m) =>
+            {
+                o.ShouldEqual(target);
+                state.ShouldEqual(this);
+                m.ShouldEqual(DefaultMetadata);
+                return canValidate;
+            }).Build().Item!;
+
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            invokeCount.ShouldEqual(1);
+            errors.Count.ShouldEqual(1);
+            errors[memberName].ShouldEqual(error);
+
+            canValidate = false;
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            invokeCount.ShouldEqual(1);
+            errors.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void ValidatorShouldUseDependencyMembers()
+        {
+            var dMember = "DM";
+            var memberName = "Test";
+            var target = new object();
+            var value = "";
+            var error = "error";
+            var invokeCount = 0;
+            var builder = new ValidationRuleBuilder<object>();
+            var rule = builder.AddValidator(memberName, o => value, this, (o, s, state, m) =>
+            {
+                ++invokeCount;
+                o.ShouldEqual(target);
+                s.ShouldEqual(value);
+                state.ShouldEqual(this);
+                m.ShouldEqual(DefaultMetadata);
+                return error;
+            }, null, new[] {dMember}).Build().Item!;
+
+            var errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(target, memberName, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            invokeCount.ShouldEqual(1);
+            errors.Count.ShouldEqual(1);
+            errors[memberName].ShouldEqual(error);
+
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(target, dMember, errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            invokeCount.ShouldEqual(2);
+            errors.Count.ShouldEqual(1);
+            errors[memberName].ShouldEqual(error);
+
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(target, "", errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            invokeCount.ShouldEqual(3);
+            errors.Count.ShouldEqual(1);
+            errors[memberName].ShouldEqual(error);
+
+            errors = new Dictionary<string, object?>();
+            rule.ValidateAsync(target, "e", errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
+            invokeCount.ShouldEqual(3);
+            errors.Count.ShouldEqual(0);
+        }
     }
 }

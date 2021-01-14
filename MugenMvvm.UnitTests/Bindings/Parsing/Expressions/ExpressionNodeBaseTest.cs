@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class ExpressionNodeBaseTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -37,7 +35,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var node = new MemberExpressionNode(null, member1).Accept(visitor);
             node.ShouldEqual(new MemberExpressionNode(null, member3));
         }
-
-        #endregion
     }
 }

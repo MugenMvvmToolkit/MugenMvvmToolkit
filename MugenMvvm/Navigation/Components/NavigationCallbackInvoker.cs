@@ -12,13 +12,7 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationCallbackInvoker : SuspendableNavigationListenerBase, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = NavigationComponentPriority.CallbackInvoker;
-
-        #endregion
-
-        #region Methods
 
         protected override void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {
@@ -55,7 +49,8 @@ namespace MugenMvvm.Navigation.Components
                 InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, false, default);
         }
 
-        private void InvokeCallbacks(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception, bool canceled,
+        private void InvokeCallbacks(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception,
+            bool canceled,
             CancellationToken cancellationToken)
         {
             var components = Owner.GetComponents<INavigationCallbackManagerComponent>(navigationContext.GetMetadataOrDefault());
@@ -66,7 +61,5 @@ namespace MugenMvvm.Navigation.Components
             else
                 components.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext);
         }
-
-        #endregion
     }
 }

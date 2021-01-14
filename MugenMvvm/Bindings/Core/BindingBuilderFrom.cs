@@ -12,13 +12,7 @@ namespace MugenMvvm.Bindings.Core
         where TTarget : class
         where TSource : class
     {
-        #region Fields
-
         internal readonly object PathOrExpression;
-
-        #endregion
-
-        #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingBuilderFrom(object pathOrExpression)
@@ -26,10 +20,6 @@ namespace MugenMvvm.Bindings.Core
             Should.NotBeNull(pathOrExpression, nameof(pathOrExpression));
             PathOrExpression = pathOrExpression;
         }
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingBuilderTo<TTarget, TSource> To(string path) => To<TSource>(path);
@@ -56,7 +46,5 @@ namespace MugenMvvm.Bindings.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingBuilderTo<TTarget, T> To<T>(Expression<Action<IBindingBuilderContext<TTarget, T>>> expression) where T : class =>
             new(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
-
-        #endregion
     }
 }

@@ -9,8 +9,6 @@ namespace MugenMvvm.Enums
 {
     public abstract class SerializationFormat : SerializationFormat<object, object>
     {
-        #region Fields
-
         public const string JsonName = "json";
         public const string AppStateName = "state";
 
@@ -23,7 +21,5 @@ namespace MugenMvvm.Enums
         public static readonly ISerializationFormat<IReadOnlyMetadataContext, byte[]> AppStateBytes =
             new SerializationFormat<IReadOnlyMetadataContext, byte[]>(-1, AppStateName);
 #endif
-
-        #endregion
     }
 }

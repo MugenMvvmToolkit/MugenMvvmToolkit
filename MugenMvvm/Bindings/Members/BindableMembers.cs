@@ -10,17 +10,11 @@ namespace MugenMvvm.Bindings.Members
 {
     public static class BindableMembers
     {
-        #region Fields
-
         private static MemberTypesRequest? _elementSourceMethod;
         private static MemberTypesRequest? _relativeSourceMethod;
         private static MemberTypesRequest? _hasErrorsMethod;
         private static MemberTypesRequest? _getErrorsMethod;
         private static MemberTypesRequest? _getErrorMethod;
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMembersDescriptor<T> For<T>() where T : class => default;
@@ -63,40 +57,41 @@ namespace MugenMvvm.Bindings.Members
         public static BindableMethodDescriptor<T, object?, IReadOnlyList<object>> GetErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
             _getErrorsMethod ??= new MemberTypesRequest(nameof(GetErrors), typeof(object));
 
-
         [BindingMember(nameof(Root))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? Root<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Root<T>(_: default).GetValue(descriptor.Target);
-
 
         [BindingMember(nameof(Parent))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? Parent<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Parent<T>(_: default).GetValue(descriptor.Target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetParent<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class => Parent<T>(_: default).SetValue(descriptor.Target, value);
-
+        public static void SetParent<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class =>
+            Parent<T>(_: default).SetValue(descriptor.Target, value);
 
         [BindingMember(nameof(Enabled))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Enabled<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Enabled<T>(_: default).GetValue(descriptor.Target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetEnabled<T>(this BindableMembersTargetDescriptor<T> descriptor, bool value) where T : class => Enabled<T>(_: default).SetValue(descriptor.Target, value);
-
+        public static void SetEnabled<T>(this BindableMembersTargetDescriptor<T> descriptor, bool value) where T : class =>
+            Enabled<T>(_: default).SetValue(descriptor.Target, value);
 
         [BindingMember(nameof(DataContext))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? DataContext<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => DataContext<T>(_: default).GetValue(descriptor.Target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetDataContext<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class => DataContext<T>(_: default).SetValue(descriptor.Target, value);
+        public static void SetDataContext<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class =>
+            DataContext<T>(_: default).SetValue(descriptor.Target, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? ElementSource<T>(this BindableMembersTargetDescriptor<T> descriptor, object name) where T : class => ElementSourceMethod<T>(default).Invoke(descriptor.Target, name);
+        public static object? ElementSource<T>(this BindableMembersTargetDescriptor<T> descriptor, object name) where T : class =>
+            ElementSourceMethod<T>(default).Invoke(descriptor.Target, name);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? RelativeSource<T>(this BindableMembersTargetDescriptor<T> descriptor, string name, int level) where T : class => RelativeSourceMethod<T>(default).Invoke(descriptor.Target, name, level);
+        public static object? RelativeSource<T>(this BindableMembersTargetDescriptor<T> descriptor, string name, int level) where T : class =>
+            RelativeSourceMethod<T>(default).Invoke(descriptor.Target, name, level);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, ItemOrArray<string> members) where T : class =>
@@ -109,7 +104,5 @@ namespace MugenMvvm.Bindings.Members
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IReadOnlyList<object> GetErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, ItemOrArray<string> members) where T : class =>
             GetErrorsMethod<T>(default).Invoke(descriptor.Target, members.GetRawValue());
-
-        #endregion
     }
 }

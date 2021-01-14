@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Enums
 {
     public class NavigationTypeTest
     {
-        #region Methods
-
         [Fact]
         public void CompareToEqualsShouldBeValid()
         {
@@ -34,7 +32,5 @@ namespace MugenMvvm.UnitTests.Enums
             (enum1 == null).ShouldBeFalse();
             (enum1 != null).ShouldBeTrue();
         }
-
-        #endregion
     }
 }

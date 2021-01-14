@@ -21,11 +21,6 @@ namespace MugenMvvm.Bindings.Core
 {
     public class Binding : IBinding, IComponentCollection, IMemberPathObserverListener, IReadOnlyMetadataContext, IComparer<object>
     {
-        #region Fields
-
-        private object? _components;
-        private int _state;
-
         protected const int TargetUpdatingFlag = 1;
         protected const int SourceUpdatingFlag = 1 << 1;
 
@@ -47,9 +42,8 @@ namespace MugenMvvm.Bindings.Core
         protected const int InvalidFlag = 1 << 30;
         protected const int DisposedFlag = 1 << 31;
 
-        #endregion
-
-        #region Constructors
+        private object? _components;
+        private int _state;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Binding(IMemberPathObserver target, object? sourceRaw)
@@ -59,32 +53,6 @@ namespace MugenMvvm.Bindings.Core
             SourceRaw = sourceRaw;
             SetFlag(HasItem);
         }
-
-        #endregion
-
-        #region Properties
-
-        public IComponentCollection Components => this;
-
-        public bool HasComponents => _components != null;
-
-        object IComponentCollection.Owner => this;
-
-        int IComponentCollection.Count
-        {
-            get
-            {
-                if (_components == null)
-                    return 0;
-                if (_components is object[] array)
-                    return array.Length;
-                return 1;
-            }
-        }
-
-        bool IMetadataOwner<IReadOnlyMetadataContext>.HasMetadata => true;
-
-        IReadOnlyMetadataContext IMetadataOwner<IReadOnlyMetadataContext>.Metadata => this;
 
         public BindingState State
         {
@@ -111,27 +79,75 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
+        public IComponentCollection Components => this;
+
+        public bool HasComponents => _components != null;
+
         protected object? SourceRaw { get; private set; }
+
+        object IComponentCollection.Owner => this;
+
+        int IComponentCollection.Count
+        {
+            get
+            {
+                if (_components == null)
+                    return 0;
+                if (_components is object[] array)
+                    return array.Length;
+                return 1;
+            }
+        }
+
+        bool IMetadataOwner<IReadOnlyMetadataContext>.HasMetadata => true;
+
+        IReadOnlyMetadataContext IMetadataOwner<IReadOnlyMetadataContext>.Metadata => this;
 
         int IReadOnlyMetadataContext.Count => GetMetadataCount();
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void Dispose()
+        public void Initialize(ItemOrArray<object?> components, IReadOnlyMetadataContext? metadata)
         {
             if (CheckFlag(DisposedFlag))
                 return;
-            SetFlag(DisposedFlag | SourceUpdatingFlag | TargetUpdatingFlag);
-            if (CheckFlag(HasTargetObserverListener))
-                Target.RemoveListener(this);
-            if (CheckFlag(HasSourceObserverListener))
-                BindingComponentExtensions.RemoveListener(SourceRaw, this);
-            MugenService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
-            OnDispose();
-            Target = EmptyPathObserver.Empty;
-            SourceRaw = null;
+            if (_components != null)
+                ExceptionManager.ThrowObjectInitialized(this);
+
+            var list = components.List;
+            if (list == null)
+            {
+                if (components.Item != null && OnComponentAdding(components.Item, metadata))
+                {
+                    _components = components.Item;
+                    OnComponentAdded(components.Item, metadata);
+                }
+
+                return;
+            }
+
+            var currentLength = 0;
+            for (var i = 0; i < list.Length; i++)
+                if (OnComponentAdding(list[i], metadata))
+                    list[currentLength++] = list[i];
+
+            if (CheckFlag(DisposedFlag))
+                return;
+
+            if (currentLength == 0)
+                return;
+
+            if (currentLength == 1)
+            {
+                _components = list[0];
+                OnComponentAdded(list[0]!, metadata);
+            }
+            else
+            {
+                if (list.Length != currentLength)
+                    Array.Resize(ref list, currentLength);
+                _components = list;
+                for (var i = 0; i < list.Length; i++)
+                    OnComponentAdded(list[i]!, metadata);
+            }
         }
 
         public ItemOrArray<object> GetComponents() => ItemOrArray.FromRawValue<object>(_components);
@@ -190,147 +206,19 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
-        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
-
-        bool IComponentCollection.TryAdd(object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (!OnComponentAdding(component, metadata))
-                return false;
-
-            if (_components == null)
-                _components = component;
-            else if (_components is object[] items)
-            {
-                MugenExtensions.AddOrdered(ref items, component, this);
-                _components = items;
-            }
-            else
-            {
-                _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                    ? new[] {_components, component}
-                    : new[] {component, _components};
-            }
-
-            OnComponentAdded(component, metadata);
-            return true;
-        }
-
-        bool IComponentCollection.Remove(object component, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(component, nameof(component));
-            if (CheckFlag(DisposedFlag))
-                return false;
-
-            if (!RemoveComponent(component, metadata))
-                return false;
-
-            OnComponentRemoved(_components, 0, component, true, metadata);
-            return true;
-        }
-
-        void IComponentCollection.Clear(IReadOnlyMetadataContext? metadata)
-        {
-            var components = _components;
-            _components = null;
-            var isValid = !CheckFlag(DisposedFlag);
-            if (components is object[] array)
-            {
-                for (var i = 0; i < array.Length; i++)
-                    OnComponentRemoved(components, i + 1, array[i], isValid, metadata);
-            }
-            else
-            {
-                var component = components;
-                if (component != null)
-                    OnComponentRemoved(null, 0, component, isValid, metadata);
-            }
-        }
-
-        ItemOrArray<T> IComponentCollection.Get<T>(IReadOnlyMetadataContext? metadata)
-        {
-            Should.MethodBeSupported(typeof(T) == typeof(object), nameof(IComponentCollection.Get));
-            return ItemOrArray.FromRawValue<T>(_components);
-        }
-
-        void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
-        {
-            if (Target == observer)
-                BindingComponentExtensions.OnTargetPathMembersChanged(_components, this, observer, this);
-            else
-                BindingComponentExtensions.OnSourcePathMembersChanged(_components, this, observer, this);
-        }
-
-        void IMemberPathObserverListener.OnLastMemberChanged(IMemberPathObserver observer)
-        {
-            if (Target == observer)
-                BindingComponentExtensions.OnTargetLastMemberChanged(_components, this, observer, this);
-            else
-                BindingComponentExtensions.OnSourceLastMemberChanged(_components, this, observer, this);
-        }
-
-        void IMemberPathObserverListener.OnError(IMemberPathObserver observer, Exception exception)
-        {
-            if (Target == observer)
-                BindingComponentExtensions.OnTargetError(_components, this, observer, exception, this);
-            else
-                BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
-        }
-
-        ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> IReadOnlyMetadataContext.GetValues() => GetMetadataValues();
-
-        bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
-
-        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value) => TryGetMetadata(contextKey, out value);
-
-        #endregion
-
-        #region Methods
-
-        public void Initialize(ItemOrArray<object?> components, IReadOnlyMetadataContext? metadata)
+        public void Dispose()
         {
             if (CheckFlag(DisposedFlag))
                 return;
-            if (_components != null)
-                ExceptionManager.ThrowObjectInitialized(this);
-
-            var list = components.List;
-            if (list == null)
-            {
-                if (components.Item != null && OnComponentAdding(components.Item, metadata))
-                {
-                    _components = components.Item;
-                    OnComponentAdded(components.Item, metadata);
-                }
-
-                return;
-            }
-
-            var currentLength = 0;
-            for (var i = 0; i < list.Length; i++)
-            {
-                if (OnComponentAdding(list[i], metadata))
-                    list[currentLength++] = list[i];
-            }
-
-            if (CheckFlag(DisposedFlag))
-                return;
-
-            if (currentLength == 0)
-                return;
-
-            if (currentLength == 1)
-            {
-                _components = list[0];
-                OnComponentAdded(list[0]!, metadata);
-            }
-            else
-            {
-                if (list.Length != currentLength)
-                    Array.Resize(ref list, currentLength);
-                _components = list;
-                for (var i = 0; i < list.Length; i++)
-                    OnComponentAdded(list[i]!, metadata);
-            }
+            SetFlag(DisposedFlag | SourceUpdatingFlag | TargetUpdatingFlag);
+            if (CheckFlag(HasTargetObserverListener))
+                Target.RemoveListener(this);
+            if (CheckFlag(HasSourceObserverListener))
+                BindingComponentExtensions.RemoveListener(SourceRaw, this);
+            MugenService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
+            OnDispose();
+            Target = EmptyPathObserver.Empty;
+            SourceRaw = null;
         }
 
         protected virtual object? GetTargetValue(MemberPathLastMember sourceMember) => Target.GetLastMember(this).GetValueOrThrow(this);
@@ -564,6 +452,96 @@ namespace MugenMvvm.Bindings.Core
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
         }
 
-        #endregion
+        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
+
+        bool IComponentCollection.TryAdd(object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (!OnComponentAdding(component, metadata))
+                return false;
+
+            if (_components == null)
+                _components = component;
+            else if (_components is object[] items)
+            {
+                MugenExtensions.AddOrdered(ref items, component, this);
+                _components = items;
+            }
+            else
+            {
+                _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
+                    ? new[] {_components, component}
+                    : new[] {component, _components};
+            }
+
+            OnComponentAdded(component, metadata);
+            return true;
+        }
+
+        bool IComponentCollection.Remove(object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(component, nameof(component));
+            if (CheckFlag(DisposedFlag))
+                return false;
+
+            if (!RemoveComponent(component, metadata))
+                return false;
+
+            OnComponentRemoved(_components, 0, component, true, metadata);
+            return true;
+        }
+
+        void IComponentCollection.Clear(IReadOnlyMetadataContext? metadata)
+        {
+            var components = _components;
+            _components = null;
+            var isValid = !CheckFlag(DisposedFlag);
+            if (components is object[] array)
+            {
+                for (var i = 0; i < array.Length; i++)
+                    OnComponentRemoved(components, i + 1, array[i], isValid, metadata);
+            }
+            else
+            {
+                var component = components;
+                if (component != null)
+                    OnComponentRemoved(null, 0, component, isValid, metadata);
+            }
+        }
+
+        ItemOrArray<T> IComponentCollection.Get<T>(IReadOnlyMetadataContext? metadata)
+        {
+            Should.MethodBeSupported(typeof(T) == typeof(object), nameof(IComponentCollection.Get));
+            return ItemOrArray.FromRawValue<T>(_components);
+        }
+
+        void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
+        {
+            if (Target == observer)
+                BindingComponentExtensions.OnTargetPathMembersChanged(_components, this, observer, this);
+            else
+                BindingComponentExtensions.OnSourcePathMembersChanged(_components, this, observer, this);
+        }
+
+        void IMemberPathObserverListener.OnLastMemberChanged(IMemberPathObserver observer)
+        {
+            if (Target == observer)
+                BindingComponentExtensions.OnTargetLastMemberChanged(_components, this, observer, this);
+            else
+                BindingComponentExtensions.OnSourceLastMemberChanged(_components, this, observer, this);
+        }
+
+        void IMemberPathObserverListener.OnError(IMemberPathObserver observer, Exception exception)
+        {
+            if (Target == observer)
+                BindingComponentExtensions.OnTargetError(_components, this, observer, exception, this);
+            else
+                BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
+        }
+
+        ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> IReadOnlyMetadataContext.GetValues() => GetMetadataValues();
+
+        bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
+
+        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value) => TryGetMetadata(contextKey, out value);
     }
 }

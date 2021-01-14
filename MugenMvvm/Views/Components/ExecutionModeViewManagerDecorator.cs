@@ -16,13 +16,7 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class ExecutionModeViewManagerDecorator : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
-        #region Fields
-
         private readonly IThreadDispatcher? _threadDispatcher;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ExecutionModeViewManagerDecorator(IThreadDispatcher? threadDispatcher = null, int priority = ViewComponentPriority.ExecutionModeDecorator)
@@ -33,19 +27,12 @@ namespace MugenMvvm.Views.Components
             CleanupExecutionMode = ThreadExecutionMode.Main;
         }
 
-        #endregion
-
-        #region Properties
-
         public ThreadExecutionMode InitializeExecutionMode { get; set; }
 
         public ThreadExecutionMode CleanupExecutionMode { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
             if (dispatcher.CanExecuteInline(InitializeExecutionMode, metadata))
@@ -54,7 +41,8 @@ namespace MugenMvvm.Views.Components
             var tcs = new TaskCompletionSource<IView?>();
             dispatcher.Execute(InitializeExecutionMode, s =>
             {
-                var state = (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<IView?>, IViewMapping, object, CancellationToken, IReadOnlyMetadataContext?>) s!;
+                var state =
+                    (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<IView?>, IViewMapping, object, CancellationToken, IReadOnlyMetadataContext?>) s!;
                 if (state.Item6.IsCancellationRequested)
                 {
                     state.Item3.TrySetCanceled(state.Item6);
@@ -88,7 +76,5 @@ namespace MugenMvvm.Views.Components
             }, Tuple.Create(this, viewManager, tcs, view, state, cancellationToken, metadata), metadata);
             return tcs.Task.AsValueTask();
         }
-
-        #endregion
     }
 }

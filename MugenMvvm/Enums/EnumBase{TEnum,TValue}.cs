@@ -16,16 +16,12 @@ namespace MugenMvvm.Enums
         where TEnum : EnumBase<TEnum, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>
     {
-        #region Fields
-
-        private string? _name;
         private static Dictionary<TValue, TEnum> _enumerations = Init();
         private static readonly Dictionary<string, TEnum> EnumerationNamesField = new(StringComparer.OrdinalIgnoreCase);
+
         private static TEnum[]? _values;
 
-        #endregion
-
-        #region Constructors
+        private string? _name;
 
 #pragma warning disable CS8618
         //note serialization only
@@ -44,29 +40,6 @@ namespace MugenMvvm.Enums
                 EnumerationNamesField[Name] = (TEnum) this;
                 _values = null;
             }
-        }
-
-        #endregion
-
-        #region Properties
-
-        TValue IHasId<TValue>.Id => Value;
-
-        object IEnum.Value => BoxingExtensions.Box(Value);
-
-        [DataMember(Name = "_d")]
-        public string Name
-        {
-            get => _name ??= Value?.ToString() ?? "";
-            internal set => _name = value;
-        }
-
-        [DataMember(Name = "_v")]
-        public TValue Value
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get; 
-            internal set;
         }
 
         public static int Count => Enumerations.Count;
@@ -91,19 +64,24 @@ namespace MugenMvvm.Enums
             }
         }
 
-        #endregion
+        [DataMember(Name = "_v")]
+        public TValue Value
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+            internal set;
+        }
 
-        #region Implementation of interfaces
+        [DataMember(Name = "_d")]
+        public string Name
+        {
+            get => _name ??= Value?.ToString() ?? "";
+            internal set => _name = value;
+        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(TEnum? other) => CompareTo(this, other);
+        object IEnum.Value => BoxingExtensions.Box(Value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(TEnum? other) => ReferenceEquals(this, other) || !ReferenceEquals(other, null) && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
-
-        #endregion
-
-        #region Methods
+        TValue IHasId<TValue>.Id => Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right)
@@ -242,6 +220,10 @@ namespace MugenMvvm.Enums
 
         public override string ToString() => Name;
 
-        #endregion
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(TEnum? other) => CompareTo(this, other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(TEnum? other) => ReferenceEquals(this, other) || !ReferenceEquals(other, null) && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
     }
 }

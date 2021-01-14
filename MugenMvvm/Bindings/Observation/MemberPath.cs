@@ -9,14 +9,9 @@ namespace MugenMvvm.Bindings.Observation
 {
     public sealed class MemberPath : IMemberPath, IValueHolder<string>
     {
-        #region Fields
-
-        private readonly object? _members;
         public static readonly IMemberPath Empty = new MemberPath();
 
-        #endregion
-
-        #region Constructors
+        private readonly object? _members;
 
         private MemberPath()
         {
@@ -87,19 +82,11 @@ namespace MugenMvvm.Bindings.Observation
             _members = members.GetRawValue();
         }
 
-        #endregion
-
-        #region Properties
-
         public string Path { get; }
 
         public ItemOrIReadOnlyList<string> Members => ItemOrIReadOnlyList.FromRawValue<string>(_members);
 
         string? IValueHolder<string>.Value { get; set; }
-
-        #endregion
-
-        #region Methods
 
         public static IMemberPath Get(string path)
         {
@@ -112,30 +99,16 @@ namespace MugenMvvm.Bindings.Observation
             return new SingleMemberPath(path);
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class SingleMemberPath : IMemberPath
         {
-            #region Constructors
-
             public SingleMemberPath(string path)
             {
                 Path = path;
             }
 
-            #endregion
-
-            #region Properties
-
             public string Path { get; }
 
             public ItemOrIReadOnlyList<string> Members => Path;
-
-            #endregion
         }
-
-        #endregion
     }
 }

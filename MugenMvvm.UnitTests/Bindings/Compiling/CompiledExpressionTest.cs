@@ -18,40 +18,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class CompiledExpressionTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void SetClearExpressionShouldUpdateExpression()
-        {
-            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
-            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
-
-            var expressionNode = ConstantExpressionNode.False;
-            var expression = Expression.Constant(1);
-
-            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
-            compiledExpression.SetExpression(expressionNode, expression);
-            compiledExpression.TryGetExpression(expressionNode).ShouldEqual(expression);
-            compiledExpression.ClearExpression(expressionNode);
-            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
-        }
-
-        [Fact]
-        public void InvokeShouldThrowNoComponents()
-        {
-            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
-            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
-            ShouldThrow<InvalidOperationException>(() => compiledExpression.Invoke(new ParameterValue(typeof(object), 1), DefaultMetadata));
-        }
-
-        [Fact]
-        public void ShouldThrowNotInitializedBindingExpression()
-        {
-            var member1 = new BindingMemberExpressionNode("test", -1, default, default);
-            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
-            ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -267,6 +233,14 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         }
 
         [Fact]
+        public void InvokeShouldThrowNoComponents()
+        {
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
+            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
+            ShouldThrow<InvalidOperationException>(() => compiledExpression.Invoke(new ParameterValue(typeof(object), 1), DefaultMetadata));
+        }
+
+        [Fact]
         public void InvokeShouldUseCompileEx()
         {
             var compileCount = 0;
@@ -290,6 +264,28 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             MugenService.Configuration.Clear<ILambdaExpressionCompiler>();
         }
 
-        #endregion
+        [Fact]
+        public void SetClearExpressionShouldUpdateExpression()
+        {
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
+            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
+
+            var expressionNode = ConstantExpressionNode.False;
+            var expression = Expression.Constant(1);
+
+            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
+            compiledExpression.SetExpression(expressionNode, expression);
+            compiledExpression.TryGetExpression(expressionNode).ShouldEqual(expression);
+            compiledExpression.ClearExpression(expressionNode);
+            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldThrowNotInitializedBindingExpression()
+        {
+            var member1 = new BindingMemberExpressionNode("test", -1, default, default);
+            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
+            ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
+        }
     }
 }

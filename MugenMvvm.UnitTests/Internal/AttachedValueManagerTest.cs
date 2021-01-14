@@ -10,11 +10,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class AttachedValueManagerTest : ComponentOwnerTestBase<AttachedValueManager>
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetAttachedValuesShouldReturnEmptyNoComponents() => new AttachedValueManager().TryGetAttachedValues(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -57,6 +52,7 @@ namespace MugenMvvm.UnitTests.Internal
 
         protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void TryGetAttachedValuesShouldReturnEmptyNoComponents() => new AttachedValueManager().TryGetAttachedValues(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
     }
 }

@@ -9,8 +9,6 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingModeInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public BindingModeInitializer()
         {
@@ -25,19 +23,11 @@ namespace MugenMvvm.Bindings.Core.Components
             DefaultMode = OneWayBindingMode.Instance;
         }
 
-        #endregion
-
-        #region Properties
-
         public object? DefaultMode { get; set; }
 
         public Dictionary<string, object?> BindingModes { get; }
 
         public int Priority { get; set; } = BindingComponentPriority.ParameterPostInitializer;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
@@ -63,19 +53,15 @@ namespace MugenMvvm.Bindings.Core.Components
             }
 
             foreach (var mode in BindingModes)
-            {
                 if (context.TryGetParameterValue<bool>(mode.Key))
                 {
                     if (mode.Value != null)
                         context.Components[BindingParameterNameConstant.Mode] = mode.Value;
                     return;
                 }
-            }
 
             if (DefaultMode != null)
                 context.Components[BindingParameterNameConstant.Mode] = DefaultMode;
         }
-
-        #endregion
     }
 }

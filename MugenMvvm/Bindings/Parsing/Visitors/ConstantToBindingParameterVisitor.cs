@@ -8,17 +8,11 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 {
     public sealed class ConstantToBindingParameterVisitor : IExpressionVisitor
     {
-        #region Properties
-
         public ExpressionTraversalType TraversalType => ExpressionTraversalType.Postorder;
 
-        #endregion
-
-        #region Implementation of interfaces
-
         public IExpressionNode Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata) =>
-            expression is IConstantExpressionNode ? new BindingInstanceMemberExpressionNode(expression, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata) : expression;
-
-        #endregion
+            expression is IConstantExpressionNode
+                ? new BindingInstanceMemberExpressionNode(expression, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata)
+                : expression;
     }
 }

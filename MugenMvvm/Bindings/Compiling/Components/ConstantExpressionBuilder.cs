@@ -10,13 +10,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class ConstantExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = CompilingComponentPriority.Constant;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
@@ -26,7 +20,5 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return Expression.Constant(constant.Value, constant.Type);
             return null;
         }
-
-        #endregion
     }
 }

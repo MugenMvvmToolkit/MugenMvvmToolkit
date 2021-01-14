@@ -12,16 +12,10 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingParameterHandler : ISourceValueInterceptorComponent, ITargetValueInterceptorComponent, IHasPriority, IDisposable
     {
-        #region Fields
-
         private BindingParameterValue _converter;
         private BindingParameterValue _converterParameter;
         private BindingParameterValue _fallback;
         private BindingParameterValue _targetNullValue;
-
-        #endregion
-
-        #region Constructors
 
         public BindingParameterHandler(BindingParameterValue converter, BindingParameterValue converterParameter, BindingParameterValue fallback,
             BindingParameterValue targetNullValue)
@@ -31,10 +25,6 @@ namespace MugenMvvm.Bindings.Core.Components
             _fallback = fallback;
             _targetNullValue = targetNullValue;
         }
-
-        #endregion
-
-        #region Properties
 
         public static int Priority { get; set; } = BindingComponentPriority.ParameterHandler;
 
@@ -47,10 +37,6 @@ namespace MugenMvvm.Bindings.Core.Components
         public BindingParameterValue TargetNullValue => _targetNullValue;
 
         int IHasPriority.Priority => Priority;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void Dispose()
         {
@@ -87,7 +73,5 @@ namespace MugenMvvm.Bindings.Core.Components
                 return _targetNullValue.GetValue<object?>(metadata);
             return value;
         }
-
-        #endregion
     }
 }

@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class DelayBindingHandlerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldDelaySourceValue()
         {
@@ -133,7 +131,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             WaitCompletion(wait);
             invokeAction.ShouldBeNull();
         }
-
-        #endregion
     }
 }

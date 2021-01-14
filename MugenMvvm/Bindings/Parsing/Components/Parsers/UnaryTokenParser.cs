@@ -14,8 +14,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class UnaryTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Constructors
-
         public UnaryTokenParser()
         {
             Mapping = new Dictionary<char, ItemOrArray<UnaryTokenType>>(7)
@@ -28,17 +26,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<char, ItemOrArray<UnaryTokenType>> Mapping { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Unary;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -48,10 +38,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 context.Position = p;
             return node;
         }
-
-        #endregion
-
-        #region Methods
 
         private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -96,7 +82,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position).ToString()));
             return null;
         }
-
-        #endregion
     }
 }

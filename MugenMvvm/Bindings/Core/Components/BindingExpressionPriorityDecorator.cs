@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
@@ -15,14 +14,12 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class BindingExpressionPriorityDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent, IComparer<IBindingBuilder>
+    public sealed class BindingExpressionPriorityDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent,
+        IComparer<IBindingBuilder>
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public BindingExpressionPriorityDecorator(int priority = BindingComponentPriority.BuilderPriorityDecorator) : base(priority)
         {
@@ -38,17 +35,9 @@ namespace MugenMvvm.Bindings.Core.Components
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<string, int> BindingMemberPriorities { get; }
 
         public int FakeMemberPriority { get; set; } = BindableMemberPriority.Fake;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
@@ -69,12 +58,6 @@ namespace MugenMvvm.Bindings.Core.Components
 
             return expressions;
         }
-
-        int IComparer<IBindingBuilder>.Compare(IBindingBuilder? x, IBindingBuilder? y) => TryGetPriority(y!).CompareTo(TryGetPriority(x!));
-
-        #endregion
-
-        #region Methods
 
         private int TryGetPriority(IBindingBuilder expression)
         {
@@ -108,6 +91,6 @@ namespace MugenMvvm.Bindings.Core.Components
             return BindingMemberPriorities.TryGetValue(member, out priority);
         }
 
-        #endregion
+        int IComparer<IBindingBuilder>.Compare(IBindingBuilder? x, IBindingBuilder? y) => TryGetPriority(y!).CompareTo(TryGetPriority(x!));
     }
 }

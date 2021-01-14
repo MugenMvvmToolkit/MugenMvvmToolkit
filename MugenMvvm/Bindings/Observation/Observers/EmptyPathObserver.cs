@@ -1,25 +1,17 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Bindings.Interfaces.Observation;
+﻿using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation.Observers
 {
     public sealed class EmptyPathObserver : IMemberPathObserver
     {
-        #region Fields
-
-        private object? _target;
-
         private static readonly object Disposed = new();
         internal static readonly EmptyPathObserver Empty = new(Disposed);
 
-        #endregion
-
-        #region Constructors
+        private object? _target;
 
         public EmptyPathObserver(object target)
         {
@@ -28,19 +20,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             IsDisposable = true;
         }
 
-        #endregion
-
-        #region Properties
-
-        public bool IsAlive
-        {
-            get
-            {
-                if (_target is IWeakItem w)
-                    return w.IsAlive;
-                return _target != Disposed;
-            }
-        }
+        public bool IsDisposable { get; set; }
 
         public object? Target
         {
@@ -54,11 +34,21 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         public IMemberPath Path => MemberPath.Empty;
 
-        public bool IsDisposable { get; set; }
+        public bool IsAlive
+        {
+            get
+            {
+                if (_target is IWeakItem w)
+                    return w.IsAlive;
+                return _target != Disposed;
+            }
+        }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public void Dispose()
+        {
+            if (IsDisposable)
+                _target = Disposed;
+        }
 
         public void AddListener(IMemberPathObserverListener listener)
         {
@@ -87,13 +77,5 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
             return new MemberPathLastMember(target, ConstantMemberInfo.Target);
         }
-
-        public void Dispose()
-        {
-            if (IsDisposable)
-                _target = Disposed;
-        }
-
-        #endregion
     }
 }

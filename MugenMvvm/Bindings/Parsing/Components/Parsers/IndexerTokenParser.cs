@@ -10,13 +10,21 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class IndexerTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Indexer;
 
-        #endregion
+        private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
+        {
+            if (!context.SkipWhitespaces().IsToken('['))
+                return null;
 
-        #region Implementation of interfaces
+            var args = context
+                       .MoveNext()
+                       .SkipWhitespaces()
+                       .ParseArguments("]");
+            if (args.IsEmpty)
+                return null;
+            return new IndexExpressionNode(expression, args);
+        }
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -26,25 +34,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 context.Position = p;
             return node;
         }
-
-        #endregion
-
-        #region Methods
-
-        private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
-        {
-            if (!context.SkipWhitespaces().IsToken('['))
-                return null;
-
-            var args = context
-                .MoveNext()
-                .SkipWhitespaces()
-                .ParseArguments("]");
-            if (args.IsEmpty)
-                return null;
-            return new IndexExpressionNode(expression, args);
-        }
-
-        #endregion
     }
 }

@@ -4,7 +4,6 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTests.Messaging.Internal;
 using MugenMvvm.UnitTests.Navigation.Internal;
@@ -15,7 +14,39 @@ namespace MugenMvvm.UnitTests.App.Components
 {
     public class AppLifecycleTrackerTest : UnitTestBase
     {
-        #region Methods
+        [Fact]
+        public void ShouldCallOnNavigatedActivatedDeactivated()
+        {
+            INavigationContext? ctx = null;
+            var app = new MugenApplication();
+            var navigationDispatcher = new NavigationDispatcher();
+            navigationDispatcher.AddComponent(new TestNavigationListener(navigationDispatcher)
+            {
+                OnNavigated = context =>
+                {
+                    ctx.ShouldBeNull();
+                    ctx = context;
+                }
+            });
+            var dispatcher = new AppLifecycleTracker(navigationDispatcher);
+            dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Initialized, null, DefaultMetadata);
+            ctx.ShouldBeNull();
+
+            dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Activated, null, DefaultMetadata);
+            ctx!.NavigationMode.ShouldEqual(NavigationMode.Close);
+            ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
+            ctx.NavigationType.ShouldEqual(NavigationType.Background);
+            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
+            ctx.Target.ShouldEqual(app);
+
+            ctx = null;
+            dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Deactivated, null, DefaultMetadata);
+            ctx!.NavigationMode.ShouldEqual(NavigationMode.New);
+            ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
+            ctx.NavigationType.ShouldEqual(NavigationType.Background);
+            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
+            ctx.Target.ShouldEqual(app);
+        }
 
         [Fact]
         public void ShouldCallOnNavigatingActivatingDeactivating()
@@ -52,37 +83,21 @@ namespace MugenMvvm.UnitTests.App.Components
         }
 
         [Fact]
-        public void ShouldCallOnNavigatedActivatedDeactivated()
+        public void ShouldChangeAppStateActivatedDeactivated()
         {
-            INavigationContext? ctx = null;
             var app = new MugenApplication();
             var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new TestNavigationListener(navigationDispatcher)
-            {
-                OnNavigated = context =>
-                {
-                    ctx.ShouldBeNull();
-                    ctx = context;
-                }
-            });
             var dispatcher = new AppLifecycleTracker(navigationDispatcher);
-            dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Initialized, null, DefaultMetadata);
-            ctx.ShouldBeNull();
+            app.AddComponent(dispatcher);
+            app.IsInState(ApplicationLifecycleState.Activated).ShouldBeFalse();
 
             dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Activated, null, DefaultMetadata);
-            ctx!.NavigationMode.ShouldEqual(NavigationMode.Close);
-            ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
-            ctx.NavigationType.ShouldEqual(NavigationType.Background);
-            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
-            ctx.Target.ShouldEqual(app);
+            app.IsInState(ApplicationLifecycleState.Activated).ShouldBeTrue();
+            app.IsInState(ApplicationLifecycleState.Deactivated).ShouldBeFalse();
 
-            ctx = null;
             dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Deactivated, null, DefaultMetadata);
-            ctx!.NavigationMode.ShouldEqual(NavigationMode.New);
-            ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
-            ctx.NavigationType.ShouldEqual(NavigationType.Background);
-            ctx.NavigationProvider.ShouldEqual(NavigationProvider.System);
-            ctx.Target.ShouldEqual(app);
+            app.IsInState(ApplicationLifecycleState.Activated).ShouldBeFalse();
+            app.IsInState(ApplicationLifecycleState.Deactivated).ShouldBeTrue();
         }
 
         [Fact]
@@ -111,24 +126,6 @@ namespace MugenMvvm.UnitTests.App.Components
             state = ApplicationLifecycleState.Activated;
             dispatcher.OnLifecycleChanged(app, state, null, DefaultMetadata);
             invokeCount.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void ShouldChangeAppStateActivatedDeactivated()
-        {
-            var app = new MugenApplication();
-            var navigationDispatcher = new NavigationDispatcher();
-            var dispatcher = new AppLifecycleTracker(navigationDispatcher);
-            app.AddComponent(dispatcher);
-            app.IsInState(ApplicationLifecycleState.Activated).ShouldBeFalse();
-
-            dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Activated, null, DefaultMetadata);
-            app.IsInState(ApplicationLifecycleState.Activated).ShouldBeTrue();
-            app.IsInState(ApplicationLifecycleState.Deactivated).ShouldBeFalse();
-
-            dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Deactivated, null, DefaultMetadata);
-            app.IsInState(ApplicationLifecycleState.Activated).ShouldBeFalse();
-            app.IsInState(ApplicationLifecycleState.Deactivated).ShouldBeTrue();
         }
 
         [Fact]
@@ -161,7 +158,5 @@ namespace MugenMvvm.UnitTests.App.Components
             dispatcher.OnLifecycleChanged(app, ApplicationLifecycleState.Deactivated, null, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

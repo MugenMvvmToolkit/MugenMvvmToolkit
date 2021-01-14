@@ -7,14 +7,8 @@ namespace MugenMvvm.Bindings.Observation
     [StructLayout(LayoutKind.Auto)]
     public readonly struct WeakEventListener<TState>
     {
-        #region Fields
-
         public readonly TState State;
         public readonly object? Target;
-
-        #endregion
-
-        #region Constructors
 
         public WeakEventListener(IEventListener listener, TState state)
         {
@@ -22,22 +16,12 @@ namespace MugenMvvm.Bindings.Observation
             State = state;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => Target == null;
 
         public bool IsAlive => WeakEventListener.GetIsAlive(Target);
 
         public IEventListener? Listener => WeakEventListener.GetListener(Target);
 
-        #endregion
-
-        #region Methods
-
         public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata) => WeakEventListener.TryHandle(Target, sender, message, metadata);
-
-        #endregion
     }
 }

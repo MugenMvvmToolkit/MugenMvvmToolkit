@@ -13,7 +13,13 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewLifecycleAwareViewModelHandlerTest : UnitTestBase
     {
-        #region Methods
+        private class ViewLifecycleAwareViewModel : TestViewModelBase, IViewLifecycleAwareViewModel
+        {
+            public Action<IView, ViewLifecycleState, object?, IReadOnlyMetadataContext?>? OnViewLifecycleChanged { get; set; }
+
+            void IViewLifecycleAwareViewModel.OnViewLifecycleChanged(IView view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>
+                OnViewLifecycleChanged?.Invoke(view, lifecycleState, state, metadata);
+        }
 
         [Fact]
         public void ShouldNotifyViewModel()
@@ -36,27 +42,5 @@ namespace MugenMvvm.UnitTests.Views.Components
             component.OnLifecycleChanged(null!, view, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
-
-        #endregion
-
-        #region Nested types
-
-        private class ViewLifecycleAwareViewModel : TestViewModelBase, IViewLifecycleAwareViewModel
-        {
-            #region Properties
-
-            public Action<IView, ViewLifecycleState, object?, IReadOnlyMetadataContext?>? OnViewLifecycleChanged { get; set; }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            void IViewLifecycleAwareViewModel.OnViewLifecycleChanged(IView view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>
-                OnViewLifecycleChanged?.Invoke(view, lifecycleState, state, metadata);
-
-            #endregion
-        }
-
-        #endregion
     }
 }

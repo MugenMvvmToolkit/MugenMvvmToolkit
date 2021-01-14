@@ -10,32 +10,18 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public class TestActivatorReflectionDelegateProviderComponent : IActivatorReflectionDelegateProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IReflectionManager? _reflectionManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestActivatorReflectionDelegateProviderComponent(IReflectionManager? reflectionManager)
         {
             _reflectionManager = reflectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public Func<ConstructorInfo, Func<ItemOrArray<object?>, object>?>? TryGetActivator { get; set; }
 
         public Func<ConstructorInfo, Type, Delegate?>? TryGetActivator1 { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         Func<ItemOrArray<object?>, object>? IActivatorReflectionDelegateProviderComponent.TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
@@ -48,7 +34,5 @@ namespace MugenMvvm.UnitTests.Internal.Internal
             _reflectionManager?.ShouldEqual(reflectionManager);
             return TryGetActivator1?.Invoke(constructor, delegateType);
         }
-
-        #endregion
     }
 }

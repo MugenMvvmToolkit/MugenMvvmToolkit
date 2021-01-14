@@ -14,13 +14,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class LambdaExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = CompilingComponentPriority.Lambda;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
@@ -59,7 +53,5 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     context.ClearExpression(lambdaExpression.Parameters[i]);
             }
         }
-
-        #endregion
     }
 }

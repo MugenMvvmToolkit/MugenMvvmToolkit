@@ -16,29 +16,17 @@ namespace MugenMvvm.Entities.Components
 {
     public sealed class ReflectionEntityStateSnapshotProvider : IEntityStateSnapshotProviderComponent, IHasPriority, IEqualityComparer<object?>
     {
-        #region Fields
-
         private readonly Dictionary<Type, object?> _cache;
         private readonly IReflectionManager? _reflectionManager;
 
         private Func<PropertyInfo, bool>? _memberFilter;
         private BindingFlags _memberFlags = BindingFlags.Public | BindingFlags.Instance;
 
-        #endregion
-
-        #region Constructors
-
         public ReflectionEntityStateSnapshotProvider(IReflectionManager? reflectionManager = null)
         {
             _reflectionManager = reflectionManager;
             _cache = new Dictionary<Type, object?>(7, InternalEqualityComparer.Type);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = EntityComponentPriority.SnapshotProvider;
 
         public BindingFlags MemberFlags
         {
@@ -64,9 +52,14 @@ namespace MugenMvvm.Entities.Components
             }
         }
 
-        #endregion
+        public int Priority { get; set; } = EntityComponentPriority.SnapshotProvider;
 
-        #region Implementation of interfaces
+        private static object GetUnderlyingValue(object key)
+        {
+            if (key is MemberInfo m)
+                return m.Name;
+            return key;
+        }
 
         public IEntityStateSnapshot? TryGetSnapshot(IEntityManager entityManager, object entity, IReadOnlyMetadataContext? metadata)
         {
@@ -86,14 +79,6 @@ namespace MugenMvvm.Entities.Components
                 return null;
             return new EntityStateSnapshot(entity, accessors, this);
         }
-
-        bool IEqualityComparer<object?>.Equals(object? x, object? y) => Equals(GetUnderlyingValue(x!), GetUnderlyingValue(y!));
-
-        int IEqualityComparer<object?>.GetHashCode(object? key) => GetUnderlyingValue(key!).GetHashCode();
-
-        #endregion
-
-        #region Methods
 
         private void ClearCache()
         {
@@ -121,21 +106,45 @@ namespace MugenMvvm.Entities.Components
             return list.GetRawValueInternal();
         }
 
-        private static object GetUnderlyingValue(object key)
+        bool IEqualityComparer<object?>.Equals(object? x, object? y) => Equals(GetUnderlyingValue(x!), GetUnderlyingValue(y!));
+
+        int IEqualityComparer<object?>.GetHashCode(object? key) => GetUnderlyingValue(key!).GetHashCode();
+
+        [StructLayout(LayoutKind.Auto)]
+        private readonly struct MemberState
         {
-            if (key is MemberInfo m)
-                return m.Name;
-            return key;
+            public readonly Func<object, object?> GetValue;
+            public readonly Action<object, object?> SetValue;
+            public readonly object? Value;
+
+            public MemberState(object? value, Func<object, object?> getValue, Action<object, object?> setValue)
+            {
+                Value = value;
+                GetValue = getValue;
+                SetValue = setValue;
+            }
         }
 
-        #endregion
+        [StructLayout(LayoutKind.Auto)]
+        private readonly struct EntityMemberAccessor
+        {
+            public readonly object Member;
+            public readonly Func<object, object?> GetValue;
+            public readonly Action<object, object?> SetValue;
 
-        #region Nested types
+            public EntityMemberAccessor(object member, Func<object, object?> getValue, Action<object, object?> setValue)
+            {
+                Should.NotBeNull(member, nameof(member));
+                Should.NotBeNull(getValue, nameof(getValue));
+                Should.NotBeNull(setValue, nameof(setValue));
+                Member = member;
+                GetValue = getValue;
+                SetValue = setValue;
+            }
+        }
 
         private sealed class EntityStateSnapshot : Dictionary<object, MemberState>, IEntityStateSnapshot
         {
-            #region Constructors
-
             public EntityStateSnapshot(object entity, ItemOrIReadOnlyList<EntityMemberAccessor> accessors, IEqualityComparer<object> comparer)
                 : base(accessors.Count, comparer)
             {
@@ -145,15 +154,7 @@ namespace MugenMvvm.Entities.Components
                     this[accessor.Member] = new MemberState(accessor.GetValue(entity), accessor.GetValue, accessor.SetValue);
             }
 
-            #endregion
-
-            #region Properties
-
             public Type EntityType { get; }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public bool HasChanges(object entity, object? member = null, IReadOnlyMetadataContext? metadata = null)
             {
@@ -162,10 +163,8 @@ namespace MugenMvvm.Entities.Components
                     return TryGetValue(member, out var value) && !Equals(value.GetValue(entity), value.Value);
 
                 foreach (var pair in this)
-                {
                     if (!Equals(pair.Value.GetValue(entity), pair.Value.Value))
                         return true;
-                }
 
                 return false;
             }
@@ -189,59 +188,6 @@ namespace MugenMvvm.Entities.Components
                     values.SetAt(index++, new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity)));
                 return values;
             }
-
-            #endregion
         }
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct MemberState
-        {
-            #region Fields
-
-            public readonly Func<object, object?> GetValue;
-            public readonly Action<object, object?> SetValue;
-            public readonly object? Value;
-
-            #endregion
-
-            #region Constructors
-
-            public MemberState(object? value, Func<object, object?> getValue, Action<object, object?> setValue)
-            {
-                Value = value;
-                GetValue = getValue;
-                SetValue = setValue;
-            }
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct EntityMemberAccessor
-        {
-            #region Fields
-
-            public readonly object Member;
-            public readonly Func<object, object?> GetValue;
-            public readonly Action<object, object?> SetValue;
-
-            #endregion
-
-            #region Constructors
-
-            public EntityMemberAccessor(object member, Func<object, object?> getValue, Action<object, object?> setValue)
-            {
-                Should.NotBeNull(member, nameof(member));
-                Should.NotBeNull(getValue, nameof(getValue));
-                Should.NotBeNull(setValue, nameof(setValue));
-                Member = member;
-                GetValue = getValue;
-                SetValue = setValue;
-            }
-
-            #endregion
-        }
-
-        #endregion
     }
 }

@@ -12,15 +12,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class EventMemberInfoTest : UnitTestBase
     {
-        #region Events
-
         public event Action? Event1;
 
         public event Action<object>? Event2;
-
-        #endregion
-
-        #region Methods
 
         [Theory]
         [InlineData(nameof(Event1))]
@@ -54,7 +48,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

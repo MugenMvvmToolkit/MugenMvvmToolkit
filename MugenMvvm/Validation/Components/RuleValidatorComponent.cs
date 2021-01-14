@@ -5,38 +5,26 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
     public sealed class RuleValidatorComponent : ValidatorComponentBase<object>
     {
-        #region Fields
-
-        private readonly bool _isAsync;
         public readonly ItemOrIReadOnlyList<IValidationRule> Rules;
 
-        #endregion
-
-        #region Constructors
+        private readonly bool _isAsync;
 
         public RuleValidatorComponent(object target, ItemOrIReadOnlyList<IValidationRule> rules)
             : base(target)
         {
             Rules = rules;
             foreach (var rule in rules)
-            {
                 if (rule.IsAsync)
                 {
                     _isAsync = true;
                     break;
                 }
-            }
         }
-
-        #endregion
-
-        #region Methods
 
         protected override CancellationToken GetCancellationToken(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             _isAsync ? base.GetCancellationToken(memberName, cancellationToken, metadata) : cancellationToken;
@@ -58,7 +46,5 @@ namespace MugenMvvm.Validation.Components
             await tasks.WhenAll().ConfigureAwait(false);
             return ValidationResult.Get(errors);
         }
-
-        #endregion
     }
 }

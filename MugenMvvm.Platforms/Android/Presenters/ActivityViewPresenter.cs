@@ -20,16 +20,10 @@ namespace MugenMvvm.Android.Presenters
 {
     public class ActivityViewPresenter : ViewPresenterBase<IActivityView>
     {
-        #region Fields
+        private static int _counter;
 
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IPresenter? _presenter;
-
-        private static int _counter;
-
-        #endregion
-
-        #region Constructors
 
         public ActivityViewPresenter(IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
@@ -37,47 +31,11 @@ namespace MugenMvvm.Android.Presenters
             _navigationDispatcher = navigationDispatcher;
         }
 
-        #endregion
-
-        #region Properties
-
         public override NavigationType NavigationType => NavigationType.Page;
 
         protected IPresenter Presenter => _presenter.DefaultIfNull();
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
-
-        #endregion
-
-        #region Methods
-
-        protected override object? TryGetViewRequest(IViewModelPresenterMediator mediator, IActivityView? view, INavigationContext navigationContext)
-        {
-            if (navigationContext.NavigationMode == NavigationMode.New && view == null)
-            {
-                return new ActivityViewRequest<(ActivityViewPresenter, IViewModelPresenterMediator, INavigationContext, int)>(mediator.ViewModel, mediator.Mapping,
-                    state => state.Item1.NewActivity(state.Item2, state.Item3, state.Item4), (v, l, s, state, m) => state.Item1.IsTargetActivity(v, l, s, state.Item2, state.Item3, state.Item4, m),
-                    (this, mediator, navigationContext, Interlocked.Increment(ref _counter)));
-            }
-
-            return null;
-        }
-
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
-        {
-            var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
-            if (Equals(topActivityView, view))
-                return Default.CompletedTask;
-            return RefreshActivityAsync(mediator, view, navigationContext);
-        }
-
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => Default.CompletedTask;
-
-        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
-        {
-            view.Finish();
-            return Default.CompletedTask;
-        }
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext, int requestId)
         {
@@ -85,10 +43,12 @@ namespace MugenMvvm.Android.Presenters
             StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), requestId, flags, navigationContext);
         }
 
-        protected virtual bool IsTargetActivity(object view, ViewLifecycleState lifecycleState, object? state, IViewModelPresenterMediator mediator, INavigationContext navigationContext,
+        protected virtual bool IsTargetActivity(object view, ViewLifecycleState lifecycleState, object? state, IViewModelPresenterMediator mediator,
+            INavigationContext navigationContext,
             int requestId, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState != AndroidViewLifecycleState.Created && lifecycleState != AndroidViewLifecycleState.Starting || !(MugenExtensions.Unwrap(view) is IActivityView activity))
+            if (lifecycleState != AndroidViewLifecycleState.Created && lifecycleState != AndroidViewLifecycleState.Starting ||
+                !(MugenExtensions.Unwrap(view) is IActivityView activity))
                 return false;
 
             return requestId == ActivityMugenExtensions.GetRequestId(activity);
@@ -125,6 +85,33 @@ namespace MugenMvvm.Android.Presenters
                 ExceptionManager.ThrowPresenterCannotShowRequest(mediator.Mapping, navigationContext.GetMetadataOrDefault());
         }
 
-        #endregion
+        protected override object? TryGetViewRequest(IViewModelPresenterMediator mediator, IActivityView? view, INavigationContext navigationContext)
+        {
+            if (navigationContext.NavigationMode == NavigationMode.New && view == null)
+            {
+                return new ActivityViewRequest<(ActivityViewPresenter, IViewModelPresenterMediator, INavigationContext, int)>(mediator.ViewModel, mediator.Mapping,
+                    state => state.Item1.NewActivity(state.Item2, state.Item3, state.Item4),
+                    (v, l, s, state, m) => state.Item1.IsTargetActivity(v, l, s, state.Item2, state.Item3, state.Item4, m),
+                    (this, mediator, navigationContext, Interlocked.Increment(ref _counter)));
+            }
+
+            return null;
+        }
+
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        {
+            var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
+            if (Equals(topActivityView, view))
+                return Default.CompletedTask;
+            return RefreshActivityAsync(mediator, view, navigationContext);
+        }
+
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => Default.CompletedTask;
+
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        {
+            view.Finish();
+            return Default.CompletedTask;
+        }
     }
 }

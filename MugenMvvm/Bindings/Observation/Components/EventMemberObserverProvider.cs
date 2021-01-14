@@ -17,14 +17,9 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class EventMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly IMemberManager? _memberManager;
         private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
 
-        #endregion
-
-        #region Constructors
+        private readonly IMemberManager? _memberManager;
 
         [Preserve(Conditional = true)]
         public EventMemberObserverProvider(IMemberManager? memberManager = null)
@@ -32,34 +27,9 @@ namespace MugenMvvm.Bindings.Observation.Components
             _memberManager = memberManager;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = ObserverComponentPriority.EventObserverProvider;
-
         public Func<Type, object, IReadOnlyMetadataContext?, IObservableMemberInfo?>? EventFinder { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
-        {
-            if (member is MemberInfo reflectionMember && reflectionMember.MemberType == MemberTypes.Event)
-                return default;
-            if (member is IMemberInfo memberInfo && memberInfo.MemberType == MemberType.Event)
-                return default;
-
-            var eventInfo = EventFinder == null ? TryFindEventByMember(_memberManager, type, member, metadata) : EventFinder.Invoke(type, member, metadata);
-            if (eventInfo == null)
-                return default;
-            return new MemberObserver(MemberObserverHandler, eventInfo);
-        }
-
-        #endregion
-
-        #region Methods
+        public int Priority { get; set; } = ObserverComponentPriority.EventObserverProvider;
 
         public static IObservableMemberInfo? TryFindEventByMember(IMemberManager? memberManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
@@ -78,7 +48,8 @@ namespace MugenMvvm.Bindings.Observation.Components
                 memberName = memberInfo.Name;
             }
             else if (member is string st)
-                return memberManager.DefaultIfNull().TryGetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticAll : MemberFlags.InstanceAll, st, metadata) as IObservableMemberInfo;
+                return memberManager.DefaultIfNull().TryGetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticAll : MemberFlags.InstanceAll, st, metadata) as
+                    IObservableMemberInfo;
             else
                 return null;
 
@@ -87,8 +58,20 @@ namespace MugenMvvm.Bindings.Observation.Components
                    ?? memberManager.TryGetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IObservableMemberInfo;
         }
 
-        private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata) => ((IObservableMemberInfo) member).TryObserve(target, listener, metadata);
+        private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata) =>
+            ((IObservableMemberInfo) member).TryObserve(target, listener, metadata);
 
-        #endregion
+        public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
+        {
+            if (member is MemberInfo reflectionMember && reflectionMember.MemberType == MemberTypes.Event)
+                return default;
+            if (member is IMemberInfo memberInfo && memberInfo.MemberType == MemberType.Event)
+                return default;
+
+            var eventInfo = EventFinder == null ? TryFindEventByMember(_memberManager, type, member, metadata) : EventFinder.Invoke(type, member, metadata);
+            if (eventInfo == null)
+                return default;
+            return new MemberObserver(MemberObserverHandler, eventInfo);
+        }
     }
 }

@@ -13,49 +13,17 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class OneTimeBindingMode : IAttachableComponent, IBindingSourceObserverListener, IHasPriority
     {
-        #region Fields
-
-        private readonly bool _disposeBinding;
-
         public static readonly OneTimeBindingMode Instance = new(true);
         public static readonly OneTimeBindingMode NonDisposeInstance = new(false);
 
-        #endregion
-
-        #region Constructors
+        private readonly bool _disposeBinding;
 
         private OneTimeBindingMode(bool disposeBinding)
         {
             _disposeBinding = disposeBinding;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.Mode;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => !Invoke((IBinding) owner, false);
-
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding, true);
-
-        void IBindingSourceObserverListener.OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding, true);
-
-        void IBindingSourceObserverListener.OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
-        {
-        }
-
-        #endregion
-
-        #region Methods
 
         private bool Invoke(IBinding binding, bool attached)
         {
@@ -70,6 +38,18 @@ namespace MugenMvvm.Bindings.Core.Components
             return true;
         }
 
-        #endregion
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => !Invoke((IBinding) owner, false);
+
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding, true);
+
+        void IBindingSourceObserverListener.OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding, true);
+
+        void IBindingSourceObserverListener.OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
+        {
+        }
     }
 }

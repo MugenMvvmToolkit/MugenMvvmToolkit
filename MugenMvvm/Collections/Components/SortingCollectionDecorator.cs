@@ -13,15 +13,9 @@ namespace MugenMvvm.Collections.Components
 {
     public sealed class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
     {
-        #region Fields
-
         private readonly OrderedItemComparer _comparer;
         private readonly List<OrderedItem> _items;
         private ICollectionDecoratorManagerComponent? _decoratorManager;
-
-        #endregion
-
-        #region Constructors
 
         public SortingCollectionDecorator(IComparer<object?> comparer)
         {
@@ -30,17 +24,91 @@ namespace MugenMvvm.Collections.Components
             _items = new List<OrderedItem>();
         }
 
-        #endregion
-
-        #region Properties
-
         public IComparer<object?> Comparer => _comparer.Comparer;
 
         public int Priority { get; set; } = CollectionComponentPriority.OrderDecorator;
 
-        #endregion
+        public void Reorder()
+        {
+            if (_decoratorManager == null)
+                return;
 
-        #region Implementation of interfaces
+            using (Owner.TryLock())
+            {
+                Reset(_decoratorManager.DecorateItems(Owner, this));
+                _decoratorManager.OnReset(Owner, this, this);
+            }
+        }
+
+        public bool OnReset(ICollection collection, ref IEnumerable<object?>? items)
+        {
+            if (items == null)
+                _items.Clear();
+            else
+            {
+                Reset(items);
+                items = this;
+            }
+
+            return true;
+        }
+
+        public IEnumerator<object?> GetEnumerator()
+        {
+            for (var i = 0; i < _items.Count; i++)
+                yield return _items[i].Item;
+        }
+
+        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata)
+        {
+            _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
+            Reorder();
+        }
+
+        protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
+        {
+            _items.Clear();
+            _decoratorManager = null;
+        }
+
+        private void Reset(IEnumerable<object?> items)
+        {
+            _items.Clear();
+            _items.AddRange(items.Select((arg1, i) => new OrderedItem(i, arg1)));
+            _items.Sort(_comparer);
+        }
+
+        private int GetInsertIndex(object? item)
+        {
+            var num = _items.BinarySearch(new OrderedItem(-1, item), _comparer);
+            if (num >= 0)
+                return num;
+            return ~num;
+        }
+
+        private int GetIndexByOriginalIndex(int index)
+        {
+            for (var i = 0; i < _items.Count; i++)
+                if (_items[i].OriginalIndex == index)
+                    return i;
+
+            return -1;
+        }
+
+        private void UpdateIndexes(int index, int value)
+        {
+            if (_items.Count == 0)
+                return;
+
+            for (var i = 0; i < _items.Count; i++)
+            {
+                var item = _items[i];
+                if (item.OriginalIndex < index)
+                    continue;
+                item.UpdateIndex(value);
+                _items[i] = item;
+            }
+        }
 
         IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => items.OrderBy(arg => arg, Comparer);
 
@@ -122,135 +190,13 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        public bool OnReset(ICollection collection, ref IEnumerable<object?>? items)
-        {
-            if (items == null)
-                _items.Clear();
-            else
-            {
-                Reset(items);
-                items = this;
-            }
-
-            return true;
-        }
-
-        public IEnumerator<object?> GetEnumerator()
-        {
-            for (var i = 0; i < _items.Count; i++)
-                yield return _items[i].Item;
-        }
-
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata)
-        {
-            _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-            Reorder();
-        }
-
-        protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
-        {
-            _items.Clear();
-            _decoratorManager = null;
-        }
-
-        public void Reorder()
-        {
-            if (_decoratorManager == null)
-                return;
-
-            using (Owner.TryLock())
-            {
-                Reset(_decoratorManager.DecorateItems(Owner, this));
-                _decoratorManager.OnReset(Owner, this, this);
-            }
-        }
-
-        private void Reset(IEnumerable<object?> items)
-        {
-            _items.Clear();
-            _items.AddRange(items.Select((arg1, i) => new OrderedItem(i, arg1)));
-            _items.Sort(_comparer);
-        }
-
-        private int GetInsertIndex(object? item)
-        {
-            var num = _items.BinarySearch(new OrderedItem(-1, item), _comparer);
-            if (num >= 0)
-                return num;
-            return ~num;
-        }
-
-        private int GetIndexByOriginalIndex(int index)
-        {
-            for (var i = 0; i < _items.Count; i++)
-            {
-                if (_items[i].OriginalIndex == index)
-                    return i;
-            }
-
-            return -1;
-        }
-
-        private void UpdateIndexes(int index, int value)
-        {
-            if (_items.Count == 0)
-                return;
-
-            for (var i = 0; i < _items.Count; i++)
-            {
-                var item = _items[i];
-                if (item.OriginalIndex < index)
-                    continue;
-                item.UpdateIndex(value);
-                _items[i] = item;
-            }
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class OrderedItemComparer : IComparer<OrderedItem>
-        {
-            #region Fields
-
-            public readonly IComparer<object?> Comparer;
-
-            #endregion
-
-            #region Constructors
-
-            public OrderedItemComparer(IComparer<object?> comparer)
-            {
-                Comparer = comparer;
-            }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y) => Comparer.Compare(x.Item, y.Item);
-
-            #endregion
-        }
 
         [StructLayout(LayoutKind.Auto)]
         private struct OrderedItem
         {
-            #region Fields
-
             public readonly object? Item;
             public int OriginalIndex;
-
-            #endregion
-
-            #region Constructors
 
             public OrderedItem(int originalIndex, object? item)
             {
@@ -258,15 +204,19 @@ namespace MugenMvvm.Collections.Components
                 Item = item;
             }
 
-            #endregion
-
-            #region Methods
-
             public void UpdateIndex(int index) => OriginalIndex += index;
-
-            #endregion
         }
 
-        #endregion
+        private sealed class OrderedItemComparer : IComparer<OrderedItem>
+        {
+            public readonly IComparer<object?> Comparer;
+
+            public OrderedItemComparer(IComparer<object?> comparer)
+            {
+                Comparer = comparer;
+            }
+
+            int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y) => Comparer.Compare(x.Item, y.Item);
+        }
     }
 }

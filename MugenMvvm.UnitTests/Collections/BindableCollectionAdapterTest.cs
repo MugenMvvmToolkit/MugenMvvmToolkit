@@ -21,9 +21,44 @@ namespace MugenMvvm.UnitTests.Collections
 {
     public class BindableCollectionAdapterTest : UnitTestBase
     {
-        #region Methods
-
         protected override void InitializeThreadDispatcher() => MugenService.Configuration.InitializeInstance<IThreadDispatcher>(new ThreadDispatcher());
+
+        protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new(source);
+
+        private class SuspendableObservableCollection<T> : ObservableCollection<T>, ISuspendable
+        {
+            private int _suspendCount;
+
+            public bool IsSuspended => _suspendCount != 0;
+
+            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+            {
+                ++_suspendCount;
+                return new ActionToken((o, o1) => ((SuspendableObservableCollection<T>) o!).EndSuspend(), this);
+            }
+
+            protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+            {
+                if (!IsSuspended)
+                    base.OnPropertyChanged(e);
+            }
+
+            protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+            {
+                if (!IsSuspended)
+                    base.OnCollectionChanged(e);
+            }
+
+            private void EndSuspend()
+            {
+                if (--_suspendCount == 0)
+                {
+                    OnCollectionChanged(Default.ResetCollectionEventArgs);
+                    OnPropertyChanged(Default.CountPropertyChangedArgs);
+                    OnPropertyChanged(Default.IndexerPropertyChangedArgs);
+                }
+            }
+        }
 
         [Fact]
         public void ShouldTrackChanges1()
@@ -126,83 +161,6 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.ShouldBeEmpty();
             observableCollection.Add(1);
             collectionAdapter.ShouldBeEmpty();
-        }
-
-        [Fact]
-        public void ShouldTrackChangesThreadDispatcher1()
-        {
-            Action? action = null;
-            var dispatcherComponent = new TestThreadDispatcherComponent
-            {
-                CanExecuteInline = (_, __) => false,
-                Execute = (action1, mode, arg3, _) =>
-                {
-                    action += () => action1(arg3);
-                    return true;
-                }
-            };
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
-            var observableCollection = new SynchronizedObservableCollection<object?>();
-            var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
-            var tracker = new ObservableCollectionTracker<object?>();
-            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
-            collectionAdapter.Collection = observableCollection;
-
-            observableCollection.Add(1);
-            observableCollection.Insert(1, 2);
-            observableCollection.Remove(2);
-            observableCollection.RemoveAt(0);
-            observableCollection.Reset(new object?[] {1, 2, 3, 4, 5});
-            observableCollection[0] = 200;
-            observableCollection.Move(1, 2);
-            tracker.ChangedItems.Count.ShouldEqual(0);
-            collectionAdapter.Count.ShouldEqual(0);
-
-            action.ShouldNotBeNull();
-            action!();
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-            collectionAdapter.ShouldEqual(observableCollection);
-        }
-
-        [Fact]
-        public void ShouldTrackChangesThreadDispatcher2()
-        {
-            Action? action = null;
-            var dispatcherComponent = new TestThreadDispatcherComponent
-            {
-                CanExecuteInline = (_, __) => false,
-                Execute = (action1, mode, arg3, _) =>
-                {
-                    action += () => action1(arg3);
-                    return true;
-                }
-            };
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
-            var observableCollection = new ObservableCollection<object?>();
-            var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
-            var tracker = new ObservableCollectionTracker<object?>();
-            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
-            collectionAdapter.Collection = observableCollection;
-
-            observableCollection.Add(1);
-            observableCollection.Insert(1, 2);
-            observableCollection.Remove(2);
-            observableCollection.RemoveAt(0);
-            observableCollection.Clear();
-            observableCollection.AddRange(new object?[] {1, 2, 3, 4, 5});
-            observableCollection[0] = 200;
-            observableCollection.Move(1, 2);
-            tracker.ChangedItems.Count.ShouldEqual(0);
-            collectionAdapter.Count.ShouldEqual(0);
-
-            action.ShouldNotBeNull();
-            action!();
-            tracker.ChangedItems.ShouldEqual(observableCollection);
-            collectionAdapter.ShouldEqual(observableCollection);
         }
 
         [Fact]
@@ -314,63 +272,81 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.ShouldEqual(observableCollection);
         }
 
-        protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new(source);
-
-        #endregion
-
-        #region Nested types
-
-        private class SuspendableObservableCollection<T> : ObservableCollection<T>, ISuspendable
+        [Fact]
+        public void ShouldTrackChangesThreadDispatcher1()
         {
-            #region Fields
-
-            private int _suspendCount;
-
-            #endregion
-
-            #region Properties
-
-            public bool IsSuspended => _suspendCount != 0;
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+            Action? action = null;
+            var dispatcherComponent = new TestThreadDispatcherComponent
             {
-                ++_suspendCount;
-                return new ActionToken((o, o1) => ((SuspendableObservableCollection<T>) o!).EndSuspend(), this);
-            }
-
-            #endregion
-
-            #region Methods
-
-            private void EndSuspend()
-            {
-                if (--_suspendCount == 0)
+                CanExecuteInline = (_, __) => false,
+                Execute = (action1, mode, arg3, _) =>
                 {
-                    OnCollectionChanged(Default.ResetCollectionEventArgs);
-                    OnPropertyChanged(Default.CountPropertyChangedArgs);
-                    OnPropertyChanged(Default.IndexerPropertyChangedArgs);
+                    action += () => action1(arg3);
+                    return true;
                 }
-            }
+            };
+            using var t = MugenService.AddComponent(dispatcherComponent);
 
-            protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-            {
-                if (!IsSuspended)
-                    base.OnPropertyChanged(e);
-            }
+            var observableCollection = new SynchronizedObservableCollection<object?>();
+            var adapterCollection = new ObservableCollection<object?>();
+            var collectionAdapter = GetCollection(adapterCollection);
+            var tracker = new ObservableCollectionTracker<object?>();
+            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
+            collectionAdapter.Collection = observableCollection;
 
-            protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-            {
-                if (!IsSuspended)
-                    base.OnCollectionChanged(e);
-            }
+            observableCollection.Add(1);
+            observableCollection.Insert(1, 2);
+            observableCollection.Remove(2);
+            observableCollection.RemoveAt(0);
+            observableCollection.Reset(new object?[] {1, 2, 3, 4, 5});
+            observableCollection[0] = 200;
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.Count.ShouldEqual(0);
+            collectionAdapter.Count.ShouldEqual(0);
 
-            #endregion
+            action.ShouldNotBeNull();
+            action!();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
         }
 
-        #endregion
+        [Fact]
+        public void ShouldTrackChangesThreadDispatcher2()
+        {
+            Action? action = null;
+            var dispatcherComponent = new TestThreadDispatcherComponent
+            {
+                CanExecuteInline = (_, __) => false,
+                Execute = (action1, mode, arg3, _) =>
+                {
+                    action += () => action1(arg3);
+                    return true;
+                }
+            };
+            using var t = MugenService.AddComponent(dispatcherComponent);
+
+            var observableCollection = new ObservableCollection<object?>();
+            var adapterCollection = new ObservableCollection<object?>();
+            var collectionAdapter = GetCollection(adapterCollection);
+            var tracker = new ObservableCollectionTracker<object?>();
+            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
+            collectionAdapter.Collection = observableCollection;
+
+            observableCollection.Add(1);
+            observableCollection.Insert(1, 2);
+            observableCollection.Remove(2);
+            observableCollection.RemoveAt(0);
+            observableCollection.Clear();
+            observableCollection.AddRange(new object?[] {1, 2, 3, 4, 5});
+            observableCollection[0] = 200;
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.Count.ShouldEqual(0);
+            collectionAdapter.Count.ShouldEqual(0);
+
+            action.ShouldNotBeNull();
+            action!();
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
+        }
     }
 }

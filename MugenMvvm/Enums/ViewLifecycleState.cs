@@ -9,8 +9,6 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class ViewLifecycleState : EnumBase<ViewLifecycleState, string>
     {
-        #region Fields
-
         public static readonly ViewLifecycleState Initializing = new(nameof(Initializing));
         public static readonly ViewLifecycleState Initialized = new(nameof(Initialized));
         public static readonly ViewLifecycleState Appearing = new(nameof(Appearing));
@@ -22,20 +20,14 @@ namespace MugenMvvm.Enums
         public static readonly ViewLifecycleState Closing = new(nameof(Closing));
         public static readonly ViewLifecycleState Closed = new(nameof(Closed));
 
-        #endregion
-
-        #region Constructors
-
-        [Preserve(Conditional = true)]
-        protected ViewLifecycleState()
-        {
-        }
-
         public ViewLifecycleState(string value, string? name = null)
             : base(value, name)
         {
         }
 
-        #endregion
+        [Preserve(Conditional = true)]
+        protected ViewLifecycleState()
+        {
+        }
     }
 }

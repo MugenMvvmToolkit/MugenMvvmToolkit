@@ -10,13 +10,7 @@ namespace MugenMvvm.Internal.Components
 {
     public sealed class MetadataOwnerAttachedValueStorage : AttachedValueStorageProviderBase<IMetadataOwner<IMetadataContext>>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
-
-        #endregion
-
-        #region Methods
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(IMetadataOwner<IMetadataContext> item, bool optional)
         {
@@ -33,7 +27,5 @@ namespace MugenMvvm.Internal.Components
                 return item.Metadata.Remove(InternalMetadata.AttachedValuesKey, out _);
             return false;
         }
-
-        #endregion
     }
 }

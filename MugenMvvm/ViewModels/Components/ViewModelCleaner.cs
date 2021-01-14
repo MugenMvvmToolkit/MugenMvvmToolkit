@@ -14,14 +14,8 @@ namespace MugenMvvm.ViewModels.Components
 {
     public class ViewModelCleaner : IViewModelLifecycleListener, IHasPriority
     {
-        #region Fields
-
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly IViewManager? _viewManager;
-
-        #endregion
-
-        #region Constructors
 
         public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueManager? attachedValueManager = null)
         {
@@ -29,25 +23,14 @@ namespace MugenMvvm.ViewModels.Components
             _attachedValueManager = attachedValueManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ViewModelComponentPriority.PostInitializer;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Disposed)
                 Cleanup(viewModel, lifecycleState, state, metadata);
         }
-
-        #endregion
-
-        #region Methods
 
         protected virtual void Cleanup(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -73,7 +56,5 @@ namespace MugenMvvm.ViewModels.Components
             viewModel.AttachedValues(metadata, _attachedValueManager).Clear();
             (viewModel as IValueHolder<IWeakReference>)?.ReleaseWeakReference();
         }
-
-        #endregion
     }
 }

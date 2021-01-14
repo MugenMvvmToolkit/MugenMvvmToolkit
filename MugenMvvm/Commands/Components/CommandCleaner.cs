@@ -10,20 +10,12 @@ namespace MugenMvvm.Commands.Components
 {
     public sealed class CommandCleaner : ICommandManagerListener, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = CommandComponentPriority.CommandCleaner;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnCommandCreated<TParameter>(ICommandManager commandManager, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
             if (owner is IHasDisposeCallback hasDisposeCallback)
                 hasDisposeCallback.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable) o!).Dispose(), command));
         }
-
-        #endregion
     }
 }

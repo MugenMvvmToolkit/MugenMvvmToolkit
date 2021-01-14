@@ -6,20 +6,13 @@ using System.Text;
 using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Fields
-
         private static Action<IReadOnlyMetadataContext, object, object>? _notNullValidateAction;
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder)
@@ -69,7 +62,8 @@ namespace MugenMvvm.Extensions
             return ctx;
         }
 
-        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
+        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey,
+            [MaybeNullWhen(false)] [NotNullIfNotNull("defaultValue")]
             out T value, T? defaultValue = default)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
@@ -109,10 +103,12 @@ namespace MugenMvvm.Extensions
             Func<IMetadataContext, IMetadataContextKey<T>, object?, T> updateValueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.AddOrUpdate(contextKey, (valueFactory, updateValueFactory), (context, key, s) => s.valueFactory(context, key), (context, key, old, s) => s.updateValueFactory(context, key, old));
+            return metadataContext.AddOrUpdate(contextKey, (valueFactory, updateValueFactory), (context, key, s) => s.valueFactory(context, key),
+                (context, key, old, s) => s.updateValueFactory(context, key, old));
         }
 
-        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue, Func<IMetadataContext, IMetadataContextKey<T>, object?, T> updateValueFactory)
+        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue,
+            Func<IMetadataContext, IMetadataContextKey<T>, object?, T> updateValueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             return metadataContext.AddOrUpdate(contextKey, addValue, updateValueFactory, (context, key, old, s) => s(context, key, old));
@@ -173,7 +169,5 @@ namespace MugenMvvm.Extensions
                 return v;
             return default;
         }
-
-        #endregion
     }
 }

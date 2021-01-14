@@ -10,22 +10,15 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class FakeMemberProvider : IMemberProviderComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly Dictionary<string, ConstantMemberInfo> _cache;
-
         public const char FakeMemberPrefixSymbol = '#';
         public const string FakeMemberPrefix = "Fake";
 
-        #endregion
-
-        #region Constructors
+        private readonly Dictionary<string, ConstantMemberInfo> _cache;
 
         [Preserve(Conditional = true)]
         public FakeMemberProvider()
@@ -33,17 +26,12 @@ namespace MugenMvvm.Bindings.Members.Components
             _cache = new Dictionary<string, ConstantMemberInfo>(7, StringComparer.Ordinal);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = MemberComponentPriority.Dynamic;
 
-        #endregion
+        public static bool IsFakeMember(string name) => name.Length != 0 && (name[0] == FakeMemberPrefixSymbol || name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal));
 
-        #region Implementation of interfaces
-
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+            IReadOnlyMetadataContext? metadata)
         {
             if (!memberTypes.HasFlag(MemberType.Accessor) || !IsFakeMember(name))
                 return default;
@@ -56,13 +44,5 @@ namespace MugenMvvm.Bindings.Members.Components
 
             return value;
         }
-
-        #endregion
-
-        #region Methods
-
-        public static bool IsFakeMember(string name) => name.Length != 0 && (name[0] == FakeMemberPrefixSymbol || name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal));
-
-        #endregion
     }
 }

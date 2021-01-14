@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Entities
 {
     public class EntityTrackingCollectionTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -62,42 +60,9 @@ namespace MugenMvvm.UnitTests.Entities
             collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).IsEmpty.ShouldBeTrue();
         }
 
-        [Fact]
-        public void ShouldRemoveObjectOnDetachState()
+        private sealed class TestModel
         {
-            var target = new object();
-            var collection = new EntityTrackingCollection();
-
-            collection.GetState(target).ShouldEqual(EntityState.Detached);
-            collection.SetState(target, EntityState.Added);
-            collection.GetState(target).ShouldEqual(EntityState.Added);
-
-            collection.SetState(target, EntityState.Detached);
-            collection.GetState(target).ShouldEqual(EntityState.Detached);
-            collection.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void ShouldUseCustomEqualityComparer()
-        {
-            var comparer = new TestEqualityComparer<object>
-            {
-                GetHashCode = model => ((TestModel) model).IntProperty,
-                Equals = (model, testModel) => ((TestModel) model).IntProperty == ((TestModel) testModel).IntProperty
-            };
-            var collection = new EntityTrackingCollection(comparer);
-
-            var item1 = new TestModel {IntProperty = 1};
-            var item2 = new TestModel {IntProperty = 1};
-            collection.SetState(item1, EntityState.Added);
-            collection.Count.ShouldEqual(1);
-
-            collection.SetState(item2, EntityState.Added);
-            collection.Count.ShouldEqual(1);
-
-            var changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added).AsList();
-            changes.Count.ShouldEqual(1);
-            changes[0].Entity.ShouldEqual(item2);
+            public int IntProperty { get; set; }
         }
 
         [Fact]
@@ -149,19 +114,42 @@ namespace MugenMvvm.UnitTests.Entities
             changedInvokeCount.ShouldEqual(2);
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestModel
+        [Fact]
+        public void ShouldRemoveObjectOnDetachState()
         {
-            #region Properties
+            var target = new object();
+            var collection = new EntityTrackingCollection();
 
-            public int IntProperty { get; set; }
+            collection.GetState(target).ShouldEqual(EntityState.Detached);
+            collection.SetState(target, EntityState.Added);
+            collection.GetState(target).ShouldEqual(EntityState.Added);
 
-            #endregion
+            collection.SetState(target, EntityState.Detached);
+            collection.GetState(target).ShouldEqual(EntityState.Detached);
+            collection.Count.ShouldEqual(0);
         }
 
-        #endregion
+        [Fact]
+        public void ShouldUseCustomEqualityComparer()
+        {
+            var comparer = new TestEqualityComparer<object>
+            {
+                GetHashCode = model => ((TestModel) model).IntProperty,
+                Equals = (model, testModel) => ((TestModel) model).IntProperty == ((TestModel) testModel).IntProperty
+            };
+            var collection = new EntityTrackingCollection(comparer);
+
+            var item1 = new TestModel {IntProperty = 1};
+            var item2 = new TestModel {IntProperty = 1};
+            collection.SetState(item1, EntityState.Added);
+            collection.Count.ShouldEqual(1);
+
+            collection.SetState(item2, EntityState.Added);
+            collection.Count.ShouldEqual(1);
+
+            var changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added).AsList();
+            changes.Count.ShouldEqual(1);
+            changes[0].Entity.ShouldEqual(item2);
+        }
     }
 }

@@ -12,27 +12,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
 {
     public static class IgnoreBindingMemberAttributeTestExt
     {
-        #region Methods
-
         [IgnoreBindingMember]
         public static int L(this string target, int value) => value;
-
-        #endregion
     }
 
     public class IgnoreBindingMemberAttributeTest : UnitTestBase
     {
-        #region Properties
+        [IgnoreBindingMember] public static string StaticProperty => "";
+
+        [IgnoreBindingMember] public string Property => "";
 
         [IgnoreBindingMember]
-        public static string StaticProperty => "";
+        public static string StaticMethod() => "";
 
         [IgnoreBindingMember]
-        public string Property => "";
-
-        #endregion
-
-        #region Methods
+        public string Method() => "";
 
         [Fact]
         public void TryConvertShouldIgnoreExpression1()
@@ -83,7 +77,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldIgnoreExpression5()
         {
-            var call = Expression.Call(typeof(IgnoreBindingMemberAttributeTestExt), nameof(IgnoreBindingMemberAttributeTestExt.L), Default.Array<Type>(), Expression.Constant(""), Expression.Constant(1));
+            var call = Expression.Call(typeof(IgnoreBindingMemberAttributeTestExt), nameof(IgnoreBindingMemberAttributeTestExt.L), Default.Array<Type>(), Expression.Constant(""),
+                Expression.Constant(1));
             var attribute = (IgnoreBindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
@@ -92,13 +87,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(ConstantExpressionNode.Get(""));
         }
-
-        [IgnoreBindingMember]
-        public static string StaticMethod() => "";
-
-        [IgnoreBindingMember]
-        public string Method() => "";
-
-        #endregion
     }
 }

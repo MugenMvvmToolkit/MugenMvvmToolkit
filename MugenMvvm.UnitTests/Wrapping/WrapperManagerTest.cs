@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Wrapping
 {
     public class WrapperManagerTest : ComponentOwnerTestBase<WrapperManager>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -47,13 +45,6 @@ namespace MugenMvvm.UnitTests.Wrapping
             result = true;
             manager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void WrapShouldThrowNoComponents()
-        {
-            var manager = new WrapperManager();
-            ShouldThrow<ArgumentException>(() => manager.Wrap(typeof(IComponent), this, DefaultMetadata));
         }
 
         [Theory]
@@ -103,6 +94,11 @@ namespace MugenMvvm.UnitTests.Wrapping
 
         protected override WrapperManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void WrapShouldThrowNoComponents()
+        {
+            var manager = new WrapperManager();
+            ShouldThrow<ArgumentException>(() => manager.Wrap(typeof(IComponent), this, DefaultMetadata));
+        }
     }
 }

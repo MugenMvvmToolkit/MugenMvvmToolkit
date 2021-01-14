@@ -10,15 +10,9 @@ namespace MugenMvvm.Internal
     [StructLayout(LayoutKind.Auto)]
     public ref struct AttachedValueStorage
     {
-        #region Fields
-
         private readonly object? _item;
         private object? _state;
         private readonly IAttachedValueStorageManager? _storageManager;
-
-        #endregion
-
-        #region Constructors
 
         public AttachedValueStorage(object item, IAttachedValueStorageManager storageManager, object? state)
         {
@@ -29,15 +23,7 @@ namespace MugenMvvm.Internal
             _state = state;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => _storageManager == null;
-
-        #endregion
-
-        #region Methods
 
         public void Deconstruct(out IAttachedValueStorageManager storageManager, out object item, out object? state)
         {
@@ -83,7 +69,8 @@ namespace MugenMvvm.Internal
             return _storageManager!.AddOrUpdate(_item!, path, addValue, state, updateValueFactory, ref _state);
         }
 
-        public TValue AddOrUpdate<TValue, TState>(string path, TState state, Func<object, TState, TValue> addValueFactory, Func<object, string, TValue, TState, TValue> updateValueFactory)
+        public TValue AddOrUpdate<TValue, TState>(string path, TState state, Func<object, TState, TValue> addValueFactory,
+            Func<object, string, TValue, TState, TValue> updateValueFactory)
         {
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(addValueFactory, nameof(addValueFactory));
@@ -137,7 +124,5 @@ namespace MugenMvvm.Internal
             if (_storageManager == null)
                 ExceptionManager.ThrowObjectNotInitialized(nameof(AttachedValueStorage));
         }
-
-        #endregion
     }
 }

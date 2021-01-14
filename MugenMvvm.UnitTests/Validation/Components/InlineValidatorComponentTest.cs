@@ -8,30 +8,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class InlineValidatorComponentTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void SetErrorsShouldUpdateErrors()
-        {
-            var memberName = "test";
-            var errors = new object[] {"test"};
-
-            var validator = new InlineValidatorComponent(this);
-            validator.HasErrors(null!, null, null).ShouldBeFalse();
-
-            validator.SetErrors(memberName, errors);
-            validator.HasErrors(null!, memberName, null).ShouldBeTrue();
-            validator.HasErrors(null!, null, null).ShouldBeTrue();
-
-            validator.TryGetErrors(null!, memberName).AsList().ShouldContain(errors);
-
-            validator.SetErrors(memberName, default, DefaultMetadata);
-            validator.HasErrors(null!, memberName, null).ShouldBeFalse();
-            validator.HasErrors(null!, null, null).ShouldBeFalse();
-            validator.TryGetErrors(null!).ShouldBeEmpty();
-        }
-
-
         [Fact]
         public void SetErrorsShouldAddInlineValidator()
         {
@@ -66,6 +42,25 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.GetComponents<InlineValidatorComponent>().Count.ShouldEqual(2);
         }
 
-        #endregion
+        [Fact]
+        public void SetErrorsShouldUpdateErrors()
+        {
+            var memberName = "test";
+            var errors = new object[] {"test"};
+
+            var validator = new InlineValidatorComponent(this);
+            validator.HasErrors(null!, null, null).ShouldBeFalse();
+
+            validator.SetErrors(memberName, errors);
+            validator.HasErrors(null!, memberName, null).ShouldBeTrue();
+            validator.HasErrors(null!, null, null).ShouldBeTrue();
+
+            validator.TryGetErrors(null!, memberName).AsList().ShouldContain(errors);
+
+            validator.SetErrors(memberName, default, DefaultMetadata);
+            validator.HasErrors(null!, memberName, null).ShouldBeFalse();
+            validator.HasErrors(null!, null, null).ShouldBeFalse();
+            validator.TryGetErrors(null!).ShouldBeEmpty();
+        }
     }
 }

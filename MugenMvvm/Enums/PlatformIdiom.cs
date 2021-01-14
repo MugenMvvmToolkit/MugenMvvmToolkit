@@ -9,8 +9,6 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class PlatformIdiom : EnumBase<PlatformIdiom, string>
     {
-        #region Fields
-
         public static readonly PlatformIdiom Desktop = new(nameof(Desktop));
         public static readonly PlatformIdiom Tablet = new(nameof(Tablet));
         public static readonly PlatformIdiom Phone = new(nameof(Phone));
@@ -18,19 +16,13 @@ namespace MugenMvvm.Enums
         public static readonly PlatformIdiom Watch = new(nameof(Watch));
         public static readonly PlatformIdiom Unknown = new(nameof(Unknown));
 
-        #endregion
-
-        #region Constructors
+        public PlatformIdiom(string id, string? name = null) : base(id, name)
+        {
+        }
 
         [Preserve(Conditional = true)]
         protected PlatformIdiom()
         {
         }
-
-        public PlatformIdiom(string id, string? name = null) : base(id, name)
-        {
-        }
-
-        #endregion
     }
 }

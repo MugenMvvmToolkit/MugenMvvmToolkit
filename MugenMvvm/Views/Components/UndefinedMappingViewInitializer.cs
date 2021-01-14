@@ -14,17 +14,12 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class UndefinedMappingViewInitializer : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
-        #region Constructors
-
         public UndefinedMappingViewInitializer(int priority = ViewComponentPriority.UndefinedMappingDecorator) : base(priority)
         {
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             if (mapping.IsUndefined())
             {
@@ -40,10 +35,8 @@ namespace MugenMvvm.Views.Components
                             viewType = v?.GetType()!;
                         var mappingId = mappings.Item?.Id ?? $"a{viewModel.GetType().Name}{viewType.Name}";
                         foreach (var view in viewManager.GetViews(viewModel, metadata))
-                        {
                             if (view.Mapping.Id == mappingId && (v == null || Equals(v, view.Target)))
                                 return new ValueTask<IView?>(view);
-                        }
 
                         mapping = mappings.Item ?? new ViewMapping(mappingId, viewModel.GetType(), viewType, metadata);
                     }
@@ -57,7 +50,5 @@ namespace MugenMvvm.Views.Components
 
         public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
-
-        #endregion
     }
 }

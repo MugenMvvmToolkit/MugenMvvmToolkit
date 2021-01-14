@@ -2,22 +2,14 @@
 {
     public class TestConverterClass
     {
-        #region Properties
-
-        public object? this[object index] => null;
+        public static object? PropertyStatic { get; set; }
 
         public object? Property { get; set; }
 
-        public static object? PropertyStatic { get; set; }
-
-        #endregion
-
-        #region Methods
-
-        public object? Method(object? arg) => null;
+        public object? this[object index] => null;
 
         public static object? MethodStatic(object? arg) => null;
 
-        #endregion
+        public object? Method(object? arg) => null;
     }
 }

@@ -13,22 +13,9 @@ namespace MugenMvvm.Views.Components
 {
     public class ViewInitializer : IViewLifecycleListener, IComponentCollectionChangedListener, IHasPriority
     {
-        #region Properties
-
-        public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
-
         public bool SetDataContext { get; set; } = true;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            (component as IInitializableView)?.Initialize((IView) collection.Owner, null, metadata);
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-        }
+        public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -40,10 +27,6 @@ namespace MugenMvvm.Views.Components
             else if (lifecycleState == ViewLifecycleState.Clearing)
                 Cleanup(viewImp, state, metadata);
         }
-
-        #endregion
-
-        #region Methods
 
         protected virtual void Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -59,6 +42,11 @@ namespace MugenMvvm.Views.Components
 
         protected virtual void Cleanup(IView view, object? state, IReadOnlyMetadataContext? metadata) => view.Components.RemoveComponent(this);
 
-        #endregion
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            (component as IInitializableView)?.Initialize((IView) collection.Owner, null, metadata);
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+        }
     }
 }

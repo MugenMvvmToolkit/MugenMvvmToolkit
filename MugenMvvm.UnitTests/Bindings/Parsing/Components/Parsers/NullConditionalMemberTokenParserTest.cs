@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class NullConditionalMemberTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotNullConditionalExpression()
         {
@@ -31,10 +29,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize($"?.{memberName}", DefaultMetadata);
 
             var component = new NullConditionalMemberTokenParser();
-            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), memberName));
+            component.TryParse(ctx, ConstantExpressionNode.Null)
+                     .ShouldEqual(new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), memberName));
 
             ctx.Initialize($"?      .{memberName}", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), memberName));
+            component.TryParse(ctx, ConstantExpressionNode.Null)
+                     .ShouldEqual(new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), memberName));
 
             ctx.Initialize($"?[{memberName}]", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), new[]
@@ -54,7 +54,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize("?.", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null).ShouldBeNull();
         }
-
-        #endregion
     }
 }

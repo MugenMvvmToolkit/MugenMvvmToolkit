@@ -7,13 +7,7 @@ namespace MugenMvvm.Bindings.Members.Descriptors
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindableEventDescriptor<TTarget> where TTarget : class
     {
-        #region Fields
-
         public readonly string Name;
-
-        #endregion
-
-        #region Constructors
 
         public BindableEventDescriptor(string name)
         {
@@ -21,15 +15,7 @@ namespace MugenMvvm.Bindings.Members.Descriptors
             Name = name;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsStatic => typeof(TTarget) == typeof(Type);
-
-        #endregion
-
-        #region Methods
 
         [Pure]
         public BindableEventDescriptor<TNewTarget> Override<TNewTarget>() where TNewTarget : class => new(Name);
@@ -39,7 +25,5 @@ namespace MugenMvvm.Bindings.Members.Descriptors
         public static implicit operator string(BindableEventDescriptor<TTarget> member) => member.Name;
 
         public override string ToString() => Name;
-
-        #endregion
     }
 }

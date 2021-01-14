@@ -13,14 +13,8 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class BinaryTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Fields
-
         private readonly List<KeyValuePair<List<IExpressionNode>, List<BinaryTokenType>>> _buffers;
         private int _nestedIndex;
-
-        #endregion
-
-        #region Constructors
 
         public BinaryTokenParser()
         {
@@ -50,17 +44,27 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public List<BinaryTokenType> Tokens { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Binary;
 
-        #endregion
+        private static int GetMaxPriorityTokenIndex(List<BinaryTokenType> tokens)
+        {
+            if (tokens.Count == 0)
+                return -1;
+            if (tokens.Count == 1)
+                return 0;
+            var index = -1;
+            var priority = int.MinValue;
+            for (var i = 0; i < tokens.Count; i++)
+                if (tokens[i].Priority > priority)
+                {
+                    priority = tokens[i].Priority;
+                    index = i;
+                }
 
-        #region Implementation of interfaces
+            return index;
+        }
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -78,10 +82,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 --_nestedIndex;
             }
         }
-
-        #endregion
-
-        #region Methods
 
         private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -142,26 +142,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             return nodes[0];
         }
 
-        private static int GetMaxPriorityTokenIndex(List<BinaryTokenType> tokens)
-        {
-            if (tokens.Count == 0)
-                return -1;
-            if (tokens.Count == 1)
-                return 0;
-            var index = -1;
-            var priority = int.MinValue;
-            for (var i = 0; i < tokens.Count; i++)
-            {
-                if (tokens[i].Priority > priority)
-                {
-                    priority = tokens[i].Priority;
-                    index = i;
-                }
-            }
-
-            return index;
-        }
-
         private BinaryTokenType? GetToken(ITokenParserContext context)
         {
             for (var i = 0; i < Tokens.Count; i++)
@@ -174,13 +154,11 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 }
 
                 foreach (var t in token.Aliases)
-                {
                     if (context.IsToken(t))
                     {
                         context.MoveNext(t.Length);
                         return token;
                     }
-                }
             }
 
             return null;
@@ -196,7 +174,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             nodes.Clear();
             tokens.Clear();
         }
-
-        #endregion
     }
 }

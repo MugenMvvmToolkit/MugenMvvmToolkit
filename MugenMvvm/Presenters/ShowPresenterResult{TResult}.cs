@@ -7,15 +7,9 @@ namespace MugenMvvm.Presenters
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ShowPresenterResult<TResult>
     {
-        #region Fields
-
         public readonly INavigationCallback CloseCallback;
         public readonly IPresenterResult Result;
         public readonly INavigationCallback? ShowingCallback;
-
-        #endregion
-
-        #region Constructors
 
         public ShowPresenterResult(IPresenterResult result, INavigationCallback? showingCallback, INavigationCallback closeCallback)
         {
@@ -24,7 +18,5 @@ namespace MugenMvvm.Presenters
             ShowingCallback = showingCallback;
             CloseCallback = closeCallback;
         }
-
-        #endregion
     }
 }

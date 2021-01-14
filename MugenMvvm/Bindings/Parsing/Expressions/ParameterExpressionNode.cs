@@ -9,25 +9,17 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class ParameterExpressionNode : ExpressionNodeBase<IParameterExpressionNode>, IParameterExpressionNode
     {
-        #region Constructors
-
         public ParameterExpressionNode(string name, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(name, nameof(name));
             Name = name;
         }
 
-        #endregion
-
-        #region Properties
-
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Parameter;
 
         public string Name { get; }
 
-        #endregion
-
-        #region Methods
+        public override string ToString() => Name;
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => this;
 
@@ -36,9 +28,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         protected override bool Equals(IParameterExpressionNode other, IExpressionEqualityComparer? comparer) => Name.Equals(other.Name);
 
         protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => HashCode.Combine(hashCode, Name);
-
-        public override string ToString() => Name;
-
-        #endregion
     }
 }

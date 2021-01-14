@@ -7,13 +7,10 @@ namespace System.Collections.Generic
 {
     public class ReferenceEqualityComparer : IEqualityComparer<object?>
     {
-        #region Fields
 
         public static readonly IEqualityComparer<object> Instance;
 
-        #endregion
 
-        #region Constructors
 
         static ReferenceEqualityComparer()
         {
@@ -24,9 +21,7 @@ namespace System.Collections.Generic
         {
         }
 
-        #endregion
 
-        #region Implementation of IEqualityComparer<in object>
 
         bool IEqualityComparer<object?>.Equals(object? x, object? y) => ReferenceEquals(x, y);
 
@@ -37,7 +32,6 @@ namespace System.Collections.Generic
             return RuntimeHelpers.GetHashCode(obj) * 397;
         }
 
-        #endregion
     }
 }
 

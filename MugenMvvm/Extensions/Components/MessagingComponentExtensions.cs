@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Extensions.Components
 {
     public static class MessagingComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMessageContext? TryGetMessageContext(this ItemOrArray<IMessageContextProviderComponent> components, IMessenger messenger, object? sender, object message, IReadOnlyMetadataContext? metadata)
+        public static IMessageContext? TryGetMessageContext(this ItemOrArray<IMessageContextProviderComponent> components, IMessenger messenger, object? sender, object message,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(message, nameof(message));
@@ -37,24 +34,21 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messageContext, nameof(messageContext));
             var published = false;
             foreach (var c in components)
-            {
                 if (c.TryPublish(messenger, messageContext))
                     published = true;
-            }
 
             return published;
         }
 
-        public static bool TrySubscribe(this ItemOrArray<IMessengerSubscriberComponent> components, IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
+        public static bool TrySubscribe(this ItemOrArray<IMessengerSubscriberComponent> components, IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(subscriber, nameof(subscriber));
             var result = false;
             foreach (var c in components)
-            {
                 if (c.TrySubscribe(messenger, subscriber, executionMode, metadata))
                     result = true;
-            }
 
             return result;
         }
@@ -65,10 +59,8 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(subscriber, nameof(subscriber));
             var result = false;
             foreach (var c in components)
-            {
                 if (c.TryUnsubscribe(messenger, subscriber, metadata))
                     result = true;
-            }
 
             return result;
         }
@@ -78,10 +70,8 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messenger, nameof(messenger));
             var result = false;
             foreach (var c in components)
-            {
                 if (c.TryUnsubscribeAll(messenger, metadata))
                     result = true;
-            }
 
             return result;
         }
@@ -101,7 +91,8 @@ namespace MugenMvvm.Extensions.Components
             return subscribers.ToItemOrList();
         }
 
-        public static ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(this ItemOrArray<IMessengerSubscriberComponent> components, IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(this ItemOrArray<IMessengerSubscriberComponent> components, IMessenger messenger,
+            Type messageType, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(messageType, nameof(messageType));
@@ -115,7 +106,5 @@ namespace MugenMvvm.Extensions.Components
 
             return handlers.ToItemOrList();
         }
-
-        #endregion
     }
 }

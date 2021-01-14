@@ -7,8 +7,6 @@ namespace MugenMvvm.Bindings.Members.Builders
     [StructLayout(LayoutKind.Auto)]
     public ref struct ParameterBuilder
     {
-        #region Fields
-
         private readonly string _name;
         private readonly Type _parameterType;
         private object? _defaultValue;
@@ -16,10 +14,6 @@ namespace MugenMvvm.Bindings.Members.Builders
         private Func<DelegateParameterInfo<object?>, Type, bool>? _isDefined;
         private object? _underlyingMember;
         private object? _state;
-
-        #endregion
-
-        #region Constructors
 
         public ParameterBuilder(string name, Type parameterType)
         {
@@ -33,10 +27,6 @@ namespace MugenMvvm.Bindings.Members.Builders
             _underlyingMember = null;
             _state = null;
         }
-
-        #endregion
-
-        #region Methods
 
         public ParameterBuilder UnderlyingMember(object member)
         {
@@ -74,7 +64,5 @@ namespace MugenMvvm.Bindings.Members.Builders
         }
 
         public IParameterInfo Build() => new DelegateParameterInfo<object?>(_name, _parameterType, _underlyingMember, _hasDefaultValue, _defaultValue, _state, _isDefined);
-
-        #endregion
     }
 }

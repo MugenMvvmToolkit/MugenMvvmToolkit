@@ -10,10 +10,9 @@ namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class CompilingComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICompiledExpression? TryCompile(this ItemOrArray<IExpressionCompilerComponent> components, IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+        public static ICompiledExpression? TryCompile(this ItemOrArray<IExpressionCompilerComponent> components, IExpressionCompiler compiler, IExpressionNode expression,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(compiler, nameof(compiler));
             Should.NotBeNull(expression, nameof(expression));
@@ -40,7 +39,5 @@ namespace MugenMvvm.Bindings.Extensions.Components
 
             return null;
         }
-
-        #endregion
     }
 }

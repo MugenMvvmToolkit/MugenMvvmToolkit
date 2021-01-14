@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class ConditionTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotConditionExpression()
         {
@@ -38,9 +36,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                 }
             };
             ctx.Initialize("? 2 : 3", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldEqual(new ConditionExpressionNode(ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)));
+            component.TryParse(ctx, ConstantExpressionNode.Get(1))
+                     .ShouldEqual(new ConditionExpressionNode(ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)));
         }
-
-        #endregion
     }
 }

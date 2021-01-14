@@ -10,8 +10,6 @@ namespace MugenMvvm.Ios.Extensions
 {
     public static partial class IosMugenExtensions
     {
-        #region Methods
-
         public static void Encode(this NSCoder coder, string? value, string key)
         {
             Should.NotBeNull(coder, nameof(coder));
@@ -123,7 +121,5 @@ namespace MugenMvvm.Ios.Extensions
             for (var index = 0; index < items.Length; index++)
                 items[index].BindableMembers().SetParent(parent);
         }
-
-        #endregion
     }
 }

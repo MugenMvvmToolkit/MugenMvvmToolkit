@@ -7,13 +7,7 @@ namespace MugenMvvm.UnitTests.Models.Internal
 {
     public class TestNotifyPropertyChangedModel : NotifyPropertyChangedBase
     {
-        #region Fields
-
         private string? _property;
-
-        #endregion
-
-        #region Properties
 
         public string? Property
         {
@@ -30,10 +24,6 @@ namespace MugenMvvm.UnitTests.Models.Internal
         public Action<PropertyChangedEventArgs>? OnPropertyChangedInternalHandler { get; set; }
 
         public Action<bool>? OnEndSuspendHandler { get; set; }
-
-        #endregion
-
-        #region Methods
 
         public new void OnPropertyChanged([CallerMemberName] string? propertyName = null) => base.OnPropertyChanged(propertyName);
 
@@ -52,7 +42,5 @@ namespace MugenMvvm.UnitTests.Models.Internal
             OnEndSuspendHandler?.Invoke(isDirty);
             base.OnEndSuspend(isDirty);
         }
-
-        #endregion
     }
 }

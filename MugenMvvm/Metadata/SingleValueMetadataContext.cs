@@ -2,19 +2,12 @@
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
     public sealed class SingleValueMetadataContext : IReadOnlyMetadataContext
     {
-        #region Fields
-
         private readonly KeyValuePair<IMetadataContextKey, object?> _value;
-
-        #endregion
-
-        #region Constructors
 
         public SingleValueMetadataContext(KeyValuePair<IMetadataContextKey, object?> value)
         {
@@ -22,15 +15,7 @@ namespace MugenMvvm.Metadata
             _value = value;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Count => 1;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => _value;
 
@@ -47,7 +32,5 @@ namespace MugenMvvm.Metadata
             value = null;
             return false;
         }
-
-        #endregion
     }
 }

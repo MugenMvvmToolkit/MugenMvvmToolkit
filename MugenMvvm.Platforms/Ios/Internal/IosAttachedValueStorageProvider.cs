@@ -8,13 +8,7 @@ namespace MugenMvvm.Ios.Internal
 {
     public class IosAttachedValueStorageProvider : AttachedValueStorageProviderBase<NSObject>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
-
-        #endregion
-
-        #region Methods
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(NSObject item, bool optional) => IosAttachedValueHolder.Get(item, optional)?.GetValues(optional);
 
@@ -26,7 +20,5 @@ namespace MugenMvvm.Ios.Internal
             dictionary.Clear();
             return true;
         }
-
-        #endregion
     }
 }

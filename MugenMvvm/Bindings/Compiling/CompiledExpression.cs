@@ -20,7 +20,7 @@ namespace MugenMvvm.Bindings.Compiling
 {
     public sealed class CompiledExpression : ICompiledExpression, IExpressionBuilderContext, IExpressionVisitor, IEqualityComparer<IExpressionNode>, IEqualityComparer<object>
     {
-        #region Fields
+        private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
 
         private readonly Dictionary<object, Func<object?[], object?>> _cache;
         private readonly IExpressionNode _expression;
@@ -30,12 +30,6 @@ namespace MugenMvvm.Bindings.Compiling
 
         private object? _expressionBuilders;
         private IMetadataContext? _metadata;
-
-        private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
-
-        #endregion
-
-        #region Constructors
 
         public CompiledExpression(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
         {
@@ -47,16 +41,6 @@ namespace MugenMvvm.Bindings.Compiling
             MetadataExpression = MugenExtensions.GetIndexExpression(_expressions.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
         }
 
-        #endregion
-
-        #region Properties
-
-        public bool HasMetadata => !(_metadata ?? _inputMetadata).IsNullOrEmpty();
-
-        public IMetadataContext Metadata => _metadata ?? MugenExtensions.EnsureInitialized(ref _metadata, new MetadataContext(_inputMetadata));
-
-        public Expression MetadataExpression { get; }
-
         public ItemOrArray<IExpressionBuilderComponent> ExpressionBuilders
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,11 +48,24 @@ namespace MugenMvvm.Bindings.Compiling
             set => _expressionBuilders = value.GetRawValue();
         }
 
+        public Expression MetadataExpression { get; }
+
+        public bool HasMetadata => !(_metadata ?? _inputMetadata).IsNullOrEmpty();
+
+        public IMetadataContext Metadata => _metadata ?? MugenExtensions.EnsureInitialized(ref _metadata, new MetadataContext(_inputMetadata));
+
         ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Preorder;
 
-        #endregion
+        private static bool Equals(Type[] types, ParameterValue[] values)
+        {
+            if (values.Length != types.Length)
+                return false;
+            for (var i = 0; i < values.Length; i++)
+                if (values[i].Type != types[i])
+                    return false;
 
-        #region Implementation of interfaces
+            return true;
+        }
 
         public object? Invoke(ItemOrArray<ParameterValue> values, IReadOnlyMetadataContext? metadata)
         {
@@ -103,6 +100,60 @@ namespace MugenMvvm.Bindings.Compiling
             finally
             {
                 Array.Clear(_values, 0, _values.Length);
+            }
+        }
+
+        public Expression? TryGetExpression(IExpressionNode expression)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            _expressions.TryGetValue(expression, out var value);
+            return value;
+        }
+
+        public void SetExpression(IExpressionNode expression, Expression value)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            Should.NotBeNull(value, nameof(value));
+            _expressions[expression] = value;
+        }
+
+        public void ClearExpression(IExpressionNode expression)
+        {
+            Should.NotBeNull(expression, nameof(expression));
+            _expressions.Remove(expression);
+        }
+
+        public Expression? TryBuild(IExpressionNode expression) => ExpressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
+
+        private Func<object?[], object?> CompileExpression(ItemOrArray<ParameterValue> values)
+        {
+            try
+            {
+                var memberValues = new ItemOrListEditor<KeyValuePair<IBindingMemberExpressionNode, Expression>>();
+                foreach (var value in _expressions)
+                {
+                    if (!(value.Key is IBindingMemberExpressionNode memberExpression))
+                        continue;
+
+                    var index = MugenExtensions.GetIndexExpression(memberExpression.Index);
+                    memberValues.Add(new KeyValuePair<IBindingMemberExpressionNode, Expression>(memberExpression, index.ConvertIfNeed(values[memberExpression.Index].Type, false)));
+                }
+
+                foreach (var pair in memberValues.ToItemOrList())
+                    _expressions[pair.Key] = pair.Value;
+
+                return Expression
+                       .Lambda<Func<object?[], object?>>(this.Build(_expression).ConvertIfNeed(typeof(object), false), ArrayParameterArray)
+                       .CompileEx();
+            }
+            finally
+            {
+                if (_metadata != null)
+                {
+                    _metadata.Clear();
+                    if (!_inputMetadata.IsNullOrEmpty())
+                        _metadata.Merge(_inputMetadata!);
+                }
             }
         }
 
@@ -160,28 +211,6 @@ namespace MugenMvvm.Bindings.Compiling
             return hashCode.ToHashCode();
         }
 
-        public Expression? TryGetExpression(IExpressionNode expression)
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            _expressions.TryGetValue(expression, out var value);
-            return value;
-        }
-
-        public void SetExpression(IExpressionNode expression, Expression value)
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            Should.NotBeNull(value, nameof(value));
-            _expressions[expression] = value;
-        }
-
-        public void ClearExpression(IExpressionNode expression)
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            _expressions.Remove(expression);
-        }
-
-        public Expression? TryBuild(IExpressionNode expression) => ExpressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
-
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is IBindingMemberExpressionNode memberExpression)
@@ -197,56 +226,5 @@ namespace MugenMvvm.Bindings.Compiling
 
             return expression;
         }
-
-        #endregion
-
-        #region Methods
-
-        private Func<object?[], object?> CompileExpression(ItemOrArray<ParameterValue> values)
-        {
-            try
-            {
-                var memberValues = new ItemOrListEditor<KeyValuePair<IBindingMemberExpressionNode, Expression>>();
-                foreach (var value in _expressions)
-                {
-                    if (!(value.Key is IBindingMemberExpressionNode memberExpression))
-                        continue;
-
-                    var index = MugenExtensions.GetIndexExpression(memberExpression.Index);
-                    memberValues.Add(new KeyValuePair<IBindingMemberExpressionNode, Expression>(memberExpression, index.ConvertIfNeed(values[memberExpression.Index].Type, false)));
-                }
-
-                foreach (var pair in memberValues.ToItemOrList())
-                    _expressions[pair.Key] = pair.Value;
-
-                return Expression
-                    .Lambda<Func<object?[], object?>>(this.Build(_expression).ConvertIfNeed(typeof(object), false), ArrayParameterArray)
-                    .CompileEx();
-            }
-            finally
-            {
-                if (_metadata != null)
-                {
-                    _metadata.Clear();
-                    if (!_inputMetadata.IsNullOrEmpty())
-                        _metadata.Merge(_inputMetadata!);
-                }
-            }
-        }
-
-        private static bool Equals(Type[] types, ParameterValue[] values)
-        {
-            if (values.Length != types.Length)
-                return false;
-            for (var i = 0; i < values.Length; i++)
-            {
-                if (values[i].Type != types[i])
-                    return false;
-            }
-
-            return true;
-        }
-
-        #endregion
     }
 }

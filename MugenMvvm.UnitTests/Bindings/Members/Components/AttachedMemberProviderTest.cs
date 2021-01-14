@@ -13,16 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class AttachedMemberProviderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryGetMembersShouldReturnNullResult()
-        {
-            var component = new AttachedMemberProvider();
-            component.TryGetMembers(null!, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            component.GetAttachedMembers().IsEmpty.ShouldBeTrue();
-        }
-
         [Theory]
         [InlineData(null, true)]
         [InlineData(null, false)]
@@ -140,6 +130,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             members.ShouldContain(memberInfo4);
         }
 
-        #endregion
+        [Fact]
+        public void TryGetMembersShouldReturnNullResult()
+        {
+            var component = new AttachedMemberProvider();
+            component.TryGetMembers(null!, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.GetAttachedMembers().IsEmpty.ShouldBeTrue();
+        }
     }
 }

@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -12,32 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class NullConditionalMemberExpressionNodeTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var target = new ConstantExpressionNode("1");
-            var exp = new NullConditionalMemberExpressionNode(target);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
-            exp.Target.ShouldEqual(target);
-            exp.ToString().ShouldEqual("\"1\"?");
-        }
-
-        [Fact]
-        public void UpdateTargetShouldCreateNewNode()
-        {
-            var target = new ConstantExpressionNode("1");
-            var newTarget = new ConstantExpressionNode("2");
-            var exp = new NullConditionalMemberExpressionNode(target);
-            exp.UpdateTarget(target).ShouldEqual(exp);
-
-            var newExp = exp.UpdateTarget(newTarget);
-            newExp.ShouldNotEqual(exp);
-            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
-            newExp.Target.ShouldEqual(newTarget);
-        }
-
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -64,7 +37,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             result.ShouldEqual(nodes);
         }
 
-
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -87,17 +59,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var expressionNode = (NullConditionalMemberExpressionNode) exp.Accept(visitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var target = new ConstantExpressionNode("1");
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => target
-            };
-            new NullConditionalMemberExpressionNode(target).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
         }
 
         [Theory]
@@ -154,6 +115,39 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             ((TestExpressionNode) exp1.Target).EqualsCount.ShouldEqual(1);
         }
 
-        #endregion
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var target = new ConstantExpressionNode("1");
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => target
+            };
+            new NullConditionalMemberExpressionNode(target).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var target = new ConstantExpressionNode("1");
+            var exp = new NullConditionalMemberExpressionNode(target);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
+            exp.Target.ShouldEqual(target);
+            exp.ToString().ShouldEqual("\"1\"?");
+        }
+
+        [Fact]
+        public void UpdateTargetShouldCreateNewNode()
+        {
+            var target = new ConstantExpressionNode("1");
+            var newTarget = new ConstantExpressionNode("2");
+            var exp = new NullConditionalMemberExpressionNode(target);
+            exp.UpdateTarget(target).ShouldEqual(exp);
+
+            var newExp = exp.UpdateTarget(newTarget);
+            newExp.ShouldNotEqual(exp);
+            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
+            newExp.Target.ShouldEqual(newTarget);
+        }
     }
 }

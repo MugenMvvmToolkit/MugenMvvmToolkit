@@ -8,19 +8,12 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingExpressionParserCache : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
     {
-        #region Fields
-
         private readonly Dictionary<string, object?> _cache;
-
-        #endregion
-
-        #region Constructors
 
         public BindingExpressionParserCache(int priority = BindingComponentPriority.BuilderCache)
             : base(priority)
@@ -28,9 +21,7 @@ namespace MugenMvvm.Bindings.Core.Components
             _cache = new Dictionary<string, object?>(59, StringComparer.Ordinal);
         }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
@@ -45,13 +36,5 @@ namespace MugenMvvm.Bindings.Core.Components
 
             return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
         }
-
-        #endregion
-
-        #region Methods
-
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
-        #endregion
     }
 }

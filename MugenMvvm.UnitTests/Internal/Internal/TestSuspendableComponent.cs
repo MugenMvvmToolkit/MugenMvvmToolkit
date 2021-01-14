@@ -7,18 +7,10 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public class TestSuspendableComponent : ISuspendable
     {
-        #region Properties
+        public Func<object?, IReadOnlyMetadataContext?, ActionToken>? Suspend { get; set; }
 
         public bool IsSuspended { get; set; }
 
-        public Func<object?, IReadOnlyMetadataContext?, ActionToken>? Suspend { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
         ActionToken ISuspendable.Suspend(object? state, IReadOnlyMetadataContext? metadata) => Suspend?.Invoke(state, metadata) ?? default;
-
-        #endregion
     }
 }

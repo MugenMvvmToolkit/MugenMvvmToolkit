@@ -9,8 +9,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class BinaryExpressionNode : ExpressionNodeBase<IBinaryExpressionNode>, IBinaryExpressionNode
     {
-        #region Constructors
-
         public BinaryExpressionNode(BinaryTokenType token, IExpressionNode left, IExpressionNode right, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(token, nameof(token));
@@ -21,21 +19,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             Token = token;
         }
 
-        #endregion
-
-        #region Properties
-
-        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Binary;
-
         public IExpressionNode Left { get; }
 
         public IExpressionNode Right { get; }
 
         public BinaryTokenType Token { get; }
 
-        #endregion
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Binary;
 
-        #region Methods
+        public override string ToString() => $"({Left} {Token.Value} {Right})";
 
         protected override IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
@@ -66,12 +58,10 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         protected override IBinaryExpressionNode Clone(IReadOnlyDictionary<string, object?> metadata) => new BinaryExpressionNode(Token, Left, Right, metadata);
 
-        protected override bool Equals(IBinaryExpressionNode other, IExpressionEqualityComparer? comparer) => Token == other.Token && Left.Equals(other.Left, comparer) && Right.Equals(other.Right, comparer);
+        protected override bool Equals(IBinaryExpressionNode other, IExpressionEqualityComparer? comparer) =>
+            Token == other.Token && Left.Equals(other.Left, comparer) && Right.Equals(other.Right, comparer);
 
-        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => HashCode.Combine(hashCode, Token.GetHashCode(), Left.GetHashCode(comparer), Right.GetHashCode(comparer));
-
-        public override string ToString() => $"({Left} {Token.Value} {Right})";
-
-        #endregion
+        protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) =>
+            HashCode.Combine(hashCode, Token.GetHashCode(), Left.GetHashCode(comparer), Right.GetHashCode(comparer));
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Compiling;
@@ -11,14 +10,8 @@ namespace MugenMvvm.Bindings.Core
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindingParameterValue : IDisposable
     {
-        #region Fields
-
         public readonly ICompiledExpression? Expression;
         public readonly object? Parameter;
-
-        #endregion
-
-        #region Constructors
 
         public BindingParameterValue(object? parameter, ICompiledExpression? expression)
         {
@@ -26,15 +19,7 @@ namespace MugenMvvm.Bindings.Core
             Expression = expression;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => Parameter == null && Expression == null;
-
-        #endregion
-
-        #region Methods
 
         public T? GetValue<T>(IReadOnlyMetadataContext? metadata)
         {
@@ -48,7 +33,5 @@ namespace MugenMvvm.Bindings.Core
         }
 
         public void Dispose() => BindingMugenExtensions.DisposeBindingSource(Parameter);
-
-        #endregion
     }
 }

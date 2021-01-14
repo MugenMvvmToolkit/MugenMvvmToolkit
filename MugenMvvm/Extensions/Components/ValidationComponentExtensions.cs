@@ -5,15 +5,13 @@ using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
     public static class ValidationComponentExtensions
     {
-        #region Methods
-
-        public static IValidator? TryGetValidator(this ItemOrArray<IValidatorProviderComponent> components, IValidationManager validationManager, object? request, IReadOnlyMetadataContext? metadata)
+        public static IValidator? TryGetValidator(this ItemOrArray<IValidatorProviderComponent> components, IValidationManager validationManager, object? request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(validationManager, nameof(validationManager));
             foreach (var c in components)
@@ -26,7 +24,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnValidatorCreated(this ItemOrArray<IValidatorProviderListener> listeners, IValidationManager validationManager, IValidator validator, object? request, IReadOnlyMetadataContext? metadata)
+        public static void OnValidatorCreated(this ItemOrArray<IValidatorProviderListener> listeners, IValidationManager validationManager, IValidator validator, object? request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(validationManager, nameof(validationManager));
             Should.NotBeNull(validator, nameof(validator));
@@ -34,7 +33,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnValidatorCreated(validationManager, validator, request, metadata);
         }
 
-        public static void OnErrorsChanged(this ItemOrArray<IValidatorListener> listeners, IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
+        public static void OnErrorsChanged(this ItemOrArray<IValidatorListener> listeners, IValidator validator, object? target, string memberName,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(memberName, nameof(memberName));
@@ -42,7 +42,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnErrorsChanged(validator, target, memberName, metadata);
         }
 
-        public static void OnAsyncValidation(this ItemOrArray<IValidatorListener> listeners, IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
+        public static void OnAsyncValidation(this ItemOrArray<IValidatorListener> listeners, IValidator validator, object? target, string memberName, Task validationTask,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(memberName, nameof(memberName));
@@ -58,7 +59,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnDisposed(validator);
         }
 
-        public static ItemOrIReadOnlyList<object> TryGetErrors(this ItemOrArray<IValidatorComponent> components, IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
+        public static ItemOrIReadOnlyList<object> TryGetErrors(this ItemOrArray<IValidatorComponent> components, IValidator validator, string? memberName,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(validator, nameof(validator));
             if (components.Count == 0)
@@ -112,10 +114,12 @@ namespace MugenMvvm.Extensions.Components
             return errors;
         }
 
-        public static Task TryValidateAsync(this ItemOrArray<IValidatorComponent> components, IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task TryValidateAsync(this ItemOrArray<IValidatorComponent> components, IValidator validator, string? memberName, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(validator, nameof(validator));
-            return components.InvokeAllAsync((validator, memberName), cancellationToken, metadata, (component, s, c, m) => component.TryValidateAsync(s.validator, s.memberName, c, m));
+            return components.InvokeAllAsync((validator, memberName), cancellationToken, metadata,
+                (component, s, c, m) => component.TryValidateAsync(s.validator, s.memberName, c, m));
         }
 
         public static void ClearErrors(this ItemOrArray<IValidatorComponent> components, IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
@@ -129,29 +133,17 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(validator, nameof(validator));
             foreach (var c in components)
-            {
                 if (c.HasErrors(validator, memberName, metadata))
                     return true;
-            }
 
             return false;
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class ErrorList : List<object>
         {
-            #region Constructors
-
             public ErrorList() : base(2)
             {
             }
-
-            #endregion
-
-            #region Methods
 
             public void AddError(object error)
             {
@@ -160,10 +152,6 @@ namespace MugenMvvm.Extensions.Components
                 else
                     Add(error);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

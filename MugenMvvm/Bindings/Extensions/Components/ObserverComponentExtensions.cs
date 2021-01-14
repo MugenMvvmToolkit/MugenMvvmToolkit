@@ -10,10 +10,9 @@ namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class ObserverComponentExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MemberObserver TryGetMemberObserver(this ItemOrArray<IMemberObserverProviderComponent> components, IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
+        public static MemberObserver TryGetMemberObserver(this ItemOrArray<IMemberObserverProviderComponent> components, IObservationManager observationManager, Type type,
+            object member, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(observationManager, nameof(observationManager));
             Should.NotBeNull(type, nameof(type));
@@ -29,7 +28,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMemberPath? TryGetMemberPath(this ItemOrArray<IMemberPathProviderComponent> components, IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
+        public static IMemberPath? TryGetMemberPath(this ItemOrArray<IMemberPathProviderComponent> components, IObservationManager observationManager, object path,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(observationManager, nameof(observationManager));
             Should.NotBeNull(path, nameof(path));
@@ -44,7 +44,8 @@ namespace MugenMvvm.Bindings.Extensions.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IMemberPathObserver? TryGetMemberPathObserver(this ItemOrArray<IMemberPathObserverProviderComponent> components, IObservationManager observationManager, object target,
+        public static IMemberPathObserver? TryGetMemberPathObserver(this ItemOrArray<IMemberPathObserverProviderComponent> components, IObservationManager observationManager,
+            object target,
             object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(observationManager, nameof(observationManager));
@@ -59,7 +60,5 @@ namespace MugenMvvm.Bindings.Extensions.Components
 
             return null;
         }
-
-        #endregion
     }
 }

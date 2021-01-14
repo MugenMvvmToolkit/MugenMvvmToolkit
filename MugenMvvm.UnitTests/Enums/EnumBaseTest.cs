@@ -10,18 +10,11 @@ namespace MugenMvvm.UnitTests.Enums
 {
     public class EnumBaseTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
+        private class TestEnum : EnumBase<TestEnum, int>
         {
-            var v = 1;
-            string name = "";
-            var testEnum = new TestEnum(v, name);
-            testEnum.Value.ShouldEqual(v);
-            testEnum.Name.ShouldEqual(name);
-            testEnum.ToString().ShouldEqual(name);
-            testEnum.GetHashCode().ShouldEqual(v.GetHashCode());
+            public TestEnum(int value, string? name) : base(value, name)
+            {
+            }
         }
 
         [Fact]
@@ -53,6 +46,46 @@ namespace MugenMvvm.UnitTests.Enums
             enum1.Equals(null).ShouldBeFalse();
             (enum1 == null).ShouldBeFalse();
             (enum1 != null).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var v = 1;
+            string name = "";
+            var testEnum = new TestEnum(v, name);
+            testEnum.Value.ShouldEqual(v);
+            testEnum.Name.ShouldEqual(name);
+            testEnum.ToString().ShouldEqual(name);
+            testEnum.GetHashCode().ShouldEqual(v.GetHashCode());
+        }
+
+        [Fact]
+        public void ParseTryParseByNameShouldBeValid()
+        {
+            const string value = "Test1";
+            var testEnum = new TestEnum(1, value.ToUpper());
+            TestEnum.SetEnums(new Dictionary<int, TestEnum>
+            {
+                {testEnum.Value, testEnum}
+            });
+
+            TestEnum.TryGetByName(value.ToLower(), out var result, true).ShouldBeTrue();
+            result.ShouldEqual(testEnum);
+            EnumBase.TryGetByName<TestEnum>(value.ToLower(), null, true).ShouldEqual(testEnum);
+            EnumBase.TryGetByName(typeof(TestEnum), value.ToLower(), null, true).ShouldEqual(testEnum);
+
+            TestEnum.TryGetByName(value.ToLower(), out result).ShouldBeFalse();
+            EnumBase.TryGetByName<TestEnum>(value.ToLower()).ShouldBeNull();
+            EnumBase.TryGetByName(typeof(TestEnum), value.ToLower()).ShouldBeNull();
+
+            TestEnum.SetEnums(new Dictionary<int, TestEnum>());
+            TestEnum.TryGetByName(value.ToLower(), out result, true).ShouldBeFalse();
+            ShouldThrow<ArgumentException>(() => TestEnum.GetByName(value.ToLower()));
+            ShouldThrow<ArgumentException>(() =>
+            {
+                var lower = (TestEnum) value.ToLower()!;
+            });
         }
 
         [Fact]
@@ -107,50 +140,5 @@ namespace MugenMvvm.UnitTests.Enums
             TestEnum.TryGet(v3, out r).ShouldBeTrue();
             r.ShouldEqual(testEnum2);
         }
-
-        [Fact]
-        public void ParseTryParseByNameShouldBeValid()
-        {
-            const string value = "Test1";
-            var testEnum = new TestEnum(1, value.ToUpper());
-            TestEnum.SetEnums(new Dictionary<int, TestEnum>
-            {
-                {testEnum.Value, testEnum}
-            });
-
-            TestEnum.TryGetByName(value.ToLower(), out var result, true).ShouldBeTrue();
-            result.ShouldEqual(testEnum);
-            EnumBase.TryGetByName<TestEnum>(value.ToLower(), null, true).ShouldEqual(testEnum);
-            EnumBase.TryGetByName(typeof(TestEnum), value.ToLower(), null, true).ShouldEqual(testEnum);
-
-            TestEnum.TryGetByName(value.ToLower(), out result).ShouldBeFalse();
-            EnumBase.TryGetByName<TestEnum>(value.ToLower()).ShouldBeNull();
-            EnumBase.TryGetByName(typeof(TestEnum), value.ToLower()).ShouldBeNull();
-
-            TestEnum.SetEnums(new Dictionary<int, TestEnum>());
-            TestEnum.TryGetByName(value.ToLower(), out result, true).ShouldBeFalse();
-            ShouldThrow<ArgumentException>(() => TestEnum.GetByName(value.ToLower()));
-            ShouldThrow<ArgumentException>(() =>
-            {
-                var lower = (TestEnum) value.ToLower()!;
-            });
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private class TestEnum : EnumBase<TestEnum, int>
-        {
-            #region Constructors
-
-            public TestEnum(int value, string? name) : base(value, name)
-            {
-            }
-
-            #endregion
-        }
-
-        #endregion
     }
 }

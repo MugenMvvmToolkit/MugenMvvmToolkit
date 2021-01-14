@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 
@@ -8,22 +7,16 @@ namespace MugenMvvm.Internal
 {
     public sealed class SortingComparer<T> : IComparer<T>
     {
-        #region Fields
-
         private readonly ItemOrIReadOnlyList<SortingInfo> _sortInfo;
-
-        #endregion
-
-        #region Constructors
 
         private SortingComparer(ItemOrIReadOnlyList<SortingInfo> sortInfo)
         {
             _sortInfo = sortInfo;
         }
 
-        #endregion
+        public static Builder Ascending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, true));
 
-        #region Implementation of interfaces
+        public static Builder Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, false));
 
         public int Compare(T? x, T? y)
         {
@@ -38,38 +31,16 @@ namespace MugenMvvm.Internal
             return 0;
         }
 
-        #endregion
-
-        #region Methods
-
-        public static Builder Ascending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, true));
-
-        public static Builder Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, false));
-
-        #endregion
-
-        #region Nested types
-
         [StructLayout(LayoutKind.Auto)]
         public ref struct Builder
         {
-            #region Fields
-
             private ItemOrListEditor<SortingInfo> _sortInfo;
-
-            #endregion
-
-            #region Constructors
 
             internal Builder(SortingInfo sortingInfo)
             {
                 _sortInfo = new ItemOrListEditor<SortingInfo>();
                 _sortInfo.Add(sortingInfo);
             }
-
-            #endregion
-
-            #region Methods
 
             public Builder ThenBy<TValue>(Func<T, TValue> expression)
             {
@@ -84,22 +55,14 @@ namespace MugenMvvm.Internal
             }
 
             public IComparer<T> Build() => new SortingComparer<T>(_sortInfo.ToItemOrList());
-
-            #endregion
         }
 
         [StructLayout(LayoutKind.Auto)]
         internal readonly struct SortingInfo
         {
-            #region Fields
-
             private readonly Delegate _expression;
             private readonly bool _isAscending;
             private readonly Func<Delegate, bool, T, T, int> _compare;
-
-            #endregion
-
-            #region Constructors
 
             private SortingInfo(Func<Delegate, bool, T, T, int> compare, Delegate expression, bool isAscending)
             {
@@ -108,15 +71,7 @@ namespace MugenMvvm.Internal
                 _expression = expression;
             }
 
-            #endregion
-
-            #region Properties
-
             public bool IsEmpty => _expression == null;
-
-            #endregion
-
-            #region Methods
 
             public int Compare(T x, T y) => _compare(_expression, _isAscending, x, y);
 
@@ -131,10 +86,6 @@ namespace MugenMvvm.Internal
                     return Comparer<TValue>.Default.Compare(func(y), func(x));
                 }, expression, isAscending);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

@@ -6,7 +6,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Components;
 using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
@@ -19,8 +18,6 @@ namespace MugenMvvm.UnitTests.Views
 {
     public class ViewManagerTest : ComponentOwnerTestBase<ViewManager>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -143,16 +140,6 @@ namespace MugenMvvm.UnitTests.Views
             viewManager.GetMappings(view, DefaultMetadata).AsList().ShouldEqual(mappings);
         }
 
-        [Fact]
-        public void InitializeAsyncShouldThrowNoComponents()
-        {
-            var viewManager = new ViewManager();
-            ShouldThrow<InvalidOperationException>(() =>
-            {
-                var result = viewManager.InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this).Result;
-            });
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -228,6 +215,14 @@ namespace MugenMvvm.UnitTests.Views
 
         protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void InitializeAsyncShouldThrowNoComponents()
+        {
+            var viewManager = new ViewManager();
+            ShouldThrow<InvalidOperationException>(() =>
+            {
+                var result = viewManager.InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this).Result;
+            });
+        }
     }
 }

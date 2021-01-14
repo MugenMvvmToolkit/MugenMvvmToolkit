@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
@@ -8,20 +7,13 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Components
 {
     public sealed class ExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
-        #region Fields
-
         private readonly ComponentTracker _componentTracker;
         private readonly TokenParserContext _parserContext;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ExpressionParserComponent()
@@ -31,30 +23,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
             _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.TokenParser;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        ItemOrIReadOnlyList<ExpressionParserResult> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
-        {
-            if (expression is string stringExpression)
-            {
-                _parserContext.Initialize(stringExpression, metadata);
-                return _parserContext.ParseExpression();
-            }
-
-            return default;
-        }
-
-        #endregion
-
-        #region Methods
 
         protected override void OnAttached(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
@@ -68,6 +37,15 @@ namespace MugenMvvm.Bindings.Parsing.Components
             _componentTracker.Detach(owner, metadata);
         }
 
-        #endregion
+        ItemOrIReadOnlyList<ExpressionParserResult> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
+        {
+            if (expression is string stringExpression)
+            {
+                _parserContext.Initialize(stringExpression, metadata);
+                return _parserContext.ParseExpression();
+            }
+
+            return default;
+        }
     }
 }

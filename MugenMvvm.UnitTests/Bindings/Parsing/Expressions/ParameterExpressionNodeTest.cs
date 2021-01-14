@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -12,22 +11,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class ParameterExpressionNodeTest : UnitTestBase
     {
-        #region Fields
-
         private const string Name = "test";
-
-        #endregion
-
-        #region Methods
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var exp = new ParameterExpressionNode(Name);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Parameter);
-            exp.Name.ShouldEqual(Name);
-            exp.ToString().ShouldEqual(Name);
-        }
 
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
@@ -53,17 +37,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             result.ShouldEqual(nodes);
         }
 
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var newNode = new ParameterExpressionNode(Name);
-            var visitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => newNode
-            };
-            new ParameterExpressionNode("1").Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -83,6 +56,26 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var newNode = new ParameterExpressionNode(Name);
+            var visitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => newNode
+            };
+            new ParameterExpressionNode("1").Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var exp = new ParameterExpressionNode(Name);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Parameter);
+            exp.Name.ShouldEqual(Name);
+            exp.ToString().ShouldEqual(Name);
+        }
+
+        [Fact]
         public void GetHashCodeEqualsShouldBeValid()
         {
             var exp1 = new ParameterExpressionNode("1", new Dictionary<string, object?> {{"k", null}});
@@ -93,7 +86,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.Equals(exp2.UpdateMetadata(null)).ShouldBeFalse();
             exp1.Equals(new ParameterExpressionNode("2", exp1.Metadata)).ShouldBeFalse();
         }
-
-        #endregion
     }
 }

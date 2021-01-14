@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class MetadataContextValueManagerComponentTest : MetadataContextTest
     {
-        #region Methods
-
         protected override MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null)
         {
             var dict = new Dictionary<IMetadataContextKey, object?>();
@@ -36,7 +34,5 @@ namespace MugenMvvm.UnitTests.Metadata
                 ctx.Merge(values);
             return ctx;
         }
-
-        #endregion
     }
 }

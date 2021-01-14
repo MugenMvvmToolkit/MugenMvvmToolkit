@@ -9,37 +9,22 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 {
     public class TestMemberPathObserverProviderComponent : IMemberPathObserverProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IObservationManager? _observationManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestMemberPathObserverProviderComponent(IObservationManager? observationManager = null)
         {
             _observationManager = observationManager;
         }
 
-        #endregion
-
-        #region Properties
+        public Func<object, object, IReadOnlyMetadataContext?, IMemberPathObserver?>? TryGetMemberPathObserver { get; set; }
 
         public int Priority { get; set; }
 
-        public Func<object, object, IReadOnlyMetadataContext?, IMemberPathObserver?>? TryGetMemberPathObserver { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        IMemberPathObserver? IMemberPathObserverProviderComponent.TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
+        IMemberPathObserver? IMemberPathObserverProviderComponent.TryGetMemberPathObserver(IObservationManager observationManager, object target, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             _observationManager?.ShouldEqual(observationManager);
             return TryGetMemberPathObserver?.Invoke(target, request, metadata);
         }
-
-        #endregion
     }
 }

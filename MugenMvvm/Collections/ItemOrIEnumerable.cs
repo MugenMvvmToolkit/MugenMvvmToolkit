@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace MugenMvvm.Collections
 {
     public static class ItemOrIEnumerable
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIEnumerable<T> FromItem<T>(T? item) where T : class? => new(item, item != null);
 
@@ -35,7 +32,5 @@ namespace MugenMvvm.Collections
                 return default;
             return new ItemOrIEnumerable<T>((T) value, true);
         }
-
-        #endregion
     }
 }

@@ -11,21 +11,14 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
     public sealed class ViewModelPresenter : IPresenterComponent, IHasPriority
     {
-        #region Fields
-
         private readonly object _locker;
         private readonly IViewManager? _viewManager;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ViewModelPresenter(IViewManager? viewManager = null)
@@ -34,15 +27,7 @@ namespace MugenMvvm.Presenters.Components
             _locker = new object();
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = PresenterComponentPriority.Presenter;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -75,10 +60,6 @@ namespace MugenMvvm.Presenters.Components
                 return result.ToItemOrList();
             }
         }
-
-        #endregion
-
-        #region Methods
 
         private ItemOrIReadOnlyList<IViewModelPresenterMediator> TryGetMediators(IPresenter presenter, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -113,7 +94,5 @@ namespace MugenMvvm.Presenters.Components
 
             return result.ToItemOrList();
         }
-
-        #endregion
     }
 }

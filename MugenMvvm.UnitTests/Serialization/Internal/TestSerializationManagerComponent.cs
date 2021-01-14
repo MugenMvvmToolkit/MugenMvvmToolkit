@@ -10,22 +10,12 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 {
     public class TestSerializationManagerComponent : ISerializationManagerComponent, IHasPriority
     {
-        #region Fields
-
         private readonly ISerializer? _serializer;
-
-        #endregion
-
-        #region Constructors
 
         public TestSerializationManagerComponent(ISerializer? serializer = null)
         {
             _serializer = serializer;
         }
-
-        #endregion
-
-        #region Properties
 
         public Func<ISerializationFormatBase, object?, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
@@ -35,17 +25,15 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
 
         public int Priority { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        bool ISerializationManagerComponent.IsSupported<TRequest, TResult>(ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request, IReadOnlyMetadataContext? metadata)
+        bool ISerializationManagerComponent.IsSupported<TRequest, TResult>(ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, [AllowNull] TRequest request,
+            IReadOnlyMetadataContext? metadata)
         {
             _serializer?.ShouldEqual(serializer);
             return IsSupported?.Invoke(format, request, metadata) ?? false;
         }
 
-        bool ISerializationManagerComponent.TrySerialize<TRequest, TResult>(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,
+        bool ISerializationManagerComponent.TrySerialize<TRequest, TResult>(ISerializer serializer, ISerializationFormat<TRequest, TResult> format, TRequest request,
+            ISerializationContext serializationContext,
             [NotNullWhen(true)] [AllowNull] ref TResult result)
         {
             _serializer?.ShouldEqual(serializer);
@@ -53,14 +41,13 @@ namespace MugenMvvm.UnitTests.Serialization.Internal
             return result != null;
         }
 
-        bool ISerializationManagerComponent.TryDeserialize<TRequest, TResult>(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request, ISerializationContext serializationContext,
+        bool ISerializationManagerComponent.TryDeserialize<TRequest, TResult>(ISerializer serializer, IDeserializationFormat<TRequest, TResult> format, TRequest request,
+            ISerializationContext serializationContext,
             [NotNullWhen(true)] [AllowNull] ref TResult result)
         {
             _serializer?.ShouldEqual(serializer);
             result = (TResult) TryDeserialize?.Invoke(request!, serializationContext)!;
             return result != null;
         }
-
-        #endregion
     }
 }

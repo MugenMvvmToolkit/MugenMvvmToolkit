@@ -13,13 +13,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class LambdaExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Lambda;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
@@ -45,7 +39,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
                     context.ClearExpression(expressions[i]);
             }
         }
-
-        #endregion
     }
 }

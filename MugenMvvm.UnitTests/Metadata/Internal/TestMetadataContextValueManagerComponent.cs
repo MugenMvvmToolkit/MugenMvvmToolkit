@@ -12,24 +12,12 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
 {
     public class TestMetadataContextValueManagerComponent : IMetadataContextValueManagerComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IMetadataContext _context;
-
-        #endregion
-
-        #region Constructors
 
         public TestMetadataContextValueManagerComponent(IMetadataContext context)
         {
             _context = context;
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; }
 
         public Func<int>? GetCount { get; set; }
 
@@ -45,9 +33,7 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
 
         public Action? Clear { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; }
 
         int IMetadataContextValueManagerComponent.GetCount(IMetadataContext context)
         {
@@ -102,7 +88,5 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
             context.ShouldEqual(_context);
             Clear?.Invoke();
         }
-
-        #endregion
     }
 }

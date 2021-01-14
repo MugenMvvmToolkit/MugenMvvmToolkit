@@ -9,24 +9,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestBindingEventHandlerComponent : IBindingEventHandlerComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IBindingManager? _bindingManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestBindingEventHandlerComponent(IBindingManager? bindingManager = null)
         {
             _bindingManager = bindingManager;
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; }
 
         public Action<object?, object?, IReadOnlyMetadataContext?>? OnBeginEvent { get; set; }
 
@@ -34,9 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         public Action<Exception, object?, object?, IReadOnlyMetadataContext?>? OnEventError { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; }
 
         void IBindingEventHandlerComponent.OnBeginEvent(IBindingManager bindingManager, object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
@@ -55,7 +41,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
             _bindingManager?.ShouldEqual(bindingManager);
             OnEventError?.Invoke(exception, sender, message, metadata);
         }
-
-        #endregion
     }
 }

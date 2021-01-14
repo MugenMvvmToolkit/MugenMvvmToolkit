@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
@@ -12,21 +11,14 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class MemberSelector : IMemberManagerComponent, IHasPriority, IEqualityComparer<IMemberInfo>
     {
-        #region Fields
-
-        private readonly Dictionary<IMemberInfo, MemberList> _selectorDictionary;
-
         private const int MaxDeclaringTypePriority = 100;
 
-        #endregion
-
-        #region Constructors
+        private readonly Dictionary<IMemberInfo, MemberList> _selectorDictionary;
 
         [Preserve(Conditional = true)]
         public MemberSelector()
@@ -34,52 +26,40 @@ namespace MugenMvvm.Bindings.Members.Components
             _selectorDictionary = new Dictionary<IMemberInfo, MemberList>(17, this);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = MemberComponentPriority.Selector;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        int IEqualityComparer<IMemberInfo>.GetHashCode(IMemberInfo key)
+        private static int GetPriority(IMemberInfo member, Type requestedType)
         {
-            if (key is IMethodMemberInfo method)
-                return HashCode.Combine((int) key.MemberType, method.GetParameters().Count);
-            return HashCode.Combine((int) key!.MemberType);
+            var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
+            var flags = member.AccessModifiers;
+            foreach (var f in MemberFlags.GetAll())
+                if (flags.HasFlag(f))
+                    priority += f.Priority;
+
+            return priority;
         }
 
-        bool IEqualityComparer<IMemberInfo>.Equals(IMemberInfo? x, IMemberInfo? y)
+        private static int GetArgsPriority(IMemberInfo member)
         {
-            if (x == y)
-                return true;
+            if (!(member is IHasArgsMemberInfo hasArgs))
+                return 0;
+            var flags = hasArgs.ArgumentFlags;
+            if (flags == default)
+                return default;
 
-            if (x!.MemberType != y!.MemberType)
-                return false;
+            var priority = 0;
+            foreach (var f in ArgumentFlags.GetAll())
+                if (flags.HasFlag(f))
+                    priority += f.Priority;
 
-            if (x.MemberType != MemberType.Method)
-                return true;
-
-            var xM = ((IMethodMemberInfo) x).GetParameters();
-            var yM = ((IMethodMemberInfo) y).GetParameters();
-            if (xM.Count != yM.Count)
-                return false;
-
-            for (var i = 0; i < xM.Count; i++)
-            {
-                if (xM[i].ParameterType != yM[i].ParameterType)
-                    return false;
-            }
-
-            return true;
+            return priority;
         }
 
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags, object request,
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
+            object request,
             IReadOnlyMetadataContext? metadata)
         {
-            if ((request is not IReadOnlyList<IMemberInfo> members))
+            if (request is not IReadOnlyList<IMemberInfo> members)
                 return default;
 
             _selectorDictionary.Clear();
@@ -108,66 +88,47 @@ namespace MugenMvvm.Bindings.Members.Components
             return result;
         }
 
-        #endregion
-
-        #region Methods
-
-        private static int GetPriority(IMemberInfo member, Type requestedType)
+        int IEqualityComparer<IMemberInfo>.GetHashCode(IMemberInfo key)
         {
-            var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
-            var flags = member.AccessModifiers;
-            foreach (var f in MemberFlags.GetAll())
-            {
-                if (flags.HasFlag(f))
-                    priority += f.Priority;
-            }
-
-            return priority;
+            if (key is IMethodMemberInfo method)
+                return HashCode.Combine((int) key.MemberType, method.GetParameters().Count);
+            return HashCode.Combine((int) key!.MemberType);
         }
 
-        private static int GetArgsPriority(IMemberInfo member)
+        bool IEqualityComparer<IMemberInfo>.Equals(IMemberInfo? x, IMemberInfo? y)
         {
-            if (!(member is IHasArgsMemberInfo hasArgs))
-                return 0;
-            var flags = hasArgs.ArgumentFlags;
-            if (flags == default)
-                return default;
+            if (x == y)
+                return true;
 
-            var priority = 0;
-            foreach (var f in ArgumentFlags.GetAll())
-            {
-                if (flags.HasFlag(f))
-                    priority += f.Priority;
-            }
+            if (x!.MemberType != y!.MemberType)
+                return false;
 
-            return priority;
+            if (x.MemberType != MemberType.Method)
+                return true;
+
+            var xM = ((IMethodMemberInfo) x).GetParameters();
+            var yM = ((IMethodMemberInfo) y).GetParameters();
+            if (xM.Count != yM.Count)
+                return false;
+
+            for (var i = 0; i < xM.Count; i++)
+                if (xM[i].ParameterType != yM[i].ParameterType)
+                    return false;
+
+            return true;
         }
-
-        #endregion
-
-        #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
         private struct MemberList
         {
-            #region Fields
-
             private int _currentPriority;
             private object? _members;
-
-            #endregion
-
-            #region Constructors
 
             public MemberList(IMemberInfo member, int priority)
             {
                 _members = member;
                 _currentPriority = priority;
             }
-
-            #endregion
-
-            #region Methods
 
             public bool AddMember(IMemberInfo member, int priority)
             {
@@ -224,10 +185,6 @@ namespace MugenMvvm.Bindings.Members.Components
 
                 return members[0];
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

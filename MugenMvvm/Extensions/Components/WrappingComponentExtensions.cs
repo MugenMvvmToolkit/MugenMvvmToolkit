@@ -8,23 +8,21 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class WrappingComponentExtensions
     {
-        #region Methods
-
-        public static bool CanWrap(this ItemOrArray<IWrapperManagerComponent> components, IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
+        public static bool CanWrap(this ItemOrArray<IWrapperManagerComponent> components, IWrapperManager wrapperManager, Type wrapperType, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             Should.NotBeNull(request, nameof(request));
             foreach (var c in components)
-            {
                 if (c.CanWrap(wrapperManager, wrapperType, request, metadata))
                     return true;
-            }
 
             return false;
         }
 
-        public static object? TryWrap(this ItemOrArray<IWrapperManagerComponent> components, IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
+        public static object? TryWrap(this ItemOrArray<IWrapperManagerComponent> components, IWrapperManager wrapperManager, Type wrapperType, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
@@ -39,7 +37,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnWrapped(this ItemOrArray<IWrapperManagerListener> listeners, IWrapperManager wrapperManager, object wrapper, object request, IReadOnlyMetadataContext? metadata)
+        public static void OnWrapped(this ItemOrArray<IWrapperManagerListener> listeners, IWrapperManager wrapperManager, object wrapper, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapper, nameof(wrapper));
@@ -47,7 +46,5 @@ namespace MugenMvvm.Extensions.Components
             foreach (var c in listeners)
                 c.OnWrapped(wrapperManager, wrapper, request, metadata);
         }
-
-        #endregion
     }
 }

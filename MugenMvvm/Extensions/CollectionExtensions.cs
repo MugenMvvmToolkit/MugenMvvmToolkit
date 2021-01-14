@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -13,8 +12,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         [return: NotNullIfNotNull("collection")]
         public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase? collection)
         {
@@ -128,10 +125,8 @@ namespace MugenMvvm.Extensions
         internal static int IndexOf<T>(T[] items, T item) where T : class
         {
             for (var i = 0; i < items.Length; i++)
-            {
                 if (items[i] == item)
                     return i;
-            }
 
             return -1;
         }
@@ -225,10 +220,6 @@ namespace MugenMvvm.Extensions
             => new(span, separator);
 #endif
 
-        #endregion
-
-        #region Nested types
-
 #if SPAN_API
         [StructLayout(LayoutKind.Auto)]
         public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
@@ -294,7 +285,5 @@ namespace MugenMvvm.Extensions
             }
         }
 #endif
-
-        #endregion
     }
 }

@@ -18,8 +18,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class ExpressionConverterContextTest : MetadataOwnerTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
@@ -81,6 +79,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             invokeCount.ShouldEqual(componentCount);
         }
 
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
+        {
+            var ctx = new ExpressionConverterContext<Expression>();
+            ctx.Initialize(metadata);
+            return ctx;
+        }
+
         [Fact]
         public void ConvertShouldReturnExpression()
         {
@@ -111,14 +116,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             context.TryGetExpression(constantExpression).ShouldBeNull();
             context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }
-
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
-        {
-            var ctx = new ExpressionConverterContext<Expression>();
-            ctx.Initialize(metadata);
-            return ctx;
-        }
-
-        #endregion
     }
 }

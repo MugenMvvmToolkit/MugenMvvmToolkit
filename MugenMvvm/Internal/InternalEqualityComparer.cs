@@ -9,11 +9,10 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Internal
 {
     internal sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type?>,
-        IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>, IEqualityComparer<ThreadExecutionMode?>, IEqualityComparer<KeyValuePair<Type, Type>>,
+        IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>, IEqualityComparer<ThreadExecutionMode?>,
+        IEqualityComparer<KeyValuePair<Type, Type>>,
         IEqualityComparer<IMetadataContextKey?>
     {
-        #region Fields
-
         private static readonly InternalEqualityComparer Comparer = new();
         public static readonly IEqualityComparer<MemberInfo> MemberInfo = Comparer;
         public static readonly IEqualityComparer<(object, object?)> ValueTupleReference = Comparer;
@@ -25,17 +24,36 @@ namespace MugenMvvm.Internal
         public static readonly IEqualityComparer<KeyValuePair<Type, Type>> TypeType = Comparer;
         public static readonly IEqualityComparer<IMetadataContextKey> MetadataContextKey = Comparer;
 
-        #endregion
-
-        #region Constructors
-
         private InternalEqualityComparer()
         {
         }
 
-        #endregion
+        public static bool Equals(Type[] x, Type[] y)
+        {
+            if (x == y)
+                return true;
+            if (x.Length != y.Length)
+                return false;
+            for (var i = 0; i < x.Length; i++)
+                if (x[i] != y[i])
+                    return false;
 
-        #region Implementation of interfaces
+            return true;
+        }
+
+        public static bool Equals(ItemOrArray<Type> x, ItemOrArray<Type> y)
+        {
+            if (x.Count != y.Count)
+                return false;
+            if (x.List != null)
+            {
+                if (y.List == null)
+                    return false;
+                return Equals(x.List, y.List);
+            }
+
+            return x.Item == y.Item;
+        }
 
         bool IEqualityComparer<(object, object?)>.Equals((object, object?) x, (object, object?) y) => x.Item1 == y.Item1 && x.Item2 == y.Item2;
 
@@ -77,36 +95,5 @@ namespace MugenMvvm.Internal
         bool IEqualityComparer<Type?>.Equals(Type? x, Type? y) => x == y;
 
         int IEqualityComparer<Type?>.GetHashCode(Type? obj) => obj!.GetHashCode();
-
-        public static bool Equals(Type[] x, Type[] y)
-        {
-            if (x == y)
-                return true;
-            if (x.Length != y.Length)
-                return false;
-            for (var i = 0; i < x.Length; i++)
-            {
-                if (x[i] != y[i])
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static bool Equals(ItemOrArray<Type> x, ItemOrArray<Type> y)
-        {
-            if (x.Count != y.Count)
-                return false;
-            if (x.List != null)
-            {
-                if (y.List == null)
-                    return false;
-                return Equals(x.List, y.List);
-            }
-
-            return x.Item == y.Item;
-        }
-
-        #endregion
     }
 }

@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 {
     public class TestMemberPathObserver : IMemberPathObserver
     {
-        #region Properties
+        public delegate MemberPathLastMember GetLastMemberDelegate(IReadOnlyMetadataContext? metadata);
 
-        public bool IsAlive { get; set; }
-
-        public object? Target { get; set; }
-
-        public IMemberPath Path { get; set; } = null!;
+        public delegate MemberPathMembers GetMembersDelegate(IReadOnlyMetadataContext? metadata);
 
         public Action? Dispose { get; set; }
 
@@ -32,9 +26,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 
         public bool IsDisposable { get; set; } = true;
 
-        #endregion
+        public object? Target { get; set; }
 
-        #region Implementation of interfaces
+        public IMemberPath Path { get; set; } = null!;
+
+        public bool IsAlive { get; set; }
 
         void IDisposable.Dispose() => Dispose?.Invoke();
 
@@ -57,15 +53,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
                 return default;
             return GetLastMember.Invoke(metadata);
         }
-
-        #endregion
-
-        #region Nested types
-
-        public delegate MemberPathLastMember GetLastMemberDelegate(IReadOnlyMetadataContext? metadata);
-
-        public delegate MemberPathMembers GetMembersDelegate(IReadOnlyMetadataContext? metadata);
-
-        #endregion
     }
 }

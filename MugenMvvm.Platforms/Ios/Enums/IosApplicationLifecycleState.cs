@@ -4,8 +4,6 @@ namespace MugenMvvm.Ios.Enums
 {
     public sealed class IosApplicationLifecycleState : ApplicationLifecycleState
     {
-        #region Fields
-
         public static readonly ApplicationLifecycleState RestoringViewController = new(nameof(RestoringViewController));
         public static readonly ApplicationLifecycleState RestoredViewController = new(nameof(RestoredViewController));
         public static readonly ApplicationLifecycleState Preserving = new(nameof(Preserving));
@@ -13,14 +11,8 @@ namespace MugenMvvm.Ios.Enums
         public static readonly ApplicationLifecycleState Restoring = new(nameof(Restoring));
         public static readonly ApplicationLifecycleState Restored = new(nameof(Restored));
 
-        #endregion
-
-        #region Constructors
-
         private IosApplicationLifecycleState()
         {
         }
-
-        #endregion
     }
 }

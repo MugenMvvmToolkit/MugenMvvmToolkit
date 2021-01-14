@@ -13,27 +13,13 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class OneWayBindingMode : IAttachableComponent, IBindingSourceObserverListener, IHasPriority
     {
-        #region Fields
-
         public static readonly OneWayBindingMode Instance = new();
-
-        #endregion
-
-        #region Constructors
 
         private OneWayBindingMode()
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.Mode;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
@@ -53,27 +39,13 @@ namespace MugenMvvm.Bindings.Core.Components
         {
         }
 
-        #endregion
-
-        #region Nested types
-
         internal sealed class OneTimeHandlerComponent : IBindingTargetObserverListener
         {
-            #region Fields
-
             public static readonly OneTimeHandlerComponent Instance = new();
-
-            #endregion
-
-            #region Constructors
 
             private OneTimeHandlerComponent()
             {
             }
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding);
 
@@ -83,10 +55,6 @@ namespace MugenMvvm.Bindings.Core.Components
             {
             }
 
-            #endregion
-
-            #region Methods
-
             private void Invoke(IBinding binding)
             {
                 if (binding.Target.IsAllMembersAvailable())
@@ -95,10 +63,6 @@ namespace MugenMvvm.Bindings.Core.Components
                     binding.UpdateTarget();
                 }
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

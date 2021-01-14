@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using MugenMvvm.Enums;
-using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
@@ -11,8 +10,6 @@ namespace MugenMvvm.UnitTests.Navigation
 {
     public class NavigationCallbackDelegateListenerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void DisposeTargetCallbackShouldDisposeTarget()
         {
@@ -30,6 +27,24 @@ namespace MugenMvvm.UnitTests.Navigation
 
             NavigationCallbackDelegateListener.DisposeTargetCallback.OnCanceled(ctx, default);
             invokeCount.ShouldEqual(3);
+        }
+
+        [Fact]
+        public void OnCanceledShouldInvokeDelegate()
+        {
+            var ctx = new NavigationContext(this, NavigationProvider.System, "f", NavigationType.Alert, NavigationMode.New);
+            Exception? error = null;
+            var token = new CancellationToken(true);
+            var invokeCount = 0;
+            var listener = new NavigationCallbackDelegateListener((context, exception, arg3) =>
+            {
+                ++invokeCount;
+                context.ShouldEqual(ctx);
+                exception.ShouldEqual(error);
+                arg3.ShouldEqual(token);
+            }, true);
+            listener.OnCanceled(ctx, token);
+            invokeCount.ShouldEqual(invokeCount);
         }
 
         [Fact]
@@ -68,25 +83,5 @@ namespace MugenMvvm.UnitTests.Navigation
             listener.OnError(ctx, error);
             invokeCount.ShouldEqual(invokeCount);
         }
-
-        [Fact]
-        public void OnCanceledShouldInvokeDelegate()
-        {
-            var ctx = new NavigationContext(this, NavigationProvider.System, "f", NavigationType.Alert, NavigationMode.New);
-            Exception? error = null;
-            var token = new CancellationToken(true);
-            var invokeCount = 0;
-            var listener = new NavigationCallbackDelegateListener((context, exception, arg3) =>
-            {
-                ++invokeCount;
-                context.ShouldEqual(ctx);
-                exception.ShouldEqual(error);
-                arg3.ShouldEqual(token);
-            }, true);
-            listener.OnCanceled(ctx, token);
-            invokeCount.ShouldEqual(invokeCount);
-        }
-
-        #endregion
     }
 }

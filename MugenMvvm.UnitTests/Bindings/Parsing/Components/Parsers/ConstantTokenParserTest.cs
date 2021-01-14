@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class ConstantTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotConstantExpression()
         {
@@ -40,7 +38,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             component.LiteralToExpression.Clear();
             component.TryParse(ctx, null).ShouldBeNull();
         }
-
-        #endregion
     }
 }

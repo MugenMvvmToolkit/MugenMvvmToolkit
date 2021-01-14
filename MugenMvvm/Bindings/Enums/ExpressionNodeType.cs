@@ -10,8 +10,6 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class ExpressionNodeType : EnumBase<ExpressionNodeType, int>
     {
-        #region Fields
-
         public static readonly ExpressionNodeType Binary = new(1);
         public static readonly ExpressionNodeType Condition = new(2);
         public static readonly ExpressionNodeType Constant = new(3);
@@ -23,19 +21,13 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly ExpressionNodeType Parameter = new(9);
         public static readonly ExpressionNodeType BindingParameter = new(10);
 
-        #endregion
-
-        #region Constructors
+        public ExpressionNodeType(int value, string? name = null) : base(value, name)
+        {
+        }
 
         [Preserve(Conditional = true)]
         protected ExpressionNodeType()
         {
         }
-
-        public ExpressionNodeType(int value, string? name = null) : base(value, name)
-        {
-        }
-
-        #endregion
     }
 }

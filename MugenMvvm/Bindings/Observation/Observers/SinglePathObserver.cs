@@ -15,14 +15,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
 {
     public class SinglePathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
     {
-        #region Fields
-
         private object? _lastMemberOrException;
         private ActionToken _lastMemberUnsubscriber;
-
-        #endregion
-
-        #region Constructors
 
         public SinglePathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional)
             : base(target, memberFlags)
@@ -33,27 +27,9 @@ namespace MugenMvvm.Bindings.Observation.Observers
             Path = path;
         }
 
-        #endregion
-
-        #region Properties
-
         public override IMemberPath Path { get; }
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
-        {
-            OnLastMemberChanged();
-            return true;
-        }
-
-        #endregion
-
-        #region Methods
 
         public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
@@ -86,6 +62,17 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 return new MemberPathLastMember(e);
             return default;
         }
+
+        protected virtual void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
+        {
+            _lastMemberUnsubscriber.Dispose();
+            if (lastMember != null && lastMember.MemberType != MemberType.Event && lastMember is IObservableMemberInfo observable)
+                _lastMemberUnsubscriber = observable.TryObserve(target, this, metadata);
+            if (_lastMemberUnsubscriber.IsEmpty)
+                _lastMemberUnsubscriber = ActionToken.NoDoToken;
+        }
+
+        protected virtual void UnsubscribeLastMember() => _lastMemberUnsubscriber.Dispose();
 
         protected override void OnListenersAdded()
         {
@@ -134,8 +121,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 var metadata = TryGetMetadata();
                 var targetType = MemberFlags.GetTargetType(ref target);
                 var lastMember = MugenService
-                    .MemberManager
-                    .TryGetMember(targetType, MemberType.Event | MemberType.Accessor, MemberFlags, Path.Path, metadata);
+                                 .MemberManager
+                                 .TryGetMember(targetType, MemberType.Event | MemberType.Accessor, MemberFlags, Path.Path, metadata);
                 if (lastMember == null)
                 {
                     if (Optional)
@@ -168,17 +155,10 @@ namespace MugenMvvm.Bindings.Observation.Observers
             OnLastMemberChanged();
         }
 
-        protected virtual void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
-            _lastMemberUnsubscriber.Dispose();
-            if (lastMember != null && lastMember.MemberType != MemberType.Event && lastMember is IObservableMemberInfo observable)
-                _lastMemberUnsubscriber = observable.TryObserve(target, this, metadata);
-            if (_lastMemberUnsubscriber.IsEmpty)
-                _lastMemberUnsubscriber = ActionToken.NoDoToken;
+            OnLastMemberChanged();
+            return true;
         }
-
-        protected virtual void UnsubscribeLastMember() => _lastMemberUnsubscriber.Dispose();
-
-        #endregion
     }
 }

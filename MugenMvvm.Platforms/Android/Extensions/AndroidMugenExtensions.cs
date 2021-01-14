@@ -51,44 +51,40 @@ namespace MugenMvvm.Android.Extensions
 {
     public static class AndroidMugenExtensions
     {
-        #region Fields
-
         private static float _density = float.MinValue;
         private static float _scaledDensity = float.MinValue;
         private static float _xdpi = float.MinValue;
 
-        #endregion
-
-        #region Methods
-
-        public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
+        public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null,
+            IViewManager? viewManager = null) =>
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).Result;
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, EnumFlags<AndroidInitializationFlags> flags, IBindViewCallback? bindViewCallback = null)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, EnumFlags<AndroidInitializationFlags> flags,
+            IBindViewCallback? bindViewCallback = null)
         {
             MugenAndroidUtils.Initialize(bindViewCallback ?? BindViewCallback.Instance, flags.Value());
             LifecycleMugenExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), flags.HasFlag(AndroidInitializationFlags.NativeMode));
 
             configuration.ServiceConfiguration<IAttachedValueManager>()
-                .WithComponent(new AndroidAttachedValueStorageProvider());
+                         .WithComponent(new AndroidAttachedValueStorageProvider());
 
             configuration.ServiceConfiguration<INavigationDispatcher>()
-                .WithComponent(new ViewNavigationConditionDispatcher());
+                         .WithComponent(new ViewNavigationConditionDispatcher());
 
             configuration.ServiceConfiguration<IViewManager>()
-                .WithComponent(new ViewStateDispatcher())
-                .WithComponent(new ViewLifecycleDispatcher())
-                .WithComponent(new ResourceViewRequestManager())
-                .WithComponent(new ViewLifecycleMapper())
-                .WithComponent(new ActivityViewRequestManager())
-                .WithComponent(new ResourceViewMappingDecorator())
-                .Service()
-                .GetOrAddComponent(ctx => new ViewLifecycleTracker())
-                .Trackers.Add(TrackViewState);
+                         .WithComponent(new ViewStateDispatcher())
+                         .WithComponent(new ViewLifecycleDispatcher())
+                         .WithComponent(new ResourceViewRequestManager())
+                         .WithComponent(new ViewLifecycleMapper())
+                         .WithComponent(new ActivityViewRequestManager())
+                         .WithComponent(new ResourceViewMappingDecorator())
+                         .Service()
+                         .GetOrAddComponent(ctx => new ViewLifecycleTracker())
+                         .Trackers.Add(TrackViewState);
 
             configuration.ServiceConfiguration<IPresenter>()
-                .WithComponent(new ActivityViewPresenter())
-                .WithComponent(new FragmentDialogViewPresenter());
+                         .WithComponent(new ActivityViewPresenter())
+                         .WithComponent(new FragmentDialogViewPresenter());
 
             configuration
                 .ServiceConfiguration<IWeakReferenceManager>()
@@ -102,9 +98,9 @@ namespace MugenMvvm.Android.Extensions
         public static MugenApplicationConfiguration AndroidBindingConfiguration(this MugenApplicationConfiguration configuration)
         {
             var digitTokenParser = configuration
-                .ServiceConfiguration<IExpressionParser>()
-                .Service()
-                .GetOrAddComponent(context => new DigitTokenParser());
+                                   .ServiceConfiguration<IExpressionParser>()
+                                   .Service()
+                                   .GetOrAddComponent(context => new DigitTokenParser());
             var converter = new DigitTokenParser.ConvertDelegate(ConvertAndroidDigits);
             digitTokenParser.PostfixToConverter[AndroidInternalConstant.DpMetric] = converter;
             digitTokenParser.PostfixToConverter[AndroidInternalConstant.DipMetric] = converter;
@@ -114,9 +110,9 @@ namespace MugenMvvm.Android.Extensions
             digitTokenParser.PostfixToConverter[AndroidInternalConstant.SpMetric] = converter;
 
             var macrosBindingInitializer = configuration
-                .ServiceConfiguration<IBindingManager>()
-                .Service()
-                .GetOrAddComponent(context => new MacrosBindingInitializer());
+                                           .ServiceConfiguration<IBindingManager>()
+                                           .Service()
+                                           .GetOrAddComponent(context => new MacrosBindingInitializer());
             var resourceVisitor = new ResourceExpressionVisitor();
             macrosBindingInitializer.TargetVisitors.Add(resourceVisitor);
             macrosBindingInitializer.SourceVisitors.Add(resourceVisitor);
@@ -130,318 +126,335 @@ namespace MugenMvvm.Android.Extensions
             var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service().GetOrAddComponent(context => new AttachedMemberProvider());
             //object
             attachedMemberProvider.Register(BindableMembers.For<Object>()
-                .CollectionViewManager()
-                .GetBuilder()
-                .DefaultValue((info, view) => new CollectionViewManager())
-                .NonObservable()
-                .Build());
+                                                           .CollectionViewManager()
+                                                           .GetBuilder()
+                                                           .DefaultValue((info, view) => new CollectionViewManager())
+                                                           .NonObservable()
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .ItemsSource()
-                .Override<Object>()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
-                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
-                .Build());
+                                                           .ItemsSource()
+                                                           .Override<Object>()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
+                                                           .CustomSetter((member, target, value, metadata) =>
+                                                               target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .SelectedItem()
-                .Override<Object>()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
-                .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
-                .Build());
+                                                           .SelectedItem()
+                                                           .Override<Object>()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
+                                                           .CustomSetter((member, target, value, metadata) =>
+                                                               target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
+                                                           .Build());
 
             //activity
             attachedMemberProvider.Register(BindableMembers.For<object>()
-                .Parent()
-                .Override<IActivityView>()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => null)
-                .Build());
+                                                           .Parent()
+                                                           .Override<IActivityView>()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => null)
+                                                           .Build());
 
             //IMenu
             attachedMemberProvider.Register(BindableMembers.For<IMenu>()
-                .ItemTemplate()
-                .GetBuilder()
-                .Build());
+                                                           .ItemTemplate()
+                                                           .GetBuilder()
+                                                           .Build());
 
             //IMenuItem
             var enabled = AttachedMemberBuilder
-                .Property<IMenuItem, bool>(nameof(IMenuItem.IsEnabled))
-                .CustomGetter((member, target, metadata) => target.IsEnabled)
-                .CustomSetter((member, target, value, metadata) => target.SetEnabled(value))
-                .Build();
+                          .Property<IMenuItem, bool>(nameof(IMenuItem.IsEnabled))
+                          .CustomGetter((member, target, metadata) => target.IsEnabled)
+                          .CustomSetter((member, target, value, metadata) => target.SetEnabled(value))
+                          .Build();
             attachedMemberProvider.Register(enabled);
             attachedMemberProvider.Register(enabled, BindableMembers.For<object>().Enabled());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                .Property<IMenuItem, bool>(nameof(IMenuItem.IsCheckable))
-                .CustomGetter((member, target, metadata) => target.IsCheckable)
-                .CustomSetter((member, target, value, metadata) => target.SetCheckable(value))
-                .Build());
+                                            .Property<IMenuItem, bool>(nameof(IMenuItem.IsCheckable))
+                                            .CustomGetter((member, target, metadata) => target.IsCheckable)
+                                            .CustomSetter((member, target, value, metadata) => target.SetCheckable(value))
+                                            .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                .Property<IMenuItem, bool>(nameof(IMenuItem.IsChecked))
-                .CustomGetter((member, target, metadata) => target.IsChecked)
-                .CustomSetter((member, target, value, metadata) => target.SetChecked(value))
-                .Build());
+                                            .Property<IMenuItem, bool>(nameof(IMenuItem.IsChecked))
+                                            .CustomGetter((member, target, metadata) => target.IsChecked)
+                                            .CustomSetter((member, target, value, metadata) => target.SetChecked(value))
+                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<IMenuItem>()
-                .Title()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.TitleFormatted?.ToString())
-                .CustomSetter((member, target, value, metadata) => target.SetTitle(value!))
-                .Build());
+                                                           .Title()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => target.TitleFormatted?.ToString())
+                                                           .CustomSetter((member, target, value, metadata) => target.SetTitle(value!))
+                                                           .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                .Property<IMenuItem, bool>(nameof(IMenuItem.IsVisible))
-                .CustomGetter((member, target, metadata) => target.IsVisible)
-                .CustomSetter((member, target, value, metadata) => target.SetVisible(value))
-                .Build());
+                                            .Property<IMenuItem, bool>(nameof(IMenuItem.IsVisible))
+                                            .CustomGetter((member, target, metadata) => target.IsVisible)
+                                            .CustomSetter((member, target, value, metadata) => target.SetVisible(value))
+                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<IMenuItem>()
-                .Click()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => MenuItemClickListener.AddListener(target, listener))
-                .Build());
+                                                           .Click()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) => MenuItemClickListener.AddListener(target, listener))
+                                                           .Build());
 
             //view
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .Parent()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => ViewMugenExtensions.GetParent(target))
-                .CustomSetter((member, target, value, metadata) => ViewMugenExtensions.SetParent(target, (Object) value!))
-                .ObservableHandler((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentMemberName))
-                .Build());
+                                                           .Parent()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => ViewMugenExtensions.GetParent(target))
+                                                           .CustomSetter((member, target, value, metadata) => ViewMugenExtensions.SetParent(target, (Object) value!))
+                                                           .ObservableHandler((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentMemberName))
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .Visible()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.Visibility == ViewStates.Visible)
-                .CustomSetter((member, target, value, metadata) => target.Visibility = value ? ViewStates.Visible : ViewStates.Gone)
-                .Build());
+                                                           .Visible()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => target.Visibility == ViewStates.Visible)
+                                                           .CustomSetter((member, target, value, metadata) => target.Visibility = value ? ViewStates.Visible : ViewStates.Gone)
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .Invisible()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => target.Visibility == ViewStates.Invisible)
-                .CustomSetter((member, target, value, metadata) => target.Visibility = value ? ViewStates.Invisible : ViewStates.Gone)
-                .Build());
+                                                           .Invisible()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => target.Visibility == ViewStates.Invisible)
+                                                           .CustomSetter((member, target, value, metadata) => target.Visibility = value ? ViewStates.Invisible : ViewStates.Gone)
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .RelativeSourceMethod()
-                .RawMethod
-                .GetBuilder()
-                .WithParameters(new []{AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build()})
-                .InvokeHandler((member, target, args, metadata) => ViewMugenExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
-                .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
-                .Build());
+                                                           .RelativeSourceMethod()
+                                                           .RawMethod
+                                                           .GetBuilder()
+                                                           .WithParameters(new[]
+                                                           {
+                                                               AttachedMemberBuilder.Parameter<string>("p1").Build(),
+                                                               AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build()
+                                                           })
+                                                           .InvokeHandler((member, target, args, metadata) =>
+                                                               ViewMugenExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
+                                                           .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .ParentChanged()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentEventName))
-                .Build());
+                                                           .ParentChanged()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentEventName))
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .Click()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ClickEventName))
-                .Build());
+                                                           .Click()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ClickEventName))
+                                                           .Build());
 
             //textview
             attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>(ViewMemberChangedListener.TextMemberName)
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => TextViewMugenExtensions.GetText(target))
-                .CustomSetter((member, target, value, metadata) => TextViewMugenExtensions.SetText(target, value))
-                .Build());
+                                            .GetBuilder()
+                                            .CustomGetter((member, target, metadata) => TextViewMugenExtensions.GetText(target))
+                                            .CustomSetter((member, target, value, metadata) => TextViewMugenExtensions.SetText(target, value))
+                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .TextChanged()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.TextEventName))
-                .Build());
+                                                           .TextChanged()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.TextEventName))
+                                                           .Build());
 
             //swiperefreshlayout
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .Refreshed()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.RefreshedEventName))
-                .Build());
+                                                           .Refreshed()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.RefreshedEventName))
+                                                           .Build());
 
             //actionbar
             attachedMemberProvider.Register(BindableMembers.For<Object>()
-                .ActionBarHomeButtonClick()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.HomeButtonClick))
-                .Build());
+                                                           .ActionBarHomeButtonClick()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.HomeButtonClick))
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<Object>()
-                .Enabled()
-                .GetBuilder()
-                .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
-                {
-                    if (ActionBarMugenExtensions.IsSupported(target))
-                        ActionBarMugenExtensions.SetDisplayHomeAsUpEnabled(target, newValue);
-                    else
-                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                })
-                .Build());
+                                                           .Enabled()
+                                                           .GetBuilder()
+                                                           .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
+                                                           {
+                                                               if (ActionBarMugenExtensions.IsSupported(target))
+                                                                   ActionBarMugenExtensions.SetDisplayHomeAsUpEnabled(target, newValue);
+                                                               else
+                                                                   ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                           })
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<Object>()
-                .ParentNative()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) =>
-                {
-                    if (ActionBarMugenExtensions.IsSupported(target))
-                        return ActivityMugenExtensions.GetActivity(ActionBarMugenExtensions.GetThemedContext(target));
-                    return null;
-                })
-                .Build());
+                                                           .ParentNative()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) =>
+                                                           {
+                                                               if (ActionBarMugenExtensions.IsSupported(target))
+                                                                   return ActivityMugenExtensions.GetActivity(ActionBarMugenExtensions.GetThemedContext(target));
+                                                               return null;
+                                                           })
+                                                           .Build());
 
             //toolbar
             attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>("Title")
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) =>
-                {
-                    if (ToolbarMugenExtensions.IsSupported(target))
-                        return ToolbarMugenExtensions.GetTitle(target);
-                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                    return null!;
-                })
-                .CustomSetter((member, target, value, metadata) =>
-                {
-                    if (ToolbarMugenExtensions.IsSupported(target))
-                        ToolbarMugenExtensions.SetTitle(target, value);
-                    else
-                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                })
-                .Build());
+                                            .GetBuilder()
+                                            .CustomGetter((member, target, metadata) =>
+                                            {
+                                                if (ToolbarMugenExtensions.IsSupported(target))
+                                                    return ToolbarMugenExtensions.GetTitle(target);
+                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                return null!;
+                                            })
+                                            .CustomSetter((member, target, value, metadata) =>
+                                            {
+                                                if (ToolbarMugenExtensions.IsSupported(target))
+                                                    ToolbarMugenExtensions.SetTitle(target, value);
+                                                else
+                                                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                            })
+                                            .Build());
             attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>("Subtitle")
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) =>
-                {
-                    if (ToolbarMugenExtensions.IsSupported(target))
-                        return ToolbarMugenExtensions.GetSubtitle(target);
-                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                    return null!;
-                })
-                .CustomSetter((member, target, value, metadata) =>
-                {
-                    if (ToolbarMugenExtensions.IsSupported(target))
-                        ToolbarMugenExtensions.SetSubtitle(target, value);
-                    else
-                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                })
-                .Build());
+                                            .GetBuilder()
+                                            .CustomGetter((member, target, metadata) =>
+                                            {
+                                                if (ToolbarMugenExtensions.IsSupported(target))
+                                                    return ToolbarMugenExtensions.GetSubtitle(target);
+                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                return null!;
+                                            })
+                                            .CustomSetter((member, target, value, metadata) =>
+                                            {
+                                                if (ToolbarMugenExtensions.IsSupported(target))
+                                                    ToolbarMugenExtensions.SetSubtitle(target, value);
+                                                else
+                                                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                            })
+                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .MenuTemplate()
-                .GetBuilder()
-                .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
-                {
-                    if (ViewMugenExtensions.IsMenuSupported(target))
-                    {
-                        var menu = ViewMugenExtensions.GetMenu(target);
-                        oldValue?.Clear(menu);
-                        newValue?.Apply(menu, target);
-                    }
-                    else
-                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                })
-                .Build());
+                                                           .MenuTemplate()
+                                                           .GetBuilder()
+                                                           .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
+                                                           {
+                                                               if (ViewMugenExtensions.IsMenuSupported(target))
+                                                               {
+                                                                   var menu = ViewMugenExtensions.GetMenu(target);
+                                                                   oldValue?.Clear(menu);
+                                                                   newValue?.Apply(menu, target);
+                                                               }
+                                                               else
+                                                                   ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                           })
+                                                           .Build());
 
 
             //viewgroup
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .ContentTemplateSelector()
-                .GetBuilder()
-                .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
-                {
-                    if (newValue is IResourceTemplateSelector selector)
-                        member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
-                })
-                .NonObservable()
-                .DefaultValue(DefaultContentTemplateSelector.Instance)
-                .Build());
+                                                           .ContentTemplateSelector()
+                                                           .GetBuilder()
+                                                           .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
+                                                           {
+                                                               if (newValue is IResourceTemplateSelector selector)
+                                                                   member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
+                                                           })
+                                                           .NonObservable()
+                                                           .DefaultValue(DefaultContentTemplateSelector.Instance)
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .Content()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) => ViewGroupMugenExtensions.GetContent(target)?.BindableMembers().DataContext())
-                .CustomSetter((member, target, value, metadata) =>
-                {
-                    var contentTemplateSelector = target.BindableMembers().ContentTemplateSelector();
-                    if (contentTemplateSelector == null)
-                        ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
+                                                           .Content()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => ViewGroupMugenExtensions.GetContent(target)?.BindableMembers().DataContext())
+                                                           .CustomSetter((member, target, value, metadata) =>
+                                                           {
+                                                               var contentTemplateSelector = target.BindableMembers().ContentTemplateSelector();
+                                                               if (contentTemplateSelector == null)
+                                                                   ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                    var newValue = (Object?) contentTemplateSelector.SelectTemplate(target, value)!;
-                    if (newValue != null)
-                    {
-                        newValue.BindableMembers().SetDataContext(value);
-                        newValue.BindableMembers().SetParent(target);
-                    }
+                                                               var newValue = (Object?) contentTemplateSelector.SelectTemplate(target, value)!;
+                                                               if (newValue != null)
+                                                               {
+                                                                   newValue.BindableMembers().SetDataContext(value);
+                                                                   newValue.BindableMembers().SetParent(target);
+                                                               }
 
-                    ViewGroupMugenExtensions.SetContent(target, newValue!);
-                })
-                .Observable()
-                .Build());
+                                                               ViewGroupMugenExtensions.SetContent(target, newValue!);
+                                                           })
+                                                           .Observable()
+                                                           .Build());
 
             //tablayout.tab
             attachedMemberProvider.Register(new BindablePropertyDescriptor<Object, string>(ViewMemberChangedListener.TextMemberName)
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) =>
-                {
-                    if (TabLayoutTabMugenExtensions.IsSupported(target))
-                        return TabLayoutTabMugenExtensions.GetText(target);
-                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                    return null!;
-                })
-                .CustomSetter((member, target, value, metadata) =>
-                {
-                    if (TabLayoutTabMugenExtensions.IsSupported(target))
-                    {
-                        TabLayoutTabMugenExtensions.SetText(target, value);
-                        return;
-                    }
+                                            .GetBuilder()
+                                            .CustomGetter((member, target, metadata) =>
+                                            {
+                                                if (TabLayoutTabMugenExtensions.IsSupported(target))
+                                                    return TabLayoutTabMugenExtensions.GetText(target);
+                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                return null!;
+                                            })
+                                            .CustomSetter((member, target, value, metadata) =>
+                                            {
+                                                if (TabLayoutTabMugenExtensions.IsSupported(target))
+                                                {
+                                                    TabLayoutTabMugenExtensions.SetText(target, value);
+                                                    return;
+                                                }
 
-                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                })
-                .Build());
+                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                            })
+                                            .Build());
 
             //adapterview/recyclerview/viewpager/viewpager2/viewgroup/tablayout
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .StableIdProvider()
-                .GetBuilder()
-                .NonObservable()
-                .Build());
+                                                           .StableIdProvider()
+                                                           .GetBuilder()
+                                                           .NonObservable()
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .ItemTemplateSelector()
-                .GetBuilder()
-                .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
-                {
-                    if (!(newValue is IResourceTemplateSelector selector))
-                        return;
+                                                           .ItemTemplateSelector()
+                                                           .GetBuilder()
+                                                           .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
+                                                           {
+                                                               if (!(newValue is IResourceTemplateSelector selector))
+                                                                   return;
 
-                    var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);
-                    if (providerType == ViewGroupMugenExtensions.ContentProviderType || providerType == ViewGroupMugenExtensions.ContentRawProviderType
-                                                                                     || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType && selector is IFragmentTemplateSelector fts &&
-                                                                                     fts.HasFragments)
-                        member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
-                })
-                .NonObservable()
-                .Build());
+                                                               var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);
+                                                               if (providerType == ViewGroupMugenExtensions.ContentProviderType ||
+                                                                   providerType == ViewGroupMugenExtensions.ContentRawProviderType
+                                                                   || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType &&
+                                                                   selector is IFragmentTemplateSelector fts &&
+                                                                   fts.HasFragments)
+                                                                   member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
+                                                           })
+                                                           .NonObservable()
+                                                           .Build());
 
             //viewpager/viewpager2/tablayout
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .SelectedIndex()
-                .GetBuilder()
-                .CustomGetter((member, target, metadata) =>
-                {
-                    if (!ViewGroupMugenExtensions.IsSelectedIndexSupported(target))
-                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                    return ViewGroupMugenExtensions.GetSelectedIndex(target);
-                })
-                .CustomSetter((member, target, value, metadata) =>
-                {
-                    if (!ViewGroupMugenExtensions.SetSelectedIndex(target, value))
-                        ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                })
-                .Build());
+                                                           .SelectedIndex()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) =>
+                                                           {
+                                                               if (!ViewGroupMugenExtensions.IsSelectedIndexSupported(target))
+                                                                   ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                               return ViewGroupMugenExtensions.GetSelectedIndex(target);
+                                                           })
+                                                           .CustomSetter((member, target, value, metadata) =>
+                                                           {
+                                                               if (!ViewGroupMugenExtensions.SetSelectedIndex(target, value))
+                                                                   ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                           })
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .SelectedIndexChanged()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
-                .Build());
+                                                           .SelectedIndexChanged()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
+                                                           .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
-                .SelectedItemChanged()
-                .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
-                .Build());
+                                                           .SelectedItemChanged()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
+                                                           .Build());
             return configuration;
         }
 
@@ -503,7 +516,5 @@ namespace MugenMvvm.Android.Extensions
                 _xdpi = MugenAndroidUtils.Xdpi;
             return _xdpi;
         }
-
-        #endregion
     }
 }

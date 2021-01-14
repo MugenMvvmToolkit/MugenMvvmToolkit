@@ -11,18 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingBuilderTargetTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void FromShouldCreateBindingBuilderFrom()
-        {
-            BindingBuilderTarget<string, object> target = default;
-            target.For("P").PathOrExpression.ShouldEqual("P");
-            target.For(MemberExpressionNode.Empty).PathOrExpression.ShouldEqual(MemberExpressionNode.Empty);
-            Expression<Func<string, int>> expression = s => s.Length;
-            target.For(expression).PathOrExpression.ShouldEqual(expression);
-        }
-
         [Fact]
         public void ActionShouldCreateBindingBuilderTo()
         {
@@ -52,6 +40,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             converterRequest.Parameters.AsList().Count.ShouldEqual(0);
         }
 
-        #endregion
+        [Fact]
+        public void FromShouldCreateBindingBuilderFrom()
+        {
+            BindingBuilderTarget<string, object> target = default;
+            target.For("P").PathOrExpression.ShouldEqual("P");
+            target.For(MemberExpressionNode.Empty).PathOrExpression.ShouldEqual(MemberExpressionNode.Empty);
+            Expression<Func<string, int>> expression = s => s.Length;
+            target.For(expression).PathOrExpression.ShouldEqual(expression);
+        }
     }
 }

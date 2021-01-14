@@ -10,25 +10,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestBinding : ComponentOwnerBase<IBinding>, IBinding
     {
-        #region Constructors
-
         public TestBinding() : base(null)
         {
         }
-
-        #endregion
-
-        #region Properties
-
-        public bool HasMetadata { get; set; }
-
-        public IReadOnlyMetadataContext Metadata { get; set; } = null!;
-
-        public BindingState State { get; set; } = null!;
-
-        public IMemberPathObserver Target { get; set; } = null!;
-
-        public ItemOrArray<object?> Source { get; set; }
 
         public Action? Dispose { get; set; }
 
@@ -36,11 +20,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         public Action? UpdateSource { get; set; }
 
-        #endregion
+        public BindingState State { get; set; } = null!;
 
-        #region Implementation of interfaces
+        public IMemberPathObserver Target { get; set; } = null!;
 
-        void IDisposable.Dispose() => Dispose?.Invoke();
+        public ItemOrArray<object?> Source { get; set; }
+
+        public bool HasMetadata { get; set; }
+
+        public IReadOnlyMetadataContext Metadata { get; set; } = null!;
 
         ItemOrArray<object> IBinding.GetComponents() => GetComponents<object>();
 
@@ -48,6 +36,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 
         void IBinding.UpdateSource() => UpdateSource?.Invoke();
 
-        #endregion
+        void IDisposable.Dispose() => Dispose?.Invoke();
     }
 }

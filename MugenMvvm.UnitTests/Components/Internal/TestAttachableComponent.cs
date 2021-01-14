@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Components.Internal
 {
     public class TestAttachableComponent<T> : AttachableComponentBase<T>, IComponent<T> where T : class
     {
-        #region Properties
-
         public Action<T, IReadOnlyMetadataContext?>? OnAttachedHandler { get; set; }
 
         public Action<T, IReadOnlyMetadataContext?>? OnDetachedHandler { get; set; }
@@ -20,10 +18,6 @@ namespace MugenMvvm.UnitTests.Components.Internal
         public new T Owner => base.Owner;
 
         public new bool IsAttached => base.IsAttached;
-
-        #endregion
-
-        #region Methods
 
         protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
@@ -40,7 +34,5 @@ namespace MugenMvvm.UnitTests.Components.Internal
         }
 
         protected override bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => OnDetachingHandler?.Invoke(owner, metadata) ?? base.OnDetaching(owner, metadata);
-
-        #endregion
     }
 }

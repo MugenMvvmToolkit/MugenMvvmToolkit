@@ -14,18 +14,12 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class FieldAccessorMemberInfo : IAccessorMemberInfo
     {
-        #region Fields
-
         private readonly FieldInfo _fieldInfo;
         private readonly ushort _modifiers;
         private readonly Type _reflectedType;
         private Func<object?, object?> _getterFunc;
         private MemberObserver _observer;
         private Action<object?, object?> _setterFunc;
-
-        #endregion
-
-        #region Constructors
 
         public FieldAccessorMemberInfo(string name, FieldInfo fieldInfo, Type reflectedType)
         {
@@ -40,9 +34,9 @@ namespace MugenMvvm.Bindings.Members
             _modifiers = fieldInfo.GetAccessModifiers().Value();
         }
 
-        #endregion
+        public bool CanRead => true;
 
-        #region Properties
+        public bool CanWrite => true;
 
         public string Name { get; }
 
@@ -56,13 +50,9 @@ namespace MugenMvvm.Bindings.Members
 
         public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
-        public bool CanRead => true;
+        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => _getterFunc(target);
 
-        public bool CanWrite => true;
-
-        #endregion
-
-        #region Implementation of interfaces
+        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null) => _setterFunc(target, value);
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
@@ -70,14 +60,6 @@ namespace MugenMvvm.Bindings.Members
                 _observer = MugenService.ObservationManager.TryGetMemberObserver(_reflectedType, this, metadata).NoDoIfEmpty();
             return _observer.TryObserve(target, listener, metadata);
         }
-
-        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => _getterFunc(target);
-
-        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null) => _setterFunc(target, value);
-
-        #endregion
-
-        #region Methods
 
         private void CompileSetter(object? arg1, object? arg2)
         {
@@ -90,7 +72,5 @@ namespace MugenMvvm.Bindings.Members
             _getterFunc = _fieldInfo.GetMemberGetter<object?, object?>();
             return _getterFunc(arg);
         }
-
-        #endregion
     }
 }

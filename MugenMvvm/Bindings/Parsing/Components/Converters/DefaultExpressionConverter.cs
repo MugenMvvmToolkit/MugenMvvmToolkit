@@ -11,13 +11,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class DefaultExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Convert;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
@@ -25,7 +19,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
                 return ConstantExpressionNode.Get(d.Type.GetDefaultValue(), d.Type);
             return null;
         }
-
-        #endregion
     }
 }

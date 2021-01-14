@@ -9,8 +9,6 @@ namespace MugenMvvm.Metadata
 {
     internal static class InternalMetadata
     {
-        #region Fields
-
         private static IMetadataContextKey<HashSet<string>>? _openedNavigationProviders;
         private static IMetadataContextKey<List<IView>>? _views;
         private static IMetadataContextKey<bool>? _isDisposed;
@@ -22,10 +20,6 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<List<NavigationCallback?>>? _closeCallbacks;
         private static IMetadataContextKey<SortedList<string, object?>>? _attachedValuesKey;
         private static IMetadataContextKey<CommandEventHandler>? _commandEventHandler;
-
-        #endregion
-
-        #region Properties
 
         public static IMetadataContextKey<CommandEventHandler> CommandEventHandler
             => _commandEventHandler ??= GetBuilder(_commandEventHandler, nameof(CommandEventHandler)).Build();
@@ -56,12 +50,6 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<object?> View => _view ??= GetBuilder(_view, nameof(View)).Build();
 
-        #endregion
-
-        #region Methods
-
         private static MetadataContextKey.Builder<T> GetBuilder<T>(IMetadataContextKey<T>? _, string name) => MetadataContextKey.Create<T>(typeof(InternalMetadata), name);
-
-        #endregion
     }
 }

@@ -10,7 +10,88 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class MemberCacheTest : UnitTestBase
     {
-        #region Methods
+        [Fact]
+        public void AttachDetachShouldClearCache()
+        {
+            var invokeCount = 0;
+            var type1 = typeof(string);
+            var type2 = typeof(object);
+            var memberType = MemberType.Accessor;
+            var memberFlags = MemberFlags.All;
+            var request1 = "test1";
+            var request2 = "test2";
+            var result = new TestAccessorMemberInfo();
+            var cacheComponent = new MemberCache();
+            var memberManager = new MemberManager();
+            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
+            {
+                TryGetMembers = (t, m, f, r, meta) =>
+                {
+                    ++invokeCount;
+                    return result;
+                }
+            });
+            memberManager.AddComponent(cacheComponent);
+
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(2);
+
+            memberManager.RemoveComponent(cacheComponent);
+            invokeCount = 0;
+            cacheComponent.TryGetMembers(memberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            cacheComponent.TryGetMembers(memberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            cacheComponent.TryGetMembers(memberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            cacheComponent.TryGetMembers(memberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            invokeCount.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void InvalidateShouldClearCache()
+        {
+            var invokeCount = 0;
+            var type1 = typeof(string);
+            var type2 = typeof(object);
+            var memberType = MemberType.Accessor;
+            var memberFlags = MemberFlags.All;
+            var request1 = "test1";
+            var request2 = "test2";
+            var result = new TestAccessorMemberInfo();
+            var memberManager = new MemberManager();
+            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
+            {
+                TryGetMembers = (t, m, f, r, meta) =>
+                {
+                    ++invokeCount;
+                    return result;
+                }
+            });
+            memberManager.AddComponent(new MemberCache());
+
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(2);
+
+            memberManager.TryInvalidateCache(null, DefaultMetadata);
+            invokeCount = 0;
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(2);
+
+            memberManager.TryInvalidateCache(type1, DefaultMetadata);
+            invokeCount = 0;
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(1);
+        }
 
         [Fact]
         public void TryGetMembersShouldNotCacheUnsupportedType()
@@ -107,90 +188,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             memberManager.TryGetMembers(type, memberType, memberFlags, new MemberTypesRequest(request.Name, request.Types.ToArray()), DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
-
-        [Fact]
-        public void InvalidateShouldClearCache()
-        {
-            var invokeCount = 0;
-            var type1 = typeof(string);
-            var type2 = typeof(object);
-            var memberType = MemberType.Accessor;
-            var memberFlags = MemberFlags.All;
-            var request1 = "test1";
-            var request2 = "test2";
-            var result = new TestAccessorMemberInfo();
-            var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
-            {
-                TryGetMembers = (t, m, f, r, meta) =>
-                {
-                    ++invokeCount;
-                    return result;
-                }
-            });
-            memberManager.AddComponent(new MemberCache());
-
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(2);
-
-            memberManager.TryInvalidateCache(null, DefaultMetadata);
-            invokeCount = 0;
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(2);
-
-            memberManager.TryInvalidateCache(type1, DefaultMetadata);
-            invokeCount = 0;
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void AttachDetachShouldClearCache()
-        {
-            var invokeCount = 0;
-            var type1 = typeof(string);
-            var type2 = typeof(object);
-            var memberType = MemberType.Accessor;
-            var memberFlags = MemberFlags.All;
-            var request1 = "test1";
-            var request2 = "test2";
-            var result = new TestAccessorMemberInfo();
-            var cacheComponent = new MemberCache();
-            var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
-            {
-                TryGetMembers = (t, m, f, r, meta) =>
-                {
-                    ++invokeCount;
-                    return result;
-                }
-            });
-            memberManager.AddComponent(cacheComponent);
-
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(2);
-
-            memberManager.RemoveComponent(cacheComponent);
-            invokeCount = 0;
-            cacheComponent.TryGetMembers(memberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            cacheComponent.TryGetMembers(memberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            cacheComponent.TryGetMembers(memberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            cacheComponent.TryGetMembers(memberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            invokeCount.ShouldEqual(0);
-        }
-
-        #endregion
     }
 }

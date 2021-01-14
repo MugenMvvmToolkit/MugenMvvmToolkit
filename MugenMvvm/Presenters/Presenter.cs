@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
@@ -7,22 +6,15 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters
 {
     public sealed class Presenter : ComponentOwnerBase<IPresenter>, IPresenter
     {
-        #region Constructors
-
         public Presenter(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(object request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IPresenterComponent>(metadata).TryShow(this, request, cancellationToken, metadata);
@@ -30,7 +22,5 @@ namespace MugenMvvm.Presenters
         public ItemOrIReadOnlyList<IPresenterResult> TryClose(object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IPresenterComponent>(metadata).TryClose(this, request, cancellationToken, metadata);
-
-        #endregion
     }
 }

@@ -9,16 +9,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class ConditionExpressionConverterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotConditionExpression()
-        {
-            var component = new ConditionExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
-        }
-
         [Fact]
         public void TryConvertShouldConvertConditionExpression()
         {
@@ -36,6 +26,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             component.TryConvert(ctx, Expression.Condition(condition, ifTrue, ifFalse)).ShouldEqual(result);
         }
 
-        #endregion
+        [Fact]
+        public void TryConvertShouldIgnoreNotConditionExpression()
+        {
+            var component = new ConditionExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
+        }
     }
 }

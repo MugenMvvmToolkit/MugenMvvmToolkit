@@ -18,19 +18,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class MemberExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly IMemberManager? _memberManager;
-        private readonly Expression _thisExpression;
-
         private static readonly MethodInfo GetValuePropertyMethod =
             typeof(IAccessorMemberInfo).GetMethodOrThrow(nameof(IAccessorMemberInfo.GetValue), BindingFlagsEx.InstancePublic);
 
         private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberExpressionBuilder).GetMethodOrThrow(nameof(GetValueDynamic), BindingFlagsEx.InstancePublic);
 
-        #endregion
-
-        #region Constructors
+        private readonly IMemberManager? _memberManager;
+        private readonly Expression _thisExpression;
 
         public MemberExpressionBuilder(IMemberManager? memberManager = null)
         {
@@ -38,17 +32,33 @@ namespace MugenMvvm.Bindings.Compiling.Components
             _thisExpression = Expression.Constant(this);
         }
 
-        #endregion
-
-        #region Properties
+        public EnumFlags<MemberFlags> MemberFlags { get; set; } = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic;
 
         public int Priority { get; set; } = CompilingComponentPriority.Member;
 
-        public EnumFlags<MemberFlags> MemberFlags { get; set; } = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic;
+        private static Expression? TryCompile(Expression? target, object? member)
+        {
+            if (member == null)
+                return null;
+            if (member is PropertyInfo property)
+                return Expression.Property(target, property);
+            if (member is FieldInfo field)
+                return Expression.Field(target, field);
+            return null;
+        }
 
-        #endregion
-
-        #region Implementation of interfaces
+        [Preserve(Conditional = true)]
+        public object? GetValueDynamic(object? target, string member, IReadOnlyMetadataContext? metadata)
+        {
+            if (target == null)
+                return null;
+            var property = _memberManager
+                           .DefaultIfNull()
+                           .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IAccessorMemberInfo;
+            if (property == null)
+                ExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
+            return property.GetValue(target, metadata);
+        }
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
@@ -68,8 +78,8 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 flags = MemberFlags.SetInstanceOrStaticFlags(false);
 
             var member = _memberManager
-                .DefaultIfNull()
-                .TryGetMember(type, MemberType.Accessor, flags, memberExpression.Member, context.GetMetadataOrDefault()) as IAccessorMemberInfo;
+                         .DefaultIfNull()
+                         .TryGetMember(type, MemberType.Accessor, flags, memberExpression.Member, context.GetMetadataOrDefault()) as IAccessorMemberInfo;
 
             if (member == null)
             {
@@ -90,40 +100,11 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return result;
 
             if (target == null)
-                return Expression.Call(Expression.Constant(member), GetValuePropertyMethod, MugenExtensions.NullConstantExpression, context.MetadataExpression).ConvertIfNeed(member.Type, false);
+                return Expression.Call(Expression.Constant(member), GetValuePropertyMethod, MugenExtensions.NullConstantExpression, context.MetadataExpression)
+                                 .ConvertIfNeed(member.Type, false);
             return Expression
-                .Call(Expression.Constant(member), GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression)
-                .ConvertIfNeed(member.Type, false);
+                   .Call(Expression.Constant(member), GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression)
+                   .ConvertIfNeed(member.Type, false);
         }
-
-        #endregion
-
-        #region Methods
-
-        [Preserve(Conditional = true)]
-        public object? GetValueDynamic(object? target, string member, IReadOnlyMetadataContext? metadata)
-        {
-            if (target == null)
-                return null;
-            var property = _memberManager
-                .DefaultIfNull()
-                .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IAccessorMemberInfo;
-            if (property == null)
-                ExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
-            return property.GetValue(target, metadata);
-        }
-
-        private static Expression? TryCompile(Expression? target, object? member)
-        {
-            if (member == null)
-                return null;
-            if (member is PropertyInfo property)
-                return Expression.Property(target, property);
-            if (member is FieldInfo field)
-                return Expression.Field(target, field);
-            return null;
-        }
-
-        #endregion
     }
 }

@@ -17,17 +17,12 @@ namespace MugenMvvm.Android.Views
 {
     public sealed class ActivityViewRequestManager : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent
     {
-        #region Constructors
-
         public ActivityViewRequestManager(int priority = ViewComponentPriority.ActivityRequestDecorator) : base(priority)
         {
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public async ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             if (!(request is IActivityViewRequest activityRequest))
             {
@@ -48,21 +43,11 @@ namespace MugenMvvm.Android.Views
         public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             => Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
 
-        #endregion
-
-        #region Nested types
-
         private sealed class PendingActivityHandler : TaskCompletionSource<object>, IViewLifecycleListener, IHasPriority
         {
-            #region Fields
-
             private readonly CancellationToken _cancellationToken;
 
             private readonly IActivityViewRequest _request;
-
-            #endregion
-
-            #region Constructors
 
             public PendingActivityHandler(IActivityViewRequest request, CancellationToken cancellationToken)
             {
@@ -70,15 +55,7 @@ namespace MugenMvvm.Android.Views
                 _cancellationToken = cancellationToken;
             }
 
-            #endregion
-
-            #region Properties
-
             public int Priority => ViewComponentPriority.PreInitializer;
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
@@ -99,10 +76,6 @@ namespace MugenMvvm.Android.Views
                     TrySetResult(view);
                 }
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

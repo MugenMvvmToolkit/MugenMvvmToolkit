@@ -19,17 +19,11 @@ namespace MugenMvvm.Commands.Components
     public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent,
         IMessengerHandler, IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IHasDisposeCondition, IHasPriority
     {
-        #region Fields
-
         private readonly IThreadDispatcher? _threadDispatcher;
         private EventHandler? _canExecuteChanged;
         private PropertyChangedEventHandler? _handler;
         private bool _isNotificationsDirty;
         private int _suspendCount;
-
-        #endregion
-
-        #region Constructors
 
         public CommandEventHandler(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode)
         {
@@ -39,73 +33,17 @@ namespace MugenMvvm.Commands.Components
             IsDisposable = true;
         }
 
-        #endregion
-
-        #region Properties
-
         public ThreadExecutionMode EventExecutionMode { get; }
 
         public Func<object?, object?, bool>? CanNotify { get; set; }
 
-        public bool IsSuspended => _suspendCount != 0;
+        public bool IsDisposable { get; set; }
 
         public int Priority => CommandComponentPriority.ConditionEvent;
 
+        public bool IsSuspended => _suspendCount != 0;
+
         Delegate? IValueHolder<Delegate>.Value { get; set; }
-
-        public bool IsDisposable { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public void AddCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata) => _canExecuteChanged += handler;
-
-        public void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata) => _canExecuteChanged -= handler;
-
-        public void RaiseCanExecuteChanged(ICompositeCommand? command = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (_canExecuteChanged == null)
-                return;
-
-            if (IsSuspended)
-                _isNotificationsDirty = true;
-            else
-                _threadDispatcher.DefaultIfNull().Execute(EventExecutionMode, this, null);
-        }
-
-        public void Dispose()
-        {
-            if (IsDisposable)
-            {
-                _canExecuteChanged = null;
-                _handler = null;
-            }
-        }
-
-        bool IMessengerHandler.CanHandle(Type messageType) => true;
-
-        MessengerResult IMessengerHandler.Handle(IMessageContext messageContext)
-        {
-            Handle(messageContext.Sender, messageContext.Message);
-            return MessengerResult.Handled;
-        }
-
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((o, _) => ((CommandEventHandler) o!).EndSuspendNotifications(), this);
-        }
-
-        void IThreadDispatcherHandler.Execute(object? _)
-        {
-            foreach (var owner in Owners)
-                _canExecuteChanged?.Invoke(owner, EventArgs.Empty);
-        }
-
-        #endregion
-
-        #region Methods
 
         public ActionToken AddNotifier(object? notifier, IReadOnlyMetadataContext? metadata = null)
         {
@@ -132,6 +70,36 @@ namespace MugenMvvm.Commands.Components
             return new ActionToken((m, h) => ((IMessenger) m!).TryUnsubscribe(h!), messenger, this);
         }
 
+        public void AddCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata) => _canExecuteChanged += handler;
+
+        public void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata) => _canExecuteChanged -= handler;
+
+        public void RaiseCanExecuteChanged(ICompositeCommand? command = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (_canExecuteChanged == null)
+                return;
+
+            if (IsSuspended)
+                _isNotificationsDirty = true;
+            else
+                _threadDispatcher.DefaultIfNull().Execute(EventExecutionMode, this, null);
+        }
+
+        public void Dispose()
+        {
+            if (IsDisposable)
+            {
+                _canExecuteChanged = null;
+                _handler = null;
+            }
+        }
+
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Interlocked.Increment(ref _suspendCount);
+            return new ActionToken((o, _) => ((CommandEventHandler) o!).EndSuspendNotifications(), this);
+        }
+
         private PropertyChangedEventHandler GetPropertyChangedEventHandler() => _handler ??= Handle;
 
         private void EndSuspendNotifications()
@@ -149,6 +117,18 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        #endregion
+        bool IMessengerHandler.CanHandle(Type messageType) => true;
+
+        MessengerResult IMessengerHandler.Handle(IMessageContext messageContext)
+        {
+            Handle(messageContext.Sender, messageContext.Message);
+            return MessengerResult.Handled;
+        }
+
+        void IThreadDispatcherHandler.Execute(object? _)
+        {
+            foreach (var owner in Owners)
+                _canExecuteChanged?.Invoke(owner, EventArgs.Empty);
+        }
     }
 }

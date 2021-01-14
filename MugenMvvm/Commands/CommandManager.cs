@@ -10,17 +10,11 @@ namespace MugenMvvm.Commands
 {
     public sealed class CommandManager : ComponentOwnerBase<ICommandManager>, ICommandManager
     {
-        #region Constructors
-
         [Preserve(Conditional = true)]
         public CommandManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public ICompositeCommand? TryGetCommand<TParameter>(object? owner, object request, IReadOnlyMetadataContext? metadata = null)
         {
@@ -29,7 +23,5 @@ namespace MugenMvvm.Commands
                 GetComponents<ICommandManagerListener>(metadata).OnCommandCreated<TParameter>(this, result, owner, request, metadata);
             return result;
         }
-
-        #endregion
     }
 }

@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class ViewModelLifecycleTrackerTest : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -33,7 +31,5 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed);
             viewModel.IsInState(ViewModelLifecycleState.Disposed, null, manager).ShouldBeTrue();
         }
-
-        #endregion
     }
 }

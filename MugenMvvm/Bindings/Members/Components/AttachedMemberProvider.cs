@@ -12,19 +12,12 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class AttachedMemberProvider : AttachableComponentBase<IMemberManager>, IMemberProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly Dictionary<string, List<IMemberInfo>> _registeredMembers;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public AttachedMemberProvider()
@@ -32,35 +25,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _registeredMembers = new Dictionary<string, List<IMemberInfo>>(59, StringComparer.Ordinal);
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = MemberComponentPriority.Attached;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
-        {
-            if (!_registeredMembers.TryGetValue(name, out var members))
-                return default;
-
-            var result = new ItemOrListEditor<IMemberInfo>();
-            for (var index = 0; index < members.Count; index++)
-            {
-                var memberInfo = members[index];
-                if (memberTypes.HasFlag(memberInfo.MemberType) && memberInfo.DeclaringType.IsAssignableFromGeneric(type))
-                    result.Add(memberInfo);
-            }
-
-            return result.ToItemOrList();
-        }
-
-        #endregion
-
-        #region Methods
 
         public ItemOrIReadOnlyList<IMemberInfo> GetAttachedMembers()
         {
@@ -89,10 +54,8 @@ namespace MugenMvvm.Bindings.Members.Components
             Should.NotBeNull(member, nameof(member));
             var removed = false;
             foreach (var pair in _registeredMembers)
-            {
                 if (pair.Value.Remove(member))
                     removed = true;
-            }
 
             if (removed)
                 OwnerOptional.TryInvalidateCache();
@@ -104,6 +67,21 @@ namespace MugenMvvm.Bindings.Members.Components
             OwnerOptional.TryInvalidateCache();
         }
 
-        #endregion
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+            IReadOnlyMetadataContext? metadata)
+        {
+            if (!_registeredMembers.TryGetValue(name, out var members))
+                return default;
+
+            var result = new ItemOrListEditor<IMemberInfo>();
+            for (var index = 0; index < members.Count; index++)
+            {
+                var memberInfo = members[index];
+                if (memberTypes.HasFlag(memberInfo.MemberType) && memberInfo.DeclaringType.IsAssignableFromGeneric(type))
+                    result.Add(memberInfo);
+            }
+
+            return result.ToItemOrList();
+        }
     }
 }

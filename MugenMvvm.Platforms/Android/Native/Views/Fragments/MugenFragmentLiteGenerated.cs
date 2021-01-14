@@ -14,8 +14,6 @@ namespace MugenMvvm.Android.Native.Views.Fragments
     [Register("com/mugen/mvvm/views/fragments/MugenFragment", DoNotGenerateAcw = true)]
     public partial class MugenFragmentLite : Object, INativeFragmentView
     {
-        #region Fields
-
         private static readonly JniPeerMembers _members = new XAPeerMembers("com/mugen/mvvm/views/fragments/MugenFragment", typeof(MugenFragmentLite));
 
         private static Delegate cb_getContext;
@@ -48,14 +46,6 @@ namespace MugenMvvm.Android.Native.Views.Fragments
 
         private static Delegate cb_onStop;
 
-        #endregion
-
-        #region Constructors
-
-        protected MugenFragmentLite(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
-        {
-        }
-
         // Metadata.xml XPath constructor reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/constructor[@name='MugenFragmentLite' and count(parameter)=0]"
         [Register(".ctor", "()V", "")]
         public unsafe MugenFragmentLite()
@@ -71,29 +61,11 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             _members.InstanceMethods.FinishCreateInstance(__id, this, null);
         }
 
-        #endregion
-
-        #region Properties
+        protected MugenFragmentLite(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
+        {
+        }
 
         internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
-
-        public override JniPeerMembers JniPeerMembers => _members;
-
-        protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
-
-        protected override Type ThresholdType => _members.ManagedPeerType;
-
-        public unsafe Activity Activity
-        {
-            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='getActivity' and count(parameter)=0]"
-            [Register("getActivity", "()Landroid/app/Activity;", "")]
-            get
-            {
-                const string __id = "getActivity.()Landroid/app/Activity;";
-                var __rm = _members.InstanceMethods.InvokeNonvirtualObjectMethod(__id, this, null);
-                return GetObject<Activity>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
-            }
-        }
 
         public virtual unsafe Context Context
         {
@@ -104,6 +76,30 @@ namespace MugenMvvm.Android.Native.Views.Fragments
                 const string __id = "getContext.()Landroid/content/Context;";
                 var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
                 return GetObject<Context>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+            }
+        }
+
+        public virtual unsafe View View
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='getView' and count(parameter)=0]"
+            [Register("getView", "()Landroid/view/View;", "GetGetViewHandler")]
+            get
+            {
+                const string __id = "getView.()Landroid/view/View;";
+                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
+                return GetObject<View>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+            }
+        }
+
+        public unsafe Activity Activity
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='getActivity' and count(parameter)=0]"
+            [Register("getActivity", "()Landroid/app/Activity;", "")]
+            get
+            {
+                const string __id = "getActivity.()Landroid/app/Activity;";
+                var __rm = _members.InstanceMethods.InvokeNonvirtualObjectMethod(__id, this, null);
+                return GetObject<Activity>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
             }
         }
 
@@ -140,17 +136,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             }
         }
 
-        public virtual unsafe View View
-        {
-            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='getView' and count(parameter)=0]"
-            [Register("getView", "()Landroid/view/View;", "GetGetViewHandler")]
-            get
-            {
-                const string __id = "getView.()Landroid/view/View;";
-                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
-                return GetObject<View>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
-            }
-        }
+        public override JniPeerMembers JniPeerMembers => _members;
 
         public virtual unsafe int ViewId
         {
@@ -164,9 +150,9 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             }
         }
 
-        #endregion
+        protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
 
-        #region Methods
+        protected override Type ThresholdType => _members.ManagedPeerType;
 
         // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='onCreate' and count(parameter)=1 and parameter[1][@type='android.os.Bundle']]"
         [Register("onCreate", "(Landroid/os/Bundle;)V", "GetOnCreate_Landroid_os_Bundle_Handler")]
@@ -249,8 +235,6 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             const string __id = "onStop.()V";
             _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, null);
         }
-
-        #endregion
 
 #pragma warning disable 0169
         private static Delegate GetGetContextHandler()
@@ -358,13 +342,15 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             if (cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_ == null)
             {
                 cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_ =
-                    JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>) n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_);
+                    JNINativeWrapper.CreateDelegate(
+                        (Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>) n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_);
             }
 
             return cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_;
         }
 
-        private static IntPtr n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_(IntPtr jnienv, IntPtr native__this, IntPtr native_inflater, IntPtr native_container,
+        private static IntPtr n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_(IntPtr jnienv, IntPtr native__this, IntPtr native_inflater,
+            IntPtr native_container,
             IntPtr native_savedInstanceState)
         {
             MugenFragmentLite __this = GetObject<MugenFragmentLite>(jnienv, native__this, JniHandleOwnership.DoNotTransfer);

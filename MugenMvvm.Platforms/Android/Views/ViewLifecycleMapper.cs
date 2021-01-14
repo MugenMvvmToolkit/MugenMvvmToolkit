@@ -12,13 +12,7 @@ namespace MugenMvvm.Android.Views
 {
     public sealed class ViewLifecycleMapper : IViewLifecycleListener, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -38,7 +32,5 @@ namespace MugenMvvm.Android.Views
                      lifecycleState == AndroidViewLifecycleState.Dismissing || lifecycleState == AndroidViewLifecycleState.DismissingAllowingStateLoss)
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, state, metadata);
         }
-
-        #endregion
     }
 }

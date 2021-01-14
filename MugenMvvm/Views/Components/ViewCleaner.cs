@@ -13,21 +13,9 @@ namespace MugenMvvm.Views.Components
 {
     public class ViewCleaner : IViewLifecycleListener, IHasPriority, IComponentCollectionChangedListener
     {
-        #region Properties
-
-        public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
-
         public bool ClearDataContext { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => (component as ICleanableView)?.Cleanup(null, metadata);
+        public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -39,10 +27,6 @@ namespace MugenMvvm.Views.Components
             else if (lifecycleState == ViewLifecycleState.Cleared)
                 Cleanup(viewImp, state, metadata);
         }
-
-        #endregion
-
-        #region Methods
 
         protected virtual void Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata) => view.Components.AddComponent(this);
 
@@ -62,6 +46,11 @@ namespace MugenMvvm.Views.Components
                 view.Target.BindableMembers().SetDataContext(null);
         }
 
-        #endregion
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            (component as ICleanableView)?.Cleanup(null, metadata);
     }
 }

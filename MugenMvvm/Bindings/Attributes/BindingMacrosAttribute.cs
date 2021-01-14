@@ -10,14 +10,8 @@ namespace MugenMvvm.Bindings.Attributes
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class BindingMacrosAttribute : BindingSyntaxExtensionAttributeBase
     {
-        #region Fields
-
         private IExpressionNode? _expressionNode;
         private bool _initialized;
-
-        #endregion
-
-        #region Constructors
 
         public BindingMacrosAttribute(string resourceName, bool isStatic = false)
         {
@@ -34,19 +28,11 @@ namespace MugenMvvm.Bindings.Attributes
             IsStatic = isStatic;
         }
 
-        #endregion
-
-        #region Properties
-
         public string? ResourceName { get; }
 
         public bool IsStatic { get; }
 
         public int ResourceNameIndex { get; }
-
-        #endregion
-
-        #region Methods
 
         protected override bool TryConvertInternal(IExpressionConverterContext<Expression> context, Expression? expression, out IExpressionNode? result)
         {
@@ -60,14 +46,13 @@ namespace MugenMvvm.Bindings.Attributes
                 else
                     resourceName = ResourceName;
                 if (resourceName != null)
-                    _expressionNode = UnaryExpressionNode.Get(IsStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, resourceName));
+                    _expressionNode = UnaryExpressionNode.Get(IsStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression,
+                        MemberExpressionNode.Get(null, resourceName));
                 _initialized = true;
             }
 
             result = _expressionNode;
             return _expressionNode != null;
         }
-
-        #endregion
     }
 }

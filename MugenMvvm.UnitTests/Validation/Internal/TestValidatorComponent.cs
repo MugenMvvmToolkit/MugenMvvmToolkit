@@ -13,8 +13,6 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 {
     public class TestValidatorComponent : IValidatorComponent, IDisposable, IHasPriority
     {
-        #region Properties
-
         public Func<IValidator, string?, IReadOnlyMetadataContext?, bool>? HasErrors { get; set; }
 
         public Action? Dispose { get; set; }
@@ -29,13 +27,10 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 
         public int Priority { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         void IDisposable.Dispose() => Dispose?.Invoke();
 
-        bool IValidatorComponent.HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => HasErrors?.Invoke(validator, memberName, metadata) ?? false;
+        bool IValidatorComponent.HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) =>
+            HasErrors?.Invoke(validator, memberName, metadata) ?? false;
 
         ItemOrIReadOnlyList<object> IValidatorComponent.TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) =>
             GetErrors?.Invoke(validator, memberName, metadata) ?? default;
@@ -47,7 +42,5 @@ namespace MugenMvvm.UnitTests.Validation.Internal
             ValidateAsync?.Invoke(validator, memberName, cancellationToken, metadata) ?? Default.CompletedTask;
 
         void IValidatorComponent.ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata) => ClearErrors?.Invoke(validator, memberName, metadata);
-
-        #endregion
     }
 }

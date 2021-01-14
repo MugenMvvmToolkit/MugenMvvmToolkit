@@ -7,10 +7,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class CompiledExpressionMetadataOwnerTest : MetadataOwnerTestBase
     {
-        #region Methods
-
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new CompiledExpression(ConstantExpressionNode.EmptyString, metadata);
-
-        #endregion
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>
+            new CompiledExpression(ConstantExpressionNode.EmptyString, metadata);
     }
 }

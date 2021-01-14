@@ -18,8 +18,6 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class ComponentCollectionTest : ComponentOwnerTestBase<IComponentCollection>
     {
-        #region Methods
-
         public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
         {
             if (globalValue)
@@ -239,6 +237,47 @@ namespace MugenMvvm.UnitTests.Components
             items.Count.ShouldEqual(0);
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ShouldUseCorrectOrderForDecorators(int count)
+        {
+            var owner = new TestComponentOwner<object>();
+            var componentCollection = new ComponentCollection(owner);
+
+            var executed = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var decoratorComponent = new TestThreadDispatcherDecorator
+                {
+                    DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
+                    {
+                        ++executed;
+                        c.ShouldEqual(componentCollection);
+                        list.Add(new TestThreadDispatcherComponent());
+                    }
+                };
+                componentCollection.TryAdd(decoratorComponent);
+                componentCollection.AddComponent(decoratorComponent);
+            }
+
+            var components = componentCollection.Get<IThreadDispatcherComponent>();
+            executed.ShouldEqual(count);
+            components.Count.ShouldEqual(count * 2);
+            components.AsList().OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
+        }
+
+        protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollection(this);
+
+        private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
+        {
+            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata) =>
+                throw new NotSupportedException();
+
+            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata) =>
+                throw new NotSupportedException();
+        }
+
         [Fact]
         public void AddShouldCallOnAttachingOnAttachedMethods()
         {
@@ -272,43 +311,6 @@ namespace MugenMvvm.UnitTests.Components
             attachingCount.ShouldEqual(2);
             attachedCount.ShouldEqual(1);
             componentCollection.Get<object>().Single().ShouldEqual(component);
-        }
-
-        [Fact]
-        public void RemoveShouldCallOnDetachingOnDetachedMethods()
-        {
-            var detachingCount = 0;
-            var detachedCount = 0;
-            var canDetach = false;
-            var componentCollection = new ComponentCollection(this);
-            var component = new TestAttachableComponent<ComponentCollectionTest>
-            {
-                OnDetachingHandler = (test, context) =>
-                {
-                    detachingCount++;
-                    test.ShouldEqual(this);
-                    return canDetach;
-                },
-                OnDetachedHandler = (test, context) =>
-                {
-                    detachedCount++;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-            componentCollection.TryAdd(component, DefaultMetadata);
-
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeFalse();
-            detachingCount.ShouldEqual(1);
-            detachedCount.ShouldEqual(0);
-            componentCollection.Count.ShouldEqual(1);
-            componentCollection.Get<object>().Single().ShouldEqual(component);
-
-            canDetach = true;
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
-            detachingCount.ShouldEqual(2);
-            detachedCount.ShouldEqual(1);
-            componentCollection.Get<object>().Count.ShouldEqual(0);
         }
 
         [Fact]
@@ -385,53 +387,41 @@ namespace MugenMvvm.UnitTests.Components
             executed.ShouldEqual(0);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ShouldUseCorrectOrderForDecorators(int count)
+        [Fact]
+        public void RemoveShouldCallOnDetachingOnDetachedMethods()
         {
-            var owner = new TestComponentOwner<object>();
-            var componentCollection = new ComponentCollection(owner);
-
-            var executed = 0;
-            for (var i = 0; i < count; i++)
+            var detachingCount = 0;
+            var detachedCount = 0;
+            var canDetach = false;
+            var componentCollection = new ComponentCollection(this);
+            var component = new TestAttachableComponent<ComponentCollectionTest>
             {
-                var decoratorComponent = new TestThreadDispatcherDecorator
+                OnDetachingHandler = (test, context) =>
                 {
-                    DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
-                    {
-                        ++executed;
-                        c.ShouldEqual(componentCollection);
-                        list.Add(new TestThreadDispatcherComponent());
-                    }
-                };
-                componentCollection.TryAdd(decoratorComponent);
-                componentCollection.AddComponent(decoratorComponent);
-            }
+                    detachingCount++;
+                    test.ShouldEqual(this);
+                    return canDetach;
+                },
+                OnDetachedHandler = (test, context) =>
+                {
+                    detachedCount++;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                }
+            };
+            componentCollection.TryAdd(component, DefaultMetadata);
 
-            var components = componentCollection.Get<IThreadDispatcherComponent>();
-            executed.ShouldEqual(count);
-            components.Count.ShouldEqual(count * 2);
-            components.AsList().OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
+            componentCollection.Remove(component, DefaultMetadata).ShouldBeFalse();
+            detachingCount.ShouldEqual(1);
+            detachedCount.ShouldEqual(0);
+            componentCollection.Count.ShouldEqual(1);
+            componentCollection.Get<object>().Single().ShouldEqual(component);
+
+            canDetach = true;
+            componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
+            detachingCount.ShouldEqual(2);
+            detachedCount.ShouldEqual(1);
+            componentCollection.Get<object>().Count.ShouldEqual(0);
         }
-
-        protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollection(this);
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
-        {
-            #region Implementation of interfaces
-
-            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
-
-            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata) => throw new NotSupportedException();
-
-            #endregion
-        }
-
-        #endregion
     }
 }

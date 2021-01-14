@@ -11,29 +11,52 @@ namespace MugenMvvm.UnitTests.Threading.Components
 {
     public class SynchronizationContextThreadDispatcherTest : UnitTestBase
     {
-        #region Fields
-
-        private readonly TestSynchronizationContext _synchronizationContext;
-
-        #endregion
-
-        #region Constructors
-
         public SynchronizationContextThreadDispatcherTest()
         {
             _synchronizationContext = new TestSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
         }
 
-        #endregion
+        private readonly TestSynchronizationContext _synchronizationContext;
 
-        #region Methods
+        private static void WaitThreadPool()
+        {
+            var taskCompletionSource = new TaskCompletionSource<object?>();
+            ThreadPool.QueueUserWorkItem(state => taskCompletionSource.SetResult(null));
+            taskCompletionSource.Task.Wait();
+            WaitCompletion();
+        }
+
+        private sealed class TestSynchronizationContext : SynchronizationContext
+        {
+            public SendOrPostCallback? Callback { get; set; }
+
+            public object? State { get; set; }
+
+            public override void Post(SendOrPostCallback d, object? state)
+            {
+                Callback = d;
+                State = state;
+            }
+
+            public void Invoke()
+            {
+                Callback?.Invoke(State);
+                Callback = null;
+                State = null;
+            }
+        }
 
         [Fact]
-        public void CanExecuteInlineShouldReturnTrueCurrent()
+        public void CanExecuteInlineShouldMainWaitPost()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
-            component.CanExecuteInline(null!, ThreadExecutionMode.Current, DefaultMetadata).ShouldBeTrue();
+            _synchronizationContext.Callback.ShouldBeNull();
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
+            component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeFalse();
+
+            _synchronizationContext.Callback.ShouldNotBeNull();
+            _synchronizationContext.Invoke();
+            component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeTrue();
         }
 
         [Fact]
@@ -51,21 +74,16 @@ namespace MugenMvvm.UnitTests.Threading.Components
         }
 
         [Fact]
-        public void CanExecuteInlineShouldReturnTrueMain()
+        public void CanExecuteInlineShouldReturnTrueCurrent()
         {
             var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
-            component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeTrue();
+            component.CanExecuteInline(null!, ThreadExecutionMode.Current, DefaultMetadata).ShouldBeTrue();
         }
 
         [Fact]
-        public void CanExecuteInlineShouldMainWaitPost()
+        public void CanExecuteInlineShouldReturnTrueMain()
         {
-            _synchronizationContext.Callback.ShouldBeNull();
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
-            component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeFalse();
-
-            _synchronizationContext.Callback.ShouldNotBeNull();
-            _synchronizationContext.Invoke();
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
             component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeTrue();
         }
 
@@ -235,47 +253,5 @@ namespace MugenMvvm.UnitTests.Threading.Components
 
             component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, component, component, DefaultMetadata).ShouldBeFalse();
         }
-
-        private static void WaitThreadPool()
-        {
-            var taskCompletionSource = new TaskCompletionSource<object?>();
-            ThreadPool.QueueUserWorkItem(state => taskCompletionSource.SetResult(null));
-            taskCompletionSource.Task.Wait();
-            WaitCompletion();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestSynchronizationContext : SynchronizationContext
-        {
-            #region Properties
-
-            public SendOrPostCallback? Callback { get; set; }
-
-            public object? State { get; set; }
-
-            #endregion
-
-            #region Methods
-
-            public void Invoke()
-            {
-                Callback?.Invoke(State);
-                Callback = null;
-                State = null;
-            }
-
-            public override void Post(SendOrPostCallback d, object? state)
-            {
-                Callback = d;
-                State = state;
-            }
-
-            #endregion
-        }
-
-        #endregion
     }
 }

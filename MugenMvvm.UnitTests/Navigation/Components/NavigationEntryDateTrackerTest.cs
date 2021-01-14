@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationEntryDateTrackerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void OnNavigationEntryAddedShouldSetDate()
         {
@@ -24,21 +22,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             var utcNow = DateTime.UtcNow;
             component.OnNavigationEntryAdded(dispatcher, entry, context);
-
-            var dateTime = entry.Metadata.Get(NavigationMetadata.NavigationDate);
-            utcNow.ShouldBeLessThanOrEqualTo(dateTime);
-        }
-
-        [Fact]
-        public void OnNavigationEntryUpdatedShouldSetDate()
-        {
-            var dispatcher = new NavigationDispatcher();
-            var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
-            var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
-            var component = new NavigationEntryDateTracker();
-
-            var utcNow = DateTime.UtcNow;
-            component.OnNavigationEntryUpdated(dispatcher, entry, context);
 
             var dateTime = entry.Metadata.Get(NavigationMetadata.NavigationDate);
             utcNow.ShouldBeLessThanOrEqualTo(dateTime);
@@ -56,6 +39,19 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             entry.Metadata.Contains(NavigationMetadata.NavigationDate).ShouldBeFalse();
         }
 
-        #endregion
+        [Fact]
+        public void OnNavigationEntryUpdatedShouldSetDate()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
+            var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
+            var component = new NavigationEntryDateTracker();
+
+            var utcNow = DateTime.UtcNow;
+            component.OnNavigationEntryUpdated(dispatcher, entry, context);
+
+            var dateTime = entry.Metadata.Get(NavigationMetadata.NavigationDate);
+            utcNow.ShouldBeLessThanOrEqualTo(dateTime);
+        }
     }
 }

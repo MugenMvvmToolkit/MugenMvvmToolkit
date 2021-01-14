@@ -7,8 +7,6 @@ namespace MugenMvvm.Android.App
 {
     public abstract class MugenInitializerBase : NativeMugenInitializerBase
     {
-        #region Constructors
-
         protected MugenInitializerBase(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
         {
         }
@@ -16,10 +14,6 @@ namespace MugenMvvm.Android.App
         protected MugenInitializerBase()
         {
         }
-
-        #endregion
-
-        #region Methods
 
         protected override void OnTrimMemory(int level)
         {
@@ -29,7 +23,5 @@ namespace MugenMvvm.Android.App
                 MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null);
             }
         }
-
-        #endregion
     }
 }

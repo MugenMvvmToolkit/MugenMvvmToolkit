@@ -8,7 +8,19 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class AttachedValueStorageTest : UnitTestBase
     {
-        #region Methods
+        [Fact]
+        public void GetInternalStateShouldReturnInternalState()
+        {
+            var item = new object();
+            var state = "";
+            var manager = new TestAttachedValueStorageManager();
+            var attachedValueStorage = new AttachedValueStorage(item, manager, state);
+
+            attachedValueStorage.Deconstruct(out var internalManager, out var internalItem, out var internalState);
+            internalManager.ShouldEqual(manager);
+            internalItem.ShouldEqual(item);
+            internalState.ShouldEqual(state);
+        }
 
         [Fact]
         public void ShouldThrowEmpty()
@@ -30,21 +42,5 @@ namespace MugenMvvm.UnitTests.Internal
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Clear());
             ShouldThrow<InvalidOperationException>(() => new AttachedValueStorage().Deconstruct(out _, out _, out _));
         }
-
-        [Fact]
-        public void GetInternalStateShouldReturnInternalState()
-        {
-            var item = new object();
-            var state = "";
-            var manager = new TestAttachedValueStorageManager();
-            var attachedValueStorage = new AttachedValueStorage(item, manager, state);
-
-            attachedValueStorage.Deconstruct(out var internalManager, out var internalItem, out var internalState);
-            internalManager.ShouldEqual(manager);
-            internalItem.ShouldEqual(item);
-            internalState.ShouldEqual(state);
-        }
-
-        #endregion
     }
 }

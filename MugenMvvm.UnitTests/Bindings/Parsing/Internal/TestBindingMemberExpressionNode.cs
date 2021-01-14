@@ -12,30 +12,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public class TestBindingMemberExpressionNode : ExpressionNodeBase<TestBindingMemberExpressionNode>, IBindingMemberExpressionNode
     {
-        #region Constructors
-
         public TestBindingMemberExpressionNode(string? path = null, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Path = path!;
         }
-
-        #endregion
-
-        #region Properties
-
-        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingParameter;
-
-        public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
-
-        public EnumFlags<MemberFlags> MemberFlags { get; set; }
-
-        public int Index { get; set; }
-
-        public string Path { get; set; }
-
-        public string? ObservableMethodName { get; set; }
-
-        public IExpressionNode? Expression { get; set; }
 
         public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath)>? GetSource { get; set; }
 
@@ -51,25 +31,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         public Func<int, EnumFlags<BindingMemberExpressionFlags>, EnumFlags<MemberFlags>, string?, IBindingMemberExpressionNode>? Update { get; set; }
 
-        #endregion
+        public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
 
-        #region Implementation of interfaces
+        public EnumFlags<MemberFlags> MemberFlags { get; set; }
 
-        object? IBindingMemberExpressionNode.GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
-        {
-            var tuple = GetSource?.Invoke(target, source, metadata);
-            path = tuple?.Item2!;
-            return tuple?.Item1!;
-        }
+        public int Index { get; set; }
 
-        object? IBindingMemberExpressionNode.GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata) => GetBindingSource?.Invoke(target, source, metadata)!;
+        public string Path { get; set; }
 
-        IBindingMemberExpressionNode IBindingMemberExpressionNode.Update(int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName) =>
-            Update?.Invoke(index, flags, memberFlags, observableMethodName) ?? this;
+        public string? ObservableMethodName { get; set; }
 
-        #endregion
+        public IExpressionNode? Expression { get; set; }
 
-        #region Methods
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingParameter;
+
+        public override string ToString() => Path ?? base.ToString()!;
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata) => VisitHandler?.Invoke(visitor, metadata) ?? this;
 
@@ -84,8 +60,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 
         protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) => GetHashCodeHandler?.Invoke(hashCode, comparer) ?? hashCode;
 
-        public override string ToString() => Path ?? base.ToString()!;
+        object? IBindingMemberExpressionNode.GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
+        {
+            var tuple = GetSource?.Invoke(target, source, metadata);
+            path = tuple?.Item2!;
+            return tuple?.Item1!;
+        }
 
-        #endregion
+        object? IBindingMemberExpressionNode.GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata) =>
+            GetBindingSource?.Invoke(target, source, metadata)!;
+
+        IBindingMemberExpressionNode IBindingMemberExpressionNode.Update(int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags,
+            string? observableMethodName) =>
+            Update?.Invoke(index, flags, memberFlags, observableMethodName) ?? this;
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -9,20 +8,11 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation.Observers
 {
     public abstract class ObserverBase : IMemberPathObserver, IHasDisposeCondition
     {
-        #region Fields
-
-        private readonly ushort _flags;
-
-        private object? _listeners;
-        private byte _state;
-        private object? _target;
-
         protected const byte UpdatingFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
         protected const byte HasStablePathFlag = 1 << 3;
@@ -31,9 +21,11 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         private static readonly IMemberPathObserverListener[] DisposedItems = new IMemberPathObserverListener[0];
 
-        #endregion
+        private readonly ushort _flags;
 
-        #region Constructors
+        private object? _listeners;
+        private byte _state;
+        private object? _target;
 
         protected ObserverBase(object target, EnumFlags<MemberFlags> memberFlags)
         {
@@ -42,33 +34,16 @@ namespace MugenMvvm.Bindings.Observation.Observers
             _flags = memberFlags.Value();
         }
 
-        #endregion
+        protected internal interface IMethodPathObserver : IMemberPathObserver
+        {
+            EnumFlags<MemberFlags> MemberFlags { get; }
 
-        #region Properties
+            string Method { get; }
+
+            IEventListener GetMethodListener();
+        }
 
         public abstract IMemberPath Path { get; }
-
-        public bool IsAlive
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                if (_target is IWeakItem w)
-                    return w.IsAlive;
-                return !IsDisposed;
-            }
-        }
-
-        public object? Target
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                if (_target is IWeakReference w)
-                    return w.Target;
-                return _target;
-            }
-        }
 
         public EnumFlags<MemberFlags> MemberFlags
         {
@@ -101,6 +76,28 @@ namespace MugenMvvm.Bindings.Observation.Observers
             }
         }
 
+        public object? Target
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                if (_target is IWeakReference w)
+                    return w.Target;
+                return _target;
+            }
+        }
+
+        public bool IsAlive
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                if (_target is IWeakItem w)
+                    return w.IsAlive;
+                return !IsDisposed;
+            }
+        }
+
         protected bool HasListeners
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -113,9 +110,16 @@ namespace MugenMvvm.Bindings.Observation.Observers
             get => _listeners == DisposedItems;
         }
 
-        #endregion
+        private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
+        {
+            if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
+                return metadataOwner.Metadata;
+            return null;
+        }
 
-        #region Implementation of interfaces
+        public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
+
+        public abstract MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null);
 
         public void Dispose()
         {
@@ -160,14 +164,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 return default;
             return ItemOrIReadOnlyList.FromRawValue<IMemberPathObserverListener>(_listeners);
         }
-
-        public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
-
-        public abstract MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null);
-
-        #endregion
-
-        #region Methods
 
         protected virtual void OnListenersAdded()
         {
@@ -265,27 +261,5 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ClearFlag(byte flag) => _state = (byte) (_state & ~flag);
-
-        private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
-        {
-            if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
-                return metadataOwner.Metadata;
-            return null;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        protected internal interface IMethodPathObserver : IMemberPathObserver
-        {
-            EnumFlags<MemberFlags> MemberFlags { get; }
-
-            string Method { get; }
-
-            IEventListener GetMethodListener();
-        }
-
-        #endregion
     }
 }

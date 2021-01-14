@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using MugenMvvm.Extensions;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class DigitTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Constructors
-
         public DigitTokenParser()
         {
             ConvertDelegate defaultConverter = Convert;
@@ -37,19 +35,11 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<string, ConvertDelegate> PostfixToConverter { get; }
 
         public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
 
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -125,10 +115,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             return null;
         }
 
-        #endregion
-
-        #region Methods
-
 #if SPAN_API
         public static IExpressionNode? Convert(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider)
 #else
@@ -187,16 +173,10 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             return null;
         }
 
-        #endregion
-
-        #region Nested types
-
 #if SPAN_API
         public delegate IExpressionNode? ConvertDelegate(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider);
 #else
         public delegate IExpressionNode? ConvertDelegate(string value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider);
 #endif
-
-        #endregion
     }
 }

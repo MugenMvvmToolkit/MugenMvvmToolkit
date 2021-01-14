@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public abstract class MetadataOwnerTestBase : UnitTestBase
     {
-        #region Methods
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -20,6 +18,8 @@ namespace MugenMvvm.UnitTests.Metadata
             owner.HasMetadata.ShouldEqual(!emptyValue);
         }
 
+        protected abstract IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata);
+
         [Fact]
         public virtual void MetadataShouldReturnInputValue()
         {
@@ -27,9 +27,5 @@ namespace MugenMvvm.UnitTests.Metadata
             var owner = GetMetadataOwner(context);
             owner.Metadata.ShouldEqual(context);
         }
-
-        protected abstract IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata);
-
-        #endregion
     }
 }

@@ -20,19 +20,15 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class ViewModelViewAwareInitializer : IViewLifecycleListener, IHasPriority, IComponentCollectionChangedListener
     {
-        #region Fields
-
-        private readonly IReflectionManager? _reflectionManager;
-        private readonly IWrapperManager? _wrapperManager;
-
         private static readonly Dictionary<Type, object?> UpdateViewDelegates = new(7, InternalEqualityComparer.Type);
         private static readonly Dictionary<Type, object?> UpdateViewModelDelegates = new(7, InternalEqualityComparer.Type);
         private static readonly MethodInfo UpdateViewMethodInfo = typeof(ViewModelViewAwareInitializer).GetMethodOrThrow(nameof(TryUpdateView), BindingFlagsEx.InstancePublic);
-        private static readonly MethodInfo UpdateViewModelMethodInfo = typeof(ViewModelViewAwareInitializer).GetMethodOrThrow(nameof(TryUpdateViewModel), BindingFlagsEx.InstancePublic);
 
-        #endregion
+        private static readonly MethodInfo UpdateViewModelMethodInfo =
+            typeof(ViewModelViewAwareInitializer).GetMethodOrThrow(nameof(TryUpdateViewModel), BindingFlagsEx.InstancePublic);
 
-        #region Constructors
+        private readonly IReflectionManager? _reflectionManager;
+        private readonly IWrapperManager? _wrapperManager;
 
         [Preserve(Conditional = true)]
         public ViewModelViewAwareInitializer(IWrapperManager? wrapperManager = null, IReflectionManager? reflectionManager = null)
@@ -41,45 +37,7 @@ namespace MugenMvvm.Views.Components
             _reflectionManager = reflectionManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => TryUpdateViewModel(component, ((IView) collection.Owner).ViewModel);
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => TryUpdateViewModel(component, null);
-
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            if (!(view is IView viewImp))
-                return;
-            if (lifecycleState == ViewLifecycleState.Initialized)
-            {
-                viewImp.Components.AddComponent(this);
-                TryUpdateViewModel(viewImp.Target, viewImp.ViewModel);
-                foreach (var c in viewImp.GetComponents<object>(metadata))
-                    TryUpdateViewModel(c, viewImp.ViewModel);
-                TryUpdateView(viewImp, false, metadata);
-            }
-            else if (lifecycleState == ViewLifecycleState.Clearing)
-            {
-                TryUpdateView(viewImp, true, metadata);
-                TryUpdateViewModel(viewImp.Target, null);
-                foreach (var c in viewImp.GetComponents<object>(metadata))
-                    TryUpdateViewModel(c, null);
-                viewImp.Components.RemoveComponent(this);
-            }
-        }
-
-        #endregion
-
-        #region Methods
 
         [Preserve(Conditional = true)]
         public void TryUpdateView<TView>(IView view, bool clear, IReadOnlyMetadataContext? metadata) where TView : class
@@ -105,6 +63,28 @@ namespace MugenMvvm.Views.Components
                 view.ViewModel = vm;
         }
 
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (!(view is IView viewImp))
+                return;
+            if (lifecycleState == ViewLifecycleState.Initialized)
+            {
+                viewImp.Components.AddComponent(this);
+                TryUpdateViewModel(viewImp.Target, viewImp.ViewModel);
+                foreach (var c in viewImp.GetComponents<object>(metadata))
+                    TryUpdateViewModel(c, viewImp.ViewModel);
+                TryUpdateView(viewImp, false, metadata);
+            }
+            else if (lifecycleState == ViewLifecycleState.Clearing)
+            {
+                TryUpdateView(viewImp, true, metadata);
+                TryUpdateViewModel(viewImp.Target, null);
+                foreach (var c in viewImp.GetComponents<object>(metadata))
+                    TryUpdateViewModel(c, null);
+                viewImp.Components.RemoveComponent(this);
+            }
+        }
+
         private void TryUpdateView(IView view, bool clear, IReadOnlyMetadataContext? metadata)
         {
             var vmType = view.ViewModel.GetType();
@@ -113,7 +93,8 @@ namespace MugenMvvm.Views.Components
             {
                 if (!UpdateViewDelegates.TryGetValue(vmType, out delegates))
                 {
-                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>(vmType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View),
+                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>(vmType, typeof(IViewAwareViewModel<>),
+                        nameof(IViewAwareViewModel<object>.View),
                         UpdateViewMethodInfo).GetRawValue();
                     UpdateViewDelegates[vmType] = delegates;
                 }
@@ -131,7 +112,8 @@ namespace MugenMvvm.Views.Components
             {
                 if (!UpdateViewModelDelegates.TryGetValue(vType, out delegates))
                 {
-                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>(vType, typeof(IViewModelAwareView<>), nameof(IViewModelAwareView<IViewModelBase>.ViewModel),
+                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>(vType, typeof(IViewModelAwareView<>),
+                        nameof(IViewModelAwareView<IViewModelBase>.ViewModel),
                         UpdateViewModelMethodInfo).GetRawValue();
                     UpdateViewModelDelegates[vType] = delegates;
                 }
@@ -161,6 +143,10 @@ namespace MugenMvvm.Views.Components
             return result.ToItemOrList();
         }
 
-        #endregion
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            TryUpdateViewModel(component, ((IView) collection.Owner).ViewModel);
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            TryUpdateViewModel(component, null);
     }
 }

@@ -12,13 +12,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class NewArrayExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = ParsingComponentPriority.Convert;
 
-        #endregion
-
-        #region Implementation of interfaces
+        public static T[] NewArrayInit<T>(params T[] items) => items;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
@@ -28,13 +24,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
             return new MethodCallExpressionNode(ConstantExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayInit),
                 context.Convert(new ItemOrIReadOnlyList<Expression>(newArrayExpression.Expressions)), expression.Type.GetElementType()!.AssemblyQualifiedName!);
         }
-
-        #endregion
-
-        #region Methods
-
-        public static T[] NewArrayInit<T>(params T[] items) => items;
-
-        #endregion
     }
 }

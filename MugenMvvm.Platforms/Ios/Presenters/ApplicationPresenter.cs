@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
@@ -12,7 +11,6 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Ios.Constants;
 using MugenMvvm.Ios.Views;
 using MugenMvvm.Navigation;
@@ -22,17 +20,11 @@ namespace MugenMvvm.Ios.Presenters
 {
     public sealed class ApplicationPresenter : IPresenterComponent, IHasPriority
     {
-        #region Fields
-
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly Type _rootViewModelType;
         private readonly IViewManager? _viewManager;
         private readonly IViewModelManager? _viewModelManager;
         private readonly bool _wrapToNavigationController;
-
-        #endregion
-
-        #region Constructors
 
         public ApplicationPresenter(Type rootViewModelType, bool wrapToNavigationController, IViewModelManager? viewModelManager = null,
             IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
@@ -45,15 +37,14 @@ namespace MugenMvvm.Ios.Presenters
             _navigationDispatcher = navigationDispatcher;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = ComponentPriority.Max;
 
-        #endregion
-
-        #region Implementation of interfaces
+        private static void SetNavigationController(IPresenter presenter, UIWindow window, UINavigationController controller)
+        {
+            presenter.AddComponent(new NavigationControllerViewPresenter(controller) {Priority = ComponentPriority.Min});
+            window.RootViewController = controller;
+            window.MakeKeyAndVisible();
+        }
 
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -107,11 +98,8 @@ namespace MugenMvvm.Ios.Presenters
             return default;
         }
 
-        public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) => default;
-
-        #endregion
-
-        #region Methods
+        public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            default;
 
         private void SetRootController(UIWindow window, IViewModelBase viewModel, UIViewController view, IReadOnlyMetadataContext? metadata)
         {
@@ -122,14 +110,5 @@ namespace MugenMvvm.Ios.Presenters
             window.MakeKeyAndVisible();
             navigationDispatcher.OnNavigated(context);
         }
-
-        private static void SetNavigationController(IPresenter presenter, UIWindow window, UINavigationController controller)
-        {
-            presenter.AddComponent(new NavigationControllerViewPresenter(controller) {Priority = ComponentPriority.Min});
-            window.RootViewController = controller;
-            window.MakeKeyAndVisible();
-        }
-
-        #endregion
     }
 }

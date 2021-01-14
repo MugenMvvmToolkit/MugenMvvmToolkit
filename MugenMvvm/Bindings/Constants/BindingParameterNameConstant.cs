@@ -2,8 +2,6 @@
 {
     public static class BindingParameterNameConstant
     {
-        #region Fields
-
         public const string Optional = nameof(Optional);
         public const string HasStablePath = nameof(HasStablePath);
         public const string Observable = nameof(Observable);
@@ -28,7 +26,5 @@
 
         public const string BindingMemberFlags = nameof(BindingMemberFlags);
         public const string MemberFlags = nameof(MemberFlags);
-
-        #endregion
     }
 }

@@ -15,19 +15,14 @@ namespace MugenMvvm.Bindings.Members
 {
     public sealed class MethodMemberInfo : IMethodMemberInfo
     {
-        #region Fields
-
-        private Type[]? _genericArguments;
         private readonly MethodInfo _method;
         private readonly ushort _modifiers;
         private readonly object? _parameters;
         private readonly Type _reflectedType;
+
+        private Type[]? _genericArguments;
         private Func<object?, ItemOrArray<object?>, object?> _invoker;
         private MemberObserver _observer;
-
-        #endregion
-
-        #region Constructors
 
         public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType)
             : this(name, method, isExtensionMethodSupported, reflectedType, null, null)
@@ -47,13 +42,11 @@ namespace MugenMvvm.Bindings.Members
             {
                 _genericArguments = genericArguments ?? _method.GetGenericArguments();
                 for (var i = 0; i < _genericArguments.Length; i++)
-                {
                     if (_genericArguments[i].IsGenericParameter)
                     {
                         IsGenericMethodDefinition = true;
                         break;
                     }
-                }
             }
 
             parameterInfos ??= _method.GetParameters();
@@ -78,10 +71,6 @@ namespace MugenMvvm.Bindings.Members
             }
         }
 
-        #endregion
-
-        #region Properties
-
         public string Name { get; }
 
         public Type DeclaringType { get; }
@@ -97,17 +86,6 @@ namespace MugenMvvm.Bindings.Members
         public bool IsGenericMethod => _method.IsGenericMethod;
 
         public bool IsGenericMethodDefinition { get; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (_observer.IsEmpty)
-                _observer = MugenService.ObservationManager.TryGetMemberObserver(_reflectedType, this, metadata).NoDoIfEmpty();
-            return _observer.TryObserve(target, listener, metadata);
-        }
 
         public ItemOrIReadOnlyList<IParameterInfo> GetParameters() => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parameters);
 
@@ -133,16 +111,17 @@ namespace MugenMvvm.Bindings.Members
             return _invoker(target, args);
         }
 
-        #endregion
-
-        #region Methods
+        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (_observer.IsEmpty)
+                _observer = MugenService.ObservationManager.TryGetMemberObserver(_reflectedType, this, metadata).NoDoIfEmpty();
+            return _observer.TryObserve(target, listener, metadata);
+        }
 
         private object? CompileMethod(object? target, ItemOrArray<object?> args)
         {
             _invoker = _method.GetMethodInvoker();
             return Invoke(target, args);
         }
-
-        #endregion
     }
 }

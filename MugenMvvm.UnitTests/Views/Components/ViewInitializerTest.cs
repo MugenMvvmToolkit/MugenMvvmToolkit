@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
@@ -12,7 +11,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Messaging.Internal;
@@ -26,47 +24,18 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewInitializerTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ShouldSetDataContext()
+        private sealed class TestInitializableViewModel : TestViewModel, IHasService<IMessenger>
         {
-            var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
-            using var t = MugenService.AddComponent(new TestMemberManagerComponent
-            {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
-            });
+            public IMessenger Service { get; set; } = null!;
 
-            var viewModel = new TestInitializableViewModel {Service = new Messenger()};
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewInitializer {SetDataContext = true});
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
-
-            view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
+            public IMessenger ServiceOptional => throw new NotSupportedException();
         }
 
-        [Fact]
-        public void ShouldSubscribeViewModel()
+        private sealed class TestInitializableView : IInitializableView
         {
-            var invokeCount = 0;
-            var viewModel = new TestInitializableViewModel {Service = new Messenger()};
-            viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
-            {
-                TrySubscribe = (o, m, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(this);
-                    m.ShouldEqual(ThreadExecutionMode.Main);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return true;
-                }
-            });
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
+            public Action<IView, object?, IReadOnlyMetadataContext?>? Initialize { get; set; }
+
+            void IInitializableView.Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata) => Initialize?.Invoke(view, state, metadata);
         }
 
         [Fact]
@@ -119,36 +88,45 @@ namespace MugenMvvm.UnitTests.Views.Components
             componentInvokeCount.ShouldEqual(2);
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestInitializableViewModel : TestViewModel, IHasService<IMessenger>
+        [Fact]
+        public void ShouldSetDataContext()
         {
-            #region Properties
+            var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
+            using var t = MugenService.AddComponent(new TestMemberManagerComponent
+            {
+                TryGetMembers = (type, memberType, arg3, arg4, arg5) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
+            });
 
-            public IMessenger Service { get; set; } = null!;
+            var viewModel = new TestInitializableViewModel {Service = new Messenger()};
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new ViewInitializer {SetDataContext = true});
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
 
-            public IMessenger ServiceOptional => throw new NotSupportedException();
-
-            #endregion
+            view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
         }
 
-        private sealed class TestInitializableView : IInitializableView
+        [Fact]
+        public void ShouldSubscribeViewModel()
         {
-            #region Properties
-
-            public Action<IView, object?, IReadOnlyMetadataContext?>? Initialize { get; set; }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            void IInitializableView.Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata) => Initialize?.Invoke(view, state, metadata);
-
-            #endregion
+            var invokeCount = 0;
+            var viewModel = new TestInitializableViewModel {Service = new Messenger()};
+            viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
+            {
+                TrySubscribe = (o, m, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(this);
+                    m.ShouldEqual(ThreadExecutionMode.Main);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return true;
+                }
+            });
+            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

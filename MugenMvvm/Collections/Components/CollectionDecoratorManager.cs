@@ -14,128 +14,17 @@ namespace MugenMvvm.Collections.Components
 {
     public sealed class CollectionDecoratorManager : ICollectionDecoratorManagerComponent, IHasPriority, ICollectionChangedListener<object?>
     {
-        #region Fields
-
         private static readonly CollectionDecoratorManager Instance = new();
         private static readonly Dictionary<Type, ICollectionDecoratorManagerComponent> GenericManagers = new();
-
-        #endregion
-
-        #region Constructors
 
         private CollectionDecoratorManager()
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = CollectionComponentPriority.DecoratorManager;
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        void ICollectionChangedListener<object?>.OnItemChanged(IReadOnlyCollection<object?> collection, object? item, int index, object? args) => OnItemChanged((ICollection) collection, null, item, index, args);
-
-        void ICollectionChangedListener<object?>.OnAdded(IReadOnlyCollection<object?> collection, object? item, int index) => OnAdded((ICollection) collection, null, item, index);
-
-        void ICollectionChangedListener<object?>.OnReplaced(IReadOnlyCollection<object?> collection, object? oldItem, object? newItem, int index) => OnReplaced((ICollection) collection, null, oldItem, newItem, index);
-
-        void ICollectionChangedListener<object?>.OnMoved(IReadOnlyCollection<object?> collection, object? item, int oldIndex, int newIndex) => OnMoved((ICollection) collection, null, item, oldIndex, newIndex);
-
-        void ICollectionChangedListener<object?>.OnRemoved(IReadOnlyCollection<object?> collection, object? item, int index) => OnRemoved((ICollection) collection, null, item, index);
-
-        void ICollectionChangedListener<object?>.OnReset(IReadOnlyCollection<object?> collection, IEnumerable<object?>? items) => OnReset((ICollection) collection, null, items);
-
-        public IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null)
-        {
-            IEnumerable<object?> items = collection as IEnumerable<object?> ?? collection.OfType<object?>();
-            var decorators = GetDecorators(collection, decorator, out var startIndex, true);
-            for (var i = 0; i < startIndex; i++)
-                items = decorators[i].DecorateItems(collection, items);
-
-            return items;
-        }
-
-        public void OnItemChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args)
-        {
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Count; i++)
-            {
-                if (!decorators[i].OnItemChanged(collection, ref item, ref index, ref args))
-                    return;
-            }
-
-            GetComponents<ICollectionDecoratorListener>(collection).OnItemChanged(collection, item, index, args);
-        }
-
-        public void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index)
-        {
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Count; i++)
-            {
-                if (!decorators[i].OnAdded(collection, ref item, ref index))
-                    return;
-            }
-
-            GetComponents<ICollectionDecoratorListener>(collection).OnAdded(collection, item, index);
-        }
-
-        public void OnReplaced(ICollection collection, ICollectionDecorator? decorator, object? oldItem, object? newItem, int index)
-        {
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Count; i++)
-            {
-                if (!decorators[i].OnReplaced(collection, ref oldItem, ref newItem, ref index))
-                    return;
-            }
-
-            GetComponents<ICollectionDecoratorListener>(collection).OnReplaced(collection, oldItem, newItem, index);
-        }
-
-        public void OnMoved(ICollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex)
-        {
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Count; i++)
-            {
-                if (!decorators[i].OnMoved(collection, ref item, ref oldIndex, ref newIndex))
-                    return;
-            }
-
-            GetComponents<ICollectionDecoratorListener>(collection).OnMoved(collection, item, oldIndex, newIndex);
-        }
-
-        public void OnRemoved(ICollection collection, ICollectionDecorator? decorator, object? item, int index)
-        {
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Count; i++)
-            {
-                if (!decorators[i].OnRemoved(collection, ref item, ref index))
-                    return;
-            }
-
-            GetComponents<ICollectionDecoratorListener>(collection).OnRemoved(collection, item, index);
-        }
-
-        public void OnReset(ICollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items)
-        {
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            for (var i = startIndex; i < decorators.Count; i++)
-            {
-                if (!decorators[i].OnReset(collection, ref items))
-                    return;
-            }
-
-            GetComponents<ICollectionDecoratorListener>(collection).OnReset(collection, items);
-        }
-
-        #endregion
-
-        #region Methods
-
-        public static ICollectionDecoratorManagerComponent GetOrAdd(IEnumerable collection) => ((IComponentOwner) collection).GetOrAddComponent(collection, (c, context) => TryGetGenericManager(c) ?? Instance);
+        public static ICollectionDecoratorManagerComponent GetOrAdd(IEnumerable collection) =>
+            ((IComponentOwner) collection).GetOrAddComponent(collection, (c, context) => TryGetGenericManager(c) ?? Instance);
 
         private static ICollectionDecoratorManagerComponent? TryGetGenericManager(object owner)
         {
@@ -165,7 +54,6 @@ namespace MugenMvvm.Collections.Components
                 return components;
 
             for (var i = 0; i < components.Count; i++)
-            {
                 if (components[i] == decorator)
                 {
                     index = i;
@@ -173,26 +61,102 @@ namespace MugenMvvm.Collections.Components
                         ++index;
                     break;
                 }
-            }
 
             return components;
         }
 
-        private static ItemOrArray<TComponent> GetComponents<TComponent>(ICollection collection) where TComponent : class => ((IComponentOwner) collection).Components.Get<TComponent>();
+        private static ItemOrArray<TComponent> GetComponents<TComponent>(ICollection collection) where TComponent : class =>
+            ((IComponentOwner) collection).Components.Get<TComponent>();
 
-        #endregion
+        public IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null)
+        {
+            IEnumerable<object?> items = collection as IEnumerable<object?> ?? collection.OfType<object?>();
+            var decorators = GetDecorators(collection, decorator, out var startIndex, true);
+            for (var i = 0; i < startIndex; i++)
+                items = decorators[i].DecorateItems(collection, items);
 
-        #region Nested types
+            return items;
+        }
+
+        public void OnItemChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args)
+        {
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
+            for (var i = startIndex; i < decorators.Count; i++)
+                if (!decorators[i].OnItemChanged(collection, ref item, ref index, ref args))
+                    return;
+
+            GetComponents<ICollectionDecoratorListener>(collection).OnItemChanged(collection, item, index, args);
+        }
+
+        public void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index)
+        {
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
+            for (var i = startIndex; i < decorators.Count; i++)
+                if (!decorators[i].OnAdded(collection, ref item, ref index))
+                    return;
+
+            GetComponents<ICollectionDecoratorListener>(collection).OnAdded(collection, item, index);
+        }
+
+        public void OnReplaced(ICollection collection, ICollectionDecorator? decorator, object? oldItem, object? newItem, int index)
+        {
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
+            for (var i = startIndex; i < decorators.Count; i++)
+                if (!decorators[i].OnReplaced(collection, ref oldItem, ref newItem, ref index))
+                    return;
+
+            GetComponents<ICollectionDecoratorListener>(collection).OnReplaced(collection, oldItem, newItem, index);
+        }
+
+        public void OnMoved(ICollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex)
+        {
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
+            for (var i = startIndex; i < decorators.Count; i++)
+                if (!decorators[i].OnMoved(collection, ref item, ref oldIndex, ref newIndex))
+                    return;
+
+            GetComponents<ICollectionDecoratorListener>(collection).OnMoved(collection, item, oldIndex, newIndex);
+        }
+
+        public void OnRemoved(ICollection collection, ICollectionDecorator? decorator, object? item, int index)
+        {
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
+            for (var i = startIndex; i < decorators.Count; i++)
+                if (!decorators[i].OnRemoved(collection, ref item, ref index))
+                    return;
+
+            GetComponents<ICollectionDecoratorListener>(collection).OnRemoved(collection, item, index);
+        }
+
+        public void OnReset(ICollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items)
+        {
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
+            for (var i = startIndex; i < decorators.Count; i++)
+                if (!decorators[i].OnReset(collection, ref items))
+                    return;
+
+            GetComponents<ICollectionDecoratorListener>(collection).OnReset(collection, items);
+        }
+
+        void ICollectionChangedListener<object?>.OnItemChanged(IReadOnlyCollection<object?> collection, object? item, int index, object? args) =>
+            OnItemChanged((ICollection) collection, null, item, index, args);
+
+        void ICollectionChangedListener<object?>.OnAdded(IReadOnlyCollection<object?> collection, object? item, int index) => OnAdded((ICollection) collection, null, item, index);
+
+        void ICollectionChangedListener<object?>.OnReplaced(IReadOnlyCollection<object?> collection, object? oldItem, object? newItem, int index) =>
+            OnReplaced((ICollection) collection, null, oldItem, newItem, index);
+
+        void ICollectionChangedListener<object?>.OnMoved(IReadOnlyCollection<object?> collection, object? item, int oldIndex, int newIndex) =>
+            OnMoved((ICollection) collection, null, item, oldIndex, newIndex);
+
+        void ICollectionChangedListener<object?>.OnRemoved(IReadOnlyCollection<object?> collection, object? item, int index) =>
+            OnRemoved((ICollection) collection, null, item, index);
+
+        void ICollectionChangedListener<object?>.OnReset(IReadOnlyCollection<object?> collection, IEnumerable<object?>? items) => OnReset((ICollection) collection, null, items);
 
         private sealed class GenericManager<T> : ICollectionChangedListener<T>, IHasPriority, ICollectionDecoratorManagerComponent
         {
-            #region Properties
-
             public int Priority => Instance.Priority;
-
-            #endregion
-
-            #region Implementation of interfaces
 
             public void OnItemChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
                 => Instance.OnItemChanged((ICollection) collection, null, BoxingExtensions.Box(item), index, args);
@@ -214,21 +178,20 @@ namespace MugenMvvm.Collections.Components
 
             public IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null) => Instance.DecorateItems(collection, decorator);
 
-            public void OnItemChanged(ICollection collection, ICollectionDecorator decorator, object? item, int index, object? args) => Instance.OnItemChanged(collection, decorator, item, index, args);
+            public void OnItemChanged(ICollection collection, ICollectionDecorator decorator, object? item, int index, object? args) =>
+                Instance.OnItemChanged(collection, decorator, item, index, args);
 
             public void OnAdded(ICollection collection, ICollectionDecorator decorator, object? item, int index) => Instance.OnAdded(collection, decorator, item, index);
 
-            public void OnReplaced(ICollection collection, ICollectionDecorator decorator, object? oldItem, object? newItem, int index) => Instance.OnReplaced(collection, decorator, oldItem, newItem, index);
+            public void OnReplaced(ICollection collection, ICollectionDecorator decorator, object? oldItem, object? newItem, int index) =>
+                Instance.OnReplaced(collection, decorator, oldItem, newItem, index);
 
-            public void OnMoved(ICollection collection, ICollectionDecorator decorator, object? item, int oldIndex, int newIndex) => Instance.OnMoved(collection, decorator, item, oldIndex, newIndex);
+            public void OnMoved(ICollection collection, ICollectionDecorator decorator, object? item, int oldIndex, int newIndex) =>
+                Instance.OnMoved(collection, decorator, item, oldIndex, newIndex);
 
             public void OnRemoved(ICollection collection, ICollectionDecorator decorator, object? item, int index) => Instance.OnRemoved(collection, decorator, item, index);
 
             public void OnReset(ICollection collection, ICollectionDecorator decorator, IEnumerable<object?>? items) => Instance.OnReset(collection, decorator, items);
-
-            #endregion
         }
-
-        #endregion
     }
 }

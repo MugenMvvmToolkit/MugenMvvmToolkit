@@ -7,8 +7,6 @@ namespace MugenMvvm.UnitTests.Views
 {
     public class ViewMappingTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -21,7 +19,5 @@ namespace MugenMvvm.UnitTests.Views
             mapping.ViewType.ShouldEqual(viewType);
             mapping.ViewModelType.ShouldEqual(viewModelType);
         }
-
-        #endregion
     }
 }

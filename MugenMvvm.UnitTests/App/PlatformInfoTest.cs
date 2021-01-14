@@ -9,8 +9,6 @@ namespace MugenMvvm.UnitTests.App
 {
     public class PlatformInfoTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -26,7 +24,5 @@ namespace MugenMvvm.UnitTests.App
             meta.Set(ViewModelMetadata.Id, "");
             deviceInfo.HasMetadata.ShouldBeTrue();
         }
-
-        #endregion
     }
 }

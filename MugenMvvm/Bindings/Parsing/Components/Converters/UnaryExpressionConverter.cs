@@ -14,8 +14,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class UnaryExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        #region Constructors
-
         public UnaryExpressionConverter()
         {
             Mapping = new Dictionary<ExpressionType, Func<UnaryExpression, UnaryTokenType?>>(7)
@@ -28,17 +26,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<ExpressionType, Func<UnaryExpression, UnaryTokenType?>> Mapping { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Unary;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
@@ -52,7 +42,5 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
             return null;
         }
-
-        #endregion
     }
 }

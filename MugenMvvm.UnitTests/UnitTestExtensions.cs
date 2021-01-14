@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTests
 {
     public static class UnitTestExtensions
     {
-        #region Methods
-
         public static void ShouldEqual<T>(this ItemOrArray<T> itemOrList, IEnumerable<T> enumerable) => itemOrList.AsList().ShouldEqual(enumerable);
 
         public static void ShouldContain<T>(this ItemOrArray<T> itemOrList, params T[] values) => itemOrList.AsList().ShouldContain(values);
@@ -88,7 +83,8 @@ namespace MugenMvvm.UnitTests
 
         public static void ShouldEqual(this IExpressionNode? x1, IExpressionNode? x2) => x1!.ShouldEqual(x2!, ExpressionNodeEqualityComparer.Instance);
 
-        public static void ShouldEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second) => first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance).ShouldBeTrue();
+        public static void ShouldEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second) =>
+            first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance).ShouldBeTrue();
 
         public static void ShouldEqual(this IReadOnlyMetadataContext? x1, IReadOnlyMetadataContext? x2)
         {
@@ -123,35 +119,17 @@ namespace MugenMvvm.UnitTests
             return x1.Equals(x2);
         }
 
-        #endregion
-
-        #region Nested types
-
         private sealed class ExpressionNodeEqualityComparer : IEqualityComparer<IExpressionNode>
         {
-            #region Fields
-
             public static readonly ExpressionNodeEqualityComparer Instance = new();
-
-            #endregion
-
-            #region Constructors
 
             private ExpressionNodeEqualityComparer()
             {
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             public bool Equals(IExpressionNode? x, IExpressionNode? y) => x.EqualsEx(y);
 
             public int GetHashCode(IExpressionNode? obj) => 0;
-
-            #endregion
         }
-
-        #endregion
     }
 }

@@ -14,7 +14,50 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewModelViewAwareInitializerTest : UnitTestBase
     {
-        #region Methods
+        private class AwareViewBase
+        {
+        }
+
+        private class AwareView : AwareViewBase, IViewModelAwareView<AwareViewModelBase>, IViewModelAwareView<AwareViewModel>
+        {
+            public AwareViewModel? ViewModel;
+
+            public AwareViewModelBase? ViewModelBase;
+
+            AwareViewModel? IViewModelAwareView<AwareViewModel>.ViewModel
+            {
+                get => ViewModel;
+                set => ViewModel = value;
+            }
+
+            AwareViewModelBase? IViewModelAwareView<AwareViewModelBase>.ViewModel
+            {
+                get => ViewModelBase;
+                set => ViewModelBase = value;
+            }
+        }
+
+        private class AwareViewModelBase : TestViewModel
+        {
+        }
+
+        private class AwareViewModel : AwareViewModelBase, IViewAwareViewModel<AwareViewBase>, IViewAwareViewModel<AwareView>
+        {
+            public AwareView? View;
+            public AwareViewBase? ViewBase;
+
+            AwareView? IViewAwareViewModel<AwareView>.View
+            {
+                get => View;
+                set => View = value;
+            }
+
+            AwareViewBase? IViewAwareViewModel<AwareViewBase>.View
+            {
+                get => ViewBase;
+                set => ViewBase = value;
+            }
+        }
 
         [Fact]
         public void ShouldSetView1()
@@ -136,72 +179,5 @@ namespace MugenMvvm.UnitTests.Views.Components
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
         }
-
-        #endregion
-
-        #region Nested types
-
-        private class AwareViewBase
-        {
-        }
-
-        private class AwareView : AwareViewBase, IViewModelAwareView<AwareViewModelBase>, IViewModelAwareView<AwareViewModel>
-        {
-            #region Fields
-
-            public AwareViewModel? ViewModel;
-
-            public AwareViewModelBase? ViewModelBase;
-
-            #endregion
-
-            #region Properties
-
-            AwareViewModelBase? IViewModelAwareView<AwareViewModelBase>.ViewModel
-            {
-                get => ViewModelBase;
-                set => ViewModelBase = value;
-            }
-
-            AwareViewModel? IViewModelAwareView<AwareViewModel>.ViewModel
-            {
-                get => ViewModel;
-                set => ViewModel = value;
-            }
-
-            #endregion
-        }
-
-        private class AwareViewModelBase : TestViewModel
-        {
-        }
-
-        private class AwareViewModel : AwareViewModelBase, IViewAwareViewModel<AwareViewBase>, IViewAwareViewModel<AwareView>
-        {
-            #region Fields
-
-            public AwareView? View;
-            public AwareViewBase? ViewBase;
-
-            #endregion
-
-            #region Properties
-
-            AwareViewBase? IViewAwareViewModel<AwareViewBase>.View
-            {
-                get => ViewBase;
-                set => ViewBase = value;
-            }
-
-            AwareView? IViewAwareViewModel<AwareView>.View
-            {
-                get => View;
-                set => View = value;
-            }
-
-            #endregion
-        }
-
-        #endregion
     }
 }

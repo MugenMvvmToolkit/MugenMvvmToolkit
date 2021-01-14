@@ -4,8 +4,6 @@ namespace MugenMvvm.Bindings.Constants
 {
     public static class BindingComponentPriority
     {
-        #region Fields
-
         public const int EventHandler = 0;
         public const int ParameterHandler = 1000;
         public const int Delay = 10000;
@@ -22,7 +20,5 @@ namespace MugenMvvm.Bindings.Constants
         public const int BindingHolder = 0;
         public const int BuilderCache = ComponentPriority.Cache;
         public const int BuilderExceptionDecorator = 100;
-
-        #endregion
     }
 }

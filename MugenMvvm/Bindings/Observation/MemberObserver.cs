@@ -10,16 +10,10 @@ namespace MugenMvvm.Bindings.Observation
     [StructLayout(LayoutKind.Auto)]
     public readonly struct MemberObserver
     {
-        #region Fields
-
         public static readonly MemberObserver NoDo = new((_, __, ___, ____) => default, "");
 
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>? _handler;
         private readonly object? _member;
-
-        #endregion
-
-        #region Constructors
 
         public MemberObserver(Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> handler, object member)
         {
@@ -29,15 +23,7 @@ namespace MugenMvvm.Bindings.Observation
             _handler = handler;
         }
 
-        #endregion
-
-        #region Properties
-
         public bool IsEmpty => _handler == null;
-
-        #endregion
-
-        #region Methods
 
         public void Deconstruct(out Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>? handler, out object? member)
         {
@@ -54,7 +40,5 @@ namespace MugenMvvm.Bindings.Observation
                 return default;
             return _handler.Invoke(target, _member!, listener, metadata);
         }
-
-        #endregion
     }
 }

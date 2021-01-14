@@ -8,16 +8,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
 {
     public class TestExpressionBuilderComponent : IExpressionBuilderComponent
     {
-        #region Properties
-
         public Func<IExpressionBuilderContext, IExpressionNode, Expression?>? TryBuild { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         Expression? IExpressionBuilderComponent.TryBuild(IExpressionBuilderContext context, IExpressionNode expression) => TryBuild?.Invoke(context, expression);
-
-        #endregion
     }
 }

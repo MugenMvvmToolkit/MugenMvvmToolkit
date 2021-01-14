@@ -17,15 +17,6 @@ namespace MugenMvvm.UnitTests.Navigation
 {
     public class NavigationDispatcherTest : ComponentOwnerTestBase<NavigationDispatcher>
     {
-        #region Methods
-
-        [Fact]
-        public void GetNavigationContextShouldThrowNoComponents()
-        {
-            var navigationDispatcher = new NavigationDispatcher();
-            ShouldThrow<InvalidOperationException>(() => navigationDispatcher.GetNavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close));
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -57,12 +48,10 @@ namespace MugenMvvm.UnitTests.Navigation
                 dispatcher.AddComponent(component);
             }
 
-            dispatcher.GetNavigationContext(this, context.NavigationProvider, context.NavigationId, context.NavigationType, context.NavigationMode, DefaultMetadata).ShouldEqual(context);
+            dispatcher.GetNavigationContext(this, context.NavigationProvider, context.NavigationId, context.NavigationType, context.NavigationMode, DefaultMetadata)
+                      .ShouldEqual(context);
             invokeCount.ShouldEqual(count);
         }
-
-        [Fact]
-        public void GetNavigationEntriesShouldReturnEmptyListNoComponents() => new NavigationDispatcher().GetNavigationEntries(DefaultMetadata).AsList().ShouldBeEmpty();
 
         [Theory]
         [InlineData(1)]
@@ -95,10 +84,6 @@ namespace MugenMvvm.UnitTests.Navigation
             entries.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void GetCallbacksShouldReturnEmptyListNoComponents() =>
-            new NavigationDispatcher().GetNavigationCallbacks(new NavigationEntry(this, new TestNavigationProvider(), "tes", NavigationType.Page)).AsList().ShouldBeEmpty();
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -130,14 +115,6 @@ namespace MugenMvvm.UnitTests.Navigation
             foreach (var callback in result)
                 callbacks.Remove(callback);
             callbacks.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public async Task OnNavigatingAsyncShouldReturnTrueNoComponents()
-        {
-            var navigationContext = new NavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
-            var dispatcher = new NavigationDispatcher();
-            (await dispatcher.OnNavigatingAsync(navigationContext)).ShouldBeTrue();
         }
 
         [Theory]
@@ -332,6 +309,27 @@ namespace MugenMvvm.UnitTests.Navigation
 
         protected override NavigationDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void GetCallbacksShouldReturnEmptyListNoComponents() =>
+            new NavigationDispatcher().GetNavigationCallbacks(new NavigationEntry(this, new TestNavigationProvider(), "tes", NavigationType.Page)).AsList().ShouldBeEmpty();
+
+        [Fact]
+        public void GetNavigationContextShouldThrowNoComponents()
+        {
+            var navigationDispatcher = new NavigationDispatcher();
+            ShouldThrow<InvalidOperationException>(() =>
+                navigationDispatcher.GetNavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close));
+        }
+
+        [Fact]
+        public void GetNavigationEntriesShouldReturnEmptyListNoComponents() => new NavigationDispatcher().GetNavigationEntries(DefaultMetadata).AsList().ShouldBeEmpty();
+
+        [Fact]
+        public async Task OnNavigatingAsyncShouldReturnTrueNoComponents()
+        {
+            var navigationContext = new NavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
+            var dispatcher = new NavigationDispatcher();
+            (await dispatcher.OnNavigatingAsync(navigationContext)).ShouldBeTrue();
+        }
     }
 }

@@ -5,7 +5,11 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 {
     public class TestCommand : ICommand
     {
-        #region Properties
+        event EventHandler? ICommand.CanExecuteChanged
+        {
+            add => AddCanExecuteChanged?.Invoke(value!);
+            remove => RemoveCanExecuteChanged?.Invoke(value!);
+        }
 
         public Func<object?, bool>? CanExecute { get; set; }
 
@@ -15,24 +19,8 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         public Action<EventHandler>? RemoveCanExecuteChanged { get; set; }
 
-        #endregion
-
-        #region Events
-
-        event EventHandler? ICommand.CanExecuteChanged
-        {
-            add => AddCanExecuteChanged?.Invoke(value!);
-            remove => RemoveCanExecuteChanged?.Invoke(value!);
-        }
-
-        #endregion
-
-        #region Implementation of interfaces
-
         bool ICommand.CanExecute(object? parameter) => CanExecute?.Invoke(parameter) ?? true;
 
         void ICommand.Execute(object? parameter) => Execute?.Invoke(parameter);
-
-        #endregion
     }
 }

@@ -8,18 +8,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Internal
 {
     public class TestExpressionVisitor : IExpressionVisitor
     {
-        #region Properties
-
         public Func<IExpressionNode, IReadOnlyMetadataContext?, IExpressionNode?>? Visit { get; set; }
 
         public ExpressionTraversalType TraversalType { get; set; } = ExpressionTraversalType.Preorder;
 
-        #endregion
-
-        #region Implementation of interfaces
-
         IExpressionNode? IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata) => Visit?.Invoke(expression, metadata);
-
-        #endregion
     }
 }

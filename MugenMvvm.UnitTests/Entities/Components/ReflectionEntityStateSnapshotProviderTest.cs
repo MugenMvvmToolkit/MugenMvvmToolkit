@@ -9,93 +9,26 @@ namespace MugenMvvm.UnitTests.Entities.Components
 {
     public class ReflectionEntityStateSnapshotProviderTest : UnitTestBase
     {
-        #region Fields
-
         private const int IntValue = 100;
         private const string StringValue = "test";
         private static readonly Guid GuidValue = Guid.NewGuid();
 
-        #endregion
+        private static EntityStateModel GetModel() => new() {Guid = GuidValue, Int = IntValue, String = StringValue};
 
-        #region Methods
-
-        [Fact]
-        public void ShouldSaveAndRestoreState()
+        private static void AssertModel(EntityStateModel model)
         {
-            var manager = new ReflectionEntityStateSnapshotProvider();
-            var stateModel = GetModel();
-            var entitySnapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
-
-            stateModel.Int = int.MaxValue;
-            stateModel.Int.ShouldEqual(int.MaxValue);
-            stateModel.String = null;
-            stateModel.String.ShouldBeNull();
-            stateModel.Guid = Guid.Empty;
-            stateModel.Guid.ShouldEqual(Guid.Empty);
-
-            entitySnapshot.Restore(stateModel);
-            AssertModel(stateModel);
+            model.Guid.ShouldEqual(GuidValue);
+            model.Int.ShouldEqual(IntValue);
+            model.String.ShouldEqual(StringValue);
         }
 
-        [Fact]
-        public void ShouldTrackPropertyChanges()
+        private sealed class EntityStateModel
         {
-            var manager = new ReflectionEntityStateSnapshotProvider();
-            var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+            public string? String { get; set; }
 
-            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeFalse();
+            public Guid Guid { get; set; }
 
-            stateModel.Int = int.MaxValue;
-            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeTrue();
-
-            stateModel.String = null;
-            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeTrue();
-            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeTrue();
-
-            stateModel.Guid = Guid.Empty;
-            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeTrue();
-            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeTrue();
-            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeTrue();
-
-            stateModel.Int = IntValue;
-            stateModel.String = StringValue;
-            stateModel.Guid = GuidValue;
-
-            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
-            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeFalse();
-        }
-
-
-        [Fact]
-        public void ShouldTrackEntityChanges()
-        {
-            var manager = new ReflectionEntityStateSnapshotProvider();
-            var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
-
-            snapshot.HasChanges(stateModel).ShouldBeFalse();
-
-            stateModel.Int = int.MaxValue;
-            snapshot.HasChanges(stateModel).ShouldBeTrue();
-            stateModel.Int = IntValue;
-            snapshot.HasChanges(stateModel).ShouldBeFalse();
-
-            stateModel.String = null;
-            snapshot.HasChanges(stateModel).ShouldBeTrue();
-            stateModel.String = StringValue;
-            snapshot.HasChanges(stateModel).ShouldBeFalse();
-
-            stateModel.Guid = Guid.Empty;
-            snapshot.HasChanges(stateModel).ShouldBeTrue();
-            stateModel.Guid = GuidValue;
-            snapshot.HasChanges(stateModel).ShouldBeFalse();
+            public int Int { get; set; }
         }
 
         [Fact]
@@ -139,6 +72,84 @@ namespace MugenMvvm.UnitTests.Entities.Components
         }
 
         [Fact]
+        public void ShouldSaveAndRestoreState()
+        {
+            var manager = new ReflectionEntityStateSnapshotProvider();
+            var stateModel = GetModel();
+            var entitySnapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+
+            stateModel.Int = int.MaxValue;
+            stateModel.Int.ShouldEqual(int.MaxValue);
+            stateModel.String = null;
+            stateModel.String.ShouldBeNull();
+            stateModel.Guid = Guid.Empty;
+            stateModel.Guid.ShouldEqual(Guid.Empty);
+
+            entitySnapshot.Restore(stateModel);
+            AssertModel(stateModel);
+        }
+
+        [Fact]
+        public void ShouldTrackEntityChanges()
+        {
+            var manager = new ReflectionEntityStateSnapshotProvider();
+            var stateModel = GetModel();
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+
+            snapshot.HasChanges(stateModel).ShouldBeFalse();
+
+            stateModel.Int = int.MaxValue;
+            snapshot.HasChanges(stateModel).ShouldBeTrue();
+            stateModel.Int = IntValue;
+            snapshot.HasChanges(stateModel).ShouldBeFalse();
+
+            stateModel.String = null;
+            snapshot.HasChanges(stateModel).ShouldBeTrue();
+            stateModel.String = StringValue;
+            snapshot.HasChanges(stateModel).ShouldBeFalse();
+
+            stateModel.Guid = Guid.Empty;
+            snapshot.HasChanges(stateModel).ShouldBeTrue();
+            stateModel.Guid = GuidValue;
+            snapshot.HasChanges(stateModel).ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldTrackPropertyChanges()
+        {
+            var manager = new ReflectionEntityStateSnapshotProvider();
+            var stateModel = GetModel();
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+
+            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeFalse();
+
+            stateModel.Int = int.MaxValue;
+            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeTrue();
+
+            stateModel.String = null;
+            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeTrue();
+            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeTrue();
+
+            stateModel.Guid = Guid.Empty;
+            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeTrue();
+            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeTrue();
+            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeTrue();
+
+            stateModel.Int = IntValue;
+            stateModel.String = StringValue;
+            stateModel.Guid = GuidValue;
+
+            snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
+            snapshot.HasChanges(stateModel, nameof(stateModel.Int)).ShouldBeFalse();
+        }
+
+        [Fact]
         public void ShouldUseFilter()
         {
             var stateModel = GetModel();
@@ -155,33 +166,5 @@ namespace MugenMvvm.UnitTests.Entities.Components
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
         }
-
-        private static EntityStateModel GetModel() => new() {Guid = GuidValue, Int = IntValue, String = StringValue};
-
-        private static void AssertModel(EntityStateModel model)
-        {
-            model.Guid.ShouldEqual(GuidValue);
-            model.Int.ShouldEqual(IntValue);
-            model.String.ShouldEqual(StringValue);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class EntityStateModel
-        {
-            #region Properties
-
-            public string? String { get; set; }
-
-            public Guid Guid { get; set; }
-
-            public int Int { get; set; }
-
-            #endregion
-        }
-
-        #endregion
     }
 }

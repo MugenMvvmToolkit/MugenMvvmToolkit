@@ -16,11 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingParameterValueTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void DefaultShouldBeEmpty() => default(BindingParameterValue).IsEmpty.ShouldBeTrue();
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -144,6 +139,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             disposeObserver.ShouldBeTrue();
         }
 
-        #endregion
+        [Fact]
+        public void DefaultShouldBeEmpty() => default(BindingParameterValue).IsEmpty.ShouldBeTrue();
     }
 }

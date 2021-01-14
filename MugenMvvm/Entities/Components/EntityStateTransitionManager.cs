@@ -9,29 +9,15 @@ namespace MugenMvvm.Entities.Components
 {
     public sealed class EntityStateTransitionManager : IEntityStateChangingListener, IHasPriority
     {
-        #region Fields
-
         public static readonly EntityStateTransitionManager Instance = new();
-
-        #endregion
-
-        #region Constructors
 
         private EntityStateTransitionManager()
         {
         }
 
-        #endregion
-
-        #region Properties
-
         public static int Priority { get; set; } = EntityComponentPriority.StateTransitionManager;
 
         int IHasPriority.Priority => Priority;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public EntityState OnEntityStateChanging(IEntityTrackingCollection collection, object entity, EntityState from, EntityState to, IReadOnlyMetadataContext? metadata)
         {
@@ -47,7 +33,5 @@ namespace MugenMvvm.Entities.Components
 
             return to;
         }
-
-        #endregion
     }
 }

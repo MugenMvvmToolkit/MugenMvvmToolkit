@@ -9,17 +9,11 @@ namespace MugenMvvm.Android.Collections
 {
     public class ItemsSourceBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
     {
-        #region Fields
-
         protected readonly List<IItemsSourceObserver> Observers;
 
         private List<object?>? _beforeResetList;
         private int _diffSupportedCount;
         private bool _isAlive;
-
-        #endregion
-
-        #region Constructors
 
         public ItemsSourceBindableCollectionAdapter(IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
@@ -29,56 +23,9 @@ namespace MugenMvvm.Android.Collections
             _isAlive = true;
         }
 
-        #endregion
-
-        #region Properties
-
         public IDiffableEqualityComparer? DiffableComparer { get; }
 
         protected override bool IsAlive => _isAlive;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        int DiffUtil.ICallback.GetOldListSize() => _beforeResetList!.Count;
-
-        int DiffUtil.ICallback.GetNewListSize() => Count;
-
-        bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
-        {
-            if (DiffableComparer == null)
-                return Equals(_beforeResetList![oldItemPosition], this[newItemPosition]);
-            return DiffableComparer.AreItemsTheSame(_beforeResetList![oldItemPosition], this[newItemPosition]);
-        }
-
-        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => true;
-
-        void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count)
-        {
-            for (var i = 0; i < Observers.Count; i++)
-                GetObserver(i)?.OnItemRangeInserted(position, count);
-        }
-
-        void DiffUtil.IListUpdateCallback.OnRemoved(int position, int count)
-        {
-            for (var i = 0; i < Observers.Count; i++)
-                GetObserver(i)?.OnItemRangeRemoved(position, count);
-        }
-
-        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition)
-        {
-            for (var i = 0; i < Observers.Count; i++)
-                GetObserver(i)?.OnItemMoved(fromPosition, toPosition);
-        }
-
-        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
-        {
-        }
-
-        #endregion
-
-        #region Methods
 
         public void AddObserver(IItemsSourceObserver observer)
         {
@@ -156,6 +103,39 @@ namespace MugenMvvm.Android.Collections
             return observer;
         }
 
-        #endregion
+        int DiffUtil.ICallback.GetOldListSize() => _beforeResetList!.Count;
+
+        int DiffUtil.ICallback.GetNewListSize() => Count;
+
+        bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
+        {
+            if (DiffableComparer == null)
+                return Equals(_beforeResetList![oldItemPosition], this[newItemPosition]);
+            return DiffableComparer.AreItemsTheSame(_beforeResetList![oldItemPosition], this[newItemPosition]);
+        }
+
+        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => true;
+
+        void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count)
+        {
+            for (var i = 0; i < Observers.Count; i++)
+                GetObserver(i)?.OnItemRangeInserted(position, count);
+        }
+
+        void DiffUtil.IListUpdateCallback.OnRemoved(int position, int count)
+        {
+            for (var i = 0; i < Observers.Count; i++)
+                GetObserver(i)?.OnItemRangeRemoved(position, count);
+        }
+
+        void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition)
+        {
+            for (var i = 0; i < Observers.Count; i++)
+                GetObserver(i)?.OnItemMoved(fromPosition, toPosition);
+        }
+
+        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
+        {
+        }
     }
 }

@@ -7,20 +7,13 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 {
     public class TestCommandConditionComponent : ICommandConditionComponent
     {
-        #region Properties
-
         public Func<ICompositeCommand, bool>? HasCanExecute { get; set; }
 
         public Func<ICompositeCommand, object?, bool>? CanExecute { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
         bool ICommandConditionComponent.HasCanExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => HasCanExecute?.Invoke(command) ?? false;
 
-        bool ICommandConditionComponent.CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => CanExecute?.Invoke(command, parameter) ?? true;
-
-        #endregion
+        bool ICommandConditionComponent.CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) =>
+            CanExecute?.Invoke(command, parameter) ?? true;
     }
 }

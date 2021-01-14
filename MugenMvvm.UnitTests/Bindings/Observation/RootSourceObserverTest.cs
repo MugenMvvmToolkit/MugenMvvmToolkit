@@ -1,5 +1,4 @@
 ﻿using System;
-using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
@@ -13,32 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class RootSourceObserverTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void ShouldReturnSelfNoParent()
-        {
-            var parentMember = new TestAccessorMemberInfo
-            {
-                GetValue = (o, context) => null,
-                TryObserve = (o, listener, arg3) => default
-            };
-            using var t = MugenService.AddComponent(new TestMemberManagerComponent
-            {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
-                {
-                    if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
-                        return parentMember;
-                    return default;
-                }
-            });
-
-            var target = new object();
-            var observer = RootSourceObserver.GetOrAdd(target);
-            observer.Get(DefaultMetadata).ShouldEqual(target);
-            observer.Get(target, DefaultMetadata).ShouldEqual(target);
-        }
-
         [Fact]
         public void ShouldListenParent()
         {
@@ -137,6 +110,28 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             observer.Get(target, DefaultMetadata).ShouldEqual(parent);
         }
 
-        #endregion
+        [Fact]
+        public void ShouldReturnSelfNoParent()
+        {
+            var parentMember = new TestAccessorMemberInfo
+            {
+                GetValue = (o, context) => null,
+                TryObserve = (o, listener, arg3) => default
+            };
+            using var t = MugenService.AddComponent(new TestMemberManagerComponent
+            {
+                TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
+                {
+                    if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
+                        return parentMember;
+                    return default;
+                }
+            });
+
+            var target = new object();
+            var observer = RootSourceObserver.GetOrAdd(target);
+            observer.Get(DefaultMetadata).ShouldEqual(target);
+            observer.Get(target, DefaultMetadata).ShouldEqual(target);
+        }
     }
 }

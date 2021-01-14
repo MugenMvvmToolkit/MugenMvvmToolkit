@@ -9,24 +9,15 @@ namespace MugenMvvm.Bindings.Observation
 {
     public class EventListenerCollection
     {
-        #region Fields
+        private const int MinValueTrim = 3;
+        private const int MaxValueTrim = 100;
 
         private object? _listeners;
         private bool _raising;
         private ushort _removedSize;
         private ushort _size;
-        private const int MinValueTrim = 3;
-        private const int MaxValueTrim = 100;
-
-        #endregion
-
-        #region Properties
 
         public int Count => _size - _removedSize;
-
-        #endregion
-
-        #region Methods
 
         public static EventListenerCollection GetOrAdd(object target, string path, IAttachedValueManager? attachedValueManager = null)
         {
@@ -43,6 +34,15 @@ namespace MugenMvvm.Bindings.Observation
                 ((EventListenerCollection) collection!).Raise(target, message, metadata);
         }
 
+        internal static int GetCapacity(int size)
+        {
+            if (size == ushort.MaxValue)
+                ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
+            if (size < 6)
+                return size + 2;
+            return Math.Min((int) (size * 1.43f), ushort.MaxValue);
+        }
+
         public void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
         {
             if (Count == 0)
@@ -56,10 +56,8 @@ namespace MugenMvvm.Bindings.Observation
                     var hasDeadRef = false;
                     var size = _size;
                     for (var i = 0; i < size; i++)
-                    {
                         if (!WeakEventListener.TryHandle(listeners[i], sender, args, metadata) && RemoveAt(listeners, i))
                             hasDeadRef = true;
-                    }
 
                     if (hasDeadRef && _listeners == listeners)
                         TrimIfNeed(listeners, true);
@@ -107,14 +105,12 @@ namespace MugenMvvm.Bindings.Observation
                     else
                     {
                         for (var i = 0; i < _size; i++)
-                        {
                             if (listeners[i] == null)
                             {
                                 listeners[i] = target;
                                 --_removedSize;
                                 break;
                             }
-                        }
                     }
                 }
                 else
@@ -139,14 +135,12 @@ namespace MugenMvvm.Bindings.Observation
             {
                 var size = _size;
                 for (var i = 0; i < size; i++)
-                {
                     if (WeakEventListener.GetListener(listeners[i]) == listener)
                     {
                         if (RemoveAt(listeners, i))
                             TrimIfNeed(listeners, false);
                         return true;
                     }
-                }
             }
             else if (WeakEventListener.GetListener(_listeners) == listener)
             {
@@ -286,16 +280,5 @@ namespace MugenMvvm.Bindings.Observation
                 _listeners = listeners;
             }
         }
-
-        internal static int GetCapacity(int size)
-        {
-            if (size == ushort.MaxValue)
-                ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
-            if (size < 6)
-                return size + 2;
-            return Math.Min((int) (size * 1.43f), ushort.MaxValue);
-        }
-
-        #endregion
     }
 }

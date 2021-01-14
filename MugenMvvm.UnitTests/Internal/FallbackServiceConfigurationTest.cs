@@ -8,38 +8,12 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class FallbackServiceConfigurationTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void InstanceShouldReturnServiceProvider()
         {
             var serviceProvider = new TestServiceProvider();
             var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
             fallbackServiceConfiguration.Instance<IServiceProvider>().ShouldEqual(serviceProvider);
-        }
-
-        [Fact]
-        public void OptionalShouldReturnServiceProvider()
-        {
-            var serviceProvider = new TestServiceProvider();
-            var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
-            fallbackServiceConfiguration.Optional<IServiceProvider>().ShouldEqual(serviceProvider);
-        }
-
-        [Fact]
-        public void InstanceShouldThrowNullValue()
-        {
-            var serviceProvider = new TestServiceProvider();
-            var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
-            ShouldThrow<InvalidOperationException>(() => fallbackServiceConfiguration.Instance<FallbackServiceConfigurationTest>());
-        }
-
-        [Fact]
-        public void OptionalShouldReturnNullValue()
-        {
-            var serviceProvider = new TestServiceProvider();
-            var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
-            fallbackServiceConfiguration.Optional<FallbackServiceConfigurationTest>().ShouldBeNull();
         }
 
         [Fact]
@@ -59,6 +33,30 @@ namespace MugenMvvm.UnitTests.Internal
         }
 
         [Fact]
+        public void InstanceShouldThrowNullValue()
+        {
+            var serviceProvider = new TestServiceProvider();
+            var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
+            ShouldThrow<InvalidOperationException>(() => fallbackServiceConfiguration.Instance<FallbackServiceConfigurationTest>());
+        }
+
+        [Fact]
+        public void OptionalShouldReturnNullValue()
+        {
+            var serviceProvider = new TestServiceProvider();
+            var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
+            fallbackServiceConfiguration.Optional<FallbackServiceConfigurationTest>().ShouldBeNull();
+        }
+
+        [Fact]
+        public void OptionalShouldReturnServiceProvider()
+        {
+            var serviceProvider = new TestServiceProvider();
+            var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
+            fallbackServiceConfiguration.Optional<IServiceProvider>().ShouldEqual(serviceProvider);
+        }
+
+        [Fact]
         public void OptionalShouldReturnValueFromServiceProvider()
         {
             var count = 0;
@@ -73,7 +71,5 @@ namespace MugenMvvm.UnitTests.Internal
             fallbackServiceConfiguration.Optional<FallbackServiceConfigurationTest>().ShouldEqual(this);
             count.ShouldEqual(1);
         }
-
-        #endregion
     }
 }

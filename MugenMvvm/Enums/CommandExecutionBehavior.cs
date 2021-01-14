@@ -11,11 +11,6 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class CommandExecutionBehavior : EnumBase<CommandExecutionBehavior, int>
     {
-        #region Fields
-
-        private readonly Action<ICommand, object?>? _afterExecute;
-        private readonly Func<ICommand, object?, bool>? _beforeExecute;
-
         public const int NoneValue = 0;
         public const int CheckCanExecuteValue = 1;
         public const int CheckCanExecuteThrowValue = 2;
@@ -23,14 +18,8 @@ namespace MugenMvvm.Enums
         public static readonly CommandExecutionBehavior CheckCanExecute = new(CheckCanExecuteValue, CheckCanExecuteIml, null);
         public static readonly CommandExecutionBehavior CheckCanExecuteThrow = new(CheckCanExecuteThrowValue, CheckCanExecuteThrowImpl, null);
 
-        #endregion
-
-        #region Constructors
-
-        [Preserve(Conditional = true)]
-        protected CommandExecutionBehavior()
-        {
-        }
+        private readonly Action<ICommand, object?>? _afterExecute;
+        private readonly Func<ICommand, object?, bool>? _beforeExecute;
 
         public CommandExecutionBehavior(int value, Func<ICommand, object?, bool>? beforeExecute, Action<ICommand, object?>? afterExecute, string? name = null) : base(value, name)
         {
@@ -38,13 +27,10 @@ namespace MugenMvvm.Enums
             _afterExecute = afterExecute;
         }
 
-        #endregion
-
-        #region Methods
-
-        public bool BeforeExecute(ICommand command, object? parameter) => _beforeExecute?.Invoke(command, parameter) ?? true;
-
-        public void AfterExecute(ICommand command, object? parameter) => _afterExecute?.Invoke(command, parameter);
+        [Preserve(Conditional = true)]
+        protected CommandExecutionBehavior()
+        {
+        }
 
         private static bool CheckCanExecuteIml(ICommand command, object? parameter)
         {
@@ -61,6 +47,8 @@ namespace MugenMvvm.Enums
             return true;
         }
 
-        #endregion
+        public bool BeforeExecute(ICommand command, object? parameter) => _beforeExecute?.Invoke(command, parameter) ?? true;
+
+        public void AfterExecute(ICommand command, object? parameter) => _afterExecute?.Invoke(command, parameter);
     }
 }

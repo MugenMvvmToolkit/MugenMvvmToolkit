@@ -9,37 +9,21 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 {
     public class TestValidatorProviderComponent : IValidatorProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IValidationManager? _validationManager;
-
-        #endregion
-
-        #region Constructors
 
         public TestValidatorProviderComponent(IValidationManager? validationManager = null)
         {
             _validationManager = validationManager;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; }
-
         public Func<object?, IReadOnlyMetadataContext?, IValidator?>? TryGetValidator { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; }
 
         IValidator? IValidatorProviderComponent.TryGetValidator(IValidationManager validationManager, object? request, IReadOnlyMetadataContext? metadata)
         {
             _validationManager?.ShouldEqual(validationManager);
             return TryGetValidator?.Invoke(request, metadata);
         }
-
-        #endregion
     }
 }

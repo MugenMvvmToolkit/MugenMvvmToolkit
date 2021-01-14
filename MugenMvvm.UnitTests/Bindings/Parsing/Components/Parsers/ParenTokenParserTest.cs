@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class ParenTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotParenExpression()
         {
@@ -29,7 +27,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         {
             var component = new ParenTokenParser();
             var expected = new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1),
-                new BinaryExpressionNode(BinaryTokenType.Addition, new BinaryExpressionNode(BinaryTokenType.Subtraction, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)),
+                new BinaryExpressionNode(BinaryTokenType.Addition,
+                    new BinaryExpressionNode(BinaryTokenType.Subtraction, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)),
                     new BinaryExpressionNode(BinaryTokenType.Subtraction, ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(2))));
 
             var ctx = new TokenParserContext {Parsers = new ITokenParserComponent[] {new BinaryTokenParser(), new DigitTokenParser(), component}};
@@ -40,7 +39,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             ctx.Initialize("(1+(1-1+(2-2))", DefaultMetadata);
             component.TryParse(ctx, null).ShouldBeNull();
         }
-
-        #endregion
     }
 }

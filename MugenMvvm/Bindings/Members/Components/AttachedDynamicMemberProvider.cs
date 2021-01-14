@@ -11,19 +11,12 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class AttachedDynamicMemberProvider : AttachableComponentBase<IMemberManager>, IMemberProviderComponent, IHasPriority
     {
-        #region Fields
-
         private readonly List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>> _dynamicMembers;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public AttachedDynamicMemberProvider()
@@ -31,29 +24,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _dynamicMembers = new List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>>();
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = MemberComponentPriority.Attached;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
-        {
-            if (_dynamicMembers.Count == 0)
-                return default;
-            var members = new ItemOrListEditor<IMemberInfo>();
-            for (var i = 0; i < _dynamicMembers.Count; i++)
-                members.AddIfNotNull(_dynamicMembers[i].Invoke(type, name, memberTypes, metadata)!);
-            return members.ToItemOrList();
-        }
-
-        #endregion
-
-        #region Methods
 
         public void Register(Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
         {
@@ -75,6 +46,15 @@ namespace MugenMvvm.Bindings.Members.Components
             OwnerOptional.TryInvalidateCache();
         }
 
-        #endregion
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+            IReadOnlyMetadataContext? metadata)
+        {
+            if (_dynamicMembers.Count == 0)
+                return default;
+            var members = new ItemOrListEditor<IMemberInfo>();
+            for (var i = 0; i < _dynamicMembers.Count; i++)
+                members.AddIfNotNull(_dynamicMembers[i].Invoke(type, name, memberTypes, metadata)!);
+            return members.ToItemOrList();
+        }
     }
 }

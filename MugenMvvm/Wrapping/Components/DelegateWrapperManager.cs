@@ -9,14 +9,8 @@ namespace MugenMvvm.Wrapping.Components
 {
     public sealed class DelegateWrapperManager<TConditionRequest, TWrapRequest> : IWrapperManagerComponent, IHasPriority
     {
-        #region Fields
-
         private readonly Func<Type, TConditionRequest, IReadOnlyMetadataContext?, bool> _condition;
         private readonly Func<Type, TWrapRequest, IReadOnlyMetadataContext?, object?> _wrapperFactory;
-
-        #endregion
-
-        #region Constructors
 
         public DelegateWrapperManager(Func<Type, TConditionRequest, IReadOnlyMetadataContext?, bool> condition,
             Func<Type, TWrapRequest, IReadOnlyMetadataContext?, object?> wrapperFactory)
@@ -27,15 +21,7 @@ namespace MugenMvvm.Wrapping.Components
             _wrapperFactory = wrapperFactory;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = WrappingComponentPriority.WrapperManger;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public bool CanWrap(IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -50,7 +36,5 @@ namespace MugenMvvm.Wrapping.Components
                 return _wrapperFactory.Invoke(wrapperType, wrapRequest, metadata);
             return null;
         }
-
-        #endregion
     }
 }

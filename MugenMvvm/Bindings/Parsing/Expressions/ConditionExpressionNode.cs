@@ -9,9 +9,8 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class ConditionExpressionNode : ExpressionNodeBase<IConditionExpressionNode>, IConditionExpressionNode
     {
-        #region Constructors
-
-        public ConditionExpressionNode(IExpressionNode condition, IExpressionNode ifTrue, IExpressionNode ifFalse, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
+        public ConditionExpressionNode(IExpressionNode condition, IExpressionNode ifTrue, IExpressionNode ifFalse, IReadOnlyDictionary<string, object?>? metadata = null) :
+            base(metadata)
         {
             Should.NotBeNull(condition, nameof(condition));
             Should.NotBeNull(ifTrue, nameof(ifTrue));
@@ -21,21 +20,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             IfFalse = ifFalse;
         }
 
-        #endregion
-
-        #region Properties
-
-        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Condition;
-
         public IExpressionNode Condition { get; }
 
         public IExpressionNode IfTrue { get; }
 
         public IExpressionNode IfFalse { get; }
 
-        #endregion
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Condition;
 
-        #region Methods
+        public override string ToString() => $"if ({Condition}) {{{IfTrue}}} else {{{IfFalse}}}";
 
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
@@ -55,9 +48,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         protected override int GetHashCode(int hashCode, IExpressionEqualityComparer? comparer) =>
             HashCode.Combine(hashCode, Condition.GetHashCode(comparer), IfTrue.GetHashCode(comparer), IfFalse.GetHashCode(comparer));
-
-        public override string ToString() => $"if ({Condition}) {{{IfTrue}}} else {{{IfFalse}}}";
-
-        #endregion
     }
 }

@@ -14,13 +14,12 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class ViewModelServiceResolverTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
-        public void TryGetServiceShouldReturnMetadataContext()
+        public void TryGetServiceShouldReturnBusyManager()
         {
             var component = new ViewModelServiceResolver();
-            component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
+            var service = (IBusyManager) component.TryGetService(null!, new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
+            service.GetComponent<IBusyManagerComponent>().ShouldNotBeNull();
         }
 
         [Fact]
@@ -33,11 +32,10 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         }
 
         [Fact]
-        public void TryGetServiceShouldReturnBusyManager()
+        public void TryGetServiceShouldReturnMetadataContext()
         {
             var component = new ViewModelServiceResolver();
-            var service = (IBusyManager) component.TryGetService(null!, new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
-            service.GetComponent<IBusyManagerComponent>().ShouldNotBeNull();
+            component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
         }
 
         [Fact]
@@ -46,7 +44,5 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             var component = new ViewModelServiceResolver();
             component.TryGetService(null!, new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
         }
-
-        #endregion
     }
 }

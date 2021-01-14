@@ -15,8 +15,6 @@ namespace MugenMvvm.UnitTests.Messaging
 {
     public class MessengerTest : ComponentOwnerTestBase<Messenger>
     {
-        #region Methods
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -186,13 +184,6 @@ namespace MugenMvvm.UnitTests.Messaging
             invokeCount.ShouldEqual(count);
         }
 
-        [Fact]
-        public void GetSubscribersShouldReturnEmptyListNoComponents()
-        {
-            var messenger = new Messenger();
-            messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -224,6 +215,15 @@ namespace MugenMvvm.UnitTests.Messaging
             subscribers.Count.ShouldEqual(0);
         }
 
+        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+
+        [Fact]
+        public void GetSubscribersShouldReturnEmptyListNoComponents()
+        {
+            var messenger = new Messenger();
+            messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
+        }
+
         [Fact]
         public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
         {
@@ -250,9 +250,5 @@ namespace MugenMvvm.UnitTests.Messaging
             messenger.UnsubscribeAll();
             invokedCount.ShouldEqual(1);
         }
-
-        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        #endregion
     }
 }

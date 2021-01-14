@@ -12,8 +12,6 @@ namespace MugenMvvm.Internal.Components
 {
     public abstract class AttachedValueStorageProviderBase<T> : IAttachedValueStorageProviderComponent, IAttachedValueStorageManager where T : class
     {
-        #region Implementation of interfaces
-
         public int GetCount(object item, ref object? internalState)
         {
             if (internalState == null)
@@ -21,7 +19,8 @@ namespace MugenMvvm.Internal.Components
             return ((IDictionary<string, object?>) internalState).Count;
         }
 
-        public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(object item, TState state, Func<object, string, object?, TState, bool>? predicate, ref object? internalState)
+        public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(object item, TState state, Func<object, string, object?, TState, bool>? predicate,
+            ref object? internalState)
         {
             if (internalState == null)
                 return default;
@@ -40,10 +39,8 @@ namespace MugenMvvm.Internal.Components
 
                 var result = new ItemOrListEditor<KeyValuePair<string, object?>>();
                 foreach (var keyValue in dictionary)
-                {
                     if (predicate(item, keyValue.Key, keyValue.Value, state))
                         result.Add(keyValue);
-                }
 
                 return result.ToItemOrList();
             }
@@ -73,7 +70,8 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, Func<object, string, TValue, TState, TValue> updateValueFactory, ref object? internalState)
+        public TValue AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state, Func<object, string, TValue, TState, TValue> updateValueFactory,
+            ref object? internalState)
         {
             var dictionary = GetDictionary(item, ref internalState);
             lock (dictionary)
@@ -174,9 +172,11 @@ namespace MugenMvvm.Internal.Components
             return default;
         }
 
-        #endregion
+        protected abstract IDictionary<string, object?>? GetAttachedDictionary(T item, bool optional);
 
-        #region Methods
+        protected abstract bool ClearInternal(T item);
+
+        protected virtual bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is T;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IDictionary<string, object?> GetDictionary(object item, ref object? internalState)
@@ -184,13 +184,5 @@ namespace MugenMvvm.Internal.Components
             internalState ??= GetAttachedDictionary((T) item, false)!;
             return (IDictionary<string, object?>) internalState;
         }
-
-        protected abstract IDictionary<string, object?>? GetAttachedDictionary(T item, bool optional);
-
-        protected abstract bool ClearInternal(T item);
-
-        protected virtual bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is T;
-
-        #endregion
     }
 }

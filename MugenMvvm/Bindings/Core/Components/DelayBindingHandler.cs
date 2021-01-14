@@ -17,38 +17,41 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public abstract class DelayBindingHandler : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler
     {
-        #region Fields
+        private static readonly TimerCallback CallbackDelegate = Callback;
 
         private IBinding? _binding;
         private bool _isUpdating;
         private Timer? _timer;
-
-        private static readonly TimerCallback CallbackDelegate = Callback;
-
-        #endregion
-
-        #region Constructors
 
         protected DelayBindingHandler(ushort delay)
         {
             Delay = delay;
         }
 
-        #endregion
-
-        #region Properties
-
-        public ushort Delay { get; }
-
         public static int Priority { get; set; } = BindingComponentPriority.Delay;
 
         public static ThreadExecutionMode ExecutionMode { get; set; } = ThreadExecutionMode.Main;
 
+        public ushort Delay { get; }
+
         int IHasPriority.Priority => Priority;
 
-        #endregion
+        public static IComponent<IBinding> GetTarget(ushort delay) => new Target(delay);
 
-        #region Implementation of interfaces
+        public static IComponent<IBinding> GetSource(ushort delay) => new Source(delay);
+
+        private static void Callback(object? state) => MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler) state!, null);
+
+        protected abstract void Update(IBinding binding);
+
+        protected object? OnValueChanging(object? value)
+        {
+            if (value.IsDoNothing() || _isUpdating)
+                return value;
+
+            _timer?.Change(Delay, Timeout.Infinite);
+            return BindingMetadata.DoNothing;
+        }
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
@@ -87,77 +90,26 @@ namespace MugenMvvm.Bindings.Core.Components
             }
         }
 
-        #endregion
-
-        #region Methods
-
-        protected abstract void Update(IBinding binding);
-
-        protected object? OnValueChanging(object? value)
-        {
-            if (value.IsDoNothing() || _isUpdating)
-                return value;
-
-            _timer?.Change(Delay, Timeout.Infinite);
-            return BindingMetadata.DoNothing;
-        }
-
-        public static IComponent<IBinding> GetTarget(ushort delay) => new Target(delay);
-
-        public static IComponent<IBinding> GetSource(ushort delay) => new Source(delay);
-
-        private static void Callback(object? state) => MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler) state!, null);
-
-        #endregion
-
-        #region Nested types
-
         internal sealed class Target : DelayBindingHandler, ITargetValueInterceptorComponent
         {
-            #region Constructors
-
             public Target(ushort delay) : base(delay)
             {
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             public object? InterceptTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata) => OnValueChanging(value);
 
-            #endregion
-
-            #region Methods
-
             protected override void Update(IBinding binding) => binding.UpdateTarget();
-
-            #endregion
         }
 
         internal sealed class Source : DelayBindingHandler, ISourceValueInterceptorComponent
         {
-            #region Constructors
-
             public Source(ushort delay) : base(delay)
             {
             }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             public object? InterceptSourceValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata) => OnValueChanging(value);
 
-            #endregion
-
-            #region Methods
-
             protected override void Update(IBinding binding) => binding.UpdateSource();
-
-            #endregion
         }
-
-        #endregion
     }
 }

@@ -1,9 +1,7 @@
 ﻿using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Extensions;
-using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
@@ -12,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionParserCacheTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseBindingExpressionShouldCacheRequest()
         {
@@ -54,7 +50,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             bindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(3);
         }
-
-        #endregion
     }
 }

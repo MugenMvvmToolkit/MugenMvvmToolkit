@@ -9,18 +9,10 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationContextProvider : INavigationContextProviderComponent, IHasPriority
     {
-        #region Properties
-
         public int Priority { get; set; } = NavigationComponentPriority.ContextProvider;
-
-        #endregion
-
-        #region Implementation of interfaces
 
         public INavigationContext TryGetNavigationContext(INavigationDispatcher navigationDispatcher, object? target, INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null) =>
             new NavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
-
-        #endregion
     }
 }

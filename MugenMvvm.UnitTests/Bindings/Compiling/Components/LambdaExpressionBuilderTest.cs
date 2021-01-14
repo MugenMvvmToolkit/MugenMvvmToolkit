@@ -16,34 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class LambdaExpressionBuilderTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotLambdaExpression()
-        {
-            var component = new LambdaExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreLambdaExpressionNoParameter()
-        {
-            var component = new LambdaExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreLambdaExpressionWrongParameterCount()
-        {
-            var parameterInfoImpl = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc1))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfoImpl);
-            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
-        }
-
         [Fact]
         public void TryBuildShouldBuildLambdaExpression1()
         {
@@ -111,7 +83,31 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             expression.Compile().Invoke().ShouldEqual(false);
         }
 
-        #endregion
+        [Fact]
+        public void TryBuildShouldIgnoreLambdaExpressionNoParameter()
+        {
+            var component = new LambdaExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryBuildShouldIgnoreLambdaExpressionWrongParameterCount()
+        {
+            var parameterInfoImpl = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc1))!.GetParameters()[0]);
+            var component = new LambdaExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfoImpl);
+            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotLambdaExpression()
+        {
+            var component = new LambdaExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+        }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
         public static void MethodWithFunc1(Func<int, int> func)

@@ -16,16 +16,11 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
     public abstract class BindingMemberExpressionNodeBase<TExpression> : ExpressionNodeBase<TExpression>, IBindingMemberExpressionNode
         where TExpression : BindingMemberExpressionNodeBase<TExpression>
     {
-        #region Fields
-
         private ushort _flags;
         private ushort _memberFlags;
 
-        #endregion
-
-        #region Constructors
-
-        protected BindingMemberExpressionNodeBase(string path, int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName,
+        protected BindingMemberExpressionNodeBase(string path, int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags,
+            string? observableMethodName,
             IExpressionNode? expression, IReadOnlyDictionary<string, object?>? metadata) : base(metadata)
         {
             Should.NotBeNull(path, nameof(path));
@@ -36,12 +31,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
             Expression = expression;
             ObservableMethodName = observableMethodName;
         }
-
-        #endregion
-
-        #region Properties
-
-        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingParameter;
 
         public EnumFlags<BindingMemberExpressionFlags> Flags
         {
@@ -63,13 +52,18 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         public IExpressionNode? Expression { get; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingParameter;
 
         public abstract object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path);
 
         public abstract object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
+
+        public override string ToString()
+        {
+            if (Expression == null)
+                return $"bind{Index}({Path})";
+            return $"bind{Index}({Expression})";
+        }
 
         public IBindingMemberExpressionNode Update(int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName)
         {
@@ -83,10 +77,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
             expression.ObservableMethodName = observableMethodName;
             return expression;
         }
-
-        #endregion
-
-        #region Methods
 
         protected override bool Equals(TExpression other, IExpressionEqualityComparer? comparer) =>
             _flags == other._flags && _memberFlags == other._memberFlags && Index == other.Index && Path.Equals(other.Path) &&
@@ -114,14 +104,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
                 return value + Path;
             return value + "." + Path;
         }
-
-        public override string ToString()
-        {
-            if (Expression == null)
-                return $"bind{Index}({Path})";
-            return $"bind{Index}({Expression})";
-        }
-
-        #endregion
     }
 }

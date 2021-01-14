@@ -2,8 +2,6 @@
 {
     internal static class IosInternalConstants
     {
-        #region Fields
-
         public const string RootNavigationId = "root";
         public const string AppVersionKey = "~v";
         public const string RootViewControllerKey = "~r";
@@ -12,7 +10,5 @@
         public const string ViewControllerTypeKey = "~vt";
         public const string ContentViewControllerPath = "~@icv";
         public const string AttachedHolderKey = "~h";
-
-        #endregion
     }
 }

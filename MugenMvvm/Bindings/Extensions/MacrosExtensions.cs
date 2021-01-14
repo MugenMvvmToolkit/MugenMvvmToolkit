@@ -23,11 +23,11 @@ namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
-        #region Methods
+        public static MacrosBindingInitializer GetMacrosPreInitializer(this IBindingManager bindingManager) =>
+            bindingManager.GetMacrosInitializer(BindingComponentPriority.MacrosPreInitializer);
 
-        public static MacrosBindingInitializer GetMacrosPreInitializer(this IBindingManager bindingManager) => bindingManager.GetMacrosInitializer(BindingComponentPriority.MacrosPreInitializer);
-
-        public static MacrosBindingInitializer GetMacrosPostInitializer(this IBindingManager bindingManager) => bindingManager.GetMacrosInitializer(BindingComponentPriority.MacrosPostInitializer);
+        public static MacrosBindingInitializer GetMacrosPostInitializer(this IBindingManager bindingManager) =>
+            bindingManager.GetMacrosInitializer(BindingComponentPriority.MacrosPostInitializer);
 
         public static bool IsMacros(this IUnaryExpressionNode? expression)
         {
@@ -64,24 +64,19 @@ namespace MugenMvvm.Bindings.Extensions
                 if (validator != null)
                 {
                     foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
-                    {
                         if (validator.HasErrors(member))
                             return true;
-                    }
                 }
             }
             else if (target is INotifyDataErrorInfo dataErrorInfo)
             {
                 foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
-                {
                     if (dataErrorInfo.GetErrors(member).Any())
                         return true;
-                }
             }
 
             return false;
         }
-
 
         public static object? GetError(object target, object? membersRaw)
         {
@@ -209,10 +204,8 @@ namespace MugenMvvm.Bindings.Extensions
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             foreach (var c in bindingManager.GetComponents<MacrosBindingInitializer>())
-            {
                 if (c.Priority == priority)
                     return c;
-            }
 
             var initializer = new MacrosBindingInitializer {Priority = priority};
             bindingManager.AddComponent(initializer);
@@ -230,7 +223,5 @@ namespace MugenMvvm.Bindings.Extensions
 
             return false;
         }
-
-        #endregion
     }
 }

@@ -9,15 +9,11 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class ComponentCollectionManagerTest : ComponentOwnerTestBase<IComponentCollectionManager>
     {
-        #region Methods
-
-        [Fact]
-        public void GetComponentCollectionShouldUseComponentCollectionAsFallback()
+        public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
         {
-            var collectionProvider = GetComponentOwner();
-            var componentCollection = collectionProvider.GetComponentCollection(this);
-            componentCollection.ShouldBeType<ComponentCollection>();
         }
+
+        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollectionManager();
 
         [Fact]
         public void GetComponentCollectionShouldBeHandledByComponents()
@@ -72,12 +68,12 @@ namespace MugenMvvm.UnitTests.Components
             executed.ShouldEqual(1);
         }
 
-        public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
+        [Fact]
+        public void GetComponentCollectionShouldUseComponentCollectionAsFallback()
         {
+            var collectionProvider = GetComponentOwner();
+            var componentCollection = collectionProvider.GetComponentCollection(this);
+            componentCollection.ShouldBeType<ComponentCollection>();
         }
-
-        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollectionManager();
-
-        #endregion
     }
 }

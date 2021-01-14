@@ -5,8 +5,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MemberTypesRequestTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -16,7 +14,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberTypesRequest.Types.AsList().ShouldEqual(types);
             memberTypesRequest.Name.ShouldEqual(name);
         }
-
-        #endregion
     }
 }

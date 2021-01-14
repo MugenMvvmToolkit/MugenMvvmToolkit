@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
@@ -15,8 +14,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         public static ItemOrIReadOnlyList<IPresenterResult> Show(this IPresenter presenter, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
@@ -30,14 +27,16 @@ namespace MugenMvvm.Extensions
         public static ShowPresenterResult ShowAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            TryGetShowPresenterResult(presenter.DefaultIfNull().Show(viewModel, cancellationToken, metadata), navigationDispatcher, metadata, out var showingCallback, out var closeCallback, out var presenterResult);
+            TryGetShowPresenterResult(presenter.DefaultIfNull().Show(viewModel, cancellationToken, metadata), navigationDispatcher, metadata, out var showingCallback,
+                out var closeCallback, out var presenterResult);
             return new ShowPresenterResult(presenterResult, showingCallback, closeCallback);
         }
 
         public static ShowPresenterResult<T> ShowAsync<T>(this IHasResult<T> hasNavigationResult, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            TryGetShowPresenterResult(presenter.DefaultIfNull().Show(hasNavigationResult, cancellationToken, metadata), navigationDispatcher, metadata, out var showingCallback, out var closeCallback,
+            TryGetShowPresenterResult(presenter.DefaultIfNull().Show(hasNavigationResult, cancellationToken, metadata), navigationDispatcher, metadata, out var showingCallback,
+                out var closeCallback,
                 out var presenterResult);
             return new ShowPresenterResult<T>(presenterResult, showingCallback, closeCallback);
         }
@@ -47,13 +46,9 @@ namespace MugenMvvm.Extensions
         {
             var callbacks = new ItemOrListEditor<INavigationCallback>();
             foreach (var result in presenter.DefaultIfNull().TryClose(viewModel, cancellationToken, metadata))
-            {
-                foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata))
-                {
-                    if (callback.CallbackType == NavigationCallbackType.Closing)
-                        callbacks.Add(callback);
-                }
-            }
+            foreach (var callback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result, metadata))
+                if (callback.CallbackType == NavigationCallbackType.Closing)
+                    callbacks.Add(callback);
 
             return callbacks.WhenAll(true, isSerializable);
         }
@@ -79,12 +74,10 @@ namespace MugenMvvm.Extensions
             showingCallback = null;
             closeCallback = null!;
             foreach (var navigationCallback in navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(result.Item, metadata))
-            {
                 if (navigationCallback.CallbackType == NavigationCallbackType.Showing)
                     showingCallback = navigationCallback;
                 else if (navigationCallback.CallbackType == NavigationCallbackType.Close)
                     closeCallback = navigationCallback;
-            }
 
             if (closeCallback == null)
             {
@@ -92,7 +85,5 @@ namespace MugenMvvm.Extensions
                 closeCallback = null;
             }
         }
-
-        #endregion
     }
 }

@@ -9,8 +9,6 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class LogLevel : EnumBase<LogLevel, string>
     {
-        #region Fields
-
         public static readonly LogLevel Trace = new(nameof(Trace));
         public static readonly LogLevel Debug = new(nameof(Debug));
         public static readonly LogLevel Info = new(nameof(Info));
@@ -18,19 +16,13 @@ namespace MugenMvvm.Enums
         public static readonly LogLevel Error = new(nameof(Error));
         public static readonly LogLevel Fatal = new(nameof(Fatal));
 
-        #endregion
-
-        #region Constructors
+        public LogLevel(string value, string? name = null) : base(value, name)
+        {
+        }
 
         [Preserve(Conditional = true)]
         protected LogLevel()
         {
         }
-
-        public LogLevel(string value, string? name = null) : base(value, name)
-        {
-        }
-
-        #endregion
     }
 }

@@ -9,22 +9,12 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 {
     public class TestConditionCollectionComponent<T> : IConditionCollectionComponent<T>, IHasPriority
     {
-        #region Fields
-
         private readonly object _collection;
-
-        #endregion
-
-        #region Constructors
 
         public TestConditionCollectionComponent(IObservableCollection<T> collection)
         {
             _collection = collection;
         }
-
-        #endregion
-
-        #region Properties
 
         public Func<T, int, bool>? CanAdd { get; set; }
 
@@ -39,10 +29,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
         public bool ThrowErrorNullDelegate { get; set; }
 
         public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
 
         bool IConditionCollectionComponent<T>.CanAdd(IReadOnlyCollection<T> collection, T item, int index)
         {
@@ -83,7 +69,5 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 throw new NotSupportedException();
             return CanReset?.Invoke(items) ?? true;
         }
-
-        #endregion
     }
 }

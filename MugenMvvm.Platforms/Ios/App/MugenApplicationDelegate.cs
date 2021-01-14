@@ -10,13 +10,7 @@ namespace MugenMvvm.Ios.App
 {
     public abstract class MugenApplicationDelegate : UIApplicationDelegate
     {
-        #region Properties
-
         public override UIWindow? Window { get; set; }
-
-        #endregion
-
-        #region Methods
 
         public override void DidEnterBackground(UIApplication application)
         {
@@ -49,7 +43,8 @@ namespace MugenMvvm.Ios.App
             return !request.Cancel.GetValueOrDefault(true);
         }
 
-        public override void WillEncodeRestorableState(UIApplication application, NSCoder coder) => MugenService.Application.OnLifecycleChanged(IosApplicationLifecycleState.Preserved, coder);
+        public override void WillEncodeRestorableState(UIApplication application, NSCoder coder) =>
+            MugenService.Application.OnLifecycleChanged(IosApplicationLifecycleState.Preserved, coder);
 
         public override bool ShouldRestoreApplicationState(UIApplication application, NSCoder coder)
         {
@@ -97,7 +92,5 @@ namespace MugenMvvm.Ios.App
         }
 
         protected abstract void Initialize(UIApplication application, NSDictionary launchOptions);
-
-        #endregion
     }
 }

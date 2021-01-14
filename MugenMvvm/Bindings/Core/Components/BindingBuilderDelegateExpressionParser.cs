@@ -18,16 +18,11 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingBuilderDelegateExpressionParser : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
     {
-        #region Fields
+        private static readonly MethodInfo GetRequestMethod =
+            typeof(BindingBuilderDelegateExpressionParser).GetMethodOrThrow(nameof(GetRequest), BindingFlags.Static | BindingFlags.Public);
 
         private readonly Dictionary<object, object?> _cache;
         private readonly object[] _singleValueArray;
-
-        private static readonly MethodInfo GetRequestMethod = typeof(BindingBuilderDelegateExpressionParser).GetMethodOrThrow(nameof(GetRequest), BindingFlags.Static | BindingFlags.Public);
-
-        #endregion
-
-        #region Constructors
 
         public BindingBuilderDelegateExpressionParser(int priority = BindingComponentPriority.BuilderCache)
             : base(priority)
@@ -36,9 +31,10 @@ namespace MugenMvvm.Bindings.Core.Components
             _cache = new Dictionary<object, object?>(47, InternalEqualityComparer.Reference);
         }
 
-        #endregion
+        [Preserve(Conditional = true)]
+        public static BindingExpressionRequest GetRequest<T1, T2>(BindingBuilderDelegate<T1, T2> buildDelegate) where T1 : class where T2 : class => buildDelegate(default);
 
-        #region Implementation of interfaces
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
@@ -57,12 +53,6 @@ namespace MugenMvvm.Bindings.Core.Components
             return Components.TryParseBindingExpression(bindingManager, expression, metadata);
         }
 
-        #endregion
-
-        #region Methods
-
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
         private object? GetExpression(Delegate del, IBindingManager bindingManager, IReadOnlyMetadataContext? metadata)
         {
             var type = del.GetType();
@@ -71,15 +61,11 @@ namespace MugenMvvm.Bindings.Core.Components
                 if (del.HasClosure())
                     ExceptionManager.ThrowCannotUseExpressionClosure(del);
                 _singleValueArray[0] = del;
-                return Components.TryParseBindingExpression(bindingManager, GetRequestMethod.MakeGenericMethod(type.GetGenericArguments()).Invoke(null, _singleValueArray)!, metadata).GetRawValue();
+                return Components.TryParseBindingExpression(bindingManager, GetRequestMethod.MakeGenericMethod(type.GetGenericArguments()).Invoke(null, _singleValueArray)!,
+                    metadata).GetRawValue();
             }
 
             return this;
         }
-
-        [Preserve(Conditional = true)]
-        public static BindingExpressionRequest GetRequest<T1, T2>(BindingBuilderDelegate<T1, T2> buildDelegate) where T1 : class where T2 : class => buildDelegate(default);
-
-        #endregion
     }
 }

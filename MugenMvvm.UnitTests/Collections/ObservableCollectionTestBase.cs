@@ -15,323 +15,6 @@ namespace MugenMvvm.UnitTests.Collections
 {
     public class ObservableCollectionTestBase : ComponentOwnerTestBase<IObservableCollection<object>>
     {
-        #region Methods
-
-        [Fact]
-        public void EnumeratorTest()
-        {
-            var items = new List<TestCollectionItem>();
-            var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < 1000; i++)
-            {
-                items.Add(new TestCollectionItem());
-                collection.Add(items[i]);
-            }
-
-            collection.ShouldEqual(items);
-        }
-
-        [Fact]
-        public void IEnumerableEnumeratorTest()
-        {
-            var items = new List<TestCollectionItem>();
-            var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < 1000; i++)
-            {
-                items.Add(new TestCollectionItem());
-                collection.Add(items[i]);
-            }
-
-            collection.OfType<TestCollectionItem>().ShouldEqual(items);
-        }
-
-        [Fact]
-        public void CreateWithItemsTest()
-        {
-            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
-            var collection = CreateCollection(items);
-            collection.Count.ShouldEqual(2);
-            collection.Any(item => item == items[0]).ShouldBeTrue();
-            collection.Any(item => item == items[1]).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void AddTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-            collection.Count.ShouldEqual(1);
-            collection.Any(item1 => item1 == item).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void IListAddTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-            collection.Count.ShouldEqual(1);
-            collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void InsertTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-            collection.Insert(0, item1);
-            collection.Count.ShouldEqual(1);
-
-            collection.Insert(0, item2);
-            collection.Count.ShouldEqual(2);
-
-            collection[0].ShouldEqual(item2);
-            collection[1].ShouldEqual(item1);
-        }
-
-        [Fact]
-        public void IListInsertTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-            collection.Insert(0, item1);
-            collection.Count.ShouldEqual(1);
-
-            collection.Insert(0, item2);
-            collection.Count.ShouldEqual(2);
-
-            collection[0].ShouldEqual(item2);
-            collection[1].ShouldEqual(item1);
-        }
-
-        [Fact]
-        public void GetSetTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-            collection.Add(item1);
-
-            collection[0].ShouldEqual(item1);
-            collection[0] = item2;
-            collection[0].ShouldEqual(item2);
-        }
-
-        [Fact]
-        public void IListGetSetTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-            collection.Add(item1);
-
-            collection[0].ShouldEqual(item1);
-            collection[0] = item2;
-            collection[0].ShouldEqual(item2);
-        }
-
-        [Fact]
-        public void MoveTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = CreateCollection(item1, item2);
-
-            collection[0].ShouldEqual(item1);
-            collection[1].ShouldEqual(item2);
-
-            collection.Move(0, 1);
-
-            collection[0].ShouldEqual(item2);
-            collection[1].ShouldEqual(item1);
-        }
-
-        [Fact]
-        public void ResetTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = CreateCollection(new TestCollectionItem());
-
-            collection.Reset(new[] {item1, item2});
-            collection[0].ShouldEqual(item1);
-            collection[1].ShouldEqual(item2);
-            collection.Count.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void IndexOfTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-
-            collection.IndexOf(item1).ShouldBeLessThan(0);
-
-            collection.Insert(0, item1);
-            collection.IndexOf(item1).ShouldEqual(0);
-
-            collection.Insert(0, item2);
-            collection.IndexOf(item2).ShouldEqual(0);
-            collection.IndexOf(item1).ShouldEqual(1);
-        }
-
-        [Fact]
-        public void IListIndexOfTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-
-            collection.IndexOf(item1).ShouldBeLessThan(0);
-
-            collection.Insert(0, item1);
-            collection.IndexOf(item1).ShouldEqual(0);
-
-            collection.Insert(0, item2);
-            collection.IndexOf(item2).ShouldEqual(0);
-            collection.IndexOf(item1).ShouldEqual(1);
-        }
-
-        [Fact]
-        public void RemoveAtTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-            collection.Insert(0, item1);
-            collection.Insert(0, item2);
-            collection.Count.ShouldEqual(2);
-
-            collection.RemoveAt(1);
-            collection.Count.ShouldEqual(1);
-            collection[0].ShouldEqual(item2);
-
-            collection.RemoveAt(0);
-            collection.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void IListRemoveAtTest()
-        {
-            var item1 = new TestCollectionItem();
-            var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-            collection.Insert(0, item1);
-            collection.Insert(0, item2);
-            collection.Count.ShouldEqual(2);
-
-            collection.RemoveAt(1);
-            collection.Count.ShouldEqual(1);
-            collection[0].ShouldEqual(item2);
-
-            collection.RemoveAt(0);
-            collection.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void RemoveTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-            collection.Count.ShouldEqual(1);
-            collection.Any(item1 => item1 == item).ShouldBeTrue();
-
-            collection.Remove(item);
-            collection.Count.ShouldEqual(0);
-            collection.Any(item1 => item1 == item).ShouldBeFalse();
-        }
-
-        [Fact]
-        public void IListRemoveTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-            collection.Count.ShouldEqual(1);
-            collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
-
-            collection.Remove(item);
-            collection.Count.ShouldEqual(0);
-            collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeFalse();
-        }
-
-        [Fact]
-        public void ContainsTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-            collection.Count.ShouldEqual(1);
-            collection.Contains(item).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void IListContainsTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-            collection.Count.ShouldEqual(1);
-            collection.Contains(item).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void CopyToTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-
-            var items = new TestCollectionItem[1];
-            collection.CopyTo(items, 0);
-            items[0].ShouldEqual(item);
-        }
-
-        [Fact]
-        public void ICollectionCopyToTest()
-        {
-            var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
-            collection.Add(item);
-
-            var items = new TestCollectionItem[1];
-            collection.CopyTo(items, 0);
-            items[0].ShouldEqual(item);
-        }
-
-        [Fact]
-        public void ClearItemsTest()
-        {
-            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
-            var collection = CreateCollection(items);
-            collection.Count.ShouldEqual(2);
-            collection.Any(item => item == items[0]).ShouldBeTrue();
-            collection.Any(item => item == items[1]).ShouldBeTrue();
-
-            collection.Clear();
-            if (collection.Count != 0)
-                collection.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void IListClearItemsTest()
-        {
-            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
-            var collection = (IList) CreateCollection(items);
-            collection.Count.ShouldEqual(2);
-            collection.OfType<TestCollectionItem>().Any(item => item == items[0]).ShouldBeTrue();
-            collection.OfType<TestCollectionItem>().Any(item => item == items[1]).ShouldBeTrue();
-
-            collection.Clear();
-            if (collection.Count != 0)
-                collection.Count.ShouldEqual(0);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -1023,8 +706,322 @@ namespace MugenMvvm.UnitTests.Collections
 
         protected virtual IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items);
 
-        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new SynchronizedObservableCollection<object>(collectionProvider);
+        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionManager? collectionProvider = null) =>
+            new SynchronizedObservableCollection<object>(collectionProvider);
 
-        #endregion
+        [Fact]
+        public void AddTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+            collection.Count.ShouldEqual(1);
+            collection.Any(item1 => item1 == item).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ClearItemsTest()
+        {
+            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
+            var collection = CreateCollection(items);
+            collection.Count.ShouldEqual(2);
+            collection.Any(item => item == items[0]).ShouldBeTrue();
+            collection.Any(item => item == items[1]).ShouldBeTrue();
+
+            collection.Clear();
+            if (collection.Count != 0)
+                collection.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void ContainsTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+            collection.Count.ShouldEqual(1);
+            collection.Contains(item).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void CopyToTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+
+            var items = new TestCollectionItem[1];
+            collection.CopyTo(items, 0);
+            items[0].ShouldEqual(item);
+        }
+
+        [Fact]
+        public void CreateWithItemsTest()
+        {
+            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
+            var collection = CreateCollection(items);
+            collection.Count.ShouldEqual(2);
+            collection.Any(item => item == items[0]).ShouldBeTrue();
+            collection.Any(item => item == items[1]).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void EnumeratorTest()
+        {
+            var items = new List<TestCollectionItem>();
+            var collection = CreateCollection<TestCollectionItem>();
+            for (var i = 0; i < 1000; i++)
+            {
+                items.Add(new TestCollectionItem());
+                collection.Add(items[i]);
+            }
+
+            collection.ShouldEqual(items);
+        }
+
+        [Fact]
+        public void GetSetTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+            collection.Add(item1);
+
+            collection[0].ShouldEqual(item1);
+            collection[0] = item2;
+            collection[0].ShouldEqual(item2);
+        }
+
+        [Fact]
+        public void ICollectionCopyToTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+
+            var items = new TestCollectionItem[1];
+            collection.CopyTo(items, 0);
+            items[0].ShouldEqual(item);
+        }
+
+        [Fact]
+        public void IEnumerableEnumeratorTest()
+        {
+            var items = new List<TestCollectionItem>();
+            var collection = CreateCollection<TestCollectionItem>();
+            for (var i = 0; i < 1000; i++)
+            {
+                items.Add(new TestCollectionItem());
+                collection.Add(items[i]);
+            }
+
+            collection.OfType<TestCollectionItem>().ShouldEqual(items);
+        }
+
+        [Fact]
+        public void IListAddTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+            collection.Count.ShouldEqual(1);
+            collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void IListClearItemsTest()
+        {
+            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
+            var collection = (IList) CreateCollection(items);
+            collection.Count.ShouldEqual(2);
+            collection.OfType<TestCollectionItem>().Any(item => item == items[0]).ShouldBeTrue();
+            collection.OfType<TestCollectionItem>().Any(item => item == items[1]).ShouldBeTrue();
+
+            collection.Clear();
+            if (collection.Count != 0)
+                collection.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void IListContainsTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+            collection.Count.ShouldEqual(1);
+            collection.Contains(item).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void IListGetSetTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+            collection.Add(item1);
+
+            collection[0].ShouldEqual(item1);
+            collection[0] = item2;
+            collection[0].ShouldEqual(item2);
+        }
+
+        [Fact]
+        public void IListIndexOfTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+
+            collection.IndexOf(item1).ShouldBeLessThan(0);
+
+            collection.Insert(0, item1);
+            collection.IndexOf(item1).ShouldEqual(0);
+
+            collection.Insert(0, item2);
+            collection.IndexOf(item2).ShouldEqual(0);
+            collection.IndexOf(item1).ShouldEqual(1);
+        }
+
+        [Fact]
+        public void IListInsertTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+            collection.Insert(0, item1);
+            collection.Count.ShouldEqual(1);
+
+            collection.Insert(0, item2);
+            collection.Count.ShouldEqual(2);
+
+            collection[0].ShouldEqual(item2);
+            collection[1].ShouldEqual(item1);
+        }
+
+        [Fact]
+        public void IListRemoveAtTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+            collection.Insert(0, item1);
+            collection.Insert(0, item2);
+            collection.Count.ShouldEqual(2);
+
+            collection.RemoveAt(1);
+            collection.Count.ShouldEqual(1);
+            collection[0].ShouldEqual(item2);
+
+            collection.RemoveAt(0);
+            collection.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void IListRemoveTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = (IList) CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+            collection.Count.ShouldEqual(1);
+            collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
+
+            collection.Remove(item);
+            collection.Count.ShouldEqual(0);
+            collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeFalse();
+        }
+
+        [Fact]
+        public void IndexOfTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+
+            collection.IndexOf(item1).ShouldBeLessThan(0);
+
+            collection.Insert(0, item1);
+            collection.IndexOf(item1).ShouldEqual(0);
+
+            collection.Insert(0, item2);
+            collection.IndexOf(item2).ShouldEqual(0);
+            collection.IndexOf(item1).ShouldEqual(1);
+        }
+
+        [Fact]
+        public void InsertTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+            collection.Insert(0, item1);
+            collection.Count.ShouldEqual(1);
+
+            collection.Insert(0, item2);
+            collection.Count.ShouldEqual(2);
+
+            collection[0].ShouldEqual(item2);
+            collection[1].ShouldEqual(item1);
+        }
+
+        [Fact]
+        public void MoveTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = CreateCollection(item1, item2);
+
+            collection[0].ShouldEqual(item1);
+            collection[1].ShouldEqual(item2);
+
+            collection.Move(0, 1);
+
+            collection[0].ShouldEqual(item2);
+            collection[1].ShouldEqual(item1);
+        }
+
+        [Fact]
+        public void RemoveAtTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+            collection.Insert(0, item1);
+            collection.Insert(0, item2);
+            collection.Count.ShouldEqual(2);
+
+            collection.RemoveAt(1);
+            collection.Count.ShouldEqual(1);
+            collection[0].ShouldEqual(item2);
+
+            collection.RemoveAt(0);
+            collection.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void RemoveTest()
+        {
+            var item = new TestCollectionItem();
+            var collection = CreateCollection<TestCollectionItem>();
+            collection.Add(item);
+            collection.Count.ShouldEqual(1);
+            collection.Any(item1 => item1 == item).ShouldBeTrue();
+
+            collection.Remove(item);
+            collection.Count.ShouldEqual(0);
+            collection.Any(item1 => item1 == item).ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ResetTest()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+            var collection = CreateCollection(new TestCollectionItem());
+
+            collection.Reset(new[] {item1, item2});
+            collection[0].ShouldEqual(item1);
+            collection[1].ShouldEqual(item2);
+            collection.Count.ShouldEqual(2);
+        }
     }
 }

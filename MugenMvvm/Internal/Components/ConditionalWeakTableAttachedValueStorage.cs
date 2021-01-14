@@ -11,13 +11,7 @@ namespace MugenMvvm.Internal.Components
 {
     public sealed class ConditionalWeakTableAttachedValueStorage : AttachedValueStorageProviderBase<object>, IHasPriority
     {
-        #region Fields
-
         private readonly ConditionalWeakTable<object, SortedList<string, object?>> _weakTable;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public ConditionalWeakTableAttachedValueStorage()
@@ -25,15 +19,7 @@ namespace MugenMvvm.Internal.Components
             _weakTable = new ConditionalWeakTable<object, SortedList<string, object?>>();
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = InternalComponentPriority.WeakTableAttachedValueProvider;
-
-        #endregion
-
-        #region Methods
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
@@ -49,7 +35,5 @@ namespace MugenMvvm.Internal.Components
         protected override bool ClearInternal(object item) => _weakTable.Remove(item);
 
         protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => true;
-
-        #endregion
     }
 }

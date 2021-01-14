@@ -5,7 +5,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 {
     public class TestParameterInfo : IParameterInfo
     {
-        #region Properties
+        public Func<Type, bool>? IsDefined { get; set; }
 
         public object? UnderlyingParameter { get; set; }
 
@@ -17,14 +17,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         public object? DefaultValue { get; set; }
 
-        public Func<Type, bool>? IsDefined { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
         bool IParameterInfo.IsDefined(Type type) => IsDefined?.Invoke(type) ?? false;
-
-        #endregion
     }
 }

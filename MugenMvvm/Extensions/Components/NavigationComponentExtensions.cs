@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
@@ -7,15 +6,13 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
     public static class NavigationComponentExtensions
     {
-        #region Methods
-
-        public static void OnNavigationEntryAdded(this ItemOrArray<INavigationEntryListener> listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
+        public static void OnNavigationEntryAdded(this ItemOrArray<INavigationEntryListener> listeners, INavigationDispatcher navigationDispatcher,
+            INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -24,7 +21,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationInfo);
         }
 
-        public static void OnNavigationEntryUpdated(this ItemOrArray<INavigationEntryListener> listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
+        public static void OnNavigationEntryUpdated(this ItemOrArray<INavigationEntryListener> listeners, INavigationDispatcher navigationDispatcher,
+            INavigationEntry navigationEntry,
             IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -33,7 +31,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationInfo);
         }
 
-        public static void OnNavigationEntryRemoved(this ItemOrArray<INavigationEntryListener> listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
+        public static void OnNavigationEntryRemoved(this ItemOrArray<INavigationEntryListener> listeners, INavigationDispatcher navigationDispatcher,
+            INavigationEntry navigationEntry,
             IHasNavigationInfo? navigationInfo)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -43,7 +42,8 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static INavigationCallback? TryAddNavigationCallback(this ItemOrArray<INavigationCallbackManagerComponent> components,
-            INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, object request, IReadOnlyMetadataContext? metadata)
+            INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, object request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(request, nameof(request));
@@ -76,7 +76,8 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList();
         }
 
-        public static bool TryInvokeNavigationCallbacks(this ItemOrArray<INavigationCallbackManagerComponent> components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType,
+        public static bool TryInvokeNavigationCallbacks(this ItemOrArray<INavigationCallbackManagerComponent> components, INavigationDispatcher navigationDispatcher,
+            NavigationCallbackType callbackType,
             INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -84,15 +85,14 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             var result = false;
             foreach (var c in components)
-            {
                 if (c.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext))
                     result = true;
-            }
 
             return result;
         }
 
-        public static bool TryInvokeNavigationCallbacks(this ItemOrArray<INavigationCallbackManagerComponent> components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType,
+        public static bool TryInvokeNavigationCallbacks(this ItemOrArray<INavigationCallbackManagerComponent> components, INavigationDispatcher navigationDispatcher,
+            NavigationCallbackType callbackType,
             INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -101,10 +101,8 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(exception, nameof(exception));
             var result = false;
             foreach (var c in components)
-            {
                 if (c.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, exception))
                     result = true;
-            }
 
             return result;
         }
@@ -116,16 +114,15 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(callbackType, nameof(callbackType));
             var result = false;
             foreach (var c in components)
-            {
                 if (c.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, cancellationToken))
                     result = true;
-            }
 
             return result;
         }
 
         public static INavigationContext? TryGetNavigationContext(this ItemOrArray<INavigationContextProviderComponent> components, INavigationDispatcher navigationDispatcher,
-            object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata)
+            object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
@@ -142,7 +139,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ItemOrIReadOnlyList<INavigationEntry> TryGetNavigationEntries(this ItemOrArray<INavigationEntryProviderComponent> components, INavigationDispatcher navigationDispatcher,
+        public static ItemOrIReadOnlyList<INavigationEntry> TryGetNavigationEntries(this ItemOrArray<INavigationEntryProviderComponent> components,
+            INavigationDispatcher navigationDispatcher,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -194,7 +192,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnNavigated(navigationDispatcher, navigationContext);
         }
 
-        public static void OnNavigationFailed(this ItemOrArray<INavigationErrorListener> listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
+        public static void OnNavigationFailed(this ItemOrArray<INavigationErrorListener> listeners, INavigationDispatcher navigationDispatcher,
+            INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
@@ -203,14 +202,13 @@ namespace MugenMvvm.Extensions.Components
                 c.OnNavigationFailed(navigationDispatcher, navigationContext, exception);
         }
 
-        public static void OnNavigationCanceled(this ItemOrArray<INavigationErrorListener> listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public static void OnNavigationCanceled(this ItemOrArray<INavigationErrorListener> listeners, INavigationDispatcher navigationDispatcher,
+            INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             foreach (var c in listeners)
                 c.OnNavigationCanceled(navigationDispatcher, navigationContext, cancellationToken);
         }
-
-        #endregion
     }
 }

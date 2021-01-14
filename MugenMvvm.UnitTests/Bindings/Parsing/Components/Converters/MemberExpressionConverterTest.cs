@@ -11,27 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class MemberExpressionConverterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotMemberExpression()
-        {
-            var component = new MemberExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryConvertShouldConvertResourceMember()
-        {
-            var target = new TestResourceExtensionClass();
-            var propertyInfo = target.GetType().GetProperty(nameof(target.PropertyResourceExt));
-            var ctx = new ExpressionConverterContext<Expression>();
-            var component = new MemberExpressionConverter();
-            var expressionNode = component.TryConvert(ctx, Expression.Property(Expression.Constant(target), propertyInfo!));
-            expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.PropertyResource)));
-        }
-
         [Fact]
         public void TryConvertShouldConvertMember()
         {
@@ -45,6 +24,17 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 
             var component = new MemberExpressionConverter();
             component.TryConvert(ctx, Expression.Property(targetExp, propertyInfo)).ShouldEqual(expectedResult);
+        }
+
+        [Fact]
+        public void TryConvertShouldConvertResourceMember()
+        {
+            var target = new TestResourceExtensionClass();
+            var propertyInfo = target.GetType().GetProperty(nameof(target.PropertyResourceExt));
+            var ctx = new ExpressionConverterContext<Expression>();
+            var component = new MemberExpressionConverter();
+            var expressionNode = component.TryConvert(ctx, Expression.Property(Expression.Constant(target), propertyInfo!));
+            expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.PropertyResource)));
         }
 
         [Fact]
@@ -67,10 +57,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var component = new MemberExpressionConverter();
             var expressionNode = component.TryConvert(ctx, Expression.Property(Expression.Constant(target), propertyInfo));
 
-            var expectedResult = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.ClassResource)), propertyInfo.Name);
+            var expectedResult =
+                new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.ClassResource)),
+                    propertyInfo.Name);
             expressionNode.ShouldEqual(expectedResult);
         }
 
-        #endregion
+        [Fact]
+        public void TryConvertShouldIgnoreNotMemberExpression()
+        {
+            var component = new MemberExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
+        }
     }
 }

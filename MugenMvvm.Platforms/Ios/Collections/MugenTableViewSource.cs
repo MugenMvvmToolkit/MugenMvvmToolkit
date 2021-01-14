@@ -10,13 +10,7 @@ namespace MugenMvvm.Ios.Collections
 {
     public class MugenTableViewSource : UITableViewSource
     {
-        #region Fields
-
         private const int InitializedStateMask = 1;
-
-        #endregion
-
-        #region Constructors
 
         public MugenTableViewSource(UITableView tableView, ICellTemplateSelector itemTemplateSelector)
             : this(new ItemsSourceBindableCollectionAdapter(new TableViewCollectionAdapter(tableView), itemTemplateSelector as IDiffableEqualityComparer), itemTemplateSelector)
@@ -31,17 +25,9 @@ namespace MugenMvvm.Ios.Collections
             ItemTemplateSelector = itemTemplateSelector;
         }
 
-        #endregion
-
-        #region Properties
-
         public ItemsSourceBindableCollectionAdapter CollectionAdapter { get; }
 
         public ICellTemplateSelector ItemTemplateSelector { get; }
-
-        #endregion
-
-        #region Methods
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
@@ -61,7 +47,5 @@ namespace MugenMvvm.Ios.Collections
         public override nint RowsInSection(UITableView tableview, nint section) => CollectionAdapter.Count;
 
         protected virtual object? GetItemAt(NSIndexPath indexPath) => CollectionAdapter[indexPath.Row];
-
-        #endregion
     }
 }

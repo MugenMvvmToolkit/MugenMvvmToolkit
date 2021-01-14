@@ -12,8 +12,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class RuleValidatorComponentTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public async Task ValidateShouldUseRules()
         {
@@ -67,7 +65,5 @@ namespace MugenMvvm.UnitTests.Validation.Components
             task.IsCompleted.ShouldBeTrue();
             validator.GetErrors(memberName1).AsList().Single().ShouldEqual(memberName1);
         }
-
-        #endregion
     }
 }

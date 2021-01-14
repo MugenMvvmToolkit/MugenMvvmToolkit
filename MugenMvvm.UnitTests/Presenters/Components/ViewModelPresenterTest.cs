@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.Presenters;
 using MugenMvvm.Presenters.Components;
@@ -22,28 +21,6 @@ namespace MugenMvvm.UnitTests.Presenters.Components
 {
     public class ViewModelPresenterTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryShowShouldIgnoreNoMediators()
-        {
-            var vm = new TestViewModel();
-            var presenter = new Presenter();
-            var viewModelPresenter = new ViewModelPresenter();
-            viewModelPresenter.TryShow(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            viewModelPresenter.TryShow(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void TryCloseShouldIgnoreNoMediators()
-        {
-            var vm = new TestViewModel();
-            var presenter = new Presenter();
-            var viewModelPresenter = new ViewModelPresenter();
-            viewModelPresenter.TryClose(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            viewModelPresenter.TryClose(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -95,9 +72,12 @@ namespace MugenMvvm.UnitTests.Presenters.Components
                     return Initialize(new TestViewModelPresenterMediator<TestView2>());
                 return null;
             }));
-            presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(ViewModelPresenterTest), false, (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestView2>()), 1, wrapperManager));
-            var c1 = ViewModelPresenterMediatorProvider.Get(typeof(TestViewBase), false, (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestViewBase>()), 2, wrapperManager);
-            var c2 = ViewModelPresenterMediatorProvider.Get(typeof(TestView1), true, (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestView1>()), 3, wrapperManager);
+            presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(ViewModelPresenterTest), false,
+                (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestView2>()), 1, wrapperManager));
+            var c1 = ViewModelPresenterMediatorProvider.Get(typeof(TestViewBase), false, (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestViewBase>()), 2,
+                wrapperManager);
+            var c2 = ViewModelPresenterMediatorProvider.Get(typeof(TestView1), true, (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestView1>()), 3,
+                wrapperManager);
             presenter.AddComponent(c2);
             presenter.AddComponent(c1);
 
@@ -147,6 +127,32 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             list[0].NavigationProvider.ShouldBeType<TestViewModelPresenterMediator<TestView2>>();
         }
 
+        private sealed class TestViewModelPresenterMediator<T> : TestViewModelPresenterMediator
+        {
+        }
+
+        private class TestViewBase
+        {
+        }
+
+        private class TestView1 : TestViewBase
+        {
+        }
+
+        private class TestView2 : TestView1
+        {
+        }
+
+        [Fact]
+        public void TryCloseShouldIgnoreNoMediators()
+        {
+            var vm = new TestViewModel();
+            var presenter = new Presenter();
+            var viewModelPresenter = new ViewModelPresenter();
+            viewModelPresenter.TryClose(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            viewModelPresenter.TryClose(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
         [Fact]
         public void TryCloseShouldUseRegisteredMediators()
         {
@@ -183,26 +189,14 @@ namespace MugenMvvm.UnitTests.Presenters.Components
             closeCount.ShouldEqual(1);
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class TestViewModelPresenterMediator<T> : TestViewModelPresenterMediator
+        [Fact]
+        public void TryShowShouldIgnoreNoMediators()
         {
+            var vm = new TestViewModel();
+            var presenter = new Presenter();
+            var viewModelPresenter = new ViewModelPresenter();
+            viewModelPresenter.TryShow(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            viewModelPresenter.TryShow(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
-
-        private class TestViewBase
-        {
-        }
-
-        private class TestView1 : TestViewBase
-        {
-        }
-
-        private class TestView2 : TestView1
-        {
-        }
-
-        #endregion
     }
 }

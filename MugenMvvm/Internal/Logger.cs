@@ -13,29 +13,10 @@ namespace MugenMvvm.Internal
 {
     public sealed class Logger : ComponentOwnerBase<ILogger>, ILogger
     {
-        #region Constructors
-
         public Logger(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ILogger? TryGetLogger(object request, IReadOnlyMetadataContext? metadata = null) => GetComponents<ILoggerProviderComponent>().TryGetLogger(this, request, metadata);
-
-        public bool CanLog(LogLevel level, IReadOnlyMetadataContext? metadata = null) => GetComponents<ILoggerComponent>(metadata).CanLog(this, level, metadata);
-
-        public void Log(LogLevel level, object message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<ILoggerComponent>(metadata).Log(this, level, message, exception, metadata);
-
-        public void Dispose() => GetComponents<IDisposable>().Dispose();
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ILogger Get(object request, IReadOnlyMetadataContext? metadata = null) => MugenService.Instance<ILogger>().GetLogger(request, metadata);
@@ -58,6 +39,13 @@ namespace MugenMvvm.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MugenExtensions.LoggerWithLevel? Fatal(IReadOnlyMetadataContext? metadata = null) => MugenService.Optional<ILogger>().Fatal(metadata);
 
-        #endregion
+        public void Dispose() => GetComponents<IDisposable>().Dispose();
+
+        public ILogger? TryGetLogger(object request, IReadOnlyMetadataContext? metadata = null) => GetComponents<ILoggerProviderComponent>().TryGetLogger(this, request, metadata);
+
+        public bool CanLog(LogLevel level, IReadOnlyMetadataContext? metadata = null) => GetComponents<ILoggerComponent>(metadata).CanLog(this, level, metadata);
+
+        public void Log(LogLevel level, object message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<ILoggerComponent>(metadata).Log(this, level, message, exception, metadata);
     }
 }

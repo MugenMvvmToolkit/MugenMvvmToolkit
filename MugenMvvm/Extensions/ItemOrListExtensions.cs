@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 
@@ -8,8 +7,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        #region Methods
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrArray<T> itemOrList)
             where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
@@ -101,12 +98,10 @@ namespace MugenMvvm.Extensions
 
         internal static int Count<T>(this ItemOrIReadOnlyList<T> itemOrList, Func<T, bool> predicate)
         {
-            int count = 0;
+            var count = 0;
             foreach (var item in itemOrList)
-            {
                 if (predicate(item))
                     ++count;
-            }
 
             return count;
         }
@@ -114,10 +109,8 @@ namespace MugenMvvm.Extensions
         internal static bool All<T>(this ItemOrArray<T> itemOrList, Func<T, bool> predicate)
         {
             foreach (var item in itemOrList)
-            {
                 if (!predicate(item))
                     return false;
-            }
 
             return true;
         }
@@ -130,10 +123,8 @@ namespace MugenMvvm.Extensions
             if (itemOrList.List != null)
             {
                 foreach (var item in itemOrList)
-                {
                     if (predicate(item))
                         return item;
-                }
                 return default;
             }
 
@@ -141,7 +132,5 @@ namespace MugenMvvm.Extensions
                 return itemOrList.Item;
             return default;
         }
-
-        #endregion
     }
 }

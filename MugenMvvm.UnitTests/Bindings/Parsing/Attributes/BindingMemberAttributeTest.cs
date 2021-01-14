@@ -12,45 +12,37 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
 {
     public static class BindingMemberAttributeTestExt
     {
-        #region Fields
-
         public const string Name = "LL";
-
-        #endregion
-
-        #region Methods
 
         [BindingMember(Name)]
         public static int L(this string target) => target.Length;
 
         [BindingMember(1)]
         public static int M(this string target, string name) => target.Length;
-
-        #endregion
     }
 
     [BindingMember(Name)]
     public class BindingMemberAttributeTest : UnitTestBase
     {
-        #region Fields
-
         private const string Name = "Test";
         private const string MethodName = "Method";
         private const string PropertyName = "P";
 
-        #endregion
+        [BindingMember(PropertyName)] public static string StaticProperty => "";
 
-        #region Properties
+        [BindingMember(PropertyName)] public string Property => "";
 
-        [BindingMember(PropertyName)]
-        public static string StaticProperty => "";
+        [BindingMember(MethodName)]
+        public static string StaticMethod() => "";
 
-        [BindingMember(PropertyName)]
-        public string Property => "";
+        [BindingMember(0)]
+        public static string StaticMemberMethod(string name) => name;
 
-        #endregion
+        [BindingMember(MethodName)]
+        public string Method() => "";
 
-        #region Methods
+        [BindingMember(0)]
+        public string MemberMethod(string name) => name;
 
         [Fact]
         public void TryConvertShouldReturnMemberExpression1()
@@ -149,7 +141,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression9()
         {
             const string name = "TT";
-            var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.M), Default.Array<Type>(), Expression.Constant(""), Expression.Constant(name));
+            var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.M), Default.Array<Type>(), Expression.Constant(""),
+                Expression.Constant(name));
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
@@ -158,19 +151,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(""), name));
         }
-
-        [BindingMember(MethodName)]
-        public static string StaticMethod() => "";
-
-        [BindingMember(0)]
-        public static string StaticMemberMethod(string name) => name;
-
-        [BindingMember(MethodName)]
-        public string Method() => "";
-
-        [BindingMember(0)]
-        public string MemberMethod(string name) => name;
-
-        #endregion
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Android.App;
-using Android.Content;
 using Android.Runtime;
 using Java.Interop;
 using MugenMvvm.Android.Native.Interfaces.Views;
@@ -12,8 +11,6 @@ namespace MugenMvvm.Android.Native.Views.Activities
     [Register("com/mugen/mvvm/views/activities/MugenAppCompatActivity", DoNotGenerateAcw = true)]
     public partial class MugenAppCompatActivityLite : Activity, INativeActivityView
     {
-        #region Fields
-
         private static readonly JniPeerMembers _members = new XAPeerMembers("com/mugen/mvvm/views/activities/MugenAppCompatActivity", typeof(MugenAppCompatActivityLite));
 
         private static Delegate cb_getActivity;
@@ -23,14 +20,6 @@ namespace MugenMvvm.Android.Native.Views.Activities
         private static Delegate cb_setState_Ljava_lang_Object_;
 
         private static Delegate cb_getViewId;
-
-        #endregion
-
-        #region Constructors
-
-        protected MugenAppCompatActivityLite(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
-        {
-        }
 
         // Metadata.xml XPath constructor reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/constructor[@name='MugenAppCompatActivity' and count(parameter)=0]"
         [Register(".ctor", "()V", "")]
@@ -47,17 +36,11 @@ namespace MugenMvvm.Android.Native.Views.Activities
             _members.InstanceMethods.FinishCreateInstance(__id, this, null);
         }
 
-        #endregion
-
-        #region Properties
+        protected MugenAppCompatActivityLite(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
+        {
+        }
 
         internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
-
-        public override JniPeerMembers JniPeerMembers => _members;
-
-        protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
-
-        protected override Type ThresholdType => _members.ManagedPeerType;
 
         public virtual unsafe Object Activity
         {
@@ -92,6 +75,8 @@ namespace MugenMvvm.Android.Native.Views.Activities
             }
         }
 
+        public override JniPeerMembers JniPeerMembers => _members;
+
         public virtual unsafe int ViewId
         {
             // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/method[@name='getViewId' and count(parameter)=0]"
@@ -104,7 +89,9 @@ namespace MugenMvvm.Android.Native.Views.Activities
             }
         }
 
-        #endregion
+        protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
+
+        protected override Type ThresholdType => _members.ManagedPeerType;
 
 #pragma warning disable 0169
         private static Delegate GetGetActivityHandler()

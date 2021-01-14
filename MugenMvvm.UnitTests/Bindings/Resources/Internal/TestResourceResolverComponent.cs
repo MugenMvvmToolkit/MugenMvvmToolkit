@@ -10,37 +10,21 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Internal
 {
     public class TestResourceResolverComponent : IResourceResolverComponent, IHasPriority
     {
-        #region Fields
-
         private readonly IResourceResolver? _resourceResolver;
-
-        #endregion
-
-        #region Constructors
 
         public TestResourceResolverComponent(IResourceResolver? resourceResolver = null)
         {
             _resourceResolver = resourceResolver;
         }
 
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; }
-
         public Func<string, object?, IReadOnlyMetadataContext?, ResourceResolverResult>? TryGetResource { get; set; }
 
-        #endregion
-
-        #region Implementation of interfaces
+        public int Priority { get; set; }
 
         ResourceResolverResult IResourceResolverComponent.TryGetResource(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
             _resourceResolver?.ShouldEqual(resourceResolver);
             return TryGetResource?.Invoke(name, state, metadata) ?? default;
         }
-
-        #endregion
     }
 }

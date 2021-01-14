@@ -10,8 +10,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 {
     public sealed class MemberExpressionNode : ExpressionNodeBase<IMemberExpressionNode>, IMemberExpressionNode
     {
-        #region Fields
-
         public static readonly MemberExpressionNode Action = new(null, MacrosConstant.Action);
         public static readonly MemberExpressionNode EventArgs = new(null, MacrosConstant.EventArgs);
         public static readonly MemberExpressionNode Source = new(null, MacrosConstant.Source);
@@ -41,10 +39,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         public static readonly MemberExpressionNode DelayParameter = new(null, BindingParameterNameConstant.Delay);
         public static readonly MemberExpressionNode TargetDelayParameter = new(null, BindingParameterNameConstant.TargetDelay);
 
-        #endregion
-
-        #region Constructors
-
         public MemberExpressionNode(IExpressionNode? target, string member, IReadOnlyDictionary<string, object?>? metadata = null) : base(metadata)
         {
             Should.NotBeNull(member, nameof(member));
@@ -52,25 +46,11 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             Member = member;
         }
 
-        #endregion
-
-        #region Properties
-
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Member;
-
-        public string Member { get; }
 
         public IExpressionNode? Target { get; }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public IMemberExpressionNode UpdateTarget(IExpressionNode? target) => Equals(target, Target) ? this : new MemberExpressionNode(target, Member, Metadata);
-
-        #endregion
-
-        #region Methods
+        public string Member { get; }
 
         public static MemberExpressionNode Get(IExpressionNode? target, string member)
         {
@@ -138,6 +118,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             return new MemberExpressionNode(target, member);
         }
 
+        public override string ToString()
+        {
+            if (Target == null)
+                return Member;
+            return $"{Target}.{Member}";
+        }
+
+        public IMemberExpressionNode UpdateTarget(IExpressionNode? target) => Equals(target, Target) ? this : new MemberExpressionNode(target, Member, Metadata);
+
         protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             if (Target == null)
@@ -159,14 +148,5 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 return HashCode.Combine(hashCode, Member);
             return HashCode.Combine(hashCode, Member, Target.GetHashCode(comparer));
         }
-
-        public override string ToString()
-        {
-            if (Target == null)
-                return Member;
-            return $"{Target}.{Member}";
-        }
-
-        #endregion
     }
 }

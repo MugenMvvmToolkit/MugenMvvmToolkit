@@ -6,8 +6,6 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class MetadataContextOwnerTest : ComponentOwnerTestBase<MetadataContext>
     {
-        #region Methods
-
         public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
         {
             if (globalValue)
@@ -15,7 +13,5 @@ namespace MugenMvvm.UnitTests.Metadata
         }
 
         protected override MetadataContext GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new();
-
-        #endregion
     }
 }

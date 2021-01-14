@@ -5,8 +5,6 @@ namespace MugenMvvm.Android.Enums
 {
     public sealed class AndroidViewLifecycleState : ViewLifecycleState
     {
-        #region Fields
-
         public static readonly ViewLifecycleState Finishing = new(nameof(Finishing));
         public static readonly ViewLifecycleState Finished = new(nameof(Finished));
         public static readonly ViewLifecycleState FinishingAfterTransition = new(nameof(FinishingAfterTransition));
@@ -47,17 +45,9 @@ namespace MugenMvvm.Android.Enums
         public static readonly ViewLifecycleState Canceled = new(nameof(Canceled));
         public static readonly ViewLifecycleState PendingInitialization = new(nameof(PendingInitialization));
 
-        #endregion
-
-        #region Constructors
-
         private AndroidViewLifecycleState()
         {
         }
-
-        #endregion
-
-        #region Methods
 
         public static ViewLifecycleState? TryParseNativeChanging(int state)
         {
@@ -152,7 +142,5 @@ namespace MugenMvvm.Android.Enums
 
             return null;
         }
-
-        #endregion
     }
 }

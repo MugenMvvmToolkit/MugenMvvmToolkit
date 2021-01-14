@@ -8,26 +8,18 @@ using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
-using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
     public sealed class MethodMemberAccessorDecorator : ComponentDecoratorBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent
     {
-        #region Fields
-
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
-
-        #endregion
-
-        #region Constructors
 
         [Preserve(Conditional = true)]
         public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, int priority = MemberComponentPriority.MethodAccessorDecorator)
@@ -37,11 +29,8 @@ namespace MugenMvvm.Bindings.Members.Components
             _members = new List<IMemberInfo>();
         }
 
-        #endregion
-
-        #region Implementation of interfaces
-
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
+            IReadOnlyMetadataContext? metadata)
         {
             if (!memberTypes.HasFlag(MemberType.Accessor))
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
@@ -71,7 +60,5 @@ namespace MugenMvvm.Bindings.Members.Components
             Components.TryAddMembers(memberManager, _members, type, name, memberTypes, metadata);
             return _members.ToItemOrList(true);
         }
-
-        #endregion
     }
 }

@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Commands.Components
 {
     public class CommandCleanerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldRegisterDisposeToken()
         {
@@ -40,7 +38,5 @@ namespace MugenMvvm.UnitTests.Commands.Components
             actionToken!.Value.Dispose();
             cmd.IsDisposed.ShouldBeTrue();
         }
-
-        #endregion
     }
 }

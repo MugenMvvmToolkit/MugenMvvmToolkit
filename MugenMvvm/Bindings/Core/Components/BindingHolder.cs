@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -10,20 +9,14 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class BindingHolder : IBindingHolderComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly IAttachedValueManager? _attachedValueManager;
         private static readonly Func<object, string, IBinding?, IBinding, IBinding> UpdateBindingDelegate = UpdateBinding;
 
-        #endregion
-
-        #region Constructors
+        private readonly IAttachedValueManager? _attachedValueManager;
 
         [Preserve(Conditional = true)]
         public BindingHolder(IAttachedValueManager? attachedValueManager = null)
@@ -31,21 +24,32 @@ namespace MugenMvvm.Bindings.Core.Components
             _attachedValueManager = attachedValueManager;
         }
 
-        #endregion
-
-        #region Properties
-
         public int Priority { get; set; } = BindingComponentPriority.BindingHolder;
 
-        #endregion
+        private static string GetPath(IMemberPath memberPath)
+        {
+            if (memberPath is IValueHolder<string> valueHolder)
+            {
+                if (valueHolder.Value == null)
+                    valueHolder.Value = BindingInternalConstant.BindPrefix + memberPath.Path;
+                return valueHolder.Value;
+            }
 
-        #region Implementation of interfaces
+            return BindingInternalConstant.BindPrefix + memberPath.Path;
+        }
+
+        private static IBinding UpdateBinding(object item, string path, IBinding? currentValue, IBinding addValue)
+        {
+            currentValue?.Dispose();
+            return addValue;
+        }
 
         public ItemOrIReadOnlyList<IBinding> TryGetBindings(IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
-                ? target.AttachedValues(metadata, _attachedValueManager).GetValues<object?>(null, (_, key, __, ___) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
+                ? target.AttachedValues(metadata, _attachedValueManager)
+                        .GetValues<object?>(null, (_, key, __, ___) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
                 : target.AttachedValues(metadata, _attachedValueManager).GetValues(path,
                     (_, key, __, state) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && key.EndsWith(state, StringComparison.Ordinal));
 
@@ -80,29 +84,5 @@ namespace MugenMvvm.Bindings.Core.Components
                 return false;
             return target.AttachedValues(metadata, _attachedValueManager).Remove(GetPath(binding.Target.Path), out _);
         }
-
-        #endregion
-
-        #region Methods
-
-        private static string GetPath(IMemberPath memberPath)
-        {
-            if (memberPath is IValueHolder<string> valueHolder)
-            {
-                if (valueHolder.Value == null)
-                    valueHolder.Value = BindingInternalConstant.BindPrefix + memberPath.Path;
-                return valueHolder.Value;
-            }
-
-            return BindingInternalConstant.BindPrefix + memberPath.Path;
-        }
-
-        private static IBinding UpdateBinding(object item, string path, IBinding? currentValue, IBinding addValue)
-        {
-            currentValue?.Dispose();
-            return addValue;
-        }
-
-        #endregion
     }
 }

@@ -14,15 +14,9 @@ namespace MugenMvvm.Bindings.Core
         where TTarget : class
         where TSource : class
     {
-        #region Properties
-
         public BindableMembersDescriptor<TTarget> TargetMembers => default;
 
         public BindableMembersDescriptor<TSource> SourceMembers => default;
-
-        #endregion
-
-        #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingBuilderFrom<TTarget, TSource> For(string path) => new(path);
@@ -48,7 +42,5 @@ namespace MugenMvvm.Bindings.Core
         public BindingBuilderTo<TTarget, T> Action<T>(Expression<Action<IBindingBuilderContext<TTarget, T>>> expression)
             where T : class =>
             new(new BindingBuilderFrom<TTarget, T>(MemberExpressionNode.Action), expression, default);
-
-        #endregion
     }
 }

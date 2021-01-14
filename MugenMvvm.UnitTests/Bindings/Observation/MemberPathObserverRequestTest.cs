@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberPathObserverRequestTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -47,7 +45,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             request.Optional.ShouldEqual(optional);
             request.Path.ShouldEqual(path);
         }
-
-        #endregion
     }
 }

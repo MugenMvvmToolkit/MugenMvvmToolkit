@@ -11,7 +11,6 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
@@ -19,13 +18,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
     //note doesn't support unicode escape sequence
     public sealed class StringTokenParser : ITokenParserComponent, IHasPriority
     {
-        #region Fields
-
         public static readonly ConstantExpressionNode StringType = ConstantExpressionNode.Get<string>();
-
-        #endregion
-
-        #region Constructors
 
         public StringTokenParser()
         {
@@ -50,19 +43,31 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             };
         }
 
-        #endregion
-
-        #region Properties
-
         public Dictionary<char, char> EscapeSequenceMap { get; }
 
         public List<string> QuoteTokens { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
 
-        #endregion
+        private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, ref StringBuilder? builder, object? param = null)
+        {
+            var errors = context.TryGetErrors();
+            if (errors != null)
+            {
+                if (start < end)
+                    InitializeBuilder(context, start, end, ref builder);
+                errors.Add(message.Format(builder, param));
+            }
+        }
 
-        #region Implementation of interfaces
+        private static void InitializeBuilder(ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder)
+        {
+#if SPAN_API
+            builder ??= new StringBuilder().Append(context.GetValueSpan(start, end));
+#else
+            builder ??= new StringBuilder(context.GetValue(start, end));
+#endif
+        }
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -72,10 +77,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 context.Position = p;
             return node;
         }
-
-        #endregion
-
-        #region Methods
 
         private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
@@ -127,7 +128,8 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                             context.MoveNext();
                         else
                         {
-                            AddErrorIfNeed(BindingMessageConstant.CannotParseStringExpressionInvalidEscapeSequenceFormat2, context, start, context.Position, ref builder, context.TokenAt());
+                            AddErrorIfNeed(BindingMessageConstant.CannotParseStringExpressionInvalidEscapeSequenceFormat2, context, start, context.Position, ref builder,
+                                context.TokenAt());
                             return null;
                         }
                     }
@@ -258,39 +260,15 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             return new MethodCallExpressionNode(StringType, nameof(string.Format), list);
         }
 
-        private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, ref StringBuilder? builder, object? param = null)
-        {
-            var errors = context.TryGetErrors();
-            if (errors != null)
-            {
-                if (start < end)
-                    InitializeBuilder(context, start, end, ref builder);
-                errors.Add(message.Format(builder, param));
-            }
-        }
-
-        private static void InitializeBuilder(ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder)
-        {
-#if SPAN_API
-            builder ??= new StringBuilder().Append(context.GetValueSpan(start, end));
-#else
-            builder ??= new StringBuilder(context.GetValue(start, end));
-#endif
-        }
-
         private string? GetQuoteToken(ITokenParserContext context)
         {
             if (context.IsEof())
                 return null;
             for (var i = 0; i < QuoteTokens.Count; i++)
-            {
                 if (context.IsToken(QuoteTokens[i]))
                     return QuoteTokens[i];
-            }
 
             return null;
         }
-
-        #endregion
     }
 }

@@ -11,8 +11,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewLifecycleTrackerTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void ShouldTrackLifecycle()
         {
@@ -51,7 +49,5 @@ namespace MugenMvvm.UnitTests.Views.Components
             manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeFalse();
             manager.IsInState(view, ViewLifecycleState.Closed).ShouldBeTrue();
         }
-
-        #endregion
     }
 }

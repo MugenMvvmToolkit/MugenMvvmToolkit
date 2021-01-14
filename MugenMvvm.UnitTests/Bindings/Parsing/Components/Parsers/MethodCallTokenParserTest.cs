@@ -10,8 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class MethodCallTokenParserTest : UnitTestBase
     {
-        #region Methods
-
         [Fact]
         public void TryParseShouldIgnoreNotMethodCallExpression()
         {
@@ -46,25 +44,28 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             component.TryParse(ctx, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}));
 
             ctx.Initialize($"{memberName}<{typeArg1}, {typeArg2}>(1,2)", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}, new[] {typeArg1, typeArg2}));
+            component.TryParse(ctx, null)
+                     .ShouldEqual(new MethodCallExpressionNode(null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}, new[] {typeArg1, typeArg2}));
 
             ctx.Initialize($".{memberName}()", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, Default.Array<IExpressionNode>()));
+            component.TryParse(ctx, ConstantExpressionNode.Null)
+                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, Default.Array<IExpressionNode>()));
 
             ctx.Initialize($".{memberName}<{typeArg1}, {typeArg2}>()", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, Default.Array<IExpressionNode>(), new[] {typeArg1, typeArg2}));
+            component.TryParse(ctx, ConstantExpressionNode.Null)
+                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, Default.Array<IExpressionNode>(), new[] {typeArg1, typeArg2}));
 
             ctx.Initialize($".{memberName}(1,2)", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}));
+            component.TryParse(ctx, ConstantExpressionNode.Null)
+                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}));
 
             ctx.Initialize($".{memberName}<{typeArg1}, {typeArg2}>(1,2)", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null)
-                .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}, new[] {typeArg1, typeArg2}));
+                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)},
+                         new[] {typeArg1, typeArg2}));
 
             ctx.Initialize($"{memberName}<{typeArg1}, {typeArg2}>(1,2)", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null).ShouldBeNull();
         }
-
-        #endregion
     }
 }

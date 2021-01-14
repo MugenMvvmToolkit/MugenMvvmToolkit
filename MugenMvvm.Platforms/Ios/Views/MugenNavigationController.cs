@@ -11,8 +11,6 @@ namespace MugenMvvm.Ios.Views
 {
     public class MugenNavigationController : UINavigationController, IValueHolder<IDictionary<string, object?>>, IValueHolder<IWeakReference>
     {
-        #region Constructors
-
         public MugenNavigationController(Type navigationBarType, Type toolbarType) : base(navigationBarType, toolbarType)
         {
         }
@@ -33,25 +31,17 @@ namespace MugenMvvm.Ios.Views
         {
         }
 
-        protected MugenNavigationController(NSObjectFlag t) : base(t)
-        {
-        }
-
         protected internal MugenNavigationController(IntPtr handle) : base(handle)
         {
         }
 
-        #endregion
-
-        #region Properties
+        protected MugenNavigationController(NSObjectFlag t) : base(t)
+        {
+        }
 
         IDictionary<string, object?>? IValueHolder<IDictionary<string, object?>>.Value { get; set; }
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        #endregion
-
-        #region Methods
 
         public override void DidMoveToParentViewController(UIViewController parent)
         {
@@ -143,13 +133,11 @@ namespace MugenMvvm.Ios.Views
             if (subviews != null)
             {
                 foreach (UIView view in subviews)
-                {
                     if (view.Alpha < 1)
                     {
                         UIView uiView = view;
                         UIView.Animate(0.25, () => uiView.Alpha = 1);
                     }
-                }
             }
 
             return null!;
@@ -164,7 +152,5 @@ namespace MugenMvvm.Ios.Views
             PopViewController(true);
             return false;
         }
-
-        #endregion
     }
 }

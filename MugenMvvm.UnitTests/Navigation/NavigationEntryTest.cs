@@ -10,7 +10,8 @@ namespace MugenMvvm.UnitTests.Navigation
 {
     public class NavigationEntryTest : MetadataOwnerTestBase
     {
-        #region Methods
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>
+            new NavigationEntry(this, new TestNavigationProvider(), "f", NavigationType.Alert, metadata);
 
         [Fact]
         public void ConstructorShouldInitializeValues()
@@ -25,9 +26,5 @@ namespace MugenMvvm.UnitTests.Navigation
             navigationEntry.NavigationType.ShouldEqual(type);
             navigationEntry.NavigationId.ShouldEqual(id);
         }
-
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new NavigationEntry(this, new TestNavigationProvider(), "f", NavigationType.Alert, metadata);
-
-        #endregion
     }
 }

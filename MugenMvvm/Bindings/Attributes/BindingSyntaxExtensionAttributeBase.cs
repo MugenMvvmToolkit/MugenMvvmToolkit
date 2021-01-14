@@ -11,13 +11,7 @@ namespace MugenMvvm.Bindings.Attributes
     [AttributeUsage(AttributeTargets.All)]
     public abstract class BindingSyntaxExtensionAttributeBase : Attribute
     {
-        #region Fields
-
         private static readonly Dictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?> Cache = new(23, InternalEqualityComparer.MemberInfo);
-
-        #endregion
-
-        #region Methods
 
         public static BindingSyntaxExtensionAttributeBase? TryGet(MemberInfo member)
         {
@@ -41,7 +35,5 @@ namespace MugenMvvm.Bindings.Attributes
         }
 
         protected abstract bool TryConvertInternal(IExpressionConverterContext<Expression> context, Expression? expression, out IExpressionNode? result);
-
-        #endregion
     }
 }

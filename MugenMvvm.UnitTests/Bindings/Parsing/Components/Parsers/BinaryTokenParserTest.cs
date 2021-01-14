@@ -12,63 +12,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class BinaryTokenParserTest : UnitTestBase
     {
-        #region Methods
-
-        [Fact]
-        public void TryParseShouldIgnoreNotBinaryExpression()
-        {
-            var component = new BinaryTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new ITokenParserComponent[]
-                {
-                    new DigitTokenParser()
-                }
-            };
-            ctx.Initialize("1", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryParseShouldIgnoreNotSupportBinaryExpression()
-        {
-            var component = new BinaryTokenParser();
-            component.Tokens.Clear();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new ITokenParserComponent[]
-                {
-                    new DigitTokenParser()
-                }
-            };
-            ctx.Initialize("+ 1", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldBeNull();
-        }
-
         [Theory]
         [MemberData(nameof(GetData))]
-        public void TryParseShouldParseBinaryExpression(TokenParserContext ctx, IExpressionNode? expression, IExpressionNode result) => new BinaryTokenParser().TryParse(ctx, expression).ShouldEqual(result);
-
-        [Fact]
-        public void TryParseShouldParseAlias()
-        {
-            const string alias = "aa";
-            const string sign = "/";
-            var tokenType = new BinaryTokenType(sign, 0, alias);
-            var component = new BinaryTokenParser();
-            component.Tokens.Clear();
-            component.Tokens.Add(tokenType);
-
-            var ctx = new TokenParserContext
-            {
-                Parsers = new ITokenParserComponent[]
-                {
-                    new DigitTokenParser()
-                }
-            };
-            ctx.Initialize($"{alias} 2", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldEqual(new BinaryExpressionNode(tokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
-        }
+        public void TryParseShouldParseBinaryExpression(TokenParserContext ctx, IExpressionNode? expression, IExpressionNode result) =>
+            new BinaryTokenParser().TryParse(ctx, expression).ShouldEqual(result);
 
         public static IEnumerable<object?[]> GetData() =>
             new[]
@@ -111,6 +58,56 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             };
         }
 
-        #endregion
+        [Fact]
+        public void TryParseShouldIgnoreNotBinaryExpression()
+        {
+            var component = new BinaryTokenParser();
+            var ctx = new TokenParserContext
+            {
+                Parsers = new ITokenParserComponent[]
+                {
+                    new DigitTokenParser()
+                }
+            };
+            ctx.Initialize("1", DefaultMetadata);
+            component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryParseShouldIgnoreNotSupportBinaryExpression()
+        {
+            var component = new BinaryTokenParser();
+            component.Tokens.Clear();
+            var ctx = new TokenParserContext
+            {
+                Parsers = new ITokenParserComponent[]
+                {
+                    new DigitTokenParser()
+                }
+            };
+            ctx.Initialize("+ 1", DefaultMetadata);
+            component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryParseShouldParseAlias()
+        {
+            const string alias = "aa";
+            const string sign = "/";
+            var tokenType = new BinaryTokenType(sign, 0, alias);
+            var component = new BinaryTokenParser();
+            component.Tokens.Clear();
+            component.Tokens.Add(tokenType);
+
+            var ctx = new TokenParserContext
+            {
+                Parsers = new ITokenParserComponent[]
+                {
+                    new DigitTokenParser()
+                }
+            };
+            ctx.Initialize($"{alias} 2", DefaultMetadata);
+            component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldEqual(new BinaryExpressionNode(tokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
+        }
     }
 }
