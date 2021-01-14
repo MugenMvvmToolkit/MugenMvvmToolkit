@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace MugenMvvm.UnitTests.Internal.Internal
+// ReSharper disable once CheckNamespace
+namespace System.Collections.Generic
 {
     public class ReferenceEqualityComparer : IEqualityComparer<object?>
     {

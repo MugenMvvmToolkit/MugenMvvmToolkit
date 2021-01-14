@@ -17,7 +17,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrArray<T> FromItem<T>(T item) where T : class? => new(item, item != null);
+        public static ItemOrArray<T> FromItem<T>(T? item) where T : class? => new(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrArray<T> FromItem<T>(T? item, bool hasItem) => new(item, hasItem);

@@ -209,6 +209,40 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             component.TryGetMembers(null!, typeof(ItemOrArray<object>), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
+        [Fact]
+        public void ShouldCacheMembers()
+        {
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg4) =>
+                {
+                    return new MemberObserver((o1, o2, listener, context) => new ActionToken(), this);
+                }
+            });
+
+            var component = new ReflectionMemberProvider(observationManager);
+            var m1 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).Item;
+            var m2 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).Item;
+            m1.ShouldNotBeNull();
+            m1.ShouldEqual(m2);
+
+            m1 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), nameof(EventStatic), MemberType.Event, DefaultMetadata).Item;
+            m2 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), nameof(EventStatic), MemberType.Event, DefaultMetadata).Item;
+            m1.ShouldNotBeNull();
+            m1.ShouldEqual(m2);
+
+            m1 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), nameof(FieldStatic), MemberType.Accessor, DefaultMetadata).Item;
+            m2 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), nameof(FieldStatic), MemberType.Accessor, DefaultMetadata).Item;
+            m1.ShouldNotBeNull();
+            m1.ShouldEqual(m2);
+
+            m1 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), nameof(PropertyStatic), MemberType.Accessor, DefaultMetadata).Item;
+            m2 = component.TryGetMembers(null!, typeof(ReflectionMemberProviderTest), nameof(PropertyStatic), MemberType.Accessor, DefaultMetadata).Item;
+            m1.ShouldNotBeNull();
+            m1.ShouldEqual(m2);
+        }
+
         #endregion
     }
 }
