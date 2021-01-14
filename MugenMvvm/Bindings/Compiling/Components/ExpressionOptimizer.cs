@@ -10,7 +10,7 @@ using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Bindings.Compiling.Components
 {
-    public sealed class ExpressionOptimizer : ComponentDecoratorBase<IExpressionCompiler, IExpressionBuilderComponent>, IExpressionBuilderComponent //todo test
+    public sealed class ExpressionOptimizer : ComponentDecoratorBase<IExpressionCompiler, IExpressionBuilderComponent>, IExpressionBuilderComponent
     {
         private readonly Visitor _visitor;
         private bool _building;
