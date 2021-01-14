@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -21,6 +22,8 @@ namespace MugenMvvm.UnitTests.ViewModels.Internal
         public new T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => base.GetViewModel<T>(metadata);
 
         public new IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null) => base.GetViewModel(viewModelType, metadata);
+
+        public new void OnPropertyChanged(PropertyChangedEventArgs args) => base.OnPropertyChanged(args);
 
         protected override void OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {

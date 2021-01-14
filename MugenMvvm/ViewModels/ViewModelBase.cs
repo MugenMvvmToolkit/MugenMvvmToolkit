@@ -15,13 +15,14 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.ViewModels
 {
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IBusyManagerListener,
-        IHasDisposeCallback //todo inherit service behavior
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IHasService<IMessenger>,
+        IBusyManagerListener, IHasDisposeCallback
     {
         private readonly IViewModelManager? _viewModelManager;
         private IBusyManager? _busyManager;
         private List<ActionToken>? _disposeTokens;
         private IMetadataContext? _metadata;
+        private IMessenger? _messenger;
 
         protected ViewModelBase(IViewModelManager? viewModelManager = null)
         {
@@ -31,19 +32,25 @@ namespace MugenMvvm.ViewModels
 
         public bool IsBusy => BusyToken != null;
 
-        public IBusyToken? BusyToken => _busyManager?.TryGetToken(this, (_, token, ___) => !token.IsSuspended && !token.IsCompleted);
+        public IBusyToken? BusyToken => _busyManager?.TryGetToken(this, (_, token, _) => !token.IsSuspended && !token.IsCompleted);
 
-        public IBusyManager BusyManager => this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm));
+        public IBusyManager BusyManager => this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm), viewModelManager: _viewModelManager);
+
+        public IMessenger Messenger => this.InitializeService(ref _messenger, viewModelManager: _viewModelManager);
 
         public bool IsDisposed { get; private set; }
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => this.InitializeService(ref _metadata);
+        public IMetadataContext Metadata => this.InitializeService(ref _metadata, viewModelManager: _viewModelManager);
 
         protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 
         IBusyManager IHasService<IBusyManager>.Service => BusyManager;
+
+        IMessenger? IHasService<IMessenger>.ServiceOptional => _messenger;
+
+        IMessenger IHasService<IMessenger>.Service => Messenger;
 
         IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
 
@@ -90,7 +97,11 @@ namespace MugenMvvm.ViewModels
         }
 
         protected virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null)
-            => ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
+        {
+            var vm = ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
+            vm.Metadata.Set(ViewModelMetadata.ParentViewModel, this);
+            return vm;
+        }
 
         protected virtual void OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
@@ -108,11 +119,11 @@ namespace MugenMvvm.ViewModels
         {
             if (!disposing)
             {
-                this.NotifyLifecycleChanged(ViewModelLifecycleState.Finalized, manager: ViewModelManager);
+                this.NotifyLifecycleChanged(ViewModelLifecycleState.Finalized, manager: _viewModelManager);
                 return;
             }
 
-            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposing, manager: ViewModelManager);
+            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposing, manager: _viewModelManager);
             if (_disposeTokens != null)
             {
                 for (var i = 0; i < _disposeTokens.Count; i++)
@@ -121,13 +132,13 @@ namespace MugenMvvm.ViewModels
             }
 
             ClearPropertyChangedSubscribers();
-            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposed, manager: ViewModelManager);
+            this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposed, manager: _viewModelManager);
         }
 
         protected override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {
             base.OnPropertyChangedInternal(args);
-            this.TryGetService<IMessenger>(true)?.Publish(this, args);
+            _messenger?.Publish(this, args);
         }
 
         protected T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);

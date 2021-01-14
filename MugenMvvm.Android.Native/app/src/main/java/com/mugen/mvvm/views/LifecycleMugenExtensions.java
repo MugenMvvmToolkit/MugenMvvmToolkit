@@ -43,12 +43,12 @@ public final class LifecycleMugenExtensions {
     public static boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
         if (_initLifecycleState == 0 || (_isChangingInitLifecycleState && lifecycle == _initLifecycleState))
             MugenInitializerBase.ensureInitialized();
-        boolean result = true;
+
         for (int i = 0; i < _lifecycleDispatchers.size(); i++) {
             if (!_lifecycleDispatchers.get(i).onLifecycleChanging(target, lifecycle, state))
-                result = false;
+                return false;
         }
-        return result;
+        return true;
     }
 
     public static void onLifecycleChanged(Object target, int lifecycle, Object state) {

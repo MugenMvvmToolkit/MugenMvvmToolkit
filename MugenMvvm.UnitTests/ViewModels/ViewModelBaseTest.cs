@@ -1,13 +1,17 @@
 ﻿using System;
+using System.ComponentModel;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
+using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
+using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
+using MugenMvvm.UnitTests.Messaging.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.ViewModels;
 using Should;
@@ -24,6 +28,48 @@ namespace MugenMvvm.UnitTests.ViewModels
             var hasService = (IHasService<IBusyManager>) viewModel;
             hasService.ServiceOptional.ShouldBeNull();
             viewModel.TryGetService<IBusyManager>(true).ShouldBeNull();
+        }
+
+        [Fact]
+        public void MessengerShouldBeOptional()
+        {
+            var viewModel = new TestViewModelBase();
+            var hasService = (IHasService<IMessenger>) viewModel;
+            hasService.ServiceOptional.ShouldBeNull();
+            viewModel.TryGetService<IMessenger>(true).ShouldBeNull();
+        }
+
+        [Fact]
+        public void OnPropertyChangedShouldNotifyMessenger()
+        {
+            var propertyChangedMessage = new PropertyChangedEventArgs("test");
+            var viewModel = new TestViewModelBase();
+            var messenger = new Messenger();
+            int invokeCount = 0;
+            messenger.AddComponent(new TestMessagePublisherComponent(messenger)
+            {
+                TryPublish = ctx =>
+                {
+                    ++invokeCount;
+                    ctx.Sender.ShouldEqual(viewModel);
+                    ctx.Message.ShouldEqual(propertyChangedMessage);
+                    return true;
+                }
+            });
+            using var t = MugenService.AddComponent(new TestViewModelServiceResolverComponent
+            {
+                TryGetService = (vm, o, _) =>
+                {
+                    viewModel.ShouldEqual(vm);
+                    o.ShouldEqual(typeof(IMessenger));
+                    return messenger;
+                }
+            });
+
+            viewModel.Messenger.ShouldEqual(messenger);
+            invokeCount.ShouldEqual(0);
+            viewModel.OnPropertyChanged(propertyChangedMessage);
+            invokeCount.ShouldEqual(1);
         }
 
         [Fact]
@@ -47,8 +93,10 @@ namespace MugenMvvm.UnitTests.ViewModels
 
             invokeCount.ShouldEqual(0);
             vm.GetViewModel<TestViewModel>(DefaultMetadata).ShouldEqual(result);
+            result.Metadata.Get(ViewModelMetadata.ParentViewModel).ShouldEqual(vm);
             invokeCount.ShouldEqual(1);
             vm.GetViewModel(typeof(TestViewModel), DefaultMetadata).ShouldEqual(result);
+            result.Metadata.Get(ViewModelMetadata.ParentViewModel).ShouldEqual(vm);
             invokeCount.ShouldEqual(2);
         }
 
