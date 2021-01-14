@@ -106,7 +106,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public bool Remove(T item)
+        public bool Remove(T? item)
         {
             lock (Locker)
             {
@@ -118,7 +118,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public bool Contains(T item)
+        public bool Contains(T? item)
         {
             lock (Locker)
             {
@@ -281,9 +281,9 @@ namespace MugenMvvm.Collections
             GetComponents<ICollectionChangedListener<T>>().OnReplaced(this, oldItem, item, index);
         }
 
-        protected int IndexOfInternal(T item) => Items.IndexOf(item);
+        protected int IndexOfInternal(T? item) => Items.IndexOf(item!);
 
-        protected bool ContainsInternal(T item) => Items.Contains(item);
+        protected bool ContainsInternal(T? item) => Items.Contains(item!);
 
         private void EndBatchUpdate()
         {

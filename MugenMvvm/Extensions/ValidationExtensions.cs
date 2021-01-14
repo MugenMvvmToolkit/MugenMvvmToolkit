@@ -34,11 +34,13 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(memberName, nameof(memberName));
             InlineValidatorComponent? component = null;
             foreach (var c in validator.GetComponents<InlineValidatorComponent>(metadata))
+            {
                 if (c.Target == target)
                 {
                     component = c;
                     break;
                 }
+            }
 
             if (component == null)
             {
@@ -104,6 +106,31 @@ namespace MugenMvvm.Extensions
             where T : class =>
             builder.Must((t, v, m) => Length(v, min, max), error, condition, dependencyMembers);
 
+        public static ValidationRuleMemberBuilder<T, TMember> NotNull<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, Func<object> getError,
+            Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
+            where T : class =>
+            builder.NotNull(error: getError, condition, dependencyMembers);
+
+        public static ValidationRuleMemberBuilder<T, TMember> Null<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, Func<object> getError,
+            Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
+            where T : class =>
+            builder.Null(error: getError, condition, dependencyMembers);
+
+        public static ValidationRuleMemberBuilder<T, TMember> NotEmpty<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, Func<object> getError,
+            Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
+            where T : class =>
+            builder.NotEmpty(error: getError, condition, dependencyMembers);
+
+        public static ValidationRuleMemberBuilder<T, TMember> Empty<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, Func<object> getError,
+            Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
+            where T : class =>
+            builder.Empty(error: getError, condition, dependencyMembers);
+
+        public static ValidationRuleMemberBuilder<T, string?> Length<T>(this ValidationRuleMemberBuilder<T, string?> builder, int min, int max,
+            Func<object> getError, Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
+            where T : class =>
+            builder.Length(min, max, error: getError, condition, dependencyMembers);
+
         private static bool Length(string? value, int min, int max)
         {
             var l = value?.Length ?? 0;
@@ -145,6 +172,10 @@ namespace MugenMvvm.Extensions
 
             public ItemOrIReadOnlyList<IValidationRule> Build() => Builder.Build();
 
+            public ValidationRuleMemberBuilder<T, TMember> Must(Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, Func<object> getError,
+                Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null) =>
+                Must(validator, error: getError, condition, dependencyMembers);
+
             public ValidationRuleMemberBuilder<T, TMember> Must(Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, object error,
                 Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
             {
@@ -165,26 +196,28 @@ namespace MugenMvvm.Extensions
                 return this;
             }
 
+            public ValidationRuleMemberBuilder<T, TMember> MustAsync(Func<T, TMember, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> validator, Func<object> getError,
+                Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null) =>
+                MustAsync(validator, error: getError, condition, dependencyMembers);
+
             public ValidationRuleMemberBuilder<T, TMember> MustAsync(Func<T, TMember, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> validator, object error,
                 Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ICollection<string>? dependencyMembers = null)
             {
                 Should.NotBeNull(validator, nameof(validator));
                 Should.NotBeNull(error, nameof(error));
-                Builder.AddAsyncValidator(MemberName, Accessor, (validator, error, condition), (t, v, s, c, m) => s
-                                                                                                                  .validator(t, v, c, m)
-                                                                                                                  .ContinueWith((task, o) =>
-                                                                                                                      {
-                                                                                                                          if (task.Result)
-                                                                                                                              return null;
-                                                                                                                          if (o is Func<object> func)
-                                                                                                                              return func();
-                                                                                                                          return o;
-                                                                                                                      }, s.error, c, TaskContinuationOptions.ExecuteSynchronously,
-                                                                                                                      TaskScheduler.Current),
+                Builder.AddAsyncValidator(MemberName, Accessor,
+                    (validator, error, condition), (t, v, s, c, m) => s.validator(t, v, c, m).ContinueWith((task, o) =>
+                        {
+                            if (task.Result)
+                                return null;
+                            if (o is Func<object> func)
+                                return func();
+                            return o;
+                        }, s.error, c, TaskContinuationOptions.ExecuteSynchronously,
+                        TaskScheduler.Current),
                     condition == null
                         ? (Func<T, (Func<T, TMember, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>?
-                            condition), IReadOnlyMetadataContext?,
-                            bool>?) null
+                            condition), IReadOnlyMetadataContext?, bool>?) null
                         : (t, s, m) => s.condition!(t, m), dependencyMembers);
                 return this;
             }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
@@ -104,13 +103,17 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void EmptyExtensionShouldBeCorrect1()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void EmptyExtensionShouldBeCorrect1(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Empty(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Empty(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Empty(error).Build().Item!;
 
             validationModel.Property = "test";
             var errors = new Dictionary<string, object?>();
@@ -124,14 +127,18 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void EmptyExtensionShouldBeCorrect2()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void EmptyExtensionShouldBeCorrect2(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var value = 1;
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -144,14 +151,18 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void EmptyExtensionShouldBeCorrect3()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void EmptyExtensionShouldBeCorrect3(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var value = new[] {""};
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).Empty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -184,13 +195,17 @@ namespace MugenMvvm.UnitTests.Validation
             memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
         }
 
-        [Fact]
-        public void LengthExtensionShouldBeCorrect()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void LengthExtensionShouldBeCorrect(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Length(1, 5, error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Length(1, 5, () => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Length(1, 5, error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -227,7 +242,7 @@ namespace MugenMvvm.UnitTests.Validation
                            m.ShouldEqual(DefaultMetadata);
                            c.ShouldEqual(cts.Token);
                            return tcs.Task;
-                       }, new Func<string>(() => error), (model, context) =>
+                       }, () => error, (model, context) =>
                        {
                            model.ShouldEqual(validationModel);
                            context.ShouldEqual(DefaultMetadata);
@@ -283,7 +298,7 @@ namespace MugenMvvm.UnitTests.Validation
                        {
                            m.ShouldEqual(DefaultMetadata);
                            return !string.IsNullOrEmpty(model.Property) && !string.IsNullOrEmpty(s);
-                       }, new Func<string>(() => error), (model, context) =>
+                       }, () => error, (model, context) =>
                        {
                            model.ShouldEqual(validationModel);
                            context.ShouldEqual(DefaultMetadata);
@@ -312,13 +327,17 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void NotEmptyExtensionShouldBeCorrect1()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void NotEmptyExtensionShouldBeCorrect1(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotEmpty(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotEmpty(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotEmpty(error).Build().Item!;
 
             validationModel.Property = "";
             var errors = new Dictionary<string, object?>();
@@ -332,14 +351,18 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void NotEmptyExtensionShouldBeCorrect2()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void NotEmptyExtensionShouldBeCorrect2(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var value = 0;
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -352,14 +375,18 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void NotEmptyExtensionShouldBeCorrect3()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void NotEmptyExtensionShouldBeCorrect3(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var value = new string[0];
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => value).NotEmpty(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -372,13 +399,17 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void NotNullExtensionShouldBeCorrect()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void NotNullExtensionShouldBeCorrect(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotNull(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotNull(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).NotNull(error).Build().Item!;
 
             var errors = new Dictionary<string, object?>();
             rule.ValidateAsync(validationModel, propertyName, errors, default, null).ShouldEqual(Default.CompletedTask);
@@ -391,13 +422,17 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void NullExtensionShouldBeCorrect()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void NullExtensionShouldBeCorrect(bool delegateError)
         {
             var error = "error";
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
-            var rule = new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Null(error).Build().Item!;
+            var rule = delegateError
+                ? new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Null(() => error).Build().Item!
+                : new ValidationRuleBuilder<ValidationModel>().For(propertyName, model => model.Property).Null(error).Build().Item!;
 
             validationModel.Property = "test";
             var errors = new Dictionary<string, object?>();

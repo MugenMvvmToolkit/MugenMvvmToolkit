@@ -24,6 +24,7 @@ using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Bindings.Parsing.Visitors;
+using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -98,6 +99,18 @@ namespace MugenMvvm.Bindings.Extensions
 
             context.ThrowCannotCompile(expression);
             return null;
+        }
+
+        public static TypeResolverComponent GetTypeResolver(this IResourceResolver resolver)
+        {
+            Should.NotBeNull(resolver, nameof(resolver));
+            return resolver.GetOrAddComponent(_ => new TypeResolverComponent());
+        }
+        
+        public static ResourceResolverComponent GetResourceResolver(this IResourceResolver resolver)
+        {
+            Should.NotBeNull(resolver, nameof(resolver));
+            return resolver.GetOrAddComponent(_ => new ResourceResolverComponent());
         }
 
         public static void ClearBindings(object? target, bool clearAttachedValues)
@@ -598,9 +611,9 @@ namespace MugenMvvm.Bindings.Extensions
                    .UnescapeString(CommaChar);
 #else
             return path
-                .RemoveBounds(start)
-                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
-                .UnescapeString();
+                   .RemoveBounds(start)
+                   .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                   .UnescapeString();
 #endif
         }
 
@@ -621,9 +634,9 @@ namespace MugenMvvm.Bindings.Extensions
                    .UnescapeString(CommaChar);
 #else
             return path
-                .RemoveBounds(startIndex + 1)
-                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
-                .UnescapeString();
+                   .RemoveBounds(startIndex + 1)
+                   .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                   .UnescapeString();
 #endif
         }
 
