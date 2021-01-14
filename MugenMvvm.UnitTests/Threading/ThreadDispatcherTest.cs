@@ -12,6 +12,17 @@ namespace MugenMvvm.UnitTests.Threading
 {
     public class ThreadDispatcherTest : ComponentOwnerTestBase<ThreadDispatcher>
     {
+        [Fact]
+        public void CanExecuteInlineShouldReturnFalseNoComponents() => new ThreadDispatcher().CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
+
+        [Fact]
+        public void ExecuteShouldThrowNoComponents()
+        {
+            var dispatcher = new ThreadDispatcher();
+            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, t => { }, dispatcher));
+            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), dispatcher));
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -86,16 +97,5 @@ namespace MugenMvvm.UnitTests.Threading
         }
 
         protected override ThreadDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void CanExecuteInlineShouldReturnFalseNoComponents() => new ThreadDispatcher().CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
-
-        [Fact]
-        public void ExecuteShouldThrowNoComponents()
-        {
-            var dispatcher = new ThreadDispatcher();
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, t => { }, dispatcher));
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), dispatcher));
-        }
     }
 }

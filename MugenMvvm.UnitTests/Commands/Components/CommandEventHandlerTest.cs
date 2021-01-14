@@ -20,6 +20,86 @@ namespace MugenMvvm.UnitTests.Commands.Components
 {
     public class CommandEventHandlerTest : UnitTestBase
     {
+        [Fact]
+        public void ShouldListenPropertyChangedEventCanNotify()
+        {
+            var propertyChangedModel = new TestNotifyPropertyChangedModel();
+            var canNotifyValue = false;
+            var propertyName = "test";
+            Func<object?, object?, bool> canNotify = (s, o) =>
+            {
+                s.ShouldEqual(propertyChangedModel);
+                ((PropertyChangedEventArgs) o!).PropertyName.ShouldEqual(propertyName);
+                return canNotifyValue;
+            };
+            var compositeCommand = new CompositeCommand();
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current) {CanNotify = canNotify};
+            compositeCommand.AddComponent(conditionEventCommandComponent);
+            compositeCommand.AddNotifier(propertyChangedModel);
+
+            var executed = 0;
+            EventHandler handler = (_, _) => ++executed;
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
+
+            executed.ShouldEqual(0);
+            propertyChangedModel.OnPropertyChanged(propertyName);
+            executed.ShouldEqual(0);
+
+            canNotifyValue = true;
+            propertyChangedModel.OnPropertyChanged(propertyName);
+            executed.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ShouldSubscribeUnsubscribeRaiseEventHandler()
+        {
+            var compositeCommand = new CompositeCommand();
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
+            compositeCommand.AddComponent(conditionEventCommandComponent);
+            var executed = 0;
+            EventHandler handler = (sender, args) =>
+            {
+                sender.ShouldEqual(compositeCommand);
+                ++executed;
+            };
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
+
+            executed.ShouldEqual(0);
+            conditionEventCommandComponent.RaiseCanExecuteChanged();
+            executed.ShouldEqual(1);
+
+            conditionEventCommandComponent.RemoveCanExecuteChanged(compositeCommand, handler, null);
+            conditionEventCommandComponent.RaiseCanExecuteChanged();
+            executed.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ShouldSuspendNotifications()
+        {
+            var compositeCommand = new CompositeCommand();
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
+            compositeCommand.AddComponent(conditionEventCommandComponent);
+            var executed = 0;
+            EventHandler handler = (sender, args) => ++executed;
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
+
+            executed.ShouldEqual(0);
+            conditionEventCommandComponent.RaiseCanExecuteChanged();
+            executed.ShouldEqual(1);
+
+            var actionToken1 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
+            var actionToken2 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
+            conditionEventCommandComponent.RaiseCanExecuteChanged();
+            executed.ShouldEqual(1);
+
+            actionToken1.Dispose();
+            conditionEventCommandComponent.RaiseCanExecuteChanged();
+            executed.ShouldEqual(1);
+
+            actionToken2.Dispose();
+            executed.ShouldEqual(2);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -242,86 +322,6 @@ namespace MugenMvvm.UnitTests.Commands.Components
             conditionEventCommandComponent.Dispose();
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(canDispose ? 0 : 1);
-        }
-
-        [Fact]
-        public void ShouldListenPropertyChangedEventCanNotify()
-        {
-            var propertyChangedModel = new TestNotifyPropertyChangedModel();
-            var canNotifyValue = false;
-            var propertyName = "test";
-            Func<object?, object?, bool> canNotify = (s, o) =>
-            {
-                s.ShouldEqual(propertyChangedModel);
-                ((PropertyChangedEventArgs) o!).PropertyName.ShouldEqual(propertyName);
-                return canNotifyValue;
-            };
-            var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current) {CanNotify = canNotify};
-            compositeCommand.AddComponent(conditionEventCommandComponent);
-            compositeCommand.AddNotifier(propertyChangedModel);
-
-            var executed = 0;
-            EventHandler handler = (_, _) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
-
-            executed.ShouldEqual(0);
-            propertyChangedModel.OnPropertyChanged(propertyName);
-            executed.ShouldEqual(0);
-
-            canNotifyValue = true;
-            propertyChangedModel.OnPropertyChanged(propertyName);
-            executed.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void ShouldSubscribeUnsubscribeRaiseEventHandler()
-        {
-            var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
-            compositeCommand.AddComponent(conditionEventCommandComponent);
-            var executed = 0;
-            EventHandler handler = (sender, args) =>
-            {
-                sender.ShouldEqual(compositeCommand);
-                ++executed;
-            };
-            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
-
-            executed.ShouldEqual(0);
-            conditionEventCommandComponent.RaiseCanExecuteChanged();
-            executed.ShouldEqual(1);
-
-            conditionEventCommandComponent.RemoveCanExecuteChanged(compositeCommand, handler, null);
-            conditionEventCommandComponent.RaiseCanExecuteChanged();
-            executed.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void ShouldSuspendNotifications()
-        {
-            var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
-            compositeCommand.AddComponent(conditionEventCommandComponent);
-            var executed = 0;
-            EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
-
-            executed.ShouldEqual(0);
-            conditionEventCommandComponent.RaiseCanExecuteChanged();
-            executed.ShouldEqual(1);
-
-            var actionToken1 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
-            var actionToken2 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
-            conditionEventCommandComponent.RaiseCanExecuteChanged();
-            executed.ShouldEqual(1);
-
-            actionToken1.Dispose();
-            conditionEventCommandComponent.RaiseCanExecuteChanged();
-            executed.ShouldEqual(1);
-
-            actionToken2.Dispose();
-            executed.ShouldEqual(2);
         }
     }
 }

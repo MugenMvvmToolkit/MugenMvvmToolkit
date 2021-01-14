@@ -15,51 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class IndexerAccessorMemberDecoratorTest : UnitTestBase
     {
-        public class TestIndexer
-        {
-            public const string OptionalValue = "index2";
-
-            public Func<int, int>? GetIndex { get; set; }
-
-            public Action<int, int>? SetIndex { get; set; }
-
-            public Func<string, string, object>? GetIndexOptional { get; set; }
-
-            public Action<string, string, object>? SetIndexOptional { get; set; }
-
-            public Func<string, IReadOnlyMetadataContext, object>? GetIndexMetadata { get; set; }
-
-            public Action<string, IReadOnlyMetadataContext, object>? SetIndexMetadata { get; set; }
-
-            public Func<int, int[], object>? GetIndexParams { get; set; }
-
-            public Action<int, int[], object>? SetIndexParams { get; set; }
-
-            public int this[int index]
-            {
-                get => GetIndex!(index);
-                set => SetIndex!(index, value);
-            }
-
-            public object this[string index1, string index2 = OptionalValue]
-            {
-                get => GetIndexOptional!(index1, index2);
-                set => SetIndexOptional!(index1, index2, value);
-            }
-
-            public object this[string index1, IReadOnlyMetadataContext index2]
-            {
-                get => GetIndexMetadata!(index1, index2);
-                set => SetIndexMetadata!(index1, index2, value);
-            }
-
-            public object this[int index, params int[] indexes]
-            {
-                get => GetIndexParams!(index, indexes);
-                set => SetIndexParams!(index, indexes, value);
-            }
-        }
-
         [Fact]
         public void TryGetMembersShouldHandleArray()
         {
@@ -351,6 +306,51 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             memberManager.AddComponent(new NameRequestMemberManagerDecorator());
             memberManager.AddComponent(TestMemberManagerComponent.Selector);
             memberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, BindingInternalConstant.IndexerGetterName, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
+        public class TestIndexer
+        {
+            public const string OptionalValue = "index2";
+
+            public Func<int, int>? GetIndex { get; set; }
+
+            public Action<int, int>? SetIndex { get; set; }
+
+            public Func<string, string, object>? GetIndexOptional { get; set; }
+
+            public Action<string, string, object>? SetIndexOptional { get; set; }
+
+            public Func<string, IReadOnlyMetadataContext, object>? GetIndexMetadata { get; set; }
+
+            public Action<string, IReadOnlyMetadataContext, object>? SetIndexMetadata { get; set; }
+
+            public Func<int, int[], object>? GetIndexParams { get; set; }
+
+            public Action<int, int[], object>? SetIndexParams { get; set; }
+
+            public int this[int index]
+            {
+                get => GetIndex!(index);
+                set => SetIndex!(index, value);
+            }
+
+            public object this[string index1, string index2 = OptionalValue]
+            {
+                get => GetIndexOptional!(index1, index2);
+                set => SetIndexOptional!(index1, index2, value);
+            }
+
+            public object this[string index1, IReadOnlyMetadataContext index2]
+            {
+                get => GetIndexMetadata!(index1, index2);
+                set => SetIndexMetadata!(index1, index2, value);
+            }
+
+            public object this[int index, params int[] indexes]
+            {
+                get => GetIndexParams!(index, indexes);
+                set => SetIndexParams!(index, indexes, value);
+            }
         }
     }
 }

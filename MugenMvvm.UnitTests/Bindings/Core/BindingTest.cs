@@ -23,6 +23,239 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingTest : ComponentOwnerTestBase<Binding>
     {
+        [Fact]
+        public void AddShouldCallOnAttachingOnAttachedMethods()
+        {
+            var attachingCount = 0;
+            var attachedCount = 0;
+            var canAttach = false;
+            var binding = GetBinding();
+            var componentCollection = (IComponentCollection) binding;
+            var component = new TestAttachableComponent<IBinding>
+            {
+                OnAttachingHandler = (test, context) =>
+                {
+                    attachingCount++;
+                    test.ShouldEqual(binding);
+                    return canAttach;
+                },
+                OnAttachedHandler = (test, context) =>
+                {
+                    attachedCount++;
+                    test.ShouldEqual(binding);
+                    context.ShouldEqual(DefaultMetadata);
+                }
+            };
+
+            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeFalse();
+            attachingCount.ShouldEqual(1);
+            attachedCount.ShouldEqual(0);
+            componentCollection.Count.ShouldEqual(0);
+
+            canAttach = true;
+            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
+            attachingCount.ShouldEqual(2);
+            attachedCount.ShouldEqual(1);
+            binding.GetComponents<object>().AsList().Single().ShouldEqual(component);
+        }
+
+        [Fact]
+        public void ClearShouldCallOnDetachedMethods()
+        {
+            var detachedCount = 0;
+            var binding = GetBinding();
+            var componentCollection = (IComponentCollection) binding;
+            var component = new TestAttachableComponent<IBinding>
+            {
+                OnDetachedHandler = (test, context) =>
+                {
+                    detachedCount++;
+                    test.ShouldEqual(binding);
+                    context.ShouldEqual(DefaultMetadata);
+                }
+            };
+            componentCollection.TryAdd(component, DefaultMetadata);
+            componentCollection.Clear(DefaultMetadata);
+            detachedCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var binding = new Binding(EmptyPathObserver.Empty, this);
+            binding.Target.ShouldEqual(EmptyPathObserver.Empty);
+            binding.Source.ShouldEqual(this);
+            binding.State.ShouldEqual(BindingState.Valid);
+        }
+
+        [Fact]
+        public void MetadataShouldReturnBinding()
+        {
+            var binding = GetBinding();
+            var context = (IReadOnlyMetadataContext) binding;
+            context.Count.ShouldEqual(1);
+            context.Contains(BindingMetadata.Binding).ShouldBeTrue();
+            context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
+            b.ShouldEqual(binding);
+            context.GetValues().AsList().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding)});
+        }
+
+        [Fact]
+        public void RemoveShouldCallOnDetachingOnDetachedMethods()
+        {
+            var detachingCount = 0;
+            var detachedCount = 0;
+            var canDetach = false;
+            var binding = GetBinding();
+            var componentCollection = (IComponentCollection) binding;
+            var component = new TestAttachableComponent<IBinding>
+            {
+                OnDetachingHandler = (test, context) =>
+                {
+                    detachingCount++;
+                    test.ShouldEqual(binding);
+                    return canDetach;
+                },
+                OnDetachedHandler = (test, context) =>
+                {
+                    detachedCount++;
+                    test.ShouldEqual(binding);
+                    context.ShouldEqual(DefaultMetadata);
+                }
+            };
+            componentCollection.TryAdd(component, DefaultMetadata);
+
+            componentCollection.Remove(component, DefaultMetadata).ShouldBeFalse();
+            detachingCount.ShouldEqual(1);
+            detachedCount.ShouldEqual(0);
+            componentCollection.Count.ShouldEqual(1);
+            binding.GetComponents<object>().AsList().Single().ShouldEqual(component);
+
+            canDetach = true;
+            componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
+            detachingCount.ShouldEqual(2);
+            detachedCount.ShouldEqual(1);
+            binding.GetComponents<object>().AsList().Length.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void UpdateTargetSourceShouldUseObserverValue()
+        {
+            Binding? binding = null;
+            var targetObj = new object();
+            var sourceObj = new object();
+            object targetValue = "1";
+            object sourceValue = "2";
+            var targetHasMember = true;
+            var sourceHasMember = true;
+            int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0;
+            var targetMember = new TestAccessorMemberInfo
+            {
+                Type = typeof(object),
+                GetValue = (o, context) =>
+                {
+                    ++targetGet;
+                    o.ShouldEqual(targetObj);
+                    context.ShouldEqual(binding);
+                    return targetValue;
+                },
+                SetValue = (o, v, context) =>
+                {
+                    ++targetSet;
+                    o.ShouldEqual(targetObj);
+                    v.ShouldEqual(sourceValue);
+                    context.ShouldEqual(binding);
+                }
+            };
+            var sourceMember = new TestAccessorMemberInfo
+            {
+                Type = typeof(object),
+                GetValue = (o, context) =>
+                {
+                    ++sourceGet;
+                    o.ShouldEqual(sourceObj);
+                    context.ShouldEqual(binding);
+                    return sourceValue;
+                },
+                SetValue = (o, v, context) =>
+                {
+                    ++sourceSet;
+                    o.ShouldEqual(sourceObj);
+                    v.ShouldEqual(targetValue);
+                    context.ShouldEqual(binding);
+                }
+            };
+            var target = new TestMemberPathObserver
+            {
+                GetLastMember = metadata =>
+                {
+                    metadata.ShouldEqual(binding);
+                    if (targetHasMember)
+                        return new MemberPathLastMember(targetObj, targetMember);
+                    return default;
+                }
+            };
+            var source = new TestMemberPathObserver
+            {
+                GetLastMember = metadata =>
+                {
+                    metadata.ShouldEqual(binding);
+                    if (sourceHasMember)
+                        return new MemberPathLastMember(sourceObj, sourceMember);
+                    return default;
+                }
+            };
+
+            binding = GetBinding(target, source);
+            binding.UpdateTarget();
+            targetGet.ShouldEqual(0);
+            targetSet.ShouldEqual(1);
+            sourceGet.ShouldEqual(1);
+            sourceSet.ShouldEqual(0);
+
+            targetGet = targetSet = sourceGet = sourceSet = 0;
+            targetHasMember = false;
+            binding.UpdateTarget();
+            targetGet.ShouldEqual(0);
+            targetSet.ShouldEqual(0);
+            sourceGet.ShouldEqual(0);
+            sourceSet.ShouldEqual(0);
+
+            targetGet = targetSet = sourceGet = sourceSet = 0;
+            targetHasMember = true;
+            sourceValue = BindingMetadata.UnsetValue;
+            binding.UpdateTarget();
+            targetGet.ShouldEqual(0);
+            targetSet.ShouldEqual(0);
+            sourceGet.ShouldEqual(1);
+            sourceSet.ShouldEqual(0);
+
+            targetGet = targetSet = sourceGet = sourceSet = 0;
+            sourceValue = "2";
+            binding.UpdateSource();
+            targetGet.ShouldEqual(1);
+            targetSet.ShouldEqual(0);
+            sourceGet.ShouldEqual(0);
+            sourceSet.ShouldEqual(1);
+
+            targetGet = targetSet = sourceGet = sourceSet = 0;
+            sourceHasMember = false;
+            binding.UpdateSource();
+            targetGet.ShouldEqual(0);
+            targetSet.ShouldEqual(0);
+            sourceGet.ShouldEqual(0);
+            sourceSet.ShouldEqual(0);
+
+            targetGet = targetSet = sourceGet = sourceSet = 0;
+            sourceHasMember = true;
+            targetValue = BindingMetadata.UnsetValue;
+            binding.UpdateSource();
+            targetGet.ShouldEqual(1);
+            targetSet.ShouldEqual(0);
+            sourceGet.ShouldEqual(0);
+            sourceSet.ShouldEqual(0);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -1085,238 +1318,5 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         protected virtual Binding GetBinding(IMemberPathObserver? target = null, object? source = null) => new(target ?? EmptyPathObserver.Empty, source);
 
         protected override Binding GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => GetBinding();
-
-        [Fact]
-        public void AddShouldCallOnAttachingOnAttachedMethods()
-        {
-            var attachingCount = 0;
-            var attachedCount = 0;
-            var canAttach = false;
-            var binding = GetBinding();
-            var componentCollection = (IComponentCollection) binding;
-            var component = new TestAttachableComponent<IBinding>
-            {
-                OnAttachingHandler = (test, context) =>
-                {
-                    attachingCount++;
-                    test.ShouldEqual(binding);
-                    return canAttach;
-                },
-                OnAttachedHandler = (test, context) =>
-                {
-                    attachedCount++;
-                    test.ShouldEqual(binding);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-
-            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeFalse();
-            attachingCount.ShouldEqual(1);
-            attachedCount.ShouldEqual(0);
-            componentCollection.Count.ShouldEqual(0);
-
-            canAttach = true;
-            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
-            attachingCount.ShouldEqual(2);
-            attachedCount.ShouldEqual(1);
-            binding.GetComponents<object>().AsList().Single().ShouldEqual(component);
-        }
-
-        [Fact]
-        public void ClearShouldCallOnDetachedMethods()
-        {
-            var detachedCount = 0;
-            var binding = GetBinding();
-            var componentCollection = (IComponentCollection) binding;
-            var component = new TestAttachableComponent<IBinding>
-            {
-                OnDetachedHandler = (test, context) =>
-                {
-                    detachedCount++;
-                    test.ShouldEqual(binding);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-            componentCollection.TryAdd(component, DefaultMetadata);
-            componentCollection.Clear(DefaultMetadata);
-            detachedCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var binding = new Binding(EmptyPathObserver.Empty, this);
-            binding.Target.ShouldEqual(EmptyPathObserver.Empty);
-            binding.Source.ShouldEqual(this);
-            binding.State.ShouldEqual(BindingState.Valid);
-        }
-
-        [Fact]
-        public void MetadataShouldReturnBinding()
-        {
-            var binding = GetBinding();
-            var context = (IReadOnlyMetadataContext) binding;
-            context.Count.ShouldEqual(1);
-            context.Contains(BindingMetadata.Binding).ShouldBeTrue();
-            context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
-            b.ShouldEqual(binding);
-            context.GetValues().AsList().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding)});
-        }
-
-        [Fact]
-        public void RemoveShouldCallOnDetachingOnDetachedMethods()
-        {
-            var detachingCount = 0;
-            var detachedCount = 0;
-            var canDetach = false;
-            var binding = GetBinding();
-            var componentCollection = (IComponentCollection) binding;
-            var component = new TestAttachableComponent<IBinding>
-            {
-                OnDetachingHandler = (test, context) =>
-                {
-                    detachingCount++;
-                    test.ShouldEqual(binding);
-                    return canDetach;
-                },
-                OnDetachedHandler = (test, context) =>
-                {
-                    detachedCount++;
-                    test.ShouldEqual(binding);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-            componentCollection.TryAdd(component, DefaultMetadata);
-
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeFalse();
-            detachingCount.ShouldEqual(1);
-            detachedCount.ShouldEqual(0);
-            componentCollection.Count.ShouldEqual(1);
-            binding.GetComponents<object>().AsList().Single().ShouldEqual(component);
-
-            canDetach = true;
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
-            detachingCount.ShouldEqual(2);
-            detachedCount.ShouldEqual(1);
-            binding.GetComponents<object>().AsList().Length.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void UpdateTargetSourceShouldUseObserverValue()
-        {
-            Binding? binding = null;
-            var targetObj = new object();
-            var sourceObj = new object();
-            object targetValue = "1";
-            object sourceValue = "2";
-            var targetHasMember = true;
-            var sourceHasMember = true;
-            int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0;
-            var targetMember = new TestAccessorMemberInfo
-            {
-                Type = typeof(object),
-                GetValue = (o, context) =>
-                {
-                    ++targetGet;
-                    o.ShouldEqual(targetObj);
-                    context.ShouldEqual(binding);
-                    return targetValue;
-                },
-                SetValue = (o, v, context) =>
-                {
-                    ++targetSet;
-                    o.ShouldEqual(targetObj);
-                    v.ShouldEqual(sourceValue);
-                    context.ShouldEqual(binding);
-                }
-            };
-            var sourceMember = new TestAccessorMemberInfo
-            {
-                Type = typeof(object),
-                GetValue = (o, context) =>
-                {
-                    ++sourceGet;
-                    o.ShouldEqual(sourceObj);
-                    context.ShouldEqual(binding);
-                    return sourceValue;
-                },
-                SetValue = (o, v, context) =>
-                {
-                    ++sourceSet;
-                    o.ShouldEqual(sourceObj);
-                    v.ShouldEqual(targetValue);
-                    context.ShouldEqual(binding);
-                }
-            };
-            var target = new TestMemberPathObserver
-            {
-                GetLastMember = metadata =>
-                {
-                    metadata.ShouldEqual(binding);
-                    if (targetHasMember)
-                        return new MemberPathLastMember(targetObj, targetMember);
-                    return default;
-                }
-            };
-            var source = new TestMemberPathObserver
-            {
-                GetLastMember = metadata =>
-                {
-                    metadata.ShouldEqual(binding);
-                    if (sourceHasMember)
-                        return new MemberPathLastMember(sourceObj, sourceMember);
-                    return default;
-                }
-            };
-
-            binding = GetBinding(target, source);
-            binding.UpdateTarget();
-            targetGet.ShouldEqual(0);
-            targetSet.ShouldEqual(1);
-            sourceGet.ShouldEqual(1);
-            sourceSet.ShouldEqual(0);
-
-            targetGet = targetSet = sourceGet = sourceSet = 0;
-            targetHasMember = false;
-            binding.UpdateTarget();
-            targetGet.ShouldEqual(0);
-            targetSet.ShouldEqual(0);
-            sourceGet.ShouldEqual(0);
-            sourceSet.ShouldEqual(0);
-
-            targetGet = targetSet = sourceGet = sourceSet = 0;
-            targetHasMember = true;
-            sourceValue = BindingMetadata.UnsetValue;
-            binding.UpdateTarget();
-            targetGet.ShouldEqual(0);
-            targetSet.ShouldEqual(0);
-            sourceGet.ShouldEqual(1);
-            sourceSet.ShouldEqual(0);
-
-            targetGet = targetSet = sourceGet = sourceSet = 0;
-            sourceValue = "2";
-            binding.UpdateSource();
-            targetGet.ShouldEqual(1);
-            targetSet.ShouldEqual(0);
-            sourceGet.ShouldEqual(0);
-            sourceSet.ShouldEqual(1);
-
-            targetGet = targetSet = sourceGet = sourceSet = 0;
-            sourceHasMember = false;
-            binding.UpdateSource();
-            targetGet.ShouldEqual(0);
-            targetSet.ShouldEqual(0);
-            sourceGet.ShouldEqual(0);
-            sourceSet.ShouldEqual(0);
-
-            targetGet = targetSet = sourceGet = sourceSet = 0;
-            sourceHasMember = true;
-            targetValue = BindingMetadata.UnsetValue;
-            binding.UpdateSource();
-            targetGet.ShouldEqual(1);
-            targetSet.ShouldEqual(0);
-            sourceGet.ShouldEqual(0);
-            sourceSet.ShouldEqual(0);
-        }
     }
 }

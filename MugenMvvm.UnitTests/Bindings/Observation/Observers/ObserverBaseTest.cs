@@ -13,6 +13,29 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
     {
         protected const string MethodName = "MM";
 
+        [Fact]
+        public void ConstructorShouldInitializeValues1()
+        {
+            var o = new object();
+            var observer = GetObserver(o);
+            observer.IsAlive.ShouldBeTrue();
+            observer.Target.ShouldEqual(o);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues2()
+        {
+            var o = new TestWeakReference {IsAlive = true, Target = new object()};
+            var observer = GetObserver(o);
+            observer.IsAlive.ShouldBeTrue();
+            observer.Target.ShouldEqual(o.Target);
+
+            o.Target = null;
+            o.IsAlive = false;
+            observer.IsAlive.ShouldBeFalse();
+            observer.Target.ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -172,29 +195,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             Error,
             LastMember,
             Members
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues1()
-        {
-            var o = new object();
-            var observer = GetObserver(o);
-            observer.IsAlive.ShouldBeTrue();
-            observer.Target.ShouldEqual(o);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues2()
-        {
-            var o = new TestWeakReference {IsAlive = true, Target = new object()};
-            var observer = GetObserver(o);
-            observer.IsAlive.ShouldBeTrue();
-            observer.Target.ShouldEqual(o.Target);
-
-            o.Target = null;
-            o.IsAlive = false;
-            observer.IsAlive.ShouldBeFalse();
-            observer.Target.ShouldBeNull();
         }
     }
 }

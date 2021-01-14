@@ -13,6 +13,22 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingManagerTest : UnitTestBase
     {
+        [Fact]
+        public void ParseBindingExpressionShouldThrowNoComponents()
+        {
+            var bindingManager = new BindingManager();
+            ShouldThrow<InvalidOperationException>(() => bindingManager.ParseBindingExpression(this, DefaultMetadata));
+        }
+
+        [Fact]
+        public void TryParseBindingExpressionShouldHandleBuildersList()
+        {
+            var bindingExpressions = new List<IBindingBuilder> {new TestBindingBuilder(), new TestBindingBuilder()};
+            var bindingManager = new BindingManager();
+            bindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
+            bindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -110,22 +126,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             manager.OnLifecycleChanged(binding, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(count);
-        }
-
-        [Fact]
-        public void ParseBindingExpressionShouldThrowNoComponents()
-        {
-            var bindingManager = new BindingManager();
-            ShouldThrow<InvalidOperationException>(() => bindingManager.ParseBindingExpression(this, DefaultMetadata));
-        }
-
-        [Fact]
-        public void TryParseBindingExpressionShouldHandleBuildersList()
-        {
-            var bindingExpressions = new List<IBindingBuilder> {new TestBindingBuilder(), new TestBindingBuilder()};
-            var bindingManager = new BindingManager();
-            bindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
-            bindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
     }
 }

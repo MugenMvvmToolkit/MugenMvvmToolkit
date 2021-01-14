@@ -23,6 +23,43 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionParserTest : UnitTestBase
     {
+        [Fact]
+        public void TryParseBindingExpressionShouldThrowUnsupportedExpression()
+        {
+            var parserComponent = new TestExpressionParserComponent
+            {
+                TryParse = (o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
+            };
+            var parser = new ExpressionParser();
+            parser.AddComponent(parserComponent);
+            var builder = new BindingExpressionParser(parser);
+            var expression = builder.TryParseBindingExpression(null!, "", DefaultMetadata).Item!;
+            expression.ShouldNotBeNull();
+            ShouldThrow<InvalidOperationException>(() => expression.Build(this, this, DefaultMetadata));
+        }
+
+        [Fact]
+        public void TryParseBindingExpressionShouldUseExpressionParser()
+        {
+            var count = 0;
+            var st = "";
+            var parserComponent = new TestExpressionParserComponent
+            {
+                TryParse = (o, arg3) =>
+                {
+                    ++count;
+                    o.ShouldEqual(st);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return default;
+                }
+            };
+            var parser = new ExpressionParser();
+            parser.AddComponent(parserComponent);
+            var builder = new BindingExpressionParser(parser);
+            builder.TryParseBindingExpression(null!, st, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            count.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(1, 1, true, true)]
         [InlineData(1, 1, true, false)]
@@ -309,43 +346,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             node1 = new TestBindingMemberExpressionNode($"{index}_");
             node2 = new TestBindingMemberExpressionNode($"{index}__");
             return new BinaryExpressionNode(BinaryTokenType.Addition, node1, node2);
-        }
-
-        [Fact]
-        public void TryParseBindingExpressionShouldThrowUnsupportedExpression()
-        {
-            var parserComponent = new TestExpressionParserComponent
-            {
-                TryParse = (o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
-            };
-            var parser = new ExpressionParser();
-            parser.AddComponent(parserComponent);
-            var builder = new BindingExpressionParser(parser);
-            var expression = builder.TryParseBindingExpression(null!, "", DefaultMetadata).Item!;
-            expression.ShouldNotBeNull();
-            ShouldThrow<InvalidOperationException>(() => expression.Build(this, this, DefaultMetadata));
-        }
-
-        [Fact]
-        public void TryParseBindingExpressionShouldUseExpressionParser()
-        {
-            var count = 0;
-            var st = "";
-            var parserComponent = new TestExpressionParserComponent
-            {
-                TryParse = (o, arg3) =>
-                {
-                    ++count;
-                    o.ShouldEqual(st);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return default;
-                }
-            };
-            var parser = new ExpressionParser();
-            parser.AddComponent(parserComponent);
-            var builder = new BindingExpressionParser(parser);
-            builder.TryParseBindingExpression(null!, st, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            count.ShouldEqual(1);
         }
     }
 }

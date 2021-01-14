@@ -12,59 +12,6 @@ namespace MugenMvvm.UnitTests.Entities
 {
     public class EntityTrackingCollectionTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ShouldAddRemoveClear(int count)
-        {
-            var items = new List<object>();
-            var collection = new EntityTrackingCollection();
-            collection.HasChanges.ShouldBeFalse();
-
-            for (var i = 0; i < count; i++)
-            {
-                var o = new object();
-                items.Add(o);
-                collection.SetState(o, EntityState.Added);
-            }
-
-            collection.Count.ShouldEqual(count);
-            collection.HasChanges.ShouldBeTrue();
-
-            var changes = collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).AsList();
-            changes.Count.ShouldEqual(count);
-            items.All(entry => changes.Any(stateEntry => stateEntry.Entity == entry)).ShouldBeTrue();
-
-            changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added).AsList();
-            changes.Count.ShouldEqual(count);
-            items.All(entry => changes.Any(stateEntry => stateEntry.Entity == entry)).ShouldBeTrue();
-
-            foreach (var item in items)
-            {
-                collection.GetState(item).ShouldEqual(EntityState.Added);
-                collection.GetChanges(this, (entity, t) => entity.Entity == item && entity.State == EntityState.Added).AsList().Single().Entity.ShouldEqual(item);
-
-                collection.SetState(item, EntityState.Unchanged);
-            }
-
-            collection.Count.ShouldEqual(count);
-            collection.HasChanges.ShouldBeFalse();
-            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).IsEmpty.ShouldBeTrue();
-
-            collection.SetState(new object(), EntityState.Added);
-            collection.HasChanges.ShouldBeTrue();
-
-            collection.Clear();
-            collection.Count.ShouldEqual(0);
-            collection.HasChanges.ShouldBeFalse();
-            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).IsEmpty.ShouldBeTrue();
-        }
-
-        private sealed class TestModel
-        {
-            public int IntProperty { get; set; }
-        }
-
         [Fact]
         public void ShouldNotifyListeners()
         {
@@ -150,6 +97,59 @@ namespace MugenMvvm.UnitTests.Entities
             var changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added).AsList();
             changes.Count.ShouldEqual(1);
             changes[0].Entity.ShouldEqual(item2);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ShouldAddRemoveClear(int count)
+        {
+            var items = new List<object>();
+            var collection = new EntityTrackingCollection();
+            collection.HasChanges.ShouldBeFalse();
+
+            for (var i = 0; i < count; i++)
+            {
+                var o = new object();
+                items.Add(o);
+                collection.SetState(o, EntityState.Added);
+            }
+
+            collection.Count.ShouldEqual(count);
+            collection.HasChanges.ShouldBeTrue();
+
+            var changes = collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).AsList();
+            changes.Count.ShouldEqual(count);
+            items.All(entry => changes.Any(stateEntry => stateEntry.Entity == entry)).ShouldBeTrue();
+
+            changes = collection.GetChanges(this, (entity, test) => entity.State == EntityState.Added).AsList();
+            changes.Count.ShouldEqual(count);
+            items.All(entry => changes.Any(stateEntry => stateEntry.Entity == entry)).ShouldBeTrue();
+
+            foreach (var item in items)
+            {
+                collection.GetState(item).ShouldEqual(EntityState.Added);
+                collection.GetChanges(this, (entity, t) => entity.Entity == item && entity.State == EntityState.Added).AsList().Single().Entity.ShouldEqual(item);
+
+                collection.SetState(item, EntityState.Unchanged);
+            }
+
+            collection.Count.ShouldEqual(count);
+            collection.HasChanges.ShouldBeFalse();
+            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).IsEmpty.ShouldBeTrue();
+
+            collection.SetState(new object(), EntityState.Added);
+            collection.HasChanges.ShouldBeTrue();
+
+            collection.Clear();
+            collection.Count.ShouldEqual(0);
+            collection.HasChanges.ShouldBeFalse();
+            collection.GetChanges(this, (entity, test) => entity.State != EntityState.Unchanged).IsEmpty.ShouldBeTrue();
+        }
+
+        private sealed class TestModel
+        {
+            public int IntProperty { get; set; }
         }
     }
 }

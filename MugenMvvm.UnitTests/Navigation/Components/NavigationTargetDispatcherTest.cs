@@ -14,6 +14,215 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationTargetDispatcherTest : UnitTestBase
     {
+        [Fact]
+        public async Task NavigationConditionShouldInvokeCallback()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var target = new HasCloseNavigationCondition(dispatcher);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            var cts = new CancellationTokenSource().Token;
+            var closeCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.Close);
+            var newCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.New);
+            var closeCount = 0;
+            var result = Task.FromResult(false);
+            target.CanCloseAsync = (context, token) =>
+            {
+                context.ShouldEqual(closeCtx);
+                token.ShouldEqual(cts);
+                ++closeCount;
+                return result.AsValueTask();
+            };
+
+            (await dispatcher.OnNavigatingAsync(closeCtx, cts)).ShouldBeFalse();
+            closeCount.ShouldEqual(1);
+
+            (await dispatcher.OnNavigatingAsync(newCtx, cts)).ShouldBeTrue();
+            closeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void NavigationShouldInvokeCallbacks()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var target = new HasCloseNavigationHandler(dispatcher);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            var closeCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.Close);
+            var newCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.New);
+            var closingCount = 0;
+            var closeCount = 0;
+            target.OnClosing = context =>
+            {
+                context.ShouldEqual(closeCtx);
+                closingCount++;
+            };
+            target.OnClosed = context =>
+            {
+                context.ShouldEqual(closeCtx);
+                ++closeCount;
+            };
+
+            dispatcher.OnNavigating(closeCtx);
+            closingCount.ShouldEqual(1);
+            closeCount.ShouldEqual(0);
+
+            dispatcher.OnNavigated(closeCtx);
+            closingCount.ShouldEqual(1);
+            closeCount.ShouldEqual(1);
+
+            dispatcher.OnNavigating(newCtx);
+            dispatcher.OnNavigated(newCtx);
+            closingCount.ShouldEqual(1);
+            closeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void OnNavigatedShouldInvokeCallbackClose()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var prevTarget = new HasNavigatedHandler(dispatcher);
+            var target = new HasNavigatedHandler(dispatcher);
+            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.Close);
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
+
+            prevTarget.OnNavigatedFrom = (o, navigationContext) => throw new NotSupportedException();
+            prevTarget.OnNavigatedTo = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(target);
+                ++prevTargetInvokeCount;
+            };
+            target.OnNavigatedFrom = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(prevTarget);
+                ++targetInvokeCount;
+            };
+            target.OnNavigatedTo = (o, navigationContext) => throw new NotSupportedException();
+
+            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
+            {
+                TryGetNavigationEntries = m => prevEntry
+            });
+
+            dispatcher.OnNavigated(context);
+            targetInvokeCount.ShouldEqual(1);
+            prevTargetInvokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void OnNavigatedShouldInvokeCallbackNew()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var prevTarget = new HasNavigatedHandler(dispatcher);
+            var target = new HasNavigatedHandler(dispatcher);
+            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.New);
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
+
+            prevTarget.OnNavigatedFrom = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(target);
+                ++prevTargetInvokeCount;
+            };
+            prevTarget.OnNavigatedTo = (o, navigationContext) => throw new NotSupportedException();
+            target.OnNavigatedFrom = (o, navigationContext) => throw new NotSupportedException();
+            target.OnNavigatedTo = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(prevTarget);
+                ++targetInvokeCount;
+            };
+
+            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
+            {
+                TryGetNavigationEntries = m => prevEntry
+            });
+
+            dispatcher.OnNavigated(context);
+            targetInvokeCount.ShouldEqual(1);
+            prevTargetInvokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void OnNavigatingShouldInvokeCallbackClose()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var prevTarget = new HasNavigatingHandler(dispatcher);
+            var target = new HasNavigatingHandler(dispatcher);
+            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.Close);
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
+
+            prevTarget.OnNavigatingFrom = (o, navigationContext) => throw new NotSupportedException();
+            prevTarget.OnNavigatingTo = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(target);
+                ++prevTargetInvokeCount;
+            };
+            target.OnNavigatingFrom = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(prevTarget);
+                ++targetInvokeCount;
+            };
+            target.OnNavigatingTo = (o, navigationContext) => throw new NotSupportedException();
+
+            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
+            {
+                TryGetNavigationEntries = m => prevEntry
+            });
+
+            dispatcher.OnNavigating(context);
+            targetInvokeCount.ShouldEqual(1);
+            prevTargetInvokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void OnNavigatingShouldInvokeCallbackNew()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var prevTarget = new HasNavigatingHandler(dispatcher);
+            var target = new HasNavigatingHandler(dispatcher);
+            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.New);
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
+
+            prevTarget.OnNavigatingFrom = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(target);
+                ++prevTargetInvokeCount;
+            };
+            prevTarget.OnNavigatingTo = (o, navigationContext) => throw new NotSupportedException();
+            target.OnNavigatingFrom = (o, navigationContext) => throw new NotSupportedException();
+            target.OnNavigatingTo = (o, navigationContext) =>
+            {
+                navigationContext.ShouldEqual(context);
+                o.ShouldEqual(prevTarget);
+                ++targetInvokeCount;
+            };
+
+            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
+            dispatcher.AddComponent(new NavigationTargetDispatcher());
+            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
+            {
+                TryGetNavigationEntries = m => prevEntry
+            });
+
+            dispatcher.OnNavigating(context);
+            targetInvokeCount.ShouldEqual(1);
+            prevTargetInvokeCount.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]
@@ -277,215 +486,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 _navigationDispatcher.ShouldEqual(navigationDispatcher);
                 OnNavigatedTo?.Invoke(fromTarget, navigationContext);
             }
-        }
-
-        [Fact]
-        public async Task NavigationConditionShouldInvokeCallback()
-        {
-            var dispatcher = new NavigationDispatcher();
-            var target = new HasCloseNavigationCondition(dispatcher);
-            dispatcher.AddComponent(new NavigationTargetDispatcher());
-            var cts = new CancellationTokenSource().Token;
-            var closeCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.Close);
-            var newCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.New);
-            var closeCount = 0;
-            var result = Task.FromResult(false);
-            target.CanCloseAsync = (context, token) =>
-            {
-                context.ShouldEqual(closeCtx);
-                token.ShouldEqual(cts);
-                ++closeCount;
-                return result.AsValueTask();
-            };
-
-            (await dispatcher.OnNavigatingAsync(closeCtx, cts)).ShouldBeFalse();
-            closeCount.ShouldEqual(1);
-
-            (await dispatcher.OnNavigatingAsync(newCtx, cts)).ShouldBeTrue();
-            closeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void NavigationShouldInvokeCallbacks()
-        {
-            var dispatcher = new NavigationDispatcher();
-            var target = new HasCloseNavigationHandler(dispatcher);
-            dispatcher.AddComponent(new NavigationTargetDispatcher());
-            var closeCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.Close);
-            var newCtx = new NavigationContext(target, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.New);
-            var closingCount = 0;
-            var closeCount = 0;
-            target.OnClosing = context =>
-            {
-                context.ShouldEqual(closeCtx);
-                closingCount++;
-            };
-            target.OnClosed = context =>
-            {
-                context.ShouldEqual(closeCtx);
-                ++closeCount;
-            };
-
-            dispatcher.OnNavigating(closeCtx);
-            closingCount.ShouldEqual(1);
-            closeCount.ShouldEqual(0);
-
-            dispatcher.OnNavigated(closeCtx);
-            closingCount.ShouldEqual(1);
-            closeCount.ShouldEqual(1);
-
-            dispatcher.OnNavigating(newCtx);
-            dispatcher.OnNavigated(newCtx);
-            closingCount.ShouldEqual(1);
-            closeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void OnNavigatedShouldInvokeCallbackClose()
-        {
-            var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatedHandler(dispatcher);
-            var target = new HasNavigatedHandler(dispatcher);
-            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.Close);
-            var targetInvokeCount = 0;
-            var prevTargetInvokeCount = 0;
-
-            prevTarget.OnNavigatedFrom = (o, navigationContext) => throw new NotSupportedException();
-            prevTarget.OnNavigatedTo = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(target);
-                ++prevTargetInvokeCount;
-            };
-            target.OnNavigatedFrom = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(prevTarget);
-                ++targetInvokeCount;
-            };
-            target.OnNavigatedTo = (o, navigationContext) => throw new NotSupportedException();
-
-            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationTargetDispatcher());
-            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
-            {
-                TryGetNavigationEntries = m => prevEntry
-            });
-
-            dispatcher.OnNavigated(context);
-            targetInvokeCount.ShouldEqual(1);
-            prevTargetInvokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void OnNavigatedShouldInvokeCallbackNew()
-        {
-            var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatedHandler(dispatcher);
-            var target = new HasNavigatedHandler(dispatcher);
-            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.New);
-            var targetInvokeCount = 0;
-            var prevTargetInvokeCount = 0;
-
-            prevTarget.OnNavigatedFrom = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(target);
-                ++prevTargetInvokeCount;
-            };
-            prevTarget.OnNavigatedTo = (o, navigationContext) => throw new NotSupportedException();
-            target.OnNavigatedFrom = (o, navigationContext) => throw new NotSupportedException();
-            target.OnNavigatedTo = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(prevTarget);
-                ++targetInvokeCount;
-            };
-
-            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationTargetDispatcher());
-            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
-            {
-                TryGetNavigationEntries = m => prevEntry
-            });
-
-            dispatcher.OnNavigated(context);
-            targetInvokeCount.ShouldEqual(1);
-            prevTargetInvokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void OnNavigatingShouldInvokeCallbackClose()
-        {
-            var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatingHandler(dispatcher);
-            var target = new HasNavigatingHandler(dispatcher);
-            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.Close);
-            var targetInvokeCount = 0;
-            var prevTargetInvokeCount = 0;
-
-            prevTarget.OnNavigatingFrom = (o, navigationContext) => throw new NotSupportedException();
-            prevTarget.OnNavigatingTo = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(target);
-                ++prevTargetInvokeCount;
-            };
-            target.OnNavigatingFrom = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(prevTarget);
-                ++targetInvokeCount;
-            };
-            target.OnNavigatingTo = (o, navigationContext) => throw new NotSupportedException();
-
-            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationTargetDispatcher());
-            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
-            {
-                TryGetNavigationEntries = m => prevEntry
-            });
-
-            dispatcher.OnNavigating(context);
-            targetInvokeCount.ShouldEqual(1);
-            prevTargetInvokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void OnNavigatingShouldInvokeCallbackNew()
-        {
-            var dispatcher = new NavigationDispatcher();
-            var prevTarget = new HasNavigatingHandler(dispatcher);
-            var target = new HasNavigatingHandler(dispatcher);
-            var context = new NavigationContext(target, NavigationProvider.System, "-", NavigationType.Page, NavigationMode.New);
-            var targetInvokeCount = 0;
-            var prevTargetInvokeCount = 0;
-
-            prevTarget.OnNavigatingFrom = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(target);
-                ++prevTargetInvokeCount;
-            };
-            prevTarget.OnNavigatingTo = (o, navigationContext) => throw new NotSupportedException();
-            target.OnNavigatingFrom = (o, navigationContext) => throw new NotSupportedException();
-            target.OnNavigatingTo = (o, navigationContext) =>
-            {
-                navigationContext.ShouldEqual(context);
-                o.ShouldEqual(prevTarget);
-                ++targetInvokeCount;
-            };
-
-            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
-            dispatcher.AddComponent(new NavigationTargetDispatcher());
-            dispatcher.AddComponent(new TestNavigationEntryProviderComponent
-            {
-                TryGetNavigationEntries = m => prevEntry
-            });
-
-            dispatcher.OnNavigating(context);
-            targetInvokeCount.ShouldEqual(1);
-            prevTargetInvokeCount.ShouldEqual(1);
         }
     }
 }

@@ -24,6 +24,397 @@ namespace MugenMvvm.UnitTests.Presenters
 {
     public class ViewModelPresenterMediatorBaseTest : UnitTestBase
     {
+        [Fact]
+        public void ConstructorShouldInitializeFields()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping);
+            mediator.Id.ShouldEqual($"{mediator.GetType().FullName}{mapping.Id}");
+            mediator.ViewModel.ShouldEqual(vm);
+            mediator.Mapping.ShouldEqual(mapping);
+            mediator.View.ShouldBeNull();
+            mediator.CurrentView.ShouldBeNull();
+        }
+
+        [Fact]
+        public void OnClosingShouldWaitNavigationDispatcherOnNavigating()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
+            var canClose = true;
+            var tcs = new TaskCompletionSource<bool>();
+
+            var navigationDispatcher = new NavigationDispatcher();
+            navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
+            {
+                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
+            });
+            navigationDispatcher.AddComponent(new TestNavigationConditionComponent
+            {
+                CanNavigateAsync = (context, t) =>
+                {
+                    context.ShouldEqual(navigationContext);
+                    if (canClose)
+                        return new ValueTask<bool>(true);
+                    return tcs.Task.AsValueTask();
+                }
+            });
+
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
+            });
+
+            var threadDispatcher = new ThreadDispatcher();
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
+            mediator.ShowViewHandler = context =>
+            {
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.CloseViewHandler = context =>
+            {
+                mediator.OnViewClosed(DefaultMetadata);
+                return null;
+            };
+            mediator.TryShow(null, default, DefaultMetadata);
+
+            canClose = false;
+            var cancelEventArgs = new CancelableRequest();
+            mediator.OnViewClosing(cancelEventArgs, DefaultMetadata);
+            cancelEventArgs.Cancel!.Value.ShouldBeTrue();
+            tcs.SetResult(true);
+            cancelEventArgs.Cancel = null;
+            mediator.OnViewClosing(cancelEventArgs, DefaultMetadata);
+            cancelEventArgs.Cancel!.Value.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void TryCloseShouldCheckNavigationType()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource().Token;
+            var closeCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
+            });
+            var threadDispatcher = new ThreadDispatcher();
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
+            {
+                CloseViewHandler = context =>
+                {
+                    ++closeCount;
+                    return null;
+                }
+            };
+            mediator.NavigationTypeField = NavigationType.Page;
+            mediator.ShowViewHandler = context =>
+            {
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.TryShow(null, cts, DefaultMetadata);
+
+            mediator.TryClose(null, cts, NavigationMetadata.NavigationType.ToContext(NavigationType.Background));
+            closeCount.ShouldEqual(0);
+
+            mediator.TryClose(null, cts, NavigationMetadata.NavigationType.ToContext(mediator.NavigationTypeField));
+            closeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryCloseShouldCheckView()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource().Token;
+            var closeCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
+            });
+            var threadDispatcher = new ThreadDispatcher();
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
+            {
+                CloseViewHandler = context =>
+                {
+                    ++closeCount;
+                    return null;
+                }
+            };
+            mediator.ShowViewHandler = context =>
+            {
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.TryShow(null, cts, DefaultMetadata);
+
+            mediator.TryClose(this, cts, DefaultMetadata);
+            closeCount.ShouldEqual(0);
+
+            mediator.TryClose(view.Target, cts, DefaultMetadata);
+            closeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryCloseShouldClearView()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource();
+            var initCount = 0;
+            var clearCount = 0;
+            var clearMediatorCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            var viewManager = new ViewManager();
+            var threadDispatcher = new ThreadDispatcher();
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
+            mediator.InitializeViewHandler = context => { ++initCount; };
+            mediator.CleanupViewHandler = context =>
+            {
+                ++clearMediatorCount;
+                mediator.CurrentView.ShouldEqual(view.Target);
+            };
+            mediator.CloseViewHandler = context =>
+            {
+                mediator.OnViewClosed(DefaultMetadata);
+                return null;
+            };
+            mediator.ShowViewHandler = context =>
+            {
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, m, token) => new ValueTask<IView?>(view),
+                TryCleanupAsync = (v, o, arg3, arg5) =>
+                {
+                    ++clearCount;
+                    v.ShouldEqual(view);
+                    return new ValueTask<bool>(true);
+                }
+            });
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            mediator.TryShow(null, cts.Token, DefaultMetadata);
+            initCount.ShouldEqual(1);
+            clearMediatorCount.ShouldEqual(0);
+            clearCount.ShouldEqual(0);
+
+            mediator.TryClose(null, default, DefaultMetadata);
+            initCount.ShouldEqual(1);
+            clearMediatorCount.ShouldEqual(1);
+            clearCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryShowShouldCheckNavigationType()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource().Token;
+            var showCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
+            });
+            var threadDispatcher = new ThreadDispatcher();
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
+            {
+                ShowViewHandler = context =>
+                {
+                    ++showCount;
+                    return null;
+                },
+                NavigationTypeField = NavigationType.Page
+            };
+            mediator.TryShow(null, cts, NavigationMetadata.NavigationType.ToContext(NavigationType.Background));
+            showCount.ShouldEqual(0);
+
+            mediator.TryShow(null, cts, NavigationMetadata.NavigationType.ToContext(mediator.NavigationTypeField));
+            showCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryShowShouldClearViewFailed()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource();
+            var initCount = 0;
+            var clearCount = 0;
+            var clearMediatorCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            var viewManager = new ViewManager();
+            var threadDispatcher = new ThreadDispatcher();
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
+            mediator.InitializeViewHandler = context => { ++initCount; };
+            mediator.CleanupViewHandler = context =>
+            {
+                ++clearMediatorCount;
+                mediator.CurrentView.ShouldEqual(view.Target);
+            };
+            mediator.ShowViewHandler = context => throw new Exception();
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, m, token) => new ValueTask<IView?>(view),
+                TryCleanupAsync = (v, o, arg3, arg5) =>
+                {
+                    ++clearCount;
+                    v.ShouldEqual(view);
+                    return new ValueTask<bool>(true);
+                }
+            });
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            mediator.TryShow(null, cts.Token, DefaultMetadata);
+            initCount.ShouldEqual(1);
+            clearMediatorCount.ShouldEqual(1);
+            clearCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryShowShouldDetectRestore()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource();
+            var showCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            var viewManager = new ViewManager();
+            var threadDispatcher = new ThreadDispatcher();
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
+            mediator.ShowViewHandler = context =>
+            {
+                ++showCount;
+                context.NavigationMode.ShouldEqual(NavigationMode.New);
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, m, token) => new ValueTask<IView?>(view)
+            });
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            mediator.TryShow(null, cts.Token, DefaultMetadata);
+            showCount.ShouldEqual(1);
+
+            showCount = 0;
+            mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
+            mediator.ShowViewHandler = context =>
+            {
+                ++showCount;
+                context.NavigationMode.ShouldEqual(NavigationMode.Restore);
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.TryShow(null, cts.Token, DefaultMetadata);
+            showCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryShowShouldUpdateView()
+        {
+            var vm = new TestViewModel();
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var view = new View(mapping, new object(), vm);
+            var newView = new View(mapping, new object(), vm);
+            var cts = new CancellationTokenSource();
+            var cleanupCount = 0;
+            var showCount = 0;
+            var activateCount = 0;
+
+            var navigationDispatcher = new NavigationDispatcher();
+            var viewManager = new ViewManager();
+            var threadDispatcher = new ThreadDispatcher();
+            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
+            {
+                CleanupViewHandler = context => { ++cleanupCount; }
+            };
+            mediator.ShowViewHandler = context =>
+            {
+                ++showCount;
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.ActivateViewHandler = context =>
+            {
+                ++activateCount;
+                mediator.OnViewActivated(DefaultMetadata);
+                return new ValueTask<bool>(true);
+            };
+
+            var cleanupViewCount = 0;
+            navigationDispatcher.AddComponent(new NavigationContextProvider());
+            viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, m, token) =>
+                {
+                    MugenExtensions.TryGetViewModelView(r, out object? v);
+                    if (v == null)
+                        return new ValueTask<IView?>(view);
+                    return new ValueTask<IView?>(newView);
+                },
+                TryCleanupAsync = (v, r, m, t) =>
+                {
+                    ++cleanupViewCount;
+                    v.ShouldEqual(view);
+                    return new ValueTask<bool>(true);
+                }
+            });
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            mediator.TryShow(null, cts.Token, DefaultMetadata);
+            mediator.View.ShouldEqual(view);
+            mediator.CurrentView.ShouldEqual(view.Target);
+            cleanupCount.ShouldEqual(0);
+            activateCount.ShouldEqual(0);
+            showCount.ShouldEqual(1);
+            cleanupViewCount.ShouldEqual(0);
+
+            mediator.TryShow(newView.Target, cts.Token, default);
+            mediator.View.ShouldEqual(newView);
+            mediator.CurrentView.ShouldEqual(newView.Target);
+            cleanupCount.ShouldEqual(1);
+            showCount.ShouldEqual(1);
+            activateCount.ShouldEqual(1);
+            cleanupViewCount.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -587,397 +978,6 @@ namespace MugenMvvm.UnitTests.Presenters
                 cancelCount.ShouldEqual(0);
                 errorCount.ShouldEqual(1);
             }
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeFields()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping);
-            mediator.Id.ShouldEqual($"{mediator.GetType().FullName}{mapping.Id}");
-            mediator.ViewModel.ShouldEqual(vm);
-            mediator.Mapping.ShouldEqual(mapping);
-            mediator.View.ShouldBeNull();
-            mediator.CurrentView.ShouldBeNull();
-        }
-
-        [Fact]
-        public void OnClosingShouldWaitNavigationDispatcherOnNavigating()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
-            var canClose = true;
-            var tcs = new TaskCompletionSource<bool>();
-
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
-            {
-                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
-            });
-            navigationDispatcher.AddComponent(new TestNavigationConditionComponent
-            {
-                CanNavigateAsync = (context, t) =>
-                {
-                    context.ShouldEqual(navigationContext);
-                    if (canClose)
-                        return new ValueTask<bool>(true);
-                    return tcs.Task.AsValueTask();
-                }
-            });
-
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
-
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.ShowViewHandler = context =>
-            {
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            mediator.CloseViewHandler = context =>
-            {
-                mediator.OnViewClosed(DefaultMetadata);
-                return null;
-            };
-            mediator.TryShow(null, default, DefaultMetadata);
-
-            canClose = false;
-            var cancelEventArgs = new CancelableRequest();
-            mediator.OnViewClosing(cancelEventArgs, DefaultMetadata);
-            cancelEventArgs.Cancel!.Value.ShouldBeTrue();
-            tcs.SetResult(true);
-            cancelEventArgs.Cancel = null;
-            mediator.OnViewClosing(cancelEventArgs, DefaultMetadata);
-            cancelEventArgs.Cancel!.Value.ShouldBeFalse();
-        }
-
-        [Fact]
-        public void TryCloseShouldCheckNavigationType()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource().Token;
-            var closeCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
-            {
-                CloseViewHandler = context =>
-                {
-                    ++closeCount;
-                    return null;
-                }
-            };
-            mediator.NavigationTypeField = NavigationType.Page;
-            mediator.ShowViewHandler = context =>
-            {
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            mediator.TryShow(null, cts, DefaultMetadata);
-
-            mediator.TryClose(null, cts, NavigationMetadata.NavigationType.ToContext(NavigationType.Background));
-            closeCount.ShouldEqual(0);
-
-            mediator.TryClose(null, cts, NavigationMetadata.NavigationType.ToContext(mediator.NavigationTypeField));
-            closeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryCloseShouldCheckView()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource().Token;
-            var closeCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
-            {
-                CloseViewHandler = context =>
-                {
-                    ++closeCount;
-                    return null;
-                }
-            };
-            mediator.ShowViewHandler = context =>
-            {
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            mediator.TryShow(null, cts, DefaultMetadata);
-
-            mediator.TryClose(this, cts, DefaultMetadata);
-            closeCount.ShouldEqual(0);
-
-            mediator.TryClose(view.Target, cts, DefaultMetadata);
-            closeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryCloseShouldClearView()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource();
-            var initCount = 0;
-            var clearCount = 0;
-            var clearMediatorCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            var viewManager = new ViewManager();
-            var threadDispatcher = new ThreadDispatcher();
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.InitializeViewHandler = context => { ++initCount; };
-            mediator.CleanupViewHandler = context =>
-            {
-                ++clearMediatorCount;
-                mediator.CurrentView.ShouldEqual(view.Target);
-            };
-            mediator.CloseViewHandler = context =>
-            {
-                mediator.OnViewClosed(DefaultMetadata);
-                return null;
-            };
-            mediator.ShowViewHandler = context =>
-            {
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, m, token) => new ValueTask<IView?>(view),
-                TryCleanupAsync = (v, o, arg3, arg5) =>
-                {
-                    ++clearCount;
-                    v.ShouldEqual(view);
-                    return new ValueTask<bool>(true);
-                }
-            });
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            mediator.TryShow(null, cts.Token, DefaultMetadata);
-            initCount.ShouldEqual(1);
-            clearMediatorCount.ShouldEqual(0);
-            clearCount.ShouldEqual(0);
-
-            mediator.TryClose(null, default, DefaultMetadata);
-            initCount.ShouldEqual(1);
-            clearMediatorCount.ShouldEqual(1);
-            clearCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryShowShouldCheckNavigationType()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource().Token;
-            var showCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
-            {
-                ShowViewHandler = context =>
-                {
-                    ++showCount;
-                    return null;
-                },
-                NavigationTypeField = NavigationType.Page
-            };
-            mediator.TryShow(null, cts, NavigationMetadata.NavigationType.ToContext(NavigationType.Background));
-            showCount.ShouldEqual(0);
-
-            mediator.TryShow(null, cts, NavigationMetadata.NavigationType.ToContext(mediator.NavigationTypeField));
-            showCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryShowShouldClearViewFailed()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource();
-            var initCount = 0;
-            var clearCount = 0;
-            var clearMediatorCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            var viewManager = new ViewManager();
-            var threadDispatcher = new ThreadDispatcher();
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.InitializeViewHandler = context => { ++initCount; };
-            mediator.CleanupViewHandler = context =>
-            {
-                ++clearMediatorCount;
-                mediator.CurrentView.ShouldEqual(view.Target);
-            };
-            mediator.ShowViewHandler = context => throw new Exception();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, m, token) => new ValueTask<IView?>(view),
-                TryCleanupAsync = (v, o, arg3, arg5) =>
-                {
-                    ++clearCount;
-                    v.ShouldEqual(view);
-                    return new ValueTask<bool>(true);
-                }
-            });
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            mediator.TryShow(null, cts.Token, DefaultMetadata);
-            initCount.ShouldEqual(1);
-            clearMediatorCount.ShouldEqual(1);
-            clearCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryShowShouldDetectRestore()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource();
-            var showCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            var viewManager = new ViewManager();
-            var threadDispatcher = new ThreadDispatcher();
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.ShowViewHandler = context =>
-            {
-                ++showCount;
-                context.NavigationMode.ShouldEqual(NavigationMode.New);
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, m, token) => new ValueTask<IView?>(view)
-            });
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            mediator.TryShow(null, cts.Token, DefaultMetadata);
-            showCount.ShouldEqual(1);
-
-            showCount = 0;
-            mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.ShowViewHandler = context =>
-            {
-                ++showCount;
-                context.NavigationMode.ShouldEqual(NavigationMode.Restore);
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            mediator.TryShow(null, cts.Token, DefaultMetadata);
-            showCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryShowShouldUpdateView()
-        {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-            var newView = new View(mapping, new object(), vm);
-            var cts = new CancellationTokenSource();
-            var cleanupCount = 0;
-            var showCount = 0;
-            var activateCount = 0;
-
-            var navigationDispatcher = new NavigationDispatcher();
-            var viewManager = new ViewManager();
-            var threadDispatcher = new ThreadDispatcher();
-            var mediator = new TestViewModelPresenterMediatorBase<object>(vm, mapping, viewManager, null, navigationDispatcher, threadDispatcher)
-            {
-                CleanupViewHandler = context => { ++cleanupCount; }
-            };
-            mediator.ShowViewHandler = context =>
-            {
-                ++showCount;
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            mediator.ActivateViewHandler = context =>
-            {
-                ++activateCount;
-                mediator.OnViewActivated(DefaultMetadata);
-                return new ValueTask<bool>(true);
-            };
-
-            var cleanupViewCount = 0;
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, m, token) =>
-                {
-                    MugenExtensions.TryGetViewModelView(r, out object? v);
-                    if (v == null)
-                        return new ValueTask<IView?>(view);
-                    return new ValueTask<IView?>(newView);
-                },
-                TryCleanupAsync = (v, r, m, t) =>
-                {
-                    ++cleanupViewCount;
-                    v.ShouldEqual(view);
-                    return new ValueTask<bool>(true);
-                }
-            });
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            mediator.TryShow(null, cts.Token, DefaultMetadata);
-            mediator.View.ShouldEqual(view);
-            mediator.CurrentView.ShouldEqual(view.Target);
-            cleanupCount.ShouldEqual(0);
-            activateCount.ShouldEqual(0);
-            showCount.ShouldEqual(1);
-            cleanupViewCount.ShouldEqual(0);
-
-            mediator.TryShow(newView.Target, cts.Token, default);
-            mediator.View.ShouldEqual(newView);
-            mediator.CurrentView.ShouldEqual(newView.Target);
-            cleanupCount.ShouldEqual(1);
-            showCount.ShouldEqual(1);
-            activateCount.ShouldEqual(1);
-            cleanupViewCount.ShouldEqual(1);
         }
     }
 }

@@ -12,6 +12,72 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class MemberListenerCollectionTest : UnitTestBase
     {
+        [Fact]
+        public void ShouldInvokeVirtualMethods()
+        {
+            var l1 = new TestWeakEventListener();
+            var l2 = new TestWeakEventListener();
+            var l3 = new TestWeakEventListener();
+
+            var collection = new TestPropertyChangedListenerCollection();
+            var token = collection.Add(l1, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Add(l2, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Add(l3, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            l2.TryHandleDefault = false;
+            l3.TryHandleDefault = false;
+            collection.Raise(this, this, "", DefaultMetadata);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            token.Dispose();
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            token = collection.Add(l1, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            token.Dispose();
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            collection.Add(l1, "");
+            collection.Add(l2, "");
+            collection.Add(l3, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+            l1.TryHandleDefault = false;
+            l2.TryHandleDefault = false;
+            l3.TryHandleDefault = false;
+            collection.Raise(this, this, "", DefaultMetadata);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            collection.Add(l1, "");
+            collection.Add(l2, "");
+            collection.Add(l3, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+            collection.Clear();
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(150)]
@@ -197,72 +263,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             protected override void OnListenersAdded() => ++AddedCount;
 
             protected override void OnListenersRemoved() => ++RemovedCount;
-        }
-
-        [Fact]
-        public void ShouldInvokeVirtualMethods()
-        {
-            var l1 = new TestWeakEventListener();
-            var l2 = new TestWeakEventListener();
-            var l3 = new TestWeakEventListener();
-
-            var collection = new TestPropertyChangedListenerCollection();
-            var token = collection.Add(l1, "");
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(0);
-
-            collection.Add(l2, "");
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(0);
-
-            collection.Add(l3, "");
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(0);
-
-            l2.TryHandleDefault = false;
-            l3.TryHandleDefault = false;
-            collection.Raise(this, this, "", DefaultMetadata);
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(0);
-
-            token.Dispose();
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(1);
-
-            collection.AddedCount = 0;
-            collection.RemovedCount = 0;
-            token = collection.Add(l1, "");
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(0);
-
-            token.Dispose();
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(1);
-
-            collection.AddedCount = 0;
-            collection.RemovedCount = 0;
-            collection.Add(l1, "");
-            collection.Add(l2, "");
-            collection.Add(l3, "");
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(0);
-            l1.TryHandleDefault = false;
-            l2.TryHandleDefault = false;
-            l3.TryHandleDefault = false;
-            collection.Raise(this, this, "", DefaultMetadata);
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(1);
-
-            collection.AddedCount = 0;
-            collection.RemovedCount = 0;
-            collection.Add(l1, "");
-            collection.Add(l2, "");
-            collection.Add(l3, "");
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(0);
-            collection.Clear();
-            collection.AddedCount.ShouldEqual(1);
-            collection.RemovedCount.ShouldEqual(1);
         }
     }
 }

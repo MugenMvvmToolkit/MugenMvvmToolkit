@@ -11,29 +11,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
     public class StringTokenParserTest : UnitTestBase
     {
-        [Theory]
-        [InlineData("'test'", "test")]
-        [InlineData("'t'", "t")]
-        [InlineData("\"t\"", "t")]
-        [InlineData("\"test\"", "test")]
-        [InlineData("&amp;test&amp;", "test")]
-        [InlineData("'\\0\\n'", "\0\n")]
-        [InlineData("@'\"\"t\"\"'", "\"t\"")]
-        [InlineData("'t", null)]
-        [InlineData("\"t", null)]
-        [InlineData("t\"", null)]
-        [InlineData("@t\"\"", null)]
-        public void TryParseShouldParseStringExpression(string expression, object result)
-        {
-            var component = new StringTokenParser();
-            var ctx = new TokenParserContext();
-            ctx.Initialize(expression, DefaultMetadata);
-            if (result == null)
-                component.TryParse(ctx, null).ShouldBeNull();
-            else
-                component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(result));
-        }
-
         [Fact]
         public void TryParseShouldIgnoreNotStringExpression()
         {
@@ -78,6 +55,29 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                 }, new string[0]);
             ctx.Initialize("$'{1+1:n} {{test}} {2:t}'", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(expected);
+        }
+
+        [Theory]
+        [InlineData("'test'", "test")]
+        [InlineData("'t'", "t")]
+        [InlineData("\"t\"", "t")]
+        [InlineData("\"test\"", "test")]
+        [InlineData("&amp;test&amp;", "test")]
+        [InlineData("'\\0\\n'", "\0\n")]
+        [InlineData("@'\"\"t\"\"'", "\"t\"")]
+        [InlineData("'t", null)]
+        [InlineData("\"t", null)]
+        [InlineData("t\"", null)]
+        [InlineData("@t\"\"", null)]
+        public void TryParseShouldParseStringExpression(string expression, object result)
+        {
+            var component = new StringTokenParser();
+            var ctx = new TokenParserContext();
+            ctx.Initialize(expression, DefaultMetadata);
+            if (result == null)
+                component.TryParse(ctx, null).ShouldBeNull();
+            else
+                component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(result));
         }
     }
 }

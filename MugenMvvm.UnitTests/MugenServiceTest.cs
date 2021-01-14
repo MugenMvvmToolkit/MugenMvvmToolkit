@@ -7,13 +7,6 @@ namespace MugenMvvm.UnitTests
 {
     public class MugenServiceTest : UnitTestBase
     {
-        private static void Validate<T>(Func<T> getService, in Type? type) where T : class
-        {
-            MugenService.Configuration.Clear<T>();
-            getService();
-            typeof(T).ShouldEqual(type);
-        }
-
         [Fact]
         public void DefaultServicesShouldBeValid()
         {
@@ -119,6 +112,13 @@ namespace MugenMvvm.UnitTests
             MugenService.Configuration.Clear<MugenServiceTest>();
             ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
             MugenService.Optional<MugenServiceTest>().ShouldBeNull();
+        }
+
+        private static void Validate<T>(Func<T> getService, in Type? type) where T : class
+        {
+            MugenService.Configuration.Clear<T>();
+            getService();
+            typeof(T).ShouldEqual(type);
         }
     }
 }

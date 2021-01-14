@@ -6,6 +6,16 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class ActionTokenTest : UnitTestBase
     {
+        [Fact]
+        public void NoDoShouldNotBeEmpty() => ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
+
+        [Fact]
+        public void NoDoShouldReturnNewObject()
+        {
+            ActionToken.NoDoToken.Dispose();
+            ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
+        }
+
         [Theory]
         [InlineData(null, null)]
         [InlineData("1", null)]
@@ -50,16 +60,6 @@ namespace MugenMvvm.UnitTests.Internal
             actionToken.Dispose();
             count.ShouldEqual(1);
             actionToken.IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void NoDoShouldNotBeEmpty() => ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
-
-        [Fact]
-        public void NoDoShouldReturnNewObject()
-        {
-            ActionToken.NoDoToken.Dispose();
-            ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
         }
     }
 }

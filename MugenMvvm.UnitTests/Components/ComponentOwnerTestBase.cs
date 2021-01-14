@@ -9,6 +9,19 @@ namespace MugenMvvm.UnitTests.Components
 {
     public abstract class ComponentOwnerTestBase<T> : UnitTestBase where T : class, IComponentOwner
     {
+        [Fact]
+        public virtual void ComponentOwnerShouldReturnCorrectHasComponentsValue()
+        {
+            var componentOwner = GetComponentOwner();
+            componentOwner.HasComponents.ShouldBeFalse();
+
+            componentOwner.Components.TryAdd(this);
+            componentOwner.HasComponents.ShouldBeTrue();
+
+            componentOwner.Components.Remove(this);
+            componentOwner.HasComponents.ShouldBeFalse();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -41,18 +54,5 @@ namespace MugenMvvm.UnitTests.Components
         }
 
         protected abstract T GetComponentOwner(IComponentCollectionManager? collectionProvider = null);
-
-        [Fact]
-        public virtual void ComponentOwnerShouldReturnCorrectHasComponentsValue()
-        {
-            var componentOwner = GetComponentOwner();
-            componentOwner.HasComponents.ShouldBeFalse();
-
-            componentOwner.Components.TryAdd(this);
-            componentOwner.HasComponents.ShouldBeTrue();
-
-            componentOwner.Components.Remove(this);
-            componentOwner.HasComponents.ShouldBeFalse();
-        }
     }
 }

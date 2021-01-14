@@ -15,56 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class EventMemberObserverProviderTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMemberObserverShouldUseMemberManager3(bool isStatic)
-        {
-            var member = "EventMember";
-            var set = new HashSet<string>();
-            var flags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll;
-            var target = new object();
-            var listener = new TestWeakEventListener();
-            var token = ActionToken.NoDoToken;
-            var tryObserveCount = 0;
-
-            var targetType = isStatic ? typeof(Enumerable) : typeof(string);
-            var result = new TestEventInfo
-            {
-                TryObserve = (o, l, arg3) =>
-                {
-                    ++tryObserveCount;
-                    o.ShouldEqual(target);
-                    l.ShouldEqual(listener);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return token;
-                }
-            };
-
-            var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
-            {
-                TryGetMembers = (t, m, f, r, meta) =>
-                {
-                    f.ShouldEqual(flags);
-                    set.Add((string) r);
-                    if (r.Equals(member))
-                        return result;
-                    return default;
-                }
-            });
-
-            var component = new EventMemberObserverProvider(memberManager);
-            var observer = component.TryGetMemberObserver(null!, targetType, member, DefaultMetadata);
-            observer.IsEmpty.ShouldBeFalse();
-            set.Count.ShouldEqual(1);
-            set.Contains(member).ShouldBeTrue();
-            tryObserveCount.ShouldEqual(0);
-
-            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
-            tryObserveCount.ShouldEqual(1);
-        }
-
         [Fact]
         public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
         {
@@ -252,6 +202,56 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             set.Count.ShouldEqual(2);
             set.Contains(memberName + BindingInternalConstant.ChangedEventPostfix).ShouldBeTrue();
             set.Contains(memberName + BindingInternalConstant.ChangeEventPostfix).ShouldBeTrue();
+            tryObserveCount.ShouldEqual(0);
+
+            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
+            tryObserveCount.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TryGetMemberObserverShouldUseMemberManager3(bool isStatic)
+        {
+            var member = "EventMember";
+            var set = new HashSet<string>();
+            var flags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll;
+            var target = new object();
+            var listener = new TestWeakEventListener();
+            var token = ActionToken.NoDoToken;
+            var tryObserveCount = 0;
+
+            var targetType = isStatic ? typeof(Enumerable) : typeof(string);
+            var result = new TestEventInfo
+            {
+                TryObserve = (o, l, arg3) =>
+                {
+                    ++tryObserveCount;
+                    o.ShouldEqual(target);
+                    l.ShouldEqual(listener);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return token;
+                }
+            };
+
+            var memberManager = new MemberManager();
+            memberManager.AddComponent(new TestMemberManagerComponent
+            {
+                TryGetMembers = (t, m, f, r, meta) =>
+                {
+                    f.ShouldEqual(flags);
+                    set.Add((string) r);
+                    if (r.Equals(member))
+                        return result;
+                    return default;
+                }
+            });
+
+            var component = new EventMemberObserverProvider(memberManager);
+            var observer = component.TryGetMemberObserver(null!, targetType, member, DefaultMetadata);
+            observer.IsEmpty.ShouldBeFalse();
+            set.Count.ShouldEqual(1);
+            set.Contains(member).ShouldBeTrue();
             tryObserveCount.ShouldEqual(0);
 
             observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);

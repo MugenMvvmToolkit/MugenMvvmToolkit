@@ -14,6 +14,13 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class CacheViewModelProviderTest : UnitTestBase
     {
+        [Fact]
+        public void ShouldIgnoreNonStringRequest()
+        {
+            var component = new CacheViewModelProvider();
+            component.TryGetViewModel(null!, this, DefaultMetadata).ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(1, true)]
         [InlineData(1, false)]
@@ -71,13 +78,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             GcCollect();
             for (var i = 0; i < count; i++)
                 manager.TryGetViewModel(array[i]!).ShouldBeNull();
-        }
-
-        [Fact]
-        public void ShouldIgnoreNonStringRequest()
-        {
-            var component = new CacheViewModelProvider();
-            component.TryGetViewModel(null!, this, DefaultMetadata).ShouldBeNull();
         }
     }
 }

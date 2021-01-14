@@ -21,6 +21,62 @@ namespace MugenMvvm.UnitTests.Presenters.Components
 {
     public class ViewModelPresenterTest : UnitTestBase
     {
+        [Fact]
+        public void TryCloseShouldIgnoreNoMediators()
+        {
+            var vm = new TestViewModel();
+            var presenter = new Presenter();
+            var viewModelPresenter = new ViewModelPresenter();
+            viewModelPresenter.TryClose(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            viewModelPresenter.TryClose(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void TryCloseShouldUseRegisteredMediators()
+        {
+            var cancellationToken = new CancellationTokenSource().Token;
+            var viewModel = new TestViewModel();
+            var view = new object();
+            var request = new ViewModelViewRequest(viewModel, view);
+            var viewManager = new ViewManager();
+            var result = new PresenterResult(viewModel, "t", NavigationProvider.System, NavigationType.Popup);
+            var closeCount = 0;
+            var mediator = new TestViewModelPresenterMediator
+            {
+                TryClose = (v, token, context) =>
+                {
+                    ++closeCount;
+                    v.ShouldEqual(request.View);
+                    token.ShouldEqual(cancellationToken);
+                    context.ShouldEqual(DefaultMetadata);
+                    return result;
+                }
+            };
+            var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
+            viewManager.AddComponent(new TestViewMappingProviderComponent
+            {
+                TryGetMappings = (o, arg3) => mapping
+            });
+
+            var presenter = new Presenter();
+            var viewModelPresenter = new ViewModelPresenter(viewManager);
+            presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(object), false, (p, vm, m, meta) => mediator));
+
+            viewModelPresenter.TryShow(presenter, viewModel, cancellationToken, DefaultMetadata);
+            viewModelPresenter.TryClose(presenter, request, cancellationToken, DefaultMetadata).AsList().Single().ShouldEqual(result);
+            closeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryShowShouldIgnoreNoMediators()
+        {
+            var vm = new TestViewModel();
+            var presenter = new Presenter();
+            var viewModelPresenter = new ViewModelPresenter();
+            viewModelPresenter.TryShow(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            viewModelPresenter.TryShow(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -141,62 +197,6 @@ namespace MugenMvvm.UnitTests.Presenters.Components
 
         private class TestView2 : TestView1
         {
-        }
-
-        [Fact]
-        public void TryCloseShouldIgnoreNoMediators()
-        {
-            var vm = new TestViewModel();
-            var presenter = new Presenter();
-            var viewModelPresenter = new ViewModelPresenter();
-            viewModelPresenter.TryClose(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            viewModelPresenter.TryClose(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void TryCloseShouldUseRegisteredMediators()
-        {
-            var cancellationToken = new CancellationTokenSource().Token;
-            var viewModel = new TestViewModel();
-            var view = new object();
-            var request = new ViewModelViewRequest(viewModel, view);
-            var viewManager = new ViewManager();
-            var result = new PresenterResult(viewModel, "t", NavigationProvider.System, NavigationType.Popup);
-            var closeCount = 0;
-            var mediator = new TestViewModelPresenterMediator
-            {
-                TryClose = (v, token, context) =>
-                {
-                    ++closeCount;
-                    v.ShouldEqual(request.View);
-                    token.ShouldEqual(cancellationToken);
-                    context.ShouldEqual(DefaultMetadata);
-                    return result;
-                }
-            };
-            var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
-            viewManager.AddComponent(new TestViewMappingProviderComponent
-            {
-                TryGetMappings = (o, arg3) => mapping
-            });
-
-            var presenter = new Presenter();
-            var viewModelPresenter = new ViewModelPresenter(viewManager);
-            presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(object), false, (p, vm, m, meta) => mediator));
-
-            viewModelPresenter.TryShow(presenter, viewModel, cancellationToken, DefaultMetadata);
-            viewModelPresenter.TryClose(presenter, request, cancellationToken, DefaultMetadata).AsList().Single().ShouldEqual(result);
-            closeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryShowShouldIgnoreNoMediators()
-        {
-            var vm = new TestViewModel();
-            var presenter = new Presenter();
-            var viewModelPresenter = new ViewModelPresenter();
-            viewModelPresenter.TryShow(presenter, vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            viewModelPresenter.TryShow(presenter, this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
     }
 }

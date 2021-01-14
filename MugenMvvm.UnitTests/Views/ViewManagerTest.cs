@@ -18,6 +18,16 @@ namespace MugenMvvm.UnitTests.Views
 {
     public class ViewManagerTest : ComponentOwnerTestBase<ViewManager>
     {
+        [Fact]
+        public void InitializeAsyncShouldThrowNoComponents()
+        {
+            var viewManager = new ViewManager();
+            ShouldThrow<InvalidOperationException>(() =>
+            {
+                var result = viewManager.InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this).Result;
+            });
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -214,15 +224,5 @@ namespace MugenMvvm.UnitTests.Views
         }
 
         protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void InitializeAsyncShouldThrowNoComponents()
-        {
-            var viewManager = new ViewManager();
-            ShouldThrow<InvalidOperationException>(() =>
-            {
-                var result = viewManager.InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this).Result;
-            });
-        }
     }
 }

@@ -21,45 +21,6 @@ namespace MugenMvvm.UnitTests.Collections
 {
     public class BindableCollectionAdapterTest : UnitTestBase
     {
-        protected override void InitializeThreadDispatcher() => MugenService.Configuration.InitializeInstance<IThreadDispatcher>(new ThreadDispatcher());
-
-        protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new(source);
-
-        private class SuspendableObservableCollection<T> : ObservableCollection<T>, ISuspendable
-        {
-            private int _suspendCount;
-
-            public bool IsSuspended => _suspendCount != 0;
-
-            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
-            {
-                ++_suspendCount;
-                return new ActionToken((o, o1) => ((SuspendableObservableCollection<T>) o!).EndSuspend(), this);
-            }
-
-            protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-            {
-                if (!IsSuspended)
-                    base.OnPropertyChanged(e);
-            }
-
-            protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-            {
-                if (!IsSuspended)
-                    base.OnCollectionChanged(e);
-            }
-
-            private void EndSuspend()
-            {
-                if (--_suspendCount == 0)
-                {
-                    OnCollectionChanged(Default.ResetCollectionEventArgs);
-                    OnPropertyChanged(Default.CountPropertyChangedArgs);
-                    OnPropertyChanged(Default.IndexerPropertyChangedArgs);
-                }
-            }
-        }
-
         [Fact]
         public void ShouldTrackChanges1()
         {
@@ -347,6 +308,45 @@ namespace MugenMvvm.UnitTests.Collections
             action!();
             tracker.ChangedItems.ShouldEqual(observableCollection);
             collectionAdapter.ShouldEqual(observableCollection);
+        }
+
+        protected override void InitializeThreadDispatcher() => MugenService.Configuration.InitializeInstance<IThreadDispatcher>(new ThreadDispatcher());
+
+        protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new(source);
+
+        private class SuspendableObservableCollection<T> : ObservableCollection<T>, ISuspendable
+        {
+            private int _suspendCount;
+
+            public bool IsSuspended => _suspendCount != 0;
+
+            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+            {
+                ++_suspendCount;
+                return new ActionToken((o, o1) => ((SuspendableObservableCollection<T>) o!).EndSuspend(), this);
+            }
+
+            protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+            {
+                if (!IsSuspended)
+                    base.OnPropertyChanged(e);
+            }
+
+            protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+            {
+                if (!IsSuspended)
+                    base.OnCollectionChanged(e);
+            }
+
+            private void EndSuspend()
+            {
+                if (--_suspendCount == 0)
+                {
+                    OnCollectionChanged(Default.ResetCollectionEventArgs);
+                    OnPropertyChanged(Default.CountPropertyChangedArgs);
+                    OnPropertyChanged(Default.IndexerPropertyChangedArgs);
+                }
+            }
         }
     }
 }

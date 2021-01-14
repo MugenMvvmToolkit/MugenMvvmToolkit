@@ -17,6 +17,89 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
     public class BindingMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest<BindingMemberExpressionNode>
     {
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var index = 1;
+            EnumFlags<BindingMemberExpressionFlags> flags = BindingMemberExpressionFlags.Target;
+            EnumFlags<MemberFlags> memberFlags = MemberFlags.Static;
+            var e = ConstantExpressionNode.EmptyString;
+            var observableMethodName = nameof(memberFlags);
+            var exp = new BindingMemberExpressionNode(Path, index, flags, memberFlags, observableMethodName, e, EmptyDictionary);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.BindingParameter);
+            exp.Path.ShouldEqual(Path);
+            exp.Index.ShouldEqual(index);
+            exp.Flags.ShouldEqual(flags);
+            exp.MemberFlags.ShouldEqual(memberFlags);
+            exp.Expression.ShouldEqual(e);
+            exp.ObservableMethodName.ShouldEqual(observableMethodName);
+            exp.Metadata.ShouldEqual(EmptyDictionary);
+        }
+
+        [Fact]
+        public void GetBindingSourceShouldRespectTargetType()
+        {
+            var path = MemberPath.Get(Path);
+            var observer = EmptyPathObserver.Empty;
+            var t = "r";
+            var src = new object();
+            object expectedTarget = src;
+            var expectedPath = Path;
+            var exp = new BindingMemberExpressionNode(Path, 0, BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional |
+                                                               BindingMemberExpressionFlags.StablePath |
+                                                               BindingMemberExpressionFlags.ObservableMethods |
+                                                               BindingMemberExpressionFlags.Target, MemberFlags.All, "M");
+
+            using var t1 = MugenService.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (o, arg3) =>
+                {
+                    o.ShouldEqual(expectedPath);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return path;
+                }
+            });
+            using var t2 = MugenService.AddComponent(new TestMemberPathObserverProviderComponent
+            {
+                TryGetMemberPathObserver = (target, req, arg4) =>
+                {
+                    ((IWeakReference) target).Target.ShouldEqual(expectedTarget);
+                    var request = (MemberPathObserverRequest) req;
+                    request.Expression.ShouldEqual(exp);
+                    request.Path.ShouldEqual(path);
+                    request.MemberFlags.ShouldEqual(exp.MemberFlags);
+                    request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
+                    request.HasStablePath.ShouldBeTrue();
+                    request.Optional.ShouldBeTrue();
+                    request.Observable.ShouldBeTrue();
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return observer;
+                }
+            });
+
+            expectedTarget = t;
+            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
+
+            exp = new BindingMemberExpressionNode(Path, 0,
+                BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath |
+                BindingMemberExpressionFlags.ObservableMethods, MemberFlags.All, "M");
+            expectedTarget = src;
+            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
+
+            expectedPath = $"DataContext.{Path}";
+            expectedTarget = t;
+            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
+
+            exp = new BindingMemberExpressionNode(Path, 0, BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional |
+                                                           BindingMemberExpressionFlags.StablePath |
+                                                           BindingMemberExpressionFlags.ObservableMethods |
+                                                           BindingMemberExpressionFlags.ParentDataContext, MemberFlags.All, "M");
+            expectedPath = $"Parent.DataContext.{Path}";
+            expectedTarget = t;
+            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
+        }
+
         [Theory]
         [InlineData("Test", "DataContext.Test")]
         [InlineData("[test]", "DataContext[test]")]
@@ -109,88 +192,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         }
 
         protected override BindingMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) => new(Path, 0, default, default, metadata: metadata);
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var index = 1;
-            EnumFlags<BindingMemberExpressionFlags> flags = BindingMemberExpressionFlags.Target;
-            EnumFlags<MemberFlags> memberFlags = MemberFlags.Static;
-            var e = ConstantExpressionNode.EmptyString;
-            var observableMethodName = nameof(memberFlags);
-            var exp = new BindingMemberExpressionNode(Path, index, flags, memberFlags, observableMethodName, e, EmptyDictionary);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.BindingParameter);
-            exp.Path.ShouldEqual(Path);
-            exp.Index.ShouldEqual(index);
-            exp.Flags.ShouldEqual(flags);
-            exp.MemberFlags.ShouldEqual(memberFlags);
-            exp.Expression.ShouldEqual(e);
-            exp.ObservableMethodName.ShouldEqual(observableMethodName);
-            exp.Metadata.ShouldEqual(EmptyDictionary);
-        }
-
-        [Fact]
-        public void GetBindingSourceShouldRespectTargetType()
-        {
-            var path = MemberPath.Get(Path);
-            var observer = EmptyPathObserver.Empty;
-            var t = "r";
-            var src = new object();
-            object expectedTarget = src;
-            var expectedPath = Path;
-            var exp = new BindingMemberExpressionNode(Path, 0, BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional |
-                                                               BindingMemberExpressionFlags.StablePath |
-                                                               BindingMemberExpressionFlags.ObservableMethods |
-                                                               BindingMemberExpressionFlags.Target, MemberFlags.All, "M");
-
-            using var t1 = MugenService.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (o, arg3) =>
-                {
-                    o.ShouldEqual(expectedPath);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return path;
-                }
-            });
-            using var t2 = MugenService.AddComponent(new TestMemberPathObserverProviderComponent
-            {
-                TryGetMemberPathObserver = (target, req, arg4) =>
-                {
-                    ((IWeakReference) target).Target.ShouldEqual(expectedTarget);
-                    var request = (MemberPathObserverRequest) req;
-                    request.Expression.ShouldEqual(exp);
-                    request.Path.ShouldEqual(path);
-                    request.MemberFlags.ShouldEqual(exp.MemberFlags);
-                    request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
-                    request.HasStablePath.ShouldBeTrue();
-                    request.Optional.ShouldBeTrue();
-                    request.Observable.ShouldBeTrue();
-                    arg4.ShouldEqual(DefaultMetadata);
-                    return observer;
-                }
-            });
-
-            expectedTarget = t;
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
-            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
-
-            exp = new BindingMemberExpressionNode(Path, 0,
-                BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath |
-                BindingMemberExpressionFlags.ObservableMethods, MemberFlags.All, "M");
-            expectedTarget = src;
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
-
-            expectedPath = $"DataContext.{Path}";
-            expectedTarget = t;
-            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
-
-            exp = new BindingMemberExpressionNode(Path, 0, BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional |
-                                                           BindingMemberExpressionFlags.StablePath |
-                                                           BindingMemberExpressionFlags.ObservableMethods |
-                                                           BindingMemberExpressionFlags.ParentDataContext, MemberFlags.All, "M");
-            expectedPath = $"Parent.DataContext.{Path}";
-            expectedTarget = t;
-            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
-        }
     }
 }

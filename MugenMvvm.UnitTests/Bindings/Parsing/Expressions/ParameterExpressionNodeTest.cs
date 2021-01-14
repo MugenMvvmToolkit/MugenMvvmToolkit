@@ -13,6 +13,38 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
     {
         private const string Name = "test";
 
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var newNode = new ParameterExpressionNode(Name);
+            var visitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => newNode
+            };
+            new ParameterExpressionNode("1").Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var exp = new ParameterExpressionNode(Name);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Parameter);
+            exp.Name.ShouldEqual(Name);
+            exp.ToString().ShouldEqual(Name);
+        }
+
+        [Fact]
+        public void GetHashCodeEqualsShouldBeValid()
+        {
+            var exp1 = new ParameterExpressionNode("1", new Dictionary<string, object?> {{"k", null}});
+            var exp2 = new ParameterExpressionNode("1", new Dictionary<string, object?> {{"k", null}});
+            HashCode.Combine(GetBaseHashCode(exp1), exp1.Name).ShouldEqual(exp1.GetHashCode());
+
+            exp1.Equals(exp2).ShouldBeTrue();
+            exp1.Equals(exp2.UpdateMetadata(null)).ShouldBeFalse();
+            exp1.Equals(new ParameterExpressionNode("2", exp1.Metadata)).ShouldBeFalse();
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -53,38 +85,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 updated.Metadata.ShouldEqual(metadata);
                 updated.Name.ShouldEqual(node.Name);
             }
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var newNode = new ParameterExpressionNode(Name);
-            var visitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => newNode
-            };
-            new ParameterExpressionNode("1").Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var exp = new ParameterExpressionNode(Name);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Parameter);
-            exp.Name.ShouldEqual(Name);
-            exp.ToString().ShouldEqual(Name);
-        }
-
-        [Fact]
-        public void GetHashCodeEqualsShouldBeValid()
-        {
-            var exp1 = new ParameterExpressionNode("1", new Dictionary<string, object?> {{"k", null}});
-            var exp2 = new ParameterExpressionNode("1", new Dictionary<string, object?> {{"k", null}});
-            HashCode.Combine(GetBaseHashCode(exp1), exp1.Name).ShouldEqual(exp1.GetHashCode());
-
-            exp1.Equals(exp2).ShouldBeTrue();
-            exp1.Equals(exp2.UpdateMetadata(null)).ShouldBeFalse();
-            exp1.Equals(new ParameterExpressionNode("2", exp1.Metadata)).ShouldBeFalse();
         }
     }
 }

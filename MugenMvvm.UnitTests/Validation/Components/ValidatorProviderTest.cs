@@ -10,16 +10,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class ValidatorProviderTest : UnitTestBase
     {
-        private sealed class ValidatorTarget : IHasTarget<IValidator>
-        {
-            public ValidatorTarget(IValidator target)
-            {
-                Target = target;
-            }
-
-            public IValidator Target { get; }
-        }
-
         [Fact]
         public void TryGetValidatorShouldReturnValidator1()
         {
@@ -38,6 +28,16 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var component = new ValidatorProviderComponent();
             component.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
             component.TryGetValidator(null!, new ValidatorTarget(validator), DefaultMetadata).ShouldEqual(validator);
+        }
+
+        private sealed class ValidatorTarget : IHasTarget<IValidator>
+        {
+            public ValidatorTarget(IValidator target)
+            {
+                Target = target;
+            }
+
+            public IValidator Target { get; }
         }
     }
 }

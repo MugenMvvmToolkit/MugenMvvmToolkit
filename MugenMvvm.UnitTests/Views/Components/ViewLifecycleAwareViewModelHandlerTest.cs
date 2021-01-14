@@ -13,14 +13,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewLifecycleAwareViewModelHandlerTest : UnitTestBase
     {
-        private class ViewLifecycleAwareViewModel : TestViewModelBase, IViewLifecycleAwareViewModel
-        {
-            public Action<IView, ViewLifecycleState, object?, IReadOnlyMetadataContext?>? OnViewLifecycleChanged { get; set; }
-
-            void IViewLifecycleAwareViewModel.OnViewLifecycleChanged(IView view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>
-                OnViewLifecycleChanged?.Invoke(view, lifecycleState, state, metadata);
-        }
-
         [Fact]
         public void ShouldNotifyViewModel()
         {
@@ -41,6 +33,14 @@ namespace MugenMvvm.UnitTests.Views.Components
             var component = new ViewLifecycleAwareViewModelHandler();
             component.OnLifecycleChanged(null!, view, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
+        }
+
+        private class ViewLifecycleAwareViewModel : TestViewModelBase, IViewLifecycleAwareViewModel
+        {
+            public Action<IView, ViewLifecycleState, object?, IReadOnlyMetadataContext?>? OnViewLifecycleChanged { get; set; }
+
+            void IViewLifecycleAwareViewModel.OnViewLifecycleChanged(IView view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>
+                OnViewLifecycleChanged?.Invoke(view, lifecycleState, state, metadata);
         }
     }
 }

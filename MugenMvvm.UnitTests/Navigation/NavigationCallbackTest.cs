@@ -15,6 +15,28 @@ namespace MugenMvvm.UnitTests.Navigation
     {
         private static readonly NavigationContext DefaultContext = new(null, NavigationProvider.System, "f", NavigationType.Popup, NavigationMode.Close);
 
+        [Fact]
+        public void SetResultShouldThrow()
+        {
+            var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
+            callback.SetResult(DefaultContext);
+
+            ShouldThrow<InvalidOperationException>(() => callback.SetResult(DefaultContext));
+            ShouldThrow<InvalidOperationException>(() => callback.SetException(DefaultContext, new Exception()));
+            ShouldThrow<InvalidOperationException>(() => callback.SetCanceled(DefaultContext, CancellationToken.None));
+        }
+
+        [Fact]
+        public void TrySetResultShouldReturnFalse()
+        {
+            var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
+            callback.SetResult(DefaultContext);
+
+            callback.TrySetResult(DefaultContext).ShouldBeFalse();
+            callback.TrySetException(DefaultContext, new Exception()).ShouldBeFalse();
+            callback.TrySetCanceled(DefaultContext, CancellationToken.None).ShouldBeFalse();
+        }
+
         [Theory]
         [InlineData(1, "1", "Tab")]
         [InlineData(2, "12", "Window")]
@@ -202,28 +224,6 @@ namespace MugenMvvm.UnitTests.Navigation
             callback.IsCompleted.ShouldBeTrue();
             callback.TryGetResult(out ctx).ShouldBeFalse();
             ctx.ShouldBeNull();
-        }
-
-        [Fact]
-        public void SetResultShouldThrow()
-        {
-            var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
-            callback.SetResult(DefaultContext);
-
-            ShouldThrow<InvalidOperationException>(() => callback.SetResult(DefaultContext));
-            ShouldThrow<InvalidOperationException>(() => callback.SetException(DefaultContext, new Exception()));
-            ShouldThrow<InvalidOperationException>(() => callback.SetCanceled(DefaultContext, CancellationToken.None));
-        }
-
-        [Fact]
-        public void TrySetResultShouldReturnFalse()
-        {
-            var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
-            callback.SetResult(DefaultContext);
-
-            callback.TrySetResult(DefaultContext).ShouldBeFalse();
-            callback.TrySetException(DefaultContext, new Exception()).ShouldBeFalse();
-            callback.TrySetCanceled(DefaultContext, CancellationToken.None).ShouldBeFalse();
         }
     }
 }

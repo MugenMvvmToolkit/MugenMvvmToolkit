@@ -11,6 +11,21 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewMappingProviderTest : UnitTestBase
     {
+        [Fact]
+        public void ClearMappingsShouldClearMappings()
+        {
+            var component = new ViewMappingProvider();
+            var vmType = typeof(TestViewModel);
+            var vType = typeof(BaseView);
+            component.AddMapping(vmType, vType, false, null, null, DefaultMetadata);
+
+            var vm = new TestViewModel();
+            component.TryGetMappings(null!, vm, DefaultMetadata).AsList().Single().ShouldNotBeNull();
+
+            component.ClearMappings();
+            component.TryGetMappings(null!, vm, DefaultMetadata).AsList().ShouldBeEmpty();
+        }
+
         [Theory]
         [InlineData(null, false)]
         [InlineData("test", false)]
@@ -296,21 +311,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 
         public class ViewImpl : BaseView
         {
-        }
-
-        [Fact]
-        public void ClearMappingsShouldClearMappings()
-        {
-            var component = new ViewMappingProvider();
-            var vmType = typeof(TestViewModel);
-            var vType = typeof(BaseView);
-            component.AddMapping(vmType, vType, false, null, null, DefaultMetadata);
-
-            var vm = new TestViewModel();
-            component.TryGetMappings(null!, vm, DefaultMetadata).AsList().Single().ShouldNotBeNull();
-
-            component.ClearMappings();
-            component.TryGetMappings(null!, vm, DefaultMetadata).AsList().ShouldBeEmpty();
         }
     }
 }

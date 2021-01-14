@@ -11,6 +11,33 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class ConditionExpressionNodeTest : UnitTestBase
     {
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var condition = new ConstantExpressionNode("-");
+            var ifTrue = new ConstantExpressionNode("1");
+            var ifFalse = new ConstantExpressionNode("2");
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => condition
+            };
+            new ConditionExpressionNode(condition, ifTrue, ifFalse).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(condition);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var condition = new ConstantExpressionNode("-");
+            var ifTrue = new ConstantExpressionNode("1");
+            var ifFalse = new ConstantExpressionNode("2");
+            var exp = new ConditionExpressionNode(condition, ifTrue, ifFalse);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Condition);
+            exp.Condition.ShouldEqual(condition);
+            exp.IfFalse.ShouldEqual(ifFalse);
+            exp.IfTrue.ShouldEqual(ifTrue);
+            exp.ToString().ShouldEqual("if (\"-\") {\"1\"} else {\"2\"}");
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -141,33 +168,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             ((TestExpressionNode) exp1.Condition).EqualsCount.ShouldEqual(1);
             ((TestExpressionNode) exp1.IfTrue).EqualsCount.ShouldEqual(1);
             ((TestExpressionNode) exp1.IfFalse).EqualsCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var condition = new ConstantExpressionNode("-");
-            var ifTrue = new ConstantExpressionNode("1");
-            var ifFalse = new ConstantExpressionNode("2");
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => condition
-            };
-            new ConditionExpressionNode(condition, ifTrue, ifFalse).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(condition);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var condition = new ConstantExpressionNode("-");
-            var ifTrue = new ConstantExpressionNode("1");
-            var ifFalse = new ConstantExpressionNode("2");
-            var exp = new ConditionExpressionNode(condition, ifTrue, ifFalse);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Condition);
-            exp.Condition.ShouldEqual(condition);
-            exp.IfFalse.ShouldEqual(ifFalse);
-            exp.IfTrue.ShouldEqual(ifTrue);
-            exp.ToString().ShouldEqual("if (\"-\") {\"1\"} else {\"2\"}");
         }
     }
 }

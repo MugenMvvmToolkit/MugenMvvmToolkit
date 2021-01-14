@@ -19,81 +19,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class ReflectionMemberProviderTest : UnitTestBase
     {
-        private readonly int _field;
         private static int FieldStatic;
-
-        public object this[int index]
-        {
-            get => this;
-            set { }
-        }
-
-        public static object? PropertyStatic { get; set; }
-
-        public event Action? Event;
-
-        public static event Action? EventStatic;
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMembersShouldReturnStaticEvents(bool canObserve)
-        {
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberObserverProviderComponent
-            {
-                TryGetMemberObserver = (type, o, arg4) =>
-                {
-                    if (canObserve)
-                        return new MemberObserver((o1, o2, listener, context) => new ActionToken(), this);
-                    return default;
-                }
-            });
-
-            var component = new ReflectionMemberProvider(observationManager);
-            var items = GetType()
-                        .GetEvents(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                        .Where(info => info.Name == nameof(EventStatic))
-                        .ToArray();
-            items.ShouldNotBeEmpty();
-            component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            var members = component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Event, DefaultMetadata).AsList();
-
-            if (canObserve)
-                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
-            else
-                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldNotContain(items);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMembersShouldReturnInstanceEvents(bool canObserve)
-        {
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberObserverProviderComponent
-            {
-                TryGetMemberObserver = (type, o, arg4) =>
-                {
-                    if (canObserve)
-                        return new MemberObserver((o1, o2, listener, context) => new ActionToken(), this);
-                    return default;
-                }
-            });
-
-            var component = new ReflectionMemberProvider(observationManager);
-            var items = GetType()
-                        .GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                        .Where(info => info.Name == nameof(Event))
-                        .ToArray();
-            items.ShouldNotBeEmpty();
-            var members = component.TryGetMembers(null!, GetType(), nameof(Event), MemberType.Event, DefaultMetadata).AsList();
-
-            if (canObserve)
-                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
-            else
-                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldNotContain(items);
-        }
+        private readonly int _field;
 
         [Fact]
         public void ShouldCacheMembers()
@@ -224,6 +151,79 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             items.ShouldNotBeEmpty();
             var members = component.TryGetMembers(null!, GetType(), nameof(PropertyStatic), MemberType.Accessor, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
+        }
+
+        public object this[int index]
+        {
+            get => this;
+            set { }
+        }
+
+        public static object? PropertyStatic { get; set; }
+
+        public event Action? Event;
+
+        public static event Action? EventStatic;
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TryGetMembersShouldReturnStaticEvents(bool canObserve)
+        {
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg4) =>
+                {
+                    if (canObserve)
+                        return new MemberObserver((o1, o2, listener, context) => new ActionToken(), this);
+                    return default;
+                }
+            });
+
+            var component = new ReflectionMemberProvider(observationManager);
+            var items = GetType()
+                        .GetEvents(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                        .Where(info => info.Name == nameof(EventStatic))
+                        .ToArray();
+            items.ShouldNotBeEmpty();
+            component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            var members = component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Event, DefaultMetadata).AsList();
+
+            if (canObserve)
+                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
+            else
+                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldNotContain(items);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TryGetMembersShouldReturnInstanceEvents(bool canObserve)
+        {
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg4) =>
+                {
+                    if (canObserve)
+                        return new MemberObserver((o1, o2, listener, context) => new ActionToken(), this);
+                    return default;
+                }
+            });
+
+            var component = new ReflectionMemberProvider(observationManager);
+            var items = GetType()
+                        .GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        .Where(info => info.Name == nameof(Event))
+                        .ToArray();
+            items.ShouldNotBeEmpty();
+            var members = component.TryGetMembers(null!, GetType(), nameof(Event), MemberType.Event, DefaultMetadata).AsList();
+
+            if (canObserve)
+                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldContain(items);
+            else
+                members.Select(info => (MemberInfo) info.UnderlyingMember!).ShouldNotContain(items);
         }
     }
 }

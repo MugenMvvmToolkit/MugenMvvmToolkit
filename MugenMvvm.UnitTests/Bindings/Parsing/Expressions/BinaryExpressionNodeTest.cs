@@ -11,6 +11,32 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class BinaryExpressionNodeTest : UnitTestBase
     {
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var left = new ConstantExpressionNode("1");
+            var right = new ConstantExpressionNode("2");
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => left
+            };
+            new BinaryExpressionNode(BinaryTokenType.Equality, left, right).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(left);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            BinaryTokenType tokenType = BinaryTokenType.Equality;
+            var left = new ConstantExpressionNode("1");
+            var right = new ConstantExpressionNode("2");
+            var exp = new BinaryExpressionNode(tokenType, left, right);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Binary);
+            exp.Left.ShouldEqual(left);
+            exp.Right.ShouldEqual(right);
+            exp.Token.ShouldEqual(tokenType);
+            exp.ToString().ShouldEqual("(\"1\" == \"2\")");
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -135,32 +161,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode) exp1.Left).EqualsCount.ShouldEqual(1);
             ((TestExpressionNode) exp1.Right).EqualsCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var left = new ConstantExpressionNode("1");
-            var right = new ConstantExpressionNode("2");
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => left
-            };
-            new BinaryExpressionNode(BinaryTokenType.Equality, left, right).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(left);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            BinaryTokenType tokenType = BinaryTokenType.Equality;
-            var left = new ConstantExpressionNode("1");
-            var right = new ConstantExpressionNode("2");
-            var exp = new BinaryExpressionNode(tokenType, left, right);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Binary);
-            exp.Left.ShouldEqual(left);
-            exp.Right.ShouldEqual(right);
-            exp.Token.ShouldEqual(tokenType);
-            exp.ToString().ShouldEqual("(\"1\" == \"2\")");
         }
     }
 }

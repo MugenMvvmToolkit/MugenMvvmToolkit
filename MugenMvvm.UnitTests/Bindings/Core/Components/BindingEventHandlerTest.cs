@@ -21,124 +21,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingEventHandlerTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetShouldInitializeValues(bool isOneTime)
-        {
-            var parameter = new BindingParameterValue(this, null);
-            var eventHandlerBindingComponent = BindingEventHandler.Get(parameter, true, isOneTime);
-            eventHandlerBindingComponent.ToggleEnabledState.ShouldBeTrue();
-            eventHandlerBindingComponent.CommandParameter.ShouldEqual(parameter);
-            if (isOneTime)
-                eventHandlerBindingComponent.ShouldBeType<BindingEventHandler>();
-            else
-                eventHandlerBindingComponent.ShouldBeType<BindingEventHandler.OneWay>();
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void OnAttachedShouldUpdateTargetAddOneTimeModeIfNeed(bool addOneTimeMode)
-        {
-            var updateCount = 0;
-            var binding = new TestBinding
-            {
-                UpdateTarget = () => ++updateCount,
-                Target = new TestMemberPathObserver
-                {
-                    GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
-                }
-            };
-            if (addOneTimeMode)
-                binding.Source = ItemOrArray.FromItem<object?>(new TestMemberPathObserver {GetLastMember = metadata => default});
-            IAttachableComponent component = BindingEventHandler.Get(default, false, true);
-            component.OnAttached(binding, DefaultMetadata);
-            updateCount.ShouldEqual(1);
-            if (addOneTimeMode)
-            {
-                binding.Components.Count.ShouldEqual(1);
-                binding.Components.Get<object>().Single().ShouldEqual(OneTimeBindingMode.NonDisposeInstance);
-            }
-        }
-
-        [Theory]
-        [InlineData(1, true)]
-        [InlineData(1, false)]
-        [InlineData(10, true)]
-        [InlineData(10, false)]
-        public void TryHandleShouldBeHandledByComponents(int count, bool isError)
-        {
-            IEventListener? eventListener = null;
-            var sender = new object();
-            var message = new object();
-            var member = new TestEventInfo
-            {
-                TryObserve = (t, listener, m) =>
-                {
-                    eventListener = listener;
-                    return new ActionToken((o, o1) => eventListener = null);
-                }
-            };
-            var binding = new TestBinding
-            {
-                Target = new TestMemberPathObserver
-                {
-                    GetLastMember = metadata => new MemberPathLastMember(this, member)
-                }
-            };
-
-            var exception = new Exception();
-            var beginEventCount = 0;
-            var errorEventCount = 0;
-            var endEventCount = 0;
-
-            var components = new List<IDisposable>();
-            for (var i = 0; i < count; i++)
-            {
-                var subscribe = MugenService.AddComponent(new TestBindingEventHandlerComponent(MugenService.BindingManager)
-                {
-                    OnBeginEvent = (s, msg, metadata) =>
-                    {
-                        if (isError)
-                            throw exception;
-                        ++beginEventCount;
-                        s.ShouldEqual(sender);
-                        msg.ShouldEqual(message);
-                        metadata.ShouldEqual(DefaultMetadata);
-                    },
-                    OnEndEvent = (s, msg, metadata) =>
-                    {
-                        ++endEventCount;
-                        s.ShouldEqual(sender);
-                        msg.ShouldEqual(message);
-                        metadata.ShouldEqual(DefaultMetadata);
-                    },
-                    OnEventError = (e, s, msg, metadata) =>
-                    {
-                        ++errorEventCount;
-                        e.ShouldEqual(exception);
-                        s.ShouldEqual(sender);
-                        msg.ShouldEqual(message);
-                        metadata.ShouldEqual(DefaultMetadata);
-                    }
-                });
-                components.Add(subscribe);
-            }
-
-            var component = BindingEventHandler.Get(default, false, true);
-            ((IAttachableComponent) component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
-
-            component.TrySetTargetValue(binding, default, new TestValueExpression(), DefaultMetadata);
-            eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
-            if (isError)
-                errorEventCount.ShouldEqual(count);
-            else
-                beginEventCount.ShouldEqual(count);
-            endEventCount.ShouldEqual(count);
-            components.ForEach(disposable => disposable.Dispose());
-        }
-
         [Fact]
         public void OnAttachingShouldSubscribeToTargetEvent()
         {
@@ -395,6 +277,124 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             component.TrySetTargetValue(binding, default, new TestValueExpression(), DefaultMetadata).ShouldBeTrue();
             enabledValue.ShouldBeTrue();
             canExecuteHandler.ShouldBeNull();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GetShouldInitializeValues(bool isOneTime)
+        {
+            var parameter = new BindingParameterValue(this, null);
+            var eventHandlerBindingComponent = BindingEventHandler.Get(parameter, true, isOneTime);
+            eventHandlerBindingComponent.ToggleEnabledState.ShouldBeTrue();
+            eventHandlerBindingComponent.CommandParameter.ShouldEqual(parameter);
+            if (isOneTime)
+                eventHandlerBindingComponent.ShouldBeType<BindingEventHandler>();
+            else
+                eventHandlerBindingComponent.ShouldBeType<BindingEventHandler.OneWay>();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void OnAttachedShouldUpdateTargetAddOneTimeModeIfNeed(bool addOneTimeMode)
+        {
+            var updateCount = 0;
+            var binding = new TestBinding
+            {
+                UpdateTarget = () => ++updateCount,
+                Target = new TestMemberPathObserver
+                {
+                    GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
+                }
+            };
+            if (addOneTimeMode)
+                binding.Source = ItemOrArray.FromItem<object?>(new TestMemberPathObserver {GetLastMember = metadata => default});
+            IAttachableComponent component = BindingEventHandler.Get(default, false, true);
+            component.OnAttached(binding, DefaultMetadata);
+            updateCount.ShouldEqual(1);
+            if (addOneTimeMode)
+            {
+                binding.Components.Count.ShouldEqual(1);
+                binding.Components.Get<object>().Single().ShouldEqual(OneTimeBindingMode.NonDisposeInstance);
+            }
+        }
+
+        [Theory]
+        [InlineData(1, true)]
+        [InlineData(1, false)]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        public void TryHandleShouldBeHandledByComponents(int count, bool isError)
+        {
+            IEventListener? eventListener = null;
+            var sender = new object();
+            var message = new object();
+            var member = new TestEventInfo
+            {
+                TryObserve = (t, listener, m) =>
+                {
+                    eventListener = listener;
+                    return new ActionToken((o, o1) => eventListener = null);
+                }
+            };
+            var binding = new TestBinding
+            {
+                Target = new TestMemberPathObserver
+                {
+                    GetLastMember = metadata => new MemberPathLastMember(this, member)
+                }
+            };
+
+            var exception = new Exception();
+            var beginEventCount = 0;
+            var errorEventCount = 0;
+            var endEventCount = 0;
+
+            var components = new List<IDisposable>();
+            for (var i = 0; i < count; i++)
+            {
+                var subscribe = MugenService.AddComponent(new TestBindingEventHandlerComponent(MugenService.BindingManager)
+                {
+                    OnBeginEvent = (s, msg, metadata) =>
+                    {
+                        if (isError)
+                            throw exception;
+                        ++beginEventCount;
+                        s.ShouldEqual(sender);
+                        msg.ShouldEqual(message);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    },
+                    OnEndEvent = (s, msg, metadata) =>
+                    {
+                        ++endEventCount;
+                        s.ShouldEqual(sender);
+                        msg.ShouldEqual(message);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    },
+                    OnEventError = (e, s, msg, metadata) =>
+                    {
+                        ++errorEventCount;
+                        e.ShouldEqual(exception);
+                        s.ShouldEqual(sender);
+                        msg.ShouldEqual(message);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    }
+                });
+                components.Add(subscribe);
+            }
+
+            var component = BindingEventHandler.Get(default, false, true);
+            ((IAttachableComponent) component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
+
+            component.TrySetTargetValue(binding, default, new TestValueExpression(), DefaultMetadata);
+            eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
+            if (isError)
+                errorEventCount.ShouldEqual(count);
+            else
+                beginEventCount.ShouldEqual(count);
+            endEventCount.ShouldEqual(count);
+            components.ForEach(disposable => disposable.Dispose());
         }
     }
 }

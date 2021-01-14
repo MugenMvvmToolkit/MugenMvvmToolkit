@@ -16,6 +16,31 @@ namespace MugenMvvm.UnitTests.Internal
         public static readonly MethodInfo TestMethod = typeof(ReflectionManagerTest).GetMethod(nameof(CanCreateDelegateShouldReturnFalseNoComponents))!;
         public static readonly ConstructorInfo TestConstructor = typeof(ReflectionManagerTest).GetConstructor(new Type[0])!;
 
+        [Fact]
+        public void CanCreateDelegateShouldReturnFalseNoComponents() => new ReflectionManager().CanCreateDelegate(typeof(Action), TestMethod).ShouldBeFalse();
+
+        [Fact]
+        public void GetActivatorShouldThrowNoComponents1() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor));
+
+        [Fact]
+        public void GetActivatorShouldThrowNoComponents2() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor, typeof(Action)));
+
+        [Fact]
+        public void GetMemberGetterShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberGetter(TestMethod, typeof(Action)));
+
+        [Fact]
+        public void GetMemberSetterShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberSetter(TestMethod, typeof(Action)));
+
+        [Fact]
+        public void GetMethodInvokerShouldThrowNoComponents1() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod));
+
+        [Fact]
+        public void GetMethodInvokerShouldThrowNoComponents2() =>
+            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod, typeof(Action)));
+
+        [Fact]
+        public void TryCreateDelegateShouldReturnNullNoComponents() => new ReflectionManager().TryCreateDelegate(typeof(Action), this, TestMethod).ShouldBeNull();
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -248,30 +273,5 @@ namespace MugenMvvm.UnitTests.Internal
         }
 
         protected override ReflectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void CanCreateDelegateShouldReturnFalseNoComponents() => new ReflectionManager().CanCreateDelegate(typeof(Action), TestMethod).ShouldBeFalse();
-
-        [Fact]
-        public void GetActivatorShouldThrowNoComponents1() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor));
-
-        [Fact]
-        public void GetActivatorShouldThrowNoComponents2() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetActivator(TestConstructor, typeof(Action)));
-
-        [Fact]
-        public void GetMemberGetterShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberGetter(TestMethod, typeof(Action)));
-
-        [Fact]
-        public void GetMemberSetterShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMemberSetter(TestMethod, typeof(Action)));
-
-        [Fact]
-        public void GetMethodInvokerShouldThrowNoComponents1() => ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod));
-
-        [Fact]
-        public void GetMethodInvokerShouldThrowNoComponents2() =>
-            ShouldThrow<InvalidOperationException>(() => new ReflectionManager().GetMethodInvoker(TestMethod, typeof(Action)));
-
-        [Fact]
-        public void TryCreateDelegateShouldReturnNullNoComponents() => new ReflectionManager().TryCreateDelegate(typeof(Action), this, TestMethod).ShouldBeNull();
     }
 }

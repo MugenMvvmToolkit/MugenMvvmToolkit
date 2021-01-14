@@ -14,6 +14,34 @@ namespace MugenMvvm.UnitTests.Busy
 {
     public class BusyManagerTest : ComponentOwnerTestBase<BusyManager>
     {
+        [Fact]
+        public void BeginBusyShouldThrowNoComponents()
+        {
+            var componentOwner = GetComponentOwner();
+            ShouldThrow<InvalidOperationException>(() => componentOwner.BeginBusy(componentOwner));
+        }
+
+        [Fact]
+        public void GetTokensShouldReturnEmptyNoComponents()
+        {
+            var componentOwner = GetComponentOwner();
+            componentOwner.GetTokens().AsList().ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void ShouldValidateInputArgs()
+        {
+            var componentOwner = GetComponentOwner();
+            ShouldThrow<ArgumentNullException>(() => componentOwner.TryGetToken(this, null!));
+        }
+
+        [Fact]
+        public void TryGetTokenShouldReturnNullNoComponents()
+        {
+            var componentOwner = GetComponentOwner();
+            componentOwner.TryGetToken(this, (manager, token, arg3) => true).ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
@@ -103,33 +131,5 @@ namespace MugenMvvm.UnitTests.Busy
         }
 
         protected override BusyManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void BeginBusyShouldThrowNoComponents()
-        {
-            var componentOwner = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => componentOwner.BeginBusy(componentOwner));
-        }
-
-        [Fact]
-        public void GetTokensShouldReturnEmptyNoComponents()
-        {
-            var componentOwner = GetComponentOwner();
-            componentOwner.GetTokens().AsList().ShouldBeEmpty();
-        }
-
-        [Fact]
-        public void ShouldValidateInputArgs()
-        {
-            var componentOwner = GetComponentOwner();
-            ShouldThrow<ArgumentNullException>(() => componentOwner.TryGetToken(this, null!));
-        }
-
-        [Fact]
-        public void TryGetTokenShouldReturnNullNoComponents()
-        {
-            var componentOwner = GetComponentOwner();
-            componentOwner.TryGetToken(this, (manager, token, arg3) => true).ShouldBeNull();
-        }
     }
 }

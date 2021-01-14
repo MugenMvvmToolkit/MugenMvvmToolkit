@@ -14,6 +14,106 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
     {
         private const string MemberName = "@4";
 
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var target = new ConstantExpressionNode("1");
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => target
+            };
+            new MemberExpressionNode(target, MemberName).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var target = new ConstantExpressionNode("1");
+            var exp = new MemberExpressionNode(target, MemberName);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
+            exp.Target.ShouldEqual(target);
+            exp.Member.ShouldEqual(MemberName);
+            exp.ToString().ShouldEqual("\"1\".@4");
+        }
+
+        [Fact]
+        public void GetShouldReturnCachedMembers()
+        {
+            MemberExpressionNode.Get(null, MacrosConstant.Self).ShouldEqual(MemberExpressionNode.Self);
+            MemberExpressionNode.Get(null, MacrosConstant.This).ShouldEqual(MemberExpressionNode.Self);
+            MemberExpressionNode.Get(null, MacrosConstant.Target).ShouldEqual(MemberExpressionNode.Self);
+            MemberExpressionNode.Get(null, MacrosConstant.Context).ShouldEqual(MemberExpressionNode.Context);
+            MemberExpressionNode.Get(null, MacrosConstant.Source).ShouldEqual(MemberExpressionNode.Source);
+            MemberExpressionNode.Get(null, MacrosConstant.EventArgs).ShouldEqual(MemberExpressionNode.EventArgs);
+            MemberExpressionNode.Get(null, MacrosConstant.Binding).ShouldEqual(MemberExpressionNode.Binding);
+            MemberExpressionNode.Get(null, MacrosConstant.Action).ShouldEqual(MemberExpressionNode.Action);
+            MemberExpressionNode.Get(null, "").ShouldEqual(MemberExpressionNode.Empty);
+
+            MemberExpressionNode.Get(null, BindingModeNameConstant.None).ShouldEqual(MemberExpressionNode.NoneMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.OneTime).ShouldEqual(MemberExpressionNode.OneTimeMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.OneWay).ShouldEqual(MemberExpressionNode.OneWayMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.OneWayToSource).ShouldEqual(MemberExpressionNode.OneWayToSourceMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.TwoWay).ShouldEqual(MemberExpressionNode.TwoWayMode);
+
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Optional).ShouldEqual(MemberExpressionNode.OptionalParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.HasStablePath).ShouldEqual(MemberExpressionNode.HasStablePathParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Observable).ShouldEqual(MemberExpressionNode.ObservableParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.ToggleEnabled).ShouldEqual(MemberExpressionNode.ToggleEnabledParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.SuppressMethodAccessors).ShouldEqual(MemberExpressionNode.SuppressMethodAccessorsParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.SuppressIndexAccessors).ShouldEqual(MemberExpressionNode.SuppressIndexAccessorsParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.ObservableMethods).ShouldEqual(MemberExpressionNode.ObservableMethodsParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Converter).ShouldEqual(MemberExpressionNode.ConverterParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.ConverterParameter).ShouldEqual(MemberExpressionNode.ConverterParameterParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Fallback).ShouldEqual(MemberExpressionNode.FallbackParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.TargetNullValue).ShouldEqual(MemberExpressionNode.TargetNullValueParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.CommandParameter).ShouldEqual(MemberExpressionNode.CommandParameterParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Delay).ShouldEqual(MemberExpressionNode.DelayParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.TargetDelay).ShouldEqual(MemberExpressionNode.TargetDelayParameter);
+
+
+            var node = MemberExpressionNode.Get(ConstantExpressionNode.False, MacrosConstant.Self);
+            node.ShouldNotEqual(MemberExpressionNode.Self);
+            node.Target.ShouldEqual(ConstantExpressionNode.False);
+            node.Member.ShouldEqual(MacrosConstant.Self);
+        }
+
+        [Fact]
+        public void StaticFieldsShouldBeCorrect()
+        {
+            MemberExpressionNode.Empty.Target.ShouldBeNull();
+            MemberExpressionNode.Empty.Member.ShouldEqual(string.Empty);
+
+            MemberExpressionNode.Source.Target.ShouldBeNull();
+            MemberExpressionNode.Source.Member.ShouldEqual(MacrosConstant.Source);
+
+            MemberExpressionNode.Self.Target.ShouldBeNull();
+            MemberExpressionNode.Self.Member.ShouldEqual(MacrosConstant.Target);
+
+            MemberExpressionNode.Context.Target.ShouldBeNull();
+            MemberExpressionNode.Context.Member.ShouldEqual(MacrosConstant.Context);
+
+            MemberExpressionNode.Binding.Target.ShouldBeNull();
+            MemberExpressionNode.Binding.Member.ShouldEqual(MacrosConstant.Binding);
+
+            MemberExpressionNode.EventArgs.Target.ShouldBeNull();
+            MemberExpressionNode.EventArgs.Member.ShouldEqual(MacrosConstant.EventArgs);
+        }
+
+        [Fact]
+        public void UpdateTargetShouldCreateNewNode()
+        {
+            var target = new ConstantExpressionNode("1");
+            var newTarget = new ConstantExpressionNode("2");
+            var exp = new MemberExpressionNode(target, MemberName);
+            exp.UpdateTarget(target).ShouldEqual(exp);
+
+            var newExp = exp.UpdateTarget(newTarget);
+            newExp.ShouldNotEqual(exp);
+            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
+            newExp.Target.ShouldEqual(newTarget);
+            newExp.Member.ShouldEqual(MemberName);
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -124,106 +224,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode) exp1.Target!).EqualsCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var target = new ConstantExpressionNode("1");
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => target
-            };
-            new MemberExpressionNode(target, MemberName).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var target = new ConstantExpressionNode("1");
-            var exp = new MemberExpressionNode(target, MemberName);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
-            exp.Target.ShouldEqual(target);
-            exp.Member.ShouldEqual(MemberName);
-            exp.ToString().ShouldEqual("\"1\".@4");
-        }
-
-        [Fact]
-        public void GetShouldReturnCachedMembers()
-        {
-            MemberExpressionNode.Get(null, MacrosConstant.Self).ShouldEqual(MemberExpressionNode.Self);
-            MemberExpressionNode.Get(null, MacrosConstant.This).ShouldEqual(MemberExpressionNode.Self);
-            MemberExpressionNode.Get(null, MacrosConstant.Target).ShouldEqual(MemberExpressionNode.Self);
-            MemberExpressionNode.Get(null, MacrosConstant.Context).ShouldEqual(MemberExpressionNode.Context);
-            MemberExpressionNode.Get(null, MacrosConstant.Source).ShouldEqual(MemberExpressionNode.Source);
-            MemberExpressionNode.Get(null, MacrosConstant.EventArgs).ShouldEqual(MemberExpressionNode.EventArgs);
-            MemberExpressionNode.Get(null, MacrosConstant.Binding).ShouldEqual(MemberExpressionNode.Binding);
-            MemberExpressionNode.Get(null, MacrosConstant.Action).ShouldEqual(MemberExpressionNode.Action);
-            MemberExpressionNode.Get(null, "").ShouldEqual(MemberExpressionNode.Empty);
-
-            MemberExpressionNode.Get(null, BindingModeNameConstant.None).ShouldEqual(MemberExpressionNode.NoneMode);
-            MemberExpressionNode.Get(null, BindingModeNameConstant.OneTime).ShouldEqual(MemberExpressionNode.OneTimeMode);
-            MemberExpressionNode.Get(null, BindingModeNameConstant.OneWay).ShouldEqual(MemberExpressionNode.OneWayMode);
-            MemberExpressionNode.Get(null, BindingModeNameConstant.OneWayToSource).ShouldEqual(MemberExpressionNode.OneWayToSourceMode);
-            MemberExpressionNode.Get(null, BindingModeNameConstant.TwoWay).ShouldEqual(MemberExpressionNode.TwoWayMode);
-
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.Optional).ShouldEqual(MemberExpressionNode.OptionalParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.HasStablePath).ShouldEqual(MemberExpressionNode.HasStablePathParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.Observable).ShouldEqual(MemberExpressionNode.ObservableParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.ToggleEnabled).ShouldEqual(MemberExpressionNode.ToggleEnabledParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.SuppressMethodAccessors).ShouldEqual(MemberExpressionNode.SuppressMethodAccessorsParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.SuppressIndexAccessors).ShouldEqual(MemberExpressionNode.SuppressIndexAccessorsParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.ObservableMethods).ShouldEqual(MemberExpressionNode.ObservableMethodsParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.Converter).ShouldEqual(MemberExpressionNode.ConverterParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.ConverterParameter).ShouldEqual(MemberExpressionNode.ConverterParameterParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.Fallback).ShouldEqual(MemberExpressionNode.FallbackParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.TargetNullValue).ShouldEqual(MemberExpressionNode.TargetNullValueParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.CommandParameter).ShouldEqual(MemberExpressionNode.CommandParameterParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.Delay).ShouldEqual(MemberExpressionNode.DelayParameter);
-            MemberExpressionNode.Get(null, BindingParameterNameConstant.TargetDelay).ShouldEqual(MemberExpressionNode.TargetDelayParameter);
-
-
-            var node = MemberExpressionNode.Get(ConstantExpressionNode.False, MacrosConstant.Self);
-            node.ShouldNotEqual(MemberExpressionNode.Self);
-            node.Target.ShouldEqual(ConstantExpressionNode.False);
-            node.Member.ShouldEqual(MacrosConstant.Self);
-        }
-
-        [Fact]
-        public void StaticFieldsShouldBeCorrect()
-        {
-            MemberExpressionNode.Empty.Target.ShouldBeNull();
-            MemberExpressionNode.Empty.Member.ShouldEqual(string.Empty);
-
-            MemberExpressionNode.Source.Target.ShouldBeNull();
-            MemberExpressionNode.Source.Member.ShouldEqual(MacrosConstant.Source);
-
-            MemberExpressionNode.Self.Target.ShouldBeNull();
-            MemberExpressionNode.Self.Member.ShouldEqual(MacrosConstant.Target);
-
-            MemberExpressionNode.Context.Target.ShouldBeNull();
-            MemberExpressionNode.Context.Member.ShouldEqual(MacrosConstant.Context);
-
-            MemberExpressionNode.Binding.Target.ShouldBeNull();
-            MemberExpressionNode.Binding.Member.ShouldEqual(MacrosConstant.Binding);
-
-            MemberExpressionNode.EventArgs.Target.ShouldBeNull();
-            MemberExpressionNode.EventArgs.Member.ShouldEqual(MacrosConstant.EventArgs);
-        }
-
-        [Fact]
-        public void UpdateTargetShouldCreateNewNode()
-        {
-            var target = new ConstantExpressionNode("1");
-            var newTarget = new ConstantExpressionNode("2");
-            var exp = new MemberExpressionNode(target, MemberName);
-            exp.UpdateTarget(target).ShouldEqual(exp);
-
-            var newExp = exp.UpdateTarget(newTarget);
-            newExp.ShouldNotEqual(exp);
-            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
-            newExp.Target.ShouldEqual(newTarget);
-            newExp.Member.ShouldEqual(MemberName);
         }
     }
 }

@@ -11,6 +11,30 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class LambdaExpressionNodeTest : UnitTestBase
     {
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new[] {new ParameterExpressionNode("2")};
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => target
+            };
+            new LambdaExpressionNode(target, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IParameterExpressionNode[] {new ParameterExpressionNode("Test")};
+            var exp = new LambdaExpressionNode(target, args);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Lambda);
+            exp.Body.ShouldEqual(target);
+            exp.Parameters.ShouldEqual(args);
+            exp.ToString().ShouldEqual("(Test) => \"1\"");
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -132,30 +156,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode) exp1.Body).EqualsCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new[] {new ParameterExpressionNode("2")};
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => target
-            };
-            new LambdaExpressionNode(target, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IParameterExpressionNode[] {new ParameterExpressionNode("Test")};
-            var exp = new LambdaExpressionNode(target, args);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Lambda);
-            exp.Body.ShouldEqual(target);
-            exp.Parameters.ShouldEqual(args);
-            exp.ToString().ShouldEqual("(Test) => \"1\"");
         }
     }
 }

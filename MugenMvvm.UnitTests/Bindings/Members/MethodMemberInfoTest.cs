@@ -13,10 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MethodMemberInfoTest : UnitTestBase
     {
-        public string Method1([Obfuscation] string v) => v;
-
-        public T Method2<T>(T v) => v;
-
         [Fact]
         public void ConstructorShouldInitializeMember1()
         {
@@ -134,5 +130,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
             memberInfo.Invoke("st", Default.Array<object?>(), DefaultMetadata).ShouldEqual('s');
         }
+
+        public string Method1([Obfuscation] string v) => v;
+
+        public T Method2<T>(T v) => v;
     }
 }

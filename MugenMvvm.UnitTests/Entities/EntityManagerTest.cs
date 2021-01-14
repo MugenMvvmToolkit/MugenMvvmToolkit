@@ -11,6 +11,20 @@ namespace MugenMvvm.UnitTests.Entities
 {
     public class EntityManagerTest : ComponentOwnerTestBase<EntityManager>
     {
+        [Fact]
+        public void GetSnapshotShouldThrowNoComponents()
+        {
+            var entityManager = GetComponentOwner();
+            ShouldThrow<InvalidOperationException>(() => entityManager.GetSnapshot(this, DefaultMetadata));
+        }
+
+        [Fact]
+        public void GetTrackingCollectionShouldThrowNoComponents()
+        {
+            var entityManager = GetComponentOwner();
+            ShouldThrow<InvalidOperationException>(() => entityManager.GetTrackingCollection(entityManager, DefaultMetadata));
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -136,19 +150,5 @@ namespace MugenMvvm.UnitTests.Entities
         }
 
         protected override EntityManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void GetSnapshotShouldThrowNoComponents()
-        {
-            var entityManager = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => entityManager.GetSnapshot(this, DefaultMetadata));
-        }
-
-        [Fact]
-        public void GetTrackingCollectionShouldThrowNoComponents()
-        {
-            var entityManager = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => entityManager.GetTrackingCollection(entityManager, DefaultMetadata));
-        }
     }
 }

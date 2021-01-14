@@ -19,15 +19,6 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class ComponentDecoratorTest : UnitTestBase
     {
-        private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
-        {
-            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata) =>
-                throw new NotSupportedException();
-
-            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata) =>
-                throw new NotSupportedException();
-        }
-
         [Fact]
         public void AttachDetachShouldAddRemoveDecorator()
         {
@@ -59,6 +50,15 @@ namespace MugenMvvm.UnitTests.Components
             components.AsList().Single().ShouldEqual(decorator1);
             decorator1.Components.Single().ShouldEqual(decorator2);
             decorator2.Components.ShouldEqual(new[] {component1, component2});
+        }
+
+        private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
+        {
+            public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata) =>
+                throw new NotSupportedException();
+
+            public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata) =>
+                throw new NotSupportedException();
         }
     }
 }

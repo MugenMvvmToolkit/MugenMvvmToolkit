@@ -13,6 +13,24 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     public class MethodEmptyPathObserverTest : ObserverBaseTest<MethodEmptyPathObserver>
     {
+        [Fact]
+        public void GetLastMemberShouldReturnActualMembers()
+        {
+            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
+            var members = observer.GetLastMember(DefaultMetadata);
+            members.Member.ShouldEqual(ConstantMemberInfo.Target);
+            members.Target.ShouldEqual(this);
+        }
+
+        [Fact]
+        public void GetMembersShouldReturnActualMembers()
+        {
+            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
+            var members = observer.GetMembers(DefaultMetadata);
+            members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
+            members.Target.ShouldEqual(this);
+        }
+
         [Theory]
         [InlineData(1, true)]
         [InlineData(1, false)]
@@ -60,23 +78,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         }
 
         protected override MethodEmptyPathObserver GetObserver(object target) => new(MethodName, target, MemberFlags.All);
-
-        [Fact]
-        public void GetLastMemberShouldReturnActualMembers()
-        {
-            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
-            var members = observer.GetLastMember(DefaultMetadata);
-            members.Member.ShouldEqual(ConstantMemberInfo.Target);
-            members.Target.ShouldEqual(this);
-        }
-
-        [Fact]
-        public void GetMembersShouldReturnActualMembers()
-        {
-            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
-            var members = observer.GetMembers(DefaultMetadata);
-            members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
-            members.Target.ShouldEqual(this);
-        }
     }
 }

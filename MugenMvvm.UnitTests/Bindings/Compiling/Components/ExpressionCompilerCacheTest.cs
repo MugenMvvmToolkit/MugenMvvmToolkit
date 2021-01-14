@@ -15,25 +15,12 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class ExpressionCompilerCacheTest : UnitTestBase
     {
+        private readonly ExpressionCompiler _compiler;
+
         public ExpressionCompilerCacheTest()
         {
             _compiler = new ExpressionCompiler();
             _compiler.AddComponent(new ExpressionCompilerCache());
-        }
-
-        private readonly ExpressionCompiler _compiler;
-
-        private WeakReference ShouldNotCacheGlobalRefImpl()
-        {
-            var obj = new object();
-            var expression = new MemberExpressionNode(new BindingInstanceMemberExpressionNode(obj, "", 0, default, default), "T");
-            using var t = _compiler.AddComponent(new TestExpressionCompilerComponent(_compiler)
-            {
-                TryCompile = (_, _) => new TestCompiledExpression()
-            });
-
-            _compiler.Compile(expression);
-            return new WeakReference(obj, false);
         }
 
         [Fact]
@@ -116,6 +103,19 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var reference = ShouldNotCacheGlobalRefImpl();
             GcCollect();
             reference.IsAlive.ShouldBeFalse();
+        }
+
+        private WeakReference ShouldNotCacheGlobalRefImpl()
+        {
+            var obj = new object();
+            var expression = new MemberExpressionNode(new BindingInstanceMemberExpressionNode(obj, "", 0, default, default), "T");
+            using var t = _compiler.AddComponent(new TestExpressionCompilerComponent(_compiler)
+            {
+                TryCompile = (_, _) => new TestCompiledExpression()
+            });
+
+            _compiler.Compile(expression);
+            return new WeakReference(obj, false);
         }
     }
 }

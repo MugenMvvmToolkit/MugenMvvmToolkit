@@ -17,6 +17,18 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationCallbackManagerTest : UnitTestBase
     {
+        [Fact]
+        public void TryAddNavigationCallbackShouldIgnoreUnknownType()
+        {
+            var result = new PresenterResult(new TestMetadataOwner<IMetadataContext>
+            {
+                HasMetadata = true,
+                Metadata = new MetadataContext()
+            }, "t", NavigationProvider.System, NavigationType.Popup);
+            var component = new NavigationCallbackManager();
+            component.TryAddNavigationCallback(null!, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, DefaultMetadata).ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(true, 1)]
         [InlineData(false, 1)]
@@ -199,18 +211,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             component.TryInvokeNavigationCallbacks(null!, type, navigationContext, cancellationToken).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
             component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldBeEmpty();
-        }
-
-        [Fact]
-        public void TryAddNavigationCallbackShouldIgnoreUnknownType()
-        {
-            var result = new PresenterResult(new TestMetadataOwner<IMetadataContext>
-            {
-                HasMetadata = true,
-                Metadata = new MetadataContext()
-            }, "t", NavigationProvider.System, NavigationType.Popup);
-            var component = new NavigationCallbackManager();
-            component.TryAddNavigationCallback(null!, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, DefaultMetadata).ShouldBeNull();
         }
     }
 }

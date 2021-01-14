@@ -15,6 +15,14 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class NullConditionalExpressionBuilderTest : UnitTestBase
     {
+        [Fact]
+        public void TryBuildShouldIgnoreNotNullConditionalExpression()
+        {
+            var component = new NullConditionalExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(null, null)]
         [InlineData("t", 1)]
@@ -69,14 +77,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
             var expression = component.TryBuild(ctx, node)!;
             expression.Invoke().ShouldEqual(result);
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotNullConditionalExpression()
-        {
-            var component = new NullConditionalExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }
     }
 }

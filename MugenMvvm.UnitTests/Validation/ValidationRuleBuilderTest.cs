@@ -12,11 +12,6 @@ namespace MugenMvvm.UnitTests.Validation
 {
     public class ValidationRuleBuilderTest : UnitTestBase
     {
-        private sealed class ValidationModel
-        {
-            public string? Property { get; set; }
-        }
-
         [Fact]
         public async Task AddAsyncValidatorShouldUseDelegate()
         {
@@ -497,6 +492,11 @@ namespace MugenMvvm.UnitTests.Validation
             rule.ValidateAsync(target, "e", errors, default, DefaultMetadata).ShouldEqual(Default.CompletedTask);
             invokeCount.ShouldEqual(3);
             errors.Count.ShouldEqual(0);
+        }
+
+        private sealed class ValidationModel
+        {
+            public string? Property { get; set; }
         }
     }
 }

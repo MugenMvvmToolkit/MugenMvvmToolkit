@@ -11,40 +11,12 @@ namespace MugenMvvm.UnitTests.Threading.Components
 {
     public class SynchronizationContextThreadDispatcherTest : UnitTestBase
     {
+        private readonly TestSynchronizationContext _synchronizationContext;
+
         public SynchronizationContextThreadDispatcherTest()
         {
             _synchronizationContext = new TestSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
-        }
-
-        private readonly TestSynchronizationContext _synchronizationContext;
-
-        private static void WaitThreadPool()
-        {
-            var taskCompletionSource = new TaskCompletionSource<object?>();
-            ThreadPool.QueueUserWorkItem(state => taskCompletionSource.SetResult(null));
-            taskCompletionSource.Task.Wait();
-            WaitCompletion();
-        }
-
-        private sealed class TestSynchronizationContext : SynchronizationContext
-        {
-            public SendOrPostCallback? Callback { get; set; }
-
-            public object? State { get; set; }
-
-            public override void Post(SendOrPostCallback d, object? state)
-            {
-                Callback = d;
-                State = state;
-            }
-
-            public void Invoke()
-            {
-                Callback?.Invoke(State);
-                Callback = null;
-                State = null;
-            }
         }
 
         [Fact]
@@ -252,6 +224,34 @@ namespace MugenMvvm.UnitTests.Threading.Components
             executed.ShouldEqual(1);
 
             component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, component, component, DefaultMetadata).ShouldBeFalse();
+        }
+
+        private static void WaitThreadPool()
+        {
+            var taskCompletionSource = new TaskCompletionSource<object?>();
+            ThreadPool.QueueUserWorkItem(state => taskCompletionSource.SetResult(null));
+            taskCompletionSource.Task.Wait();
+            WaitCompletion();
+        }
+
+        private sealed class TestSynchronizationContext : SynchronizationContext
+        {
+            public SendOrPostCallback? Callback { get; set; }
+
+            public object? State { get; set; }
+
+            public override void Post(SendOrPostCallback d, object? state)
+            {
+                Callback = d;
+                State = state;
+            }
+
+            public void Invoke()
+            {
+                Callback?.Invoke(State);
+                Callback = null;
+                State = null;
+            }
         }
     }
 }

@@ -11,6 +11,22 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class InvalidBindingTest : UnitTestBase
     {
+        [Fact]
+        public void BuildShouldReturnSelf()
+        {
+            var invalidBinding = new InvalidBinding(new Exception());
+            ((IBindingBuilder) invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
+        }
+
+        [Fact]
+        public void StateShouldBeInvalid()
+        {
+            var ex = new Exception();
+            var invalidBinding = new InvalidBinding(ex);
+            invalidBinding.State.ShouldEqual(BindingState.Invalid);
+            invalidBinding.Exception.ShouldEqual(ex);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -61,22 +77,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             binding.UpdateSource();
             updateFailed.ShouldEqual(count);
-        }
-
-        [Fact]
-        public void BuildShouldReturnSelf()
-        {
-            var invalidBinding = new InvalidBinding(new Exception());
-            ((IBindingBuilder) invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
-        }
-
-        [Fact]
-        public void StateShouldBeInvalid()
-        {
-            var ex = new Exception();
-            var invalidBinding = new InvalidBinding(ex);
-            invalidBinding.State.ShouldEqual(BindingState.Invalid);
-            invalidBinding.Exception.ShouldEqual(ex);
         }
     }
 }

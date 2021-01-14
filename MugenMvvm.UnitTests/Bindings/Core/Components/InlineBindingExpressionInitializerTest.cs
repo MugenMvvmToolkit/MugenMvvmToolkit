@@ -12,20 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class InlineBindingExpressionInitializerTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ShouldIgnoreBindingMemberContext(bool isStatic)
-        {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter,
-                new TestBindingMemberExpressionNode {MemberFlags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll}, default, null);
-
-            var initializer = new InlineBindingExpressionInitializer {UseOneTimeModeForStaticMembersImplicit = false};
-            initializer.Initialize(null!, context);
-            context.Components.Count.ShouldEqual(0);
-        }
-
         [Fact]
         public void ShouldIgnoreBindingModeContext()
         {
@@ -74,6 +60,20 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var pair = context.Components.Single();
             pair.Key.ShouldEqual(BindingParameterNameConstant.Mode);
             pair.Value.ShouldEqual(OneTimeBindingMode.Instance);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldIgnoreBindingMemberContext(bool isStatic)
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter,
+                new TestBindingMemberExpressionNode {MemberFlags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll}, default, null);
+
+            var initializer = new InlineBindingExpressionInitializer {UseOneTimeModeForStaticMembersImplicit = false};
+            initializer.Initialize(null!, context);
+            context.Components.Count.ShouldEqual(0);
         }
     }
 }

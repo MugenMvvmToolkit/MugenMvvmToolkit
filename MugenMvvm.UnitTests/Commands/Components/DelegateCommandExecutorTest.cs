@@ -14,88 +14,6 @@ namespace MugenMvvm.UnitTests.Commands.Components
 {
     public class DelegateCommandExecutorTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(true, true, true)]
-        [InlineData(true, true, false)]
-        [InlineData(false, false, true)]
-        [InlineData(true, false, false)]
-        public void HasCanExecuteShouldBe(bool value, bool hasCanExecute, bool allowMultiply)
-        {
-            var cmd = new CompositeCommand();
-            Action execute = () => { };
-            Func<bool> canExecute = () => true;
-            var component = new DelegateCommandExecutor<object>(execute, hasCanExecute ? canExecute : null, CommandExecutionBehavior.None, allowMultiply);
-            component.HasCanExecute(cmd, null).ShouldEqual(value);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task ShouldSupportAllowMultipleExecution(bool value)
-        {
-            var cmd = new CompositeCommand();
-            var executed = 0;
-            var tcs = new TaskCompletionSource<object>();
-            Func<Task> execute = () =>
-            {
-                ++executed;
-                return tcs.Task;
-            };
-            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
-            var task1 = component.ExecuteAsync(cmd, null, default, null);
-            var task2 = component.ExecuteAsync(cmd, null, default, null);
-            executed.ShouldEqual(value ? 2 : 1);
-
-            tcs.SetResult(this);
-            await task1;
-            await task2;
-            await component.ExecuteAsync(cmd, null, default, null);
-            executed.ShouldEqual(value ? 3 : 2);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task ShouldNotifyCanExecuteChangedAllowMultipleExecution(bool value)
-        {
-            var executed = 0;
-            var tcs = new TaskCompletionSource<object>();
-            Func<Task> execute = () => tcs.Task;
-            var cmd = new CompositeCommand();
-
-            var listener = new TestCommandEventHandlerComponent {RaiseCanExecuteChanged = c => { ++executed; }};
-            cmd.AddComponent(listener);
-
-            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
-            cmd.AddComponent(component);
-            executed.ShouldEqual(1);
-            executed = 0;
-            var task = cmd.ExecuteAsync(this);
-            executed.ShouldEqual(value ? 0 : 1);
-
-            tcs.SetResult(this);
-            await task;
-            executed.ShouldEqual(value ? 0 : 2);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task DisposeShouldClearDelegates(bool canDispose)
-        {
-            var cmd = new CompositeCommand();
-            var executed = 0;
-            Action execute = () => ++executed;
-            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            component.IsDisposable.ShouldBeTrue();
-            component.IsDisposable = canDispose;
-            component.Dispose();
-
-            component.CanExecute(cmd, null, null).ShouldEqual(!canDispose);
-            await component.ExecuteAsync(cmd, null, default, null);
-            executed.ShouldEqual(canDispose ? 0 : 1);
-        }
-
         [Fact]
         public void ShouldNotThrowException()
         {
@@ -296,6 +214,88 @@ namespace MugenMvvm.UnitTests.Commands.Components
             tcs.SetResult(this);
             await task;
             task.IsCompleted.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true, true, true)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, false)]
+        public void HasCanExecuteShouldBe(bool value, bool hasCanExecute, bool allowMultiply)
+        {
+            var cmd = new CompositeCommand();
+            Action execute = () => { };
+            Func<bool> canExecute = () => true;
+            var component = new DelegateCommandExecutor<object>(execute, hasCanExecute ? canExecute : null, CommandExecutionBehavior.None, allowMultiply);
+            component.HasCanExecute(cmd, null).ShouldEqual(value);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ShouldSupportAllowMultipleExecution(bool value)
+        {
+            var cmd = new CompositeCommand();
+            var executed = 0;
+            var tcs = new TaskCompletionSource<object>();
+            Func<Task> execute = () =>
+            {
+                ++executed;
+                return tcs.Task;
+            };
+            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
+            var task1 = component.ExecuteAsync(cmd, null, default, null);
+            var task2 = component.ExecuteAsync(cmd, null, default, null);
+            executed.ShouldEqual(value ? 2 : 1);
+
+            tcs.SetResult(this);
+            await task1;
+            await task2;
+            await component.ExecuteAsync(cmd, null, default, null);
+            executed.ShouldEqual(value ? 3 : 2);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ShouldNotifyCanExecuteChangedAllowMultipleExecution(bool value)
+        {
+            var executed = 0;
+            var tcs = new TaskCompletionSource<object>();
+            Func<Task> execute = () => tcs.Task;
+            var cmd = new CompositeCommand();
+
+            var listener = new TestCommandEventHandlerComponent {RaiseCanExecuteChanged = c => { ++executed; }};
+            cmd.AddComponent(listener);
+
+            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
+            cmd.AddComponent(component);
+            executed.ShouldEqual(1);
+            executed = 0;
+            var task = cmd.ExecuteAsync(this);
+            executed.ShouldEqual(value ? 0 : 1);
+
+            tcs.SetResult(this);
+            await task;
+            executed.ShouldEqual(value ? 0 : 2);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task DisposeShouldClearDelegates(bool canDispose)
+        {
+            var cmd = new CompositeCommand();
+            var executed = 0;
+            Action execute = () => ++executed;
+            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
+            component.IsDisposable.ShouldBeTrue();
+            component.IsDisposable = canDispose;
+            component.Dispose();
+
+            component.CanExecute(cmd, null, null).ShouldEqual(!canDispose);
+            await component.ExecuteAsync(cmd, null, default, null);
+            executed.ShouldEqual(canDispose ? 0 : 1);
         }
     }
 }

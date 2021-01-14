@@ -13,6 +13,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class MemberExpressionBuilderTest : UnitTestBase
     {
+        private readonly MemberExpressionBuilder _component;
+        private readonly TestMemberManagerComponent _memberManagerComponent;
+
         public MemberExpressionBuilderTest()
         {
             IMemberManager memberManager = new MemberManager();
@@ -20,13 +23,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             memberManager.AddComponent(_memberManagerComponent);
             _component = new MemberExpressionBuilder(memberManager);
         }
-
-        private readonly MemberExpressionBuilder _component;
-        private readonly TestMemberManagerComponent _memberManagerComponent;
-
-        public static string? StaticProperty { get; set; }
-
-        public string? InstanceProperty { get; set; }
 
         [Fact]
         public void TryBuildShouldBuildMemberAccessInstance()
@@ -239,5 +235,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var build = _component.TryBuild(ctx, expressionNode)!;
             ShouldThrow(() => build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata));
         }
+
+        public static string? StaticProperty { get; set; }
+
+        public string? InstanceProperty { get; set; }
     }
 }

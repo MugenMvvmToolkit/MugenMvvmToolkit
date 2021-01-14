@@ -13,6 +13,12 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class LoggerTest : ComponentOwnerTestBase<Logger>
     {
+        [Fact]
+        public void CanLogShouldReturnFalseNoComponents() => new Logger().CanLog(LogLevel.Info, DefaultMetadata).ShouldBeFalse();
+
+        [Fact]
+        public void LogShouldNotThrowNoComponents() => new Logger().Log(LogLevel.Info, string.Empty, null, DefaultMetadata);
+
         [Theory]
         [InlineData(1, "Info", true)]
         [InlineData(1, "Info", false)]
@@ -113,11 +119,5 @@ namespace MugenMvvm.UnitTests.Internal
         }
 
         protected override Logger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void CanLogShouldReturnFalseNoComponents() => new Logger().CanLog(LogLevel.Info, DefaultMetadata).ShouldBeFalse();
-
-        [Fact]
-        public void LogShouldNotThrowNoComponents() => new Logger().Log(LogLevel.Info, string.Empty, null, DefaultMetadata);
     }
 }

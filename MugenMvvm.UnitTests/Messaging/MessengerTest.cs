@@ -15,6 +15,40 @@ namespace MugenMvvm.UnitTests.Messaging
 {
     public class MessengerTest : ComponentOwnerTestBase<Messenger>
     {
+        [Fact]
+        public void GetSubscribersShouldReturnEmptyListNoComponents()
+        {
+            var messenger = new Messenger();
+            messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
+        {
+            var invokedCount = 0;
+            var messenger = new Messenger();
+            var hasCache = new TestHasCache {Invalidate = (o, arg3) => { ++invokedCount; }};
+            messenger.AddComponent(new MessengerHandlerSubscriber());
+            messenger.Components.TryAdd(hasCache);
+
+            invokedCount.ShouldEqual(0);
+            var handler = new TestMessengerHandler();
+            messenger.TrySubscribe(handler);
+            invokedCount.ShouldEqual(1);
+
+            messenger.TryUnsubscribe(handler);
+            invokedCount.ShouldEqual(2);
+
+            messenger.TrySubscribe(handler);
+            invokedCount = 0;
+
+            messenger.UnsubscribeAll();
+            invokedCount.ShouldEqual(1);
+
+            messenger.UnsubscribeAll();
+            invokedCount.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -216,39 +250,5 @@ namespace MugenMvvm.UnitTests.Messaging
         }
 
         protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void GetSubscribersShouldReturnEmptyListNoComponents()
-        {
-            var messenger = new Messenger();
-            messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
-        }
-
-        [Fact]
-        public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
-        {
-            var invokedCount = 0;
-            var messenger = new Messenger();
-            var hasCache = new TestHasCache {Invalidate = (o, arg3) => { ++invokedCount; }};
-            messenger.AddComponent(new MessengerHandlerSubscriber());
-            messenger.Components.TryAdd(hasCache);
-
-            invokedCount.ShouldEqual(0);
-            var handler = new TestMessengerHandler();
-            messenger.TrySubscribe(handler);
-            invokedCount.ShouldEqual(1);
-
-            messenger.TryUnsubscribe(handler);
-            invokedCount.ShouldEqual(2);
-
-            messenger.TrySubscribe(handler);
-            invokedCount = 0;
-
-            messenger.UnsubscribeAll();
-            invokedCount.ShouldEqual(1);
-
-            messenger.UnsubscribeAll();
-            invokedCount.ShouldEqual(1);
-        }
     }
 }

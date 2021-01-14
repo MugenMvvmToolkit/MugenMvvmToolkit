@@ -16,67 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
     public class BindingInstanceMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest<BindingInstanceMemberExpressionNode>
     {
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void GetHashCodeEqualsShouldBeValid(bool withComparer, bool hasTarget)
-        {
-            var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
-            var exp1 = new BindingInstanceMemberExpressionNode(this, "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new Dictionary<string, object?> {{"k", null}});
-            var exp2 = new BindingInstanceMemberExpressionNode(this, "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new Dictionary<string, object?> {{"k", null}});
-            if (hasTarget)
-            {
-                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
-                            exp1.ObservableMethodName, 1)
-                        .ShouldEqual(exp1.GetHashCode(comparer));
-                ((TestExpressionNode) exp1.Expression!).GetHashCodeCount.ShouldEqual(1);
-            }
-            else
-            {
-                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
-                            exp1.ObservableMethodName)
-                        .ShouldEqual(exp1.GetHashCode(comparer));
-            }
-
-            exp1.Equals(exp2, comparer).ShouldBeTrue();
-            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
-
-            exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
-            exp1.Equals(
-                    new BindingInstanceMemberExpressionNode(exp1, "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                        new Dictionary<string, object?> {{"k", null}}), comparer)
-                .ShouldBeFalse();
-            exp1.Equals(exp2.Update(int.MaxValue, exp2.Flags, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
-            exp1.Equals(exp2.Update(exp2.Index, BindingMemberExpressionFlags.Target, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
-            exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, MemberFlags.Instance, exp2.ObservableMethodName), comparer).ShouldBeFalse();
-            exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, exp2.MemberFlags, null), comparer).ShouldBeFalse();
-            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
-
-            if (comparer == null || !hasTarget)
-                return;
-            comparer.GetHashCode = node =>
-            {
-                ReferenceEquals(node, exp1).ShouldBeTrue();
-                return int.MaxValue;
-            };
-            comparer.Equals = (x1, x2) =>
-            {
-                ReferenceEquals(x1, exp1).ShouldBeTrue();
-                ReferenceEquals(x2, exp2).ShouldBeTrue();
-                return false;
-            };
-            exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
-            exp1.Equals(exp2, comparer).ShouldBeFalse();
-            ((TestExpressionNode) exp1.Expression!).EqualsCount.ShouldEqual(1);
-        }
-
-        protected override BindingInstanceMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) =>
-            new(this, Path, 0, default, default, metadata: metadata);
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -168,5 +107,66 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             target.ShouldEqual(this);
             p.ShouldEqual(path);
         }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void GetHashCodeEqualsShouldBeValid(bool withComparer, bool hasTarget)
+        {
+            var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
+            var exp1 = new BindingInstanceMemberExpressionNode(this, "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
+                new Dictionary<string, object?> {{"k", null}});
+            var exp2 = new BindingInstanceMemberExpressionNode(this, "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
+                new Dictionary<string, object?> {{"k", null}});
+            if (hasTarget)
+            {
+                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
+                            exp1.ObservableMethodName, 1)
+                        .ShouldEqual(exp1.GetHashCode(comparer));
+                ((TestExpressionNode) exp1.Expression!).GetHashCodeCount.ShouldEqual(1);
+            }
+            else
+            {
+                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
+                            exp1.ObservableMethodName)
+                        .ShouldEqual(exp1.GetHashCode(comparer));
+            }
+
+            exp1.Equals(exp2, comparer).ShouldBeTrue();
+            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
+
+            exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
+            exp1.Equals(
+                    new BindingInstanceMemberExpressionNode(exp1, "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
+                        new Dictionary<string, object?> {{"k", null}}), comparer)
+                .ShouldBeFalse();
+            exp1.Equals(exp2.Update(int.MaxValue, exp2.Flags, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
+            exp1.Equals(exp2.Update(exp2.Index, BindingMemberExpressionFlags.Target, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
+            exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, MemberFlags.Instance, exp2.ObservableMethodName), comparer).ShouldBeFalse();
+            exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, exp2.MemberFlags, null), comparer).ShouldBeFalse();
+            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
+
+            if (comparer == null || !hasTarget)
+                return;
+            comparer.GetHashCode = node =>
+            {
+                ReferenceEquals(node, exp1).ShouldBeTrue();
+                return int.MaxValue;
+            };
+            comparer.Equals = (x1, x2) =>
+            {
+                ReferenceEquals(x1, exp1).ShouldBeTrue();
+                ReferenceEquals(x2, exp2).ShouldBeTrue();
+                return false;
+            };
+            exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
+            exp1.Equals(exp2, comparer).ShouldBeFalse();
+            ((TestExpressionNode) exp1.Expression!).EqualsCount.ShouldEqual(1);
+        }
+
+        protected override BindingInstanceMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) =>
+            new(this, Path, 0, default, default, metadata: metadata);
     }
 }

@@ -29,6 +29,32 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             DefaultMetadata.Set(CompilingMetadata.CompilingErrors, new List<string>());
         }
 
+        [Fact]
+        public void CompileShouldCompileComplexExpression6()
+        {
+            var result = ((-1 + 2 * ~1 / 8 % 1) << 4) >> 5 < 10;
+            var node = new BinaryExpressionNode(BinaryTokenType.LessThan,
+                new BinaryExpressionNode(BinaryTokenType.RightShift,
+                    new BinaryExpressionNode(BinaryTokenType.LeftShift,
+                        new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.Minus, ConstantExpressionNode.Get(1, typeof(int))),
+                            new BinaryExpressionNode(BinaryTokenType.Remainder,
+                                new BinaryExpressionNode(BinaryTokenType.Division,
+                                    new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(2, typeof(int)),
+                                        new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, ConstantExpressionNode.Get(1, typeof(int)))),
+                                    ConstantExpressionNode.Get(8, typeof(int))),
+                                ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(4, typeof(int))), ConstantExpressionNode.Get(5, typeof(int))),
+                ConstantExpressionNode.Get(10, typeof(int)));
+            var compiler = GetInitializedCompiler();
+            compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
+        }
+
+        [Fact]
+        public void CompileShouldThrowNoComponents()
+        {
+            var compiler = GetComponentOwner();
+            ShouldThrow<InvalidOperationException>(() => compiler.Compile(ConstantExpressionNode.False));
+        }
+
         protected new IMetadataContext DefaultMetadata { get; set; }
 
         [Theory]
@@ -254,31 +280,5 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         }
 
         protected override ExpressionCompiler GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void CompileShouldCompileComplexExpression6()
-        {
-            var result = ((-1 + 2 * ~1 / 8 % 1) << 4) >> 5 < 10;
-            var node = new BinaryExpressionNode(BinaryTokenType.LessThan,
-                new BinaryExpressionNode(BinaryTokenType.RightShift,
-                    new BinaryExpressionNode(BinaryTokenType.LeftShift,
-                        new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.Minus, ConstantExpressionNode.Get(1, typeof(int))),
-                            new BinaryExpressionNode(BinaryTokenType.Remainder,
-                                new BinaryExpressionNode(BinaryTokenType.Division,
-                                    new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(2, typeof(int)),
-                                        new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, ConstantExpressionNode.Get(1, typeof(int)))),
-                                    ConstantExpressionNode.Get(8, typeof(int))),
-                                ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(4, typeof(int))), ConstantExpressionNode.Get(5, typeof(int))),
-                ConstantExpressionNode.Get(10, typeof(int)));
-            var compiler = GetInitializedCompiler();
-            compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
-        }
-
-        [Fact]
-        public void CompileShouldThrowNoComponents()
-        {
-            var compiler = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => compiler.Compile(ConstantExpressionNode.False));
-        }
     }
 }

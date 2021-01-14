@@ -13,21 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class EventInfoMemberObserverProviderTest : UnitTestBase
     {
-        public sealed class TestEventClass
-        {
-            public static event EventHandler? EventHandlerStatic;
-
-            public event EventHandler? EventHandler;
-
-            public event Action? Action;
-
-            public static void OnEventHandlerStatic(EventArgs args) => EventHandlerStatic?.Invoke(null, args);
-
-            public void OnEventHandler(EventArgs args) => EventHandler?.Invoke(this, args);
-
-            public void OnAction() => Action?.Invoke();
-        }
-
         [Fact]
         public void TryGetMemberObserverShouldObserveEventHandler()
         {
@@ -162,6 +147,21 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             var component = new EventInfoMemberObserverProvider();
             component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
+        public sealed class TestEventClass
+        {
+            public static event EventHandler? EventHandlerStatic;
+
+            public event EventHandler? EventHandler;
+
+            public event Action? Action;
+
+            public static void OnEventHandlerStatic(EventArgs args) => EventHandlerStatic?.Invoke(null, args);
+
+            public void OnEventHandler(EventArgs args) => EventHandler?.Invoke(this, args);
+
+            public void OnAction() => Action?.Invoke();
         }
     }
 }

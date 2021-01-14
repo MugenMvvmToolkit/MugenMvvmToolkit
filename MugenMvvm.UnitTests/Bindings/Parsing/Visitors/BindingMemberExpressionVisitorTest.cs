@@ -28,6 +28,106 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         private const string TypeName = "T";
         private const string ResourceName = "R";
 
+        [Fact]
+        public void VisitShouldCacheIndexerMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}),
+                new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName),
+                new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheMethodCallMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()),
+                new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheResourceMember()
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition,
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)),
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)));
+            var visitor = new BindingMemberExpressionVisitor();
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheResourceMemberStatic()
+        {
+            var resolver = new ResourceResolver();
+            resolver.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResource = (s, o, arg4) => new ResourceResolverResult(1)
+            });
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (o, arg3) => MemberPath.Empty
+            });
+
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition,
+                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)),
+                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)));
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheTypeMember()
+        {
+            var resolver = new ResourceResolver();
+            resolver.AddComponent(new TestTypeResolverComponent
+            {
+                TryGetType = (s, o, arg4) => typeof(object)
+            });
+
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)),
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)));
+            var visitor = new BindingMemberExpressionVisitor(null, resolver);
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void VisitShouldCacheTypeMemberStatic()
+        {
+            var resolver = new ResourceResolver();
+            resolver.AddComponent(new TestTypeResolverComponent
+            {
+                TryGetType = (s, o, arg4) => typeof(string)
+            });
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (o, arg3) => MemberPath.Empty
+            });
+
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)),
+                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)));
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
+            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -569,106 +669,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)),
                 new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)));
             var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheIndexerMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}),
-                new IndexExpressionNode(null, new[] {ConstantExpressionNode.Null}));
-            var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName),
-                new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName));
-            var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheMethodCallMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()),
-                new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()));
-            var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheResourceMember()
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition,
-                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)),
-                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)));
-            var visitor = new BindingMemberExpressionVisitor();
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheResourceMemberStatic()
-        {
-            var resolver = new ResourceResolver();
-            resolver.AddComponent(new TestResourceResolverComponent
-            {
-                TryGetResource = (s, o, arg4) => new ResourceResolverResult(1)
-            });
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (o, arg3) => MemberPath.Empty
-            });
-
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition,
-                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)),
-                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)));
-            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheTypeMember()
-        {
-            var resolver = new ResourceResolver();
-            resolver.AddComponent(new TestTypeResolverComponent
-            {
-                TryGetType = (s, o, arg4) => typeof(object)
-            });
-
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)),
-                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)));
-            var visitor = new BindingMemberExpressionVisitor(null, resolver);
-            var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void VisitShouldCacheTypeMemberStatic()
-        {
-            var resolver = new ResourceResolver();
-            resolver.AddComponent(new TestTypeResolverComponent
-            {
-                TryGetType = (s, o, arg4) => typeof(string)
-            });
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (o, arg3) => MemberPath.Empty
-            });
-
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)),
-                new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)));
-            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
             var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
         }

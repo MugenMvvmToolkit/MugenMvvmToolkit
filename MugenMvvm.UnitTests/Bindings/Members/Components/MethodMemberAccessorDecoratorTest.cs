@@ -14,27 +14,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class MethodMemberAccessorDecoratorTest : UnitTestBase
     {
-        public class TestMethodInvoker
-        {
-            public const string OptionalValue = "index2";
-
-            public Func<int, int>? GetIndex { get; set; }
-
-            public Func<string, string, object>? GetIndexOptional { get; set; }
-
-            public Func<string, IReadOnlyMetadataContext, object>? GetIndexMetadata { get; set; }
-
-            public Func<int, int[], object>? GetIndexParams { get; set; }
-
-            public int GetValue(int index) => GetIndex!(index);
-
-            public object GetValue(string index1, string index2 = OptionalValue) => GetIndexOptional!(index1, index2);
-
-            public object GetValue(string index1, IReadOnlyMetadataContext index2) => GetIndexMetadata!(index1, index2);
-
-            public object GetValue(int index, params int[] indexes) => GetIndexParams!(index, indexes);
-        }
-
         [Fact]
         public void TryGetMembersShouldHandleCustomMethodCall()
         {
@@ -254,6 +233,27 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             member.GetValue(instance, DefaultMetadata).ShouldEqual(index1);
             getter.ShouldEqual(1);
             ShouldThrow<InvalidOperationException>(() => member.SetValue(instance, null, DefaultMetadata));
+        }
+
+        public class TestMethodInvoker
+        {
+            public const string OptionalValue = "index2";
+
+            public Func<int, int>? GetIndex { get; set; }
+
+            public Func<string, string, object>? GetIndexOptional { get; set; }
+
+            public Func<string, IReadOnlyMetadataContext, object>? GetIndexMetadata { get; set; }
+
+            public Func<int, int[], object>? GetIndexParams { get; set; }
+
+            public int GetValue(int index) => GetIndex!(index);
+
+            public object GetValue(string index1, string index2 = OptionalValue) => GetIndexOptional!(index1, index2);
+
+            public object GetValue(string index1, IReadOnlyMetadataContext index2) => GetIndexMetadata!(index1, index2);
+
+            public object GetValue(int index, params int[] indexes) => GetIndexParams!(index, indexes);
         }
     }
 }

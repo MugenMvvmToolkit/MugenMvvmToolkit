@@ -23,6 +23,25 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionPriorityDecoratorTest : UnitTestBase
     {
+        [Fact]
+        public void TryParseBindingExpressionShouldIgnoreNonListResult()
+        {
+            var request = "";
+            var exp = new TestBindingBuilder();
+            var bindingManager = new BindingManager();
+            bindingManager.AddComponent(new BindingExpressionPriorityDecorator());
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (o, arg3) =>
+                {
+                    o.ShouldEqual(request);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return exp;
+                }
+            });
+            bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -101,25 +120,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             public int Priority { get; set; }
 
             public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null) => throw new NotSupportedException();
-        }
-
-        [Fact]
-        public void TryParseBindingExpressionShouldIgnoreNonListResult()
-        {
-            var request = "";
-            var exp = new TestBindingBuilder();
-            var bindingManager = new BindingManager();
-            bindingManager.AddComponent(new BindingExpressionPriorityDecorator());
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
-            {
-                TryParseBindingExpression = (o, arg3) =>
-                {
-                    o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return exp;
-                }
-            });
-            bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
         }
     }
 }

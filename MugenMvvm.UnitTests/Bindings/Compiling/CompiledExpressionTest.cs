@@ -18,113 +18,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
     public class CompiledExpressionTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void CompileShouldReturnValueForBindingExpression1(int count)
-        {
-            var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
-            var value1 = "test";
-            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
-            var compiledExpression = new CompiledExpression(expressionNode);
-
-            var components = new List<IExpressionBuilderComponent>();
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = i == count - 1;
-                components.Add(new TestExpressionBuilderComponent
-                {
-                    TryBuild = (context, node) =>
-                    {
-                        ++compileCount;
-                        context.ShouldEqual(compiledExpression);
-                        node.ShouldEqual(expressionNode);
-                        var expression = context.TryGetExpression(member1);
-                        if (isLast)
-                            return expression;
-                        return null;
-                    }
-                });
-            }
-
-            compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(new ParameterValue(typeof(string), value1), DefaultMetadata).ShouldEqual(value1);
-            compileCount.ShouldEqual(count);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void CompileShouldReturnValueForBindingExpression2(int count)
-        {
-            var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test1", 0, default, default);
-            var member2 = new BindingMemberExpressionNode("test2", 1, default, default);
-            var value1 = 1;
-            var value2 = -2;
-            var result = value1 + value2;
-            var expressionNode = new BinaryExpressionNode(BinaryTokenType.Addition, member1, member2);
-            var compiledExpression = new CompiledExpression(expressionNode);
-
-            var components = new List<IExpressionBuilderComponent>();
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = i == count - 1;
-                components.Add(new TestExpressionBuilderComponent
-                {
-                    TryBuild = (context, node) =>
-                    {
-                        ++compileCount;
-                        context.ShouldEqual(compiledExpression);
-                        node.ShouldEqual(expressionNode);
-                        var expression1 = context.TryGetExpression(member1);
-                        var expression2 = context.TryGetExpression(member2);
-
-                        if (isLast)
-                            return Expression.Add(expression1!, expression2!);
-                        return null;
-                    }
-                });
-            }
-
-            compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(new[] {new ParameterValue(typeof(int), value1), new ParameterValue(typeof(int), value2)}, DefaultMetadata).ShouldEqual(result);
-            compileCount.ShouldEqual(count);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void CompileShouldReturnMetadata(int count)
-        {
-            var compileCount = 0;
-            var expressionNode = ConstantExpressionNode.False;
-            var compiledExpression = new CompiledExpression(expressionNode);
-
-            var components = new List<IExpressionBuilderComponent>();
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = i == count - 1;
-                components.Add(new TestExpressionBuilderComponent
-                {
-                    TryBuild = (context, node) =>
-                    {
-                        ++compileCount;
-                        context.ShouldEqual(compiledExpression);
-                        node.ShouldEqual(expressionNode);
-                        if (isLast)
-                            return context.MetadataExpression;
-                        return null;
-                    }
-                });
-            }
-
-            compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(default, DefaultMetadata).ShouldEqual(DefaultMetadata);
-            compileCount.ShouldEqual(count);
-        }
-
         [Fact]
         public void InvokeShouldCacheExpression1()
         {
@@ -286,6 +179,113 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             var member1 = new BindingMemberExpressionNode("test", -1, default, default);
             var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
             ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void CompileShouldReturnValueForBindingExpression1(int count)
+        {
+            var compileCount = 0;
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
+            var value1 = "test";
+            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
+            var compiledExpression = new CompiledExpression(expressionNode);
+
+            var components = new List<IExpressionBuilderComponent>();
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                components.Add(new TestExpressionBuilderComponent
+                {
+                    TryBuild = (context, node) =>
+                    {
+                        ++compileCount;
+                        context.ShouldEqual(compiledExpression);
+                        node.ShouldEqual(expressionNode);
+                        var expression = context.TryGetExpression(member1);
+                        if (isLast)
+                            return expression;
+                        return null;
+                    }
+                });
+            }
+
+            compiledExpression.ExpressionBuilders = components.ToArray();
+            compiledExpression.Invoke(new ParameterValue(typeof(string), value1), DefaultMetadata).ShouldEqual(value1);
+            compileCount.ShouldEqual(count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void CompileShouldReturnValueForBindingExpression2(int count)
+        {
+            var compileCount = 0;
+            var member1 = new BindingMemberExpressionNode("test1", 0, default, default);
+            var member2 = new BindingMemberExpressionNode("test2", 1, default, default);
+            var value1 = 1;
+            var value2 = -2;
+            var result = value1 + value2;
+            var expressionNode = new BinaryExpressionNode(BinaryTokenType.Addition, member1, member2);
+            var compiledExpression = new CompiledExpression(expressionNode);
+
+            var components = new List<IExpressionBuilderComponent>();
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                components.Add(new TestExpressionBuilderComponent
+                {
+                    TryBuild = (context, node) =>
+                    {
+                        ++compileCount;
+                        context.ShouldEqual(compiledExpression);
+                        node.ShouldEqual(expressionNode);
+                        var expression1 = context.TryGetExpression(member1);
+                        var expression2 = context.TryGetExpression(member2);
+
+                        if (isLast)
+                            return Expression.Add(expression1!, expression2!);
+                        return null;
+                    }
+                });
+            }
+
+            compiledExpression.ExpressionBuilders = components.ToArray();
+            compiledExpression.Invoke(new[] {new ParameterValue(typeof(int), value1), new ParameterValue(typeof(int), value2)}, DefaultMetadata).ShouldEqual(result);
+            compileCount.ShouldEqual(count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void CompileShouldReturnMetadata(int count)
+        {
+            var compileCount = 0;
+            var expressionNode = ConstantExpressionNode.False;
+            var compiledExpression = new CompiledExpression(expressionNode);
+
+            var components = new List<IExpressionBuilderComponent>();
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                components.Add(new TestExpressionBuilderComponent
+                {
+                    TryBuild = (context, node) =>
+                    {
+                        ++compileCount;
+                        context.ShouldEqual(compiledExpression);
+                        node.ShouldEqual(expressionNode);
+                        if (isLast)
+                            return context.MetadataExpression;
+                        return null;
+                    }
+                });
+            }
+
+            compiledExpression.ExpressionBuilders = components.ToArray();
+            compiledExpression.Invoke(default, DefaultMetadata).ShouldEqual(DefaultMetadata);
+            compileCount.ShouldEqual(count);
         }
     }
 }

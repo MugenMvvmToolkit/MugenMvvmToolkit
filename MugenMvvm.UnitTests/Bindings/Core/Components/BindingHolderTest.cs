@@ -12,6 +12,32 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingHolderTest : UnitTestBase
     {
+        [Fact]
+        public void TryRegisterShouldDisposePrevBinding()
+        {
+            var b1Disposed = false;
+            var b2Disposed = false;
+            var b1 = new TestBinding
+            {
+                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
+                Dispose = () => b1Disposed = true
+            };
+            var b2 = new TestBinding
+            {
+                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
+                Dispose = () => b2Disposed = true
+            };
+            var bindingHolder = new BindingHolder();
+
+            bindingHolder.TryRegister(null!, this, b1, DefaultMetadata).ShouldBeTrue();
+            b1Disposed.ShouldBeFalse();
+            b2Disposed.ShouldBeFalse();
+
+            bindingHolder.TryRegister(null!, this, b2, DefaultMetadata).ShouldBeTrue();
+            b1Disposed.ShouldBeTrue();
+            b2Disposed.ShouldBeFalse();
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -41,32 +67,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 array.Count.ShouldEqual(bindings.Count - i - 1);
                 array.ShouldContain(bindings.Skip(i + 1));
             }
-        }
-
-        [Fact]
-        public void TryRegisterShouldDisposePrevBinding()
-        {
-            var b1Disposed = false;
-            var b2Disposed = false;
-            var b1 = new TestBinding
-            {
-                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
-                Dispose = () => b1Disposed = true
-            };
-            var b2 = new TestBinding
-            {
-                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
-                Dispose = () => b2Disposed = true
-            };
-            var bindingHolder = new BindingHolder();
-
-            bindingHolder.TryRegister(null!, this, b1, DefaultMetadata).ShouldBeTrue();
-            b1Disposed.ShouldBeFalse();
-            b2Disposed.ShouldBeFalse();
-
-            bindingHolder.TryRegister(null!, this, b2, DefaultMetadata).ShouldBeTrue();
-            b1Disposed.ShouldBeTrue();
-            b2Disposed.ShouldBeFalse();
         }
     }
 }

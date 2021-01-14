@@ -11,6 +11,13 @@ namespace MugenMvvm.UnitTests.Validation
 {
     public class ValidationManagerTest : ComponentOwnerTestBase<ValidationManager>
     {
+        [Fact]
+        public void GetAggregatorValidatorShouldThrowNoComponents()
+        {
+            var provider = GetComponentOwner();
+            ShouldThrow<InvalidOperationException>(() => provider.GetValidator(this, DefaultMetadata));
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -55,12 +62,5 @@ namespace MugenMvvm.UnitTests.Validation
         }
 
         protected override ValidationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void GetAggregatorValidatorShouldThrowNoComponents()
-        {
-            var provider = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => provider.GetValidator(this, DefaultMetadata));
-        }
     }
 }

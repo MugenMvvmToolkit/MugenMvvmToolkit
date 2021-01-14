@@ -18,6 +18,152 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class ComponentCollectionTest : ComponentOwnerTestBase<IComponentCollection>
     {
+        [Fact]
+        public void AddShouldCallOnAttachingOnAttachedMethods()
+        {
+            var attachingCount = 0;
+            var attachedCount = 0;
+            var canAttach = false;
+            var componentCollection = new ComponentCollection(this);
+            var component = new TestAttachableComponent<ComponentCollectionTest>
+            {
+                OnAttachingHandler = (test, context) =>
+                {
+                    attachingCount++;
+                    test.ShouldEqual(this);
+                    return canAttach;
+                },
+                OnAttachedHandler = (test, context) =>
+                {
+                    attachedCount++;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                }
+            };
+
+            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeFalse();
+            attachingCount.ShouldEqual(1);
+            attachedCount.ShouldEqual(0);
+            componentCollection.Count.ShouldEqual(0);
+
+            canAttach = true;
+            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
+            attachingCount.ShouldEqual(2);
+            attachedCount.ShouldEqual(1);
+            componentCollection.Get<object>().Single().ShouldEqual(component);
+        }
+
+        [Fact]
+        public void ClearShouldCallOnDetachedMethods()
+        {
+            var detachedCount = 0;
+            var componentCollection = new ComponentCollection(this);
+            var component = new TestAttachableComponent<ComponentCollectionTest>
+            {
+                OnDetachedHandler = (test, context) =>
+                {
+                    detachedCount++;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                }
+            };
+            componentCollection.TryAdd(component, DefaultMetadata);
+            componentCollection.Clear(DefaultMetadata);
+            detachedCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void GetShouldDecorateItems()
+        {
+            var executed = 0;
+            var owner = new TestComponentOwner<object>();
+            var componentCollection = new ComponentCollection(owner);
+
+            var componentDecorated1 = new TestThreadDispatcherComponent();
+            var componentDecorated2 = new TestThreadDispatcherComponent();
+
+            var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 0};
+            var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 1};
+            var component = new TestThreadDispatcherComponent();
+            componentCollection.TryAdd(component);
+
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component});
+            decoratorComponent1.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
+            {
+                ++executed;
+                c.ShouldEqual(componentCollection);
+                list.AsList().ShouldEqual(new[] {component});
+                context.ShouldEqual(DefaultMetadata);
+                list.Add(componentDecorated1);
+            };
+            componentCollection.AddComponent(decoratorComponent1);
+
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
+            executed.ShouldEqual(1);
+
+            decoratorComponent2.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
+            {
+                ++executed;
+                c.ShouldEqual(componentCollection);
+                list.AsList().ShouldEqual(new[] {component, componentDecorated1});
+                context.ShouldEqual(DefaultMetadata);
+                list.Add(componentDecorated2);
+            };
+            componentCollection.AddComponent(decoratorComponent2);
+
+            executed = 0;
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1, componentDecorated2});
+            executed.ShouldEqual(2);
+
+            componentCollection.RemoveComponent(decoratorComponent2);
+            executed = 0;
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
+            executed.ShouldEqual(1);
+
+            executed = 0;
+            componentCollection.RemoveComponent(decoratorComponent1);
+            var components = componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata);
+            components.ShouldEqual(new[] {component});
+            executed.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void RemoveShouldCallOnDetachingOnDetachedMethods()
+        {
+            var detachingCount = 0;
+            var detachedCount = 0;
+            var canDetach = false;
+            var componentCollection = new ComponentCollection(this);
+            var component = new TestAttachableComponent<ComponentCollectionTest>
+            {
+                OnDetachingHandler = (test, context) =>
+                {
+                    detachingCount++;
+                    test.ShouldEqual(this);
+                    return canDetach;
+                },
+                OnDetachedHandler = (test, context) =>
+                {
+                    detachedCount++;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                }
+            };
+            componentCollection.TryAdd(component, DefaultMetadata);
+
+            componentCollection.Remove(component, DefaultMetadata).ShouldBeFalse();
+            detachingCount.ShouldEqual(1);
+            detachedCount.ShouldEqual(0);
+            componentCollection.Count.ShouldEqual(1);
+            componentCollection.Get<object>().Single().ShouldEqual(component);
+
+            canDetach = true;
+            componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
+            detachingCount.ShouldEqual(2);
+            detachedCount.ShouldEqual(1);
+            componentCollection.Get<object>().Count.ShouldEqual(0);
+        }
+
         public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
         {
             if (globalValue)
@@ -276,152 +422,6 @@ namespace MugenMvvm.UnitTests.Components
 
             public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata) =>
                 throw new NotSupportedException();
-        }
-
-        [Fact]
-        public void AddShouldCallOnAttachingOnAttachedMethods()
-        {
-            var attachingCount = 0;
-            var attachedCount = 0;
-            var canAttach = false;
-            var componentCollection = new ComponentCollection(this);
-            var component = new TestAttachableComponent<ComponentCollectionTest>
-            {
-                OnAttachingHandler = (test, context) =>
-                {
-                    attachingCount++;
-                    test.ShouldEqual(this);
-                    return canAttach;
-                },
-                OnAttachedHandler = (test, context) =>
-                {
-                    attachedCount++;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-
-            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeFalse();
-            attachingCount.ShouldEqual(1);
-            attachedCount.ShouldEqual(0);
-            componentCollection.Count.ShouldEqual(0);
-
-            canAttach = true;
-            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
-            attachingCount.ShouldEqual(2);
-            attachedCount.ShouldEqual(1);
-            componentCollection.Get<object>().Single().ShouldEqual(component);
-        }
-
-        [Fact]
-        public void ClearShouldCallOnDetachedMethods()
-        {
-            var detachedCount = 0;
-            var componentCollection = new ComponentCollection(this);
-            var component = new TestAttachableComponent<ComponentCollectionTest>
-            {
-                OnDetachedHandler = (test, context) =>
-                {
-                    detachedCount++;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-            componentCollection.TryAdd(component, DefaultMetadata);
-            componentCollection.Clear(DefaultMetadata);
-            detachedCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void GetShouldDecorateItems()
-        {
-            var executed = 0;
-            var owner = new TestComponentOwner<object>();
-            var componentCollection = new ComponentCollection(owner);
-
-            var componentDecorated1 = new TestThreadDispatcherComponent();
-            var componentDecorated2 = new TestThreadDispatcherComponent();
-
-            var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 0};
-            var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 1};
-            var component = new TestThreadDispatcherComponent();
-            componentCollection.TryAdd(component);
-
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component});
-            decoratorComponent1.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
-            {
-                ++executed;
-                c.ShouldEqual(componentCollection);
-                list.AsList().ShouldEqual(new[] {component});
-                context.ShouldEqual(DefaultMetadata);
-                list.Add(componentDecorated1);
-            };
-            componentCollection.AddComponent(decoratorComponent1);
-
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
-            executed.ShouldEqual(1);
-
-            decoratorComponent2.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
-            {
-                ++executed;
-                c.ShouldEqual(componentCollection);
-                list.AsList().ShouldEqual(new[] {component, componentDecorated1});
-                context.ShouldEqual(DefaultMetadata);
-                list.Add(componentDecorated2);
-            };
-            componentCollection.AddComponent(decoratorComponent2);
-
-            executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1, componentDecorated2});
-            executed.ShouldEqual(2);
-
-            componentCollection.RemoveComponent(decoratorComponent2);
-            executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
-            executed.ShouldEqual(1);
-
-            executed = 0;
-            componentCollection.RemoveComponent(decoratorComponent1);
-            var components = componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata);
-            components.ShouldEqual(new[] {component});
-            executed.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void RemoveShouldCallOnDetachingOnDetachedMethods()
-        {
-            var detachingCount = 0;
-            var detachedCount = 0;
-            var canDetach = false;
-            var componentCollection = new ComponentCollection(this);
-            var component = new TestAttachableComponent<ComponentCollectionTest>
-            {
-                OnDetachingHandler = (test, context) =>
-                {
-                    detachingCount++;
-                    test.ShouldEqual(this);
-                    return canDetach;
-                },
-                OnDetachedHandler = (test, context) =>
-                {
-                    detachedCount++;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-            componentCollection.TryAdd(component, DefaultMetadata);
-
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeFalse();
-            detachingCount.ShouldEqual(1);
-            detachedCount.ShouldEqual(0);
-            componentCollection.Count.ShouldEqual(1);
-            componentCollection.Get<object>().Single().ShouldEqual(component);
-
-            canDetach = true;
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
-            detachingCount.ShouldEqual(2);
-            detachedCount.ShouldEqual(1);
-            componentCollection.Get<object>().Count.ShouldEqual(0);
         }
     }
 }

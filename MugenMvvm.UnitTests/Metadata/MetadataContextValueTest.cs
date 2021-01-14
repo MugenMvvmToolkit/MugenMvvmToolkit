@@ -8,6 +8,17 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class MetadataContextValueTest : ReadOnlyMetadataContextTestBase
     {
+        [Fact]
+        public void CreateShouldCreateMetadataFromKeyValuePair()
+        {
+            var contextKey = MetadataContextKey.FromKey<int>("test");
+            var value = new KeyValuePair<IMetadataContextKey, object?>(contextKey, 1);
+            var context = contextKey.ToContext(1);
+            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
+            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
+            TryGetTest(context, contextKey, 1);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -19,17 +30,6 @@ namespace MugenMvvm.UnitTests.Metadata
             EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
             TryGetTest(context, contextKey, intValue);
-        }
-
-        [Fact]
-        public void CreateShouldCreateMetadataFromKeyValuePair()
-        {
-            var contextKey = MetadataContextKey.FromKey<int>("test");
-            var value = new KeyValuePair<IMetadataContextKey, object?>(contextKey, 1);
-            var context = contextKey.ToContext(1);
-            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
-            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> {value});
-            TryGetTest(context, contextKey, 1);
         }
     }
 }

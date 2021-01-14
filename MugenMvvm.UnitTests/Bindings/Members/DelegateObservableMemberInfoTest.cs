@@ -14,49 +14,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class DelegateObservableMemberInfoTest : UnitTestBase
     {
-        protected virtual MemberType MemberType => MemberType.Event;
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryObserverShouldUseObservationManager(bool tryObserveByMember)
-        {
-            var invokeCount = 0;
-            var actionToken = new ActionToken((o, o1) => { });
-            var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, tryObserveByMember, null, null);
-            using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
-            {
-                TryGetMemberObserver = (type, o, arg3) =>
-                {
-                    ++invokeCount;
-                    type.ShouldEqual(memberInfo.DeclaringType);
-                    o.ShouldEqual(memberInfo);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return new MemberObserver((o1, o2, listener, arg4) => actionToken, memberInfo);
-                }
-            });
-
-            var token = memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
-            if (tryObserveByMember)
-            {
-                invokeCount.ShouldEqual(1);
-                token.ShouldEqual(actionToken);
-            }
-            else
-            {
-                invokeCount.ShouldEqual(0);
-                token.IsEmpty.ShouldBeTrue();
-            }
-        }
-
-        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
-            EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
-            in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
-            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-            where TTarget : class? =>
-            new(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -121,5 +78,48 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.TryObserve(t, l, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
+
+        protected virtual MemberType MemberType => MemberType.Event;
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TryObserverShouldUseObservationManager(bool tryObserveByMember)
+        {
+            var invokeCount = 0;
+            var actionToken = new ActionToken((o, o1) => { });
+            var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, tryObserveByMember, null, null);
+            using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg3) =>
+                {
+                    ++invokeCount;
+                    type.ShouldEqual(memberInfo.DeclaringType);
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return new MemberObserver((o1, o2, listener, arg4) => actionToken, memberInfo);
+                }
+            });
+
+            var token = memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
+            if (tryObserveByMember)
+            {
+                invokeCount.ShouldEqual(1);
+                token.ShouldEqual(actionToken);
+            }
+            else
+            {
+                invokeCount.ShouldEqual(0);
+                token.IsEmpty.ShouldBeTrue();
+            }
+        }
+
+        protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
+            EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
+            in TState state,
+            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
+            where TTarget : class? =>
+            new(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
     }
 }

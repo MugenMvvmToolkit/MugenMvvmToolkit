@@ -13,6 +13,60 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     public class MethodBuilderTest : UnitTestBase
     {
+        [Fact]
+        public void TryGetAccessorHandlerShouldUseDelegate()
+        {
+            var flags = ArgumentFlags.Metadata;
+            var values = new object[] {this};
+            IMethodMemberInfo? memberInfo = null;
+
+            var invokeCount = 0;
+            var accessor = new TestAccessorMemberInfo();
+            memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(object))
+                         .TryGetAccessorHandler((member, argumentFlags, args, metadata) =>
+                         {
+                             ++invokeCount;
+                             member.ShouldEqual(memberInfo);
+                             argumentFlags.ShouldEqual(flags);
+                             args.ShouldEqual(values);
+                             metadata.ShouldEqual(DefaultMetadata);
+                             return accessor;
+                         })
+                         .InvokeHandler((member, target, args, metadata) => "")
+                         .Build();
+            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
+        }
+
+        [Fact]
+        public void WithParametersShouldInitializeParameters1()
+        {
+            var parameterInfos = new IParameterInfo[1] {new TestParameterInfo()};
+            var memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
+                             .WithParameters(parameterInfos)
+                             .InvokeHandler((info, target, args, metadata) => "")
+                             .Build();
+            memberInfo.GetParameters().ShouldEqual(parameterInfos);
+        }
+
+        [Fact]
+        public void WithParametersShouldInitializeParameters2()
+        {
+            var invokeCount = 0;
+            IMethodMemberInfo? method = null;
+            var parameterInfos = new IParameterInfo[] {new TestParameterInfo()};
+            method = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
+                     .GetParametersHandler(info =>
+                     {
+                         ++invokeCount;
+                         info.ShouldEqual(method);
+                         return parameterInfos;
+                     })
+                     .InvokeHandler((info, target, args, metadata) => "")
+                     .Build();
+            method.GetParameters().ShouldEqual(parameterInfos);
+            invokeCount.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -242,60 +296,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 
             memberInfo = builder.Build();
             memberInfo.Invoke(target, parameters, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryGetAccessorHandlerShouldUseDelegate()
-        {
-            var flags = ArgumentFlags.Metadata;
-            var values = new object[] {this};
-            IMethodMemberInfo? memberInfo = null;
-
-            var invokeCount = 0;
-            var accessor = new TestAccessorMemberInfo();
-            memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(object))
-                         .TryGetAccessorHandler((member, argumentFlags, args, metadata) =>
-                         {
-                             ++invokeCount;
-                             member.ShouldEqual(memberInfo);
-                             argumentFlags.ShouldEqual(flags);
-                             args.ShouldEqual(values);
-                             metadata.ShouldEqual(DefaultMetadata);
-                             return accessor;
-                         })
-                         .InvokeHandler((member, target, args, metadata) => "")
-                         .Build();
-            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
-        }
-
-        [Fact]
-        public void WithParametersShouldInitializeParameters1()
-        {
-            var parameterInfos = new IParameterInfo[1] {new TestParameterInfo()};
-            var memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
-                             .WithParameters(parameterInfos)
-                             .InvokeHandler((info, target, args, metadata) => "")
-                             .Build();
-            memberInfo.GetParameters().ShouldEqual(parameterInfos);
-        }
-
-        [Fact]
-        public void WithParametersShouldInitializeParameters2()
-        {
-            var invokeCount = 0;
-            IMethodMemberInfo? method = null;
-            var parameterInfos = new IParameterInfo[] {new TestParameterInfo()};
-            method = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
-                     .GetParametersHandler(info =>
-                     {
-                         ++invokeCount;
-                         info.ShouldEqual(method);
-                         return parameterInfos;
-                     })
-                     .InvokeHandler((info, target, args, metadata) => "")
-                     .Build();
-            method.GetParameters().ShouldEqual(parameterInfos);
             invokeCount.ShouldEqual(1);
         }
     }

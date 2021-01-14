@@ -17,29 +17,6 @@ namespace MugenMvvm.UnitTests.ViewModels
 {
     public class ViewModelBaseTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void RegisterDisposeTokenShouldInvokeTokenOnDispose(int count)
-        {
-            var invokedCount = 0;
-            var vm = new TestViewModelBase();
-            for (var i = 0; i < count; i++)
-                vm.RegisterDisposeToken(new ActionToken((s1, s2) => ++invokedCount));
-
-            invokedCount.ShouldEqual(0);
-            vm.Dispose();
-            invokedCount.ShouldEqual(count);
-
-            vm.Dispose();
-            invokedCount.ShouldEqual(count);
-
-            invokedCount = 0;
-            for (var i = 0; i < count; i++)
-                vm.RegisterDisposeToken(new ActionToken((s1, s2) => ++invokedCount));
-            invokedCount.ShouldEqual(count);
-        }
-
         [Fact]
         public void BusyManagerShouldBeOptional()
         {
@@ -175,6 +152,29 @@ namespace MugenMvvm.UnitTests.ViewModels
             isBusyCount.ShouldEqual(2);
             stateChangedCount.ShouldEqual(2);
             beginBusyCount.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void RegisterDisposeTokenShouldInvokeTokenOnDispose(int count)
+        {
+            var invokedCount = 0;
+            var vm = new TestViewModelBase();
+            for (var i = 0; i < count; i++)
+                vm.RegisterDisposeToken(new ActionToken((s1, s2) => ++invokedCount));
+
+            invokedCount.ShouldEqual(0);
+            vm.Dispose();
+            invokedCount.ShouldEqual(count);
+
+            vm.Dispose();
+            invokedCount.ShouldEqual(count);
+
+            invokedCount = 0;
+            for (var i = 0; i < count; i++)
+                vm.RegisterDisposeToken(new ActionToken((s1, s2) => ++invokedCount));
+            invokedCount.ShouldEqual(count);
         }
     }
 }

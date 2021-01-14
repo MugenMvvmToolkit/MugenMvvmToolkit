@@ -13,17 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class DelegateMethodMemberInfoTest : DelegateObservableMemberInfoTest
     {
-        protected override MemberType MemberType => MemberType.Method;
-
-        protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
-            EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
-            in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
-            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
-            new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state,
-                (member, target, args, metadata) => "",
-                null, null, tryObserveByMember, tryObserve, raise);
-
         [Fact]
         public void GetParametersShouldUseDelegate()
         {
@@ -105,5 +94,16 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 }, false, null, null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
         }
+
+        protected override MemberType MemberType => MemberType.Method;
+
+        protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
+            EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
+            in TState state,
+            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
+            new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state,
+                (member, target, args, metadata) => "",
+                null, null, tryObserveByMember, tryObserve, raise);
     }
 }

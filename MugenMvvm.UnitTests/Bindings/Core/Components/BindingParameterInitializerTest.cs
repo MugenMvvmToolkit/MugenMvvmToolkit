@@ -17,6 +17,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingParameterInitializerTest : UnitTestBase
     {
+        [Fact]
+        public void InitializeShouldIgnoreEmptyParameters()
+        {
+            var initializer = new BindingParameterInitializer();
+            var context = new BindingExpressionInitializerContext(this);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            initializer.Initialize(null!, context);
+            context.Components.ShouldBeEmpty();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -113,16 +123,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             component.TargetNullValue.Parameter.ShouldEqual(nullValue);
             component.TargetNullValue.Expression.ShouldBeNull();
-        }
-
-        [Fact]
-        public void InitializeShouldIgnoreEmptyParameters()
-        {
-            var initializer = new BindingParameterInitializer();
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            initializer.Initialize(null!, context);
-            context.Components.ShouldBeEmpty();
         }
     }
 }

@@ -16,6 +16,39 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         protected const string Path = "Path";
         protected const string ResourceName = "R";
 
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var newNode = new ParameterExpressionNode("");
+            var visitor = new TestExpressionVisitor
+            {
+                Visit = (_, _) => newNode
+            };
+            GetExpression().Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
+        }
+
+        [Fact]
+        public void UpdateShouldCreateNewNode()
+        {
+            var index = 1;
+            EnumFlags<BindingMemberExpressionFlags> flags = BindingMemberExpressionFlags.Target;
+            EnumFlags<MemberFlags> memberFlags = MemberFlags.Static;
+            var observableMethodName = nameof(memberFlags);
+
+            var exp = GetExpression();
+            exp.Flags.ShouldNotEqual(flags);
+            exp.Index.ShouldNotEqual(index);
+            exp.MemberFlags.ShouldNotEqual(memberFlags);
+            exp.ObservableMethodName.ShouldNotEqual(observableMethodName);
+
+            var newExp = exp.Update(index, flags, memberFlags, observableMethodName);
+            ReferenceEquals(newExp, exp).ShouldBeFalse();
+            newExp.Flags.ShouldEqual(flags);
+            newExp.Index.ShouldEqual(index);
+            newExp.MemberFlags.ShouldEqual(memberFlags);
+            newExp.ObservableMethodName.ShouldEqual(observableMethodName);
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -58,38 +91,5 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         }
 
         protected abstract T GetExpression(IReadOnlyDictionary<string, object?>? metadata = null);
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var newNode = new ParameterExpressionNode("");
-            var visitor = new TestExpressionVisitor
-            {
-                Visit = (_, _) => newNode
-            };
-            GetExpression().Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
-        }
-
-        [Fact]
-        public void UpdateShouldCreateNewNode()
-        {
-            var index = 1;
-            EnumFlags<BindingMemberExpressionFlags> flags = BindingMemberExpressionFlags.Target;
-            EnumFlags<MemberFlags> memberFlags = MemberFlags.Static;
-            var observableMethodName = nameof(memberFlags);
-
-            var exp = GetExpression();
-            exp.Flags.ShouldNotEqual(flags);
-            exp.Index.ShouldNotEqual(index);
-            exp.MemberFlags.ShouldNotEqual(memberFlags);
-            exp.ObservableMethodName.ShouldNotEqual(observableMethodName);
-
-            var newExp = exp.Update(index, flags, memberFlags, observableMethodName);
-            ReferenceEquals(newExp, exp).ShouldBeFalse();
-            newExp.Flags.ShouldEqual(flags);
-            newExp.Index.ShouldEqual(index);
-            newExp.MemberFlags.ShouldEqual(memberFlags);
-            newExp.ObservableMethodName.ShouldEqual(observableMethodName);
-        }
     }
 }

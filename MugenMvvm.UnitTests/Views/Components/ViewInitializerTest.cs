@@ -24,20 +24,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewInitializerTest : UnitTestBase
     {
-        private sealed class TestInitializableViewModel : TestViewModel, IHasService<IMessenger>
-        {
-            public IMessenger Service { get; set; } = null!;
-
-            public IMessenger ServiceOptional => throw new NotSupportedException();
-        }
-
-        private sealed class TestInitializableView : IInitializableView
-        {
-            public Action<IView, object?, IReadOnlyMetadataContext?>? Initialize { get; set; }
-
-            void IInitializableView.Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata) => Initialize?.Invoke(view, state, metadata);
-        }
-
         [Fact]
         public void ShouldInitializeInitializableViews()
         {
@@ -127,6 +113,20 @@ namespace MugenMvvm.UnitTests.Views.Components
             viewManager.AddComponent(new ViewInitializer {SetDataContext = false});
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
             invokeCount.ShouldEqual(1);
+        }
+
+        private sealed class TestInitializableViewModel : TestViewModel, IHasService<IMessenger>
+        {
+            public IMessenger Service { get; set; } = null!;
+
+            public IMessenger ServiceOptional => throw new NotSupportedException();
+        }
+
+        private sealed class TestInitializableView : IInitializableView
+        {
+            public Action<IView, object?, IReadOnlyMetadataContext?>? Initialize { get; set; }
+
+            void IInitializableView.Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata) => Initialize?.Invoke(view, state, metadata);
         }
     }
 }

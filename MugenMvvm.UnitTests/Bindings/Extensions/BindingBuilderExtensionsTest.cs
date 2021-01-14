@@ -23,66 +23,6 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
         private static readonly BindingExpressionRequest ConverterRequest = new("", null, default);
         private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void BoolParameterTest(bool value)
-        {
-            var target = "T";
-            var source = "S";
-
-            var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            var request = (BindingExpressionRequest) builder.Observable(value);
-            request.Target.ShouldEqual(target);
-            request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ObservableParameter);
-
-            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.Optional(value);
-            request.Target.ShouldEqual(target);
-            request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.OptionalParameter);
-
-            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.HasStablePath(value);
-            request.Target.ShouldEqual(target);
-            request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.HasStablePathParameter);
-
-            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.ToggleEnabledState(value);
-            request.Target.ShouldEqual(target);
-            request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ToggleEnabledParameter);
-
-            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.SuppressMethodAccessors(value);
-            request.Target.ShouldEqual(target);
-            request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.SuppressMethodAccessorsParameter);
-
-            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.SuppressIndexAccessors(value);
-            request.Target.ShouldEqual(target);
-            request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.SuppressIndexAccessorsParameter);
-
-            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
-            request = builder.ObservableMethods(value);
-            request.Target.ShouldEqual(target);
-            request.Source.ShouldEqual(source);
-            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ObservableMethodsParameter);
-        }
-
-        private static void ValidateBoolExpression(KeyValuePair<string?, object> parameter, bool value, IExpressionNode expression)
-        {
-            parameter.Key.ShouldBeNull();
-            if (value)
-                parameter.Value.ShouldEqual(expression);
-            else
-                new UnaryExpressionNode(UnaryTokenType.LogicalNegation, expression).ShouldEqual((IExpressionNode) parameter.Value);
-        }
-
         [Fact]
         public void BindShouldBuildBinding1()
         {
@@ -412,6 +352,66 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
             request.Source.ShouldEqual(source);
             request.Parameters.Item.Key.ShouldEqual(BindingParameterNameConstant.TargetNullValue);
             ((IExpressionNode) request.Parameters.Item.Value).ShouldEqual(ConstantExpressionNode.Get(value));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void BoolParameterTest(bool value)
+        {
+            var target = "T";
+            var source = "S";
+
+            var builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            var request = (BindingExpressionRequest) builder.Observable(value);
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ObservableParameter);
+
+            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            request = builder.Optional(value);
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.OptionalParameter);
+
+            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            request = builder.HasStablePath(value);
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.HasStablePathParameter);
+
+            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            request = builder.ToggleEnabledState(value);
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ToggleEnabledParameter);
+
+            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            request = builder.SuppressMethodAccessors(value);
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.SuppressMethodAccessorsParameter);
+
+            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            request = builder.SuppressIndexAccessors(value);
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.SuppressIndexAccessorsParameter);
+
+            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            request = builder.ObservableMethods(value);
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            ValidateBoolExpression(request.Parameters.Item, value, MemberExpressionNode.ObservableMethodsParameter);
+        }
+
+        private static void ValidateBoolExpression(KeyValuePair<string?, object> parameter, bool value, IExpressionNode expression)
+        {
+            parameter.Key.ShouldBeNull();
+            if (value)
+                parameter.Value.ShouldEqual(expression);
+            else
+                new UnaryExpressionNode(UnaryTokenType.LogicalNegation, expression).ShouldEqual((IExpressionNode) parameter.Value);
         }
     }
 }

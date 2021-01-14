@@ -10,9 +10,6 @@ namespace MugenMvvm.UnitTests.Views
 {
     public class ViewTest : MetadataOwnerTestBase
     {
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>
-            new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel(), metadata);
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -24,5 +21,8 @@ namespace MugenMvvm.UnitTests.Views
             v.Target.ShouldEqual(view);
             v.ViewModel.ShouldEqual(testViewModel);
         }
+
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>
+            new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel(), metadata);
     }
 }

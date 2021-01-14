@@ -10,9 +10,6 @@ namespace MugenMvvm.UnitTests.Presenters
 {
     public class PresenterResultTest : MetadataOwnerTestBase
     {
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>
-            new PresenterResult(this, "1", new TestNavigationProvider(), NavigationType.Alert, metadata);
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -27,5 +24,8 @@ namespace MugenMvvm.UnitTests.Presenters
             presenterResult.NavigationProvider.ShouldEqual(provider);
             presenterResult.Metadata.ShouldEqual(DefaultMetadata);
         }
+
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>
+            new PresenterResult(this, "1", new TestNavigationProvider(), NavigationType.Alert, metadata);
     }
 }

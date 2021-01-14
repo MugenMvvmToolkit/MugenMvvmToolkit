@@ -17,6 +17,66 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
     {
         private const string SourceString = "Test2423";
 
+        [Fact]
+        public void GetValueShouldSubstring()
+        {
+            var context = new TokenParserContext();
+            context.Initialize(SourceString, DefaultMetadata);
+            context.GetValue(1, 3).ShouldEqual("es");
+        }
+
+        [Fact]
+        public void InitializeShouldClearPrevValues()
+        {
+            var context = new TokenParserContext();
+            context.Metadata.Set(BindingMetadata.EventArgs, "");
+            context.Initialize(SourceString, DefaultMetadata);
+            context.Position = 1;
+
+            context.Initialize(SourceString, DefaultMetadata);
+            context.Position.ShouldEqual(0);
+            context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
+        }
+
+        [Fact]
+        public void LengthShouldUseLimit()
+        {
+            var context = new TokenParserContext();
+            context.Initialize(SourceString, DefaultMetadata);
+            context.Length.ShouldEqual(SourceString.Length);
+            context.Limit = 1;
+            context.Length.ShouldEqual(1);
+            context.Limit = null;
+            context.Length.ShouldEqual(SourceString.Length);
+        }
+
+        [Fact]
+        public void LimitShouldThrowWrongValue()
+        {
+            var context = new TokenParserContext();
+            context.Initialize(SourceString, DefaultMetadata);
+            ShouldThrow<ArgumentException>(() => context.Limit = int.MaxValue);
+            ShouldThrow<ArgumentException>(() => context.Limit = -1);
+        }
+
+        [Fact]
+        public void PositionShouldThrowWrongValue()
+        {
+            var context = new TokenParserContext();
+            context.Initialize(SourceString, DefaultMetadata);
+            ShouldThrow<ArgumentException>(() => context.Limit = int.MaxValue);
+            ShouldThrow<ArgumentException>(() => context.Limit = -1);
+        }
+
+        [Fact]
+        public void TokenAtShouldUsePosition()
+        {
+            var context = new TokenParserContext();
+            context.Initialize(SourceString, DefaultMetadata);
+            context.TokenAt(0).ShouldEqual(SourceString[0]);
+            context.TokenAt(4).ShouldEqual(SourceString[4]);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
@@ -96,66 +156,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             var ctx = new TokenParserContext();
             ctx.Initialize("Test", metadata);
             return ctx;
-        }
-
-        [Fact]
-        public void GetValueShouldSubstring()
-        {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            context.GetValue(1, 3).ShouldEqual("es");
-        }
-
-        [Fact]
-        public void InitializeShouldClearPrevValues()
-        {
-            var context = new TokenParserContext();
-            context.Metadata.Set(BindingMetadata.EventArgs, "");
-            context.Initialize(SourceString, DefaultMetadata);
-            context.Position = 1;
-
-            context.Initialize(SourceString, DefaultMetadata);
-            context.Position.ShouldEqual(0);
-            context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
-        }
-
-        [Fact]
-        public void LengthShouldUseLimit()
-        {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            context.Length.ShouldEqual(SourceString.Length);
-            context.Limit = 1;
-            context.Length.ShouldEqual(1);
-            context.Limit = null;
-            context.Length.ShouldEqual(SourceString.Length);
-        }
-
-        [Fact]
-        public void LimitShouldThrowWrongValue()
-        {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            ShouldThrow<ArgumentException>(() => context.Limit = int.MaxValue);
-            ShouldThrow<ArgumentException>(() => context.Limit = -1);
-        }
-
-        [Fact]
-        public void PositionShouldThrowWrongValue()
-        {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            ShouldThrow<ArgumentException>(() => context.Limit = int.MaxValue);
-            ShouldThrow<ArgumentException>(() => context.Limit = -1);
-        }
-
-        [Fact]
-        public void TokenAtShouldUsePosition()
-        {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            context.TokenAt(0).ShouldEqual(SourceString[0]);
-            context.TokenAt(4).ShouldEqual(SourceString[4]);
         }
     }
 }

@@ -8,38 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class WeakEventListenerTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryHandleShouldUseListener(bool isWeak)
-        {
-            var sender = new object();
-            var msg = new object();
-            var result = true;
-            var invokeCount = 0;
-            var target = new TestWeakEventListener
-            {
-                IsWeak = isWeak,
-                IsAlive = true,
-                TryHandle = (o, o1, m) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(sender);
-                    o1.ShouldEqual(msg);
-                    m.ShouldEqual(DefaultMetadata);
-                    return result;
-                }
-            };
-            var listener = new WeakEventListener(target);
-            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(1);
-
-            invokeCount = 0;
-            result = false;
-            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(1);
-        }
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -75,5 +43,37 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
         [Fact]
         public void DefaultShouldBeEmpty() => default(WeakEventListener).IsEmpty.ShouldBeTrue();
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TryHandleShouldUseListener(bool isWeak)
+        {
+            var sender = new object();
+            var msg = new object();
+            var result = true;
+            var invokeCount = 0;
+            var target = new TestWeakEventListener
+            {
+                IsWeak = isWeak,
+                IsAlive = true,
+                TryHandle = (o, o1, m) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(sender);
+                    o1.ShouldEqual(msg);
+                    m.ShouldEqual(DefaultMetadata);
+                    return result;
+                }
+            };
+            var listener = new WeakEventListener(target);
+            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(1);
+
+            invokeCount = 0;
+            result = false;
+            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(1);
+        }
     }
 }

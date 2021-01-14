@@ -13,24 +13,6 @@ namespace MugenMvvm.UnitTests.Entities.Components
         private const string StringValue = "test";
         private static readonly Guid GuidValue = Guid.NewGuid();
 
-        private static EntityStateModel GetModel() => new() {Guid = GuidValue, Int = IntValue, String = StringValue};
-
-        private static void AssertModel(EntityStateModel model)
-        {
-            model.Guid.ShouldEqual(GuidValue);
-            model.Int.ShouldEqual(IntValue);
-            model.String.ShouldEqual(StringValue);
-        }
-
-        private sealed class EntityStateModel
-        {
-            public string? String { get; set; }
-
-            public Guid Guid { get; set; }
-
-            public int Int { get; set; }
-        }
-
         [Fact]
         public void ShouldDumpValues()
         {
@@ -165,6 +147,24 @@ namespace MugenMvvm.UnitTests.Entities.Components
             var v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
+        }
+
+        private static EntityStateModel GetModel() => new() {Guid = GuidValue, Int = IntValue, String = StringValue};
+
+        private static void AssertModel(EntityStateModel model)
+        {
+            model.Guid.ShouldEqual(GuidValue);
+            model.Int.ShouldEqual(IntValue);
+            model.String.ShouldEqual(StringValue);
+        }
+
+        private sealed class EntityStateModel
+        {
+            public string? String { get; set; }
+
+            public Guid Guid { get; set; }
+
+            public int Int { get; set; }
         }
     }
 }

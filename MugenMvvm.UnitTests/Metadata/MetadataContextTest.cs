@@ -16,6 +16,147 @@ namespace MugenMvvm.UnitTests.Metadata
     {
         protected IMetadataContextKey<int> TestKey = MetadataContextKey.FromKey<int>(nameof(TestKey));
 
+        [Fact]
+        public void AddOrUpdateShouldUseSetter1()
+        {
+            var context = GetMetadataContext();
+            SetterCount = 0;
+            SetterValue = int.MaxValue;
+            context.AddOrUpdate(CustomSetterKey, 0, this, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(int.MaxValue);
+            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
+            v.ShouldEqual(int.MaxValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(null);
+        }
+
+        [Fact]
+        public void AddOrUpdateShouldUseSetter2()
+        {
+            var context = GetMetadataContext();
+            SetterCount = 0;
+            SetterValue = int.MaxValue;
+            context.AddOrUpdate(CustomSetterKey, this, (metadataContext, key, test) => 0, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(int.MaxValue);
+            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
+            v.ShouldEqual(int.MaxValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(null);
+        }
+
+        [Fact]
+        public void AddOrUpdateShouldUseSetter3()
+        {
+            var oldValue = 100;
+            var newValue = 1000;
+            var context = GetMetadataContext();
+            SetterValue = oldValue;
+            context.Set(CustomSetterKey, 0);
+            SetterCount = 0;
+            SetterValue = newValue;
+            context.AddOrUpdate(CustomSetterKey, 0, this, (item, value, currentValue, state) => 0).ShouldEqual(newValue);
+            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
+            v.ShouldEqual(newValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(oldValue);
+        }
+
+        [Fact]
+        public void AddOrUpdateShouldUseSetter4()
+        {
+            var oldValue = 100;
+            var newValue = 1000;
+            var context = GetMetadataContext();
+            SetterValue = oldValue;
+            context.Set(CustomSetterKey, 0);
+            SetterCount = 0;
+            SetterValue = newValue;
+            context.AddOrUpdate(CustomSetterKey, this, (metadataContext, key, test) => 0, (item, value, currentValue, state) => 0).ShouldEqual(newValue);
+            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
+            v.ShouldEqual(newValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(oldValue);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeContext3()
+        {
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
+            var context = new MetadataContext(default(ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>));
+            EnumeratorCountTest(context, values);
+            ContainsTest(context, values);
+        }
+
+        [Fact]
+        public void GetOrAddShouldUseSetter1()
+        {
+            var context = GetMetadataContext();
+            SetterCount = 0;
+            SetterValue = int.MaxValue;
+            context.GetOrAdd(CustomSetterKey, 0).ShouldEqual(int.MaxValue);
+            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
+            v.ShouldEqual(int.MaxValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(null);
+        }
+
+        [Fact]
+        public void GetOrAddShouldUseSetter2()
+        {
+            var context = GetMetadataContext();
+            SetterCount = 0;
+            SetterValue = int.MaxValue;
+            context.GetOrAdd(CustomSetterKey, this, (metadataContext, key, test) => 0).ShouldEqual(int.MaxValue);
+            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
+            v.ShouldEqual(int.MaxValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(null);
+        }
+
+        [Fact]
+        public void SetShouldUseSetter()
+        {
+            var context = GetMetadataContext();
+            SetterCount = 0;
+            SetterValue = int.MinValue;
+
+            context.Set(CustomSetterKey, 0, out var old);
+            old.ShouldBeNull();
+            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
+            v.ShouldEqual(int.MinValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(null);
+
+            SetterCount = 0;
+            SetterValue = int.MaxValue;
+            context.Set(CustomSetterKey, int.MaxValue, out old);
+            old.ShouldEqual(int.MinValue);
+            context.TryGet(CustomSetterKey, out v).ShouldBeTrue();
+            v.ShouldEqual(int.MaxValue);
+            SetterCount.ShouldEqual(1);
+            CurrentSetterContext.ShouldEqual(context);
+            CurrentSetterOldValue.ShouldEqual(int.MinValue);
+        }
+
+        [Fact]
+        public void TryGetShouldUseCustomGetter()
+        {
+            var context = new MetadataContext(new ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
+            TryGetGetterTest(context);
+        }
+
+        [Fact]
+        public void TryGetShouldUseDefaultValues()
+        {
+            var context = new MetadataContext();
+            TryGetDefaultTest(context);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -571,146 +712,5 @@ namespace MugenMvvm.UnitTests.Metadata
         }
 
         protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null) => new(values);
-
-        [Fact]
-        public void AddOrUpdateShouldUseSetter1()
-        {
-            var context = GetMetadataContext();
-            SetterCount = 0;
-            SetterValue = int.MaxValue;
-            context.AddOrUpdate(CustomSetterKey, 0, this, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(int.MaxValue);
-            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
-            v.ShouldEqual(int.MaxValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(null);
-        }
-
-        [Fact]
-        public void AddOrUpdateShouldUseSetter2()
-        {
-            var context = GetMetadataContext();
-            SetterCount = 0;
-            SetterValue = int.MaxValue;
-            context.AddOrUpdate(CustomSetterKey, this, (metadataContext, key, test) => 0, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(int.MaxValue);
-            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
-            v.ShouldEqual(int.MaxValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(null);
-        }
-
-        [Fact]
-        public void AddOrUpdateShouldUseSetter3()
-        {
-            var oldValue = 100;
-            var newValue = 1000;
-            var context = GetMetadataContext();
-            SetterValue = oldValue;
-            context.Set(CustomSetterKey, 0);
-            SetterCount = 0;
-            SetterValue = newValue;
-            context.AddOrUpdate(CustomSetterKey, 0, this, (item, value, currentValue, state) => 0).ShouldEqual(newValue);
-            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
-            v.ShouldEqual(newValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(oldValue);
-        }
-
-        [Fact]
-        public void AddOrUpdateShouldUseSetter4()
-        {
-            var oldValue = 100;
-            var newValue = 1000;
-            var context = GetMetadataContext();
-            SetterValue = oldValue;
-            context.Set(CustomSetterKey, 0);
-            SetterCount = 0;
-            SetterValue = newValue;
-            context.AddOrUpdate(CustomSetterKey, this, (metadataContext, key, test) => 0, (item, value, currentValue, state) => 0).ShouldEqual(newValue);
-            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
-            v.ShouldEqual(newValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(oldValue);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeContext3()
-        {
-            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
-            var context = new MetadataContext(default(ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>));
-            EnumeratorCountTest(context, values);
-            ContainsTest(context, values);
-        }
-
-        [Fact]
-        public void GetOrAddShouldUseSetter1()
-        {
-            var context = GetMetadataContext();
-            SetterCount = 0;
-            SetterValue = int.MaxValue;
-            context.GetOrAdd(CustomSetterKey, 0).ShouldEqual(int.MaxValue);
-            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
-            v.ShouldEqual(int.MaxValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(null);
-        }
-
-        [Fact]
-        public void GetOrAddShouldUseSetter2()
-        {
-            var context = GetMetadataContext();
-            SetterCount = 0;
-            SetterValue = int.MaxValue;
-            context.GetOrAdd(CustomSetterKey, this, (metadataContext, key, test) => 0).ShouldEqual(int.MaxValue);
-            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
-            v.ShouldEqual(int.MaxValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(null);
-        }
-
-        [Fact]
-        public void SetShouldUseSetter()
-        {
-            var context = GetMetadataContext();
-            SetterCount = 0;
-            SetterValue = int.MinValue;
-
-            context.Set(CustomSetterKey, 0, out var old);
-            old.ShouldBeNull();
-            context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
-            v.ShouldEqual(int.MinValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(null);
-
-            SetterCount = 0;
-            SetterValue = int.MaxValue;
-            context.Set(CustomSetterKey, int.MaxValue, out old);
-            old.ShouldEqual(int.MinValue);
-            context.TryGet(CustomSetterKey, out v).ShouldBeTrue();
-            v.ShouldEqual(int.MaxValue);
-            SetterCount.ShouldEqual(1);
-            CurrentSetterContext.ShouldEqual(context);
-            CurrentSetterOldValue.ShouldEqual(int.MinValue);
-        }
-
-        [Fact]
-        public void TryGetShouldUseCustomGetter()
-        {
-            var context = new MetadataContext(new ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
-            TryGetGetterTest(context);
-        }
-
-        [Fact]
-        public void TryGetShouldUseDefaultValues()
-        {
-            var context = new MetadataContext();
-            TryGetDefaultTest(context);
-        }
     }
 }

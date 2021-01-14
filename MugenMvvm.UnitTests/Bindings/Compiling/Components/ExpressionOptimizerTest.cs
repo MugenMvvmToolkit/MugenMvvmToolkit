@@ -21,6 +21,29 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _compiler.AddComponent(new ExpressionOptimizer());
         }
 
+
+        [Fact]
+        public void ShouldHandleNestedExpression()
+        {
+            var isNested = false;
+            Expression expression = Expression.MakeBinary(ExpressionType.Add, Expression.Constant(1), Expression.Constant(1));
+            using var t = _compiler.AddComponent(new TestExpressionBuilderComponent
+            {
+                TryBuild = (_, _) =>
+                {
+                    if (!isNested)
+                    {
+                        isNested = true;
+                        _compiler.GetComponents<IExpressionBuilderComponent>().TryBuild(new TestExpressionBuilderContext(), MemberExpressionNode.Empty).ShouldEqual(expression);
+                    }
+
+                    return expression;
+                }
+            });
+            var exp = _compiler.GetComponents<IExpressionBuilderComponent>().TryBuild(new TestExpressionBuilderContext(), MemberExpressionNode.Empty)!;
+            ((ConstantExpression) exp).Value.ShouldEqual(2);
+        }
+
         [Fact]
         public void ShouldOptimizeExpressions()
         {

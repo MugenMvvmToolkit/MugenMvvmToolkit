@@ -28,22 +28,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         private const string MethodName = "Method";
         private const string PropertyName = "P";
 
-        [BindingMember(PropertyName)] public static string StaticProperty => "";
-
-        [BindingMember(PropertyName)] public string Property => "";
-
-        [BindingMember(MethodName)]
-        public static string StaticMethod() => "";
-
-        [BindingMember(0)]
-        public static string StaticMemberMethod(string name) => name;
-
-        [BindingMember(MethodName)]
-        public string Method() => "";
-
-        [BindingMember(0)]
-        public string MemberMethod(string name) => name;
-
         [Fact]
         public void TryConvertShouldReturnMemberExpression1()
         {
@@ -151,5 +135,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(""), name));
         }
+
+        [BindingMember(PropertyName)] public static string StaticProperty => "";
+
+        [BindingMember(PropertyName)] public string Property => "";
+
+        [BindingMember(MethodName)]
+        public static string StaticMethod() => "";
+
+        [BindingMember(0)]
+        public static string StaticMemberMethod(string name) => name;
+
+        [BindingMember(MethodName)]
+        public string Method() => "";
+
+        [BindingMember(0)]
+        public string MemberMethod(string name) => name;
     }
 }

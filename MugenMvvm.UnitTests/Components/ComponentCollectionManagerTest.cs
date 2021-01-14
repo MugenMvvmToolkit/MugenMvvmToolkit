@@ -9,12 +9,6 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class ComponentCollectionManagerTest : ComponentOwnerTestBase<IComponentCollectionManager>
     {
-        public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
-        {
-        }
-
-        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollectionManager();
-
         [Fact]
         public void GetComponentCollectionShouldBeHandledByComponents()
         {
@@ -75,5 +69,11 @@ namespace MugenMvvm.UnitTests.Components
             var componentCollection = collectionProvider.GetComponentCollection(this);
             componentCollection.ShouldBeType<ComponentCollection>();
         }
+
+        public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
+        {
+        }
+
+        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollectionManager();
     }
 }

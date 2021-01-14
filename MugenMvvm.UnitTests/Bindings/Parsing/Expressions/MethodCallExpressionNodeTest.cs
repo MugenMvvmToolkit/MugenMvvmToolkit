@@ -15,6 +15,68 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         private const string MethodName = "@4";
         private static readonly string[] TypeArgs = {"te", "tes"};
 
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => target
+            };
+            new MethodCallExpressionNode(target, MethodName, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
+            var exp = new MethodCallExpressionNode(target, MethodName, args, TypeArgs);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.MethodCall);
+            exp.Target.ShouldEqual(target);
+            exp.Arguments.ShouldEqual(args);
+            exp.TypeArgs.ShouldEqual(TypeArgs);
+            exp.Method.ShouldEqual(MethodName);
+            exp.ToString().ShouldEqual("\"1\".@4<te, tes>(\"2\")");
+        }
+
+        [Fact]
+        public void UpdateArgumentsShouldCreateNewNode()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
+            var newArgs = new IExpressionNode[] {new ConstantExpressionNode("3")};
+            var exp = new MethodCallExpressionNode(target, MethodName, args, TypeArgs);
+            exp.UpdateArguments(args).ShouldEqual(exp);
+
+            var newExp = exp.UpdateArguments(newArgs);
+            newExp.ShouldNotEqual(exp);
+            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.MethodCall);
+            newExp.Target.ShouldEqual(target);
+            newExp.Arguments.ShouldEqual(newArgs);
+            newExp.TypeArgs.ShouldEqual(TypeArgs);
+            newExp.Method.ShouldEqual(MethodName);
+        }
+
+        [Fact]
+        public void UpdateTargetShouldCreateNewNode()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
+            var newTarget = new ConstantExpressionNode("2");
+            var exp = new MethodCallExpressionNode(target, MethodName, args, TypeArgs);
+            exp.UpdateTarget(target).ShouldEqual(exp);
+
+            var newExp = exp.UpdateTarget(newTarget);
+            newExp.ShouldNotEqual(exp);
+            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.MethodCall);
+            newExp.Target.ShouldEqual(newTarget);
+            newExp.Arguments.ShouldEqual(args);
+            newExp.TypeArgs.ShouldEqual(TypeArgs);
+            newExp.Method.ShouldEqual(MethodName);
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -157,68 +219,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode) exp1.Target!).EqualsCount.ShouldEqual(1);
             exp1.Arguments.AsList().Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => target
-            };
-            new MethodCallExpressionNode(target, MethodName, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var exp = new MethodCallExpressionNode(target, MethodName, args, TypeArgs);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.MethodCall);
-            exp.Target.ShouldEqual(target);
-            exp.Arguments.ShouldEqual(args);
-            exp.TypeArgs.ShouldEqual(TypeArgs);
-            exp.Method.ShouldEqual(MethodName);
-            exp.ToString().ShouldEqual("\"1\".@4<te, tes>(\"2\")");
-        }
-
-        [Fact]
-        public void UpdateArgumentsShouldCreateNewNode()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var newArgs = new IExpressionNode[] {new ConstantExpressionNode("3")};
-            var exp = new MethodCallExpressionNode(target, MethodName, args, TypeArgs);
-            exp.UpdateArguments(args).ShouldEqual(exp);
-
-            var newExp = exp.UpdateArguments(newArgs);
-            newExp.ShouldNotEqual(exp);
-            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.MethodCall);
-            newExp.Target.ShouldEqual(target);
-            newExp.Arguments.ShouldEqual(newArgs);
-            newExp.TypeArgs.ShouldEqual(TypeArgs);
-            newExp.Method.ShouldEqual(MethodName);
-        }
-
-        [Fact]
-        public void UpdateTargetShouldCreateNewNode()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var newTarget = new ConstantExpressionNode("2");
-            var exp = new MethodCallExpressionNode(target, MethodName, args, TypeArgs);
-            exp.UpdateTarget(target).ShouldEqual(exp);
-
-            var newExp = exp.UpdateTarget(newTarget);
-            newExp.ShouldNotEqual(exp);
-            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.MethodCall);
-            newExp.Target.ShouldEqual(newTarget);
-            newExp.Arguments.ShouldEqual(args);
-            newExp.TypeArgs.ShouldEqual(TypeArgs);
-            newExp.Method.ShouldEqual(MethodName);
         }
     }
 }

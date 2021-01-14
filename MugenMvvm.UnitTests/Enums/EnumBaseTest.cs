@@ -10,13 +10,6 @@ namespace MugenMvvm.UnitTests.Enums
 {
     public class EnumBaseTest : UnitTestBase
     {
-        private class TestEnum : EnumBase<TestEnum, int>
-        {
-            public TestEnum(int value, string? name) : base(value, name)
-            {
-            }
-        }
-
         [Fact]
         public void CompareToEqualsShouldBeValid()
         {
@@ -139,6 +132,13 @@ namespace MugenMvvm.UnitTests.Enums
             ((TestEnum) v3).ShouldEqual(testEnum2);
             TestEnum.TryGet(v3, out r).ShouldBeTrue();
             r.ShouldEqual(testEnum2);
+        }
+
+        private class TestEnum : EnumBase<TestEnum, int>
+        {
+            public TestEnum(int value, string? name) : base(value, name)
+            {
+            }
         }
     }
 }

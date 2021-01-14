@@ -12,6 +12,23 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class BinaryExpressionBuilderTest : UnitTestBase
     {
+        [Fact]
+        public void TryBuildShouldIgnoreNotBinaryExpression()
+        {
+            var component = new BinaryExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotSupportBinaryExpression()
+        {
+            var component = new BinaryExpressionBuilder();
+            component.Mapping.Clear();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, new BinaryExpressionNode(BinaryTokenType.LogicalOr, ConstantExpressionNode.False, ConstantExpressionNode.False)).ShouldBeNull();
+        }
+
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryBuildShouldBuildBinaryExpression(IBinaryExpressionNode binaryExpression, IExpressionBuilderContext context, object result, bool invalid)
@@ -121,23 +138,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 result,
                 invalid
             };
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotBinaryExpression()
-        {
-            var component = new BinaryExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotSupportBinaryExpression()
-        {
-            var component = new BinaryExpressionBuilder();
-            component.Mapping.Clear();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, new BinaryExpressionNode(BinaryTokenType.LogicalOr, ConstantExpressionNode.False, ConstantExpressionNode.False)).ShouldBeNull();
         }
     }
 }

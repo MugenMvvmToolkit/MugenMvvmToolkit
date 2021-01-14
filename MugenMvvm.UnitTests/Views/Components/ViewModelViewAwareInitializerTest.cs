@@ -14,51 +14,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewModelViewAwareInitializerTest : UnitTestBase
     {
-        private class AwareViewBase
-        {
-        }
-
-        private class AwareView : AwareViewBase, IViewModelAwareView<AwareViewModelBase>, IViewModelAwareView<AwareViewModel>
-        {
-            public AwareViewModel? ViewModel;
-
-            public AwareViewModelBase? ViewModelBase;
-
-            AwareViewModel? IViewModelAwareView<AwareViewModel>.ViewModel
-            {
-                get => ViewModel;
-                set => ViewModel = value;
-            }
-
-            AwareViewModelBase? IViewModelAwareView<AwareViewModelBase>.ViewModel
-            {
-                get => ViewModelBase;
-                set => ViewModelBase = value;
-            }
-        }
-
-        private class AwareViewModelBase : TestViewModel
-        {
-        }
-
-        private class AwareViewModel : AwareViewModelBase, IViewAwareViewModel<AwareViewBase>, IViewAwareViewModel<AwareView>
-        {
-            public AwareView? View;
-            public AwareViewBase? ViewBase;
-
-            AwareView? IViewAwareViewModel<AwareView>.View
-            {
-                get => View;
-                set => View = value;
-            }
-
-            AwareViewBase? IViewAwareViewModel<AwareViewBase>.View
-            {
-                get => ViewBase;
-                set => ViewBase = value;
-            }
-        }
-
         [Fact]
         public void ShouldSetView1()
         {
@@ -178,6 +133,51 @@ namespace MugenMvvm.UnitTests.Views.Components
             view.Components.TryAdd(rawViewComponent);
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
+        }
+
+        private class AwareViewBase
+        {
+        }
+
+        private class AwareView : AwareViewBase, IViewModelAwareView<AwareViewModelBase>, IViewModelAwareView<AwareViewModel>
+        {
+            public AwareViewModel? ViewModel;
+
+            public AwareViewModelBase? ViewModelBase;
+
+            AwareViewModel? IViewModelAwareView<AwareViewModel>.ViewModel
+            {
+                get => ViewModel;
+                set => ViewModel = value;
+            }
+
+            AwareViewModelBase? IViewModelAwareView<AwareViewModelBase>.ViewModel
+            {
+                get => ViewModelBase;
+                set => ViewModelBase = value;
+            }
+        }
+
+        private class AwareViewModelBase : TestViewModel
+        {
+        }
+
+        private class AwareViewModel : AwareViewModelBase, IViewAwareViewModel<AwareViewBase>, IViewAwareViewModel<AwareView>
+        {
+            public AwareView? View;
+            public AwareViewBase? ViewBase;
+
+            AwareView? IViewAwareViewModel<AwareView>.View
+            {
+                get => View;
+                set => View = value;
+            }
+
+            AwareViewBase? IViewAwareViewModel<AwareViewBase>.View
+            {
+                get => ViewBase;
+                set => ViewBase = value;
+            }
         }
     }
 }

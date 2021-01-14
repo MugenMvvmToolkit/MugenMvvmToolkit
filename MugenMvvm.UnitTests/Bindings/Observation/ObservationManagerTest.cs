@@ -15,6 +15,27 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class ObservationManagerTest : ComponentOwnerTestBase<IObservationManager>
     {
+        [Fact]
+        public void GetMemberObserverShouldReturnEmptyObserver()
+        {
+            var provider = new ObservationManager();
+            provider.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void GetMemberPathObserverShouldThrowEmpty()
+        {
+            var provider = new ObservationManager();
+            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPathObserver(this, this, DefaultMetadata));
+        }
+
+        [Fact]
+        public void GetMemberPathShouldThrowEmpty()
+        {
+            var provider = new ObservationManager();
+            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPath(this, DefaultMetadata));
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -116,26 +137,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         }
 
         protected override IObservationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ObservationManager(collectionProvider);
-
-        [Fact]
-        public void GetMemberObserverShouldReturnEmptyObserver()
-        {
-            var provider = new ObservationManager();
-            provider.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void GetMemberPathObserverShouldThrowEmpty()
-        {
-            var provider = new ObservationManager();
-            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPathObserver(this, this, DefaultMetadata));
-        }
-
-        [Fact]
-        public void GetMemberPathShouldThrowEmpty()
-        {
-            var provider = new ObservationManager();
-            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPath(this, DefaultMetadata));
-        }
     }
 }

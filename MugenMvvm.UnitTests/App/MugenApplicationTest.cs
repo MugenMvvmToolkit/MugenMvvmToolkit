@@ -13,6 +13,47 @@ namespace MugenMvvm.UnitTests.App
 {
     public class MugenApplicationTest : UnitTestBase
     {
+        [Fact]
+        public void ConstructorShouldInitializeDefaultValues()
+        {
+            var mugenApplication = new MugenApplication();
+            mugenApplication.Metadata.ShouldNotBeNull();
+            mugenApplication.HasMetadata.ShouldBeFalse();
+            mugenApplication.Components.ShouldNotBeNull();
+            mugenApplication.HasComponents.ShouldBeFalse();
+            var deviceInfo = mugenApplication.PlatformInfo;
+            deviceInfo.ShouldNotBeNull();
+            deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
+            deviceInfo.Type.ShouldEqual(new PlatformType("-"));
+            deviceInfo.ApplicationVersion.ShouldEqual("0.0");
+            deviceInfo.DeviceVersion.ShouldEqual("0.0");
+            deviceInfo.Metadata.ShouldNotBeNull();
+            MugenService.Application.ShouldEqual(mugenApplication);
+        }
+
+        [Fact]
+        public void InitializeShouldBeHandledByComponent()
+        {
+            var state = this;
+            var states = new List<ApplicationLifecycleState>();
+            var device = new PlatformInfo(PlatformType.UnitTest, new MetadataContext());
+            var application = new MugenApplication();
+            application.AddComponent(new TestApplicationLifecycleListener(application)
+            {
+                OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
+                {
+                    states.Add(viewModelLifecycleState);
+                    st.ShouldEqual(state);
+                    metadata.ShouldEqual(DefaultMetadata);
+                }
+            });
+            application.Initialize(device, state, DefaultMetadata);
+            application.PlatformInfo.ShouldEqual(device);
+            states.Count.ShouldEqual(2);
+            states[0].ShouldEqual(ApplicationLifecycleState.Initializing);
+            states[1].ShouldEqual(ApplicationLifecycleState.Initialized);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -104,47 +145,6 @@ namespace MugenMvvm.UnitTests.App
 
             application.OnUnhandledException(ex, type, DefaultMetadata);
             invokeCount.ShouldEqual(count);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeDefaultValues()
-        {
-            var mugenApplication = new MugenApplication();
-            mugenApplication.Metadata.ShouldNotBeNull();
-            mugenApplication.HasMetadata.ShouldBeFalse();
-            mugenApplication.Components.ShouldNotBeNull();
-            mugenApplication.HasComponents.ShouldBeFalse();
-            var deviceInfo = mugenApplication.PlatformInfo;
-            deviceInfo.ShouldNotBeNull();
-            deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
-            deviceInfo.Type.ShouldEqual(new PlatformType("-"));
-            deviceInfo.ApplicationVersion.ShouldEqual("0.0");
-            deviceInfo.DeviceVersion.ShouldEqual("0.0");
-            deviceInfo.Metadata.ShouldNotBeNull();
-            MugenService.Application.ShouldEqual(mugenApplication);
-        }
-
-        [Fact]
-        public void InitializeShouldBeHandledByComponent()
-        {
-            var state = this;
-            var states = new List<ApplicationLifecycleState>();
-            var device = new PlatformInfo(PlatformType.UnitTest, new MetadataContext());
-            var application = new MugenApplication();
-            application.AddComponent(new TestApplicationLifecycleListener(application)
-            {
-                OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
-                {
-                    states.Add(viewModelLifecycleState);
-                    st.ShouldEqual(state);
-                    metadata.ShouldEqual(DefaultMetadata);
-                }
-            });
-            application.Initialize(device, state, DefaultMetadata);
-            application.PlatformInfo.ShouldEqual(device);
-            states.Count.ShouldEqual(2);
-            states[0].ShouldEqual(ApplicationLifecycleState.Initializing);
-            states[1].ShouldEqual(ApplicationLifecycleState.Initialized);
         }
     }
 }

@@ -8,8 +8,6 @@ namespace MugenMvvm.UnitTests.Messaging
 {
     public class MessageContextTest : MetadataOwnerTestBase
     {
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new MessageContext(this, this, metadata);
-
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -19,5 +17,7 @@ namespace MugenMvvm.UnitTests.Messaging
             messageContext.Sender.ShouldEqual(sender);
             messageContext.Message.ShouldEqual(message);
         }
+
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) => new MessageContext(this, this, metadata);
     }
 }

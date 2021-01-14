@@ -13,6 +13,13 @@ namespace MugenMvvm.UnitTests.ViewModels
 {
     public class ViewModelManagerTest : ComponentOwnerTestBase<ViewModelManager>
     {
+        [Fact]
+        public void GetServiceShouldThrowNoComponents()
+        {
+            var manager = new ViewModelManager();
+            ShouldThrow<InvalidOperationException>(() => manager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -145,12 +152,5 @@ namespace MugenMvvm.UnitTests.ViewModels
         }
 
         protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
-
-        [Fact]
-        public void GetServiceShouldThrowNoComponents()
-        {
-            var manager = new ViewModelManager();
-            ShouldThrow<InvalidOperationException>(() => manager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
-        }
     }
 }

@@ -7,17 +7,6 @@ namespace MugenMvvm.UnitTests.Serialization
 {
     public class MementoResultTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ConstructorShouldInitializeValues2(bool isRestored)
-        {
-            var mementoResult = new MementoResult(isRestored, DefaultMetadata);
-            mementoResult.IsRestored.ShouldEqual(isRestored);
-            mementoResult.Metadata.ShouldEqual(DefaultMetadata);
-            mementoResult.Target.ShouldBeNull();
-        }
-
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -35,6 +24,17 @@ namespace MugenMvvm.UnitTests.Serialization
             result.IsRestored.ShouldBeFalse();
             result.Target.ShouldBeNull();
             result.Metadata.ShouldEqual(EmptyMetadataContext.Instance);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ConstructorShouldInitializeValues2(bool isRestored)
+        {
+            var mementoResult = new MementoResult(isRestored, DefaultMetadata);
+            mementoResult.IsRestored.ShouldEqual(isRestored);
+            mementoResult.Metadata.ShouldEqual(DefaultMetadata);
+            mementoResult.Target.ShouldBeNull();
         }
     }
 }

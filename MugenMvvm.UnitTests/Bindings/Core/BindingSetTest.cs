@@ -17,6 +17,148 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         private static readonly BindingExpressionRequest ConverterRequest = new("", null, default);
         private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
+        [Fact]
+        public void BindShouldBuildBinding1()
+        {
+            var target = this;
+            object? source = null;
+            var binding = new TestBinding();
+            var testBuilder = new TestBindingBuilder
+            {
+                Build = (o, o1, arg3) =>
+                {
+                    o.ShouldEqual(target);
+                    o1.ShouldEqual(source);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return binding;
+                }
+            };
+            var bindingManager = new BindingManager();
+            var invokeCount = 0;
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (o, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(Delegate);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return testBuilder;
+                }
+            });
+
+            var bindingSet = new BindingSet<object>(source, bindingManager);
+            bindingSet.Bind(target, Delegate, DefaultMetadata);
+            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void BindShouldBuildBinding2()
+        {
+            var target = this;
+            var source = new object();
+            var binding = new TestBinding();
+            var testBuilder = new TestBindingBuilder
+            {
+                Build = (o, o1, arg3) =>
+                {
+                    o.ShouldEqual(target);
+                    o1.ShouldEqual(source);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return binding;
+                }
+            };
+            var bindingManager = new BindingManager();
+            var invokeCount = 0;
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (o, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(Delegate);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return testBuilder;
+                }
+            });
+
+            var bindingSet = new BindingSet<object>(bindingManager);
+            bindingSet.Bind(target, source, Delegate, DefaultMetadata);
+            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void BindShouldBuildBinding3()
+        {
+            var request = "Test";
+            var target = this;
+            var source = "";
+            var binding = new TestBinding();
+            var testBuilder = new TestBindingBuilder
+            {
+                Build = (o, o1, arg3) =>
+                {
+                    o.ShouldEqual(target);
+                    o1.ShouldEqual(source);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return binding;
+                }
+            };
+            var bindingManager = new BindingManager();
+            var invokeCount = 0;
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (o, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(request);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return testBuilder;
+                }
+            });
+
+            var bindingSet = new BindingSet<object>(bindingManager);
+            bindingSet.Bind(target, request, source, DefaultMetadata);
+            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void BindShouldBuildBinding4()
+        {
+            var request = "Test";
+            var target = this;
+            var source = "";
+            var binding = new TestBinding();
+            var testBuilder = new TestBindingBuilder
+            {
+                Build = (o, o1, arg3) =>
+                {
+                    o.ShouldEqual(target);
+                    o1.ShouldEqual(source);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return binding;
+                }
+            };
+            var bindingManager = new BindingManager();
+            var invokeCount = 0;
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (o, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(request);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return testBuilder;
+                }
+            });
+
+            var bindingSet = new BindingSet<object>(source, bindingManager);
+            bindingSet.Bind(target, request, source: null, DefaultMetadata);
+            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
+            invokeCount.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(10, 1)]
         [InlineData(10, 10)]
@@ -188,148 +330,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             invokeBuilderCount.ShouldEqual(count * bindingCount);
             sortCount.ShouldEqual(bindingCount > 1 ? count : 0);
             bindingSet.Dispose();
-        }
-
-        [Fact]
-        public void BindShouldBuildBinding1()
-        {
-            var target = this;
-            object? source = null;
-            var binding = new TestBinding();
-            var testBuilder = new TestBindingBuilder
-            {
-                Build = (o, o1, arg3) =>
-                {
-                    o.ShouldEqual(target);
-                    o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
-                }
-            };
-            var bindingManager = new BindingManager();
-            var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
-            {
-                TryParseBindingExpression = (o, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(Delegate);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
-                }
-            });
-
-            var bindingSet = new BindingSet<object>(source, bindingManager);
-            bindingSet.Bind(target, Delegate, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void BindShouldBuildBinding2()
-        {
-            var target = this;
-            var source = new object();
-            var binding = new TestBinding();
-            var testBuilder = new TestBindingBuilder
-            {
-                Build = (o, o1, arg3) =>
-                {
-                    o.ShouldEqual(target);
-                    o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
-                }
-            };
-            var bindingManager = new BindingManager();
-            var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
-            {
-                TryParseBindingExpression = (o, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(Delegate);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
-                }
-            });
-
-            var bindingSet = new BindingSet<object>(bindingManager);
-            bindingSet.Bind(target, source, Delegate, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void BindShouldBuildBinding3()
-        {
-            var request = "Test";
-            var target = this;
-            var source = "";
-            var binding = new TestBinding();
-            var testBuilder = new TestBindingBuilder
-            {
-                Build = (o, o1, arg3) =>
-                {
-                    o.ShouldEqual(target);
-                    o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
-                }
-            };
-            var bindingManager = new BindingManager();
-            var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
-            {
-                TryParseBindingExpression = (o, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
-                }
-            });
-
-            var bindingSet = new BindingSet<object>(bindingManager);
-            bindingSet.Bind(target, request, source, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void BindShouldBuildBinding4()
-        {
-            var request = "Test";
-            var target = this;
-            var source = "";
-            var binding = new TestBinding();
-            var testBuilder = new TestBindingBuilder
-            {
-                Build = (o, o1, arg3) =>
-                {
-                    o.ShouldEqual(target);
-                    o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
-                }
-            };
-            var bindingManager = new BindingManager();
-            var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
-            {
-                TryParseBindingExpression = (o, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return testBuilder;
-                }
-            });
-
-            var bindingSet = new BindingSet<object>(source, bindingManager);
-            bindingSet.Bind(target, request, source: null, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
-            invokeCount.ShouldEqual(1);
         }
     }
 }

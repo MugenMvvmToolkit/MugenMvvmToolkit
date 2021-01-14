@@ -12,6 +12,72 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class ValidatorComponentBaseTest : UnitTestBase
     {
+        [Fact]
+        public async Task ValidateAsyncShouldUpdateAllErrorsEmptyString2()
+        {
+            var errors = new Dictionary<string, object?>
+            {
+                {"test0", new[] {"1", "2"}}
+            };
+            var emptyStringErrors = new Dictionary<string, object?>
+            {
+                {"test1", new[] {"1", "2"}}
+            };
+            var component = new TestValidatorComponentBase<object>(this)
+            {
+                GetErrorsAsyncDelegate = (s, token, _) =>
+                {
+                    if (string.IsNullOrEmpty(s))
+                        return new ValueTask<ValidationResult>(ValidationResult.Get(emptyStringErrors));
+                    return new ValueTask<ValidationResult>(ValidationResult.Get(errors));
+                }
+            };
+            var validator = new Validator();
+            validator.AddComponent(component);
+
+            component.HasErrors(validator, null, null).ShouldBeFalse();
+            await component.TryValidateAsync(validator, "test");
+            component.TryGetErrors(validator, errors.First().Key).AsList().ShouldEqual((IEnumerable<object>) errors.First().Value!);
+            var pair = component.TryGetErrors(validator).Single();
+            pair.Key.ShouldEqual(errors.First().Key);
+            pair.Value.AsItemOrList().AsList().ShouldEqual((IEnumerable<object>) errors.First().Value!);
+            component.HasErrors(validator, null, null).ShouldBeTrue();
+            component.HasErrors(validator, errors.First().Key, null).ShouldBeTrue();
+
+            await component.TryValidateAsync(validator, string.Empty);
+            component.TryGetErrors(validator, emptyStringErrors.First().Key).AsList().ShouldEqual((IEnumerable<object>) emptyStringErrors.First().Value!);
+            pair = component.TryGetErrors(validator).Single();
+            pair.Key.ShouldEqual(emptyStringErrors.First().Key);
+            pair.Value.AsItemOrList().AsList().ShouldEqual((IEnumerable<object>) emptyStringErrors.First().Value!);
+            component.HasErrors(validator, null, null).ShouldBeTrue();
+            component.HasErrors(validator, emptyStringErrors.First().Key, null).ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task ValidateAsyncShouldUseCancellationToken()
+        {
+            var expectedMember = "test";
+            var tcs = new TaskCompletionSource<ValidationResult>();
+            var component = new TestValidatorComponentBase<object>(this)
+            {
+                GetErrorsAsyncDelegate = (s, token, _) =>
+                {
+                    token.Register(() => tcs.SetCanceled());
+                    return new ValueTask<ValidationResult>(tcs.Task);
+                }
+            };
+            var validator = new Validator();
+            validator.AddComponent(component);
+
+            var cts = new CancellationTokenSource();
+            var task = component.TryValidateAsync(validator, expectedMember, cts.Token)!;
+            task.IsCompleted.ShouldBeFalse();
+
+            cts.Cancel();
+            await task.WaitSafeAsync();
+            task.IsCanceled.ShouldBeTrue();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -321,72 +387,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             component.ClearErrors(validator, null, DefaultMetadata);
             invokeCount.ShouldEqual(count);
-        }
-
-        [Fact]
-        public async Task ValidateAsyncShouldUpdateAllErrorsEmptyString2()
-        {
-            var errors = new Dictionary<string, object?>
-            {
-                {"test0", new[] {"1", "2"}}
-            };
-            var emptyStringErrors = new Dictionary<string, object?>
-            {
-                {"test1", new[] {"1", "2"}}
-            };
-            var component = new TestValidatorComponentBase<object>(this)
-            {
-                GetErrorsAsyncDelegate = (s, token, _) =>
-                {
-                    if (string.IsNullOrEmpty(s))
-                        return new ValueTask<ValidationResult>(ValidationResult.Get(emptyStringErrors));
-                    return new ValueTask<ValidationResult>(ValidationResult.Get(errors));
-                }
-            };
-            var validator = new Validator();
-            validator.AddComponent(component);
-
-            component.HasErrors(validator, null, null).ShouldBeFalse();
-            await component.TryValidateAsync(validator, "test");
-            component.TryGetErrors(validator, errors.First().Key).AsList().ShouldEqual((IEnumerable<object>) errors.First().Value!);
-            var pair = component.TryGetErrors(validator).Single();
-            pair.Key.ShouldEqual(errors.First().Key);
-            pair.Value.AsItemOrList().AsList().ShouldEqual((IEnumerable<object>) errors.First().Value!);
-            component.HasErrors(validator, null, null).ShouldBeTrue();
-            component.HasErrors(validator, errors.First().Key, null).ShouldBeTrue();
-
-            await component.TryValidateAsync(validator, string.Empty);
-            component.TryGetErrors(validator, emptyStringErrors.First().Key).AsList().ShouldEqual((IEnumerable<object>) emptyStringErrors.First().Value!);
-            pair = component.TryGetErrors(validator).Single();
-            pair.Key.ShouldEqual(emptyStringErrors.First().Key);
-            pair.Value.AsItemOrList().AsList().ShouldEqual((IEnumerable<object>) emptyStringErrors.First().Value!);
-            component.HasErrors(validator, null, null).ShouldBeTrue();
-            component.HasErrors(validator, emptyStringErrors.First().Key, null).ShouldBeTrue();
-        }
-
-        [Fact]
-        public async Task ValidateAsyncShouldUseCancellationToken()
-        {
-            var expectedMember = "test";
-            var tcs = new TaskCompletionSource<ValidationResult>();
-            var component = new TestValidatorComponentBase<object>(this)
-            {
-                GetErrorsAsyncDelegate = (s, token, _) =>
-                {
-                    token.Register(() => tcs.SetCanceled());
-                    return new ValueTask<ValidationResult>(tcs.Task);
-                }
-            };
-            var validator = new Validator();
-            validator.AddComponent(component);
-
-            var cts = new CancellationTokenSource();
-            var task = component.TryValidateAsync(validator, expectedMember, cts.Token)!;
-            task.IsCompleted.ShouldBeFalse();
-
-            cts.Cancel();
-            await task.WaitSafeAsync();
-            task.IsCanceled.ShouldBeTrue();
         }
     }
 }

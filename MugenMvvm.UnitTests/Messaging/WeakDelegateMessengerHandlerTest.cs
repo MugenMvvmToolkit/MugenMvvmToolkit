@@ -9,25 +9,6 @@ namespace MugenMvvm.UnitTests.Messaging
 {
     public class WeakDelegateMessengerHandlerTest : UnitTestBase
     {
-        private void Handler(object? arg1, object arg2, IMessageContext arg3)
-        {
-        }
-
-        private static void StaticMethod(object? arg1, object arg2, IMessageContext arg3)
-        {
-        }
-
-        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl1() => new(new HandlerImpl().Handle);
-
-        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl2() => new(new HandlerImpl(), (impl, o, arg3, arg4) => { });
-
-        private sealed class HandlerImpl
-        {
-            public Action<object?, string, IMessageContext>? HandleFunc { get; set; } = (o, s, arg3) => throw new NotSupportedException();
-
-            public void Handle(object? arg1, string arg2, IMessageContext arg3) => HandleFunc!(arg1, arg2, arg3);
-        }
-
         [Fact(Skip = ReleaseTest)]
         public void ShouldBeWeek1()
         {
@@ -130,5 +111,24 @@ namespace MugenMvvm.UnitTests.Messaging
 
         [Fact]
         public void ShouldValidateStaticMethod() => ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>(StaticMethod));
+
+        private void Handler(object? arg1, object arg2, IMessageContext arg3)
+        {
+        }
+
+        private static void StaticMethod(object? arg1, object arg2, IMessageContext arg3)
+        {
+        }
+
+        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl1() => new(new HandlerImpl().Handle);
+
+        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl2() => new(new HandlerImpl(), (impl, o, arg3, arg4) => { });
+
+        private sealed class HandlerImpl
+        {
+            public Action<object?, string, IMessageContext>? HandleFunc { get; set; } = (o, s, arg3) => throw new NotSupportedException();
+
+            public void Handle(object? arg1, string arg2, IMessageContext arg3) => HandleFunc!(arg1, arg2, arg3);
+        }
     }
 }

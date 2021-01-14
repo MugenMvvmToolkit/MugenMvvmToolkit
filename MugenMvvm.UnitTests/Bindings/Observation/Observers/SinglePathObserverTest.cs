@@ -17,6 +17,53 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
     {
         protected static readonly IMemberPath DefaultPath = MemberPath.Get("test");
 
+        [Fact]
+        public void NonOptionalShouldReturnError()
+        {
+            var memberFlags = MemberFlags.All;
+            var path = DefaultPath;
+            var component = new TestMemberManagerComponent
+            {
+                TryGetMembers = (t, m, f, r, meta) => default
+            };
+
+            using var _ = MugenService.AddComponent(component);
+            var singlePathObserver = GetObserver(this, path, memberFlags, false);
+            var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
+            lastMember.IsAvailable.ShouldBeFalse();
+            lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
+            lastMember.Error.ShouldBeType<InvalidOperationException>();
+
+            var members = singlePathObserver.GetMembers(DefaultMetadata);
+            members.IsAvailable.ShouldBeFalse();
+            members.Target.ShouldEqual(BindingMetadata.UnsetValue);
+            members.Error.ShouldBeType<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void OptionalShouldIgnoreNullMember()
+        {
+            var memberFlags = MemberFlags.All;
+            var path = DefaultPath;
+            var component = new TestMemberManagerComponent
+            {
+                TryGetMembers = (t, m, f, r, meta) => default
+            };
+
+            using var _ = MugenService.AddComponent(component);
+            var singlePathObserver = GetObserver(this, path, memberFlags, true);
+            var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
+            lastMember.IsAvailable.ShouldBeFalse();
+            lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
+            lastMember.Error.ShouldBeNull();
+
+            var members = singlePathObserver.GetMembers(DefaultMetadata);
+            members.Members.Item.ShouldEqual(ConstantMemberInfo.Unset);
+            members.IsAvailable.ShouldBeFalse();
+            members.Target.ShouldEqual(BindingMetadata.UnsetValue);
+            members.Error.ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -162,52 +209,5 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             new(target, path, memberFlags, optional);
 
         protected override SinglePathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.InstancePublic, true);
-
-        [Fact]
-        public void NonOptionalShouldReturnError()
-        {
-            var memberFlags = MemberFlags.All;
-            var path = DefaultPath;
-            var component = new TestMemberManagerComponent
-            {
-                TryGetMembers = (t, m, f, r, meta) => default
-            };
-
-            using var _ = MugenService.AddComponent(component);
-            var singlePathObserver = GetObserver(this, path, memberFlags, false);
-            var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
-            lastMember.IsAvailable.ShouldBeFalse();
-            lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
-            lastMember.Error.ShouldBeType<InvalidOperationException>();
-
-            var members = singlePathObserver.GetMembers(DefaultMetadata);
-            members.IsAvailable.ShouldBeFalse();
-            members.Target.ShouldEqual(BindingMetadata.UnsetValue);
-            members.Error.ShouldBeType<InvalidOperationException>();
-        }
-
-        [Fact]
-        public void OptionalShouldIgnoreNullMember()
-        {
-            var memberFlags = MemberFlags.All;
-            var path = DefaultPath;
-            var component = new TestMemberManagerComponent
-            {
-                TryGetMembers = (t, m, f, r, meta) => default
-            };
-
-            using var _ = MugenService.AddComponent(component);
-            var singlePathObserver = GetObserver(this, path, memberFlags, true);
-            var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
-            lastMember.IsAvailable.ShouldBeFalse();
-            lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
-            lastMember.Error.ShouldBeNull();
-
-            var members = singlePathObserver.GetMembers(DefaultMetadata);
-            members.Members.Item.ShouldEqual(ConstantMemberInfo.Unset);
-            members.IsAvailable.ShouldBeFalse();
-            members.Target.ShouldEqual(BindingMetadata.UnsetValue);
-            members.Error.ShouldBeNull();
-        }
     }
 }

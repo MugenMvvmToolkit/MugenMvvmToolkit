@@ -18,6 +18,37 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class ExpressionConverterContextTest : MetadataOwnerTestBase
     {
+        [Fact]
+        public void ConvertShouldReturnExpression()
+        {
+            var constantExpression = Expression.Constant("");
+            var result = ConstantExpressionNode.Null;
+            var context = new ExpressionConverterContext<Expression>();
+            context.SetExpression(constantExpression, result);
+            context.Convert(constantExpression).ShouldEqual(result);
+        }
+
+        [Fact]
+        public void ConvertShouldThrowEmpty()
+        {
+            var context = new ExpressionConverterContext<Expression>();
+            ShouldThrow<InvalidOperationException>(() => context.Convert(Expression.Constant("")));
+        }
+
+        [Fact]
+        public void InitializeShouldClearPrevValues()
+        {
+            var constantExpression = Expression.Constant("");
+            var result = ConstantExpressionNode.Null;
+            var context = new ExpressionConverterContext<Expression>();
+            context.SetExpression(constantExpression, result);
+            context.Metadata.Set(BindingMetadata.EventArgs, "");
+
+            context.Initialize(DefaultMetadata);
+            context.TryGetExpression(constantExpression).ShouldBeNull();
+            context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
@@ -84,37 +115,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             var ctx = new ExpressionConverterContext<Expression>();
             ctx.Initialize(metadata);
             return ctx;
-        }
-
-        [Fact]
-        public void ConvertShouldReturnExpression()
-        {
-            var constantExpression = Expression.Constant("");
-            var result = ConstantExpressionNode.Null;
-            var context = new ExpressionConverterContext<Expression>();
-            context.SetExpression(constantExpression, result);
-            context.Convert(constantExpression).ShouldEqual(result);
-        }
-
-        [Fact]
-        public void ConvertShouldThrowEmpty()
-        {
-            var context = new ExpressionConverterContext<Expression>();
-            ShouldThrow<InvalidOperationException>(() => context.Convert(Expression.Constant("")));
-        }
-
-        [Fact]
-        public void InitializeShouldClearPrevValues()
-        {
-            var constantExpression = Expression.Constant("");
-            var result = ConstantExpressionNode.Null;
-            var context = new ExpressionConverterContext<Expression>();
-            context.SetExpression(constantExpression, result);
-            context.Metadata.Set(BindingMetadata.EventArgs, "");
-
-            context.Initialize(DefaultMetadata);
-            context.TryGetExpression(constantExpression).ShouldBeNull();
-            context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }
     }
 }

@@ -8,6 +8,54 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class MultiAttachableComponentTest : UnitTestBase
     {
+        [Fact]
+        public void OnAttachingShouldCallInternalMethod()
+        {
+            var methodCallCount = 0;
+            var canAttach = false;
+            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>();
+            testAttachableComponent.OnAttachingHandler = (test, context) =>
+            {
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+                return canAttach;
+            };
+
+            IAttachableComponent attachable = testAttachableComponent;
+            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
+            methodCallCount.ShouldEqual(1);
+
+            canAttach = true;
+            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
+            methodCallCount.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void OnDetachingShouldCallInternalMethod()
+        {
+            var methodCallCount = 0;
+            var canDetach = false;
+            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>();
+
+            IDetachableComponent attachable = testAttachableComponent;
+            attachable.OnDetaching(this, DefaultMetadata).ShouldBeTrue();
+
+            testAttachableComponent.OnDetachingHandler = (test, context) =>
+            {
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+                return canDetach;
+            };
+            attachable.OnDetaching(this, DefaultMetadata).ShouldEqual(canDetach);
+            methodCallCount.ShouldEqual(1);
+
+            canDetach = true;
+            attachable.OnDetaching(this, DefaultMetadata).ShouldEqual(canDetach);
+            methodCallCount.ShouldEqual(2);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -73,54 +121,6 @@ namespace MugenMvvm.UnitTests.Components
             }
 
             testAttachableComponent.Owners.IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void OnAttachingShouldCallInternalMethod()
-        {
-            var methodCallCount = 0;
-            var canAttach = false;
-            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>();
-            testAttachableComponent.OnAttachingHandler = (test, context) =>
-            {
-                ++methodCallCount;
-                test.ShouldEqual(this);
-                context.ShouldEqual(DefaultMetadata);
-                return canAttach;
-            };
-
-            IAttachableComponent attachable = testAttachableComponent;
-            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
-            methodCallCount.ShouldEqual(1);
-
-            canAttach = true;
-            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
-            methodCallCount.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void OnDetachingShouldCallInternalMethod()
-        {
-            var methodCallCount = 0;
-            var canDetach = false;
-            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>();
-
-            IDetachableComponent attachable = testAttachableComponent;
-            attachable.OnDetaching(this, DefaultMetadata).ShouldBeTrue();
-
-            testAttachableComponent.OnDetachingHandler = (test, context) =>
-            {
-                ++methodCallCount;
-                test.ShouldEqual(this);
-                context.ShouldEqual(DefaultMetadata);
-                return canDetach;
-            };
-            attachable.OnDetaching(this, DefaultMetadata).ShouldEqual(canDetach);
-            methodCallCount.ShouldEqual(1);
-
-            canDetach = true;
-            attachable.OnDetaching(this, DefaultMetadata).ShouldEqual(canDetach);
-            methodCallCount.ShouldEqual(2);
         }
     }
 }

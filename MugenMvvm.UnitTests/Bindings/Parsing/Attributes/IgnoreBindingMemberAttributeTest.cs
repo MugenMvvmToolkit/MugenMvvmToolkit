@@ -18,16 +18,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
 
     public class IgnoreBindingMemberAttributeTest : UnitTestBase
     {
-        [IgnoreBindingMember] public static string StaticProperty => "";
-
-        [IgnoreBindingMember] public string Property => "";
-
-        [IgnoreBindingMember]
-        public static string StaticMethod() => "";
-
-        [IgnoreBindingMember]
-        public string Method() => "";
-
         [Fact]
         public void TryConvertShouldIgnoreExpression1()
         {
@@ -87,5 +77,15 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(ConstantExpressionNode.Get(""));
         }
+
+        [IgnoreBindingMember] public static string StaticProperty => "";
+
+        [IgnoreBindingMember] public string Property => "";
+
+        [IgnoreBindingMember]
+        public static string StaticMethod() => "";
+
+        [IgnoreBindingMember]
+        public string Method() => "";
     }
 }

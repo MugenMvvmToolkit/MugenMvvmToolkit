@@ -11,6 +11,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class DelayBindingInitializerTest : UnitTestBase
     {
+        [Fact]
+        public void InitializeShouldIgnoreEmptyParameters()
+        {
+            var initializer = new DelayBindingInitializer();
+            var context = new BindingExpressionInitializerContext(this);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            initializer.Initialize(null!, context);
+            context.Components.ShouldBeEmpty();
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -63,16 +73,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var provider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.TargetDelay]!;
             var component = (DelayBindingHandler.Target) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
             component.Delay.ShouldEqual((ushort) delay);
-        }
-
-        [Fact]
-        public void InitializeShouldIgnoreEmptyParameters()
-        {
-            var initializer = new DelayBindingInitializer();
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            initializer.Initialize(null!, context);
-            context.Components.ShouldBeEmpty();
         }
     }
 }

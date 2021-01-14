@@ -12,6 +12,54 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class UnaryExpressionNodeTest : UnitTestBase
     {
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var target = new ConstantExpressionNode("1");
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => target
+            };
+            new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var target = new ConstantExpressionNode("1");
+            var exp = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Unary);
+            exp.Operand.ShouldEqual(target);
+            exp.Token.ShouldEqual(UnaryTokenType.BitwiseNegation);
+            exp.ToString().ShouldEqual("~\"1\"");
+        }
+
+        [Fact]
+        public void GetShouldReturnMacrosMembers()
+        {
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Self).ShouldEqual(UnaryExpressionNode.TargetMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self).ShouldEqual(UnaryExpressionNode.TargetMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, MacrosConstant.This)).ShouldEqual(UnaryExpressionNode.TargetMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.This)).ShouldEqual(UnaryExpressionNode.TargetMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, MacrosConstant.Target)).ShouldEqual(UnaryExpressionNode.TargetMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Target)).ShouldEqual(UnaryExpressionNode.TargetMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Context).ShouldEqual(UnaryExpressionNode.ContextMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context).ShouldEqual(UnaryExpressionNode.ContextMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Source).ShouldEqual(UnaryExpressionNode.SourceMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Source).ShouldEqual(UnaryExpressionNode.SourceMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.EventArgs).ShouldEqual(UnaryExpressionNode.EventArgsMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.EventArgs).ShouldEqual(UnaryExpressionNode.EventArgsMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Binding).ShouldEqual(UnaryExpressionNode.BindingMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Binding).ShouldEqual(UnaryExpressionNode.BindingMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Action).ShouldEqual(UnaryExpressionNode.ActionMacros);
+            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Action).ShouldEqual(UnaryExpressionNode.ActionMacros);
+
+            var node = UnaryExpressionNode.Get(UnaryTokenType.LogicalNegation, MemberExpressionNode.Source);
+            node.ShouldNotEqual(UnaryExpressionNode.SourceMacros);
+            node.Operand.ShouldEqual(MemberExpressionNode.Source);
+            node.Token.ShouldEqual(UnaryTokenType.LogicalNegation);
+        }
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -116,54 +164,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode) exp1.Operand).EqualsCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var target = new ConstantExpressionNode("1");
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => target
-            };
-            new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var target = new ConstantExpressionNode("1");
-            var exp = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Unary);
-            exp.Operand.ShouldEqual(target);
-            exp.Token.ShouldEqual(UnaryTokenType.BitwiseNegation);
-            exp.ToString().ShouldEqual("~\"1\"");
-        }
-
-        [Fact]
-        public void GetShouldReturnMacrosMembers()
-        {
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Self).ShouldEqual(UnaryExpressionNode.TargetMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self).ShouldEqual(UnaryExpressionNode.TargetMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, MacrosConstant.This)).ShouldEqual(UnaryExpressionNode.TargetMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.This)).ShouldEqual(UnaryExpressionNode.TargetMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, MacrosConstant.Target)).ShouldEqual(UnaryExpressionNode.TargetMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Target)).ShouldEqual(UnaryExpressionNode.TargetMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Context).ShouldEqual(UnaryExpressionNode.ContextMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context).ShouldEqual(UnaryExpressionNode.ContextMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Source).ShouldEqual(UnaryExpressionNode.SourceMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Source).ShouldEqual(UnaryExpressionNode.SourceMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.EventArgs).ShouldEqual(UnaryExpressionNode.EventArgsMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.EventArgs).ShouldEqual(UnaryExpressionNode.EventArgsMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Binding).ShouldEqual(UnaryExpressionNode.BindingMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Binding).ShouldEqual(UnaryExpressionNode.BindingMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Action).ShouldEqual(UnaryExpressionNode.ActionMacros);
-            UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Action).ShouldEqual(UnaryExpressionNode.ActionMacros);
-
-            var node = UnaryExpressionNode.Get(UnaryTokenType.LogicalNegation, MemberExpressionNode.Source);
-            node.ShouldNotEqual(UnaryExpressionNode.SourceMacros);
-            node.Operand.ShouldEqual(MemberExpressionNode.Source);
-            node.Token.ShouldEqual(UnaryTokenType.LogicalNegation);
         }
     }
 }

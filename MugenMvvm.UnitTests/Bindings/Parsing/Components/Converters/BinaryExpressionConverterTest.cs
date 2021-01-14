@@ -12,6 +12,23 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class BinaryExpressionConverterTest : UnitTestBase
     {
+        [Fact]
+        public void TryConvertShouldIgnoreNotBinaryExpression()
+        {
+            var component = new BinaryExpressionConverter();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryConvertShouldIgnoreNotSupportBinaryExpression()
+        {
+            var component = new BinaryExpressionConverter();
+            component.Mapping.Clear();
+            var ctx = new ExpressionConverterContext<Expression>();
+            component.TryConvert(ctx, Expression.MakeBinary(ExpressionType.Add, Expression.Constant(1), Expression.Constant(1))).ShouldBeNull();
+        }
+
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryConvertShouldConvertBinaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
@@ -52,23 +69,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             context.SetExpression(left, result.Left);
             context.SetExpression(right, result.Right);
             return new object[] {context, Expression.MakeBinary(expressionType, left, right), result};
-        }
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotBinaryExpression()
-        {
-            var component = new BinaryExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryConvertShouldIgnoreNotSupportBinaryExpression()
-        {
-            var component = new BinaryExpressionConverter();
-            component.Mapping.Clear();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.MakeBinary(ExpressionType.Add, Expression.Constant(1), Expression.Constant(1))).ShouldBeNull();
         }
     }
 }

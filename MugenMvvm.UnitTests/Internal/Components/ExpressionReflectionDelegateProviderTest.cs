@@ -10,87 +10,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
 {
     public class ExpressionReflectionDelegateProviderTest : UnitTestBase
     {
-        private delegate T RefGetter<TTarget, T>(ref TTarget target);
-
-        private delegate void RefSetter<TTarget, T>(ref TTarget target, T value);
-
-        private delegate void RefInvoker<TTarget, T>(TTarget target, ref T value, T result);
-
-        public class TestMemberGetterSetter
-        {
-            public static string? FieldStatic;
-
-            public string? Field;
-
-            public static string? PropertyStatic { get; set; }
-
-            public string? Property { get; set; }
-        }
-
-        public struct TestMemberGetterSetterValue
-        {
-            public string? Field;
-
-            public string? Property { get; set; }
-        }
-
-        public class TestConstructorReflectionClass
-        {
-            public TestConstructorReflectionClass(string constructorStringValue)
-            {
-                ConstructorStringValue = constructorStringValue;
-            }
-
-            public TestConstructorReflectionClass(string constructorStringValue, int constructorIntValue)
-            {
-                ConstructorStringValue = constructorStringValue;
-                ConstructorIntValue = constructorIntValue;
-            }
-
-            public TestConstructorReflectionClass()
-            {
-            }
-
-            public string? ConstructorStringValue { get; }
-
-            public int ConstructorIntValue { get; }
-        }
-
-        public class TestMethodClass
-        {
-            public static bool IsNoArgsStaticInvoked { get; set; }
-
-            public static object?[]? ArgsStatic { get; set; }
-
-            public bool IsNoArgsInvoked { get; set; }
-
-            public object?[]? Args { get; set; }
-
-            public static void NoArgsStatic() => IsNoArgsStaticInvoked = true;
-
-            public static object MethodWithArgsStatic(int value1, string value2)
-            {
-                ArgsStatic = new object[] {value1, value2};
-                return value2;
-            }
-
-            public static void HandleMethodStatic(object sender, object value) => ArgsStatic = new[] {sender, value};
-
-            public void NoArgs() => IsNoArgsInvoked = true;
-
-            public object MethodWithArgs(int value1, string value2)
-            {
-                Args = new object[] {value1, value2};
-                return value2;
-            }
-
-            public void RefMethod(ref int value, int result) => value = result;
-
-            public void HandleMethod(object sender, object value) => Args = new[] {sender, value};
-
-            public void HandleMethodGeneric<T>(object sender, T value) => Args = new[] {sender, value};
-        }
-
         [Fact]
         public void CanCreateDelegateTest()
         {
@@ -434,6 +353,87 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var resultValue = 10;
             invoker.Invoke(target, ref value, resultValue);
             value.ShouldEqual(resultValue);
+        }
+
+        private delegate T RefGetter<TTarget, T>(ref TTarget target);
+
+        private delegate void RefSetter<TTarget, T>(ref TTarget target, T value);
+
+        private delegate void RefInvoker<TTarget, T>(TTarget target, ref T value, T result);
+
+        public class TestMemberGetterSetter
+        {
+            public static string? FieldStatic;
+
+            public string? Field;
+
+            public static string? PropertyStatic { get; set; }
+
+            public string? Property { get; set; }
+        }
+
+        public struct TestMemberGetterSetterValue
+        {
+            public string? Field;
+
+            public string? Property { get; set; }
+        }
+
+        public class TestConstructorReflectionClass
+        {
+            public TestConstructorReflectionClass(string constructorStringValue)
+            {
+                ConstructorStringValue = constructorStringValue;
+            }
+
+            public TestConstructorReflectionClass(string constructorStringValue, int constructorIntValue)
+            {
+                ConstructorStringValue = constructorStringValue;
+                ConstructorIntValue = constructorIntValue;
+            }
+
+            public TestConstructorReflectionClass()
+            {
+            }
+
+            public string? ConstructorStringValue { get; }
+
+            public int ConstructorIntValue { get; }
+        }
+
+        public class TestMethodClass
+        {
+            public static bool IsNoArgsStaticInvoked { get; set; }
+
+            public static object?[]? ArgsStatic { get; set; }
+
+            public bool IsNoArgsInvoked { get; set; }
+
+            public object?[]? Args { get; set; }
+
+            public static void NoArgsStatic() => IsNoArgsStaticInvoked = true;
+
+            public static object MethodWithArgsStatic(int value1, string value2)
+            {
+                ArgsStatic = new object[] {value1, value2};
+                return value2;
+            }
+
+            public static void HandleMethodStatic(object sender, object value) => ArgsStatic = new[] {sender, value};
+
+            public void NoArgs() => IsNoArgsInvoked = true;
+
+            public object MethodWithArgs(int value1, string value2)
+            {
+                Args = new object[] {value1, value2};
+                return value2;
+            }
+
+            public void RefMethod(ref int value, int result) => value = result;
+
+            public void HandleMethod(object sender, object value) => Args = new[] {sender, value};
+
+            public void HandleMethodGeneric<T>(object sender, T value) => Args = new[] {sender, value};
         }
     }
 }

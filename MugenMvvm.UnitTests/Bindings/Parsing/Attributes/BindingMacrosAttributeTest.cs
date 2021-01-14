@@ -16,12 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         private const string Name = "Test";
         private const string MethodName = "Method";
 
-        [BindingMacros(MethodName)]
-        public static string StaticMethod() => "";
-
-        [BindingMacros(0)]
-        public static string ResourceMethod(string name) => name;
-
         [Fact]
         public void TryConvertShouldReturnResourceExpression1()
         {
@@ -51,5 +45,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, name)));
         }
+
+        [BindingMacros(MethodName)]
+        public static string StaticMethod() => "";
+
+        [BindingMacros(0)]
+        public static string ResourceMethod(string name) => name;
     }
 }

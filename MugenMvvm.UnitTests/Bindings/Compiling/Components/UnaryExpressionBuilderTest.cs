@@ -12,6 +12,23 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class UnaryExpressionBuilderTest : UnitTestBase
     {
+        [Fact]
+        public void TryBuildShouldIgnoreNotSupportUnaryExpression()
+        {
+            var component = new UnaryExpressionBuilder();
+            component.Mapping.Clear();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, ConstantExpressionNode.False)).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotUnaryExpression()
+        {
+            var component = new UnaryExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+        }
+
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryBuildShouldBuildUnaryExpression(IUnaryExpressionNode unaryExpression, IExpressionBuilderContext context, object result, bool invalid)
@@ -58,23 +75,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 result,
                 invalid
             };
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotSupportUnaryExpression()
-        {
-            var component = new UnaryExpressionBuilder();
-            component.Mapping.Clear();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, ConstantExpressionNode.False)).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotUnaryExpression()
-        {
-            var component = new UnaryExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }
     }
 }

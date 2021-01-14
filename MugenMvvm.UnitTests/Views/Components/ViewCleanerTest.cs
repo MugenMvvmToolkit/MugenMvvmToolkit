@@ -25,20 +25,6 @@ namespace MugenMvvm.UnitTests.Views.Components
 {
     public class ViewCleanerTest : UnitTestBase
     {
-        private sealed class TestCleanableViewModel : TestViewModel, IHasService<IMessenger>
-        {
-            public IMessenger Service => throw new NotSupportedException();
-
-            public IMessenger? ServiceOptional { get; set; }
-        }
-
-        private sealed class TestCleanableView : ICleanableView
-        {
-            public Action<object?, IReadOnlyMetadataContext?>? Cleanup { get; set; }
-
-            void ICleanableView.Cleanup(object? state, IReadOnlyMetadataContext? metadata) => Cleanup?.Invoke(state, metadata);
-        }
-
         [Fact]
         public void ShouldCleanCleanableViews()
         {
@@ -138,6 +124,20 @@ namespace MugenMvvm.UnitTests.Views.Components
             viewManager.AddComponent(new ViewCleaner());
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
             invokeCount.ShouldEqual(1);
+        }
+
+        private sealed class TestCleanableViewModel : TestViewModel, IHasService<IMessenger>
+        {
+            public IMessenger Service => throw new NotSupportedException();
+
+            public IMessenger? ServiceOptional { get; set; }
+        }
+
+        private sealed class TestCleanableView : ICleanableView
+        {
+            public Action<object?, IReadOnlyMetadataContext?>? Cleanup { get; set; }
+
+            void ICleanableView.Cleanup(object? state, IReadOnlyMetadataContext? metadata) => Cleanup?.Invoke(state, metadata);
         }
     }
 }
