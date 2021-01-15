@@ -3,6 +3,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -10,6 +11,7 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Messaging;
@@ -22,13 +24,15 @@ namespace MugenMvvm.ViewModels.Components
     {
         private readonly IComponentCollectionManager? _componentCollectionManager;
         private readonly IReflectionManager? _reflectionManager;
+        private readonly IValidationManager? _validationManager;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         [Preserve(Conditional = true)]
-        public ViewModelServiceProvider(IReflectionManager? reflectionManager = null, IThreadDispatcher? threadDispatcher = null,
+        public ViewModelServiceProvider(IReflectionManager? reflectionManager = null, IValidationManager? validationManager = null, IThreadDispatcher? threadDispatcher = null,
             IComponentCollectionManager? componentCollectionManager = null)
         {
             _reflectionManager = reflectionManager;
+            _validationManager = validationManager;
             _threadDispatcher = threadDispatcher;
             _componentCollectionManager = componentCollectionManager;
         }
@@ -49,6 +53,9 @@ namespace MugenMvvm.ViewModels.Components
                 messenger.Components.TryAdd(new MessengerHandlerSubscriber(_reflectionManager), metadata);
                 return messenger;
             }
+
+            if (service == typeof(IValidator))
+                return _validationManager.DefaultIfNull().TryGetValidator(viewModel, metadata);
 
             if (service == typeof(IBusyManager))
             {

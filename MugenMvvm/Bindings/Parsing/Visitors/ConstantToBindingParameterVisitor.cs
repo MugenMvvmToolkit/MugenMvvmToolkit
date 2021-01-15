@@ -11,8 +11,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         public ExpressionTraversalType TraversalType => ExpressionTraversalType.Postorder;
 
         public IExpressionNode Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata) =>
-            expression is IConstantExpressionNode
-                ? new BindingInstanceMemberExpressionNode(expression, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata)
+            expression is IConstantExpressionNode constant
+                ? new BindingInstanceMemberExpressionNode(constant.Value, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata)
                 : expression;
     }
 }

@@ -73,7 +73,7 @@ namespace MugenMvvm.Ios.App
                         && restoredState.TryGet(ViewModelMetadata.ViewModel, out var vm) && vm != null)
                     {
                         var viewModelViewRequest = new ViewModelViewRequest(vm, viewType);
-                        var view = _viewManager.DefaultIfNull().TryInitializeAsync(ViewMapping.Undefined, viewModelViewRequest, default, metadata).Result;
+                        var view = _viewManager.DefaultIfNull().TryInitializeAsync(ViewMapping.Undefined, viewModelViewRequest, default, metadata).GetResult();
                         if (view != null)
                         {
                             request.ViewController = (UIViewController) view.Target;

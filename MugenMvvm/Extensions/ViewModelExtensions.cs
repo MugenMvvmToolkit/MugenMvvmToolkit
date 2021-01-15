@@ -42,16 +42,17 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
-            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).Result;
+        public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) => 
+            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).GetResult();
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Type viewType, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)
         {
             Should.NotBeNull(viewType, nameof(viewType));
-            return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).Result;
+            return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).GetResult();
         }
 
-        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null, IReadOnlyMetadataContext? metadata = null)
+        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null,
+            IReadOnlyMetadataContext? metadata = null)
             where TViewModel : class, IViewModelBase
             where T : class
         {

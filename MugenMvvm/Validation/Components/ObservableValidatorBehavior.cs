@@ -26,13 +26,10 @@ namespace MugenMvvm.Validation.Components
 
         public void Dispose() => _target.PropertyChanged -= OnPropertyChanged;
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            foreach (var owner in Owners)
-            {
-                owner.ValidateAsync(e.PropertyName).ContinueWith(task => MugenService.Application.OnUnhandledException(task.Exception!, UnhandledExceptionType.Validation),
-                    TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnFaulted);
-            }
+            foreach (var owner in Owners) 
+                owner.ValidateAsync(e.PropertyName).LogException(UnhandledExceptionType.Validation);
         }
 
         void IValidatorListener.OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)

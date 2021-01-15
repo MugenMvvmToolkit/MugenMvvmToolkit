@@ -78,7 +78,7 @@ namespace MugenMvvm.Android.Views
 
         private void TryRestore(IViewManager viewManager, object view, Bundle? b, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (viewManager.IsInState(view, AndroidViewLifecycleState.PendingInitialization))
+            if (viewManager.IsInState(view, AndroidViewLifecycleState.PendingInitialization) || viewManager.IsInState(view, AndroidViewLifecycleState.Finishing))
                 return;
 
             view = MugenExtensions.Unwrap(view);

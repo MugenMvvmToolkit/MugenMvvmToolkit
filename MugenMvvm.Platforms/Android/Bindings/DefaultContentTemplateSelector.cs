@@ -7,12 +7,6 @@ namespace MugenMvvm.Android.Bindings
 {
     public sealed class DefaultContentTemplateSelector : IContentTemplateSelector, IFragmentTemplateSelector
     {
-        public static readonly DefaultContentTemplateSelector Instance = new();
-
-        private DefaultContentTemplateSelector()
-        {
-        }
-
         public bool HasFragments { get; set; }
 
         public object SelectTemplate(object container, object? item)

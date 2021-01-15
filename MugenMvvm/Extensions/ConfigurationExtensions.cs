@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using MugenMvvm.App.Components;
 using MugenMvvm.App.Configuration;
@@ -142,39 +143,40 @@ namespace MugenMvvm.Extensions
             if (traceApp)
                 DebugTracer.TraceApp(configuration.Application);
             if (traceBinding)
-                DebugTracer.TraceBindings(configuration.ServiceConfiguration<IBindingManager>().Service());
+                DebugTracer.TraceBindings(configuration.ServiceConfiguration<IBindingManager>().Service);
             if (traceMessenger)
-                DebugTracer.TraceMessenger(configuration.ServiceConfiguration<IMessenger>().Service());
+                DebugTracer.TraceMessenger(configuration.ServiceConfiguration<IMessenger>().Service);
             if (traceNavigation)
-                DebugTracer.TraceNavigation(configuration.ServiceConfiguration<INavigationDispatcher>().Service());
+                DebugTracer.TraceNavigation(configuration.ServiceConfiguration<INavigationDispatcher>().Service);
             if (tracePresenter)
-                DebugTracer.TracePresenter(configuration.ServiceConfiguration<IPresenter>().Service());
+                DebugTracer.TracePresenter(configuration.ServiceConfiguration<IPresenter>().Service);
             if (traceViewModel)
-                DebugTracer.TraceViewModel(configuration.ServiceConfiguration<IViewModelManager>().Service());
+                DebugTracer.TraceViewModel(configuration.ServiceConfiguration<IViewModelManager>().Service);
             if (traceView)
-                DebugTracer.TraceView(configuration.ServiceConfiguration<IViewManager>().Service());
+                DebugTracer.TraceView(configuration.ServiceConfiguration<IViewManager>().Service);
             if (includeConsoleLogger)
-                DebugTracer.AddConsoleLogger(configuration.ServiceConfiguration<ILogger>().Service());
+                DebugTracer.AddConsoleLogger(configuration.ServiceConfiguration<ILogger>().Service);
             return configuration;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service)
             where TService : class
         {
             MugenService.Configuration.InitializeInstance((TService) service);
-            return configuration.ServiceConfiguration<TService>();
+            return configuration.ServiceConfiguration((TService) service);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component,
             IReadOnlyMetadataContext? metadata = null)
             where TService : class, IComponentOwner
         {
-            configuration.Service().Components.Add(component, metadata);
+            configuration.Service.Components.Add(component, metadata);
             return configuration;
         }
 
-        public static TService Service<TService>(this ServiceConfiguration<TService> _) where TService : class => MugenService.Instance<TService>();
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration) => configuration.Application;
 
         private static IViewModelPresenterMediator? GetViewModelPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,

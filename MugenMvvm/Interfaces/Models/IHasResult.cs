@@ -2,6 +2,6 @@
 {
     public interface IHasResult<out TResult>
     {
-        TResult Result { get; }
+        TResult? Result { get; }
     }
 }

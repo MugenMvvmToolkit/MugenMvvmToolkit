@@ -8,7 +8,6 @@ using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Compiling.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
-using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,7 +17,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
     public sealed class ExpressionCompilerCache : ComponentCacheBase<IExpressionCompiler, IExpressionCompilerComponent>, IExpressionCompilerComponent,
         IExpressionEqualityComparer, IEqualityComparer<IExpressionNode>, IExpressionVisitor
     {
-        private static readonly IExpressionNode EmptyNode = new BindingInstanceMemberExpressionNode(ConstantExpressionNode.Null, "", 0, default, default);
+        private static readonly IExpressionNode EmptyNode = new BindingInstanceMemberExpressionNode(null, "", 0, default, default);
         private readonly Dictionary<IExpressionNode, ICompiledExpression?> _cache;
 
         public ExpressionCompilerCache(int priority = CompilingComponentPriority.Cache) : base(priority)

@@ -57,7 +57,7 @@ namespace MugenMvvm.Android.Extensions
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null,
             IViewManager? viewManager = null) =>
-            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).Result;
+            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).GetResult();
 
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, EnumFlags<AndroidInitializationFlags> flags,
             IBindViewCallback? bindViewCallback = null)
@@ -78,7 +78,7 @@ namespace MugenMvvm.Android.Extensions
                          .WithComponent(new ViewLifecycleMapper())
                          .WithComponent(new ActivityViewRequestManager())
                          .WithComponent(new ResourceViewMappingDecorator())
-                         .Service()
+                         .Service
                          .GetOrAddComponent(ctx => new ViewLifecycleTracker())
                          .Trackers.Add(TrackViewState);
 
@@ -88,7 +88,7 @@ namespace MugenMvvm.Android.Extensions
 
             configuration
                 .ServiceConfiguration<IWeakReferenceManager>()
-                .Service()
+                .Service
                 .GetOrAddComponent(ctx => new WeakReferenceProvider())
                 .TrackResurrection = true;
 
@@ -99,7 +99,7 @@ namespace MugenMvvm.Android.Extensions
         {
             var digitTokenParser = configuration
                                    .ServiceConfiguration<IExpressionParser>()
-                                   .Service()
+                                   .Service
                                    .GetOrAddComponent(context => new DigitTokenParser());
             var converter = new DigitTokenParser.ConvertDelegate(ConvertAndroidDigits);
             digitTokenParser.PostfixToConverter[AndroidInternalConstant.DpMetric] = converter;
@@ -111,7 +111,7 @@ namespace MugenMvvm.Android.Extensions
 
             var macrosBindingInitializer = configuration
                                            .ServiceConfiguration<IBindingManager>()
-                                           .Service()
+                                           .Service
                                            .GetOrAddComponent(context => new MacrosBindingInitializer());
             var resourceVisitor = new ResourceExpressionVisitor();
             macrosBindingInitializer.TargetVisitors.Add(resourceVisitor);
@@ -123,12 +123,12 @@ namespace MugenMvvm.Android.Extensions
 
         public static MugenApplicationConfiguration AndroidAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
-            var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service().GetOrAddComponent(context => new AttachedMemberProvider());
+            var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service.GetOrAddComponent(context => new AttachedMemberProvider());
             //object
             attachedMemberProvider.Register(BindableMembers.For<Object>()
                                                            .CollectionViewManager()
                                                            .GetBuilder()
-                                                           .DefaultValue((info, view) => new CollectionViewManager())
+                                                           .DefaultValue(new CollectionViewManager())
                                                            .NonObservable()
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -136,16 +136,14 @@ namespace MugenMvvm.Android.Extensions
                                                            .Override<Object>()
                                                            .GetBuilder()
                                                            .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
-                                                           .CustomSetter((member, target, value, metadata) =>
-                                                               target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
+                                                           .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .SelectedItem()
                                                            .Override<Object>()
                                                            .GetBuilder()
                                                            .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
-                                                           .CustomSetter((member, target, value, metadata) =>
-                                                               target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
+                                                           .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
                                                            .Build());
 
             //activity
@@ -213,6 +211,12 @@ namespace MugenMvvm.Android.Extensions
                                                            .CustomSetter((member, target, value, metadata) => target.Visibility = value ? ViewStates.Visible : ViewStates.Gone)
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .Enabled()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => target.Enabled)
+                                                           .CustomSetter((member, target, value, metadata) => target.Enabled = value)
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .Invisible()
                                                            .GetBuilder()
                                                            .CustomGetter((member, target, metadata) => target.Visibility == ViewStates.Invisible)
@@ -253,8 +257,7 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .TextChanged()
                                                            .GetBuilder()
-                                                           .CustomImplementation((member, target, listener, metadata) =>
-                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.TextEventName))
+                                                           .CustomImplementation((member, target, listener, metadata) => ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.TextEventName))
                                                            .Build());
 
             //swiperefreshlayout
@@ -348,6 +351,12 @@ namespace MugenMvvm.Android.Extensions
 
             //viewgroup
             attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .SmoothScroll()
+                                                           .GetBuilder()
+                                                           .DefaultValue(true)
+                                                           .NonObservable()
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .ContentTemplateSelector()
                                                            .GetBuilder()
                                                            .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
@@ -356,7 +365,7 @@ namespace MugenMvvm.Android.Extensions
                                                                    member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                                                            })
                                                            .NonObservable()
-                                                           .DefaultValue(DefaultContentTemplateSelector.Instance)
+                                                           .DefaultValue(new DefaultContentTemplateSelector())
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .Content()
@@ -420,8 +429,7 @@ namespace MugenMvvm.Android.Extensions
                                                                if (providerType == ViewGroupMugenExtensions.ContentProviderType ||
                                                                    providerType == ViewGroupMugenExtensions.ContentRawProviderType
                                                                    || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType &&
-                                                                   selector is IFragmentTemplateSelector fts &&
-                                                                   fts.HasFragments)
+                                                                   selector is IFragmentTemplateSelector fts && fts.HasFragments)
                                                                    member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                                                            })
                                                            .NonObservable()
@@ -439,7 +447,7 @@ namespace MugenMvvm.Android.Extensions
                                                            })
                                                            .CustomSetter((member, target, value, metadata) =>
                                                            {
-                                                               if (!ViewGroupMugenExtensions.SetSelectedIndex(target, value))
+                                                               if (!ViewGroupMugenExtensions.SetSelectedIndex(target, value, target.BindableMembers().SmoothScroll()))
                                                                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                                                            })
                                                            .Build());

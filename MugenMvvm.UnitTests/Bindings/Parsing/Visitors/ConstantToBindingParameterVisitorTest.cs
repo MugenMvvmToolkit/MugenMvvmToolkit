@@ -14,11 +14,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             var visitor = new ConstantToBindingParameterVisitor();
             var expression = new ConstantExpressionNode("1");
             expression.Accept(visitor, DefaultMetadata)
-                      .ShouldEqual(new BindingInstanceMemberExpressionNode(expression, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata));
+                      .ShouldEqual(new BindingInstanceMemberExpressionNode(expression.Value, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata));
 
             var memberExp = new MemberExpressionNode(expression, "M");
             memberExp.Accept(visitor, DefaultMetadata)
-                     .ShouldEqual(memberExp.UpdateTarget(new BindingInstanceMemberExpressionNode(expression, "", -1, default, MemberFlags.Static, null, expression,
+                     .ShouldEqual(memberExp.UpdateTarget(new BindingInstanceMemberExpressionNode(expression.Value, "", -1, default, MemberFlags.Static, null, expression,
                          expression.Metadata)));
         }
     }

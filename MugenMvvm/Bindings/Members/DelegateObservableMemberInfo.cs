@@ -52,6 +52,8 @@ namespace MugenMvvm.Bindings.Members
 
         public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
 
+        public override string ToString() => $"{DeclaringType.Name}.Delegate{MemberType.Name} {AccessModifiers.ToString()}";
+
         public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null) => _raise?.Invoke(this, (TTarget) target!, message, metadata);
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)

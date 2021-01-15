@@ -110,10 +110,8 @@ namespace MugenMvvm.Bindings.Core.Components
                 return;
 
             target ??= _targetRef?.Target;
-            if (target == null)
-                return;
-
-            enabledMember.SetValue(target, BoxingExtensions.Box(value), _currentMetadata);
+            if (target != null)
+                enabledMember.SetValue(target, BoxingExtensions.Box(value), _currentMetadata);
         }
 
         private void ClearValue()

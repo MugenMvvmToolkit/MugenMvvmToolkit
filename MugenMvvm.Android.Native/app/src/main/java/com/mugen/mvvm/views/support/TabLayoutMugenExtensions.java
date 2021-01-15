@@ -34,6 +34,10 @@ public final class TabLayoutMugenExtensions {
         ((TabLayout) view).selectTab((TabLayout.Tab) tab);
     }
 
+    public static void selectTab(View view, Object tab, boolean updateIndicator) {
+        ((TabLayout) view).selectTab((TabLayout.Tab) tab, updateIndicator);
+    }
+
     public static void addTab(View view, Object tab, boolean setSelected) {
         ((TabLayout) view).addTab((TabLayout.Tab) tab, setSelected);
     }

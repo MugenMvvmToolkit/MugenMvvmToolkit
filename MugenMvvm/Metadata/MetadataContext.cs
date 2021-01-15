@@ -345,9 +345,9 @@ namespace MugenMvvm.Metadata
             return components.TryClear(this, contextKey) || remove;
         }
 
-        private ItemOrArray<IMetadataValueManagerComponent> GetComponents() => _components.GetOrDefault<IMetadataValueManagerComponent>();
+        private ItemOrArray<IMetadataValueManagerComponent> GetComponents() => _components?.Get<IMetadataValueManagerComponent>() ?? default;
 
-        private ItemOrArray<IMetadataContextListener> GetListeners() => _components.GetOrDefault<IMetadataContextListener>();
+        private ItemOrArray<IMetadataContextListener> GetListeners() => _components?.Get<IMetadataContextListener>() ?? default;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

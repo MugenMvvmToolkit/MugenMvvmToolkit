@@ -39,6 +39,10 @@ public final class ViewPager2MugenExtensions {
         ((ViewPager2) view).setCurrentItem(index);
     }
 
+    public static void setCurrentItem(View view, int index, boolean smoothScroll) {
+        ((ViewPager2) view).setCurrentItem(index, smoothScroll);
+    }
+
     public static int getOffscreenPageLimit(View view) {
         return ((ViewPager2) view).getOffscreenPageLimit();
     }

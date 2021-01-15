@@ -87,13 +87,13 @@ public final class ViewGroupMugenExtensions {
         return -1;
     }
 
-    public static boolean setSelectedIndex(View view, int index) {
+    public static boolean setSelectedIndex(View view, int index, boolean smoothScroll) {
         if (ViewPagerMugenExtensions.isSupported(view)) {
-            ViewPagerMugenExtensions.setCurrentItem(view, index);
+            ViewPagerMugenExtensions.setCurrentItem(view, index, smoothScroll);
             return true;
         }
         if (ViewPager2MugenExtensions.isSupported(view)) {
-            ViewPager2MugenExtensions.setCurrentItem(view, index);
+            ViewPager2MugenExtensions.setCurrentItem(view, index, smoothScroll);
             return true;
         }
         if (TabLayoutMugenExtensions.isSupported(view)) {

@@ -4,7 +4,6 @@ using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Members;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Bindings.Extensions;
-using MugenMvvm.Bindings.Members;
 using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
@@ -110,7 +109,7 @@ namespace MugenMvvm.Android.Collections
                     index = ((BindableCollectionAdapter) itemsSourceProvider).IndexOf(value);
             }
 
-            if (!ViewGroupMugenExtensions.SetSelectedIndex(target, index))
+            if (!ViewGroupMugenExtensions.SetSelectedIndex(target, index, target.BindableMembers().SmoothScroll()))
                 ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(ViewBindableMembers.SelectedItem));
         }
 

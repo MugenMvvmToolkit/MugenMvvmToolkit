@@ -207,7 +207,8 @@ namespace MugenMvvm.Internal
                 Logger.Trace()?.Log($"{_tag}: ({Dump(binding)}) target updated newValue={newValue}");
         }
 
-        private sealed class ApplicationTracer : ComponentDecoratorBase<IMugenApplication, IApplicationLifecycleListener>, IApplicationLifecycleListener
+        private sealed class ApplicationTracer : ComponentDecoratorBase<IMugenApplication, IApplicationLifecycleListener>, IApplicationLifecycleListener,
+            IUnhandledExceptionHandlerComponent
         {
             public ApplicationTracer() : base(ComponentPriority.Max)
             {
@@ -219,6 +220,9 @@ namespace MugenMvvm.Internal
                 Components.OnLifecycleChanged(application, lifecycleState, state, metadata);
                 Logger.Trace()?.Log($"{ApplicationTag}after ({lifecycleState}) state={state ?? "null"}, metadata={metadata.Dump()}");
             }
+
+            public void OnUnhandledException(IMugenApplication application, Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata) =>
+                Logger.Error()?.Log($"{ApplicationTag}unhandled exception ({type})", exception);
         }
 
         private sealed class NavigatingErrorListener : ComponentDecoratorBase<INavigationDispatcher, INavigationErrorListener>, INavigationErrorListener

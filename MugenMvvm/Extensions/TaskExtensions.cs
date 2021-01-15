@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MugenMvvm.Busy;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -13,6 +14,21 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        public static T GetResult<T>(this ValueTask<T> task)
+        {
+            if (task.IsCompletedSuccessfully)
+                return task.Result;
+            return task.AsTask().Result;
+        }
+
+        public static T LogException<T>(this T task, UnhandledExceptionType exceptionType) where T : Task
+        {
+            Should.NotBeNull(task, nameof(task));
+            task.ContinueWith((t, s) => MugenService.Application.OnUnhandledException(t.Exception!, (UnhandledExceptionType) s), exceptionType,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+            return task;
+        }
+
         public static Task WhenAll(this ItemOrListEditor<Task> editor)
         {
             if (editor.Count == 0)

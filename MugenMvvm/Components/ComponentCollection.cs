@@ -44,7 +44,7 @@ namespace MugenMvvm.Components
             }
 
             if (!ComponentComponentExtensions.OnComponentAdding(this, component, metadata) ||
-                !_components.GetOrDefault<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
+                _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
                 return false;
 
             lock (_items)
@@ -68,7 +68,7 @@ namespace MugenMvvm.Components
             }
 
             if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) ||
-                !_components.GetOrDefault<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata))
+                _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata))
                 return false;
 
             lock (_items)
@@ -92,11 +92,14 @@ namespace MugenMvvm.Components
                 _componentTrackers = Default.Array<ComponentTracker>();
             }
 
-            var changedListeners = _components.GetOrDefault<IComponentCollectionChangedListener>(metadata);
-            foreach (var oldItem in oldItems)
+            if (_components != null)
             {
-                ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
-                changedListeners.OnRemoved(this, oldItem, metadata);
+                var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
+                foreach (var oldItem in oldItems)
+                {
+                    ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
+                    changedListeners.OnRemoved(this, oldItem, metadata);
+                }
             }
         }
 

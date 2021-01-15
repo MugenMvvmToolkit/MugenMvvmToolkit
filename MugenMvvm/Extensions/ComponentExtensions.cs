@@ -130,14 +130,6 @@ namespace MugenMvvm.Extensions
             owner.GetComponent<TComponent>(true, metadata);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrArray<T> GetOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
-        {
-            if (collection == null)
-                return default;
-            return collection.Get<T>(metadata);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add(this IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(collection, nameof(collection));

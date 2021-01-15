@@ -146,7 +146,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static MugenApplicationConfiguration AttachedMembersBaseConfiguration(this MugenApplicationConfiguration configuration)
         {
-            var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service();
+            var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service;
             var attachedMemberProvider = memberManager.GetOrAddComponent(context => new AttachedMemberProvider());
             RegisterObjectAttachedMembers(attachedMemberProvider);
             RegisterCollectionAttachedMembers(attachedMemberProvider);
