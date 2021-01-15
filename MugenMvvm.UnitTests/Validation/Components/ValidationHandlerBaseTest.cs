@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
-    public class ValidatorComponentBaseTest : UnitTestBase
+    public class ValidationHandlerBaseTest : UnitTestBase
     {
         [Fact]
         public async Task ValidateAsyncShouldUpdateAllErrorsEmptyString2()
@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             {
                 {"test1", new[] {"1", "2"}}
             };
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             {
                 {expectedMember, new[] {expectedMember}}
             });
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, meta) =>
                 {
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {
@@ -162,7 +162,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [InlineData(10)]
         public async Task GetErrorsShouldReturnErrors(int count)
         {
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
             };
@@ -220,7 +220,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [InlineData(10)]
         public async Task ValidateAsyncShouldUpdateAllErrorsEmptyString1(int count)
         {
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {
@@ -254,7 +254,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var invokeCount = 0;
             var expectedMember = "test";
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s, DefaultMetadata))
             };
@@ -289,7 +289,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var invokeCount = 0;
             var expectedMember = "test";
             Task? expectedTask = null;
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(new TaskCompletionSource<ValidationResult>().Task)
             };
@@ -325,7 +325,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var invokeCount = 0;
             var expectedMember = "test";
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
             };
@@ -361,7 +361,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var invokeCount = 0;
             var expectedMember = "test";
-            var component = new TestValidatorComponentBase<object>(this)
+            var component = new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.Get(s, s))
             };

@@ -152,7 +152,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             var isBusyCount = 0;
             var busyTokenCount = 0;
             var busyManager = new BusyManager();
-            busyManager.AddComponent(new BusyManagerComponent());
+            busyManager.AddComponent(new BusyTokenManager());
             var viewModel = new TestViewModelBase
             {
                 OnBeginBusyHandler = (manager, token, arg3) =>

@@ -15,14 +15,14 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Parsing.Components
 {
-    public sealed class ExpressionConverterComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
+    public sealed class ExpressionConverter : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
         private readonly ComponentTracker _componentTracker;
         private readonly ExpressionConverterContext<Expression> _context;
         private readonly TokenParserContext _parserContext;
 
         [Preserve(Conditional = true)]
-        public ExpressionConverterComponent()
+        public ExpressionConverter()
         {
             _context = new ExpressionConverterContext<Expression>();
             _parserContext = new TokenParserContext();

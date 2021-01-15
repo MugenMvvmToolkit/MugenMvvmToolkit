@@ -18,13 +18,13 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewManagerComponent : IViewManagerComponent, IViewProviderComponent, IHasPriority
+    public sealed class ViewModelViewManager : IViewManagerComponent, IViewProviderComponent, IHasPriority
     {
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly IComponentCollectionManager? _componentCollectionManager;
 
         [Preserve(Conditional = true)]
-        public ViewManagerComponent(IAttachedValueManager? attachedValueManager = null, IComponentCollectionManager? componentCollectionManager = null)
+        public ViewModelViewManager(IAttachedValueManager? attachedValueManager = null, IComponentCollectionManager? componentCollectionManager = null)
         {
             _attachedValueManager = attachedValueManager;
             _componentCollectionManager = componentCollectionManager;

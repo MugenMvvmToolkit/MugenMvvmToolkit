@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
 
             validationManager.TryGetValidator(target1).ShouldEqual(validator);
-            var ruleValidatorComponent = validator.GetComponents<RuleValidatorComponent>().Single();
+            var ruleValidatorComponent = validator.GetComponents<RuleValidationHandler>().Single();
             var rules = ruleValidatorComponent.Rules.AsList().ToList();
             rules.Count.ShouldEqual(2);
             rules.Remove(rule1).ShouldBeTrue();
@@ -42,18 +42,18 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             validator.ClearComponents();
             validationManager.TryGetValidator(target2).ShouldEqual(validator);
-            ruleValidatorComponent = validator.GetComponents<RuleValidatorComponent>().Single();
+            ruleValidatorComponent = validator.GetComponents<RuleValidationHandler>().Single();
             rules = ruleValidatorComponent.Rules.AsList().ToList();
             rules.Count.ShouldEqual(1);
             rules.Remove(rule3).ShouldBeTrue();
 
             validator.ClearComponents();
             validationManager.TryGetValidator(validationManager).ShouldEqual(validator);
-            validator.GetComponents<RuleValidatorComponent>().Count.ShouldEqual(0);
+            validator.GetComponents<RuleValidationHandler>().Count.ShouldEqual(0);
 
 
             validationManager.TryGetValidator(new object[] {target1, target2}).ShouldEqual(validator);
-            var components = validator.GetComponents<RuleValidatorComponent>();
+            var components = validator.GetComponents<RuleValidationHandler>();
             components.Count.ShouldEqual(2);
 
             ruleValidatorComponent = components.AsList().Single(validatorComponent => validatorComponent.Target == target1);

@@ -8,13 +8,13 @@ using MugenMvvm.Interfaces.Validation;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidatorComponent : ValidatorComponentBase<object>
+    public sealed class RuleValidationHandler : ValidationHandlerBase<object>
     {
         public readonly ItemOrIReadOnlyList<IValidationRule> Rules;
 
         private readonly bool _isAsync;
 
-        public RuleValidatorComponent(object target, ItemOrIReadOnlyList<IValidationRule> rules)
+        public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules)
             : base(target)
         {
             Rules = rules;

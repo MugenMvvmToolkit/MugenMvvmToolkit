@@ -10,11 +10,11 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Metadata.Internal
 {
-    public class TestMetadataContextValueManagerComponent : IMetadataContextValueManagerComponent, IHasPriority
+    public class TestMetadataValueManagerComponent : IMetadataValueManagerComponent, IHasPriority
     {
         private readonly IMetadataContext _context;
 
-        public TestMetadataContextValueManagerComponent(IMetadataContext context)
+        public TestMetadataValueManagerComponent(IMetadataContext context)
         {
             _context = context;
         }
@@ -35,13 +35,13 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
 
         public int Priority { get; set; }
 
-        int IMetadataContextValueManagerComponent.GetCount(IMetadataContext context)
+        int IMetadataValueManagerComponent.GetCount(IMetadataContext context)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             return GetCount?.Invoke() ?? 0;
         }
 
-        void IMetadataContextValueManagerComponent.GetValues(IMetadataContext context, MetadataOperationType operationType,
+        void IMetadataValueManagerComponent.GetValues(IMetadataContext context, MetadataOperationType operationType,
             ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
@@ -49,13 +49,13 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
             values.AddRange(array);
         }
 
-        bool IMetadataContextValueManagerComponent.Contains(IMetadataContext context, IMetadataContextKey contextKey)
+        bool IMetadataValueManagerComponent.Contains(IMetadataContext context, IMetadataContextKey contextKey)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             return Contains?.Invoke(contextKey) ?? false;
         }
 
-        bool IMetadataContextValueManagerComponent.TryGetValue(IMetadataContext context, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue)
+        bool IMetadataValueManagerComponent.TryGetValue(IMetadataContext context, IMetadataContextKey contextKey, MetadataOperationType operationType, out object? rawValue)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             var tuple = TryGetValue?.Invoke(contextKey, operationType);
@@ -69,20 +69,20 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
             return tuple.Value.Item1;
         }
 
-        bool IMetadataContextValueManagerComponent.TrySetValue(IMetadataContext context, IMetadataContextKey contextKey, object? rawValue)
+        bool IMetadataValueManagerComponent.TrySetValue(IMetadataContext context, IMetadataContextKey contextKey, object? rawValue)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             return TrySetValue?.Invoke(contextKey, rawValue) ?? false;
         }
 
-        bool IMetadataContextValueManagerComponent.TryRemove(IMetadataContext context, IMetadataContextKey contextKey)
+        bool IMetadataValueManagerComponent.TryRemove(IMetadataContext context, IMetadataContextKey contextKey)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             context.ShouldEqual(_context);
             return TryClear?.Invoke(contextKey) ?? false;
         }
 
-        void IMetadataContextValueManagerComponent.Clear(IMetadataContext context)
+        void IMetadataValueManagerComponent.Clear(IMetadataContext context)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             context.ShouldEqual(_context);

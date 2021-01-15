@@ -123,7 +123,7 @@ namespace MugenMvvm.Extensions
                          .WithComponent(new ViewCleaner())
                          .WithComponent(new ViewInitializer())
                          .WithComponent(new ViewLifecycleTracker())
-                         .WithComponent(new ViewManagerComponent())
+                         .WithComponent(new ViewModelViewManager())
                          .WithComponent(new ViewModelViewAwareInitializer())
                          .WithComponent(new ViewModelViewInitializerDecorator())
                          .WithComponent(new UndefinedMappingViewInitializer())

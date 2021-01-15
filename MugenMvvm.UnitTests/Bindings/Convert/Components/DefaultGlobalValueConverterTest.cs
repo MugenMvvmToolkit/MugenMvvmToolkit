@@ -7,12 +7,12 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Convert.Components
 {
-    public class GlobalValueConverterComponentTest : UnitTestBase
+    public class DefaultGlobalValueConverterTest : UnitTestBase
     {
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
-            var component = new GlobalValueConverterComponent();
+            var component = new DefaultGlobalValueConverter();
             component.Priority.ShouldEqual(ConverterComponentPriority.Converter);
             component.Priority = int.MaxValue;
             component.Priority.ShouldEqual(int.MaxValue);
@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
         [Fact]
         public void TryConvertShouldHandleConvertible()
         {
-            var component = new GlobalValueConverterComponent();
+            var component = new DefaultGlobalValueConverter();
             object? value = int.MaxValue.ToString();
 
             component.TryConvert(null!, ref value, typeof(int), null, null).ShouldEqual(true);
@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
         [Fact]
         public void TryConvertShouldHandleEnum()
         {
-            var component = new GlobalValueConverterComponent();
+            var component = new DefaultGlobalValueConverter();
             object? value = StringComparison.CurrentCulture.ToString();
 
             component.TryConvert(null!, ref value, typeof(StringComparison), null, null).ShouldEqual(true);
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
         [Fact]
         public void TryConvertShouldHandleInstanceOfType()
         {
-            var component = new GlobalValueConverterComponent();
+            var component = new DefaultGlobalValueConverter();
             object? value = this;
             component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
             value.ShouldEqual(this);
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
         [Fact]
         public void TryConvertShouldHandleNull()
         {
-            var component = new GlobalValueConverterComponent();
+            var component = new DefaultGlobalValueConverter();
             object? value = null;
             component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
             value.ShouldBeNull();
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
         [Fact]
         public void TryConvertShouldHandleString()
         {
-            var component = new GlobalValueConverterComponent();
+            var component = new DefaultGlobalValueConverter();
             object? value = this;
             component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
             value.ShouldEqual(ToString());
@@ -88,7 +88,7 @@ namespace MugenMvvm.UnitTests.Bindings.Convert.Components
         [Fact]
         public void TryConvertShouldIgnoreNotConvertibleValue()
         {
-            var component = new GlobalValueConverterComponent();
+            var component = new DefaultGlobalValueConverter();
             var v = new object();
             var value = v;
 

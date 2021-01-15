@@ -329,23 +329,23 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        private bool TryGet(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey, MetadataOperationType operationType,
+        private bool TryGet(ItemOrArray<IMetadataValueManagerComponent> components, IMetadataContextKey contextKey, MetadataOperationType operationType,
             out object? rawValue) =>
             components.TryGetValue(this, contextKey, operationType, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
 
-        private void Set(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey, object? rawValue)
+        private void Set(ItemOrArray<IMetadataValueManagerComponent> components, IMetadataContextKey contextKey, object? rawValue)
         {
             if (!components.TrySetValue(this, contextKey, rawValue))
                 _dictionary[contextKey] = rawValue;
         }
 
-        private bool Remove(ItemOrArray<IMetadataContextValueManagerComponent> components, IMetadataContextKey contextKey)
+        private bool Remove(ItemOrArray<IMetadataValueManagerComponent> components, IMetadataContextKey contextKey)
         {
             var remove = _dictionary.Remove(contextKey);
             return components.TryClear(this, contextKey) || remove;
         }
 
-        private ItemOrArray<IMetadataContextValueManagerComponent> GetComponents() => _components.GetOrDefault<IMetadataContextValueManagerComponent>();
+        private ItemOrArray<IMetadataValueManagerComponent> GetComponents() => _components.GetOrDefault<IMetadataValueManagerComponent>();
 
         private ItemOrArray<IMetadataContextListener> GetListeners() => _components.GetOrDefault<IMetadataContextListener>();
 

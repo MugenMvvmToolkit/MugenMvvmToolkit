@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
-    public class RuleValidatorComponentTest : UnitTestBase
+    public class RuleValidationHandlerTest : UnitTestBase
     {
         [Fact]
         public async Task ValidateShouldUseRules()
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             };
 
             var validator = new Validator();
-            var component = new RuleValidatorComponent(this, rules);
+            var component = new RuleValidationHandler(this, rules);
             validator.AddComponent(component);
 
             validator.ValidateAsync(memberName2).IsCompleted.ShouldBeTrue();

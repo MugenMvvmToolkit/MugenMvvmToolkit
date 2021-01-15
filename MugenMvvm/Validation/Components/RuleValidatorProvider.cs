@@ -49,7 +49,7 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        private RuleValidatorComponent? TryGetComponent(IValidator validator, object? target, IReadOnlyMetadataContext? metadata)
+        private RuleValidationHandler? TryGetComponent(IValidator validator, object? target, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return null;
@@ -63,7 +63,7 @@ namespace MugenMvvm.Validation.Components
 
             if (rules.Count == 0)
                 return null;
-            return new RuleValidatorComponent(target, rules.ToItemOrList());
+            return new RuleValidationHandler(target, rules.ToItemOrList());
         }
     }
 }

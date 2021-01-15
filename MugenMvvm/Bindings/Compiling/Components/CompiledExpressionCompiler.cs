@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Compiling.Components
 {
-    public sealed class ExpressionCompilerComponent : IExpressionCompilerComponent, IHasPriority
+    public sealed class CompiledExpressionCompiler : IExpressionCompilerComponent, IHasPriority
     {
         public int Priority { get; set; } = CompilingComponentPriority.LinqCompiler;
 

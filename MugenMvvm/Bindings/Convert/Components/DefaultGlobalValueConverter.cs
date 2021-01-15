@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Convert.Components
 {
-    public sealed class GlobalValueConverterComponent : IGlobalValueConverterComponent, IHasPriority
+    public sealed class DefaultGlobalValueConverter : IGlobalValueConverterComponent, IHasPriority
     {
         public Func<IFormatProvider>? FormatProvider { get; set; }
 

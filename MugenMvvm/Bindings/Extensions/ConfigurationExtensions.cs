@@ -46,7 +46,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             configuration.WithAppService(new ExpressionCompiler())
                          .WithComponent(new ExpressionCompilerCache())
-                         .WithComponent(new ExpressionCompilerComponent())
+                         .WithComponent(new CompiledExpressionCompiler())
                          .WithComponent(new BinaryExpressionBuilder())
                          .WithComponent(new ConditionExpressionBuilder())
                          .WithComponent(new ConstantExpressionBuilder())
@@ -58,7 +58,7 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new UnaryExpressionBuilder());
 
             configuration.WithAppService(new GlobalValueConverter())
-                         .WithComponent(new GlobalValueConverterComponent());
+                         .WithComponent(new DefaultGlobalValueConverter());
 
             var macrosPreInitializer = new MacrosBindingInitializer {Priority = BindingComponentPriority.MacrosPreInitializer};
             var macrosVisitor = new MacrosExpressionVisitor();
@@ -111,7 +111,7 @@ namespace MugenMvvm.Bindings.Extensions
                 cfg.WithComponent(new ResourceMemberPathObserverCache());
 
             configuration.WithAppService(new ExpressionParser())
-                         .WithComponent(new ExpressionParserComponent())
+                         .WithComponent(new StringExpressionParser())
                          .WithComponent(new UnaryTokenParser())
                          .WithComponent(new MemberTokenParser())
                          .WithComponent(new BinaryTokenParser())
@@ -125,7 +125,7 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new StringTokenParser())
                          .WithComponent(new NullConditionalMemberTokenParser())
                          .WithComponent(new AssignmentTokenParser())
-                         .WithComponent(new ExpressionConverterComponent())
+                         .WithComponent(new ExpressionConverter())
                          .WithComponent(new BinaryExpressionConverter())
                          .WithComponent(new UnaryExpressionConverter())
                          .WithComponent(new ConstantExpressionConverter())

@@ -10,13 +10,13 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Parsing.Components
 {
-    public sealed class ExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
+    public sealed class StringExpressionParser : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
         private readonly ComponentTracker _componentTracker;
         private readonly TokenParserContext _parserContext;
 
         [Preserve(Conditional = true)]
-        public ExpressionParserComponent()
+        public StringExpressionParser()
         {
             _parserContext = new TokenParserContext();
             _componentTracker = new ComponentTracker();

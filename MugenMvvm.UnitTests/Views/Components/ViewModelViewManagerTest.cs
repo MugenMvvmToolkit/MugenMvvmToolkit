@@ -15,13 +15,13 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Views.Components
 {
-    public class ViewManagerComponentTest : UnitTestBase
+    public class ViewModelViewManagerTest : UnitTestBase
     {
         [Fact]
         public void TryInitializeAsyncShouldIgnoreNull()
         {
             var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
-            var component = new ViewManagerComponent();
+            var component = new ViewModelViewManager();
             component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldEqual(default);
         }
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
-            var component = new ViewManagerComponent();
+            var component = new ViewModelViewManager();
             manager.AddComponent(component);
             var results = new List<IView>();
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             const int viewCount = 10;
             var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
-            var component = new ViewManagerComponent();
+            var component = new ViewModelViewManager();
             manager.AddComponent(component);
             var results = new List<IView>();
 
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var clearView = view;
             var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
-            var component = new ViewManagerComponent();
+            var component = new ViewModelViewManager();
             manager.AddComponent(component);
 
             var states = new Dictionary<ViewLifecycleState, List<ViewLifecycleState>>();

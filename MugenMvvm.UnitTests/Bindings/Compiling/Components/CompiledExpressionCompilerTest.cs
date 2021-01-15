@@ -8,13 +8,13 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
-    public class ExpressionCompilerComponentTest : UnitTestBase
+    public class CompiledExpressionCompilerTest : UnitTestBase
     {
         [Fact]
         public void TryCompileShouldReturnCompiledExpressionWithComponents()
         {
             var expressionCompiler = new ExpressionCompiler();
-            var component = new ExpressionCompilerComponent();
+            var component = new CompiledExpressionCompiler();
             expressionCompiler.AddComponent(component);
 
             var compiledExpression = (CompiledExpression) component.TryCompile(expressionCompiler, ConstantExpressionNode.False, DefaultMetadata)!;

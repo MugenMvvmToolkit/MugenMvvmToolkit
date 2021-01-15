@@ -6,9 +6,9 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class InlineValidatorComponent : ValidatorComponentBase<object>
+    public sealed class InlineValidationHandler : ValidationHandlerBase<object>
     {
-        public InlineValidatorComponent(object target) : base(target)
+        public InlineValidationHandler(object target) : base(target)
         {
         }
 

@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests
             MugenService.Configuration.InitializeInstance<ICommandManager>(commandManager);
 
             var converter = new GlobalValueConverter();
-            converter.AddComponent(new GlobalValueConverterComponent());
+            converter.AddComponent(new DefaultGlobalValueConverter());
             MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(converter);
 
             var resourceResolver = new ResourceManager();

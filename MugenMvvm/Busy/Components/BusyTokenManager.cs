@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Busy.Components
 {
-    public sealed class BusyManagerComponent : MultiAttachableComponentBase<IBusyManager>, IBusyManagerComponent, IHasPriority
+    public sealed class BusyTokenManager : MultiAttachableComponentBase<IBusyManager>, IBusyManagerComponent, IHasPriority
     {
         private BusyToken? _busyTail;
 
@@ -87,19 +87,19 @@ namespace MugenMvvm.Busy.Components
 
         private sealed class BusyToken : IBusyToken, IBusyTokenCallback
         {
-            public readonly BusyManagerComponent Owner;
+            public readonly BusyTokenManager Owner;
             private object? _listeners;
             private BusyToken? _next;
             private BusyToken? _prev;
             private int _suspendCount;
 
-            public BusyToken(BusyManagerComponent owner, object? message)
+            public BusyToken(BusyTokenManager owner, object? message)
             {
                 Message = message;
                 Owner = owner;
             }
 
-            public BusyToken(BusyManagerComponent owner, IBusyToken token)
+            public BusyToken(BusyTokenManager owner, IBusyToken token)
             {
                 token.RegisterCallback(this);
                 Message = token.Message;

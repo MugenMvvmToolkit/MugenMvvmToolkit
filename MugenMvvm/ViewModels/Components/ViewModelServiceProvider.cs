@@ -53,7 +53,7 @@ namespace MugenMvvm.ViewModels.Components
             if (service == typeof(IBusyManager))
             {
                 var busyManager = new BusyManager(_componentCollectionManager);
-                busyManager.Components.TryAdd(new BusyManagerComponent());
+                busyManager.Components.TryAdd(new BusyTokenManager());
                 return busyManager;
             }
 

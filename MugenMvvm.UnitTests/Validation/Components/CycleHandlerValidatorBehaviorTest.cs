@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
             var validator = new Validator();
-            validator.AddComponent(new TestValidatorComponentBase<object>(this)
+            validator.AddComponent(new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(tcs.Task)
             });
@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<ValidationResult>();
             var validator = new Validator();
-            validator.AddComponent(new TestValidatorComponentBase<object>(this)
+            validator.AddComponent(new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var invokeCount = 0;
             var validator = new Validator();
             var tcs = new TaskCompletionSource<ValidationResult>();
-            validator.AddComponent(new TestValidatorComponentBase<object>(this)
+            validator.AddComponent(new TestValidationHandlerBase<object>(this)
             {
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {

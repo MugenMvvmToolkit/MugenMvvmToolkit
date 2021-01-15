@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
-    public abstract class ValidatorComponentBase<TTarget> : MultiAttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IHasDisposeCondition
+    public abstract class ValidationHandlerBase<TTarget> : MultiAttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IHasDisposeCondition
         where TTarget : class
     {
         private const int DefaultState = 0;
@@ -26,7 +26,7 @@ namespace MugenMvvm.Validation.Components
         private CancellationTokenSource? _disposeToken;
         private int _state;
 
-        protected ValidatorComponentBase(TTarget target)
+        protected ValidationHandlerBase(TTarget target)
         {
             _errors = new Dictionary<string, object>(StringComparer.Ordinal);
             Target = target;

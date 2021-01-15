@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             {
                 BusyManager = new BusyManager()
             };
-            viewModel.BusyManager.AddComponent(new BusyManagerComponent());
+            viewModel.BusyManager.AddComponent(new BusyTokenManager());
             var busyToken = viewModel.BusyManager.BeginBusy(this);
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             busyToken.IsCompleted.ShouldBeTrue();

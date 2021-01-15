@@ -7,9 +7,9 @@ using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.UnitTests.Validation.Internal
 {
-    public class TestValidatorComponentBase<T> : ValidatorComponentBase<T> where T : class
+    public class TestValidationHandlerBase<T> : ValidationHandlerBase<T> where T : class
     {
-        public TestValidatorComponentBase(T target)
+        public TestValidationHandlerBase(T target)
             : base(target)
         {
         }

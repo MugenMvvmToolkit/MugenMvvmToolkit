@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Metadata.Components
 {
-    public interface IMetadataContextValueManagerComponent : IComponent<IMetadataContext>
+    public interface IMetadataValueManagerComponent : IComponent<IMetadataContext>
     {
         int GetCount(IMetadataContext context);
 

@@ -32,8 +32,8 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(memberName, nameof(memberName));
-            InlineValidatorComponent? component = null;
-            foreach (var c in validator.GetComponents<InlineValidatorComponent>(metadata))
+            InlineValidationHandler? component = null;
+            foreach (var c in validator.GetComponents<InlineValidationHandler>(metadata))
             {
                 if (c.Target == target)
                 {
@@ -44,7 +44,7 @@ namespace MugenMvvm.Extensions
 
             if (component == null)
             {
-                component = new InlineValidatorComponent(target);
+                component = new InlineValidationHandler(target);
                 validator.AddComponent(component);
             }
 

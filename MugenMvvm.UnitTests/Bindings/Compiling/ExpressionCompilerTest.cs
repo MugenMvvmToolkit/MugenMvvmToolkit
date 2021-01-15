@@ -275,7 +275,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilder(memberManager));
             expressionCompiler.AddComponent(new NullConditionalExpressionBuilder());
             expressionCompiler.AddComponent(new UnaryExpressionBuilder());
-            expressionCompiler.AddComponent(new ExpressionCompilerComponent());
+            expressionCompiler.AddComponent(new CompiledExpressionCompiler());
             return expressionCompiler;
         }
 

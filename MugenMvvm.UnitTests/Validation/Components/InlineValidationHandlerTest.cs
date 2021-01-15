@@ -6,13 +6,13 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
-    public class InlineValidatorComponentTest : UnitTestBase
+    public class InlineValidationHandlerTest : UnitTestBase
     {
         [Fact]
         public void SetErrorsShouldAddInlineValidator()
         {
             var validator = new Validator();
-            validator.GetComponents<InlineValidatorComponent>().ShouldBeEmpty();
+            validator.GetComponents<InlineValidationHandler>().ShouldBeEmpty();
 
             var memberName = "test";
             var errors = new object[] {"test"};
@@ -27,19 +27,19 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.HasErrors(memberName).ShouldBeFalse();
             validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();
-            validator.GetComponents<InlineValidatorComponent>().Count.ShouldEqual(1);
+            validator.GetComponents<InlineValidationHandler>().Count.ShouldEqual(1);
 
             validator.SetErrors(validator, memberName, errors);
             validator.HasErrors(memberName).ShouldBeTrue();
             validator.HasErrors().ShouldBeTrue();
             validator.GetErrors(memberName).AsList().ShouldContain(errors);
-            validator.GetComponents<InlineValidatorComponent>().Count.ShouldEqual(2);
+            validator.GetComponents<InlineValidationHandler>().Count.ShouldEqual(2);
 
             validator.SetErrors(validator, memberName, default, DefaultMetadata);
             validator.HasErrors(memberName).ShouldBeFalse();
             validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();
-            validator.GetComponents<InlineValidatorComponent>().Count.ShouldEqual(2);
+            validator.GetComponents<InlineValidationHandler>().Count.ShouldEqual(2);
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var memberName = "test";
             var errors = new object[] {"test"};
 
-            var validator = new InlineValidatorComponent(this);
+            var validator = new InlineValidationHandler(this);
             validator.HasErrors(null!, null, null).ShouldBeFalse();
 
             validator.SetErrors(memberName, errors);

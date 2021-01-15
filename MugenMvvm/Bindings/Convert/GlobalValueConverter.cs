@@ -15,7 +15,7 @@ namespace MugenMvvm.Bindings.Convert
     public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter, IHasComponentAddedHandler, IHasComponentRemovedHandler
     {
         private readonly ComponentTracker _componentTracker;
-        private GlobalValueConverterComponent? _component;
+        private DefaultGlobalValueConverter? _component;
         private ItemOrArray<IGlobalValueConverterComponent> _components;
 
         [Preserve(Conditional = true)]
@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Convert
             _componentTracker.AddListener<IGlobalValueConverterComponent, GlobalValueConverter>((components, state, _) =>
             {
                 state._components = components;
-                if (components.Count == 1 && components[0] is GlobalValueConverterComponent c)
+                if (components.Count == 1 && components[0] is DefaultGlobalValueConverter c)
                     state._component = c;
                 else
                     state._component = null;
