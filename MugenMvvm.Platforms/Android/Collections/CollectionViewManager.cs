@@ -43,7 +43,7 @@ namespace MugenMvvm.Android.Collections
             var target = (View) collectionView;
             var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);
             if (providerType == ViewGroupMugenExtensions.NoneProviderType)
-                ExceptionManager.ThrowInvalidBindingMember(target, BindableMembers.For<View>().ItemsSource());
+                ExceptionManager.ThrowInvalidBindingMember(target, nameof(ViewBindableMembers.ItemsSource));
             var itemTemplateSelector = target.BindableMembers().ItemTemplateSelector();
             if (itemTemplateSelector == null)
                 ExceptionManager.ThrowObjectNotInitialized(target, target.BindableMembers().Descriptor.ItemTemplateSelector());
@@ -80,7 +80,7 @@ namespace MugenMvvm.Android.Collections
         {
             if (collectionView is not View target || !ViewGroupMugenExtensions.IsSelectedIndexSupported(target))
             {
-                ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<View>().SelectedItem());
+                ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(ViewBindableMembers.SelectedItem));
                 return null;
             }
 
@@ -111,7 +111,7 @@ namespace MugenMvvm.Android.Collections
             }
 
             if (!ViewGroupMugenExtensions.SetSelectedIndex(target, index))
-                ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<View>().SelectedItem());
+                ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(ViewBindableMembers.SelectedItem));
         }
 
         public virtual void ReloadItem(object collectionView, object? item)

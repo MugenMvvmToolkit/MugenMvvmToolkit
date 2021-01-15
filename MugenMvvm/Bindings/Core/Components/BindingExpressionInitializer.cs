@@ -83,7 +83,7 @@ namespace MugenMvvm.Bindings.Core.Components
             context.TargetExpression = _memberExpressionVisitor.Visit(context.TargetExpression, true, metadata);
             if (!IsEvent(context.Target, context.Source, context.TargetExpression, metadata))
             {
-                if (context.TargetExpression is IBindingMemberExpressionNode member && BindableMembers.For<object>().DataContext() == member.Path)
+                if (context.TargetExpression is IBindingMemberExpressionNode member && member.Path == nameof(BindableMembers.DataContext))
                     _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.ParentDataContext;
                 context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
                 return;

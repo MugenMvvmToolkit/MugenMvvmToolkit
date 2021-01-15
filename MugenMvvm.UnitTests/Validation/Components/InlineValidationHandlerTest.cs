@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.SetErrors(memberName, default, DefaultMetadata);
             validator.HasErrors(null!, memberName, null).ShouldBeFalse();
             validator.HasErrors(null!, null, null).ShouldBeFalse();
-            validator.TryGetErrors(null!).ShouldBeEmpty();
+            validator.TryGetErrors(null!).ShouldBeNull();
         }
     }
 }

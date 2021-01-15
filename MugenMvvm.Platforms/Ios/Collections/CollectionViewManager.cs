@@ -16,7 +16,7 @@ namespace MugenMvvm.Ios.Collections
             if (collectionView is UICollectionView collection)
                 return ((MugenCollectionViewSource) collection.Source)?.CollectionAdapter;
             if (throwIfNotSupported)
-                ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().ItemsSource());
+                ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(IosBindableMembers.ItemsSource));
             return null;
         }
 
@@ -57,17 +57,17 @@ namespace MugenMvvm.Ios.Collections
                 return;
             }
 
-            ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().ItemsSource());
+            ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(IosBindableMembers.ItemsSource));
         }
 
         public virtual object? GetSelectedItem(object collectionView)
         {
-            ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().SelectedItem());
+            ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(IosBindableMembers.SelectedItem));
             return null;
         }
 
         public virtual void SetSelectedItem(object collectionView, object? value) =>
-            ExceptionManager.ThrowInvalidBindingMember(collectionView, BindableMembers.For<UIView>().SelectedItem());
+            ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(IosBindableMembers.SelectedItem));
 
         public virtual void ReloadItem(object collectionView, object? item) => GetCollectionAdapter(collectionView, false)?.Reload(item);
     }

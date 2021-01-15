@@ -62,9 +62,9 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         private string GetDataContextPath()
         {
-            var path = MergePath(BindableMembers.For<object>().DataContext());
+            var path = MergePath(nameof(BindableMembers.DataContext));
             if (Flags.HasFlag(BindingMemberExpressionFlags.ParentDataContext))
-                path = BindableMembers.For<object>().Parent().Name + "." + path;
+                path = nameof(BindableMembers.Parent) + "." + path;
             return path;
         }
     }

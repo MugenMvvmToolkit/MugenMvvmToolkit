@@ -212,7 +212,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             component.ClearErrors(validator);
             component.HasErrors(validator, null, null).ShouldBeFalse();
             component.TryGetErrors(validator, string.Empty).AsList().ShouldBeEmpty();
-            component.TryGetErrors(validator).ShouldBeEmpty();
+            component.TryGetErrors(validator).ShouldBeNull();
         }
 
         [Theory]
@@ -244,7 +244,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             await component.TryValidateAsync(validator, string.Empty);
             component.HasErrors(validator, null, null).ShouldBeFalse();
             component.TryGetErrors(validator, string.Empty).AsList().ShouldBeEmpty();
-            component.TryGetErrors(validator).ShouldBeEmpty();
+            component.TryGetErrors(validator).ShouldBeNull();
         }
 
         [Theory]

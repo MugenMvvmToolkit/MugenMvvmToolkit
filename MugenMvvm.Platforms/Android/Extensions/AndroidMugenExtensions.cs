@@ -169,7 +169,7 @@ namespace MugenMvvm.Android.Extensions
                           .CustomSetter((member, target, value, metadata) => target.SetEnabled(value))
                           .Build();
             attachedMemberProvider.Register(enabled);
-            attachedMemberProvider.Register(enabled, BindableMembers.For<object>().Enabled());
+            attachedMemberProvider.Register(enabled, nameof(BindableMembers.Enabled));
             attachedMemberProvider.Register(AttachedMemberBuilder
                                             .Property<IMenuItem, bool>(nameof(IMenuItem.IsCheckable))
                                             .CustomGetter((member, target, metadata) => target.IsCheckable)

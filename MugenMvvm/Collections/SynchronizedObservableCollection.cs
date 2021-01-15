@@ -154,7 +154,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public int IndexOf(T item)
+        public int IndexOf(T? item)
         {
             lock (Locker)
             {

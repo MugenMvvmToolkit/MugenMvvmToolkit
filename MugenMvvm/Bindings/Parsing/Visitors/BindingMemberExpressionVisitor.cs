@@ -117,7 +117,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 //$context
                 if (memberExpression.Member == MacrosConstant.Context)
                 {
-                    _memberBuilder.Insert(0, BindableMembers.For<object>().DataContext());
+                    _memberBuilder.Insert(0, nameof(BindableMembers.DataContext));
                     return GetOrAddBindingMember(target, true, methodName);
                 }
 

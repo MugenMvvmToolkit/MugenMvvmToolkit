@@ -24,40 +24,40 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         {
             _memberBuilder = new StringBuilder();
             var target = ConstantExpressionNode.Get(typeof(BindingMugenExtensions), typeof(Type));
-            var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), default, default, Default.ReadOnlyDictionary<string, object?>());
-            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), default, default, Default.ReadOnlyDictionary<string, object?>());
-            Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>
+            var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), default);
+            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), default);
+            Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>(3)
             {
-                {MacrosConstant.Binding, context => bindingImpl},
-                {MacrosConstant.EventArgs, context => eventArgsImpl},
-                {MacrosConstant.Action, context => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString())}
+                {MacrosConstant.Binding, _ => bindingImpl},
+                {MacrosConstant.EventArgs, _ => eventArgsImpl},
+                {MacrosConstant.Action, _ => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString())}
             };
-            MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
+            MethodAliases = new Dictionary<string, IMethodCallExpressionNode>(3)
             {
                 {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), default)},
                 {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), default)},
                 {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), default)}
             };
-            ConstantParametersMethods = new Dictionary<string, string>
+            ConstantParametersMethods = new Dictionary<string, string>(7)
             {
-                {BindableMembers.For<object>().GetErrorsMethod(), BindableMembers.For<object>().GetErrorsMethod()},
-                {BindableMembers.For<object>().GetErrorMethod(), BindableMembers.For<object>().GetErrorMethod()},
-                {BindableMembers.For<object>().HasErrorsMethod(), BindableMembers.For<object>().HasErrorsMethod()},
-                {"Rel", BindableMembers.For<object>().RelativeSourceMethod()},
-                {"Relative", BindableMembers.For<object>().RelativeSourceMethod()},
-                {"El", BindableMembers.For<object>().ElementSourceMethod()},
-                {"Element", BindableMembers.For<object>().ElementSourceMethod()}
+                {nameof(BindableMembers.GetErrors), nameof(BindableMembers.GetErrors)},
+                {nameof(BindableMembers.GetError), nameof(BindableMembers.GetError)},
+                {nameof(BindableMembers.HasErrors), nameof(BindableMembers.HasErrors)},
+                {"Rel", nameof(BindableMembers.RelativeSource)},
+                {"Relative", nameof(BindableMembers.RelativeSource)},
+                {"El", nameof(BindableMembers.ElementSource)},
+                {"Element", nameof(BindableMembers.ElementSource)}
             };
-            MacrosTargets = new Dictionary<string, IExpressionNode>
+            MacrosTargets = new Dictionary<string, IExpressionNode>(11)
             {
-                {BindableMembers.For<object>().GetErrorsMethod(), UnaryExpressionNode.ContextMacros},
-                {BindableMembers.For<object>().GetErrorMethod(), UnaryExpressionNode.ContextMacros},
-                {BindableMembers.For<object>().HasErrorsMethod(), UnaryExpressionNode.ContextMacros},
+                {nameof(BindableMembers.GetErrors), UnaryExpressionNode.ContextMacros},
+                {nameof(BindableMembers.GetError), UnaryExpressionNode.ContextMacros},
+                {nameof(BindableMembers.HasErrors), UnaryExpressionNode.ContextMacros},
                 {"Rel", UnaryExpressionNode.TargetMacros},
-                {BindableMembers.For<object>().RelativeSourceMethod(), UnaryExpressionNode.TargetMacros},
+                {nameof(BindableMembers.RelativeSource), UnaryExpressionNode.TargetMacros},
                 {"El", UnaryExpressionNode.TargetMacros},
                 {"Element", UnaryExpressionNode.TargetMacros},
-                {BindableMembers.For<object>().ElementSourceMethod(), UnaryExpressionNode.TargetMacros}
+                {nameof(BindableMembers.ElementSource), UnaryExpressionNode.TargetMacros}
             };
         }
 

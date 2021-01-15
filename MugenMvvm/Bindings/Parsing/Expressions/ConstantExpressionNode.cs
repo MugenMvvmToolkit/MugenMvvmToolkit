@@ -100,7 +100,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 for (var i = 0; i < items.Length; i++)
                 {
                     var constantExpression = values[i];
-                    items[i] = new ConstantExpressionNode(constantExpression.Value, constantExpression.Type, constantExpression, Default.ReadOnlyDictionary<string, object?>());
+                    items[i] = new ConstantExpressionNode(constantExpression.Value, constantExpression.Type, constantExpression);
                 }
 
                 return items;
@@ -109,8 +109,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         private static class TypeCache<TType>
         {
-            public static readonly ConstantExpressionNode TypeConstant =
-                new(typeof(TType), typeof(TType).GetType(), Expression.Constant(typeof(TType)), Default.ReadOnlyDictionary<string, object?>());
+            public static readonly ConstantExpressionNode TypeConstant = new(typeof(TType), typeof(TType).GetType(), Expression.Constant(typeof(TType)));
         }
     }
 }

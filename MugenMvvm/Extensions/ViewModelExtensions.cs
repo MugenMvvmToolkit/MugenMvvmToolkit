@@ -51,15 +51,14 @@ namespace MugenMvvm.Extensions
             return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).Result;
         }
 
-        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null,
-            IReadOnlyMetadataContext? metadata = null,
-            IViewModelManager? viewModelManager = null)
+        public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null, IReadOnlyMetadataContext? metadata = null)
             where TViewModel : class, IViewModelBase
             where T : class
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             if (service == null)
             {
+                var viewModelManager = viewModel.TryGetService<IViewModelManager>(true);
                 lock (viewModel)
                 {
                     if (service == null)

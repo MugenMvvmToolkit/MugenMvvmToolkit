@@ -10,7 +10,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
@@ -91,12 +90,12 @@ namespace MugenMvvm.Validation.Components
             return default;
         }
 
-        public IReadOnlyDictionary<string, object> TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyDictionary<string, object>? TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata = null)
         {
             lock (_errors)
             {
                 if (_errors.Count == 0)
-                    return Default.ReadOnlyDictionary<string, object>();
+                    return null;
                 return new Dictionary<string, object>(_errors);
             }
         }
