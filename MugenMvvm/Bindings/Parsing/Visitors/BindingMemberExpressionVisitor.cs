@@ -28,10 +28,10 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         private readonly IMemberManager? _memberManager;
         private readonly Dictionary<CacheKey, IExpressionNode> _members;
         private readonly IObservationManager? _observationManager;
-        private readonly IResourceResolver? _resourceResolver;
+        private readonly IResourceManager? _resourceResolver;
         private int _currentIndex;
 
-        public BindingMemberExpressionVisitor(IObservationManager? observationManager = null, IResourceResolver? resourceResolver = null, IMemberManager? memberManager = null)
+        public BindingMemberExpressionVisitor(IObservationManager? observationManager = null, IResourceManager? resourceResolver = null, IMemberManager? memberManager = null)
         {
             _observationManager = observationManager;
             _resourceResolver = resourceResolver;

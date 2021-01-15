@@ -4,14 +4,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Resources.Components
 {
-    public class TypeResolverComponentTest : UnitTestBase
+    public class TypeResolverTest : UnitTestBase
     {
         [Fact]
         public void TryGetResourceValueAddRemoveResource()
         {
             string alias = "aa";
             var resource = typeof(string);
-            var component = new TypeResolverComponent();
+            var component = new TypeResolver();
             component.Types.Clear();
 
             component.AddType(resource, alias);
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
         [Fact]
         public void TryGetResourceValueShouldReturnNullEmpty()
         {
-            var component = new TypeResolverComponent();
+            var component = new TypeResolver();
             component.TryGetType(null!, "test", this, DefaultMetadata).ShouldBeNull();
         }
     }

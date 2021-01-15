@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         private object? GetResource(object target, IReadOnlyMetadataContext? metadata, out MemberPathObserverRequest? request)
         {
-            var resource = MugenService.ResourceResolver.TryGetResource(ResourceName, target, metadata);
+            var resource = MugenService.ResourceManager.TryGetResource(ResourceName, target, metadata);
             if (!resource.IsResolved)
                 ExceptionManager.ThrowCannotResolveResource(ResourceName);
 

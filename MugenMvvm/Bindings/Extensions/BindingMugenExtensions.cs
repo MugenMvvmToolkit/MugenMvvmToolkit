@@ -103,16 +103,16 @@ namespace MugenMvvm.Bindings.Extensions
             return null;
         }
 
-        public static TypeResolverComponent GetTypeResolver(this IResourceResolver resolver)
+        public static TypeResolver GetTypeResolver(this IResourceManager resourceManager)
         {
-            Should.NotBeNull(resolver, nameof(resolver));
-            return resolver.GetOrAddComponent(_ => new TypeResolverComponent());
+            Should.NotBeNull(resourceManager, nameof(resourceManager));
+            return resourceManager.GetOrAddComponent(_ => new TypeResolver());
         }
 
-        public static ResourceResolverComponent GetResourceResolver(this IResourceResolver resolver)
+        public static ResourceResolver GetResourceResolver(this IResourceManager resourceManager)
         {
-            Should.NotBeNull(resolver, nameof(resolver));
-            return resolver.GetOrAddComponent(_ => new ResourceResolverComponent());
+            Should.NotBeNull(resourceManager, nameof(resourceManager));
+            return resourceManager.GetOrAddComponent(_ => new ResourceResolver());
         }
 
         public static void ClearBindings(object? target, bool clearAttachedValues)
@@ -125,7 +125,7 @@ namespace MugenMvvm.Bindings.Extensions
                 target.AttachedValues().Clear();
         }
 
-        public static ItemOrArray<Type> GetTypes(this IResourceResolver? resourceResolver, ItemOrIReadOnlyList<string> types, IReadOnlyMetadataContext? metadata = null)
+        public static ItemOrArray<Type> GetTypes(this IResourceManager? resourceResolver, ItemOrIReadOnlyList<string> types, IReadOnlyMetadataContext? metadata = null)
         {
             if (types.IsEmpty)
                 return default;

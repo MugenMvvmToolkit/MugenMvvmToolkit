@@ -7,11 +7,11 @@ using Should;
 
 namespace MugenMvvm.UnitTests.ViewModels.Internal
 {
-    public class TestViewModelServiceResolverComponent : IViewModelServiceResolverComponent, IHasPriority
+    public class TestViewModelServiceProviderComponent : IViewModelServiceProviderComponent, IHasPriority
     {
         private readonly IViewModelManager? _viewModelManager;
 
-        public TestViewModelServiceResolverComponent(IViewModelManager? viewModelManager = null)
+        public TestViewModelServiceProviderComponent(IViewModelManager? viewModelManager = null)
         {
             _viewModelManager = viewModelManager;
         }
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Internal
 
         public int Priority { get; set; }
 
-        object? IViewModelServiceResolverComponent.TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
+        object? IViewModelServiceProviderComponent.TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
             _viewModelManager?.ShouldEqual(viewModelManager);
             return TryGetService?.Invoke(viewModel, request, metadata);

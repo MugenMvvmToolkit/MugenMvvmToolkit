@@ -4,14 +4,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Resources.Components
 {
-    public class ResourceResolverComponentTest : UnitTestBase
+    public class ResourceResolverTestTest : UnitTestBase
     {
         [Fact]
         public void TryGetResourceValueAddRemoveResource()
         {
             var name = "test";
             var resource = new object();
-            var component = new ResourceResolverComponent();
+            var component = new ResourceResolver();
             component.Resources.Count.ShouldEqual(0);
 
             component.Add(name, resource);
@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
         [Fact]
         public void TryGetResourceValueShouldReturnUnresolvedResource()
         {
-            var component = new ResourceResolverComponent();
+            var component = new ResourceResolver();
             component.TryGetResource(null!, "test", this, DefaultMetadata).IsResolved.ShouldBeFalse();
         }
     }

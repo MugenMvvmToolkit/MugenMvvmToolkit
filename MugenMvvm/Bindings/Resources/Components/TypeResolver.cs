@@ -10,10 +10,10 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Resources.Components
 {
-    public sealed class TypeResolverComponent : ITypeResolverComponent, IHasPriority
+    public sealed class TypeResolver : ITypeResolverComponent, IHasPriority
     {
         [Preserve(Conditional = true)]
-        public TypeResolverComponent()
+        public TypeResolver()
         {
             Types = new Dictionary<string, Type>();
             Types = new Dictionary<string, Type>
@@ -73,7 +73,7 @@ namespace MugenMvvm.Bindings.Resources.Components
                 Types[alias] = type;
         }
 
-        public Type? TryGetType(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
+        public Type? TryGetType(IResourceManager resourceManager, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
             Types.TryGetValue(name, out var value);
             return value;

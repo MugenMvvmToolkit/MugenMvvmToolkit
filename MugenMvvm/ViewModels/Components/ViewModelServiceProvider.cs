@@ -18,14 +18,14 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class ViewModelServiceResolver : IViewModelServiceResolverComponent, IHasPriority
+    public sealed class ViewModelServiceProvider : IViewModelServiceProviderComponent, IHasPriority
     {
         private readonly IComponentCollectionManager? _componentCollectionManager;
         private readonly IReflectionManager? _reflectionManager;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         [Preserve(Conditional = true)]
-        public ViewModelServiceResolver(IReflectionManager? reflectionManager = null, IThreadDispatcher? threadDispatcher = null,
+        public ViewModelServiceProvider(IReflectionManager? reflectionManager = null, IThreadDispatcher? threadDispatcher = null,
             IComponentCollectionManager? componentCollectionManager = null)
         {
             _reflectionManager = reflectionManager;

@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent = new TestMemberManagerComponent();
             memberManager.AddComponent(_memberManagerComponent);
 
-            var resourceResolver = new ResourceResolver();
+            var resourceResolver = new ResourceManager();
             _typeResolver = new TestTypeResolverComponent();
             resourceResolver.AddComponent(_typeResolver);
 

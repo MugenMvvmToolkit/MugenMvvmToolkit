@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests
             Validate(() => MugenService.BindingManager, lastType);
             Validate(() => MugenService.MemberManager, lastType);
             Validate(() => MugenService.ObservationManager, lastType);
-            Validate(() => MugenService.ResourceResolver, lastType);
+            Validate(() => MugenService.ResourceManager, lastType);
             Validate(() => MugenService.ExpressionParser, lastType);
             Validate(() => MugenService.ExpressionCompiler, lastType);
         }

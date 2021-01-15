@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 }
             });
             var vmManager = new ViewModelManager();
-            vmManager.AddComponent(new TestViewModelServiceResolverComponent
+            vmManager.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (_, _, _) => messenger
             });

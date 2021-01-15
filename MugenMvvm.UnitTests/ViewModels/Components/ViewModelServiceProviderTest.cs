@@ -12,12 +12,12 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.ViewModels.Components
 {
-    public class ViewModelServiceResolverTest : UnitTestBase
+    public class ViewModelServiceProviderTest : UnitTestBase
     {
         [Fact]
         public void TryGetServiceShouldReturnBusyManager()
         {
-            var component = new ViewModelServiceResolver();
+            var component = new ViewModelServiceProvider();
             var service = (IBusyManager) component.TryGetService(null!, new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
             service.GetComponent<IBusyManagerComponent>().ShouldNotBeNull();
         }
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [Fact]
         public void TryGetServiceShouldReturnMessenger()
         {
-            var component = new ViewModelServiceResolver();
+            var component = new ViewModelServiceProvider();
             var service = (IMessenger) component.TryGetService(null!, new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
             service.GetComponent<IMessagePublisherComponent>().ShouldNotBeNull();
             service.GetComponent<IMessengerSubscriberComponent>().ShouldNotBeNull();
@@ -34,14 +34,14 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [Fact]
         public void TryGetServiceShouldReturnMetadataContext()
         {
-            var component = new ViewModelServiceResolver();
+            var component = new ViewModelServiceProvider();
             component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
         }
 
         [Fact]
         public void TryGetServiceShouldReturnNullUnknownComponent()
         {
-            var component = new ViewModelServiceResolver();
+            var component = new ViewModelServiceProvider();
             component.TryGetService(null!, new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
         }
     }

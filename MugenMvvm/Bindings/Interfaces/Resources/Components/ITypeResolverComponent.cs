@@ -4,8 +4,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Interfaces.Resources.Components
 {
-    public interface ITypeResolverComponent : IComponent<IResourceResolver>
+    public interface ITypeResolverComponent : IComponent<IResourceManager>
     {
-        Type? TryGetType(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata);
+        Type? TryGetType(IResourceManager resourceManager, string name, object? state, IReadOnlyMetadataContext? metadata);
     }
 }

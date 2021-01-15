@@ -99,7 +99,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestViewModelServiceResolverComponent(manager)
+                var component = new TestViewModelServiceProviderComponent(manager)
                 {
                     TryGetService = (vm, r, ctx) =>
                     {

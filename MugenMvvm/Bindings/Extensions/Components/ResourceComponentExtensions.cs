@@ -9,14 +9,14 @@ namespace MugenMvvm.Bindings.Extensions.Components
 {
     public static class ResourceComponentExtensions
     {
-        public static ResourceResolverResult TryGetResource(this ItemOrArray<IResourceResolverComponent> components, IResourceResolver resourceResolver, string name, object? state,
+        public static ResourceResolverResult TryGetResource(this ItemOrArray<IResourceResolverComponent> components, IResourceManager resourceManager, string name, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(resourceResolver, nameof(resourceResolver));
+            Should.NotBeNull(resourceManager, nameof(resourceManager));
             Should.NotBeNull(name, nameof(name));
             foreach (var c in components)
             {
-                var value = c.TryGetResource(resourceResolver, name, state, metadata);
+                var value = c.TryGetResource(resourceManager, name, state, metadata);
                 if (value.IsResolved)
                     return value;
             }
@@ -24,14 +24,14 @@ namespace MugenMvvm.Bindings.Extensions.Components
             return default;
         }
 
-        public static Type? TryGetType(this ItemOrArray<ITypeResolverComponent> components, IResourceResolver resourceResolver, string name, object? state,
+        public static Type? TryGetType(this ItemOrArray<ITypeResolverComponent> components, IResourceManager resourceManager, string name, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(resourceResolver, nameof(resourceResolver));
+            Should.NotBeNull(resourceManager, nameof(resourceManager));
             Should.NotBeNull(name, nameof(name));
             foreach (var c in components)
             {
-                var type = c.TryGetType(resourceResolver, name, state, metadata);
+                var type = c.TryGetType(resourceManager, name, state, metadata);
                 if (type != null)
                     return type;
             }

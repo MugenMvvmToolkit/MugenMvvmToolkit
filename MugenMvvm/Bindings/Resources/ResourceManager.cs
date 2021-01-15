@@ -8,9 +8,9 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Resources
 {
-    public sealed class ResourceResolver : ComponentOwnerBase<IResourceResolver>, IResourceResolver
+    public sealed class ResourceManager : ComponentOwnerBase<IResourceManager>, IResourceManager
     {
-        public ResourceResolver(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
+        public ResourceManager(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
         }
 

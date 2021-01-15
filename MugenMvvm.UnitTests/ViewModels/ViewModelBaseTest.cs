@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.ViewModels
                     return true;
                 }
             });
-            using var t = MugenService.AddComponent(new TestViewModelServiceResolverComponent
+            using var t = MugenService.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (vm, o, _) =>
                 {
@@ -175,7 +175,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             };
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyToken.ShouldBeNull();
-            using var t = MugenService.AddComponent(new TestViewModelServiceResolverComponent
+            using var t = MugenService.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (vm, o, arg3) =>
                 {

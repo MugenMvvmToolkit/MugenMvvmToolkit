@@ -151,10 +151,10 @@ namespace MugenMvvm
             get => Instance<IObservationManager>();
         }
 
-        public static IResourceResolver ResourceResolver
+        public static IResourceManager ResourceManager
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Instance<IResourceResolver>();
+            get => Instance<IResourceManager>();
         }
 
         public static IExpressionParser ExpressionParser

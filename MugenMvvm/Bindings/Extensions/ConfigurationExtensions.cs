@@ -137,9 +137,9 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new NewArrayExpressionConverter())
                          .WithComponent(new DefaultExpressionConverter());
 
-            configuration.WithAppService(new ResourceResolver())
-                         .WithComponent(new ResourceResolverComponent())
-                         .WithComponent(new TypeResolverComponent());
+            configuration.WithAppService(new ResourceManager())
+                         .WithComponent(new ResourceResolver())
+                         .WithComponent(new TypeResolver());
 
             return configuration;
         }

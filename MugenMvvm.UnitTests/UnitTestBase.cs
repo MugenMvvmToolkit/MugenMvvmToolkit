@@ -83,9 +83,9 @@ namespace MugenMvvm.UnitTests
             converter.AddComponent(new GlobalValueConverterComponent());
             MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(converter);
 
-            var resourceResolver = new ResourceResolver();
-            resourceResolver.AddComponent(new TypeResolverComponent());
-            MugenService.Configuration.InitializeInstance<IResourceResolver>(resourceResolver);
+            var resourceResolver = new ResourceManager();
+            resourceResolver.AddComponent(new TypeResolver());
+            MugenService.Configuration.InitializeInstance<IResourceManager>(resourceResolver);
 
             var memberManager = new MemberManager();
             MugenService.Configuration.InitializeInstance<IMemberManager>(memberManager);

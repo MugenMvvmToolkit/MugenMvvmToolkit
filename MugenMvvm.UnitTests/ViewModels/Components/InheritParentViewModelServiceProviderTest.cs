@@ -13,15 +13,15 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.ViewModels.Components
 {
-    public class InheritParentViewModelServiceResolverTest : UnitTestBase
+    public class InheritParentViewModelServiceProviderTest : UnitTestBase
     {
         private readonly ViewModelManager _viewModelManager;
 
-        public InheritParentViewModelServiceResolverTest()
+        public InheritParentViewModelServiceProviderTest()
         {
             _viewModelManager = new ViewModelManager();
-            _viewModelManager.AddComponent(new InheritParentViewModelServiceResolver());
-            _viewModelManager.AddComponent(new TestViewModelServiceResolverComponent
+            _viewModelManager.AddComponent(new InheritParentViewModelServiceProvider());
+            _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (_, o, _) =>
                 {
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         {
             var messenger = new Messenger();
             var busyManager = new BusyManager();
-            using var t = _viewModelManager.AddComponent(new TestViewModelServiceResolverComponent
+            using var t = _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (_, o, _) =>
                 {

@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [Fact]
         public void VisitShouldCacheResourceMemberStatic()
         {
-            var resolver = new ResourceResolver();
+            var resolver = new ResourceManager();
             resolver.AddComponent(new TestResourceResolverComponent
             {
                 TryGetResource = (s, o, arg4) => new ResourceResolverResult(1)
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [Fact]
         public void VisitShouldCacheTypeMember()
         {
-            var resolver = new ResourceResolver();
+            var resolver = new ResourceManager();
             resolver.AddComponent(new TestTypeResolverComponent
             {
                 TryGetType = (s, o, arg4) => typeof(object)
@@ -110,7 +110,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [Fact]
         public void VisitShouldCacheTypeMemberStatic()
         {
-            var resolver = new ResourceResolver();
+            var resolver = new ResourceManager();
             resolver.AddComponent(new TestTypeResolverComponent
             {
                 TryGetType = (s, o, arg4) => typeof(string)
@@ -422,7 +422,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         {
             var returnType = typeof(string);
             var invokeCount = 0;
-            var resolver = new ResourceResolver();
+            var resolver = new ResourceManager();
             resolver.AddComponent(new TestTypeResolverComponent
             {
                 TryGetType = (s, o, arg4) =>
@@ -477,7 +477,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             };
 
             var invokeCount = 0;
-            var resolver = new ResourceResolver();
+            var resolver = new ResourceManager();
             resolver.AddComponent(new TestTypeResolverComponent
             {
                 TryGetType = (s, o, arg4) =>
@@ -593,7 +593,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         {
             var resource = 1;
             var invokeCount = 0;
-            var resolver = new ResourceResolver();
+            var resolver = new ResourceManager();
             resolver.AddComponent(new TestResourceResolverComponent
             {
                 TryGetResource = (s, o, arg4) =>

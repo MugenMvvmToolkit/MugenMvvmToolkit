@@ -14,11 +14,11 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class InheritParentViewModelServiceResolver : IViewModelServiceResolverComponent, IHasPriority
+    public sealed class InheritParentViewModelServiceProvider : IViewModelServiceProviderComponent, IHasPriority
     {
         public readonly Dictionary<Type, Func<IViewModelBase, object?>> ServiceMapping;
 
-        public InheritParentViewModelServiceResolver()
+        public InheritParentViewModelServiceProvider()
         {
             ServiceMapping = new Dictionary<Type, Func<IViewModelBase, object?>>(3, InternalEqualityComparer.Type)
             {

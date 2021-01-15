@@ -41,9 +41,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
         private readonly IGlobalValueConverter? _globalValueConverter;
 
         private readonly IMemberManager? _memberManager;
-        private readonly IResourceResolver? _resourceResolver;
+        private readonly IResourceManager? _resourceResolver;
 
-        public MethodCallIndexerExpressionBuilder(IMemberManager? memberManager = null, IResourceResolver? resourceResolver = null,
+        public MethodCallIndexerExpressionBuilder(IMemberManager? memberManager = null, IResourceManager? resourceResolver = null,
             IGlobalValueConverter? globalValueConverter = null)
         {
             _memberManager = memberManager;

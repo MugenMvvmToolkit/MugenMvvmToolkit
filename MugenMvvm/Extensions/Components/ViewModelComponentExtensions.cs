@@ -21,7 +21,7 @@ namespace MugenMvvm.Extensions.Components
                 c.OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
         }
 
-        public static object? TryGetService(this ItemOrArray<IViewModelServiceResolverComponent> components, IViewModelManager viewModelManager, IViewModelBase viewModel,
+        public static object? TryGetService(this ItemOrArray<IViewModelServiceProviderComponent> components, IViewModelManager viewModelManager, IViewModelBase viewModel,
             object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));

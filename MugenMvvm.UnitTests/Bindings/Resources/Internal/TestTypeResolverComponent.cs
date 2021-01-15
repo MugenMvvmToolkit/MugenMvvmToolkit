@@ -9,9 +9,9 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Internal
 {
     public class TestTypeResolverComponent : ITypeResolverComponent, IHasPriority
     {
-        private readonly IResourceResolver? _resourceResolver;
+        private readonly IResourceManager? _resourceResolver;
 
-        public TestTypeResolverComponent(IResourceResolver? resourceResolver = null)
+        public TestTypeResolverComponent(IResourceManager? resourceResolver = null)
         {
             _resourceResolver = resourceResolver;
         }
@@ -20,9 +20,9 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Internal
 
         public int Priority { get; set; }
 
-        Type? ITypeResolverComponent.TryGetType(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
+        Type? ITypeResolverComponent.TryGetType(IResourceManager resourceManager, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
-            _resourceResolver?.ShouldEqual(resourceResolver);
+            _resourceResolver?.ShouldEqual(resourceManager);
             return TryGetType?.Invoke(name, state, metadata);
         }
     }

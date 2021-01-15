@@ -8,10 +8,10 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Resources.Components
 {
-    public sealed class ResourceResolverComponent : IResourceResolverComponent, IHasPriority
+    public sealed class ResourceResolver : IResourceResolverComponent, IHasPriority
     {
         [Preserve(Conditional = true)]
-        public ResourceResolverComponent()
+        public ResourceResolver()
         {
             Resources = new Dictionary<string, object?>();
         }
@@ -32,7 +32,7 @@ namespace MugenMvvm.Bindings.Resources.Components
             Resources.Remove(name);
         }
 
-        public ResourceResolverResult TryGetResource(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata) =>
+        public ResourceResolverResult TryGetResource(IResourceManager resourceManager, string name, object? state, IReadOnlyMetadataContext? metadata) =>
             Resources.TryGetValue(name, out var value) ? new ResourceResolverResult(value) : default;
     }
 }
