@@ -134,7 +134,7 @@ namespace MugenMvvm.Bindings.Compiling
                 var memberValues = new ItemOrListEditor<KeyValuePair<IBindingMemberExpressionNode, Expression>>();
                 foreach (var value in _expressions)
                 {
-                    if (!(value.Key is IBindingMemberExpressionNode memberExpression))
+                    if (value.Key is not IBindingMemberExpressionNode memberExpression)
                         continue;
 
                     var index = MugenExtensions.GetIndexExpression(memberExpression.Index);

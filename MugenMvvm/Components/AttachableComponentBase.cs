@@ -49,7 +49,7 @@ namespace MugenMvvm.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (!(owner is T o))
+            if (owner is not T o)
                 return;
 
             if (Interlocked.CompareExchange(ref _owner, o, null) != null)

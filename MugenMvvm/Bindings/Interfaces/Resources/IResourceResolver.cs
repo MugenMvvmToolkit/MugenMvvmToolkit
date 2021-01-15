@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Interfaces.Resources
 {
-    public interface IResourceResolver : IComponentOwner<IResourceResolver>
+    public interface IResourceResolver : IComponentOwner<IResourceResolver>//todo rename
     {
         ResourceResolverResult TryGetResource(string name, object? state = null, IReadOnlyMetadataContext? metadata = null);
 

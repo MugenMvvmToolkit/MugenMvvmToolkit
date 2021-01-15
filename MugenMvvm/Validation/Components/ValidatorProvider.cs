@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Attributes;
+﻿using System.ComponentModel;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -9,12 +10,12 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class ValidatorProviderComponent : IValidatorProviderComponent, IHasPriority
+    public sealed class ValidatorProvider : IValidatorProviderComponent, IHasPriority
     {
         private readonly IComponentCollectionManager? _componentCollectionManager;
 
         [Preserve(Conditional = true)]
-        public ValidatorProviderComponent(IComponentCollectionManager? componentCollectionManager = null)
+        public ValidatorProvider(IComponentCollectionManager? componentCollectionManager = null)
         {
             _componentCollectionManager = componentCollectionManager;
         }
@@ -26,7 +27,9 @@ namespace MugenMvvm.Validation.Components
             if (request is IHasTarget<IValidator> hasTarget)
                 return hasTarget.Target;
             var validator = new Validator(metadata, _componentCollectionManager);
-            validator.AddComponent(new CycleHandlerValidatorComponent());
+            validator.AddComponent(new CycleHandlerValidatorBehavior());
+            if (request is INotifyPropertyChanged propertyChanged)
+                validator.AddComponent(new ObservableValidatorBehavior(propertyChanged));
             return validator;
         }
     }

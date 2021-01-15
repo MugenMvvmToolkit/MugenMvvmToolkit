@@ -76,7 +76,7 @@ namespace MugenMvvm.Extensions
 
             configuration.WithAppService(new WeakReferenceManager())
                          .WithComponent(new ValueHolderWeakReferenceProviderCache())
-                         .WithComponent(new WeakReferenceProviderComponent());
+                         .WithComponent(new WeakReferenceProvider());
 
             configuration.WithAppService(new Messenger())
                          .WithComponent(new MessagePublisher())
@@ -107,7 +107,7 @@ namespace MugenMvvm.Extensions
             configuration.WithAppService(threadDispatcher);
 
             configuration.WithAppService(new ValidationManager())
-                         .WithComponent(new ValidatorProviderComponent());
+                         .WithComponent(new ValidatorProvider());
 
             configuration.WithAppService(new ViewModelManager())
                          .WithComponent(new CacheViewModelProvider())

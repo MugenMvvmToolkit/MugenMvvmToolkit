@@ -15,7 +15,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
-            if (!(expression is IConditionExpressionNode condition))
+            if (expression is not IConditionExpressionNode condition)
                 return null;
 
             var ifTrue = context.Build(condition.IfTrue);

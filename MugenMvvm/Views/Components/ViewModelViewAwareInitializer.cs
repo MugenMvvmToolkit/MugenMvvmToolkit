@@ -65,7 +65,7 @@ namespace MugenMvvm.Views.Components
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (!(view is IView viewImp))
+            if (view is not IView viewImp)
                 return;
             if (lifecycleState == ViewLifecycleState.Initialized)
             {

@@ -479,7 +479,7 @@ namespace MugenMvvm.Bindings.Extensions
                     if (i == 1)
                         flags = flags.SetInstanceOrStaticFlags(false);
                     var member = memberManager.TryGetMember(type, MemberType.Accessor, flags, members[i], metadata);
-                    if (!(member is IAccessorMemberInfo accessor) || !accessor.CanRead)
+                    if (member is not IAccessorMemberInfo accessor || !accessor.CanRead)
                         return null;
 
                     target = accessor.GetValue(target, metadata);
@@ -717,7 +717,7 @@ namespace MugenMvvm.Bindings.Extensions
             ref IWeakReference? lastValueRef)
         {
             unsubscriber.Dispose();
-            if (target == null || !(lastMember is IAccessorMemberInfo propertyInfo))
+            if (target == null || lastMember is not IAccessorMemberInfo propertyInfo)
             {
                 unsubscriber = ActionToken.NoDoToken;
                 return;

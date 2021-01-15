@@ -28,7 +28,7 @@ namespace MugenMvvm.Bindings.Members.Components
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
             object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is string name))
+            if (request is not string name)
                 return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
             _members.Clear();
             Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(memberManager, _members, type, name, memberTypes, metadata);

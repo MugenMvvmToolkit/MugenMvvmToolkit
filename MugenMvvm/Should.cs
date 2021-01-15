@@ -69,7 +69,7 @@ namespace MugenMvvm
         public static void BeOfType<T>([NotNull] object? instance, string paramName)
         {
             NotBeNull(instance, paramName);
-            if (!(instance is T))
+            if (instance is not T)
                 ExceptionManager.ThrowArgumentShouldBeOfType(paramName, instance.GetType(), typeof(T));
         }
 

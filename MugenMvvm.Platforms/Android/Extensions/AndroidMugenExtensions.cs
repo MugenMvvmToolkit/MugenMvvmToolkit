@@ -89,7 +89,7 @@ namespace MugenMvvm.Android.Extensions
             configuration
                 .ServiceConfiguration<IWeakReferenceManager>()
                 .Service()
-                .GetOrAddComponent(ctx => new WeakReferenceProviderComponent())
+                .GetOrAddComponent(ctx => new WeakReferenceProvider())
                 .TrackResurrection = true;
 
             return configuration;
@@ -413,7 +413,7 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
                                                            {
-                                                               if (!(newValue is IResourceTemplateSelector selector))
+                                                               if (newValue is not IResourceTemplateSelector selector)
                                                                    return;
 
                                                                var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);

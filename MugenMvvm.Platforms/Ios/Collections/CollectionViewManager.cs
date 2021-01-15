@@ -35,7 +35,7 @@ namespace MugenMvvm.Ios.Collections
         {
             if (collectionView is UITableView tableView)
             {
-                if (!(tableView.Source is MugenTableViewSource source))
+                if (tableView.Source is not MugenTableViewSource source)
                 {
                     source = new MugenTableViewSource(tableView, GetCellTemplateSelector(tableView));
                     tableView.Source = source;
@@ -47,7 +47,7 @@ namespace MugenMvvm.Ios.Collections
 
             if (collectionView is UICollectionView collection)
             {
-                if (!(collection.Source is MugenCollectionViewSource source))
+                if (collection.Source is not MugenCollectionViewSource source)
                 {
                     source = new MugenCollectionViewSource(collection, GetCellTemplateSelector(collection));
                     collection.Source = source;

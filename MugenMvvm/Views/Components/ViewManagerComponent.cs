@@ -62,8 +62,8 @@ namespace MugenMvvm.Views.Components
 
         public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (!view.Target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var v)
-                || !(v is List<IView> value) || !value.Contains(view))
+            if (!view.Target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var v) || v is not List<IView> value ||
+                !value.Contains(view))
                 return default;
 
             Cleanup(viewManager, view, state, value, (list, item, m) =>

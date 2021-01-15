@@ -43,7 +43,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
         private static int GetArgsPriority(IMemberInfo member)
         {
-            if (!(member is IHasArgsMemberInfo hasArgs))
+            if (member is not IHasArgsMemberInfo hasArgs)
                 return 0;
             var flags = hasArgs.ArgumentFlags;
             if (flags == default)
@@ -161,7 +161,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
             public IMemberInfo GetBestMember()
             {
-                if (!(_members is List<IMemberInfo> members))
+                if (_members is not List<IMemberInfo> members)
                     return (IMemberInfo) _members!;
 
                 for (var i = 0; i < members.Count; i++)

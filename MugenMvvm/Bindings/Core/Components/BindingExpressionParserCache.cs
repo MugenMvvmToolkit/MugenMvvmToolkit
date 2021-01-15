@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
-            if (!(expression is string s))
+            if (expression is not string s)
                 return Components.TryParseBindingExpression(bindingManager, expression, metadata);
 
             if (!_cache.TryGetValue(s, out var value))

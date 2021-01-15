@@ -42,7 +42,7 @@ namespace MugenMvvm.Internal.Components
             {
                 var attachedValues = target.AttachedValues();
                 attachedValues.TryGet(InternalConstant.LifecycleListKey, out var value);
-                if (!(value is HashSet<T> states))
+                if (value is not HashSet<T> states)
                 {
                     _commonStates.Clear();
                     states = _commonStates;

@@ -10,11 +10,11 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidatorProviderComponent : IValidatorProviderListener, IHasPriority
+    public sealed class RuleValidatorProvider : IValidatorProviderListener, IHasPriority
     {
         private readonly List<(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)> _rules;
 
-        public RuleValidatorProviderComponent()
+        public RuleValidatorProvider()
         {
             _rules = new List<(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)>();
         }

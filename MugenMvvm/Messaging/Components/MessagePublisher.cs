@@ -93,7 +93,7 @@ namespace MugenMvvm.Messaging.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (!(owner is IMessenger messenger))
+            if (owner is not IMessenger messenger)
                 return;
             if (_owner != null)
                 ExceptionManager.ThrowObjectInitialized(this);

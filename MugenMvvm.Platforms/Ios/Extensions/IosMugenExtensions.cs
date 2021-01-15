@@ -257,7 +257,7 @@ namespace MugenMvvm.Ios.Extensions
             }
 
             target.ClearSubViews();
-            if (!(newValue is UIView content))
+            if (newValue is not UIView content)
             {
                 ExceptionManager.ThrowNotValidArgument(nameof(content));
                 return;

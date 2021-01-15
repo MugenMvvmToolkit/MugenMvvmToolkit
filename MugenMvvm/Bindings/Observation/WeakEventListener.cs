@@ -39,7 +39,7 @@ namespace MugenMvvm.Bindings.Observation
             if (target is IWeakReference reference)
             {
                 target = reference.Target;
-                return target != null && (!(target is IWeakItem item) || item.IsAlive);
+                return target != null && (target is not IWeakItem item || item.IsAlive);
             }
 
             if (target is IWeakItem weakItem)

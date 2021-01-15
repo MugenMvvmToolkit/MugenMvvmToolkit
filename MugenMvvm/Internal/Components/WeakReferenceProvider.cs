@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class WeakReferenceProviderComponent : IWeakReferenceProviderComponent, IHasPriority
+    public sealed class WeakReferenceProvider : IWeakReferenceProviderComponent, IHasPriority
     {
         public bool TrackResurrection { get; set; }
 

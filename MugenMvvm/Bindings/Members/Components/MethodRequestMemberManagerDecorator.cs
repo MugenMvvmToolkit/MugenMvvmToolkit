@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Members.Components
             object request,
             IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is MemberTypesRequest typesRequest))
+            if (request is not MemberTypesRequest typesRequest)
                 return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
 
             _members.Clear();
@@ -42,7 +42,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _members.Clear();
             foreach (var memberInfo in members)
             {
-                if (!(memberInfo is IMethodMemberInfo methodInfo))
+                if (memberInfo is not IMethodMemberInfo methodInfo)
                 {
                     _members.Add(memberInfo);
                     continue;

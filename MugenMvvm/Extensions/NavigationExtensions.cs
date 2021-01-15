@@ -64,7 +64,7 @@ namespace MugenMvvm.Extensions
             {
                 if (!state.includePending && entry.IsPending)
                     return null;
-                if (state.navigationType != null && entry.NavigationType != state.navigationType || !(entry.Target is IViewModelBase viewModel))
+                if (state.navigationType != null && entry.NavigationType != state.navigationType || entry.Target is not IViewModelBase viewModel)
                     return null;
                 foreach (var t in MugenService.ViewManager.GetViews(viewModel, m))
                 {

@@ -29,7 +29,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is string id))
+            if (request is not string id)
                 return null;
 
             object? value;

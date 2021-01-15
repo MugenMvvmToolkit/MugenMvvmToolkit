@@ -79,7 +79,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         internal void OnCanExecuteChanged()
         {
-            if (!(_currentValue is ICommand cmd))
+            if (_currentValue is not ICommand cmd)
                 return;
 
             var target = _targetRef?.Target;
@@ -133,7 +133,7 @@ namespace MugenMvvm.Bindings.Core.Components
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             var targetMember = ((IBinding) owner).Target.GetLastMember(metadata);
-            if (!(targetMember.Member is IObservableMemberInfo eventInfo) || eventInfo.MemberType != MemberType.Event)
+            if (targetMember.Member is not IObservableMemberInfo eventInfo || eventInfo.MemberType != MemberType.Event)
                 return false;
 
             _unsubscriber = eventInfo.TryObserve(targetMember.Target, this, metadata);

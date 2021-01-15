@@ -72,13 +72,13 @@ namespace MugenMvvm.Extensions
             Func<T, TMember> memberAccessor) where T : class
             => new(memberName, memberAccessor, builder.Builder);
 
-        public static void AddRulesTo<T>(this ValidationRuleBuilder<T> builder, RuleValidatorProviderComponent ruleValidatorProvider) where T : class
+        public static void AddRulesTo<T>(this ValidationRuleBuilder<T> builder, RuleValidatorProvider ruleValidatorProvider) where T : class
         {
             Should.NotBeNull(ruleValidatorProvider, nameof(ruleValidatorProvider));
             ruleValidatorProvider.AddRules(builder.Build(), (validator, o, arg3) => o is T);
         }
 
-        public static void AddRulesTo<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, RuleValidatorProviderComponent ruleValidatorProvider) where T : class
+        public static void AddRulesTo<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, RuleValidatorProvider ruleValidatorProvider) where T : class
             => builder.Builder.AddRulesTo(ruleValidatorProvider);
 
         public static ValidationRuleMemberBuilder<T, TMember> NotNull<T, TMember>(this ValidationRuleMemberBuilder<T, TMember> builder, object error,

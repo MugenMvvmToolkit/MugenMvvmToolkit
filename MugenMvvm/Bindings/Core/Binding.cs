@@ -234,7 +234,7 @@ namespace MugenMvvm.Bindings.Core
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
         {
-            if (!(SourceRaw is IMemberPathObserver sourceObserver))
+            if (SourceRaw is not IMemberPathObserver sourceObserver)
             {
                 newValue = null;
                 return false;
@@ -335,7 +335,7 @@ namespace MugenMvvm.Bindings.Core
                 return true;
             }
 
-            if (!(_components is object[] items))
+            if (_components is not object[] items)
                 return false;
 
             if (items.Length == 2)

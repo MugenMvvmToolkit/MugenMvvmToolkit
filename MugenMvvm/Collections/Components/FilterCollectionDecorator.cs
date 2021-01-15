@@ -95,7 +95,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private bool FilterInternal(object? value) => _filter == null || !(value is T v) || _filter(v);
+        private bool FilterInternal(object? value) => _filter == null || value is not T v || _filter(v);
 
         private void UpdateIndexes(int index, int value)
         {

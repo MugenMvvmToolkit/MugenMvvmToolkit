@@ -39,8 +39,8 @@ namespace MugenMvvm.Android.Bindings
 
         public IExpressionNode Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
-            if (!(expression is IMemberExpressionNode member) || !(member.Target is IUnaryExpressionNode unaryExpression) || !unaryExpression.IsMacros() ||
-                !(unaryExpression.Operand is IMemberExpressionNode resourceMember) || !Resources.TryGetValue(resourceMember.Member, out var resolver))
+            if (expression is not IMemberExpressionNode member || member.Target is not IUnaryExpressionNode unaryExpression || !unaryExpression.IsMacros() ||
+                unaryExpression.Operand is not IMemberExpressionNode resourceMember || !Resources.TryGetValue(resourceMember.Member, out var resolver))
                 return expression;
 
             if (unaryExpression.Token == UnaryTokenType.StaticExpression)

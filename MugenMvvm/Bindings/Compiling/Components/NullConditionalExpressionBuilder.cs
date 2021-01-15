@@ -47,7 +47,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
-            if (!(expression is IHasTargetExpressionNode<IExpressionNode> hasTarget) || !HasNullCondition(hasTarget, out var nullConditional) ||
+            if (expression is not IHasTargetExpressionNode<IExpressionNode> hasTarget || !HasNullCondition(hasTarget, out var nullConditional) ||
                 !_handledExpressions.Add(nullConditional))
                 return null;
 

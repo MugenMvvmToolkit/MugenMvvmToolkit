@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         public IMemberPath? TryGetMemberPath(IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
         {
-            if (!(path is string stringPath))
+            if (path is not string stringPath)
                 return null;
 
             if (!_cache.TryGetValue(stringPath, out var value))

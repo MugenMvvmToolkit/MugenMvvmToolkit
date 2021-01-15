@@ -68,7 +68,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
 
             if (expression is Expression exp)
             {
-                if (!(exp is LambdaExpression lambdaExpression))
+                if (exp is not LambdaExpression lambdaExpression)
                     return _context.Convert(exp);
 
                 var parameters = lambdaExpression.Parameters;

@@ -17,7 +17,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (!(expression is LambdaExpression lambda))
+            if (expression is not LambdaExpression lambda)
                 return null;
             var expressions = lambda.Parameters;
             try

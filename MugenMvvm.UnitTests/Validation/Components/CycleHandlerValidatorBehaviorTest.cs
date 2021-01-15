@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
-    public class CycleHandlerValidatorComponentTest : UnitTestBase
+    public class CycleHandlerValidatorBehaviorTest : UnitTestBase
     {
         [Fact]
         public async Task HasErrorsShouldReturnTrueAsync()
@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             {
                 GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(tcs.Task)
             });
-            validator.AddComponent(new CycleHandlerValidatorComponent());
+            validator.AddComponent(new CycleHandlerValidatorBehavior());
 
             validator.HasErrors().ShouldBeFalse();
             var task = validator.ValidateAsync(expectedMember, CancellationToken.None);
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     return new ValueTask<ValidationResult>(tcs.Task);
                 }
             });
-            validator.AddComponent(new CycleHandlerValidatorComponent());
+            validator.AddComponent(new CycleHandlerValidatorBehavior());
 
             var task = validator.ValidateAsync(expectedMember, CancellationToken.None)!;
             task.IsCompleted.ShouldBeFalse();
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     return new ValueTask<ValidationResult>(tcs.Task);
                 }
             });
-            validator.AddComponent(new CycleHandlerValidatorComponent());
+            validator.AddComponent(new CycleHandlerValidatorBehavior());
 
             var task = validator.ValidateAsync(expectedMember, CancellationToken.None);
             task!.IsCompleted.ShouldBeFalse();

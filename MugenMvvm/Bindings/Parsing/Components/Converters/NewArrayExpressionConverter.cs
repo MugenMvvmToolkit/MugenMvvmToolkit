@@ -18,7 +18,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (!(expression is NewArrayExpression newArrayExpression) || newArrayExpression.NodeType != ExpressionType.NewArrayInit)
+            if (expression is not NewArrayExpression newArrayExpression || newArrayExpression.NodeType != ExpressionType.NewArrayInit)
                 return null;
 
             return new MethodCallExpressionNode(ConstantExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayInit),

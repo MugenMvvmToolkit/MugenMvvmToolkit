@@ -16,7 +16,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (!(expression is IndexExpression index) || index.Indexer == null)
+            if (expression is not IndexExpression index || index.Indexer == null)
                 return null;
 
             if (context.TryConvertExtension(index.Indexer, expression, out var result))

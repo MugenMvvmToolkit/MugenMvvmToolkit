@@ -62,7 +62,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
-            if (!(expression is IMemberExpressionNode memberExpression) || memberExpression.Target == null)
+            if (expression is not IMemberExpressionNode memberExpression || memberExpression.Target == null)
                 return null;
 
             var target = context.Build(memberExpression.Target);

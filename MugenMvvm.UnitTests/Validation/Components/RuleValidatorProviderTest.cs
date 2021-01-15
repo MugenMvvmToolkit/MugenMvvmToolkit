@@ -8,7 +8,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
-    public class RuleValidatorProviderComponentTest : UnitTestBase
+    public class RuleValidatorProviderTest : UnitTestBase
     {
         [Fact]
         public void ShouldAddResolveRulesBasedOnCondition()
@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var rule3 = new TestValidationRule();
 
             var validationManager = new ValidationManager();
-            var component = new RuleValidatorProviderComponent();
+            var component = new RuleValidatorProvider();
             validationManager.AddComponent(component);
             validationManager.AddComponent(new TestValidatorProviderComponent
             {

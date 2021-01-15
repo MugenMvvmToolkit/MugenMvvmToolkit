@@ -48,7 +48,7 @@ namespace MugenMvvm.Android.Presenters
             int requestId, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState != AndroidViewLifecycleState.Created && lifecycleState != AndroidViewLifecycleState.Starting ||
-                !(MugenExtensions.Unwrap(view) is IActivityView activity))
+                MugenExtensions.Unwrap(view) is not IActivityView activity)
                 return false;
 
             return requestId == ActivityMugenExtensions.GetRequestId(activity);

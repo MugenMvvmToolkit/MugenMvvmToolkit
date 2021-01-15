@@ -22,7 +22,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         public IMemberPathObserver? TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is MemberPathObserverRequest observerRequest))
+            if (request is not MemberPathObserverRequest observerRequest)
                 return null;
 
             var path = observerRequest.Path;

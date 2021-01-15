@@ -18,7 +18,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
-            if (!(expression is ILambdaExpressionNode lambdaExpression))
+            if (expression is not ILambdaExpressionNode lambdaExpression)
                 return null;
 
             var method = context.GetOrDefault(CompilingMetadata.LambdaParameter)?.ParameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);

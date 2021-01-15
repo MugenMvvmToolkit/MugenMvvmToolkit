@@ -47,7 +47,7 @@ namespace MugenMvvm.Android.Observation
 
         public static ActionToken Add(Object target, IEventListener listener, string memberName)
         {
-            if (!(ViewMugenExtensions.GetMemberChangedListener(target) is ViewMemberChangedListener memberObserver))
+            if (ViewMugenExtensions.GetMemberChangedListener(target) is not ViewMemberChangedListener memberObserver)
             {
                 memberObserver = new ViewMemberChangedListener(target);
                 ViewMugenExtensions.SetMemberChangedListener(target, memberObserver);

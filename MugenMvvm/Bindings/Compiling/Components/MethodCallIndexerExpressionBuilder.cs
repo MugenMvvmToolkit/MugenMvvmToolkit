@@ -422,7 +422,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         private static bool IsCompatible(Type parameterType, IExpressionNode node)
         {
-            if (!(node is ILambdaExpressionNode lambdaExpressionNode))
+            if (node is not ILambdaExpressionNode lambdaExpressionNode)
                 return true;
 
             if (typeof(Expression).IsAssignableFrom(parameterType) && parameterType.IsGenericType)

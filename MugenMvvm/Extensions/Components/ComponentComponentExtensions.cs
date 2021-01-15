@@ -198,7 +198,7 @@ namespace MugenMvvm.Extensions.Components
             where TComponent : class
         {
             Should.NotBeNull(decorator, nameof(decorator));
-            if (!(decorator is TComponent decoratorComponent))
+            if (decorator is not TComponent decoratorComponent)
                 return default;
 
             var index = components.IndexOf(decoratorComponent);

@@ -143,7 +143,7 @@ namespace MugenMvvm.Extensions
                 return true;
             }
 
-            if (!(source is T[] array))
+            if (source is not T[] array)
                 return false;
 
             if (array.Length == 1)

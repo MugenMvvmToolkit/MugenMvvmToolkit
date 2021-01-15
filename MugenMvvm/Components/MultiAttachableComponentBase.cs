@@ -39,7 +39,7 @@ namespace MugenMvvm.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (!(owner is T o))
+            if (owner is not T o)
                 return;
 
             lock (this)
@@ -68,7 +68,7 @@ namespace MugenMvvm.Components
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (!(owner is T o))
+            if (owner is not T o)
                 return;
 
             OnDetached(o, metadata);

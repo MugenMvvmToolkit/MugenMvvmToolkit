@@ -14,12 +14,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class CycleHandlerValidatorComponent : ComponentDecoratorBase<IValidator, IValidatorComponent>, IValidatorComponent
+    public sealed class CycleHandlerValidatorBehavior : ComponentDecoratorBase<IValidator, IValidatorComponent>, IValidatorComponent
     {
         private readonly HashSet<string> _validatingMembers;
         private readonly Dictionary<string, CancellationTokenSource> _validatingTasks;
 
-        public CycleHandlerValidatorComponent(int priority = ValidationComponentPriority.CycleHandlerDecorator) : base(priority)
+        public CycleHandlerValidatorBehavior(int priority = ValidationComponentPriority.CycleHandlerDecorator) : base(priority)
         {
             _validatingTasks = new Dictionary<string, CancellationTokenSource>(3, StringComparer.Ordinal);
             _validatingMembers = new HashSet<string>(StringComparer.Ordinal);
@@ -71,7 +71,7 @@ namespace MugenMvvm.Validation.Components
 
                     task.ContinueWith((_, s) =>
                     {
-                        var state = (Tuple<CycleHandlerValidatorComponent, string, CancellationTokenSource, IReadOnlyMetadataContext?>) s!;
+                        var state = (Tuple<CycleHandlerValidatorBehavior, string, CancellationTokenSource, IReadOnlyMetadataContext?>) s!;
                         state.Item1.OnAsyncValidationCompleted(state.Item2, state.Item3, state.Item4);
                     }, Tuple.Create(this, member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
                 }

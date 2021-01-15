@@ -24,7 +24,7 @@ namespace MugenMvvm.Android.Views
         public async ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is IActivityViewRequest activityRequest))
+            if (request is not IActivityViewRequest activityRequest)
             {
                 if (MugenExtensions.TryGetViewModelView(request, out IActivityView? activityView) != null && activityView != null)
                     viewManager.OnLifecycleChanged(activityView, AndroidViewLifecycleState.PendingInitialization, request, metadata);

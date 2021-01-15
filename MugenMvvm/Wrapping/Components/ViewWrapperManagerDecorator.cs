@@ -18,14 +18,14 @@ namespace MugenMvvm.Wrapping.Components
 
         public bool CanWrap(IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is IView view))
+            if (request is not IView view)
                 return Components.CanWrap(wrapperManager, wrapperType, request, metadata);
             return wrapperType.IsInstanceOfType(view.Target) || Components.CanWrap(wrapperManager, wrapperType, view.Target, metadata);
         }
 
         public object? TryWrap(IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is IView view))
+            if (request is not IView view)
                 return Components.TryWrap(wrapperManager, wrapperType, request, metadata);
 
             var collection = view.Components;

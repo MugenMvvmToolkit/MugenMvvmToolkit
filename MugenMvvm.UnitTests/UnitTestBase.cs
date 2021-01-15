@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests
             MugenService.Configuration.InitializeInstance<IAttachedValueManager>(attachedValueManager);
 
             var weakReferenceManager = new WeakReferenceManager();
-            weakReferenceManager.AddComponent(new WeakReferenceProviderComponent());
+            weakReferenceManager.AddComponent(new WeakReferenceProvider());
             MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(weakReferenceManager);
 
             InitializeThreadDispatcher();

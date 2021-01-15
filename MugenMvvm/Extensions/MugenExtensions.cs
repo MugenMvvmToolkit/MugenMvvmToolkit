@@ -210,7 +210,7 @@ namespace MugenMvvm.Extensions
                 if (target is T r)
                     return r;
 
-                if (!(target is IWrapper<object> t))
+                if (target is not IWrapper<object> t)
                     return null;
 
                 target = t.Target;
@@ -223,7 +223,7 @@ namespace MugenMvvm.Extensions
         {
             while (true)
             {
-                if (!(target is IWrapper<T> t))
+                if (target is not IWrapper<T> t)
                     return target as T;
                 target = t.Target;
             }

@@ -63,7 +63,7 @@ namespace MugenMvvm.Validation
 
             public Task ValidateAsync(object t, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
-                if (!(t is T target) || _condition != null && !_condition(target, _state, metadata))
+                if (t is not T target || _condition != null && !_condition(target, _state, metadata))
                     return Default.CompletedTask;
 
                 if (!string.IsNullOrEmpty(memberName) && !string.Equals(_memberName, memberName) && (_dependencyMembers == null || !_dependencyMembers.Contains(memberName)))
@@ -93,7 +93,7 @@ namespace MugenMvvm.Validation
                         errors[_memberName] = error;
                     else
                     {
-                        if (!(errorOrList is List<object> list))
+                        if (errorOrList is not List<object> list)
                         {
                             list = new List<object>(2) {errorOrList};
                             errors[_memberName] = list;

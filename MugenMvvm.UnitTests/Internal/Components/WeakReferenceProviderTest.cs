@@ -5,14 +5,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Internal.Components
 {
-    public class WeakReferenceProviderComponentTest : UnitTestBase
+    public class WeakReferenceProviderTest : UnitTestBase
     {
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void ShouldReturnWeakReference(bool trackResurrection)
         {
-            var component = new WeakReferenceProviderComponent {TrackResurrection = trackResurrection};
+            var component = new WeakReferenceProvider {TrackResurrection = trackResurrection};
             var weakReference = (WeakReference) component.TryGetWeakReference(null!, this, DefaultMetadata)!;
             weakReference.TrackResurrection.ShouldEqual(trackResurrection);
             weakReference.Target.ShouldEqual(this);

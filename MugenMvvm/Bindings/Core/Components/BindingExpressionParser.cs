@@ -117,7 +117,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 TargetExpression = _context.TargetExpression;
                 var sourceExpression = _context.SourceExpression;
 
-                if (!(TargetExpression is IBindingMemberExpressionNode))
+                if (TargetExpression is not IBindingMemberExpressionNode)
                     ExceptionManager.ThrowCannotUseExpressionExpected(TargetExpression, typeof(IBindingMemberExpressionNode));
 
                 if (sourceExpression is IBindingMemberExpressionNode)

@@ -31,7 +31,7 @@ namespace MugenMvvm.ViewModels.Components
         public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewModelLifecycleState.Disposed && !(viewModel is ViewModelBase))
+            if (lifecycleState == ViewModelLifecycleState.Disposed && viewModel is not ViewModelBase)
                 viewModel.Metadata.Set(InternalMetadata.IsDisposed, true, out _);
         }
     }

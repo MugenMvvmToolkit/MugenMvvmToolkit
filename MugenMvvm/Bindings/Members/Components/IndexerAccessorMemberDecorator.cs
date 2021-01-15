@@ -65,7 +65,7 @@ namespace MugenMvvm.Bindings.Members.Components
             Components.TryAddMembers(memberManager, _members, type, getterName, MemberType.Method, metadata);
             for (var i = 0; i < _members.Count; i++)
             {
-                if (!(_members[i] is IMethodMemberInfo method) || method.Type == typeof(void))
+                if (_members[i] is not IMethodMemberInfo method || method.Type == typeof(void))
                     continue;
 
                 var parameters = method.GetParameters();
@@ -90,7 +90,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
                 for (var i = 0; i < _members.Count; i++)
                 {
-                    if (!(_members[i] is IMethodMemberInfo method) || method.Type != typeof(void))
+                    if (_members[i] is not IMethodMemberInfo method || method.Type != typeof(void))
                         continue;
 
                     var parameters = method.GetParameters();

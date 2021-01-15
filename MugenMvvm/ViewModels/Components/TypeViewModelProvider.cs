@@ -24,7 +24,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is Type type))
+            if (request is not Type type)
                 return null;
 
             var viewModel = (IViewModelBase?) _serviceProvider.DefaultIfNull().GetService(type);
