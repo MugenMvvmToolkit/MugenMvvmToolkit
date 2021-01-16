@@ -52,10 +52,6 @@ public final class MugenUtils {
         return hasFlag(MugenInitializationFlags.CompatLib);
     }
 
-    public static boolean isMaterialSupported() {
-        return hasFlag(MugenInitializationFlags.MaterialLib);
-    }
-
     public static boolean isRawViewTagMode() {
         return !hasFlag(MugenInitializationFlags.RawViewTagModeDisabled);
     }

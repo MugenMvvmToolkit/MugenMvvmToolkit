@@ -249,7 +249,9 @@ public final class BindableMemberMugenExtensions {
         IViewMenuManager menuManager = MugenService.getMenuManager();
         if (menuManager != null && menuManager.isMenuSupported(view))
             return menuManager.getMenu(view);
-        return ToolbarMugenExtensions.getMenu((View) view);//todo add material components
+        if (MaterialComponentMugenExtensions.isMenuSupported(view))
+            return MaterialComponentMugenExtensions.getMenu(view);
+        return ToolbarMugenExtensions.getMenu((View) view);
     }
 
     public static boolean isSelectedIndexSupported(@NonNull View view) {

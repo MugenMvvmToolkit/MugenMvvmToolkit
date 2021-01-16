@@ -7,14 +7,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.tabs.TabLayout;
-import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.views.MaterialComponentMugenExtensions;
 
 public final class TabLayoutTabMugenExtensions {
     private TabLayoutTabMugenExtensions() {
     }
 
     public static boolean isSupported(@Nullable Object view) {
-        return MugenUtils.isMaterialSupported() && view instanceof TabLayout.Tab;
+        return MaterialComponentMugenExtensions.isSupported() && view instanceof TabLayout.Tab;
     }
 
     @Nullable

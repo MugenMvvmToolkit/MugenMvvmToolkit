@@ -9,9 +9,9 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.views.BindableMemberMugenExtensions;
+import com.mugen.mvvm.views.MaterialComponentMugenExtensions;
 
 public final class TabLayoutMugenExtensions {
     public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ContentRawProviderType;
@@ -20,7 +20,7 @@ public final class TabLayoutMugenExtensions {
     }
 
     public static boolean isSupported(@Nullable Object view) {
-        return MugenUtils.isMaterialSupported() && view instanceof TabLayout;
+        return MaterialComponentMugenExtensions.isSupported() && view instanceof TabLayout;
     }
 
     @NonNull
