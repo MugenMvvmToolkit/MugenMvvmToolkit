@@ -1,6 +1,6 @@
 package com.mugen.mvvm.internal;
 
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 public class ViewAttachedValues extends AttachedValues {
     private Object _parent;
@@ -9,11 +9,12 @@ public class ViewAttachedValues extends AttachedValues {
     private int _listResourceId;
     private boolean _isBindHandled;
 
+    @Nullable
     public Object getParent() {
         return _parent;
     }
 
-    public void setParent(Object parent) {
+    public void setParent(@Nullable Object parent) {
         _parent = parent;
     }
 
@@ -41,11 +42,12 @@ public class ViewAttachedValues extends AttachedValues {
         _isBindHandled = value;
     }
 
-    public Fragment getFragment() {
-        return (Fragment) _fragment;
+    @Nullable
+    public Object getFragment() {
+        return _fragment;
     }
 
-    public void setFragment(Object fragment) {
+    public void setFragment(@Nullable Object fragment) {
         _fragment = fragment;
     }
 }

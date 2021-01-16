@@ -24,16 +24,16 @@ namespace MugenMvvm.Android.Observation
         public const string SelectedIndexName = "SelectedIndex";
         public const string SelectedIndexEventName = "SelectedIndexChanged";
 
-        public static readonly ICharSequence ParentMemberNameNative = ViewMugenExtensions.ParentMemberName;
-        public static readonly ICharSequence ParentEventNameNative = ViewMugenExtensions.ParentEventName;
-        public static readonly ICharSequence ClickEventNameNative = ViewMugenExtensions.ClickEventName;
-        public static readonly ICharSequence LongClickEventNameNative = ViewMugenExtensions.LongClickEventName;
-        public static readonly ICharSequence TextMemberNameNative = ViewMugenExtensions.TextMemberName;
-        public static readonly ICharSequence TextEventNameNative = ViewMugenExtensions.TextEventName;
-        public static readonly ICharSequence HomeButtonClickNative = ViewMugenExtensions.HomeButtonClick;
-        public static readonly ICharSequence RefreshedEventNameNative = ViewMugenExtensions.RefreshedEventName;
-        public static readonly ICharSequence SelectedIndexNameNative = ViewMugenExtensions.SelectedIndexName;
-        public static readonly ICharSequence SelectedIndexEventNameNative = ViewMugenExtensions.SelectedIndexEventName;
+        public static readonly ICharSequence ParentMemberNameNative = NativeBindableMemberMugenExtensions.ParentMemberName;
+        public static readonly ICharSequence ParentEventNameNative = NativeBindableMemberMugenExtensions.ParentEventName;
+        public static readonly ICharSequence ClickEventNameNative = NativeBindableMemberMugenExtensions.ClickEventName;
+        public static readonly ICharSequence LongClickEventNameNative = NativeBindableMemberMugenExtensions.LongClickEventName;
+        public static readonly ICharSequence TextMemberNameNative = NativeBindableMemberMugenExtensions.TextMemberName;
+        public static readonly ICharSequence TextEventNameNative = NativeBindableMemberMugenExtensions.TextEventName;
+        public static readonly ICharSequence HomeButtonClickNative = NativeBindableMemberMugenExtensions.HomeButtonClick;
+        public static readonly ICharSequence RefreshedEventNameNative = NativeBindableMemberMugenExtensions.RefreshedEventName;
+        public static readonly ICharSequence SelectedIndexNameNative = NativeBindableMemberMugenExtensions.SelectedIndexName;
+        public static readonly ICharSequence SelectedIndexEventNameNative = NativeBindableMemberMugenExtensions.SelectedIndexEventName;
 
         private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new(3);
         private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new(3);
@@ -47,10 +47,10 @@ namespace MugenMvvm.Android.Observation
 
         public static ActionToken Add(Object target, IEventListener listener, string memberName)
         {
-            if (ViewMugenExtensions.GetMemberChangedListener(target) is not ViewMemberChangedListener memberObserver)
+            if (NativeBindableMemberMugenExtensions.GetMemberChangedListener(target) is not ViewMemberChangedListener memberObserver)
             {
                 memberObserver = new ViewMemberChangedListener(target);
-                ViewMugenExtensions.SetMemberChangedListener(target, memberObserver);
+                NativeBindableMemberMugenExtensions.SetMemberChangedListener(target, memberObserver);
             }
 
             return memberObserver._listeners.Add(listener, memberName);
@@ -137,14 +137,14 @@ namespace MugenMvvm.Android.Observation
             {
                 if (_view.Handle == IntPtr.Zero)
                     return;
-                if (!ViewMugenExtensions.AddMemberListener(_view, GetMember(memberName)))
+                if (!NativeBindableMemberMugenExtensions.AddMemberListener(_view, GetMember(memberName)))
                     ExceptionManager.ThrowInvalidBindingMember(_view, memberName);
             }
 
             protected override void OnListenerRemoved(string memberName)
             {
                 if (_view.Handle != IntPtr.Zero)
-                    ViewMugenExtensions.RemoveMemberListener(_view, GetMember(memberName));
+                    NativeBindableMemberMugenExtensions.RemoveMemberListener(_view, GetMember(memberName));
             }
         }
     }

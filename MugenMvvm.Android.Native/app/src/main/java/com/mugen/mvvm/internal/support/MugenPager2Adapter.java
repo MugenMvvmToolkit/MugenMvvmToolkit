@@ -16,7 +16,7 @@ public class MugenPager2Adapter extends MugenRecyclerViewAdapter {
     private Listener _listener;
     private RecyclerView _recyclerView;
 
-    public MugenPager2Adapter(ViewPager2 viewPager2, IResourceItemsSourceProvider provider) {
+    public MugenPager2Adapter(@NonNull ViewPager2 viewPager2, @NonNull IResourceItemsSourceProvider provider) {
         super(viewPager2.getContext(), provider);
         _viewPager = viewPager2;
     }

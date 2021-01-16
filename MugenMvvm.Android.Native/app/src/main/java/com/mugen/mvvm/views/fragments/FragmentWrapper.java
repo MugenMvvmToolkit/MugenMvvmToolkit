@@ -1,5 +1,8 @@
 package com.mugen.mvvm.views.fragments;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.interfaces.views.INativeFragmentView;
 
@@ -10,18 +13,20 @@ public class FragmentWrapper implements IFragmentView {
         Target = target;
     }
 
+    @NonNull
     @Override
     public Object getFragment() {
         return Target;
     }
 
+    @Nullable
     @Override
     public Object getState() {
         return Target.getState();
     }
 
     @Override
-    public void setState(Object value) {
+    public void setState(@Nullable Object value) {
         Target.setState(value);
     }
 

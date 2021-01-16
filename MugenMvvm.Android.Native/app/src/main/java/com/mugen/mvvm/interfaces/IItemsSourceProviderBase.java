@@ -1,5 +1,8 @@
 package com.mugen.mvvm.interfaces;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public interface IItemsSourceProviderBase {
     boolean hasStableId();
 
@@ -9,9 +12,16 @@ public interface IItemsSourceProviderBase {
 
     int getCount();
 
+    @Nullable
     CharSequence getItemTitle(int position);
 
-    void addObserver(IItemsSourceObserver observer);
+    void addObserver(@NonNull IItemsSourceObserver observer);
 
-    void removeObserver(IItemsSourceObserver observer);
+    void removeObserver(@NonNull IItemsSourceObserver observer);
+
+    void move(int fromIndex, int toIndex);
+
+    void swap(int i, int j);
+
+    void removeAt(int index);
 }

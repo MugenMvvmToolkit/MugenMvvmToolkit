@@ -18,11 +18,12 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
     private final IContentItemsSourceProvider _provider;
     private Object _currentPrimaryItem;
 
-    public MugenPagerAdapter(IContentItemsSourceProvider provider) {
+    public MugenPagerAdapter(@NonNull IContentItemsSourceProvider provider) {
         _provider = provider;
         provider.addObserver(this);
     }
 
+    @NonNull
     public IContentItemsSourceProvider getItemsSourceProvider() {
         return _provider;
     }

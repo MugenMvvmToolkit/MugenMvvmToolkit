@@ -8,6 +8,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.internal.ActionBarHomeClickListener;
@@ -16,8 +18,6 @@ import com.mugen.mvvm.internal.BindViewDispatcher;
 import com.mugen.mvvm.internal.FragmentDispatcher;
 import com.mugen.mvvm.internal.ViewCleaner;
 import com.mugen.mvvm.views.ActivityMugenExtensions;
-import com.mugen.mvvm.views.LifecycleMugenExtensions;
-import com.mugen.mvvm.views.ViewMugenExtensions;
 import com.mugen.mvvm.views.listeners.ViewMemberListenerManager;
 import com.mugen.mvvm.views.support.RecyclerViewMugenExtensions;
 import com.mugen.mvvm.views.support.SwipeRefreshLayoutMugenExtensions;
@@ -64,14 +64,16 @@ public final class MugenUtils {
         return (_stateFlags & flag) == flag;
     }
 
+    @NonNull
     public static Context getAppContext() {
         return _context;
     }
 
-    public static void setAppContext(Context context) {
+    public static void setAppContext(@NonNull Context context) {
         _context = context.getApplicationContext();
     }
 
+    @NonNull
     public static Context getCurrentContext() {
         Context currentActivity = ActivityMugenExtensions.getCurrentActivity();
         if (currentActivity != null)
@@ -79,22 +81,22 @@ public final class MugenUtils {
         return MugenUtils.getAppContext();
     }
 
-    public static void initializeCore(Context context) {
+    public static void initializeCore(@NonNull Context context) {
         setAppContext(context);
         ViewCleaner viewCleaner = new ViewCleaner();
         FragmentDispatcher fragmentDispatcher = new FragmentDispatcher();
-        ViewMugenExtensions.addViewDispatcher(viewCleaner);
-        ViewMugenExtensions.addViewDispatcher(fragmentDispatcher);
-        LifecycleMugenExtensions.addLifecycleDispatcher(viewCleaner, false);
-        LifecycleMugenExtensions.addLifecycleDispatcher(fragmentDispatcher, false);
-        LifecycleMugenExtensions.addLifecycleDispatcher(new ActionBarHomeClickListener(), false);
-        LifecycleMugenExtensions.addLifecycleDispatcher(new ActivityTrackerDispatcher(), false);
-        ViewMugenExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
+        MugenService.addViewDispatcher(viewCleaner);
+        MugenService.addViewDispatcher(fragmentDispatcher);
+        MugenService.addLifecycleDispatcher(viewCleaner, false);
+        MugenService.addLifecycleDispatcher(fragmentDispatcher, false);
+        MugenService.addLifecycleDispatcher(new ActionBarHomeClickListener(), false);
+        MugenService.addLifecycleDispatcher(new ActivityTrackerDispatcher(), false);
+        MugenService.registerMemberListenerManager(new ViewMemberListenerManager());
     }
 
-    public static void initialize(IBindViewCallback bindCallback, int stateFlags) {
+    public static void initialize(@NonNull IBindViewCallback bindCallback, int stateFlags) {
         _stateFlags = stateFlags;
-        ViewMugenExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
+        MugenService.addViewDispatcher(new BindViewDispatcher(bindCallback));
         if (hasFlag(MugenInitializationFlags.RecyclerViewLib))
             RecyclerViewMugenExtensions.setSupported();
         if (hasFlag(MugenInitializationFlags.SwipeRefreshLib))
@@ -105,6 +107,7 @@ public final class MugenUtils {
             ViewPager2MugenExtensions.setSupported();
     }
 
+    @NonNull
     public static String appVersion() {
         Context appContext = MugenUtils.getAppContext();
         try {
@@ -114,6 +117,7 @@ public final class MugenUtils {
         }
     }
 
+    @NonNull
     public static String version() {
         return Build.VERSION.RELEASE;
     }

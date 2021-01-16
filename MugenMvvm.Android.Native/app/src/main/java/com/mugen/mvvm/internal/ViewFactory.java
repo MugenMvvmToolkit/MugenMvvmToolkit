@@ -4,6 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
@@ -20,8 +23,9 @@ import java.util.ArrayList;
 
 public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
+    @NonNull
     @Override
-    public Object getView(Object container, int resourceId, boolean trackLifecycle) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Object getView(@NonNull Object container, int resourceId, boolean trackLifecycle) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Context context;
         if (container instanceof IActivityView)
             context = (Context) ((IActivityView) container).getActivity();
@@ -47,12 +51,12 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
     }
 
     @Override
-    public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
         return true;
     }
 
     @Override
-    public void onLifecycleChanged(Object target, int lifecycle, Object state) {
+    public void onLifecycleChanged(@NonNull Object target, int lifecycle, @Nullable Object state) {
         if (lifecycle != LifecycleState.Destroy || !(target instanceof IActivityView))
             return;
 

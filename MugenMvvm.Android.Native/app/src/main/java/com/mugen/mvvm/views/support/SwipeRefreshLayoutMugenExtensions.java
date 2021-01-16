@@ -2,6 +2,7 @@ package com.mugen.mvvm.views.support;
 
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public final class SwipeRefreshLayoutMugenExtensions {
@@ -10,7 +11,7 @@ public final class SwipeRefreshLayoutMugenExtensions {
     private SwipeRefreshLayoutMugenExtensions() {
     }
 
-    public static boolean isSupported(View view) {
+    public static boolean isSupported(@Nullable View view) {
         return _supported && view instanceof SwipeRefreshLayout;
     }
 

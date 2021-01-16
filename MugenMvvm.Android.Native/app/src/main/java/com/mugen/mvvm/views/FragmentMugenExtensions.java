@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -21,11 +22,11 @@ public final class FragmentMugenExtensions {
     private FragmentMugenExtensions() {
     }
 
-    public static boolean isSupported(Object fragment) {
+    public static boolean isSupported(@Nullable Object fragment) {
         return MugenUtils.isCompatSupported() && fragment instanceof IFragmentView;
     }
 
-    public static boolean isDestroyed(IFragmentView fragment) {
+    public static boolean isDestroyed(@NonNull IFragmentView fragment) {
         Fragment f = (Fragment) fragment.getFragment();
         FragmentActivity activity = f.getActivity();
         if (activity == null)
@@ -33,30 +34,32 @@ public final class FragmentMugenExtensions {
         return activity.isDestroyed();
     }
 
-    public static Context getActivity(IFragmentView fragment) {
+    public static Context getActivity(@NonNull IFragmentView fragment) {
         return ((Fragment) fragment.getFragment()).getActivity();
     }
 
-    public static Object getFragmentOwner(View container) {
+    @NonNull
+    public static Object getFragmentOwner(@NonNull View container) {
         View v = container;
         while (v != null) {
             ViewAttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(v, false);
             if (attachedValues != null) {
-                Fragment fragment = attachedValues.getFragment();
+                Fragment fragment = (Fragment) attachedValues.getFragment();
                 if (fragment != null)
                     return fragment;
             }
-            Object parent = ViewMugenExtensions.getParent(v);
+            Object parent = BindableMemberMugenExtensions.getParent(v);
             if (parent instanceof View)
                 v = (View) parent;
             else
                 v = null;
         }
 
+        //noinspection ConstantConditions
         return ActivityMugenExtensions.getActivity(container.getContext());
     }
 
-    public static Object getFragmentManager(Object owner) {
+    public static Object getFragmentManager(@NonNull Object owner) {
         if (owner instanceof View)
             owner = getFragmentOwner((View) owner);
         if (owner instanceof FragmentActivity)
@@ -64,7 +67,7 @@ public final class FragmentMugenExtensions {
         return ((Fragment) owner).getFragmentManager();
     }
 
-    public static boolean setFragment(View container, IFragmentView target) {
+    public static boolean setFragment(@NonNull View container, @Nullable IFragmentView target) {
         Fragment fragment = (Fragment) (target == null ? null : target.getFragment());
         FragmentManager fragmentManager = (FragmentManager) getFragmentManager(container);
         if (fragment == null) {
@@ -87,18 +90,18 @@ public final class FragmentMugenExtensions {
         return true;
     }
 
-    public static void show(IDialogFragmentView fragmentView, IActivityView activityView, @Nullable String tag) {
+    public static void show(@NonNull IDialogFragmentView fragmentView, @NonNull IActivityView activityView, @Nullable String tag) {
         DialogFragment fragment = (DialogFragment) fragmentView.getFragment();
         FragmentActivity activity = (FragmentActivity) activityView.getActivity();
         fragment.show(activity.getSupportFragmentManager(), tag);
     }
 
-    public static void clearFragmentState(Bundle bundle) {
+    public static void clearFragmentState(@NonNull Bundle bundle) {
         bundle.remove("android:support:fragments");
         bundle.remove("android:fragments");
     }
 
-    public static void remove(IFragmentView fragmentView) {
+    public static void remove(@NonNull IFragmentView fragmentView) {
         Fragment fragment = (Fragment) fragmentView.getFragment();
         FragmentManager fragmentManager = fragment.getFragmentManager();
         if (fragmentManager != null)

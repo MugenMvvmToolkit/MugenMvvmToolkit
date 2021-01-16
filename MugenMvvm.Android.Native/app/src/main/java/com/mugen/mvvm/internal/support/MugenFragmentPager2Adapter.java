@@ -1,6 +1,7 @@
 package com.mugen.mvvm.internal.support;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -17,12 +18,13 @@ public class MugenFragmentPager2Adapter extends FragmentStateAdapter implements 
     private final boolean _hasStableIds;
     private int _attachCount;
 
-    public MugenFragmentPager2Adapter(IContentItemsSourceProvider provider, @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+    public MugenFragmentPager2Adapter(@NonNull IContentItemsSourceProvider provider, @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
         super(fragmentManager, lifecycle);
         _provider = provider;
         _hasStableIds = provider.hasStableId();
     }
 
+    @NonNull
     public IContentItemsSourceProvider getItemsSourceProvider() {
         return _provider;
     }

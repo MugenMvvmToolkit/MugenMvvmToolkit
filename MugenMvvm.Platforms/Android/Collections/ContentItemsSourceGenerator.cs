@@ -15,11 +15,14 @@ namespace MugenMvvm.Android.Collections
 {
     public sealed class ContentItemsSourceGenerator : DiffableBindableCollectionAdapter
     {
+        private readonly bool _isRecycleSupported;
+
         private ContentItemsSourceGenerator(View view, IContentTemplateSelector contentTemplateSelector)
         {
             View = view;
             ContentTemplateSelector = contentTemplateSelector;
             DiffableComparer = contentTemplateSelector as IDiffableEqualityComparer;
+            _isRecycleSupported = NativeBindableMemberMugenExtensions.IsChildRecycleSupported(view);
         }
 
         public View View { get; }
@@ -45,43 +48,43 @@ namespace MugenMvvm.Android.Collections
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
             base.OnAdded(item, index, batchUpdate, version);
-            ViewGroupMugenExtensions.Add(View, GetItem(item)!, index, false);
+            NativeBindableMemberMugenExtensions.AddChild(View, GetItem(item)!, index, false);
         }
 
         protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
         {
             base.OnMoved(item, oldIndex, newIndex, batchUpdate, version);
-            var selected = ViewGroupMugenExtensions.GetSelectedIndex(View) == oldIndex;
-            if (TabLayoutMugenExtensions.IsSupported(View))
+            var selected = NativeBindableMemberMugenExtensions.GetSelectedIndex(View) == oldIndex;
+            if (_isRecycleSupported)
             {
-                ViewGroupMugenExtensions.Remove(View, oldIndex);
-                ViewGroupMugenExtensions.Add(View, GetItem(item)!, newIndex, selected);
+                var target = NativeBindableMemberMugenExtensions.GetChildAt(View, oldIndex);
+                NativeBindableMemberMugenExtensions.RemoveChildAt(View, oldIndex);
+                NativeBindableMemberMugenExtensions.AddChild(View, target, newIndex, selected);
             }
             else
             {
-                var target = ViewGroupMugenExtensions.Get(View, oldIndex);
-                ViewGroupMugenExtensions.Remove(View, oldIndex);
-                ViewGroupMugenExtensions.Add(View, target, newIndex, selected);
+                NativeBindableMemberMugenExtensions.RemoveChildAt(View, oldIndex);
+                NativeBindableMemberMugenExtensions.AddChild(View, GetItem(item)!, newIndex, selected);
             }
         }
 
         protected override void OnRemoved(object? item, int index, bool batchUpdate, int version)
         {
             base.OnRemoved(item, index, batchUpdate, version);
-            ViewGroupMugenExtensions.Remove(View, index);
+            NativeBindableMemberMugenExtensions.RemoveChildAt(View, index);
         }
 
         protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version)
         {
             base.OnReplaced(oldItem, newItem, index, batchUpdate, version);
-            ViewGroupMugenExtensions.Remove(View, index);
-            ViewGroupMugenExtensions.Add(View, GetItem(newItem)!, index, false);
+            NativeBindableMemberMugenExtensions.RemoveChildAt(View, index);
+            NativeBindableMemberMugenExtensions.AddChild(View, GetItem(newItem)!, index, false);
         }
 
         protected override void OnClear(bool batchUpdate, int version)
         {
             base.OnClear(batchUpdate, version);
-            ViewGroupMugenExtensions.Clear(View);
+            NativeBindableMemberMugenExtensions.Clear(View);
         }
 
         private Object? GetItem(object? item)

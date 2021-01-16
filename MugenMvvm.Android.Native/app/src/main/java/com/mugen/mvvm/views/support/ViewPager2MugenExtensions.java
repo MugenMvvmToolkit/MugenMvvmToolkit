@@ -2,6 +2,8 @@ package com.mugen.mvvm.views.support;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,17 +15,17 @@ import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenFragmentPager2Adapter;
 import com.mugen.mvvm.internal.support.MugenPager2Adapter;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.FragmentMugenExtensions;
-import com.mugen.mvvm.views.ViewGroupMugenExtensions;
 
 public final class ViewPager2MugenExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ResourceOrContentProviderType;
+    public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ResourceOrContentProviderType;
     private static boolean _supported;
 
     private ViewPager2MugenExtensions() {
     }
 
-    public static boolean isSupported(View view) {
+    public static boolean isSupported(@Nullable View view) {
         return _supported && view instanceof ViewPager2;
     }
 
@@ -31,42 +33,43 @@ public final class ViewPager2MugenExtensions {
         _supported = true;
     }
 
-    public static int getCurrentItem(View view) {
+    public static int getCurrentItem(@NonNull View view) {
         return ((ViewPager2) view).getCurrentItem();
     }
 
-    public static void setCurrentItem(View view, int index) {
+    public static void setCurrentItem(@NonNull View view, int index) {
         ((ViewPager2) view).setCurrentItem(index);
     }
 
-    public static void setCurrentItem(View view, int index, boolean smoothScroll) {
+    public static void setCurrentItem(@NonNull View view, int index, boolean smoothScroll) {
         ((ViewPager2) view).setCurrentItem(index, smoothScroll);
     }
 
-    public static int getOffscreenPageLimit(View view) {
+    public static int getOffscreenPageLimit(@NonNull View view) {
         return ((ViewPager2) view).getOffscreenPageLimit();
     }
 
-    public static void setOffscreenPageLimit(View view, int limit) {
+    public static void setOffscreenPageLimit(@NonNull View view, int limit) {
         ((ViewPager2) view).setOffscreenPageLimit(limit);
     }
 
-    public static int getOrientation(View view) {
+    public static int getOrientation(@NonNull View view) {
         return ((ViewPager2) view).getOrientation();
     }
 
-    public static void setOrientation(View view, int orientation) {
+    public static void setOrientation(@NonNull View view, int orientation) {
         ((ViewPager2) view).setOrientation(orientation);
     }
 
-    public static IItemsSourceProviderBase getItemsSourceProvider(View view) {
+    @Nullable
+    public static IItemsSourceProviderBase getItemsSourceProvider(@NonNull View view) {
         RecyclerView.Adapter adapter = ((ViewPager2) view).getAdapter();
         if (adapter instanceof IMugenAdapter)
             return ((IMugenAdapter) adapter).getItemsSourceProvider();
         return null;
     }
 
-    public static void setItemsSourceProvider(View view, IItemsSourceProviderBase provider, boolean hasFragments) {
+    public static void setItemsSourceProvider(@NonNull View view, @Nullable IItemsSourceProviderBase provider, boolean hasFragments) {
         if (getItemsSourceProvider(view) == provider)
             return;
         ViewPager2 viewPager = (ViewPager2) view;
@@ -79,7 +82,7 @@ public final class ViewPager2MugenExtensions {
             viewPager.setAdapter(new MugenPager2Adapter(viewPager, (IResourceItemsSourceProvider) provider));
     }
 
-    public static void onDestroy(View view) {
+    public static void onDestroy(@NonNull View view) {
         setItemsSourceProvider(view, null, false);
     }
 }

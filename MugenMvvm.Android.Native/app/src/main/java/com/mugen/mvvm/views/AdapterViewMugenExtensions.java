@@ -4,29 +4,33 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.MugenListAdapter;
 
-public abstract class AdapterViewMugenExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ResourceProviderType;
+public final class AdapterViewMugenExtensions {
+    public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ResourceProviderType;
 
     private AdapterViewMugenExtensions() {
     }
 
-    public static boolean isSupported(View view) {
+    public static boolean isSupported(@Nullable View view) {
         return view instanceof AdapterView;
     }
 
-    public static IItemsSourceProviderBase getItemsSourceProvider(View view) {
+    @Nullable
+    public static IItemsSourceProviderBase getItemsSourceProvider(@NonNull View view) {
         Adapter adapter = ((AdapterView) view).getAdapter();
         if (adapter instanceof IMugenAdapter)
             return ((IMugenAdapter) adapter).getItemsSourceProvider();
         return null;
     }
 
-    public static void setItemsSourceProvider(View view, IResourceItemsSourceProvider provider) {
+    public static void setItemsSourceProvider(@NonNull View view, @Nullable IResourceItemsSourceProvider provider) {
         if (getItemsSourceProvider(view) == provider)
             return;
         AdapterView<Adapter> adapterView = (AdapterView<Adapter>) view;
@@ -39,7 +43,7 @@ public abstract class AdapterViewMugenExtensions {
             adapterView.setAdapter(new MugenListAdapter(view.getContext(), provider));
     }
 
-    public static void onDestroy(View view) {
+    public static void onDestroy(@NonNull View view) {
         setItemsSourceProvider(view, null);
     }
 }

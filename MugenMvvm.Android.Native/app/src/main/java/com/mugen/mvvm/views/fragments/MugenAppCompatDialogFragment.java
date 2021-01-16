@@ -22,6 +22,7 @@ import com.mugen.mvvm.views.ViewMugenExtensions;
 public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implements INativeFragmentView, IDialogFragmentView {
     private Object _state;
 
+    @NonNull
     @Override
     public Object getFragment() {
         return this;
@@ -32,13 +33,14 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         return ViewMugenExtensions.tryGetViewId(getClass(), null, 0);
     }
 
+    @Nullable
     @Override
     public Object getState() {
         return _state;
     }
 
     @Override
-    public void setState(Object tag) {
+    public void setState(@Nullable Object tag) {
         _state = tag;
     }
 

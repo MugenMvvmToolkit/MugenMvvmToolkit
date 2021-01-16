@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Android.Views;
+using Android.Widget;
 using MugenMvvm.Android.Bindings;
 using MugenMvvm.Android.Collections;
 using MugenMvvm.Android.Constants;
@@ -63,7 +64,7 @@ namespace MugenMvvm.Android.Extensions
             IBindViewCallback? bindViewCallback = null)
         {
             MugenAndroidUtils.Initialize(bindViewCallback ?? BindViewCallback.Instance, flags.Value());
-            LifecycleMugenExtensions.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), flags.HasFlag(AndroidInitializationFlags.NativeMode));
+            MugenAndroidService.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), flags.HasFlag(AndroidInitializationFlags.NativeMode));
 
             configuration.ServiceConfiguration<IAttachedValueManager>()
                          .WithComponent(new AndroidAttachedValueStorageProvider());
@@ -199,8 +200,8 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .Parent()
                                                            .GetBuilder()
-                                                           .CustomGetter((member, target, metadata) => ViewMugenExtensions.GetParent(target))
-                                                           .CustomSetter((member, target, value, metadata) => ViewMugenExtensions.SetParent(target, (Object) value!))
+                                                           .CustomGetter((member, target, metadata) => NativeBindableMemberMugenExtensions.GetParent(target))
+                                                           .CustomSetter((member, target, value, metadata) => NativeBindableMemberMugenExtensions.SetParent(target, (Object) value!))
                                                            .ObservableHandler((member, target, listener, metadata) =>
                                                                ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentMemberName))
                                                            .Build());
@@ -232,7 +233,7 @@ namespace MugenMvvm.Android.Extensions
                                                                AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build()
                                                            })
                                                            .InvokeHandler((member, target, args, metadata) =>
-                                                               ViewMugenExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
+                                                               NativeBindableMemberMugenExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
                                                            .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -248,11 +249,16 @@ namespace MugenMvvm.Android.Extensions
                                                                ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ClickEventName))
                                                            .Build());
 
-            //textview
+            //text members
+            attachedMemberProvider.Register(new BindablePropertyDescriptor<Object, string>(ViewMemberChangedListener.TextMemberName)
+                                            .GetBuilder()
+                                            .CustomGetter((member, target, metadata) => NativeBindableMemberMugenExtensions.GetText(target))
+                                            .CustomSetter((member, target, value, metadata) => NativeBindableMemberMugenExtensions.SetText(target, value))
+                                            .Build());
             attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>(ViewMemberChangedListener.TextMemberName)
                                             .GetBuilder()
-                                            .CustomGetter((member, target, metadata) => TextViewMugenExtensions.GetText(target))
-                                            .CustomSetter((member, target, value, metadata) => TextViewMugenExtensions.SetText(target, value))
+                                            .CustomGetter((member, target, metadata) => NativeBindableMemberMugenExtensions.GetText(target))
+                                            .CustomSetter((member, target, value, metadata) => NativeBindableMemberMugenExtensions.SetText(target, value))
                                             .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .TextChanged()
@@ -298,7 +304,7 @@ namespace MugenMvvm.Android.Extensions
                                                            .Build());
 
             //toolbar
-            attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>("Title")
+            attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>(nameof(Toolbar.Title))
                                             .GetBuilder()
                                             .CustomGetter((member, target, metadata) =>
                                             {
@@ -315,7 +321,7 @@ namespace MugenMvvm.Android.Extensions
                                                     ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                                             })
                                             .Build());
-            attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>("Subtitle")
+            attachedMemberProvider.Register(new BindablePropertyDescriptor<View, string>(nameof(Toolbar.Subtitle))
                                             .GetBuilder()
                                             .CustomGetter((member, target, metadata) =>
                                             {
@@ -337,9 +343,9 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
                                                            {
-                                                               if (ViewMugenExtensions.IsMenuSupported(target))
+                                                               if (NativeBindableMemberMugenExtensions.IsMenuSupported(target))
                                                                {
-                                                                   var menu = ViewMugenExtensions.GetMenu(target);
+                                                                   var menu = NativeBindableMemberMugenExtensions.GetMenu(target);
                                                                    oldValue?.Clear(menu);
                                                                    newValue?.Apply(menu, target);
                                                                }
@@ -370,46 +376,25 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .Content()
                                                            .GetBuilder()
-                                                           .CustomGetter((member, target, metadata) => ViewGroupMugenExtensions.GetContent(target)?.BindableMembers().DataContext())
+                                                           .CustomGetter((member, target, metadata) =>
+                                                               NativeBindableMemberMugenExtensions.GetContent(target)?.BindableMembers().DataContext())
                                                            .CustomSetter((member, target, value, metadata) =>
                                                            {
                                                                var contentTemplateSelector = target.BindableMembers().ContentTemplateSelector();
                                                                if (contentTemplateSelector == null)
                                                                    ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                                                               var newValue = (Object?) contentTemplateSelector.SelectTemplate(target, value)!;
+                                                               var newValue = (Object?) contentTemplateSelector.SelectTemplate(target, value);
                                                                if (newValue != null)
                                                                {
                                                                    newValue.BindableMembers().SetDataContext(value);
                                                                    newValue.BindableMembers().SetParent(target);
                                                                }
 
-                                                               ViewGroupMugenExtensions.SetContent(target, newValue!);
+                                                               NativeBindableMemberMugenExtensions.SetContent(target, newValue!);
                                                            })
                                                            .Observable()
                                                            .Build());
-
-            //tablayout.tab
-            attachedMemberProvider.Register(new BindablePropertyDescriptor<Object, string>(ViewMemberChangedListener.TextMemberName)
-                                            .GetBuilder()
-                                            .CustomGetter((member, target, metadata) =>
-                                            {
-                                                if (TabLayoutTabMugenExtensions.IsSupported(target))
-                                                    return TabLayoutTabMugenExtensions.GetText(target);
-                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                                                return null!;
-                                            })
-                                            .CustomSetter((member, target, value, metadata) =>
-                                            {
-                                                if (TabLayoutTabMugenExtensions.IsSupported(target))
-                                                {
-                                                    TabLayoutTabMugenExtensions.SetText(target, value);
-                                                    return;
-                                                }
-
-                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                                            })
-                                            .Build());
 
             //adapterview/recyclerview/viewpager/viewpager2/viewgroup/tablayout
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -425,10 +410,10 @@ namespace MugenMvvm.Android.Extensions
                                                                if (newValue is not IResourceTemplateSelector selector)
                                                                    return;
 
-                                                               var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);
-                                                               if (providerType == ViewGroupMugenExtensions.ContentProviderType ||
-                                                                   providerType == ViewGroupMugenExtensions.ContentRawProviderType
-                                                                   || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType &&
+                                                               var providerType = NativeBindableMemberMugenExtensions.GetItemSourceProviderType(target);
+                                                               if (providerType == NativeBindableMemberMugenExtensions.ContentProviderType ||
+                                                                   providerType == NativeBindableMemberMugenExtensions.ContentRawProviderType
+                                                                   || providerType == NativeBindableMemberMugenExtensions.ResourceOrContentProviderType &&
                                                                    selector is IFragmentTemplateSelector fts && fts.HasFragments)
                                                                    member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                                                            })
@@ -441,13 +426,13 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .CustomGetter((member, target, metadata) =>
                                                            {
-                                                               if (!ViewGroupMugenExtensions.IsSelectedIndexSupported(target))
+                                                               if (!NativeBindableMemberMugenExtensions.IsSelectedIndexSupported(target))
                                                                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                                                               return ViewGroupMugenExtensions.GetSelectedIndex(target);
+                                                               return NativeBindableMemberMugenExtensions.GetSelectedIndex(target);
                                                            })
                                                            .CustomSetter((member, target, value, metadata) =>
                                                            {
-                                                               if (!ViewGroupMugenExtensions.SetSelectedIndex(target, value, target.BindableMembers().SmoothScroll()))
+                                                               if (!NativeBindableMemberMugenExtensions.SetSelectedIndex(target, value, target.BindableMembers().SmoothScroll()))
                                                                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                                                            })
                                                            .Build());

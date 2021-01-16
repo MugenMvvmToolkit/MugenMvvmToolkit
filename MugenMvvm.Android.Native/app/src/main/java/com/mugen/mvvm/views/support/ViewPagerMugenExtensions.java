@@ -2,6 +2,8 @@ package com.mugen.mvvm.views.support;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -11,17 +13,17 @@ import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.internal.support.MugenFragmentPagerAdapter;
 import com.mugen.mvvm.internal.support.MugenPagerAdapter;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.FragmentMugenExtensions;
-import com.mugen.mvvm.views.ViewGroupMugenExtensions;
 
 public final class ViewPagerMugenExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupMugenExtensions.ContentProviderType;
+    public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ContentProviderType;
     private static boolean _supported;
 
     private ViewPagerMugenExtensions() {
     }
 
-    public static boolean isSupported(View view) {
+    public static boolean isSupported(@Nullable View view) {
         return _supported && view instanceof ViewPager;
     }
 
@@ -29,34 +31,35 @@ public final class ViewPagerMugenExtensions {
         _supported = true;
     }
 
-    public static int getCurrentItem(View view) {
+    public static int getCurrentItem(@NonNull View view) {
         return ((ViewPager) view).getCurrentItem();
     }
 
-    public static void setCurrentItem(View view, int index) {
+    public static void setCurrentItem(@NonNull View view, int index) {
         ((ViewPager) view).setCurrentItem(index);
     }
 
-    public static void setCurrentItem(View view, int index, boolean smoothScroll) {
+    public static void setCurrentItem(@NonNull View view, int index, boolean smoothScroll) {
         ((ViewPager) view).setCurrentItem(index, smoothScroll);
     }
 
-    public static int getOffscreenPageLimit(View view) {
+    public static int getOffscreenPageLimit(@NonNull View view) {
         return ((ViewPager) view).getOffscreenPageLimit();
     }
 
-    public static void setOffscreenPageLimit(View view, int limit) {
+    public static void setOffscreenPageLimit(@NonNull View view, int limit) {
         ((ViewPager) view).setOffscreenPageLimit(limit);
     }
 
-    public static IItemsSourceProviderBase getItemsSourceProvider(View view) {
+    @Nullable
+    public static IItemsSourceProviderBase getItemsSourceProvider(@NonNull View view) {
         PagerAdapter adapter = ((ViewPager) view).getAdapter();
         if (adapter instanceof IMugenAdapter)
             return ((IMugenAdapter) adapter).getItemsSourceProvider();
         return null;
     }
 
-    public static void setItemsSourceProvider(View view, IContentItemsSourceProvider provider, boolean hasFragments) {
+    public static void setItemsSourceProvider(@NonNull View view, @Nullable IContentItemsSourceProvider provider, boolean hasFragments) {
         if (getItemsSourceProvider(view) == provider)
             return;
         ViewPager viewPager = (ViewPager) view;
@@ -71,7 +74,7 @@ public final class ViewPagerMugenExtensions {
             viewPager.setAdapter(new MugenPagerAdapter(provider));
     }
 
-    public static void onDestroy(View view) {
+    public static void onDestroy(@NonNull View view) {
         setItemsSourceProvider(view, null, false);
     }
 }

@@ -15,13 +15,14 @@ public class MugenFragmentPagerAdapter extends FragmentPagerAdapter implements I
     private final IContentItemsSourceProvider _provider;
     private final boolean _hasStableIds;
 
-    public MugenFragmentPagerAdapter(IContentItemsSourceProvider provider, @NonNull FragmentManager fm) {
+    public MugenFragmentPagerAdapter(@NonNull IContentItemsSourceProvider provider, @NonNull FragmentManager fm) {
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         _provider = provider;
         _hasStableIds = provider.hasStableId();
         provider.addObserver(this);
     }
 
+    @NonNull
     public IContentItemsSourceProvider getItemsSourceProvider() {
         return _provider;
     }

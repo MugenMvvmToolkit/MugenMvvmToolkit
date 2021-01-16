@@ -5,10 +5,14 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class BindViewDispatcher implements IViewDispatcher {
@@ -21,30 +25,30 @@ public class BindViewDispatcher implements IViewDispatcher {
     }
 
     @Override
-    public void onParentChanged(View view) {
-        ViewMugenExtensions.onMemberChanged(view, ViewMugenExtensions.ParentMemberName, null);
-        ViewMugenExtensions.onMemberChanged(view, ViewMugenExtensions.ParentEventName, null);
+    public void onParentChanged(@NonNull View view) {
+        BindableMemberMugenExtensions.onMemberChanged(view, BindableMemberMugenExtensions.ParentMemberName, null);
+        BindableMemberMugenExtensions.onMemberChanged(view, BindableMemberMugenExtensions.ParentEventName, null);
     }
 
     @Override
-    public void onInitializing(Object owner, View view) {
+    public void onInitializing(@NonNull Object owner, @NonNull View view) {
         _viewBindCallback.onSetView(ViewMugenExtensions.tryWrap(owner), view);
     }
 
     @Override
-    public void onInitialized(Object owner, View view) {
+    public void onInitialized(@NonNull Object owner, @NonNull View view) {
     }
 
     @Override
-    public void onInflating(int resourceId, Context context) {
+    public void onInflating(int resourceId, @NonNull Context context) {
     }
 
     @Override
-    public void onInflated(View view, int resourceId, Context context) {
+    public void onInflated(@NonNull View view, int resourceId, @NonNull Context context) {
     }
 
     @Override
-    public View onCreated(View view, Context context, AttributeSet attrs) {
+    public View onCreated(@NonNull View view, @NonNull Context context, @NonNull AttributeSet attrs) {
         ViewAttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(view, true);
         if (attachedValues.isBindHandled())
             return view;
@@ -66,11 +70,11 @@ public class BindViewDispatcher implements IViewDispatcher {
     }
 
     @Override
-    public void onDestroy(View view) {
+    public void onDestroy(@NonNull View view) {
     }
 
     @Override
-    public View tryCreate(View parent, String name, Context viewContext, AttributeSet attrs) {
+    public View tryCreate(@Nullable View parent, @NonNull String name, @NonNull Context viewContext, @NonNull AttributeSet attrs) {
         return null;
     }
 

@@ -4,15 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.Menu;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.IAttachedValueProvider;
-import com.mugen.mvvm.interfaces.IHasPriority;
-import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
+import com.mugen.mvvm.interfaces.IMemberListener;
+import com.mugen.mvvm.interfaces.IMemberListenerManager;
+import com.mugen.mvvm.interfaces.IWrapperManager;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
@@ -20,14 +24,11 @@ import com.mugen.mvvm.interfaces.views.IHasStateView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
 import com.mugen.mvvm.interfaces.views.INativeFragmentView;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.interfaces.views.IViewFactory;
 import com.mugen.mvvm.internal.ActivityAttachedValues;
 import com.mugen.mvvm.internal.AttachedValues;
 import com.mugen.mvvm.internal.FragmentAttachedValues;
-import com.mugen.mvvm.internal.HasPriorityComparator;
 import com.mugen.mvvm.internal.MemberChangedListenerWrapper;
 import com.mugen.mvvm.internal.ViewAttachedValues;
-import com.mugen.mvvm.internal.ViewFactory;
 import com.mugen.mvvm.internal.ViewParentObserver;
 import com.mugen.mvvm.views.activities.ActivityWrapper;
 import com.mugen.mvvm.views.fragments.DialogFragmentWrapper;
@@ -36,184 +37,48 @@ import com.mugen.mvvm.views.support.TabLayoutTabMugenExtensions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 public final class ViewMugenExtensions {
-    public static final CharSequence ParentMemberName = "Parent";
-    public static final CharSequence ParentEventName = "ParentChanged";
-    public static final CharSequence ClickEventName = "Click";
-    public static final CharSequence LongClickEventName = "LongClick";
-    public static final CharSequence TextMemberName = "Text";
-    public static final CharSequence TextEventName = "TextChanged";
-    public static final CharSequence HomeButtonClick = "HomeButtonClick";
-    public static final CharSequence RefreshedEventName = "Refreshed";
-    public final static CharSequence SelectedIndexName = "SelectedIndex";
-    public final static CharSequence SelectedIndexEventName = "SelectedIndexChanged";
-    protected final static Object NullParent = "";
     private final static SparseArray<Class> _resourceViewMapping = new SparseArray<>();
     private final static HashMap<Class, Integer> _viewResourceMapping = new HashMap<>();
-    private final static ArrayList<IViewDispatcher> _viewDispatchers = new ArrayList<>();
-    private final static ArrayList<IMemberListenerManager> ListenerManagers = new ArrayList<>();
-    private static IViewFactory _viewFactory;
-    private static IAttachedValueProvider _attachedValueProvider;
 
     private ViewMugenExtensions() {
     }
 
-    public static void registerMemberListenerManager(IMemberListenerManager manager) {
-        ListenerManagers.add(manager);
-        Collections.sort(ListenerManagers, HasPriorityComparator.Instance);
-    }
-
-    public static boolean unregisterMemberListenerManager(String memberName, IMemberListenerManager manager) {
-        return ListenerManagers.remove(manager);
-    }
-
-    public static IMemberChangedListener getMemberChangedListener(Object target) {
-        AttachedValues attachedValues = getNativeAttachedValues(target, false);
-        if (attachedValues == null)
-            return null;
-        return attachedValues.getMemberListener();
-    }
-
-    public static void setMemberChangedListener(Object target, IMemberChangedListener listener) {
-        getNativeAttachedValues(target, true).setMemberListener(listener);
-    }
-
-    public static boolean addMemberListener(Object target, CharSequence memberNameChar) {
-        String memberName = (String) memberNameChar;
-        if (ParentEventName.equals(memberName) || ParentMemberName.equals(memberName) || HomeButtonClick.equals(memberName))
-            return true;
-
-        AttachedValues attachedValues = getNativeAttachedValues(target, false);
-        MemberChangedListenerWrapper listeners = attachedValues == null ? null : attachedValues.getMemberListenerWrapper(false);
-        if (listeners != null) {
-            IMemberListener memberListener = listeners.get(memberName);
-            if (memberListener != null) {
-                memberListener.addListener(target, memberName);
-                return true;
-            }
-        }
-
-        for (int i = 0; i < ListenerManagers.size(); i++) {
-            IMemberListener memberListener = ListenerManagers.get(i).tryGetListener(listeners, target, memberName);
-            if (memberListener != null) {
-                if (listeners == null) {
-                    if (attachedValues == null)
-                        attachedValues = getNativeAttachedValues(target, true);
-                    listeners = attachedValues.getMemberListenerWrapper(true);
-                }
-
-                listeners.put(memberName, memberListener);
-                memberListener.addListener(target, memberName);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean removeMemberListener(Object target, CharSequence memberName) {
-        AttachedValues attachedValues = getNativeAttachedValues(target, false);
-        if (attachedValues == null)
-            return false;
-
-        MemberChangedListenerWrapper listeners = attachedValues.getMemberListenerWrapper(false);
-        if (listeners == null)
-            return false;
-
-        IMemberListener memberListener = listeners.get((String) memberName);
-        if (memberListener == null)
-            return false;
-
-        memberListener.removeListener(target, (String) memberName);
-        return true;
-    }
-
-    public static void addParentObserver(View view) {
+    public static void addParentObserver(@NonNull View view) {
         ViewParentObserver.Instance.add(view);
     }
 
-    public static void removeParentObserver(View view) {
+    public static void removeParentObserver(@NonNull View view) {
         ViewParentObserver.Instance.remove(view, true);
     }
 
-    public static boolean onMemberChanged(Object target, CharSequence memberName, Object args) {
-        AttachedValues attachedValues = getNativeAttachedValues(target, false);
-        if (attachedValues == null)
-            return false;
-        MemberChangedListenerWrapper listener = attachedValues.getMemberListenerWrapper(false);
-        if (listener == null)
-            return false;
-
-        listener.onChanged(target, memberName, args);
-        return true;
-    }
-
-    public static Object getParent(View view) {
-        return getParentRaw(view);
-    }
-
-    public static void setParent(View view, Object parent) {
-        Object oldParent = getParentRaw(view);
-        parent = tryWrap(parent);
-        if (oldParent == parent)
-            return;
-
-        getNativeAttachedValues(view, true).setParent(parent == null ? NullParent : parent);
-        onMemberChanged(view, ParentMemberName, null);
-    }
-
-    public static Object findRelativeSource(View view, String name, int level) {
-        int nameLevel = 0;
-        Object target = getParentRaw(view);
-        while (target != null) {
-            if (typeNameEqual(target.getClass(), name) && ++nameLevel == level)
-                return target;
-
-            if (target instanceof View)
-                target = getParentRaw((View) target);
-            else
-                target = null;
-        }
-
-        return null;
-    }
-
-    public static boolean isMenuSupported(View view) {
-        return ToolbarMugenExtensions.isSupported(view);
-    }
-
-    public static Menu getMenu(View view) {
-        return ToolbarMugenExtensions.getMenu(view);
-    }
-
-    public static IAttachedValueProvider getAttachedValueProvider() {
-        return _attachedValueProvider;
-    }
-
-    public static void setAttachedValueProvider(IAttachedValueProvider provider) {
-        _attachedValueProvider = provider;
-    }
-
-    public static boolean isSupportAttachedValues(Object target) {
+    public static boolean isSupportAttachedValues(@NonNull Object target) {
+        if (MugenService.getAttachedValueProvider() != null && MugenService.getAttachedValueProvider().isSupportAttachedValues(target))
+            return true;
         return target instanceof View || target instanceof IHasStateView || TabLayoutTabMugenExtensions.isSupported(target) || ActionBarMugenExtensions.isSupported(target);
     }
 
-    public static Object getAttachedValues(Object view) {
+    @Nullable
+    public static Object getAttachedValues(@NonNull Object view) {
         AttachedValues values = getNativeAttachedValues(view, false);
         if (values == null)
             return null;
         return values.getAttachedValues();
     }
 
-    public static void setAttachedValues(Object view, Object values) {
+    public static void setAttachedValues(@NonNull Object view, @Nullable Object values) {
         getNativeAttachedValues(view, true).setAttachedValues(values);
     }
 
-    public static AttachedValues getNativeAttachedValues(Object target, boolean required) {
+    public static AttachedValues getNativeAttachedValues(@NonNull Object target, boolean required) {
         if (target instanceof View)
             return getNativeAttachedValues((View) target, required);
+
+        IAttachedValueProvider attachedValueProvider = MugenService.getAttachedValueProvider();
+        if (attachedValueProvider != null && attachedValueProvider.isSupportAttachedValues(target))
+            return attachedValueProvider.getAttachedValues(target, required);
 
         if (target instanceof IHasStateView) {
             IHasStateView hasStateView = (IHasStateView) target;
@@ -249,12 +114,14 @@ public final class ViewMugenExtensions {
             return result;
         }
 
-        if (_attachedValueProvider != null)
-            return _attachedValueProvider.getAttachedValues(target, required);
         throw new UnsupportedOperationException("Object not supported " + target);
     }
 
-    public static ViewAttachedValues getNativeAttachedValues(View view, boolean required) {
+    public static ViewAttachedValues getNativeAttachedValues(@NonNull View view, boolean required) {
+        IAttachedValueProvider attachedValueProvider = MugenService.getAttachedValueProvider();
+        if (attachedValueProvider != null && attachedValueProvider.isSupportAttachedValues(view))
+            return (ViewAttachedValues) attachedValueProvider.getAttachedValues(view, required);
+
         if (MugenUtils.isRawViewTagMode()) {
             ViewAttachedValues result = (ViewAttachedValues) view.getTag();
             if (result != null || !required)
@@ -272,7 +139,7 @@ public final class ViewMugenExtensions {
         return result;
     }
 
-    public static void addViewMapping(Class viewClass, int resourceId, boolean rewrite) {
+    public static void addViewMapping(@NonNull Class viewClass, int resourceId, boolean rewrite) {
         _resourceViewMapping.put(resourceId, viewClass);
         if (!rewrite && _viewResourceMapping.containsKey(viewClass))
             _viewResourceMapping.put(viewClass, 0);
@@ -280,11 +147,12 @@ public final class ViewMugenExtensions {
             _viewResourceMapping.put(viewClass, resourceId);
     }
 
+    @Nullable
     public static Class tryGetClassById(int resourceId) {
         return _resourceViewMapping.get(resourceId);
     }
 
-    public static int tryGetViewId(Class viewClass, Intent intent, int defaultValue) {
+    public static int tryGetViewId(@Nullable Class viewClass, @Nullable Intent intent, int defaultValue) {
         if (intent != null && intent.hasExtra(ActivityMugenExtensions.ViewIdIntentKey))
             return intent.getIntExtra(ActivityMugenExtensions.ViewIdIntentKey, defaultValue);
         if (viewClass == null)
@@ -295,92 +163,85 @@ public final class ViewMugenExtensions {
         return value;
     }
 
-    public static Object getView(Object container, int resourceId, boolean trackLifecycle) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        return ViewMugenExtensions.tryWrap(getViewFactory().getView(container, resourceId, trackLifecycle));
+    @NonNull
+    public static Object getView(@NonNull Object container, int resourceId, boolean trackLifecycle) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        return ViewMugenExtensions.tryWrap(MugenService.getViewFactory().getView(container, resourceId, trackLifecycle));
     }
 
-    public static IViewFactory getViewFactory() {
-        if (_viewFactory == null)
-            setViewFactory(new ViewFactory());
-        return _viewFactory;
-    }
-
-    public static void setViewFactory(IViewFactory viewFactory) {
-        if (_viewFactory instanceof ILifecycleDispatcher)
-            LifecycleMugenExtensions.removeLifecycleDispatcher((ILifecycleDispatcher) _viewFactory);
-        _viewFactory = viewFactory;
-        if (_viewFactory instanceof ILifecycleDispatcher)
-            LifecycleMugenExtensions.addLifecycleDispatcher((ILifecycleDispatcher) _viewFactory, false);
-    }
-
-    public static void addViewDispatcher(IViewDispatcher viewDispatcher) {
-        _viewDispatchers.add(viewDispatcher);
-        Collections.sort(_viewDispatchers, HasPriorityComparator.Instance);
-    }
-
-    public static void removeViewDispatcher(IViewDispatcher viewDispatcher) {
-        _viewDispatchers.remove(viewDispatcher);
-    }
-
-    public static void onParentChanged(View view) {
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onParentChanged(view);
+    public static void onParentChanged(@NonNull View view) {
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            viewDispatchers.get(i).onParentChanged(view);
         }
     }
 
-    public static void onInitializingView(Object owner, View view) {
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onInitializing(owner, view);
+    public static void onInitializingView(@NonNull Object owner, @NonNull View view) {
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            viewDispatchers.get(i).onInitializing(owner, view);
         }
     }
 
-    public static void onInitializedView(Object owner, View view) {
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onInitialized(owner, view);
+    public static void onInitializedView(@NonNull Object owner, @NonNull View view) {
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            viewDispatchers.get(i).onInitialized(owner, view);
         }
     }
 
-    public static void onInflatingView(int resourceId, Context context) {
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onInflating(resourceId, context);
+    public static void onInflatingView(int resourceId, @NonNull Context context) {
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            viewDispatchers.get(i).onInflating(resourceId, context);
         }
     }
 
-    public static void onInflatedView(View view, int resourceId, Context context) {
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onInflated(view, resourceId, context);
+    public static void onInflatedView(@NonNull View view, int resourceId, @NonNull Context context) {
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            viewDispatchers.get(i).onInflated(view, resourceId, context);
         }
     }
 
-    public static View onCreatedView(View view, Context context, AttributeSet attrs) {
+    @Nullable
+    public static View onCreatedView(@Nullable View view, @NonNull Context context, @NonNull AttributeSet attrs) {
         if (view == null)
             return null;
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            view = _viewDispatchers.get(i).onCreated(view, context, attrs);
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            view = viewDispatchers.get(i).onCreated(view, context, attrs);
         }
         return view;
     }
 
-    public static void onDestroyView(View view) {
+    public static void onDestroyView(@Nullable View view) {
         if (view == null)
             return;
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            _viewDispatchers.get(i).onDestroy(view);
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            viewDispatchers.get(i).onDestroy(view);
         }
     }
 
-    public static View tryCreateCustomView(View parent, String name, Context viewContext, AttributeSet attrs) {
-        for (int i = 0; i < _viewDispatchers.size(); i++) {
-            View view = _viewDispatchers.get(i).tryCreate(parent, name, viewContext, attrs);
+    @Nullable
+    public static View tryCreateCustomView(@Nullable View parent, @NonNull String name, @NonNull Context viewContext, @NonNull AttributeSet attrs) {
+        ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
+        for (int i = 0; i < viewDispatchers.size(); i++) {
+            View view = viewDispatchers.get(i).tryCreate(parent, name, viewContext, attrs);
             if (view != null)
                 return view;
         }
         return null;
     }
 
-    public static Object tryWrap(Object target) {
+    @NonNull
+    public static Object tryWrap(@NonNull Object target) {
         if (!MugenUtils.isNativeMode())
             return target;
+
+        IWrapperManager wrapperManager = MugenService.getWrapperManager();
+        if (wrapperManager != null && wrapperManager.canWrap(target))
+            return wrapperManager.wrap(target);
 
         if (target instanceof INativeActivityView) {
             ActivityAttachedValues attachedValues = (ActivityAttachedValues) ViewMugenExtensions.getNativeAttachedValues(target, true);
@@ -405,38 +266,5 @@ public final class ViewMugenExtensions {
             return wrapper;
         }
         return target;
-    }
-
-    private static Object getParentRaw(View view) {
-        if (view.getId() == android.R.id.content)
-            return tryWrap(ActivityMugenExtensions.getActivity(view.getContext()));
-
-        ViewAttachedValues attachedValues = getNativeAttachedValues(view, false);
-        Object parent = attachedValues == null ? null : attachedValues.getParent();
-        if (parent == NullParent)
-            return null;
-
-        if (parent == null)
-            parent = view.getParent();
-        return parent;
-    }
-
-    private static boolean typeNameEqual(Class clazz, String typeName) {
-        while (clazz != null) {
-            if (clazz.getSimpleName().equals(typeName))
-                return true;
-            clazz = clazz.getSuperclass();
-        }
-        return false;
-    }
-
-    public interface IMemberListenerManager extends IHasPriority {
-        IMemberListener tryGetListener(HashMap<String, IMemberListener> listeners, Object target, String memberName);
-    }
-
-    public interface IMemberListener {
-        void addListener(Object target, String memberName);
-
-        void removeListener(Object target, String memberName);
     }
 }

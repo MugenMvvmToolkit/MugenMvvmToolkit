@@ -3,7 +3,13 @@ package com.mugen.mvvm.views.listeners;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.constants.PriorityConstants;
+import com.mugen.mvvm.interfaces.IMemberListener;
+import com.mugen.mvvm.interfaces.IMemberListenerManager;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.ViewMugenExtensions;
 import com.mugen.mvvm.views.support.SwipeRefreshLayoutMugenExtensions;
 import com.mugen.mvvm.views.support.TabLayoutMugenExtensions;
@@ -13,18 +19,19 @@ import com.mugen.mvvm.views.support.ViewPagerMugenExtensions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ViewMemberListenerManager implements ViewMugenExtensions.IMemberListenerManager {
+public class ViewMemberListenerManager implements IMemberListenerManager {
     private static boolean isTextViewMember(View view, String memberName) {
-        return view instanceof TextView && (ViewMugenExtensions.TextEventName.equals(memberName) || ViewMugenExtensions.TextMemberName.equals(memberName));
+        return view instanceof TextView && (BindableMemberMugenExtensions.TextEventName.equals(memberName) || BindableMemberMugenExtensions.TextMemberName.equals(memberName));
     }
 
+    @Nullable
     @Override
-    public ViewMugenExtensions.IMemberListener tryGetListener(HashMap<String, ViewMugenExtensions.IMemberListener> listeners, Object target, String memberName) {
+    public IMemberListener tryGetListener(@Nullable HashMap<String, IMemberListener> listeners, @NonNull Object target, @NonNull String memberName) {
         if (target instanceof View) {
             View view = (View) target;
-            if (ViewMugenExtensions.ClickEventName.equals(memberName) || isTextViewMember(view, memberName)) {
+            if (BindableMemberMugenExtensions.ClickEventName.equals(memberName) || isTextViewMember(view, memberName)) {
                 if (listeners != null) {
-                    for (Map.Entry<String, ViewMugenExtensions.IMemberListener> entry : listeners.entrySet()) {
+                    for (Map.Entry<String, IMemberListener> entry : listeners.entrySet()) {
                         if (entry.getValue() instanceof ViewMemberListener)
                             return entry.getValue();
                     }
@@ -33,10 +40,10 @@ public class ViewMemberListenerManager implements ViewMugenExtensions.IMemberLis
                 return new ViewMemberListener(view);
             }
 
-            if (ViewMugenExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutMugenExtensions.isSupported(view))
+            if (BindableMemberMugenExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutMugenExtensions.isSupported(view))
                 return ViewMemberListenerUtils.getSwipeRefreshLayoutRefreshedListener(view);
 
-            if (ViewMugenExtensions.SelectedIndexEventName.equals(memberName) || ViewMugenExtensions.SelectedIndexName.equals(memberName)) {
+            if (BindableMemberMugenExtensions.SelectedIndexEventName.equals(memberName) || BindableMemberMugenExtensions.SelectedIndexName.equals(memberName)) {
                 if (ViewPagerMugenExtensions.isSupported(view))
                     return ViewMemberListenerUtils.getViewPagerSelectedIndexListener(target);
                 if (ViewPager2MugenExtensions.isSupported(view))

@@ -12,7 +12,7 @@ namespace MugenMvvm.Android.Collections
     {
         protected static object? GetItemsSourceProvider(View target)
         {
-            var itemsSourceProvider = ViewGroupMugenExtensions.GetItemsSourceProvider(target);
+            var itemsSourceProvider = NativeBindableMemberMugenExtensions.GetItemsSourceProvider(target);
             if (itemsSourceProvider != null)
                 return itemsSourceProvider;
             return ContentItemsSourceGenerator.TryGet(target);
@@ -40,24 +40,24 @@ namespace MugenMvvm.Android.Collections
             }
 
             var target = (View) collectionView;
-            var providerType = ViewGroupMugenExtensions.GetItemSourceProviderType(target);
-            if (providerType == ViewGroupMugenExtensions.NoneProviderType)
+            var providerType = NativeBindableMemberMugenExtensions.GetItemSourceProviderType(target);
+            if (providerType == NativeBindableMemberMugenExtensions.NoneProviderType)
                 ExceptionManager.ThrowInvalidBindingMember(target, nameof(ViewBindableMembers.ItemsSource));
             var itemTemplateSelector = target.BindableMembers().ItemTemplateSelector();
             if (itemTemplateSelector == null)
                 ExceptionManager.ThrowObjectNotInitialized(target, target.BindableMembers().Descriptor.ItemTemplateSelector());
 
-            var itemsSourceProvider = ViewGroupMugenExtensions.GetItemsSourceProvider(target);
+            var itemsSourceProvider = NativeBindableMemberMugenExtensions.GetItemsSourceProvider(target);
             var hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
-            if (providerType == ViewGroupMugenExtensions.ContentRawProviderType)
+            if (providerType == NativeBindableMemberMugenExtensions.ContentRawProviderType)
                 ContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector) itemTemplateSelector).Collection = value;
-            else if (providerType == ViewGroupMugenExtensions.ContentProviderType || providerType == ViewGroupMugenExtensions.ResourceOrContentProviderType && hasFragments)
+            else if (providerType == NativeBindableMemberMugenExtensions.ContentProviderType || providerType == NativeBindableMemberMugenExtensions.ResourceOrContentProviderType && hasFragments)
             {
                 if (itemsSourceProvider is not ContentItemsSourceProvider provider)
                 {
                     ViewMugenExtensions.RemoveParentObserver(target);
                     provider = new ContentItemsSourceProvider(target, (IContentTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
-                    ViewGroupMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
+                    NativeBindableMemberMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                 }
 
                 provider.ItemsSource = value;
@@ -68,7 +68,7 @@ namespace MugenMvvm.Android.Collections
                 {
                     ViewMugenExtensions.RemoveParentObserver(target);
                     provider = new ResourceItemsSourceProvider(target, (IResourceTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
-                    ViewGroupMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
+                    NativeBindableMemberMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                 }
 
                 provider.ItemsSource = value;
@@ -77,13 +77,13 @@ namespace MugenMvvm.Android.Collections
 
         public virtual object? GetSelectedItem(object collectionView)
         {
-            if (collectionView is not View target || !ViewGroupMugenExtensions.IsSelectedIndexSupported(target))
+            if (collectionView is not View target || !NativeBindableMemberMugenExtensions.IsSelectedIndexSupported(target))
             {
                 ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(ViewBindableMembers.SelectedItem));
                 return null;
             }
 
-            var index = ViewGroupMugenExtensions.GetSelectedIndex(target);
+            var index = NativeBindableMemberMugenExtensions.GetSelectedIndex(target);
             if (index < 0)
                 return null;
             var itemsSourceProvider = GetItemsSourceProvider(target);
@@ -109,7 +109,7 @@ namespace MugenMvvm.Android.Collections
                     index = ((BindableCollectionAdapter) itemsSourceProvider).IndexOf(value);
             }
 
-            if (!ViewGroupMugenExtensions.SetSelectedIndex(target, index, target.BindableMembers().SmoothScroll()))
+            if (!NativeBindableMemberMugenExtensions.SetSelectedIndex(target, index, target.BindableMembers().SmoothScroll()))
                 ExceptionManager.ThrowInvalidBindingMember(collectionView, nameof(ViewBindableMembers.SelectedItem));
         }
 

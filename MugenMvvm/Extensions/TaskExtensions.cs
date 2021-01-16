@@ -24,7 +24,7 @@ namespace MugenMvvm.Extensions
         public static T LogException<T>(this T task, UnhandledExceptionType exceptionType) where T : Task
         {
             Should.NotBeNull(task, nameof(task));
-            task.ContinueWith((t, s) => MugenService.Application.OnUnhandledException(t.Exception!, (UnhandledExceptionType) s), exceptionType,
+            task.ContinueWith((t, s) => MugenService.Application.OnUnhandledException(t.Exception!, (UnhandledExceptionType) s!), exceptionType,
                 TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
             return task;
         }

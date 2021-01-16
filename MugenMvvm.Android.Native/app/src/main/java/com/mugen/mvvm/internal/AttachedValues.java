@@ -2,6 +2,8 @@ package com.mugen.mvvm.internal;
 
 import android.util.SparseArray;
 
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
 
 public class AttachedValues {
@@ -9,13 +11,14 @@ public class AttachedValues {
     private MemberChangedListenerWrapper _memberListener;
     private SparseArray<Object> _tags;
 
+    @Nullable
     public IMemberChangedListener getMemberListener() {
         if (_memberListener == null)
             return null;
         return _memberListener.getListener();
     }
 
-    public void setMemberListener(IMemberChangedListener listener) {
+    public void setMemberListener(@Nullable IMemberChangedListener listener) {
         if (listener == null && _memberListener == null)
             return;
         if (_memberListener == null)
@@ -29,21 +32,23 @@ public class AttachedValues {
         return _memberListener;
     }
 
+    @Nullable
     public Object getAttachedValues() {
         return _attachedValues;
     }
 
-    public void setAttachedValues(Object attachedValues) {
+    public void setAttachedValues(@Nullable Object attachedValues) {
         _attachedValues = attachedValues;
     }
 
+    @Nullable
     public Object getTag(int id) {
         if (_tags == null)
             return null;
         return _tags.get(id);
     }
 
-    public void setTag(int id, Object value) {
+    public void setTag(int id, @Nullable Object value) {
         if (_tags == null)
             _tags = new SparseArray<>(2);
         if (value == null)

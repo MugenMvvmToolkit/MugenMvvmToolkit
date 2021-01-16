@@ -65,6 +65,28 @@ namespace MugenMvvm.Android.Collections
 
         public virtual ICharSequence GetItemTitleFormatted(int position) => (ItemTemplateSelector as ITitleTemplateSelector)?.GetTitle(Owner, GetItemAt(position))!;
 
+        public virtual void Swap(int indexA, int indexB)
+        {
+            if (CollectionAdapter.Collection is IList list)
+            {
+                var tmp = list[indexA];
+                list[indexA] = list[indexB];
+                list[indexB] = tmp;
+            }
+        }
+
+        public virtual void Move(int oldIndex, int newIndex)
+        {
+            if (CollectionAdapter.Collection is IList list)
+            {
+                var obj = list[oldIndex];
+                list.RemoveAt(oldIndex);
+                list.Insert(newIndex, obj);
+            }
+        }
+
+        public virtual void RemoveAt(int index) => (CollectionAdapter.Collection as IList)?.RemoveAt(index);
+
         public virtual void AddObserver(IItemsSourceObserver observer) => CollectionAdapter.AddObserver(observer);
 
         public virtual void RemoveObserver(IItemsSourceObserver observer) => CollectionAdapter.RemoveObserver(observer);

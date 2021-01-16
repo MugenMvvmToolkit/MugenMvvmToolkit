@@ -4,22 +4,25 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.interfaces.IHasPriority;
 
 public interface IViewDispatcher extends IHasPriority {
-    void onParentChanged(View view);
+    void onParentChanged(@NonNull View view);
 
-    void onInitializing(Object owner, View view);
+    void onInitializing(@NonNull Object owner, @NonNull View view);
 
-    void onInitialized(Object owner, View view);
+    void onInitialized(@NonNull Object owner, @NonNull View view);
 
-    void onInflating(int resourceId, Context context);
+    void onInflating(int resourceId, @NonNull Context context);
 
-    void onInflated(View view, int resourceId, Context context);
+    void onInflated(@NonNull View view, int resourceId, @NonNull Context context);
 
-    View onCreated(View view, Context context, AttributeSet attrs);
+    View onCreated(@NonNull View view, @NonNull Context context, @NonNull AttributeSet attrs);
 
-    void onDestroy(View view);
+    void onDestroy(@NonNull View view);
 
-    View tryCreate(View parent, String name, Context viewContext, AttributeSet attrs);
+    View tryCreate(@Nullable View parent, @NonNull String name, @NonNull Context viewContext, @NonNull AttributeSet attrs);
 }

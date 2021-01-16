@@ -8,9 +8,13 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.Toolbar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.interfaces.IActivityManager;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 
 public final class ActivityMugenExtensions {
@@ -24,24 +28,24 @@ public final class ActivityMugenExtensions {
     private ActivityMugenExtensions() {
     }
 
-    public static boolean isTaskRoot(IActivityView activityView) {
+    public static boolean isTaskRoot(@NonNull IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
         if (activity.isTaskRoot())
             return true;
         return false;
     }
 
-    public static int getRequestId(IActivityView activityView) {
+    public static int getRequestId(@NonNull IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
         return activity.getIntent().getIntExtra(RequestIdIntentKey, 0);
     }
 
-    public static String getViewModelId(IActivityView activityView) {
+    public static String getViewModelId(@NonNull IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
         return activity.getIntent().getStringExtra(ViewModelIdIntentKey);
     }
 
-    public static Object getActionBar(IActivityView activityView) {
+    public static Object getActionBar(@NonNull IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
         if (MugenUtils.isCompatSupported() && activity instanceof AppCompatActivity)
             return ((AppCompatActivity) activity).getSupportActionBar();
@@ -49,7 +53,7 @@ public final class ActivityMugenExtensions {
     }
 
     @SuppressLint("NewApi")
-    public static boolean setActionBar(IActivityView activityView, View toolbar) {
+    public static boolean setActionBar(@NonNull IActivityView activityView, View toolbar) {
         if (ToolbarMugenExtensions.isSupportedCompat(toolbar)) {
             AppCompatActivity activity = (AppCompatActivity) activityView.getActivity();
             activity.setSupportActionBar((androidx.appcompat.widget.Toolbar) toolbar);
@@ -63,7 +67,10 @@ public final class ActivityMugenExtensions {
         return false;
     }
 
-    public static boolean startActivity(IActivityView activityView, Class activityClass, int requestId, String viewModelId, int resourceId, int flags) {
+    public static boolean startActivity(@Nullable IActivityView activityView, @Nullable Class activityClass, int requestId, @Nullable String viewModelId, int resourceId, int flags) {
+        IActivityManager activityManager = MugenService.getActivityManager();
+        if (activityManager != null && activityManager.tryStartActivity(activityView, activityClass, requestId, viewModelId, resourceId, flags))
+            return true;
         if (activityClass == null)
             activityClass = ViewMugenExtensions.tryGetClassById(resourceId);
         if (activityClass == null)
@@ -84,7 +91,8 @@ public final class ActivityMugenExtensions {
         return true;
     }
 
-    public static Context getActivity(Context context) {
+    @Nullable
+    public static Context getActivity(@NonNull Context context) {
         while (true) {
             if (context instanceof Activity)
                 return context;
@@ -97,15 +105,16 @@ public final class ActivityMugenExtensions {
         }
     }
 
+    @Nullable
     public static Context getCurrentActivity() {
         return _currentActivity;
     }
 
-    public static void setCurrentActivity(Context activity) {
+    public static void setCurrentActivity(@Nullable Context activity) {
         _currentActivity = (Activity) activity;
     }
 
-    public static void clearCurrentActivity(Context activity) {
+    public static void clearCurrentActivity(@Nullable Context activity) {
         if (_currentActivity != null && _currentActivity.equals(activity))
             _currentActivity = null;
     }

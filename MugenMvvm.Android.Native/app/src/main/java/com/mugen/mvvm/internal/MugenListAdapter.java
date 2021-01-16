@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
 
+import androidx.annotation.NonNull;
+
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
@@ -22,7 +24,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
     private SparseIntArray _resourceTypeToItemType;
     private int _currentTypeIndex;
 
-    public MugenListAdapter(Context context, IResourceItemsSourceProvider provider) {
+    public MugenListAdapter(@NonNull Context context, @NonNull IResourceItemsSourceProvider provider) {
         _inflater = LayoutInflater.from(context);
         _provider = provider;
         _hasStableId = provider.hasStableId();
@@ -30,6 +32,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
         provider.addObserver(this);
     }
 
+    @NonNull
     public IResourceItemsSourceProvider getItemsSourceProvider() {
         return _provider;
     }

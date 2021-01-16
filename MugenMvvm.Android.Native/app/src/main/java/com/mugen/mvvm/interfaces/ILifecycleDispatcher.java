@@ -1,7 +1,10 @@
 package com.mugen.mvvm.interfaces;
 
-public interface ILifecycleDispatcher extends IHasPriority {
-    boolean onLifecycleChanging(Object target, int lifecycle, Object state);
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-    void onLifecycleChanged(Object target, int lifecycle, Object state);
+public interface ILifecycleDispatcher extends IHasPriority {
+    boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state);
+
+    void onLifecycleChanged(@NonNull Object target, int lifecycle, @Nullable Object state);
 }

@@ -1,10 +1,12 @@
 package com.mugen.mvvm.views.listeners;
 
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
 
-import com.mugen.mvvm.views.ViewMugenExtensions;
+import com.mugen.mvvm.interfaces.IMemberListener;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 
-public class ViewPagerSelectedIndexListener implements ViewMugenExtensions.IMemberListener, ViewPager.OnPageChangeListener {
+public class ViewPagerSelectedIndexListener implements IMemberListener, ViewPager.OnPageChangeListener {
     private final ViewPager _viewPager;
     private short _selectedIndexChangedCount;
 
@@ -19,8 +21,8 @@ public class ViewPagerSelectedIndexListener implements ViewMugenExtensions.IMemb
 
     @Override
     public void onPageSelected(int position) {
-        ViewMugenExtensions.onMemberChanged(_viewPager, ViewMugenExtensions.SelectedIndexName, null);
-        ViewMugenExtensions.onMemberChanged(_viewPager, ViewMugenExtensions.SelectedIndexEventName, null);
+        BindableMemberMugenExtensions.onMemberChanged(_viewPager, BindableMemberMugenExtensions.SelectedIndexName, null);
+        BindableMemberMugenExtensions.onMemberChanged(_viewPager, BindableMemberMugenExtensions.SelectedIndexEventName, null);
     }
 
     @Override
@@ -29,14 +31,14 @@ public class ViewPagerSelectedIndexListener implements ViewMugenExtensions.IMemb
     }
 
     @Override
-    public void addListener(Object target, String memberName) {
-        if (ViewMugenExtensions.SelectedIndexName.equals(memberName) || ViewMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
+    public void addListener(@NonNull Object target, @NonNull String memberName) {
+        if (BindableMemberMugenExtensions.SelectedIndexName.equals(memberName) || BindableMemberMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
             _viewPager.addOnPageChangeListener(this);
     }
 
     @Override
-    public void removeListener(Object target, String memberName) {
-        if (ViewMugenExtensions.SelectedIndexName.equals(memberName) || ViewMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
+    public void removeListener(@NonNull Object target, @NonNull String memberName) {
+        if (BindableMemberMugenExtensions.SelectedIndexName.equals(memberName) || BindableMemberMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
             _viewPager.removeOnPageChangeListener(this);
     }
 }

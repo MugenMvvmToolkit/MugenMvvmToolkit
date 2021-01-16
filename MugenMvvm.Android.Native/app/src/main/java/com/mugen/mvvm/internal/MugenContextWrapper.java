@@ -7,14 +7,17 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 public class MugenContextWrapper extends ContextWrapper {
     private MugenLayoutInflater mInflater;
 
-    MugenContextWrapper(Context base) {
+    MugenContextWrapper(@NonNull Context base) {
         super(base);
     }
 
-    public static ContextWrapper wrap(Context base) {
+    @NonNull
+    public static ContextWrapper wrap(@NonNull Context base) {
         return new MugenContextWrapper(base);
     }
 
@@ -22,7 +25,8 @@ public class MugenContextWrapper extends ContextWrapper {
         return get(activity).onActivityCreateView(parent, view, name, context, attr);
     }
 
-    static MugenLayoutInflater get(Activity activity) {
+    @NonNull
+    static MugenLayoutInflater get(@NonNull Activity activity) {
         if (!(activity.getLayoutInflater() instanceof MugenLayoutInflater)) {
             throw new RuntimeException("This activity does not wrap the Base Context! See MugenContextWrapper.wrap(Context)");
         }

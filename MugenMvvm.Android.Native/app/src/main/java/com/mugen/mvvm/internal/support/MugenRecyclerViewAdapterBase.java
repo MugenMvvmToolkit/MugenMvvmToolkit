@@ -11,10 +11,11 @@ public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProvide
     protected final T _provider;
     private int _attachCount;
 
-    public MugenRecyclerViewAdapterBase(T provider) {
+    public MugenRecyclerViewAdapterBase(@NonNull T provider) {
         _provider = provider;
     }
 
+    @NonNull
     public T getItemsSourceProvider() {
         return _provider;
     }

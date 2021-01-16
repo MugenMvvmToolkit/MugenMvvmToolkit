@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
@@ -22,6 +23,7 @@ import com.mugen.mvvm.views.ViewMugenExtensions;
 public class MugenActivity extends Activity implements INativeActivityView {
     private Object _state;
 
+    @NonNull
     @Override
     public Object getActivity() {
         return this;
@@ -32,13 +34,14 @@ public class MugenActivity extends Activity implements INativeActivityView {
         return ViewMugenExtensions.tryGetViewId(getClass(), getIntent(), 0);
     }
 
+    @Nullable
     @Override
     public Object getState() {
         return _state;
     }
 
     @Override
-    public void setState(Object tag) {
+    public void setState(@Nullable Object tag) {
         _state = tag;
     }
 

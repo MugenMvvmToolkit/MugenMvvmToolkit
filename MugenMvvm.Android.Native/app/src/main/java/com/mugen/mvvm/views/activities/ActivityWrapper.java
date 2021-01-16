@@ -2,6 +2,9 @@ package com.mugen.mvvm.views.activities;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
 
@@ -12,6 +15,7 @@ public class ActivityWrapper implements IActivityView {
         Target = target;
     }
 
+    @NonNull
     @Override
     public Object getActivity() {
         return (Context) Target;
@@ -37,13 +41,14 @@ public class ActivityWrapper implements IActivityView {
         Target.finish();
     }
 
+    @Nullable
     @Override
     public Object getState() {
         return Target.getState();
     }
 
     @Override
-    public void setState(Object state) {
+    public void setState(@Nullable Object state) {
         Target.setState(state);
     }
 
