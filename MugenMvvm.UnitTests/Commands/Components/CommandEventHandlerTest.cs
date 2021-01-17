@@ -216,7 +216,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var compositeCommand = new CompositeCommand();
             var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
             compositeCommand.AddComponent(conditionEventCommandComponent);
-            IMessengerHandler messengerHandler = conditionEventCommandComponent;
+            IMessengerHandler? messengerHandler = null;
 
             var tokens = new List<ActionToken>();
             for (var i = 0; i < listenersCount; i++)
@@ -227,13 +227,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
                     TrySubscribe = (o, _, _) =>
                     {
                         ++subscribedCount;
-                        o.ShouldEqual(conditionEventCommandComponent);
+                        messengerHandler = (IMessengerHandler?) o;
+                        o.ShouldBeType<CommandEventHandler.WeakHandler>();
                         return true;
                     },
                     TryUnsubscribe = (o, _) =>
                     {
                         --subscribedCount;
-                        o.ShouldEqual(conditionEventCommandComponent);
+                        o.ShouldEqual(messengerHandler);
                         return true;
                     }
                 };
@@ -322,6 +323,33 @@ namespace MugenMvvm.UnitTests.Commands.Components
             conditionEventCommandComponent.Dispose();
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(canDispose ? 0 : 1);
+        }
+
+        [Fact(Skip = ReleaseTest)]
+        public void ShouldListenPropertyChangedWeak()
+        {
+            var propertyChangedModel = new TestNotifyPropertyChangedModel();
+            var reference = ShouldListenPropertyChangedWeakImpl(propertyChangedModel);
+            GcCollect();
+            propertyChangedModel.OnPropertyChanged("test");
+            reference.IsAlive.ShouldBeFalse();
+        }
+
+        private static WeakReference ShouldListenPropertyChangedWeakImpl(TestNotifyPropertyChangedModel propertyChangedModel)
+        {
+            var compositeCommand = new CompositeCommand();
+            var conditionEventCommandComponent = new CommandEventHandler(null, ThreadExecutionMode.Current);
+            compositeCommand.AddComponent(conditionEventCommandComponent);
+            conditionEventCommandComponent.AddNotifier(propertyChangedModel);
+            var executed = 0;
+            EventHandler handler = (sender, args) => ++executed;
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler, null);
+
+            executed.ShouldEqual(0);
+            propertyChangedModel.OnPropertyChanged("test");
+            executed.ShouldEqual(1);
+
+            return new WeakReference(conditionEventCommandComponent);
         }
     }
 }

@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Components
                     context.ShouldEqual(DefaultMetadata);
                 }
             };
-            componentCollection.TryAdd(component, DefaultMetadata);
+            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
             componentCollection.Clear(DefaultMetadata);
             detachedCount.ShouldEqual(1);
         }

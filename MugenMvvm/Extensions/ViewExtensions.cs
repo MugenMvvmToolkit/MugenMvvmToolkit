@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Views;
+using MugenMvvm.Views.Components;
 
 namespace MugenMvvm.Extensions
 {
@@ -20,6 +21,12 @@ namespace MugenMvvm.Extensions
             if (view == null)
                 ExceptionManager.ThrowRequestNotSupported<IViewManagerComponent>(viewManager, request, metadata);
             return view;
+        }
+
+        public static ViewMappingProvider GetMappingProvider(this IViewManager viewManager)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            return viewManager.GetOrAddComponent(_ => new ViewMappingProvider());
         }
 
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)

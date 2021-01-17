@@ -92,14 +92,11 @@ namespace MugenMvvm.Components
                 _componentTrackers = Default.Array<ComponentTracker>();
             }
 
-            if (_components != null)
+            var changedListeners = _components == null ? default : _components.Get<IComponentCollectionChangedListener>(metadata);
+            foreach (var oldItem in oldItems)
             {
-                var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
-                foreach (var oldItem in oldItems)
-                {
-                    ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
-                    changedListeners.OnRemoved(this, oldItem, metadata);
-                }
+                ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
+                changedListeners.OnRemoved(this, oldItem, metadata);
             }
         }
 

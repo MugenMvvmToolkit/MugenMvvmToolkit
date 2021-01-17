@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                     return validator;
                 }
             });
-            var component = new ViewModelServiceProvider();
+            var component = new ViewModelServiceProvider(validationManager: validationManager);
             component.TryGetService(null!, vm, typeof(IValidator), DefaultMetadata).ShouldEqual(validator);
         }
 
