@@ -1,7 +1,9 @@
-package com.mugen.mvvm.interfaces;
+package com.mugen.mvvm.interfaces.views;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 
 public interface IViewItemsSourceManager {
 

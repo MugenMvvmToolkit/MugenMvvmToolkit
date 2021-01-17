@@ -16,12 +16,22 @@ import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class BindViewDispatcher implements IViewDispatcher {
-    private final static ViewAttributeAccessor _accessor = new ViewAttributeAccessor();
-    private final IBindViewCallback _viewBindCallback;
+    final static ViewAttributeAccessor AttributeAccessor = new ViewAttributeAccessor();
+    private IBindViewCallback _bindCallback;
 
-    public BindViewDispatcher(IBindViewCallback viewBindCallback) {
-        _viewBindCallback = viewBindCallback;
-        viewBindCallback.setViewAccessor(_accessor);
+    public BindViewDispatcher(IBindViewCallback bindCallback) {
+        _bindCallback = bindCallback;
+    }
+
+    public IBindViewCallback getBindCallback() {
+        return _bindCallback;
+    }
+
+    public void setBindCallback(IBindViewCallback bindCallback) {
+        if (_bindCallback != null)
+            _bindCallback.setViewAccessor(null);
+        _bindCallback = bindCallback;
+        bindCallback.setViewAccessor(AttributeAccessor);
     }
 
     @Override
@@ -32,7 +42,7 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public void onInitializing(@NonNull Object owner, @NonNull View view) {
-        _viewBindCallback.onSetView(ViewMugenExtensions.tryWrap(owner), view);
+        _bindCallback.onSetView(ViewMugenExtensions.tryWrap(owner), view);
     }
 
     @Override
@@ -57,11 +67,11 @@ public class BindViewDispatcher implements IViewDispatcher {
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.Bind, 0, 0);
         try {
             if (typedArray.getIndexCount() != 0) {
-                _accessor.setTypedArray(typedArray);
-                _viewBindCallback.bind(view);
+                AttributeAccessor.setTypedArray(typedArray);
+                _bindCallback.bind(view);
             }
         } finally {
-            _accessor.setTypedArray(null);
+            AttributeAccessor.setTypedArray(null);
             typedArray.recycle();
         }
 

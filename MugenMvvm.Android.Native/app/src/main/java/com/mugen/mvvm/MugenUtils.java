@@ -7,10 +7,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
 import com.mugen.mvvm.constants.MugenInitializationFlags;
+import com.mugen.mvvm.interfaces.IAsyncAppInitializer;
+import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.internal.ActionBarHomeClickListener;
 import com.mugen.mvvm.internal.ActivityTrackerDispatcher;
@@ -19,10 +22,6 @@ import com.mugen.mvvm.internal.FragmentDispatcher;
 import com.mugen.mvvm.internal.ViewCleaner;
 import com.mugen.mvvm.views.ActivityMugenExtensions;
 import com.mugen.mvvm.views.listeners.ViewMemberListenerManager;
-import com.mugen.mvvm.views.support.RecyclerViewMugenExtensions;
-import com.mugen.mvvm.views.support.SwipeRefreshLayoutMugenExtensions;
-import com.mugen.mvvm.views.support.ViewPager2MugenExtensions;
-import com.mugen.mvvm.views.support.ViewPagerMugenExtensions;
 
 public final class MugenUtils {
     public static final int Tv = 1;
@@ -35,13 +34,18 @@ public final class MugenUtils {
 
     @SuppressLint("StaticFieldLeak")
     private static Context _context;
+    private static Handler _uiHandler;
     private static int _stateFlags;
 
     private MugenUtils() {
     }
 
+    public static void ensureInitialized() {
+        MugenAsyncBootstrapperBase.ensureInitialized();
+    }
+
     public static boolean isFragmentStateDisabled() {
-        return hasFlag(MugenInitializationFlags.FragmentStateDisabled);
+        return hasFlag(MugenInitializationFlags.NoFragmentState);
     }
 
     public static boolean isNativeMode() {
@@ -56,8 +60,31 @@ public final class MugenUtils {
         return !hasFlag(MugenInitializationFlags.RawViewTagModeDisabled);
     }
 
+    public static boolean isAsyncInitializing() {
+        return MugenService.getAsyncAppInitializer() != null;
+    }
+
     public static boolean hasFlag(int flag) {
         return (_stateFlags & flag) == flag;
+    }
+
+    public static void addFlag(int flag) {
+        _stateFlags |= flag;
+    }
+
+    public static void removeFlag(int flag) {
+        _stateFlags &= ~flag;
+    }
+
+    public static boolean isOnUiThread() {
+        return _context.getMainLooper().getThread() == Thread.currentThread();
+    }
+
+    public static void runOnUiThread(@NonNull Runnable action) {
+        if (isOnUiThread())
+            action.run();
+        else
+            _uiHandler.post(action);
     }
 
     @NonNull
@@ -67,6 +94,7 @@ public final class MugenUtils {
 
     public static void setAppContext(@NonNull Context context) {
         _context = context.getApplicationContext();
+        _uiHandler = new Handler(_context.getMainLooper());
     }
 
     @NonNull
@@ -77,7 +105,8 @@ public final class MugenUtils {
         return MugenUtils.getAppContext();
     }
 
-    public static void initializeCore(@NonNull Context context) {
+    public static void initializeCore(@NonNull Context context, int flags) {
+        addFlag(flags);
         setAppContext(context);
         ViewCleaner viewCleaner = new ViewCleaner();
         FragmentDispatcher fragmentDispatcher = new FragmentDispatcher();
@@ -87,20 +116,16 @@ public final class MugenUtils {
         MugenService.addLifecycleDispatcher(fragmentDispatcher, false);
         MugenService.addLifecycleDispatcher(new ActionBarHomeClickListener(), false);
         MugenService.addLifecycleDispatcher(new ActivityTrackerDispatcher(), false);
-        MugenService.registerMemberListenerManager(new ViewMemberListenerManager());
+        MugenService.addMemberListenerManager(new ViewMemberListenerManager());
     }
 
-    public static void initialize(@NonNull IBindViewCallback bindCallback, int stateFlags) {
-        _stateFlags = stateFlags;
-        MugenService.addViewDispatcher(new BindViewDispatcher(bindCallback));
-        if (hasFlag(MugenInitializationFlags.RecyclerViewLib))
-            RecyclerViewMugenExtensions.setSupported();
-        if (hasFlag(MugenInitializationFlags.SwipeRefreshLib))
-            SwipeRefreshLayoutMugenExtensions.setSupported();
-        if (hasFlag(MugenInitializationFlags.ViewPagerLib))
-            ViewPagerMugenExtensions.setSupported();
-        if (hasFlag(MugenInitializationFlags.ViewPager2Lib))
-            ViewPager2MugenExtensions.setSupported();
+    public static void initialize(@NonNull IBindViewCallback bindCallback, @NonNull ILifecycleDispatcher lifecycleDispatcher) {
+        IAsyncAppInitializer initializer = MugenService.getAsyncAppInitializer();
+        if (initializer == null) {
+            MugenService.addViewDispatcher(new BindViewDispatcher(bindCallback));
+            MugenService.addLifecycleDispatcher(lifecycleDispatcher, isNativeMode());
+        } else
+            initializer.initialize(bindCallback, lifecycleDispatcher);
     }
 
     @NonNull

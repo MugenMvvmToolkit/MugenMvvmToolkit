@@ -1,4 +1,4 @@
-package com.mugen.mvvm.interfaces;
+package com.mugen.mvvm.interfaces.views;
 
 import android.view.Menu;
 

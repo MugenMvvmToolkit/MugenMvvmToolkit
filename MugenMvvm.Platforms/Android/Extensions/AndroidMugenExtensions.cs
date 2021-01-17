@@ -13,7 +13,6 @@ using MugenMvvm.Android.Members;
 using MugenMvvm.Android.Native;
 using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Native.Views;
-using MugenMvvm.Android.Native.Views.Support;
 using MugenMvvm.Android.Navigation;
 using MugenMvvm.Android.Observation;
 using MugenMvvm.Android.Presenters;
@@ -60,11 +59,9 @@ namespace MugenMvvm.Android.Extensions
             IViewManager? viewManager = null) =>
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).GetResult();
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, EnumFlags<AndroidInitializationFlags> flags,
-            IBindViewCallback? bindViewCallback = null)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, IBindViewCallback? bindViewCallback = null)
         {
-            MugenAndroidUtils.Initialize(bindViewCallback ?? BindViewCallback.Instance, flags.Value());
-            MugenAndroidService.AddLifecycleDispatcher(new NativeViewLifecycleDispatcher(), flags.HasFlag(AndroidInitializationFlags.NativeMode));
+            MugenAndroidUtils.Initialize(bindViewCallback ?? BindViewCallback.Instance, new NativeLifecycleDispatcher());
 
             configuration.ServiceConfiguration<IAttachedValueManager>()
                          .WithComponent(new AndroidAttachedValueStorageProvider());
@@ -138,13 +135,6 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
                                                            .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
-                                                           .Build());
-            attachedMemberProvider.Register(BindableMembers.For<View>()
-                                                           .SelectedItem()
-                                                           .Override<Object>()
-                                                           .GetBuilder()
-                                                           .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
-                                                           .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
                                                            .Build());
 
             //activity
@@ -357,6 +347,18 @@ namespace MugenMvvm.Android.Extensions
 
             //viewgroup
             attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .SelectedItem()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
+                                                           .CustomSetter((member, target, value, metadata) => target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .SelectedItemChanged()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((member, target, listener, metadata) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .SmoothScroll()
                                                            .GetBuilder()
                                                            .DefaultValue(true)
@@ -438,12 +440,6 @@ namespace MugenMvvm.Android.Extensions
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .SelectedIndexChanged()
-                                                           .GetBuilder()
-                                                           .CustomImplementation((member, target, listener, metadata) =>
-                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))
-                                                           .Build());
-            attachedMemberProvider.Register(BindableMembers.For<View>()
-                                                           .SelectedItemChanged()
                                                            .GetBuilder()
                                                            .CustomImplementation((member, target, listener, metadata) =>
                                                                ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.SelectedIndexEventName))

@@ -8,6 +8,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
@@ -18,17 +20,12 @@ import com.mugen.mvvm.views.FragmentMugenExtensions;
 
 public final class ViewPagerMugenExtensions {
     public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ContentProviderType;
-    private static boolean _supported;
 
     private ViewPagerMugenExtensions() {
     }
 
     public static boolean isSupported(@Nullable View view) {
-        return _supported && view instanceof ViewPager;
-    }
-
-    public static void setSupported() {
-        _supported = true;
+        return MugenUtils.hasFlag(MugenInitializationFlags.ViewPagerLib) && view instanceof ViewPager;
     }
 
     public static int getCurrentItem(@NonNull View view) {

@@ -53,43 +53,43 @@ namespace MugenMvvm.Android.Enums
         {
             switch (state)
             {
-                case LifecycleState.Finish:
+                case NativeLifecycleState.Finish:
                     return Finishing;
-                case LifecycleState.FinishAfterTransition:
+                case NativeLifecycleState.FinishAfterTransition:
                     return FinishingAfterTransition;
-                case LifecycleState.BackPressed:
+                case NativeLifecycleState.BackPressed:
                     return BackPressing;
-                case LifecycleState.NewIntent:
+                case NativeLifecycleState.NewIntent:
                     return NewIntentChanging;
-                case LifecycleState.ConfigurationChanged:
+                case NativeLifecycleState.ConfigurationChanged:
                     return ConfigurationChanging;
-                case LifecycleState.Create:
+                case NativeLifecycleState.Create:
                     return Creating;
-                case LifecycleState.Destroy:
+                case NativeLifecycleState.Destroy:
                     return Destroying;
-                case LifecycleState.Pause:
+                case NativeLifecycleState.Pause:
                     return Pausing;
-                case LifecycleState.Restart:
+                case NativeLifecycleState.Restart:
                     return Restarting;
-                case LifecycleState.Resume:
+                case NativeLifecycleState.Resume:
                     return Resuming;
-                case LifecycleState.SaveState:
+                case NativeLifecycleState.SaveState:
                     return SavingState;
-                case LifecycleState.Start:
+                case NativeLifecycleState.Start:
                     return Starting;
-                case LifecycleState.Stop:
+                case NativeLifecycleState.Stop:
                     return Stopping;
-                case LifecycleState.PostCreate:
+                case NativeLifecycleState.PostCreate:
                     return PostCreating;
-                case LifecycleState.OptionsItemSelected:
+                case NativeLifecycleState.OptionsItemSelected:
                     return OptionsItemSelecting;
-                case LifecycleState.CreateOptionsMenu:
+                case NativeLifecycleState.CreateOptionsMenu:
                     return CreatingOptionsMenu;
-                case LifecycleState.Dismiss:
+                case NativeLifecycleState.Dismiss:
                     return Dismissing;
-                case LifecycleState.DismissAllowingStateLoss:
+                case NativeLifecycleState.DismissAllowingStateLoss:
                     return DismissingAllowingStateLoss;
-                case LifecycleState.Cancel:
+                case NativeLifecycleState.Cancel:
                     return Canceling;
             }
 
@@ -100,43 +100,43 @@ namespace MugenMvvm.Android.Enums
         {
             switch (state)
             {
-                case LifecycleState.Finish:
+                case NativeLifecycleState.Finish:
                     return Finished;
-                case LifecycleState.FinishAfterTransition:
+                case NativeLifecycleState.FinishAfterTransition:
                     return FinishedAfterTransition;
-                case LifecycleState.BackPressed:
+                case NativeLifecycleState.BackPressed:
                     return BackPressed;
-                case LifecycleState.NewIntent:
+                case NativeLifecycleState.NewIntent:
                     return NewIntentChanged;
-                case LifecycleState.ConfigurationChanged:
+                case NativeLifecycleState.ConfigurationChanged:
                     return ConfigurationChanged;
-                case LifecycleState.Create:
+                case NativeLifecycleState.Create:
                     return Created;
-                case LifecycleState.Destroy:
+                case NativeLifecycleState.Destroy:
                     return Destroyed;
-                case LifecycleState.Pause:
+                case NativeLifecycleState.Pause:
                     return Paused;
-                case LifecycleState.Restart:
+                case NativeLifecycleState.Restart:
                     return Restarted;
-                case LifecycleState.Resume:
+                case NativeLifecycleState.Resume:
                     return Resumed;
-                case LifecycleState.SaveState:
+                case NativeLifecycleState.SaveState:
                     return SavedState;
-                case LifecycleState.Start:
+                case NativeLifecycleState.Start:
                     return Started;
-                case LifecycleState.Stop:
+                case NativeLifecycleState.Stop:
                     return Stopped;
-                case LifecycleState.PostCreate:
+                case NativeLifecycleState.PostCreate:
                     return PostCreated;
-                case LifecycleState.OptionsItemSelected:
+                case NativeLifecycleState.OptionsItemSelected:
                     return OptionsItemSelected;
-                case LifecycleState.CreateOptionsMenu:
+                case NativeLifecycleState.CreateOptionsMenu:
                     return CreatedOptionsMenu;
-                case LifecycleState.Dismiss:
+                case NativeLifecycleState.Dismiss:
                     return Dismissed;
-                case LifecycleState.DismissAllowingStateLoss:
+                case NativeLifecycleState.DismissAllowingStateLoss:
                     return DismissedAllowingStateLoss;
-                case LifecycleState.Cancel:
+                case NativeLifecycleState.Cancel:
                     return Canceled;
             }
 

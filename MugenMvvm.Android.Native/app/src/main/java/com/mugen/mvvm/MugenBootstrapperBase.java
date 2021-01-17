@@ -10,37 +10,21 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public abstract class MugenInitializerBase extends ContentProvider implements Runnable {
-    private static Thread _initThread;
+import com.mugen.mvvm.constants.LifecycleState;
+import com.mugen.mvvm.constants.MugenInitializationFlags;
+import com.mugen.mvvm.internal.AppStateDispatcher;
+import com.mugen.mvvm.views.LifecycleMugenExtensions;
 
-    public MugenInitializerBase() {
-        _initThread = new Thread(this);
-        _initThread.start();
-    }
-
-    public static void ensureInitialized() {
-        if (_initThread != null)
-            waitInit();
-    }
-
-    private static void waitInit() {
-        Thread initThread = _initThread;
-        if (initThread == null)
-            return;
-        try {
-            initThread.join();
-        } catch (InterruptedException ignored) {
-        }
-    }
-
+public abstract class MugenBootstrapperBase extends ContentProvider {
     @Override
     public final boolean onCreate() {
         return true;
     }
 
     @Override
-    public final void attachInfo(Context context, ProviderInfo info) {
-        MugenUtils.initializeCore(context);
+    public void attachInfo(Context context, ProviderInfo info) {
+        initializeNative(context, info);
+        initialize();
     }
 
     @Nullable
@@ -72,18 +56,24 @@ public abstract class MugenInitializerBase extends ContentProvider implements Ru
     }
 
     @Override
-    public final void onTrimMemory(int level) {
+    public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        onTrimMemoryInternal(level);
+        if (level == TRIM_MEMORY_UI_HIDDEN)
+            LifecycleMugenExtensions.onLifecycleChanged(MugenUtils.getAppContext(), LifecycleState.AppBackground, null);
     }
 
-    @Override
-    public final void run() {
-        initialize();
-        _initThread = null;
+    protected void initializeNative(Context context, ProviderInfo info) {
+        MugenUtils.initializeCore(context, getFlags());
+        if (MugenUtils.hasFlag(MugenInitializationFlags.NoAppState))
+            MugenService.addLifecycleDispatcher(new AppStateDispatcher(getRootActivity()), false);
     }
+
+    @Nullable
+    protected String getRootActivity() {
+        return null;
+    }
+
+    protected abstract int getFlags();
 
     protected abstract void initialize();
-
-    protected abstract void onTrimMemoryInternal(int level);
 }

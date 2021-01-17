@@ -9,6 +9,8 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
@@ -20,17 +22,12 @@ import com.mugen.mvvm.views.FragmentMugenExtensions;
 
 public final class ViewPager2MugenExtensions {
     public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ResourceOrContentProviderType;
-    private static boolean _supported;
 
     private ViewPager2MugenExtensions() {
     }
 
     public static boolean isSupported(@Nullable View view) {
-        return _supported && view instanceof ViewPager2;
-    }
-
-    public static void setSupported() {
-        _supported = true;
+        return MugenUtils.hasFlag(MugenInitializationFlags.ViewPager2Lib) && view instanceof ViewPager2;
     }
 
     public static int getCurrentItem(@NonNull View view) {

@@ -1,6 +1,6 @@
 package com.mugen.mvvm.constants;
 
-public abstract class LifecycleState {
+public final class LifecycleState {
     public static final int Finish = 1;
     public static final int FinishAfterTransition = 2;
     public static final int BackPressed = 3;
@@ -20,6 +20,7 @@ public abstract class LifecycleState {
     public static final int Dismiss = 17;
     public static final int DismissAllowingStateLoss = 18;
     public static final int Cancel = 19;
+    public static final int AppBackground = 20;
 
     private LifecycleState() {
     }

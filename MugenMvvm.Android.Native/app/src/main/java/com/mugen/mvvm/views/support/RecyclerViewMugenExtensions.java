@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
@@ -14,17 +16,12 @@ import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 
 public final class RecyclerViewMugenExtensions {
     public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ResourceProviderType;
-    private static boolean _supported;
 
     private RecyclerViewMugenExtensions() {
     }
 
     public static boolean isSupported(@Nullable View view) {
-        return _supported && view instanceof RecyclerView;
-    }
-
-    public static void setSupported() {
-        _supported = true;
+        return MugenUtils.hasFlag(MugenInitializationFlags.RecyclerViewLib) && view instanceof RecyclerView;
     }
 
     @Nullable
