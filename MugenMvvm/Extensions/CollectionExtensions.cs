@@ -122,6 +122,25 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        public static IReadOnlyDictionary<TKey, TValue> Merge<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, IReadOnlyDictionary<TKey, TValue> values)
+        {
+            Should.NotBeNull(dictionary, nameof(dictionary));
+            Should.NotBeNull(values, nameof(values));
+            if (dictionary.Count == 0)
+                return values;
+            if (values.Count == 0)
+                return dictionary;
+
+#if NET461
+            var result = dictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
+#else
+            var result = new Dictionary<TKey, TValue>(dictionary);
+#endif
+            foreach (var value in values)
+                result[value.Key] = value.Value;
+            return result;
+        }
+
         internal static int IndexOf<T>(T[] items, T item) where T : class
         {
             for (var i = 0; i < items.Length; i++)

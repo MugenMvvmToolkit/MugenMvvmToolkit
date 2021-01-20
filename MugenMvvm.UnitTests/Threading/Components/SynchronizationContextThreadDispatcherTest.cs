@@ -34,35 +34,35 @@ namespace MugenMvvm.UnitTests.Threading.Components
         [Fact]
         public void CanExecuteInlineShouldReturnFalseBackground()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
+            var component = new SynchronizationContextThreadDispatcher(SynchronizationContext.Current!);
             component.CanExecuteInline(null!, ThreadExecutionMode.Background, DefaultMetadata).ShouldBeFalse();
         }
 
         [Fact]
         public void CanExecuteInlineShouldReturnFalseMainAsync()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
             component.CanExecuteInline(null!, ThreadExecutionMode.MainAsync, DefaultMetadata).ShouldBeFalse();
         }
 
         [Fact]
         public void CanExecuteInlineShouldReturnTrueCurrent()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
             component.CanExecuteInline(null!, ThreadExecutionMode.Current, DefaultMetadata).ShouldBeTrue();
         }
 
         [Fact]
         public void CanExecuteInlineShouldReturnTrueMain()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
+            var component = new SynchronizationContextThreadDispatcher(SynchronizationContext.Current!);
             component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeTrue();
         }
 
         [Fact]
         public void TryExecuteShouldExecuteInline()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
 
             var executed = 0;
             var state = new object();
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Threading.Components
         [Fact]
         public void TryExecuteShouldExecuteUsingContext()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
             var executed = 0;
             var state = new object();
             Action action = () => ++executed;
@@ -171,7 +171,7 @@ namespace MugenMvvm.UnitTests.Threading.Components
         [Fact]
         public void TryExecuteShouldExecuteUsingThreadPool()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext, true);
+            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
             var executed = 0;
             var state = new object();
             Action action = () => ++executed;

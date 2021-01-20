@@ -35,10 +35,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             };
 
             ctx.Initialize($"{memberName}()", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, Default.Array<IExpressionNode>()));
+            component.TryParse(ctx, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, default));
 
             ctx.Initialize($"{memberName}<{typeArg1}, {typeArg2}>()", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, Default.Array<IExpressionNode>(), new[] {typeArg1, typeArg2}));
+            component.TryParse(ctx, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, default, new[] {typeArg1, typeArg2}));
 
             ctx.Initialize($"{memberName}(1,2)", DefaultMetadata);
             component.TryParse(ctx, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}));
@@ -49,11 +49,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 
             ctx.Initialize($".{memberName}()", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null)
-                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, Default.Array<IExpressionNode>()));
+                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, default));
 
             ctx.Initialize($".{memberName}<{typeArg1}, {typeArg2}>()", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null)
-                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, Default.Array<IExpressionNode>(), new[] {typeArg1, typeArg2}));
+                     .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, default, new[] {typeArg1, typeArg2}));
 
             ctx.Initialize($".{memberName}(1,2)", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null)

@@ -18,6 +18,11 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 {
     public sealed class MacrosExpressionVisitor : IExpressionVisitor
     {
+        private static readonly Dictionary<string, object?> AccessorMetadata = new(3)
+        {
+            {BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.FalseObject}
+        };
+
         private readonly StringBuilder _memberBuilder;
 
         public MacrosExpressionVisitor()
@@ -38,15 +43,17 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), default)},
                 {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), default)}
             };
-            ConstantParametersMethods = new Dictionary<string, string>(7)
+            AccessorMethods = new Dictionary<string, string>(11)
             {
                 {nameof(BindableMembers.GetErrors), nameof(BindableMembers.GetErrors)},
                 {nameof(BindableMembers.GetError), nameof(BindableMembers.GetError)},
                 {nameof(BindableMembers.HasErrors), nameof(BindableMembers.HasErrors)},
                 {"Rel", nameof(BindableMembers.RelativeSource)},
                 {"Relative", nameof(BindableMembers.RelativeSource)},
+                {nameof(BindableMembers.RelativeSource), nameof(BindableMembers.RelativeSource)},
                 {"El", nameof(BindableMembers.ElementSource)},
-                {"Element", nameof(BindableMembers.ElementSource)}
+                {"Element", nameof(BindableMembers.ElementSource)},
+                {nameof(BindableMembers.ElementSource), nameof(BindableMembers.ElementSource)}
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>(11)
             {
@@ -65,7 +72,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         public Dictionary<string, IMethodCallExpressionNode> MethodAliases { get; }
 
-        public Dictionary<string, string> ConstantParametersMethods { get; }
+        public Dictionary<string, string> AccessorMethods { get; }
 
         public Dictionary<string, IExpressionNode> MacrosTargets { get; }
 
@@ -73,18 +80,18 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         public IExpressionNode? Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
-            if (expression is IMethodCallExpressionNode method && ConstantParametersMethods.TryGetValue(method.Method, out var methodName))
+            if (expression is IMethodCallExpressionNode method && AccessorMethods.TryGetValue(method.Method, out var methodName))
             {
                 var arguments = method.Arguments;
                 if (arguments.Count == 0)
                 {
                     if (method.Method == methodName)
-                        return method;
-                    return new MethodCallExpressionNode(method.Target, methodName, default, method.TypeArgs, method.Metadata);
+                        return method.UpdateMetadata(method.Metadata.Merge(AccessorMetadata));
+                    return new MethodCallExpressionNode(method.Target, methodName, default, method.TypeArgs, method.Metadata.Merge(AccessorMetadata));
                 }
 
                 if (method.Method == methodName && arguments.IsAllConstants())
-                    return method;
+                    return method.UpdateMetadata(method.Metadata.Merge(AccessorMetadata));
 
                 var args = ItemOrArray.Get<IExpressionNode>(arguments.Count);
                 for (var i = 0; i < args.Count; i++)
@@ -102,7 +109,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                     args.SetAt(i, ConstantExpressionNode.Get(_memberBuilder.GetPath(), typeof(string)));
                 }
 
-                return new MethodCallExpressionNode(method.Target, methodName, args, method.TypeArgs, method.Metadata);
+                return new MethodCallExpressionNode(method.Target, methodName, args, method.TypeArgs, method.Metadata.Merge(AccessorMetadata));
             }
 
             if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())

@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             var node = new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, value.HasValue ? typeof(int) : typeof(int?))),
                 nameof(ToString),
-                Default.Array<IExpressionNode>());
+                default);
             var component = new NullConditionalExpressionBuilder();
             TestExpressionBuilderContext ctx = null!;
             ctx = new TestExpressionBuilderContext

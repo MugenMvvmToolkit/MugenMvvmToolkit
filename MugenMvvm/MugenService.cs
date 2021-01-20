@@ -29,8 +29,6 @@ namespace MugenMvvm
 {
     public static class MugenService
     {
-        private static IFallbackServiceConfiguration? _fallbackConfiguration;
-
         public static IMugenApplication Application
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -181,9 +179,7 @@ namespace MugenMvvm
 
         public static class Configuration
         {
-            public static IFallbackServiceConfiguration? GetFallbackConfiguration() => _fallbackConfiguration;
-
-            public static void InitializeFallback(IFallbackServiceConfiguration? fallbackConfiguration) => _fallbackConfiguration = fallbackConfiguration;
+            public static IFallbackServiceConfiguration? FallbackConfiguration;
 
             public static void Initialize<TService>(IHasService<TService>? serviceConfiguration) where TService : class => Configuration<TService>.Initialize(serviceConfiguration);
 
@@ -219,7 +215,7 @@ namespace MugenMvvm
                         return _service;
                     if (_serviceConfiguration != null)
                         return _serviceConfiguration.ServiceOptional;
-                    return _fallbackConfiguration?.Optional<TService>();
+                    return Configuration.FallbackConfiguration?.Optional<TService>();
                 }
             }
 
@@ -241,15 +237,15 @@ namespace MugenMvvm
                 _service = null;
                 _serviceConfiguration = null;
                 if (clearFallback)
-                    _fallbackConfiguration = null;
+                    Configuration.FallbackConfiguration = null;
             }
 
             private static TService GetFallbackService()
             {
-                if (_fallbackConfiguration != null)
-                    return _fallbackConfiguration.Instance<TService>();
-                ExceptionManager.ThrowObjectNotInitialized(typeof(Configuration<TService>), typeof(TService).Name);
-                return null;
+                var instance = Configuration.FallbackConfiguration?.Instance<TService>();
+                if (instance == null)
+                    ExceptionManager.ThrowObjectNotInitialized(typeof(Configuration<TService>), typeof(TService).Name);
+                return instance;
             }
         }
     }

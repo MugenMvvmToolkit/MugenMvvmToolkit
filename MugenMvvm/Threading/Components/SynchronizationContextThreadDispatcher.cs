@@ -14,11 +14,11 @@ namespace MugenMvvm.Threading.Components
         private readonly SynchronizationContext _synchronizationContext;
         private int? _mainThreadId;
 
-        public SynchronizationContextThreadDispatcher(SynchronizationContext synchronizationContext, bool isOnMainThread = false)
+        public SynchronizationContextThreadDispatcher(SynchronizationContext synchronizationContext)
         {
             Should.NotBeNull(synchronizationContext, nameof(synchronizationContext));
             _synchronizationContext = synchronizationContext;
-            if (isOnMainThread)
+            if (synchronizationContext == SynchronizationContext.Current)
                 _mainThreadId = Thread.CurrentThread.ManagedThreadId;
             else
                 synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);

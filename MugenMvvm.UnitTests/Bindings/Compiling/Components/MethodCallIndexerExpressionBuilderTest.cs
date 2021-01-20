@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
@@ -161,7 +161,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             members = new[] {result};
@@ -189,7 +189,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             var invokeCount = 0;
@@ -232,7 +232,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.Array<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, default);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
@@ -259,7 +259,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.Array<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, default);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             var invokeCount = 0;
@@ -299,7 +299,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             ShouldThrow(() => build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata));

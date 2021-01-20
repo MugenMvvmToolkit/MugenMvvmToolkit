@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests
 
         public UnitTestBase(ITestOutputHelper? outputHelper = null)
         {
-            MugenService.Configuration.InitializeFallback(null);
+            MugenService.Configuration.FallbackConfiguration = null;
             MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
 
             var attachedValueManager = new AttachedValueManager();

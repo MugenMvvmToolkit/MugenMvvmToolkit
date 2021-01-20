@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Constants;
+﻿using System.Collections.Generic;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members.Components;
@@ -45,11 +46,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             foreach (var member in visitor.MacrosTargets)
             {
                 var arguments = args;
-                if (visitor.ConstantParametersMethods.TryGetValue(member.Key, out var newName))
+                if (visitor.AccessorMethods.TryGetValue(member.Key, out var newName))
                     arguments = constantArgs;
                 new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MethodCallExpressionNode(null, member.Key, args))
                     .Accept(visitor)
-                    .ShouldEqual(new MethodCallExpressionNode(member.Value, newName ?? member.Key, arguments));
+                    .ShouldEqual(new MethodCallExpressionNode(member.Value, newName ?? member.Key, arguments, default, new Dictionary<string, object?>
+                    {
+                        {BindingParameterNameConstant.SuppressMethodAccessors, false}
+                    }));
             }
         }
 
@@ -77,21 +81,48 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         public void VisitorShouldConvertParametersToConstant()
         {
             var visitor = new MacrosExpressionVisitor();
-            visitor.ConstantParametersMethods.ShouldNotBeEmpty();
+            visitor.AccessorMethods.ShouldNotBeEmpty();
 
-            foreach (var method in visitor.ConstantParametersMethods)
+            foreach (var method in visitor.AccessorMethods)
             {
-                new MethodCallExpressionNode(null, method.Key, Default.Array<IExpressionNode>()).Accept(visitor)
-                                                                                                .ShouldEqual(new MethodCallExpressionNode(null, method.Value,
-                                                                                                    Default.Array<IExpressionNode>()));
+                new MethodCallExpressionNode(null, method.Key, default)
+                    .Accept(visitor)
+                    .ShouldEqual(new MethodCallExpressionNode(null, method.Value, default, default, new Dictionary<string, object?>
+                    {
+                        {BindingParameterNameConstant.SuppressMethodAccessors, false}
+                    }));
+            }
+
+            var metadata = new Dictionary<string, object?>
+            {
+                {"test", this},
+                {BindingParameterNameConstant.SuppressMethodAccessors, true}
+            };
+            var mergedMetadata = new Dictionary<string, object?>
+            {
+                {"test", this},
+                {BindingParameterNameConstant.SuppressMethodAccessors, false}
+            };
+            foreach (var method in visitor.AccessorMethods)
+            {
+                new MethodCallExpressionNode(null, method.Key, default, default, metadata)
+                    .Accept(visitor)
+                    .ShouldEqual(new MethodCallExpressionNode(null, method.Value, default, default, mergedMetadata));
             }
 
             var args = new IExpressionNode[]
                 {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
             var expectedArgs = new IExpressionNode[]
                 {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
-            foreach (var method in visitor.ConstantParametersMethods)
-                new MethodCallExpressionNode(null, method.Key, args).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, expectedArgs));
+            foreach (var method in visitor.AccessorMethods)
+            {
+                new MethodCallExpressionNode(null, method.Key, args)
+                    .Accept(visitor)
+                    .ShouldEqual(new MethodCallExpressionNode(null, method.Value, expectedArgs, default, new Dictionary<string, object?>
+                    {
+                        {BindingParameterNameConstant.SuppressMethodAccessors, false}
+                    }));
+            }
         }
     }
 }

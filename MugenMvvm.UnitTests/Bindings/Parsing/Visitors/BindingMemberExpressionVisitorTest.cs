@@ -51,8 +51,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [Fact]
         public void VisitShouldCacheMethodCallMember()
         {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()),
-                new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()));
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, default),
+                new MethodCallExpressionNode(null, MethodName, default));
             var visitor = new BindingMemberExpressionVisitor();
             var expressionNode = (BinaryExpressionNode) visitor.Visit(expression, true, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [InlineData(false)]
         public void VisitShouldHandleMethodCall1(bool isTarget)
         {
-            var expression = new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>());
+            var expression = new MethodCallExpressionNode(null, MethodName, default);
             var visitor = new BindingMemberExpressionVisitor {MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable};
             visitor.Visit(expression, isTarget, DefaultMetadata)
                    .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}()", 0, visitor.Flags.SetTargetFlags(isTarget),

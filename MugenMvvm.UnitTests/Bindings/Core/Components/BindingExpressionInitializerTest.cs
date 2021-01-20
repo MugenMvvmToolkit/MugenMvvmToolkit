@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
             else
             {
-                parameters = Default.Array<IExpressionNode>();
+                parameters = default;
                 component.Flags = flags;
                 component.SuppressIndexAccessors = suppressIndexAccessors;
                 component.SuppressMethodAccessors = suppressMethodAccessors;
