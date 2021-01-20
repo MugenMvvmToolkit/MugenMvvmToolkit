@@ -26,7 +26,7 @@ namespace MugenMvvm.Extensions
         public static ViewMappingProvider GetMappingProvider(this IViewManager viewManager)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
-            return viewManager.GetOrAddComponent(_ => new ViewMappingProvider());
+            return viewManager.GetOrAddComponent<ViewMappingProvider>();
         }
 
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)

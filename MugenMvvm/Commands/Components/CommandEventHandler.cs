@@ -134,23 +134,21 @@ namespace MugenMvvm.Commands.Components
 
         internal sealed class WeakHandler : IMessengerHandler
         {
-            #region Fields
-
             private PropertyChangedEventHandler? _handler;
             private IWeakReference? _reference;
-
-            #endregion
-
-            #region Constructors
 
             public WeakHandler(CommandEventHandler component)
             {
                 _reference = component.ToWeakReference();
             }
 
-            #endregion
+            public PropertyChangedEventHandler GetPropertyChangedEventHandler() => _handler ??= OnPropertyChanged;
 
-            #region Implementation of interfaces
+            public void OnDispose()
+            {
+                _reference?.Release();
+                _reference = null;
+            }
 
             public bool CanHandle(Type messageType) => true;
 
@@ -161,18 +159,6 @@ namespace MugenMvvm.Commands.Components
                     return MessengerResult.Invalid;
                 mediator.Handle(messageContext.Sender, messageContext.Message);
                 return MessengerResult.Handled;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public PropertyChangedEventHandler GetPropertyChangedEventHandler() => _handler ??= OnPropertyChanged;
-
-            public void OnDispose()
-            {
-                _reference?.Release();
-                _reference = null;
             }
 
             private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -187,8 +173,6 @@ namespace MugenMvvm.Commands.Components
 
                 component.Handle(sender, e);
             }
-
-            #endregion
         }
     }
 }

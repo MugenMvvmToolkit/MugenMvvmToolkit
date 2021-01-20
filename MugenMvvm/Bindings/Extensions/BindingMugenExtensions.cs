@@ -20,6 +20,7 @@ using MugenMvvm.Bindings.Interfaces.Observation.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Interfaces.Resources;
+using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
@@ -106,13 +107,19 @@ namespace MugenMvvm.Bindings.Extensions
         public static TypeResolver GetTypeResolver(this IResourceManager resourceManager)
         {
             Should.NotBeNull(resourceManager, nameof(resourceManager));
-            return resourceManager.GetOrAddComponent(_ => new TypeResolver());
+            return resourceManager.GetOrAddComponent<TypeResolver>();
         }
 
         public static ResourceResolver GetResourceResolver(this IResourceManager resourceManager)
         {
             Should.NotBeNull(resourceManager, nameof(resourceManager));
-            return resourceManager.GetOrAddComponent(_ => new ResourceResolver());
+            return resourceManager.GetOrAddComponent<ResourceResolver>();
+        }
+
+        public static AttachedMemberProvider GetAttachedMemberProvider(this IMemberManager memberManager)
+        {
+            Should.NotBeNull(memberManager, nameof(memberManager));
+            return memberManager.GetOrAddComponent<AttachedMemberProvider>();
         }
 
         public static void ClearBindings(object? target, bool clearAttachedValues)

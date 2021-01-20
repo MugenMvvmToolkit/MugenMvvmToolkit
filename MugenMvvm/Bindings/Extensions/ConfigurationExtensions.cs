@@ -13,8 +13,13 @@ using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Parsing;
+using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Members.Components;
@@ -44,7 +49,7 @@ namespace MugenMvvm.Bindings.Extensions
     {
         public static MugenApplicationConfiguration DefaultBindingConfiguration(this MugenApplicationConfiguration configuration, bool cacheResources = true)
         {
-            configuration.WithAppService(new ExpressionCompiler())
+            configuration.WithAppService(MugenService.Optional<IExpressionCompiler>() ?? new ExpressionCompiler())
                          .WithComponent(new ExpressionCompilerCache())
                          .WithComponent(new CompiledExpressionCompiler())
                          .WithComponent(new BinaryExpressionBuilder())
@@ -57,39 +62,37 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new ExpressionOptimizer())
                          .WithComponent(new UnaryExpressionBuilder());
 
-            configuration.WithAppService(new GlobalValueConverter())
+            configuration.WithAppService(MugenService.Optional<IGlobalValueConverter>() ?? new GlobalValueConverter())
                          .WithComponent(new DefaultGlobalValueConverter());
 
-            var macrosPreInitializer = new MacrosBindingInitializer {Priority = BindingComponentPriority.MacrosPreInitializer};
+
+            var managerCfg = configuration.WithAppService(MugenService.Optional<IBindingManager>() ?? new BindingManager())
+                                          .WithComponent(new BindingBuilderDelegateExpressionParser())
+                                          .WithComponent(new BindingCleaner())
+                                          .WithComponent(new BindingExpressionExceptionDecorator())
+                                          .WithComponent(new BindingExpressionParser())
+                                          .WithComponent(new BindingExpressionParserCache())
+                                          .WithComponent(new BindingExpressionPriorityDecorator())
+                                          .WithComponent(new BindingHolder())
+                                          .WithComponent(new BindingHolderLifecycleHandler())
+                                          .WithComponent(new BindingExpressionInitializer())
+                                          .WithComponent(new BindingModeInitializer())
+                                          .WithComponent(new BindingParameterInitializer())
+                                          .WithComponent(new InlineBindingExpressionInitializer())
+                                          .WithComponent(new DelayBindingInitializer());
+
+            var macrosPreInitializer = managerCfg.Service.GetMacrosPreInitializer();
             var macrosVisitor = new MacrosExpressionVisitor();
             macrosPreInitializer.TargetVisitors.Add(macrosVisitor);
             macrosPreInitializer.SourceVisitors.Add(macrosVisitor);
             macrosPreInitializer.ParameterVisitors.Add(macrosVisitor);
 
-            var macrosPostInitializer = new MacrosBindingInitializer {Priority = BindingComponentPriority.MacrosPostInitializer};
+            var macrosPostInitializer = managerCfg.Service.GetMacrosPostInitializer();
             var constantToBindingParameterVisitor = new ConstantToBindingParameterVisitor();
             macrosPostInitializer.SourceVisitors.Add(constantToBindingParameterVisitor);
             macrosPostInitializer.ParameterVisitors.Add(constantToBindingParameterVisitor);
 
-            configuration.WithAppService(new BindingManager())
-                         .WithComponent(macrosPreInitializer)
-                         .WithComponent(macrosPostInitializer)
-                         .WithComponent(new BindingBuilderDelegateExpressionParser())
-                         .WithComponent(new BindingCleaner())
-                         .WithComponent(new BindingExpressionExceptionDecorator())
-                         .WithComponent(new BindingExpressionParser())
-                         .WithComponent(new BindingExpressionParserCache())
-                         .WithComponent(new BindingExpressionPriorityDecorator())
-                         .WithComponent(new BindingHolder())
-                         .WithComponent(new BindingHolderLifecycleHandler())
-                         .WithComponent(new BindingExpressionInitializer())
-                         .WithComponent(new BindingModeInitializer())
-                         .WithComponent(new BindingParameterInitializer())
-                         .WithComponent(new InlineBindingExpressionInitializer())
-                         .WithComponent(new DelayBindingInitializer());
-
-            configuration.WithAppService(new MemberManager())
-                         .WithComponent(new AttachedMemberProvider())
+            configuration.WithAppService(MugenService.Optional<IMemberManager>() ?? new MemberManager())
                          .WithComponent(new ExtensionMethodMemberProvider())
                          .WithComponent(new FakeMemberProvider())
                          .WithComponent(new IndexerAccessorMemberDecorator())
@@ -100,7 +103,7 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new NameRequestMemberManagerDecorator())
                          .WithComponent(new ReflectionMemberProvider());
 
-            var cfg = configuration.WithAppService(new ObservationManager())
+            var cfg = configuration.WithAppService(MugenService.Optional<IObservationManager>() ?? new ObservationManager())
                                    .WithComponent(new EventInfoMemberObserverProvider())
                                    .WithComponent(new EventMemberObserverProvider())
                                    .WithComponent(new MemberPathObserverProvider())
@@ -110,7 +113,7 @@ namespace MugenMvvm.Bindings.Extensions
             if (cacheResources)
                 cfg.WithComponent(new ResourceMemberPathObserverCache());
 
-            configuration.WithAppService(new ExpressionParser())
+            configuration.WithAppService(MugenService.Optional<IExpressionParser>() ?? new ExpressionParser())
                          .WithComponent(new StringExpressionParser())
                          .WithComponent(new UnaryTokenParser())
                          .WithComponent(new MemberTokenParser())
@@ -137,7 +140,7 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new NewArrayExpressionConverter())
                          .WithComponent(new DefaultExpressionConverter());
 
-            configuration.WithAppService(new ResourceManager())
+            configuration.WithAppService(MugenService.Optional<IResourceManager>() ?? new ResourceManager())
                          .WithComponent(new ResourceResolver())
                          .WithComponent(new TypeResolver());
 
@@ -147,7 +150,7 @@ namespace MugenMvvm.Bindings.Extensions
         public static MugenApplicationConfiguration AttachedMembersBaseConfiguration(this MugenApplicationConfiguration configuration)
         {
             var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service;
-            var attachedMemberProvider = memberManager.GetOrAddComponent(context => new AttachedMemberProvider());
+            var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
             RegisterObjectAttachedMembers(attachedMemberProvider);
             RegisterCollectionAttachedMembers(attachedMemberProvider);
             RegisterValidationAttachedMembers(memberManager, attachedMemberProvider);
