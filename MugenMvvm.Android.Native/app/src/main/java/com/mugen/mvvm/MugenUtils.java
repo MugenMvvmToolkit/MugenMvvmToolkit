@@ -24,6 +24,7 @@ import com.mugen.mvvm.views.ActivityMugenExtensions;
 import com.mugen.mvvm.views.listeners.ViewMemberListenerManager;
 
 public final class MugenUtils {
+    public static final String LogTag = "MugenMvvm";
     public static final int Tv = 1;
     public static final int Desktop = 2;
     public static final int Watch = 3;

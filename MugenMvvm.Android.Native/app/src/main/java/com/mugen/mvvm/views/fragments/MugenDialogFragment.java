@@ -21,6 +21,7 @@ import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class MugenDialogFragment extends DialogFragment implements INativeFragmentView, IDialogFragmentView {
     private Object _state;
+    private int _viewId;
 
     @NonNull
     @Override
@@ -29,8 +30,15 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
     }
 
     @Override
+    public void setViewResourceId(int resourceId) {
+        _viewId = resourceId;
+    }
+
+    @Override
     public int getViewId() {
-        return ViewMugenExtensions.tryGetViewId(getClass(), null, 0);
+        if (_viewId != 0)
+            return _viewId;
+        return ViewMugenExtensions.tryGetLayoutId(getClass(), null, 0);
     }
 
     @Nullable

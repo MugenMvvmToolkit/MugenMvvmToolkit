@@ -1,6 +1,7 @@
 package com.mugen.mvvm.views.listeners;
 
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,7 +11,6 @@ import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.IMemberListener;
 import com.mugen.mvvm.interfaces.IMemberListenerManager;
 import com.mugen.mvvm.views.BindableMemberMugenExtensions;
-import com.mugen.mvvm.views.ViewMugenExtensions;
 import com.mugen.mvvm.views.support.SwipeRefreshLayoutMugenExtensions;
 import com.mugen.mvvm.views.support.TabLayoutMugenExtensions;
 import com.mugen.mvvm.views.support.ViewPager2MugenExtensions;
@@ -39,6 +39,9 @@ public class ViewMemberListenerManager implements IMemberListenerManager {
 
                 return new ViewMemberListener(view);
             }
+
+            if (target instanceof CompoundButton && (BindableMemberMugenExtensions.CheckedMemberName.equals(memberName) || BindableMemberMugenExtensions.CheckedEventName.equals(memberName)))
+                return new CheckedChangeListener();
 
             if (BindableMemberMugenExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutMugenExtensions.isSupported(view))
                 return ViewMemberListenerUtils.getSwipeRefreshLayoutRefreshedListener(view);

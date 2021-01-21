@@ -14,6 +14,7 @@ import com.mugen.mvvm.interfaces.views.IViewContentManager;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.interfaces.views.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IViewItemsSourceManager;
+import com.mugen.mvvm.interfaces.views.IViewLayoutResourceResolver;
 import com.mugen.mvvm.interfaces.views.IViewMenuManager;
 import com.mugen.mvvm.interfaces.views.IViewSelectedIndexManager;
 import com.mugen.mvvm.internal.HasPriorityComparator;
@@ -37,6 +38,7 @@ public final class MugenService {
     private static IActivityManager _activityManager;
     private static IChildViewManager _childViewManager;
     private static IAsyncAppInitializer _asyncAppInitializer;
+    private static IViewLayoutResourceResolver _layoutResourceResolver;
 
     private MugenService() {
     }
@@ -120,6 +122,15 @@ public final class MugenService {
 
     public static void setActivityManager(@Nullable IActivityManager activityManager) {
         _activityManager = activityManager;
+    }
+
+    @Nullable
+    public static IViewLayoutResourceResolver getLayoutResourceResolver() {
+        return _layoutResourceResolver;
+    }
+
+    public static void setLayoutResourceResolver(@Nullable IViewLayoutResourceResolver layoutResourceResolver) {
+        _layoutResourceResolver = layoutResourceResolver;
     }
 
     @Nullable

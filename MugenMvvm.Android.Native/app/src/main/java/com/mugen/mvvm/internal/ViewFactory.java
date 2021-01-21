@@ -34,9 +34,13 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
         else
             context = (Context) container;
 
-        Class clazz = ViewMugenExtensions.tryGetClassById(resourceId);
-        if (clazz != null && IFragmentView.class.isAssignableFrom(clazz))
-            return clazz.getConstructor().newInstance();
+        Class clazz = ViewMugenExtensions.tryGetClassByLayoutId(resourceId);
+        if (clazz != null && IFragmentView.class.isAssignableFrom(clazz)) {
+            IFragmentView fragmentView = (IFragmentView) clazz.getConstructor().newInstance();
+            if (resourceId != 0)
+                fragmentView.setViewResourceId(resourceId);
+            return fragmentView;
+        }
 
         View view = LayoutInflater.from(context).inflate(resourceId, null);
         if (trackLifecycle) {

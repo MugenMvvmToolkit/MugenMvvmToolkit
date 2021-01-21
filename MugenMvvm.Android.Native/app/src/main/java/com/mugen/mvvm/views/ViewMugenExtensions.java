@@ -3,6 +3,7 @@ package com.mugen.mvvm.views;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -12,10 +13,8 @@ import androidx.annotation.Nullable;
 import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.R;
+import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IAttachedValueProvider;
-import com.mugen.mvvm.interfaces.IMemberChangedListener;
-import com.mugen.mvvm.interfaces.IMemberListener;
-import com.mugen.mvvm.interfaces.IMemberListenerManager;
 import com.mugen.mvvm.interfaces.IWrapperManager;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
@@ -24,10 +23,10 @@ import com.mugen.mvvm.interfaces.views.IHasStateView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
 import com.mugen.mvvm.interfaces.views.INativeFragmentView;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
+import com.mugen.mvvm.interfaces.views.IViewLayoutResourceResolver;
 import com.mugen.mvvm.internal.ActivityAttachedValues;
 import com.mugen.mvvm.internal.AttachedValues;
 import com.mugen.mvvm.internal.FragmentAttachedValues;
-import com.mugen.mvvm.internal.MemberChangedListenerWrapper;
 import com.mugen.mvvm.internal.ViewAttachedValues;
 import com.mugen.mvvm.internal.ViewParentObserver;
 import com.mugen.mvvm.views.activities.ActivityWrapper;
@@ -123,12 +122,17 @@ public final class ViewMugenExtensions {
             return (ViewAttachedValues) attachedValueProvider.getAttachedValues(view, required);
 
         if (MugenUtils.isRawViewTagMode()) {
-            ViewAttachedValues result = (ViewAttachedValues) view.getTag();
-            if (result != null || !required)
+            Object tag = view.getTag();
+            if (tag == null || tag instanceof ViewAttachedValues) {
+                ViewAttachedValues result = (ViewAttachedValues) tag;
+                if (result != null || !required)
+                    return result;
+                result = new ViewAttachedValues();
+                view.setTag(result);
                 return result;
-            result = new ViewAttachedValues();
-            view.setTag(result);
-            return result;
+            }
+            if (MugenUtils.hasFlag(MugenInitializationFlags.Debug))
+                Log.e(MugenUtils.LogTag, "Attached values wrong tag value " + tag);
         }
 
         ViewAttachedValues result = (ViewAttachedValues) view.getTag(R.id.attachedValues);
@@ -148,11 +152,24 @@ public final class ViewMugenExtensions {
     }
 
     @Nullable
-    public static Class tryGetClassById(int resourceId) {
+    public static Class tryGetClassByLayoutId(int resourceId) {
+        IViewLayoutResourceResolver layoutResourceResolver = MugenService.getLayoutResourceResolver();
+        if (layoutResourceResolver != null) {
+            Class clazz = layoutResourceResolver.tryGetClassByLayoutId(resourceId);
+            if (clazz != null)
+                return clazz;
+        }
         return _resourceViewMapping.get(resourceId);
     }
 
-    public static int tryGetViewId(@Nullable Class viewClass, @Nullable Intent intent, int defaultValue) {
+    public static int tryGetLayoutId(@Nullable Class viewClass, @Nullable Intent intent, int defaultValue) {
+        IViewLayoutResourceResolver layoutResourceResolver = MugenService.getLayoutResourceResolver();
+        if (layoutResourceResolver != null) {
+            int id = layoutResourceResolver.tryGetLayoutId(viewClass, intent);
+            if (id != 0)
+                return id;
+        }
+
         if (intent != null && intent.hasExtra(ActivityMugenExtensions.ViewIdIntentKey))
             return intent.getIntExtra(ActivityMugenExtensions.ViewIdIntentKey, defaultValue);
         if (viewClass == null)

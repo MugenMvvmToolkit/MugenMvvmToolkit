@@ -30,8 +30,13 @@ public final class ViewParentObserver implements ViewGroup.OnHierarchyChangeList
     }
 
     public void add(@NonNull View view) {
-        if (view instanceof ViewGroup && !isDisabled(view))
-            ((ViewGroup) view).setOnHierarchyChangeListener(this);
+        if (view instanceof ViewGroup && !isDisabled(view)) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            viewGroup.setOnHierarchyChangeListener(this);
+            int childCount = viewGroup.getChildCount();
+            for (int i = 0; i < childCount; i++)
+                add(viewGroup.getChildAt(i));
+        }
     }
 
     public void remove(@NonNull View view, boolean setTag) {

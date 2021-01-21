@@ -19,6 +19,7 @@ import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class MugenFragment extends Fragment implements INativeFragmentView {
     private Object _state;
+    private int _viewId;
 
     @NonNull
     @Override
@@ -27,8 +28,15 @@ public class MugenFragment extends Fragment implements INativeFragmentView {
     }
 
     @Override
+    public void setViewResourceId(int resourceId) {
+        _viewId = resourceId;
+    }
+
+    @Override
     public int getViewId() {
-        return ViewMugenExtensions.tryGetViewId(getClass(), null, 0);
+        if (_viewId != 0)
+            return _viewId;
+        return ViewMugenExtensions.tryGetLayoutId(getClass(), null, 0);
     }
 
     @Nullable

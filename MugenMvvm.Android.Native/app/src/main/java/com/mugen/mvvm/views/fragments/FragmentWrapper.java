@@ -19,6 +19,11 @@ public class FragmentWrapper implements IFragmentView {
         return Target;
     }
 
+    @Override
+    public void setViewResourceId(int resourceId) {
+        Target.setViewResourceId(resourceId);
+    }
+
     @Nullable
     @Override
     public Object getState() {

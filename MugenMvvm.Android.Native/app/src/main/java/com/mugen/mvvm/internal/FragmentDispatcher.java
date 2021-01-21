@@ -12,20 +12,35 @@ import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
+import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.views.FragmentMugenExtensions;
 import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher {
+    private final String ViewIdKey = "f_vid";
+
     @Override
     public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
-        if (MugenUtils.isFragmentStateDisabled() && lifecycle == LifecycleState.Create && state instanceof Bundle)
-            FragmentMugenExtensions.clearFragmentState((Bundle) state);
+        if (lifecycle == LifecycleState.Create && state instanceof Bundle) {
+            if (MugenUtils.isFragmentStateDisabled())
+                FragmentMugenExtensions.clearFragmentState((Bundle) state);
+            else if (target instanceof IFragmentView) {
+                int viewId = ((Bundle) state).getInt(ViewIdKey);
+                if (viewId != 0)
+                    ((IFragmentView) target).setViewResourceId(viewId);
+            }
+        }
         return true;
     }
 
     @Override
     public void onLifecycleChanged(@NonNull Object target, int lifecycle, @Nullable Object state) {
+        if (lifecycle == LifecycleState.SaveState && !MugenUtils.isFragmentStateDisabled() && target instanceof IFragmentView && state instanceof Bundle) {
+            int viewId = ((IFragmentView) target).getViewId();
+            if (viewId != 0)
+                ((Bundle) state).putInt(ViewIdKey, viewId);
+        }
     }
 
     @Override

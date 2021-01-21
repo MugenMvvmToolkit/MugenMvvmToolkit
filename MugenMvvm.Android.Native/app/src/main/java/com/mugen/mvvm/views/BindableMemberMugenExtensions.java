@@ -3,6 +3,8 @@ package com.mugen.mvvm.views;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Checkable;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,19 +14,19 @@ import androidx.fragment.app.Fragment;
 import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.constants.LifecycleState;
-import com.mugen.mvvm.interfaces.views.IChildViewManager;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
 import com.mugen.mvvm.interfaces.IMemberListener;
 import com.mugen.mvvm.interfaces.IMemberListenerManager;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
+import com.mugen.mvvm.interfaces.views.IChildViewManager;
+import com.mugen.mvvm.interfaces.views.IFragmentView;
+import com.mugen.mvvm.interfaces.views.IHasLifecycleView;
 import com.mugen.mvvm.interfaces.views.IViewContentManager;
 import com.mugen.mvvm.interfaces.views.IViewItemsSourceManager;
 import com.mugen.mvvm.interfaces.views.IViewMenuManager;
 import com.mugen.mvvm.interfaces.views.IViewSelectedIndexManager;
-import com.mugen.mvvm.interfaces.views.IFragmentView;
-import com.mugen.mvvm.interfaces.views.IHasLifecycleView;
 import com.mugen.mvvm.internal.AttachedValues;
 import com.mugen.mvvm.internal.MemberChangedListenerWrapper;
 import com.mugen.mvvm.internal.ViewAttachedValues;
@@ -48,6 +50,8 @@ public final class BindableMemberMugenExtensions {
     public static final CharSequence RefreshedEventName = "Refreshed";
     public final static CharSequence SelectedIndexName = "SelectedIndex";
     public final static CharSequence SelectedIndexEventName = "SelectedIndexChanged";
+    public static final CharSequence CheckedMemberName = "Checked";
+    public static final CharSequence CheckedEventName = "CheckedChanged";
 
     public static final int NoneProviderType = 0;
     public static final int ResourceProviderType = 1;
@@ -59,6 +63,14 @@ public final class BindableMemberMugenExtensions {
     private BindableMemberMugenExtensions() {
     }
 
+    public static boolean getChecked(@NonNull View view) {
+        return ((Checkable) view).isChecked();
+    }
+
+    public static void setChecked(@NonNull View view, boolean value) {
+        ((Checkable) view).setChecked(value);
+    }
+
     @Nullable
     public static CharSequence getText(@NonNull View view) {
         return ((TextView) view).getText();
@@ -66,6 +78,8 @@ public final class BindableMemberMugenExtensions {
 
     public static void setText(@NonNull View view, @Nullable CharSequence text) {
         ((TextView) view).setText(text);
+        if (text != null && view instanceof EditText)
+            ((EditText) view).setSelection(((EditText) view).length());
     }
 
     @Nullable
@@ -167,6 +181,9 @@ public final class BindableMemberMugenExtensions {
     }
 
     public static void setParent(@NonNull View view, @Nullable Object parent) {
+        if (view == parent)
+            return;
+        
         Object oldParent = getParentRaw(view);
         parent = ViewMugenExtensions.tryWrap(parent);
         if (oldParent == parent)
