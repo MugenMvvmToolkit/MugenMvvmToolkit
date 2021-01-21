@@ -52,7 +52,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public EnumFlags<MemberFlags> AccessModifiers => _getMethod?.AccessModifiers ?? _setMethod!.AccessModifiers;
+        public EnumFlags<MemberFlags> MemberFlags => _getMethod?.MemberFlags ?? _setMethod!.MemberFlags;
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {

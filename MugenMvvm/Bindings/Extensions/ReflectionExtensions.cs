@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Collections;
@@ -272,8 +273,8 @@ namespace MugenMvvm.Bindings.Extensions
             if (fieldInfo == null)
                 return MemberFlags.Instance;
             if (fieldInfo.IsStatic)
-                return fieldInfo.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
-            return fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+                return (fieldInfo.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic) | fieldInfo.GetObservableFlags();
+            return (fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic) | fieldInfo.GetObservableFlags();
         }
 
         public static EnumFlags<MemberFlags> GetAccessModifiers(this EventInfo? eventInfo)
@@ -287,7 +288,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (propertyInfo == null)
                 return MemberFlags.Instance;
-            return (propertyInfo.GetGetMethod(true) ?? propertyInfo.GetSetMethod(true)).GetAccessModifiers();
+            return ((propertyInfo.GetGetMethod(true) ?? propertyInfo.GetSetMethod(true)).GetAccessModifiers()) | propertyInfo.GetObservableFlags();
         }
 
         public static EnumFlags<MemberFlags> GetAccessModifiers(this MethodBase? method)
@@ -302,16 +303,16 @@ namespace MugenMvvm.Bindings.Extensions
             if (method == null)
                 return MemberFlags.Instance;
             if (!method.IsStatic)
-                return method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+                return (method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic) | method.GetObservableFlags();
 
             if (checkExtension && method.IsDefined(typeof(ExtensionAttribute), false))
             {
                 extensionParameters ??= method.GetParameters();
                 if (extensionParameters.Length != 0)
-                    return method.IsPublic ? MemberFlags.Extension | MemberFlags.Public : MemberFlags.Extension | MemberFlags.NonPublic;
+                    return (method.IsPublic ? MemberFlags.Extension | MemberFlags.Public : MemberFlags.Extension | MemberFlags.NonPublic) | method.GetObservableFlags();
             }
 
-            return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
+            return (method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic) | method.GetObservableFlags();
         }
 
         internal static object? GetDefaultValue(this Type type)
@@ -348,6 +349,14 @@ namespace MugenMvvm.Bindings.Extensions
             if (addInterfaces)
                 AddInterface(types, type, true);
             return types;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static EnumFlags<MemberFlags> GetObservableFlags(this MemberInfo member)
+        {
+            if (member.IsDefined(typeof(NonObservableAttribute), true) || member.DeclaringType != null && member.DeclaringType.IsDefined(typeof(NonObservableAttribute), true))
+                return MemberFlags.NonObservable;
+            return default;
         }
 
         private static Type? FindCommonType(Type genericDefinition, Type type)

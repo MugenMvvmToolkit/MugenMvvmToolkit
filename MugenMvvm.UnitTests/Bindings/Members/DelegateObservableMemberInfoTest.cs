@@ -26,11 +26,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             TryObserveDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> tryObserve = (member, target, listener, metadata) =>
                 default;
             RaiseDelegate<DelegateObservableMemberInfo<string, (DelegateObservableMemberInfoTest, string)>, string> raise = (member, target, message, metadata) => { };
-            var memberInfo = Create(name, declaringType, memberType, accessModifiers, underlyingMember, state, false, tryObserve, raise);
+            var memberInfo = Create(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserve, raise);
             memberInfo.Type.ShouldEqual(memberType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.MemberType.ShouldEqual(MemberType);
-            memberInfo.AccessModifiers.ShouldEqual(accessModifiers);
+            memberInfo.MemberFlags.ShouldEqual(accessModifiers);
             memberInfo.UnderlyingMember.ShouldEqual(underlyingMember);
             memberInfo.DeclaringType.ShouldEqual(declaringType);
             memberInfo.State.ShouldEqual(state);
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var invokeCount = 0;
             string t = "";
             var msg = new object();
-            var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, false, (member, target, listener, metadata) => default,
+            var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, (member, target, listener, metadata) => default,
                 (member, target, message, metadata) =>
                 {
                     ++invokeCount;
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             string t = "";
             var l = new TestWeakEventListener();
             var result = new ActionToken((o, o1) => { });
-            var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, false, (member, target, listener, metadata) =>
+            var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, (member, target, listener, metadata) =>
             {
                 ++invokeCount;
                 member.ShouldEqual(m);
@@ -81,14 +81,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
         protected virtual MemberType MemberType => MemberType.Event;
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryObserverShouldUseObservationManager(bool tryObserveByMember)
+        [Fact]
+        public void TryObserverShouldUseObservationManager()
         {
             var invokeCount = 0;
             var actionToken = new ActionToken((o, o1) => { });
-            var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, tryObserveByMember, null, null);
+            var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, null, null);
             using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3) =>
@@ -102,24 +100,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             });
 
             var token = memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
-            if (tryObserveByMember)
-            {
-                invokeCount.ShouldEqual(1);
-                token.ShouldEqual(actionToken);
-            }
-            else
-            {
-                invokeCount.ShouldEqual(0);
-                token.IsEmpty.ShouldBeTrue();
-            }
+            invokeCount.ShouldEqual(1);
+            token.ShouldEqual(actionToken);
         }
 
         protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
             EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
-            in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+            in TState state, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-            where TTarget : class? =>
-            new(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise);
+            where TTarget : class? => new(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserve, raise);
     }
 }

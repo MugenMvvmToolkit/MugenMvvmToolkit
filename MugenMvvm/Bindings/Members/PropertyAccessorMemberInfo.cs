@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
@@ -57,7 +58,9 @@ namespace MugenMvvm.Bindings.Members
                 _setterFunc = CompileSetter;
             }
 
-            _modifiers = (getMethod ?? setMethod).GetAccessModifiers().Value();
+            _modifiers = (ushort) ((getMethod ?? setMethod).GetAccessModifiers().Value() | propertyInfo.GetObservableFlags().Value());
+            if (setMethod == null && getMethod != null && getMethod.IsDefined(typeof(CompilerGeneratedAttribute), false))
+                _modifiers |= Enums.MemberFlags.NonObservable.Value;
         }
 
         public bool CanRead { get; }
@@ -74,7 +77,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
+        public EnumFlags<MemberFlags> MemberFlags => new(_modifiers);
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => _getterFunc(target);
 

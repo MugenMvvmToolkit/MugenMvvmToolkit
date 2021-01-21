@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Internal
 
         public MemberType MemberType { get; set; } = default!;
 
-        public EnumFlags<MemberFlags> AccessModifiers { get; set; }
+        public EnumFlags<MemberFlags> MemberFlags { get; set; }
 
         public override string ToString() => $"{Name} - {DeclaringType?.Name} {Type?.Name}";
 

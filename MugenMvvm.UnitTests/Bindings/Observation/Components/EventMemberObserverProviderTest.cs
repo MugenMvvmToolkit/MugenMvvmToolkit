@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             var tryObserveCount = 0;
 
             var targetType = typeof(string);
-            var member = new TestAccessorMemberInfo {Name = memberName, AccessModifiers = flags};
+            var member = new TestAccessorMemberInfo {Name = memberName, MemberFlags = flags};
             var result = new TestEventInfo
             {
                 TryObserve = (o, l, arg3) =>

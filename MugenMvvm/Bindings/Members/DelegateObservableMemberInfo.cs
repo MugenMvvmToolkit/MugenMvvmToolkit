@@ -22,7 +22,6 @@ namespace MugenMvvm.Bindings.Members
         private MemberObserver _observer;
 
         public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, TState state,
-            bool tryObserveByMember,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             Should.NotBeNull(name, nameof(name));
@@ -36,8 +35,6 @@ namespace MugenMvvm.Bindings.Members
             Type = memberType;
             _tryObserve = tryObserve;
             _raise = raise;
-            if (!tryObserveByMember)
-                _observer = MemberObserver.NoDo;
         }
 
         public virtual MemberType MemberType => MemberType.Event;
@@ -50,9 +47,9 @@ namespace MugenMvvm.Bindings.Members
 
         public object? UnderlyingMember { get; }
 
-        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
+        public EnumFlags<MemberFlags> MemberFlags => new(_modifiers);
 
-        public override string ToString() => $"{DeclaringType.Name}.Delegate{MemberType.Name} {AccessModifiers.ToString()}";
+        public override string ToString() => $"{DeclaringType.Name}.Delegate{MemberType.Name} {MemberFlags.ToString()}";
 
         public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null) => _raise?.Invoke(this, (TTarget) target!, message, metadata);
 

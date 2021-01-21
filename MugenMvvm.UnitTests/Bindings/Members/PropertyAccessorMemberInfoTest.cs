@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
@@ -15,6 +16,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
         public static int Property2Static { get; set; }
 
+        [NonObservable]
+        public static int NonObservableStaticProperty { get; set; }
+
+        public static string ReadOnlyPropertyStaticGenerated { get; } = nameof(ReadOnlyPropertyStaticGenerated);
+
         public static string ReadOnlyPropertyStatic => nameof(ReadOnlyPropertyStatic);
 
         public static string WriteOnlyPropertyStatic
@@ -26,6 +32,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
         public int Property2 { get; set; }
 
+        [NonObservable]
+        public int NonObservableProperty { get; set; }
+
+        public string ReadOnlyPropertyGenerated { get; } = nameof(ReadOnlyPropertyGenerated);
+
         public string ReadOnlyProperty => nameof(ReadOnlyProperty);
 
         public string WriteOnlyProperty
@@ -34,11 +45,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         }
 
         [Theory]
-        [InlineData(nameof(Property1))]
-        [InlineData(nameof(Property2))]
-        [InlineData(nameof(ReadOnlyProperty))]
-        [InlineData(nameof(WriteOnlyProperty))]
-        public void ConstructorShouldInitializeMember(string fieldName)
+        [InlineData(nameof(Property1), false)]
+        [InlineData(nameof(Property2), false)]
+        [InlineData(nameof(ReadOnlyProperty), false)]
+        [InlineData(nameof(WriteOnlyProperty), false)]
+        [InlineData(nameof(ReadOnlyPropertyGenerated), true)]
+        [InlineData(nameof(NonObservableProperty), true)]
+        public void ConstructorShouldInitializeMember(string fieldName, bool nonObservable)
         {
             var propertyInfo = GetType().GetProperty(fieldName)!;
             propertyInfo.ShouldNotBeNull();
@@ -78,7 +91,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(propertyInfo.DeclaringType);
             memberInfo.UnderlyingMember.ShouldEqual(propertyInfo);
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance | (nonObservable ? MemberFlags.NonObservable : default));
 
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
@@ -107,7 +120,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 memberInfo.SetValue(this, "", DefaultMetadata);
                 ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, DefaultMetadata));
             }
-            else
+            else if (fieldName == nameof(ReadOnlyPropertyGenerated))
+            {
+                memberInfo.CanWrite.ShouldBeFalse();
+                memberInfo.CanRead.ShouldBeTrue();
+                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(ReadOnlyPropertyGenerated);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, nameof(Property1), DefaultMetadata));
+            }
+            else if (fieldName == nameof(Property2))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeTrue();
@@ -118,11 +138,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         }
 
         [Theory]
-        [InlineData(nameof(Property1Static))]
-        [InlineData(nameof(Property2Static))]
-        [InlineData(nameof(ReadOnlyPropertyStatic))]
-        [InlineData(nameof(WriteOnlyPropertyStatic))]
-        public void ConstructorShouldInitializeStaticMember(string fieldName)
+        [InlineData(nameof(Property1Static), false)]
+        [InlineData(nameof(Property2Static), false)]
+        [InlineData(nameof(ReadOnlyPropertyStatic), false)]
+        [InlineData(nameof(WriteOnlyPropertyStatic), false)]
+        [InlineData(nameof(ReadOnlyPropertyStaticGenerated), true)]
+        [InlineData(nameof(NonObservableStaticProperty), true)]
+        public void ConstructorShouldInitializeStaticMember(string fieldName, bool nonObservable)
         {
             var propertyInfo = GetType().GetProperty(fieldName)!;
             propertyInfo.ShouldNotBeNull();
@@ -162,7 +184,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(propertyInfo.DeclaringType);
             memberInfo.UnderlyingMember.ShouldEqual(propertyInfo);
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Static);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Static | (nonObservable ? MemberFlags.NonObservable : default));
 
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
@@ -184,6 +206,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(ReadOnlyPropertyStatic);
                 ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(null, nameof(Property1Static), DefaultMetadata));
             }
+            else if (fieldName == nameof(ReadOnlyPropertyStaticGenerated))
+            {
+                memberInfo.CanWrite.ShouldBeFalse();
+                memberInfo.CanRead.ShouldBeTrue();
+                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(ReadOnlyPropertyStaticGenerated);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(null, nameof(Property1Static), DefaultMetadata));
+            }
             else if (fieldName == nameof(WriteOnlyPropertyStatic))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
@@ -191,7 +220,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 memberInfo.SetValue(null, "", DefaultMetadata);
                 ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(null, DefaultMetadata));
             }
-            else
+            else if (fieldName == nameof(Property2Static))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeTrue();

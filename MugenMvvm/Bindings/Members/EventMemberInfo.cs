@@ -39,7 +39,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Event;
 
-        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
+        public EnumFlags<MemberFlags> MemberFlags => new(_modifiers);
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null) => _observer.TryObserve(target, listener!, metadata);
     }

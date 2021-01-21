@@ -3,6 +3,7 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
@@ -68,9 +69,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ConstructorShouldInitializeValues(bool isStatic)
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public void ConstructorShouldInitializeValues(bool isStatic, bool nonObservable)
         {
             string name = "t";
             Type declaringType = typeof(object);
@@ -81,11 +84,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                           .InvokeHandler((info, target, args, metadata) => "");
             if (isStatic)
                 builder = builder.Static();
+            if (nonObservable)
+                builder = builder.NonObservable();
             var build = builder.Build();
             build.MemberType.ShouldEqual(MemberType.Method);
             build.Type.ShouldEqual(propertyType);
             build.DeclaringType.ShouldEqual(declaringType);
-            build.AccessModifiers.ShouldEqual(isStatic ? MemberFlags.Attached | MemberFlags.StaticPublic : MemberFlags.Attached | MemberFlags.InstancePublic);
+            build.MemberFlags.ShouldEqual((isStatic ? MemberFlags.Attached | MemberFlags.StaticPublic : MemberFlags.Attached | MemberFlags.InstancePublic) |
+                                          (nonObservable ? MemberFlags.NonObservable : default));
             build.UnderlyingMember.ShouldEqual(member);
             build.Name.ShouldEqual(name);
         }
@@ -163,6 +169,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             if (!observable)
                 b.NonObservable();
             var memberInfo = b.Build();
+            memberInfo.MemberFlags.HasFlag(MemberFlags.NonObservable).ShouldEqual(!observable);
             using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3) =>
@@ -176,16 +183,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             });
 
             var token = memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
-            if (observable)
-            {
-                invokeCount.ShouldEqual(1);
-                token.ShouldEqual(actionToken);
-            }
-            else
-            {
-                invokeCount.ShouldEqual(0);
-                token.IsEmpty.ShouldBeTrue();
-            }
+            invokeCount.ShouldEqual(1);
+            token.ShouldEqual(actionToken);
         }
 
         [Theory]

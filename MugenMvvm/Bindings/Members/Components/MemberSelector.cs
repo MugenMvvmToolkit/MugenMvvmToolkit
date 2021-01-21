@@ -31,7 +31,7 @@ namespace MugenMvvm.Bindings.Members.Components
         private static int GetPriority(IMemberInfo member, Type requestedType)
         {
             var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
-            var flags = member.AccessModifiers;
+            var flags = member.MemberFlags;
             foreach (var f in MemberFlags.GetAll())
             {
                 if (flags.HasFlag(f))
@@ -70,7 +70,7 @@ namespace MugenMvvm.Bindings.Members.Components
             for (var i = 0; i < members.Count; i++)
             {
                 var member = members[i];
-                if (!memberTypes.HasFlag(member.MemberType) || !flags.HasFlag(member.AccessModifiers))
+                if (!memberTypes.HasFlag(member.MemberType) || !flags.HasFlag(member.MemberFlags))
                     continue;
 
                 if (_selectorDictionary.TryGetValue(member, out var list))

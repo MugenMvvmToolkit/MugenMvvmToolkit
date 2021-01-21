@@ -18,6 +18,7 @@ namespace MugenMvvm.Bindings.Enums
 
         public static readonly MemberFlags Public = new(1 << 0, 10, nameof(Public));
         public static readonly MemberFlags NonPublic = new(1 << 1, 0, nameof(NonPublic));
+        public static readonly MemberFlags NonObservable = new(1 << 7, 0, nameof(NonObservable));
 
         public static readonly MemberFlags Static = new(1 << 2, DefaultPriority, nameof(Static));
         public static readonly MemberFlags Instance = new(1 << 3, DefaultPriority, nameof(Instance));

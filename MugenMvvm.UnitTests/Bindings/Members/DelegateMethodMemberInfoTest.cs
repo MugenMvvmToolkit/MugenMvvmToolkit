@@ -17,8 +17,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         public void GetParametersShouldUseDelegate()
         {
             var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null,
-                (member, target, args, metadata) => "", null, null, false, null,
-                null);
+                (member, target, args, metadata) => "", null, null, null, null);
             memberInfo.GetParameters().IsEmpty.ShouldBeTrue();
 
             var invokeCount = 0;
@@ -29,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     ++invokeCount;
                     info.ShouldEqual(memberInfo);
                     return parameters;
-                }, null, false, null, null);
+                }, null, null, null);
             memberInfo.GetParameters().ShouldEqual(parameters);
         }
 
@@ -50,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     objects.ShouldEqual(args.AsList());
                     metadata.ShouldEqual(DefaultMetadata);
                     return result;
-                }, null, null, false, null, null);
+                }, null, null, null, null);
             m = memberInfo;
             memberInfo.Invoke(t, objects, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
@@ -60,8 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         public void ShouldNotBeGeneric()
         {
             var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null,
-                (member, target, args, metadata) => "", null, null, false, null,
-                null);
+                (member, target, args, metadata) => "", null, null, null, null);
             memberInfo.IsGenericMethod.ShouldBeFalse();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
             ShouldThrow<NotSupportedException>(() => memberInfo.GetGenericMethodDefinition());
@@ -75,8 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var flags = ArgumentFlags.Metadata;
             var values = new object[] {this};
             var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null,
-                (member, target, args, metadata) => "", null, null, false, null,
-                null);
+                (member, target, args, metadata) => "", null, null, null, null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldBeNull();
 
             var invokeCount = 0;
@@ -91,7 +88,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     args.ShouldEqual(values);
                     metadata.ShouldEqual(DefaultMetadata);
                     return accessor;
-                }, false, null, null);
+                }, null, null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
         }
 
@@ -99,11 +96,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
         protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
             EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
-            in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+            in TState state, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
             new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state,
-                (member, target, args, metadata) => "",
-                null, null, tryObserveByMember, tryObserve, raise);
+                (member, target, args, metadata) => "", null, null, tryObserve, raise);
     }
 }

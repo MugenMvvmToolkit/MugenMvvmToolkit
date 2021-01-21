@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var method = new TestMethodMemberInfo
             {
                 DeclaringType = typeof(object),
-                AccessModifiers = MemberFlags.InstancePublic,
+                MemberFlags = MemberFlags.InstancePublic,
                 TryGetAccessor = (flags, objects, arg3) =>
                 {
                     flags.ShouldEqual(default);

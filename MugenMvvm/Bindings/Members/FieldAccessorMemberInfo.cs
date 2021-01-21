@@ -30,13 +30,19 @@ namespace MugenMvvm.Bindings.Members
             _reflectedType = reflectedType;
             Name = name;
             _getterFunc = CompileGetter;
-            _setterFunc = CompileSetter;
             _modifiers = fieldInfo.GetAccessModifiers().Value();
+            if (fieldInfo.IsInitOnly)
+            {
+                _setterFunc = MustBeWritable;
+                _modifiers |= Enums.MemberFlags.NonObservable.Value;
+            }
+            else
+                _setterFunc = CompileSetter;
         }
 
         public bool CanRead => true;
 
-        public bool CanWrite => true;
+        public bool CanWrite => !_fieldInfo.IsInitOnly;
 
         public string Name { get; }
 
@@ -48,7 +54,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public EnumFlags<MemberFlags> AccessModifiers => new(_modifiers);
+        public EnumFlags<MemberFlags> MemberFlags => new(_modifiers);
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => _getterFunc(target);
 
@@ -72,5 +78,7 @@ namespace MugenMvvm.Bindings.Members
             _getterFunc = _fieldInfo.GetMemberGetter<object?, object?>();
             return _getterFunc(arg);
         }
+
+        private void MustBeWritable(object? _, object? __) => ExceptionManager.ThrowBindingMemberMustBeWritable(this);
     }
 }

@@ -16,7 +16,7 @@ namespace MugenMvvm.Bindings.Observation.Components
     {
         private readonly Dictionary<string, IMemberPathObserver?> _cache;
 
-        public ResourceMemberPathObserverCache(int priority = ObserverComponentPriority.Cache) : base(priority)
+        public ResourceMemberPathObserverCache(int priority = ObservationComponentPriority.Cache) : base(priority)
         {
             _cache = new Dictionary<string, IMemberPathObserver?>(3, StringComparer.Ordinal);
         }

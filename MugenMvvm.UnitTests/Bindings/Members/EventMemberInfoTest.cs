@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(eventInfo.DeclaringType);
             memberInfo.UnderlyingMember.ShouldEqual(eventInfo);
             memberInfo.MemberType.ShouldEqual(MemberType.Event);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
 
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);

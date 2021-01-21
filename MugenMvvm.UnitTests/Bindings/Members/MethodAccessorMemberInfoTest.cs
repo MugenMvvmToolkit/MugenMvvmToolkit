@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 getMethod = new TestMethodMemberInfo
                 {
                     DeclaringType = declaringType,
-                    AccessModifiers = memberFlags,
+                    MemberFlags = memberFlags,
                     Invoke = (target, args, metadata) =>
                     {
                         ++getValueCount;
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 setMethod = new TestMethodMemberInfo
                 {
                     DeclaringType = declaringType,
-                    AccessModifiers = memberFlags,
+                    MemberFlags = memberFlags,
                     Invoke = (target, args, metadata) =>
                     {
                         ++setValueCount;
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(declaringType);
             memberInfo.Type.ShouldEqual(type);
             memberInfo.UnderlyingMember.ShouldBeNull();
-            memberInfo.AccessModifiers.ShouldEqual(memberFlags);
+            memberInfo.MemberFlags.ShouldEqual(memberFlags);
             memberInfo.CanWrite.ShouldEqual(canWrite);
             memberInfo.CanRead.ShouldEqual(canRead);
             memberInfo.GetArgs().ShouldEqual(inputArgs);

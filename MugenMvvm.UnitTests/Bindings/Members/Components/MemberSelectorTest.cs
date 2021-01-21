@@ -127,14 +127,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             {
                 GetParameters = () => parameters1,
                 DeclaringType = typeof(object),
-                AccessModifiers = MemberFlags.InstancePublic,
+                MemberFlags = MemberFlags.InstancePublic,
                 MemberType = MemberType.Method
             };
             var m2 = new TestMethodMemberInfo
             {
                 GetParameters = () => parameters2,
                 DeclaringType = typeof(object),
-                AccessModifiers = MemberFlags.InstancePublic,
+                MemberFlags = MemberFlags.InstancePublic,
                 MemberType = MemberType.Method
             };
 
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
         public static IEnumerable<object?[]> GetArgumentFlagsData()
         {
-            var getter = new TestMethodMemberInfo {AccessModifiers = MemberFlags.InstancePublic, DeclaringType = typeof(object), Type = typeof(object)};
+            var getter = new TestMethodMemberInfo {MemberFlags = MemberFlags.InstancePublic, DeclaringType = typeof(object), Type = typeof(object)};
             var defaultMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], default, typeof(object));
             var optionalMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Optional, typeof(object));
             var metadataMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Metadata, typeof(object));
@@ -180,7 +180,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
         private static IMemberInfo[] Filter(IEnumerable<IMemberInfo> members, EnumFlags<MemberType> type, EnumFlags<MemberFlags> flags)
         {
-            var memberInfo = members.SingleOrDefault(info => flags.HasFlag(info.AccessModifiers) && type.HasFlag(info.MemberType));
+            var memberInfo = members.SingleOrDefault(info => flags.HasFlag(info.MemberFlags) && type.HasFlag(info.MemberType));
             if (memberInfo == null)
                 return new IMemberInfo[0];
             return new[] {memberInfo};
@@ -190,7 +190,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             new()
             {
                 DeclaringType = declaringType,
-                AccessModifiers = flags,
+                MemberFlags = flags,
                 MemberType = type
             };
 

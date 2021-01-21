@@ -41,7 +41,7 @@ namespace MugenMvvm.Bindings.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public EnumFlags<MemberFlags> AccessModifiers => MemberFlags.Public | MemberFlags.Dynamic;
+        public EnumFlags<MemberFlags> MemberFlags => Enums.MemberFlags.Public | Enums.MemberFlags.Dynamic;
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null) => TargetObj == _result ? target : _result;
 

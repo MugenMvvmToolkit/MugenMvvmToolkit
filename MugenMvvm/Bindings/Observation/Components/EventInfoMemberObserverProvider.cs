@@ -33,7 +33,7 @@ namespace MugenMvvm.Bindings.Observation.Components
             _memberObserverHandler = TryObserve;
         }
 
-        public int Priority { get; set; } = ObserverComponentPriority.EventObserverProvider;
+        public int Priority { get; set; } = ObservationComponentPriority.EventObserverProvider;
 
         public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {

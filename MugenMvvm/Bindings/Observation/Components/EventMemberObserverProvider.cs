@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         public Func<Type, object, IReadOnlyMetadataContext?, IObservableMemberInfo?>? EventFinder { get; set; }
 
-        public int Priority { get; set; } = ObserverComponentPriority.EventObserverProvider;
+        public int Priority { get; set; } = ObservationComponentPriority.EventObserverProvider;
 
         public static IObservableMemberInfo? TryFindEventByMember(IMemberManager? memberManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
@@ -44,7 +44,7 @@ namespace MugenMvvm.Bindings.Observation.Components
             }
             else if (member is IMemberInfo memberInfo)
             {
-                flags = MemberFlags.All.ClearInstanceOrStaticFlags(memberInfo.AccessModifiers.HasFlag(MemberFlags.Static));
+                flags = MemberFlags.All.ClearInstanceOrStaticFlags(memberInfo.MemberFlags.HasFlag(MemberFlags.Static));
                 memberName = memberInfo.Name;
             }
             else if (member is string st)

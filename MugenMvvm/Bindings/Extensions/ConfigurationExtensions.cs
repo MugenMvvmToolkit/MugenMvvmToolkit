@@ -108,6 +108,7 @@ namespace MugenMvvm.Bindings.Extensions
                                    .WithComponent(new MemberPathObserverProvider())
                                    .WithComponent(new MemberPathProvider())
                                    .WithComponent(new MemberPathProviderCache())
+                                   .WithComponent(new NonObservableMemberObserverDecorator())
                                    .WithComponent(new PropertyChangedMemberObserverProvider());
             if (cacheResources)
                 cfg.WithComponent(new ResourceMemberPathObserverCache());

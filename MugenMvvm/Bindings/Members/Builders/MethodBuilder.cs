@@ -173,7 +173,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             Func<DelegateMethodMemberInfo<TTarget, TReturn, TState>, ItemOrIReadOnlyList<IParameterInfo>>? getParameters,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
-            new(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
-                state, invoke, getParameters, _tryGetAccessor, !_isNonObservable, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
+            new(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic, _isNonObservable), _underlyingMember,
+                state, invoke, getParameters, _tryGetAccessor, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
     }
 }

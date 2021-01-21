@@ -7,11 +7,10 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Observation.Observers
 {
-    public abstract class ObserverBase : IMemberPathObserver, IHasDisposeCondition
+    public abstract class ObserverBase : IMemberPathObserver
     {
         protected const byte UpdatingFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;

@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(typeof(object));
             memberInfo.UnderlyingMember.ShouldBeNull();
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Dynamic);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Dynamic);
             memberInfo.CanRead.ShouldBeTrue();
             memberInfo.CanWrite.ShouldEqual(canWrite);
 

@@ -149,8 +149,8 @@ namespace MugenMvvm.Bindings.Members.Builders
             GetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? getValue,
             SetValueDelegate<DelegateAccessorMemberInfo<TTarget, TValue, TState>, TTarget, TValue>? setValue,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
-            new(Name, DeclaringType, PropertyType,
-                AttachedMemberBuilder.GetFlags(IsStatic), UnderlyingMemberField, state, getValue, setValue, !IsNonObservable, IsNonObservable ? null : tryObserve, raise);
+            new(Name, DeclaringType, PropertyType, AttachedMemberBuilder.GetFlags(IsStatic, IsNonObservable), UnderlyingMemberField, state, getValue, setValue,
+                IsNonObservable ? null : tryObserve, raise);
 
         internal sealed class MemberWrapperClosure
         {
@@ -429,7 +429,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                     return (AutoProperty) value!;
                 return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, s) =>
                 {
-                    if (s.member.AccessModifiers.HasFlag(MemberFlags.Static))
+                    if (s.member.MemberFlags.HasFlag(MemberFlags.Static))
                         t = null!;
                     s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) s.member, (TTarget) t, s.metadata);
                     return new AutoProperty(s.member.State.PropertyChanged,

@@ -18,9 +18,9 @@ namespace MugenMvvm.Bindings.Members
         public DelegateMethodMemberInfo(string name, Type declaringType, Type memberType, EnumFlags<MemberFlags> accessModifiers, object? underlyingMember, TState state,
             InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, TTarget, TReturnValue> invoke,
             Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, ItemOrIReadOnlyList<IParameterInfo>>? getParameters,
-            TryGetAccessorDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>>? tryGetAccessor, bool tryObserveByMember,
+            TryGetAccessorDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>>? tryGetAccessor,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
-            : base(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserveByMember, tryObserve, raise)
+            : base(name, declaringType, memberType, accessModifiers, underlyingMember, state, tryObserve, raise)
         {
             Should.NotBeNull(invoke, nameof(invoke));
             _invoke = invoke;

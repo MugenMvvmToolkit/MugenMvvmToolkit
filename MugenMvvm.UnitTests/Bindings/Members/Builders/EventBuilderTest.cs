@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             build.MemberType.ShouldEqual(MemberType.Event);
             build.Type.ShouldEqual(eventType);
             build.DeclaringType.ShouldEqual(declaringType);
-            build.AccessModifiers.ShouldEqual(isStatic ? MemberFlags.Attached | MemberFlags.StaticPublic : MemberFlags.Attached | MemberFlags.InstancePublic);
+            build.MemberFlags.ShouldEqual(isStatic ? MemberFlags.Attached | MemberFlags.StaticPublic : MemberFlags.Attached | MemberFlags.InstancePublic);
             build.UnderlyingMember.ShouldEqual(member);
             build.Name.ShouldEqual(name);
         }

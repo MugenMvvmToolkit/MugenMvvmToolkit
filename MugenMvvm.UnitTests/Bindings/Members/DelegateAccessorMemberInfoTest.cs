@@ -15,8 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         public void CanReadShouldBeFalseNullGetter()
         {
             var memberInfo = new DelegateAccessorMemberInfo<string, string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, null,
-                (member, target, value, metadata) => { }, false, null,
-                null);
+                (member, target, value, metadata) => { }, null, null);
             memberInfo.CanRead.ShouldBeFalse();
             memberInfo.CanWrite.ShouldBeTrue();
             ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, DefaultMetadata));
@@ -26,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         public void CanWriteShouldBeFalseNullGetter()
         {
             var memberInfo = new DelegateAccessorMemberInfo<string, string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null,
-                (member, target, metadata) => "", null, false, null, null);
+                (member, target, metadata) => "", null, null, null);
             memberInfo.CanRead.ShouldBeTrue();
             memberInfo.CanWrite.ShouldBeFalse();
             ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", DefaultMetadata));
@@ -47,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     target.ShouldEqual(t);
                     metadata.ShouldEqual(DefaultMetadata);
                     return result;
-                }, null, false, null, null);
+                }, null, null, null);
             m = memberInfo;
             memberInfo.GetValue(t, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
@@ -68,7 +67,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     target.ShouldEqual(t);
                     metadata.ShouldEqual(DefaultMetadata);
                     value.ShouldEqual(v);
-                }, false, null, null);
+                }, null, null);
             m = memberInfo;
             memberInfo.SetValue(t, v, DefaultMetadata);
             invokeCount.ShouldEqual(1);
@@ -78,10 +77,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
         protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
             EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,
-            in TState state,
-            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
+            in TState state, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise) =>
             new DelegateAccessorMemberInfo<TTarget, object, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, metadata) => "",
-                (member, target, value, metadata) => { }, tryObserveByMember, tryObserve, raise);
+                (member, target, value, metadata) => { }, tryObserve, raise);
     }
 }

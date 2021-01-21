@@ -18,7 +18,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         public HashSet<string>? ObservableMethods { get; set; }
 
-        public int Priority { get; set; } = ObserverComponentPriority.MemberPathObserverProvider;
+        public int Priority { get; set; } = ObservationComponentPriority.MemberPathObserverProvider;
 
         public IMemberPathObserver? TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
         {

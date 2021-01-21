@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
@@ -13,12 +14,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MethodMemberInfoTest : UnitTestBase
     {
-        [Fact]
-        public void ConstructorShouldInitializeMember1()
+        [Theory]
+        [InlineData(nameof(Method1), false)]
+        [InlineData(nameof(NonObservable), true)]
+        public void ConstructorShouldInitializeMember1(string method, bool nonObservable)
         {
             var reflectedType = typeof(string);
             string name = "Test";
-            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method1))!;
+            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(method)!;
             MethodMemberInfo? memberInfo = null;
 
             var testEventListener = new TestWeakEventListener();
@@ -53,7 +56,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
             memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
             memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
+            memberInfo.MemberFlags.ShouldEqual((MemberFlags.Public | MemberFlags.Instance) | (nonObservable ? MemberFlags.NonObservable : default));
             memberInfo.IsGenericMethod.ShouldBeFalse();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
 
@@ -85,7 +88,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
             memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
             memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
 
@@ -94,7 +97,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.Type.ShouldEqual(typeof(int));
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
             memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
 
@@ -115,7 +118,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(methodInfo.GetParameters()[0].ParameterType);
             memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
             memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
 
@@ -124,7 +127,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.Type.ShouldEqual(typeof(char));
             memberInfo.DeclaringType.ShouldEqual(typeof(IEnumerable<char>));
             memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
 
@@ -132,6 +135,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         }
 
         public string Method1([Obfuscation] string v) => v;
+
+        [NonObservable]
+        public string NonObservable([Obfuscation] string v) => v;
 
         public T Method2<T>(T v) => v;
     }
