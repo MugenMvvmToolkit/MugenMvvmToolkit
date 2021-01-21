@@ -34,6 +34,8 @@ namespace MugenMvvm.Bindings.Members
 
         public bool IsGenericMethodDefinition => false;
 
+        public override string ToString() => $"{Type} {Name}({string.Join(",", GetParameters().ToArray(info => $"{info.ParameterType} {info.Name}"))}) - {MemberFlags.ToString()}";
+
         public ItemOrIReadOnlyList<IParameterInfo> GetParameters()
         {
             if (_getParameters == null)

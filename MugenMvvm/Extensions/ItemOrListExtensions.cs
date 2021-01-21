@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -106,6 +107,16 @@ namespace MugenMvvm.Extensions
             if (clear)
                 list.Clear();
             return array;
+        }
+
+        internal static TValue[] ToArray<T, TValue>(this ItemOrIReadOnlyList<T> itemOrList, Func<T, TValue> selector)
+        {
+            if (itemOrList.Count == 0)
+                return Default.Array<TValue>();
+            var values = new TValue[itemOrList.Count];
+            for (int i = 0; i < values.Length; i++) 
+                values[i] = selector(itemOrList[i]);
+            return values;
         }
 
         internal static int Count<T>(this ItemOrIReadOnlyList<T> itemOrList, Func<T, bool> predicate)

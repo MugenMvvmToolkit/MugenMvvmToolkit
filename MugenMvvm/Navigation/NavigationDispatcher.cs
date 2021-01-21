@@ -23,10 +23,8 @@ namespace MugenMvvm.Navigation
         }
 
         public INavigationContext? TryGetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType,
-            NavigationMode navigationMode,
-            IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<INavigationContextProviderComponent>(metadata)
-                .TryGetNavigationContext(this, target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
+            NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(this, target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
 
         public ItemOrIReadOnlyList<INavigationEntry> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(this, metadata);

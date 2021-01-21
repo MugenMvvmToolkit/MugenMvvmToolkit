@@ -11,15 +11,21 @@ using MugenMvvm.Entities;
 using MugenMvvm.Entities.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
+using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
@@ -45,46 +51,51 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        public static MugenApplicationConfiguration WithAsyncInitializationAssert(this MugenApplicationConfiguration configuration, Func<bool> isInitializing)
+        {
+            configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager())
+                         .WithComponent(new AsyncInitializationAssertBehavior(isInitializing));
+            return configuration;
+        }
+
         public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, SynchronizationContext? synchronizationContext,
-            IServiceProvider? serviceProvider = null, bool isOnMainThread = true)
+            IServiceProvider? serviceProvider = null)
         {
             if (serviceProvider != null)
                 MugenService.Configuration.InitializeInstance(serviceProvider);
 
-            configuration.WithAppService(new ComponentCollectionManager());
+            configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager());
 
             configuration.Application.AddComponent(new AppLifecycleTracker());
 
-            configuration.WithAppService(new CommandManager())
+            configuration.WithAppService(MugenService.Optional<ICommandManager>() ?? new CommandManager())
                          .WithComponent(new DelegateCommandProvider())
                          .WithComponent(new CommandCleaner());
 
-            configuration.WithAppService(new EntityManager())
+            configuration.WithAppService(MugenService.Optional<IEntityManager>() ?? new EntityManager())
                          .WithComponent(new EntityTrackingCollectionProvider())
                          .WithComponent(new ReflectionEntityStateSnapshotProvider());
 
-            configuration.WithAppService(new AttachedValueManager())
+            configuration.WithAppService(MugenService.Optional<IAttachedValueManager>() ?? new AttachedValueManager())
                          .WithComponent(new ConditionalWeakTableAttachedValueStorage())
                          .WithComponent(new MetadataOwnerAttachedValueStorage())
                          .WithComponent(new StaticTypeAttachedValueStorage())
                          .WithComponent(new ValueHolderAttachedValueStorage());
 
-            configuration.WithAppService(new ReflectionManager())
+            configuration.WithAppService(MugenService.Optional<IReflectionManager>() ?? new ReflectionManager())
                          .WithComponent(new ExpressionReflectionDelegateProvider())
                          .WithComponent(new ReflectionDelegateProviderCache());
 
-            configuration.WithAppService(new Logger());
-
-            configuration.WithAppService(new WeakReferenceManager())
+            configuration.WithAppService(MugenService.Optional<IWeakReferenceManager>() ?? new WeakReferenceManager())
                          .WithComponent(new ValueHolderWeakReferenceProviderCache())
                          .WithComponent(new WeakReferenceProvider());
 
-            configuration.WithAppService(new Messenger())
+            configuration.WithAppService(MugenService.Optional<IMessenger>() ?? new Messenger())
                          .WithComponent(new MessagePublisher())
                          .WithComponent(new MessengerHandlerSubscriber());
 
             var entryManager = new NavigationEntryManager();
-            configuration.WithAppService(new NavigationDispatcher())
+            configuration.WithAppService(MugenService.Optional<INavigationDispatcher>() ?? new NavigationDispatcher())
                          .WithComponent(new NavigationCallbackInvoker())
                          .WithComponent(new NavigationCallbackManager())
                          .WithComponent(new NavigationContextProvider())
@@ -92,25 +103,25 @@ namespace MugenMvvm.Extensions
                          .WithComponent(new NavigationTargetDispatcher())
                          .WithComponent(entryManager);
 
-            configuration.WithAppService(new Presenter())
+            configuration.WithAppService(MugenService.Optional<IPresenter>() ?? new Presenter())
                          .WithComponent(new NavigationCallbackPresenterDecorator())
                          .WithComponent(new ViewModelPresenter())
                          .WithComponent(new ViewPresenterDecorator())
                          .WithComponent(entryManager)
                          .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator));
 
-            configuration.WithAppService(new Serializer())
+            configuration.WithAppService(MugenService.Optional<ISerializer>() ?? new Serializer())
                          .WithComponent(new SerializationManager());
 
-            var threadDispatcher = new ThreadDispatcher();
+            var threadDispatcher = MugenService.Optional<IThreadDispatcher>() ?? new ThreadDispatcher();
             if (synchronizationContext != null)
-                threadDispatcher.AddComponent(new SynchronizationContextThreadDispatcher(synchronizationContext, isOnMainThread));
+                threadDispatcher.AddComponent(new SynchronizationContextThreadDispatcher(synchronizationContext));
             configuration.WithAppService(threadDispatcher);
 
-            configuration.WithAppService(new ValidationManager())
+            configuration.WithAppService(MugenService.Optional<IValidationManager>() ?? new ValidationManager())
                          .WithComponent(new ValidatorProvider());
 
-            configuration.WithAppService(new ViewModelManager())
+            configuration.WithAppService(MugenService.Optional<IViewModelManager>() ?? new ViewModelManager())
                          .WithComponent(new CacheViewModelProvider())
                          .WithComponent(new TypeViewModelProvider())
                          .WithComponent(new InheritParentViewModelServiceProvider())
@@ -118,7 +129,7 @@ namespace MugenMvvm.Extensions
                          .WithComponent(new ViewModelLifecycleTracker())
                          .WithComponent(new ViewModelServiceProvider());
 
-            configuration.WithAppService(new ViewManager())
+            configuration.WithAppService(MugenService.Optional<IViewManager>() ?? new ViewManager())
                          .WithComponent(new ExecutionModeViewManagerDecorator())
                          .WithComponent(new RawViewLifecycleDispatcher())
                          .WithComponent(new ViewCleaner())
@@ -130,7 +141,7 @@ namespace MugenMvvm.Extensions
                          .WithComponent(new UndefinedMappingViewInitializer())
                          .WithComponent(new ViewLifecycleAwareViewModelHandler())
                          .WithComponent(new ViewMappingProvider());
-            configuration.WithAppService(new WrapperManager())
+            configuration.WithAppService(MugenService.Optional<IWrapperManager>() ?? new WrapperManager())
                          .WithComponent(new ViewWrapperManagerDecorator());
 
             return configuration;
@@ -140,6 +151,7 @@ namespace MugenMvvm.Extensions
             bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true,
             bool includeConsoleLogger = true)
         {
+            var cfg = configuration.WithAppService(MugenService.Optional<ILogger>() ?? new Logger());
             if (traceApp)
                 DebugTracer.TraceApp(configuration.Application);
             if (traceBinding)
@@ -155,7 +167,7 @@ namespace MugenMvvm.Extensions
             if (traceView)
                 DebugTracer.TraceView(configuration.ServiceConfiguration<IViewManager>().Service);
             if (includeConsoleLogger)
-                DebugTracer.AddConsoleLogger(configuration.ServiceConfiguration<ILogger>().Service);
+                DebugTracer.AddConsoleLogger(cfg.Service);
             return configuration;
         }
 

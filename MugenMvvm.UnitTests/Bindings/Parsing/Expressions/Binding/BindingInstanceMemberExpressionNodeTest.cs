@@ -122,14 +122,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 new Dictionary<string, object?> {{"k", null}});
             if (hasTarget)
             {
-                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
+                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance!.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
                             exp1.ObservableMethodName, 1)
                         .ShouldEqual(exp1.GetHashCode(comparer));
                 ((TestExpressionNode) exp1.Expression!).GetHashCodeCount.ShouldEqual(1);
             }
             else
             {
-                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
+                HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.Instance!.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
                             exp1.ObservableMethodName)
                         .ShouldEqual(exp1.GetHashCode(comparer));
             }

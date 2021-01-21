@@ -16,6 +16,10 @@ namespace MugenMvvm
     {
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowAsyncInitializationAssert() => throw new InvalidOperationException(AsyncInitializationAssert);
+
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowNullArgument(string paramName) => throw new ArgumentNullException(paramName);
 
         [DoesNotReturn]

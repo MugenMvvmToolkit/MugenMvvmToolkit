@@ -253,7 +253,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             subscribedCount.ShouldEqual(listenersCount);
             executed.ShouldEqual(0);
             messengerHandler.ShouldNotBeNull();
-            messengerHandler.CanHandle(typeof(object)).ShouldBeTrue();
+            messengerHandler!.CanHandle(typeof(object)).ShouldBeTrue();
             messengerHandler.Handle(new MessageContext(this, this, DefaultMetadata));
             executed.ShouldEqual(1);
 

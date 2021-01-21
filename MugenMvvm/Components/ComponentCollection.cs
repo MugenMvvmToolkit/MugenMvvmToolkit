@@ -143,6 +143,9 @@ namespace MugenMvvm.Components
 
         private ComponentTracker GetComponentTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class
         {
+            if (_decorators.Length != 0 && _decorators.HasDecorators<TComponent>(metadata))
+                return GetComponentTrackerWithDecorators<TComponent>(metadata);
+
             var size = 0;
             for (var i = 0; i < _items.Count; i++)
             {
@@ -152,9 +155,6 @@ namespace MugenMvvm.Components
 
             if (size == 0)
                 return ComponentTracker.Get<TComponent>(default);
-
-            if (_decorators.Length != 0 && _decorators.HasDecorators<TComponent>(metadata))
-                return GetComponentTrackerWithDecorators<TComponent>(size, metadata);
 
             var components = ItemOrArray.Get<TComponent>(size);
             size = 0;
@@ -167,10 +167,10 @@ namespace MugenMvvm.Components
             return ComponentTracker.Get(components);
         }
 
-        private ComponentTracker GetComponentTrackerWithDecorators<TComponent>(int size, IReadOnlyMetadataContext? metadata)
+        private ComponentTracker GetComponentTrackerWithDecorators<TComponent>(IReadOnlyMetadataContext? metadata)
             where TComponent : class
         {
-            var components = size == 1 ? default : new ItemOrListEditor<TComponent>(new List<TComponent>(size));
+            var components = new ItemOrListEditor<TComponent>();
             for (var i = 0; i < _items.Count; i++)
             {
                 if (_items[i] is TComponent c)

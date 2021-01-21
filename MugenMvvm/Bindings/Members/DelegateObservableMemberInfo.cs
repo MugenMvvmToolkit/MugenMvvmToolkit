@@ -49,7 +49,7 @@ namespace MugenMvvm.Bindings.Members
 
         public EnumFlags<MemberFlags> MemberFlags => new(_modifiers);
 
-        public override string ToString() => $"{DeclaringType.Name}.Delegate{MemberType.Name} {MemberFlags.ToString()}";
+        public override string ToString() => $"{Type} {Name} - {MemberFlags.ToString()}";
 
         public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null) => _raise?.Invoke(this, (TTarget) target!, message, metadata);
 

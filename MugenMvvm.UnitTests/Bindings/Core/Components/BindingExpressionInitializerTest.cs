@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             component.MemberFlags.ShouldNotEqual(memberFlags);
             component.MemberFlags = memberFlags;
 
-            IExpressionNode[] parameters;
+            IExpressionNode[]? parameters;
             if (parametersSetting)
             {
                 parameters = new IExpressionNode[]

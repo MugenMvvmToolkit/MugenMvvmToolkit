@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             expression = Expression.NewArrayInit(typeof(int), Expression.Constant(1), Expression.Constant(2));
             exp = _compiler.GetComponents<IExpressionBuilderComponent>().TryBuild(new TestExpressionBuilderContext(), MemberExpressionNode.Empty)!;
-            ((int[]) ((ConstantExpression) exp).Value).ShouldEqual(new[] {1, 2});
+            ((int[]?) ((ConstantExpression) exp).Value).ShouldEqual(new[] {1, 2});
 
             expression = Expression.MakeBinary(ExpressionType.Add, Expression.Parameter(typeof(int), "test"), Expression.Constant(1));
             exp = _compiler.GetComponents<IExpressionBuilderComponent>().TryBuild(new TestExpressionBuilderContext(), MemberExpressionNode.Empty)!;
