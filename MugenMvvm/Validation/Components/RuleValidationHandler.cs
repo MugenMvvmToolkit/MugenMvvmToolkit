@@ -1,52 +1,77 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidationHandler : ValidationHandlerBase<object>
+    public sealed class RuleValidationHandler : ValidationHandlerBase, IDisposable
     {
         public readonly ItemOrIReadOnlyList<IValidationRule> Rules;
-
-        private readonly bool _isAsync;
+        private readonly CancellationTokenSource? _disposeToken;
 
         public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules)
-            : base(target)
         {
+            Should.NotBeNull(target, nameof(target));
+            Target = target;
             Rules = rules;
             foreach (var rule in rules)
             {
                 if (rule.IsAsync)
                 {
-                    _isAsync = true;
+                    _disposeToken = new CancellationTokenSource();
                     break;
                 }
             }
         }
 
-        protected override CancellationToken GetCancellationToken(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-            _isAsync ? base.GetCancellationToken(memberName, cancellationToken, metadata) : cancellationToken;
+        public object Target { get; }
 
-        protected override async ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected override ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
-            var errors = new Dictionary<string, object?>(3);
-            var tasks = new ItemOrListEditor<Task>();
+            if (_disposeToken == null)
+                return new ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>(Validate(member, metadata));
+            return ValidateInternalAsync(member,
+                cancellationToken.CanBeCanceled ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeToken.Token).Token : _disposeToken.Token, metadata);
+        }
+
+        private async ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateInternalAsync(string? member, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
+        {
+            ItemOrListEditor<ValidationErrorInfo> editor = default;
+            ItemOrListEditor<ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>> tasks = default;
             foreach (var rule in Rules)
             {
-                var task = rule.ValidateAsync(Target, memberName, errors, cancellationToken, metadata);
-                if (!task.IsCompleted)
+                var task = rule.ValidateAsync(Target, member, cancellationToken, metadata);
+                if (task.IsCompletedSuccessfully)
+                    editor.AddRange(task.Result);
+                else
                     tasks.Add(task);
             }
 
-            if (tasks.Count == 0)
-                return ValidationResult.Get(errors);
-
-            await tasks.WhenAll().ConfigureAwait(false);
-            return ValidationResult.Get(errors);
+            foreach (var task in tasks.ToItemOrList())
+                editor.AddRange(await task.ConfigureAwait(false));
+            return editor;
         }
+
+        private ItemOrIReadOnlyList<ValidationErrorInfo> Validate(string? member, IReadOnlyMetadataContext? metadata)
+        {
+            ItemOrListEditor<ValidationErrorInfo> editor = default;
+            foreach (var rule in Rules)
+            {
+                var task = rule.ValidateAsync(Target, member, default, metadata);
+                if (!task.IsCompletedSuccessfully)
+                    ExceptionManager.ThrowObjectNotInitialized(task);
+
+                editor.AddRange(task.Result);
+            }
+
+            return editor;
+        }
+
+        void IDisposable.Dispose() => _disposeToken?.Cancel();
     }
 }

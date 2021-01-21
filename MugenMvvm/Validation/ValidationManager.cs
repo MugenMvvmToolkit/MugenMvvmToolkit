@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -16,11 +17,11 @@ namespace MugenMvvm.Validation
         {
         }
 
-        public IValidator? TryGetValidator(object? request, IReadOnlyMetadataContext? metadata = null)
+        public IValidator? TryGetValidator(ItemOrIReadOnlyList<object> targets = default, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidator(this, request, metadata);
+            var result = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidator(this, targets, metadata);
             if (result != null)
-                GetComponents<IValidatorProviderListener>(metadata).OnValidatorCreated(this, result, request, metadata);
+                GetComponents<IValidationManagerListener>(metadata).OnValidatorCreated(this, result, targets, metadata);
             return result;
         }
     }

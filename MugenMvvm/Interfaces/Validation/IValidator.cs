@@ -1,23 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Validation;
 
 namespace MugenMvvm.Interfaces.Validation
 {
     public interface IValidator : IComponentOwner<IValidator>, IMetadataOwner<IMetadataContext>, IDisposable
     {
-        bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null);
+        Task ValidateAsync(string? member = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrIReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null);
+        bool HasErrors(ItemOrIReadOnlyList<string> members = default, object? source = null, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyDictionary<string, object> GetErrors(IReadOnlyMetadataContext? metadata = null);
+        void GetErrors(ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<ValidationErrorInfo> errors, object? source = null, IReadOnlyMetadataContext? metadata = null);
 
-        Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
+        void GetErrors(ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<object> errors, object? source = null, IReadOnlyMetadataContext? metadata = null);
 
-        void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null);
+        void SetErrors(object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata = null);
+
+        void ResetErrors(object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata = null);
+
+        void ClearErrors(ItemOrIReadOnlyList<string> members = default, object? source = null, IReadOnlyMetadataContext? metadata = null);
     }
 }

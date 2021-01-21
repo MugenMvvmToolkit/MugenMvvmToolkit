@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Components;
@@ -25,6 +26,7 @@ namespace MugenMvvm.UnitTests.Validation
         {
             var provider = GetComponentOwner();
             var validator = new Validator();
+            ItemOrIReadOnlyList<object> requests = this;
             var count = 0;
             var listenerCount = 0;
             for (var i = 0; i < componentCount; i++)
@@ -35,7 +37,7 @@ namespace MugenMvvm.UnitTests.Validation
                     TryGetValidator = (o, meta) =>
                     {
                         ++count;
-                        o.ShouldEqual(this);
+                        o.ShouldEqual(requests);
                         meta.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return validator;
@@ -44,19 +46,19 @@ namespace MugenMvvm.UnitTests.Validation
                     Priority = -i
                 };
                 provider.AddComponent(component);
-                provider.AddComponent(new TestValidatorProviderListener(provider)
+                provider.AddComponent(new TestValidationManagerListener(provider)
                 {
                     OnValidatorCreated = (v, o, meta) =>
                     {
                         ++listenerCount;
                         v.ShouldEqual(validator);
-                        o.ShouldEqual(this);
+                        o.ShouldEqual(requests);
                         meta.ShouldEqual(DefaultMetadata);
                     }
                 });
             }
 
-            provider.GetValidator(this, DefaultMetadata).ShouldEqual(validator);
+            provider.GetValidator(requests, DefaultMetadata).ShouldEqual(validator);
             componentCount.ShouldEqual(count);
             listenerCount.ShouldEqual(count);
         }

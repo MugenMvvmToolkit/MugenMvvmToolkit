@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
@@ -183,6 +184,7 @@ namespace MugenMvvm.Bindings.Members.Components
             public readonly string Name;
             public readonly Type Type;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public CacheKey(int memberType, string name, Type type)
             {
                 MemberType = memberType;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.ComponentModel;
-using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -9,16 +9,17 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation
 {
-    public sealed class NotifyDataErrorInfoValidatorAdapter : INotifyDataErrorInfo, IValidatorListener
+    public sealed class NotifyDataErrorInfoValidatorAdapter : INotifyDataErrorInfo, IValidatorErrorsChangedListener, IDisposable
     {
-        private readonly object? _owner;
+        private static readonly DataErrorsChangedEventArgs EmptyArgs = new("");
+        private readonly object _owner;
         private readonly IValidator _validator;
 
         public NotifyDataErrorInfoValidatorAdapter(IValidator validator, object? owner = null)
         {
             Should.NotBeNull(validator, nameof(validator));
             _validator = validator;
-            _owner = owner;
+            _owner = owner ?? this;
             validator.AddComponent(this);
         }
 
@@ -26,15 +27,28 @@ namespace MugenMvvm.Validation
 
         public bool HasErrors => _validator.HasErrors();
 
-        public IEnumerable GetErrors(string? propertyName) => _validator.GetErrors(propertyName ?? "").AsList();
-
-        void IValidatorListener.OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
-            => ErrorsChanged?.Invoke(_owner ?? this, new DataErrorsChangedEventArgs(memberName));
-
-        void IValidatorListener.OnAsyncValidation(IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
+        public IEnumerable GetErrors(string? propertyName)
         {
+            var errors = new ItemOrListEditor<object>();
+            _validator.GetErrors(propertyName, ref errors);
+            return errors.ToItemOrList().AsList();
         }
 
-        void IValidatorListener.OnDisposed(IValidator validator) => ErrorsChanged = null;
+        void IDisposable.Dispose() => ErrorsChanged = null;
+
+        void IValidatorErrorsChangedListener.OnErrorsChanged(IValidator validator, ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
+        {
+            var eventHandler = ErrorsChanged;
+            if (eventHandler == null)
+                return;
+            if (members.IsEmpty)
+            {
+                eventHandler(_owner, EmptyArgs);
+                return;
+            }
+
+            foreach (var member in members)
+                eventHandler.Invoke(_owner, new DataErrorsChangedEventArgs(member));
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
@@ -7,20 +8,21 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Validation.Internal
 {
-    public class TestValidatorProviderListener : IValidatorProviderListener, IHasPriority
+    public class TestValidationManagerListener : IValidationManagerListener, IHasPriority
     {
         private readonly IValidationManager? _validationManager;
 
-        public TestValidatorProviderListener(IValidationManager? validationManager = null)
+        public TestValidationManagerListener(IValidationManager? validationManager = null)
         {
             _validationManager = validationManager;
         }
 
-        public Action<IValidator, object?, IReadOnlyMetadataContext?>? OnValidatorCreated { get; set; }
+        public Action<IValidator, ItemOrIReadOnlyList<object>, IReadOnlyMetadataContext?>? OnValidatorCreated { get; set; }
 
         public int Priority { get; set; }
 
-        void IValidatorProviderListener.OnValidatorCreated(IValidationManager provider, IValidator validator, object? request, IReadOnlyMetadataContext? metadata)
+        void IValidationManagerListener.OnValidatorCreated(IValidationManager provider, IValidator validator, ItemOrIReadOnlyList<object> request,
+            IReadOnlyMetadataContext? metadata)
         {
             _validationManager?.ShouldEqual(provider);
             OnValidatorCreated?.Invoke(validator, request!, metadata);

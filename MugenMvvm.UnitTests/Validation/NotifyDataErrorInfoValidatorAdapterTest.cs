@@ -1,5 +1,7 @@
-﻿using MugenMvvm.Extensions;
+﻿using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.UnitTests.Validation.Internal;
 using MugenMvvm.Validation;
@@ -24,11 +26,11 @@ namespace MugenMvvm.UnitTests.Validation
                 ++invokeCount;
             };
 
-            validator.GetComponents<IValidatorListener>().OnErrorsChanged(validator, this, propertyName, DefaultMetadata);
+            validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, propertyName, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
             validator.Dispose();
-            validator.GetComponents<IValidatorListener>().OnErrorsChanged(validator, this, propertyName, DefaultMetadata);
+            validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, propertyName, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 
@@ -38,12 +40,13 @@ namespace MugenMvvm.UnitTests.Validation
             var propertyName = "Test";
             var errors = new[] {"1", "2"};
             var validator = new Validator();
-            validator.AddComponent(new TestValidatorComponent
+            validator.AddComponent(new TestValidatorErrorManagerComponent(validator)
             {
-                GetErrors = (v, s, arg3) =>
+                GetErrorsRaw = (ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<object> editor, object? source, IReadOnlyMetadataContext? metadata) =>
                 {
-                    s.ShouldEqual(propertyName);
-                    return errors;
+                    members.Item.ShouldEqual(propertyName);
+                    source.ShouldBeNull();
+                    editor.AddRange(value: errors);
                 }
             });
 
@@ -56,10 +59,11 @@ namespace MugenMvvm.UnitTests.Validation
         {
             var hasErrors = false;
             var validator = new Validator();
-            validator.AddComponent(new TestValidatorComponent
+            validator.AddComponent(new TestValidatorErrorManagerComponent(validator)
             {
-                HasErrors = (v, s, arg3) =>
+                HasErrors = (v, s, _) =>
                 {
+                    v.IsEmpty.ShouldBeTrue();
                     s.ShouldBeNull();
                     return hasErrors;
                 }

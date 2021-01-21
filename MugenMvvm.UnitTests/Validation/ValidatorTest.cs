@@ -2,10 +2,13 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Components;
+using MugenMvvm.UnitTests.Models.Internal;
 using MugenMvvm.UnitTests.Validation.Internal;
 using MugenMvvm.Validation;
 using Should;
@@ -23,24 +26,15 @@ namespace MugenMvvm.UnitTests.Validation
         public void DisposeShouldClearComponentsMetadataNotifyListeners(int count, bool canDispose)
         {
             var invokeCount = 0;
-            var invokeComponentCount = 0;
             var validator = new Validator();
             validator.IsDisposable.ShouldBeTrue();
             validator.IsDisposable = canDispose;
 
             for (var i = 0; i < count; i++)
             {
-                validator.AddComponent(new TestValidatorListener
+                validator.Components.Add(new TestDisposable
                 {
-                    OnDisposed = v =>
-                    {
-                        ++invokeCount;
-                        v.ShouldEqual(validator);
-                    }
-                });
-                validator.AddComponent(new TestValidatorComponent
-                {
-                    Dispose = () => ++invokeComponentCount
+                    Dispose = () => { ++invokeCount; }
                 });
             }
 
@@ -51,7 +45,6 @@ namespace MugenMvvm.UnitTests.Validation
             {
                 validator.IsDisposed.ShouldBeTrue();
                 invokeCount.ShouldEqual(count);
-                invokeComponentCount.ShouldEqual(count);
                 validator.Components.Count.ShouldEqual(0);
                 validator.Metadata.Count.ShouldEqual(0);
             }
@@ -59,117 +52,8 @@ namespace MugenMvvm.UnitTests.Validation
             {
                 validator.IsDisposed.ShouldBeFalse();
                 invokeCount.ShouldEqual(0);
-                invokeComponentCount.ShouldEqual(0);
-                validator.Components.Count.ShouldEqual(count * 2);
+                validator.Components.Count.ShouldEqual(count);
             }
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void HasErrorsShouldBeHandledByComponents(int componentCount)
-        {
-            string? expectedMember = null;
-            var count = 0;
-            var hasErrors = false;
-            var validator = GetComponentOwner();
-            validator.HasErrors().ShouldBeFalse();
-            for (var i = 0; i < componentCount; i++)
-            {
-                var component = new TestValidatorComponent
-                {
-                    HasErrors = (v, s, m) =>
-                    {
-                        ++count;
-                        v.ShouldEqual(validator);
-                        s.ShouldEqual(expectedMember);
-                        m.ShouldEqual(DefaultMetadata);
-                        return hasErrors;
-                    },
-                    Priority = -i
-                };
-                validator.AddComponent(component);
-            }
-
-            validator.HasErrors(expectedMember, DefaultMetadata).ShouldBeFalse();
-            count.ShouldEqual(componentCount);
-
-            count = 0;
-            expectedMember = "t";
-            validator.HasErrors(expectedMember, DefaultMetadata).ShouldBeFalse();
-            count.ShouldEqual(componentCount);
-
-            count = 0;
-            hasErrors = true;
-            validator.HasErrors(expectedMember, DefaultMetadata).ShouldBeTrue();
-            count.ShouldEqual(1);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void GetErrorsShouldBeHandledByComponents(int componentCount)
-        {
-            var memberName = "test";
-            var count = 0;
-            var validator = GetComponentOwner();
-            validator.GetErrors(memberName, DefaultMetadata).AsList().ShouldBeEmpty();
-
-            for (var i = 0; i < componentCount; i++)
-            {
-                var s = i.ToString();
-                var component = new TestValidatorComponent
-                {
-                    GetErrors = (v, m, metadata) =>
-                    {
-                        ++count;
-                        v.ShouldEqual(validator);
-                        m.ShouldEqual(memberName);
-                        metadata.ShouldEqual(DefaultMetadata);
-                        return new[] {s};
-                    }
-                };
-                validator.AddComponent(component);
-            }
-
-            var errors = validator.GetErrors(memberName, DefaultMetadata).AsList();
-            errors.Count.ShouldEqual(componentCount);
-            for (var i = 0; i < componentCount; i++)
-                errors.ShouldContain(i.ToString());
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void GetAllErrorsShouldBeHandledByComponents(int componentCount)
-        {
-            var count = 0;
-            var validator = GetComponentOwner();
-            validator.GetErrors(DefaultMetadata).ShouldBeEmpty();
-
-            for (var i = 0; i < componentCount; i++)
-            {
-                var s = i.ToString();
-                var component = new TestValidatorComponent
-                {
-                    GetAllErrors = (v, metadata) =>
-                    {
-                        ++count;
-                        v.ShouldEqual(validator);
-                        metadata.ShouldEqual(DefaultMetadata);
-                        return new Dictionary<string, object>
-                        {
-                            {s, new[] {s}}
-                        };
-                    }
-                };
-                validator.AddComponent(component);
-            }
-
-            var errors = validator.GetErrors(DefaultMetadata);
-            errors.Count.ShouldEqual(componentCount);
-            for (var i = 0; i < componentCount; i++)
-                errors[i.ToString()].AsItemOrList().AsList().Single().ShouldEqual(i.ToString());
         }
 
         [Theory]
@@ -187,12 +71,11 @@ namespace MugenMvvm.UnitTests.Validation
             {
                 var tcs = new TaskCompletionSource<object>();
                 tasks.Add(tcs);
-                var component = new TestValidatorComponent
+                var component = new TestValidationHandlerComponent(validator)
                 {
-                    ValidateAsync = (v, m, token, metadata) =>
+                    TryValidateAsync = (m, token, metadata) =>
                     {
                         ++count;
-                        v.ShouldEqual(validator);
                         m.ShouldEqual(memberName);
                         token.ShouldEqual(cts.Token);
                         metadata.ShouldEqual(DefaultMetadata);
@@ -215,29 +98,199 @@ namespace MugenMvvm.UnitTests.Validation
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ClearErrorsShouldBeHandledByComponents(int componentCount)
+        public void HasErrorsShouldBeHandledByComponents(int componentCount)
         {
-            var memberName = "test";
+            ItemOrIReadOnlyList<string> expectedMember = new[] {"1", "2"};
+            var source = new object();
+            var count = 0;
+            var hasErrors = false;
+            var validator = GetComponentOwner();
+            validator.HasErrors().ShouldBeFalse();
+            for (var i = 0; i < componentCount; i++)
+            {
+                var component = new TestValidatorErrorManagerComponent(validator)
+                {
+                    HasErrors = (m, s, meta) =>
+                    {
+                        ++count;
+                        m.ShouldEqual(expectedMember);
+                        s.ShouldEqual(source);
+                        meta.ShouldEqual(DefaultMetadata);
+                        return hasErrors;
+                    },
+                    Priority = -i
+                };
+                validator.AddComponent(component);
+            }
+
+            validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+
+            count = 0;
+            expectedMember = "t";
+            validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+
+            count = 0;
+            hasErrors = true;
+            validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeTrue();
+            count.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetErrorsRawShouldBeHandledByComponents(int componentCount)
+        {
+            var source = new object();
+            ItemOrListEditor<object> errors = new ItemOrListEditor<object>(new List<object>());
+            ItemOrIReadOnlyList<string> memberName = "test";
+            var validator = GetComponentOwner();
+            validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
+            errors.Count.ShouldEqual(0);
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                var s = i.ToString();
+                var component = new TestValidatorErrorManagerComponent(validator)
+                {
+                    GetErrorsRaw = (ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<object> editor, object? src, IReadOnlyMetadataContext? metadata) =>
+                    {
+                        src.ShouldEqual(source);
+                        members.ShouldEqual(memberName);
+                        metadata.ShouldEqual(DefaultMetadata);
+                        editor.Add(s);
+                    }
+                };
+                validator.AddComponent(component);
+            }
+
+            validator.GetErrors(memberName, ref errors, source, DefaultMetadata);
+            errors.Count.ShouldEqual(componentCount);
+            var list = errors.AsList();
+            for (var i = 0; i < componentCount; i++)
+                list.ShouldContain(i.ToString());
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetErrorsShouldBeHandledByComponents(int componentCount)
+        {
+            var source = new object();
+            ItemOrListEditor<ValidationErrorInfo> errors = new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>());
+            ItemOrIReadOnlyList<string> memberName = "test";
+            var validator = GetComponentOwner();
+            validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
+            errors.Count.ShouldEqual(0);
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                var s = i.ToString();
+                var component = new TestValidatorErrorManagerComponent(validator)
+                {
+                    GetErrors = (ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<ValidationErrorInfo> editor, object? src, IReadOnlyMetadataContext? metadata) =>
+                    {
+                        src.ShouldEqual(source);
+                        members.ShouldEqual(memberName);
+                        metadata.ShouldEqual(DefaultMetadata);
+                        editor.Add(new ValidationErrorInfo(this, s, s));
+                    }
+                };
+                validator.AddComponent(component);
+            }
+
+            validator.GetErrors(memberName, ref errors, source, DefaultMetadata);
+            errors.Count.ShouldEqual(componentCount);
+            var list = errors.AsList();
+            for (var i = 0; i < componentCount; i++)
+                list.ShouldContain(new ValidationErrorInfo(this, i.ToString(), i.ToString()));
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void SetErrorsShouldBeHandledByComponents(int componentCount)
+        {
+            var errors = new[] {new ValidationErrorInfo(this, "1", "1"), new ValidationErrorInfo(this, "2", "2")};
+            var source = new object();
             var count = 0;
             var validator = GetComponentOwner();
 
             for (var i = 0; i < componentCount; i++)
             {
-                var s = i.ToString();
-                var component = new TestValidatorComponent
+                var component = new TestValidatorErrorManagerComponent(validator)
                 {
-                    ClearErrors = (v, m, metadata) =>
+                    SetErrors = (s, e, metadata) =>
                     {
                         ++count;
-                        v.ShouldEqual(validator);
-                        m.ShouldEqual(memberName);
+                        e.ShouldEqual(errors);
+                        s.ShouldEqual(source);
                         metadata.ShouldEqual(DefaultMetadata);
                     }
                 };
                 validator.AddComponent(component);
             }
 
-            validator.ClearErrors(memberName, DefaultMetadata);
+            validator.SetErrors(source, errors, DefaultMetadata);
+            count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ResetErrorsShouldBeHandledByComponents(int componentCount)
+        {
+            var errors = new[] {new ValidationErrorInfo(this, "1", "1"), new ValidationErrorInfo(this, "2", "2")};
+            var source = new object();
+            var count = 0;
+            var validator = GetComponentOwner();
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                var component = new TestValidatorErrorManagerComponent(validator)
+                {
+                    ResetErrors = (s, e, metadata) =>
+                    {
+                        ++count;
+                        e.ShouldEqual(errors);
+                        s.ShouldEqual(source);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    }
+                };
+                validator.AddComponent(component);
+            }
+
+            validator.ResetErrors(source, errors, DefaultMetadata);
+            count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ClearErrorsShouldBeHandledByComponents(int componentCount)
+        {
+            ItemOrIReadOnlyList<string> memberName = "test";
+            var source = new object();
+            var count = 0;
+            var validator = GetComponentOwner();
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                var component = new TestValidatorErrorManagerComponent(validator)
+                {
+                    ClearErrors = (m, s, metadata) =>
+                    {
+                        ++count;
+                        m.ShouldEqual(memberName);
+                        s.ShouldEqual(source);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    }
+                };
+                validator.AddComponent(component);
+            }
+
+            validator.ClearErrors(memberName, source, DefaultMetadata);
             count.ShouldEqual(componentCount);
         }
 

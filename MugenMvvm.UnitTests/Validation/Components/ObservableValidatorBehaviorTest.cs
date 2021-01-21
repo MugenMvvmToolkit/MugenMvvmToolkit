@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.AddComponent(new ObservableValidatorBehavior(vm));
 
             invokeCount.ShouldEqual(0);
-            validator.GetComponents<IValidatorListener>().OnErrorsChanged(validator, vm, propertyName, DefaultMetadata);
+            validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, propertyName, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 
@@ -55,9 +55,9 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var invokeCount = 0;
             var vm = new TestViewModelBase();
             var validator = new Validator();
-            validator.AddComponent(new TestValidatorComponent
+            validator.AddComponent(new TestValidationHandlerComponent(validator)
             {
-                ValidateAsync = (_, s, _, _) =>
+                TryValidateAsync = (s, _, _) =>
                 {
                     ++invokeCount;
                     s.ShouldEqual(propertyName);

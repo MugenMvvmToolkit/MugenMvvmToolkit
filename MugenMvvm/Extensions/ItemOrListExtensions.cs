@@ -62,6 +62,18 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item;
         }
 
+        public static bool Contains<T>(this ItemOrIReadOnlyList<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
+        {
+            comparer ??= EqualityComparer<T>.Default;
+            foreach (var v in itemOrList)
+            {
+                if (comparer.Equals(v, value))
+                    return true;
+            }
+
+            return false;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddIfNotNull<T>(this ref ItemOrListEditor<T> editor, T? item) where T : class
         {

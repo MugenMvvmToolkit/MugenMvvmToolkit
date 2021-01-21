@@ -836,7 +836,7 @@ namespace MugenMvvm.UnitTests.Presenters
             canClose = false;
             mediator.TryClose(null, cts, DefaultMetadata);
             tcs.SetResult(result);
-            WaitCompletion();
+            WaitCompletion(20);
             if (result)
                 closeCount.ShouldEqual(1);
             else

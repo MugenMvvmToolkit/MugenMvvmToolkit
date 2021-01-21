@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Compiling.Components;
@@ -241,9 +240,9 @@ namespace MugenMvvm.Bindings.Extensions
 
             var stringParameter = AttachedMemberBuilder.Parameter("m", typeof(string)).DefaultValue("").Build();
             var stringsParameter = AttachedMemberBuilder.Parameter("m", typeof(string[])).IsParamsArray().Build();
-            var hasErrorHandler = new InvokeMethodDelegate<IMethodMemberInfo, object, bool>((_, target, args, _) => HasErrors(target, args[0] ?? ""));
-            var getErrorHandler = new InvokeMethodDelegate<IMethodMemberInfo, object, object?>((_, target, args, _) => GetError(target, args[0] ?? ""));
-            var getErrorsHandler = new InvokeMethodDelegate<IMethodMemberInfo, object, IReadOnlyList<object>>((_, target, args, _) => GetErrors(target, args[0] ?? ""));
+            var hasErrorHandler = new InvokeMethodDelegate<IMethodMemberInfo, object, bool>((_, target, args, m) => HasErrors(target, args[0] ?? "", m));
+            var getErrorHandler = new InvokeMethodDelegate<IMethodMemberInfo, object, object?>((_, target, args, m) => GetError(target, args[0] ?? "", m));
+            var getErrorsHandler = new InvokeMethodDelegate<IMethodMemberInfo, object, IReadOnlyList<object>>((_, target, args, m) => GetErrors(target, args[0] ?? "", m));
 
             attachedMemberProvider.Register(Members.BindableMembers.For<INotifyDataErrorInfo>()
                                                    .HasErrorsMethod()
@@ -389,7 +388,7 @@ namespace MugenMvvm.Bindings.Extensions
             private void Raise() => Listeners.Raise(Collection, EventArgs.Empty, null);
         }
 
-        private sealed class ErrorsChangedValidatorListener : IValidatorListener
+        private sealed class ErrorsChangedValidatorListener : IValidatorErrorsChangedListener
         {
             private readonly WeakEventListener _eventListener;
 
@@ -398,18 +397,10 @@ namespace MugenMvvm.Bindings.Extensions
                 _eventListener = eventListener.ToWeak();
             }
 
-            public void OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
+            public void OnErrorsChanged(IValidator validator, ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
             {
-                if (!_eventListener.TryHandle(target, memberName, metadata))
+                if (!_eventListener.TryHandle(validator, members.GetRawValue() ?? "", metadata))
                     validator.RemoveComponent(this);
-            }
-
-            public void OnAsyncValidation(IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
-            {
-            }
-
-            public void OnDisposed(IValidator validator)
-            {
             }
         }
     }

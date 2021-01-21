@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Interfaces.Observation.Components;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Observation.Components
@@ -24,12 +25,7 @@ namespace MugenMvvm.Bindings.Observation.Components
         {
             if (state is string key)
             {
-#if NET_CORE
                 _cache.Remove(key, out var v);
-#else
-                if (_cache.TryGetValue(key, out var v))
-                    _cache.Remove(key);
-#endif
                 if (v != null)
                     v.IsDisposable = true;
             }

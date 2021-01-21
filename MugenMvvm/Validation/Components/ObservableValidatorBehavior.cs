@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class ObservableValidatorBehavior : MultiAttachableComponentBase<IValidator>, IValidatorListener, IDisposable, IHasPriority
+    public sealed class ObservableValidatorBehavior : MultiAttachableComponentBase<IValidator>, IValidatorErrorsChangedListener, IDisposable, IHasPriority
     {
         private readonly INotifyPropertyChanged _target;
 
@@ -28,22 +28,14 @@ namespace MugenMvvm.Validation.Components
 
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            foreach (var owner in Owners) 
+            foreach (var owner in Owners)
                 owner.ValidateAsync(e.PropertyName).LogException(UnhandledExceptionType.Validation);
         }
 
-        void IValidatorListener.OnErrorsChanged(IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
+        void IValidatorErrorsChangedListener.OnErrorsChanged(IValidator validator, ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
         {
             if (_target is IHasService<IMessenger> hasService)
-                hasService.ServiceOptional?.Publish(validator, memberName, metadata);
-        }
-
-        void IValidatorListener.OnAsyncValidation(IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        void IValidatorListener.OnDisposed(IValidator validator)
-        {
+                hasService.ServiceOptional?.Publish(validator, members.GetRawValue() ?? "", metadata);
         }
     }
 }

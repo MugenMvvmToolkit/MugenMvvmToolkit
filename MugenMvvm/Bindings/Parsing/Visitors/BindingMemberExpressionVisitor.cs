@@ -286,6 +286,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             public readonly BindingMemberType MemberType;
             public readonly object? Target;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public CacheKey(string path, string? methodName, EnumFlags<MemberFlags> memberFlags, EnumFlags<BindingMemberExpressionFlags> bindingMemberFlags, object? target,
                 BindingMemberType memberType)
             {

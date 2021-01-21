@@ -123,6 +123,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static IReadOnlyDictionary<TKey, TValue> Merge<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, IReadOnlyDictionary<TKey, TValue> values)
+            where TKey : notnull
         {
             Should.NotBeNull(dictionary, nameof(dictionary));
             Should.NotBeNull(values, nameof(values));
@@ -140,6 +141,16 @@ namespace MugenMvvm.Extensions
                 result[value.Key] = value.Value;
             return result;
         }
+
+#if NET461
+        internal static bool Remove<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, [NotNullWhen(true)] out TValue value) where TKey : notnull
+        {
+            Should.NotBeNull(dictionary, nameof(dictionary));
+            if (dictionary.TryGetValue(key, out value))
+                return dictionary.Remove(key);
+            return false;
+        }
+#endif
 
         internal static int IndexOf<T>(T[] items, T item) where T : class
         {

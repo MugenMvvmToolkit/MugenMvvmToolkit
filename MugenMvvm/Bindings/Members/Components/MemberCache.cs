@@ -92,6 +92,7 @@ namespace MugenMvvm.Bindings.Members.Components
             public readonly ushort MemberFlags;
             private readonly object? _typesRaw;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public CacheKey(Type type, string key, EnumFlags<MemberType> memberType, EnumFlags<MemberFlags> memberFlags, ItemOrArray<Type> types)
             {
                 Type = type;

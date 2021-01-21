@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.UnitTests.Validation.Internal
 {
-    public class TestValidationHandlerBase<T> : ValidationHandlerBase<T> where T : class
+    public class TestValidationHandlerBase : ValidationHandlerBase
     {
-        public TestValidationHandlerBase(T target)
-            : base(target)
-        {
-        }
+        public Func<IValidator, string?, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>>? Validate { get; set; }
 
-        public Func<string, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ValidationResult>>? GetErrorsAsyncDelegate { get; set; }
-
-        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-            GetErrorsAsyncDelegate?.Invoke(memberName, cancellationToken, metadata) ?? default;
+        protected override ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata) => Validate?.Invoke(validator, member, cancellationToken, metadata) ?? default;
     }
 }

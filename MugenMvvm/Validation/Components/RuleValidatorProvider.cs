@@ -10,11 +10,11 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidatorProvider : IValidatorProviderListener, IHasPriority
+    public sealed class RuleValidationManager : IValidationManagerListener, IHasPriority
     {
         private readonly List<(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)> _rules;
 
-        public RuleValidatorProvider()
+        public RuleValidationManager()
         {
             _rules = new List<(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)>();
         }
@@ -30,20 +30,11 @@ namespace MugenMvvm.Validation.Components
                 _rules.Add((rule, condition));
         }
 
-        public void OnValidatorCreated(IValidationManager validationManager, IValidator validator, object? request, IReadOnlyMetadataContext? metadata)
+        public void OnValidatorCreated(IValidationManager validationManager, IValidator validator, ItemOrIReadOnlyList<object> targets, IReadOnlyMetadataContext? metadata)
         {
-            if (request is IReadOnlyList<object?> targets)
+            foreach (var target in targets)
             {
-                for (var i = 0; i < targets.Count; i++)
-                {
-                    var component = TryGetComponent(validator, targets[i], metadata);
-                    if (component != null)
-                        validator.AddComponent(component);
-                }
-            }
-            else
-            {
-                var component = TryGetComponent(validator, request, metadata);
+                var component = TryGetComponent(validator, target, metadata);
                 if (component != null)
                     validator.AddComponent(component);
             }

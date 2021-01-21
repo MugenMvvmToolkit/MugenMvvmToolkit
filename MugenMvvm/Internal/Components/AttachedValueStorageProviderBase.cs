@@ -155,7 +155,7 @@ namespace MugenMvvm.Internal.Components
             var dictionary = (IDictionary<string, object?>) internalState;
             lock (dictionary)
             {
-                return dictionary.TryGetValue(path, out oldValue) && dictionary.Remove(path);
+                return dictionary.Remove(path, out oldValue);
             }
         }
 

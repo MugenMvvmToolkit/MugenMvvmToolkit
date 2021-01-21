@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
@@ -16,14 +17,14 @@ namespace MugenMvvm.UnitTests.Validation.Internal
             _validationManager = validationManager;
         }
 
-        public Func<object?, IReadOnlyMetadataContext?, IValidator?>? TryGetValidator { get; set; }
+        public Func<ItemOrIReadOnlyList<object>, IReadOnlyMetadataContext?, IValidator?>? TryGetValidator { get; set; }
 
         public int Priority { get; set; }
 
-        IValidator? IValidatorProviderComponent.TryGetValidator(IValidationManager validationManager, object? request, IReadOnlyMetadataContext? metadata)
+        IValidator? IValidatorProviderComponent.TryGetValidator(IValidationManager validationManager, ItemOrIReadOnlyList<object> targets, IReadOnlyMetadataContext? metadata)
         {
             _validationManager?.ShouldEqual(validationManager);
-            return TryGetValidator?.Invoke(request, metadata);
+            return TryGetValidator?.Invoke(targets, metadata);
         }
     }
 }

@@ -55,7 +55,7 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             if (service == typeof(IValidator))
-                return _validationManager.DefaultIfNull().TryGetValidator(viewModel, metadata);
+                return _validationManager.DefaultIfNull().TryGetValidator((object) viewModel, metadata);
 
             if (service == typeof(IBusyManager))
             {

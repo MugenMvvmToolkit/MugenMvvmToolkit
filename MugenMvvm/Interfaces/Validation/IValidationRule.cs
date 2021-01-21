@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Validation;
 
 namespace MugenMvvm.Interfaces.Validation
 {
@@ -9,6 +10,6 @@ namespace MugenMvvm.Interfaces.Validation
     {
         bool IsAsync { get; }
 
-        Task ValidateAsync(object target, string memberName, IDictionary<string, object?> errors, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(object target, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
     }
 }
