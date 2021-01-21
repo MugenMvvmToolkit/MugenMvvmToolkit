@@ -11,19 +11,19 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Components
 {
     public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasComponentAddedHandler, IHasComponentRemovedHandler,
-        IComparer<IComponentCollectionDecorator>
+        IComparer<IComponentCollectionDecoratorBase>
     {
         private readonly List<object> _items;
         private IComponentCollection? _components;
         private ComponentTracker[] _componentTrackers;
-        private IComponentCollectionDecorator[] _decorators;
+        private IComponentCollectionDecoratorBase[] _decorators;
 
         public ComponentCollection(object owner)
         {
             Owner = owner;
             _items = new List<object>();
             _componentTrackers = Default.Array<ComponentTracker>();
-            _decorators = Default.Array<IComponentCollectionDecorator>();
+            _decorators = Default.Array<IComponentCollectionDecoratorBase>();
         }
 
         public object Owner { get; }
@@ -50,7 +50,7 @@ namespace MugenMvvm.Components
             lock (_items)
             {
                 MugenExtensions.AddOrdered(_items, component, this);
-                UpdateTrackers(component);
+                UpdateTrackers(component, null, metadata);
             }
 
             ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
@@ -75,7 +75,7 @@ namespace MugenMvvm.Components
             {
                 if (!_items.Remove(component))
                     return false;
-                UpdateTrackers(component);
+                UpdateTrackers(component, null, metadata);
             }
 
             ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
@@ -124,14 +124,14 @@ namespace MugenMvvm.Components
             }
         }
 
-        private void UpdateTrackers(object? component, IComponentCollectionDecorator? decorator = null)
+        private void UpdateTrackers(object? component, IComponentCollectionDecoratorBase? decorator, IReadOnlyMetadataContext? metadata)
         {
             var componentTrackers = _componentTrackers;
             var newSize = 0;
             for (var i = 0; i < componentTrackers.Length; i++)
             {
                 var componentTracker = componentTrackers[i];
-                if (!componentTracker.IsComponentSupported(component, decorator))
+                if (!componentTracker.IsComponentSupported(component, decorator, metadata))
                     componentTrackers[newSize++] = componentTracker;
             }
 
@@ -153,7 +153,7 @@ namespace MugenMvvm.Components
             if (size == 0)
                 return ComponentTracker.Get<TComponent>(default);
 
-            if (_decorators.Length != 0 && _decorators.HasDecorators<TComponent>())
+            if (_decorators.Length != 0 && _decorators.HasDecorators<TComponent>(metadata))
                 return GetComponentTrackerWithDecorators<TComponent>(size, metadata);
 
             var components = ItemOrArray.Get<TComponent>(size);
@@ -181,7 +181,7 @@ namespace MugenMvvm.Components
             return ComponentTracker.Get(components.ToItemOrArray());
         }
 
-        int IComparer<IComponentCollectionDecorator>.Compare(IComponentCollectionDecorator? x, IComponentCollectionDecorator? y)
+        int IComparer<IComponentCollectionDecoratorBase>.Compare(IComponentCollectionDecoratorBase? x, IComponentCollectionDecoratorBase? y)
         {
             var result = MugenExtensions.GetComponentPriority(x!, this).CompareTo(MugenExtensions.GetComponentPriority(y!, this));
             if (result == 0)
@@ -201,24 +201,24 @@ namespace MugenMvvm.Components
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is IComponentCollectionDecorator decorator)
+            if (component is IComponentCollectionDecoratorBase decorator)
             {
                 lock (_items)
                 {
                     MugenExtensions.AddOrdered(ref _decorators, decorator, this);
-                    UpdateTrackers(null, decorator);
+                    UpdateTrackers(null, decorator, metadata);
                 }
             }
         }
 
         void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is IComponentCollectionDecorator decorator)
+            if (component is IComponentCollectionDecoratorBase decorator)
             {
                 lock (_items)
                 {
                     MugenExtensions.Remove(ref _decorators, decorator);
-                    UpdateTrackers(null, decorator);
+                    UpdateTrackers(null, decorator, metadata);
                 }
             }
         }
@@ -228,9 +228,10 @@ namespace MugenMvvm.Components
         {
             public readonly object? Components;
             public readonly Type ComponentType;
-            public readonly Func<object?, IComponentCollectionDecorator?, bool> IsComponentSupported;
+            public readonly Func<object?, IComponentCollectionDecoratorBase?, IReadOnlyMetadataContext?, bool> IsComponentSupported;
 
-            private ComponentTracker(object? components, Type componentType, Func<object?, IComponentCollectionDecorator?, bool> isComponentSupported)
+            private ComponentTracker(object? components, Type componentType,
+                Func<object?, IComponentCollectionDecoratorBase?, IReadOnlyMetadataContext?, bool> isComponentSupported)
             {
                 Components = components;
                 ComponentType = componentType;
@@ -238,7 +239,8 @@ namespace MugenMvvm.Components
             }
 
             public static ComponentTracker Get<T>(ItemOrArray<T> components) where T : class =>
-                new(components.GetRawValue(), typeof(T), (o, decorator) => o is T || decorator is IComponentCollectionDecorator<T>);
+                new(components.GetRawValue(), typeof(T),
+                    (o, decorator, m) => o is T || decorator is IComponentCollectionDecorator<T> || (decorator is IComponentCollectionDecorator d && d.CanDecorate<T>(m)));
         }
     }
 }

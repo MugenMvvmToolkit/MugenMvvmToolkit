@@ -3,13 +3,10 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollectionDecorator : IComponent<IComponentCollection>
+    public interface IComponentCollectionDecorator : IComponentCollectionDecoratorBase
     {
-    }
+        bool CanDecorate<T>(IReadOnlyMetadataContext? metadata) where T : class;
 
-    public interface IComponentCollectionDecorator<TComponent> : IComponentCollectionDecorator
-        where TComponent : class
-    {
-        void Decorate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata);
+        void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -160,34 +160,28 @@ namespace MugenMvvm.Extensions.Components
                 c.OnRemoved(collection, component, metadata);
         }
 
-        public static void Decorate<TComponent>(this IComponentCollectionDecorator[] decorators, IComponentCollection collection, ref ItemOrListEditor<TComponent> components,
+        public static void Decorate<TComponent>(this IComponentCollectionDecoratorBase[] decorators, IComponentCollection collection, ref ItemOrListEditor<TComponent> components,
             IReadOnlyMetadataContext? metadata)
             where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
-            for (var i = 0; i < decorators.Length; i++)
+            foreach (var decorator in decorators)
             {
-                if (decorators[i] is IComponentCollectionDecorator<TComponent> decorator)
-                    decorator.Decorate(collection, ref components, metadata);
+                if (decorator is IComponentCollectionDecorator<TComponent> d1)
+                    d1.Decorate(collection, ref components, metadata);
+                else if (decorator is IComponentCollectionDecorator d2)
+                    d2.Decorate(collection, ref components, metadata);
             }
         }
 
-        public static void Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, IComponentCollection collection,
-            ref ItemOrListEditor<TComponent> components,
-            IReadOnlyMetadataContext? metadata)
-            where TComponent : class
+        public static bool HasDecorators<TComponent>(this IComponentCollectionDecoratorBase[] decorators, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
-            for (var i = 0; i < decorators.Length; i++)
-                decorators[i].Decorate(collection, ref components, metadata);
-        }
-
-        public static bool HasDecorators<TComponent>(this IComponentCollectionDecorator[] decorators) where TComponent : class
-        {
-            Should.NotBeNull(decorators, nameof(decorators));
-            for (var i = 0; i < decorators.Length; i++)
+            foreach (var decorator in decorators)
             {
-                if (decorators[i] is IComponentCollectionDecorator<TComponent>)
+                if (decorator is IComponentCollectionDecorator<TComponent>)
+                    return true;
+                if (decorator is IComponentCollectionDecorator d && d.CanDecorate<TComponent>(metadata))
                     return true;
             }
 

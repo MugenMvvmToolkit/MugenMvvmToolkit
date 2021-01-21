@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Components
         }
 
         [Fact]
-        public void GetShouldDecorateItems()
+        public void GetShouldDecorateItems1()
         {
             var executed = 0;
             var owner = new TestComponentOwner<object>();
@@ -84,6 +84,61 @@ namespace MugenMvvm.UnitTests.Components
 
             var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 0};
             var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 1};
+            var component = new TestThreadDispatcherComponent();
+            componentCollection.TryAdd(component);
+
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component});
+            decoratorComponent1.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
+            {
+                ++executed;
+                c.ShouldEqual(componentCollection);
+                list.AsList().ShouldEqual(new[] {component});
+                context.ShouldEqual(DefaultMetadata);
+                list.Add(componentDecorated1);
+            };
+            componentCollection.AddComponent(decoratorComponent1);
+
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
+            executed.ShouldEqual(1);
+
+            decoratorComponent2.DecorateHandler = (IComponentCollection c, ref ItemOrListEditor<IThreadDispatcherComponent> list, IReadOnlyMetadataContext? context) =>
+            {
+                ++executed;
+                c.ShouldEqual(componentCollection);
+                list.AsList().ShouldEqual(new[] {component, componentDecorated1});
+                context.ShouldEqual(DefaultMetadata);
+                list.Add(componentDecorated2);
+            };
+            componentCollection.AddComponent(decoratorComponent2);
+
+            executed = 0;
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1, componentDecorated2});
+            executed.ShouldEqual(2);
+
+            componentCollection.RemoveComponent(decoratorComponent2);
+            executed = 0;
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).ShouldEqual(new[] {component, componentDecorated1});
+            executed.ShouldEqual(1);
+
+            executed = 0;
+            componentCollection.RemoveComponent(decoratorComponent1);
+            var components = componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata);
+            components.ShouldEqual(new[] {component});
+            executed.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void GetShouldDecorateItems2()
+        {
+            var executed = 0;
+            var owner = new TestComponentOwner<object>();
+            var componentCollection = new ComponentCollection(owner);
+
+            var componentDecorated1 = new TestThreadDispatcherComponent();
+            var componentDecorated2 = new TestThreadDispatcherComponent();
+
+            var decoratorComponent1 = new TestComponentCollectionDecorator<IThreadDispatcherComponent> {Priority = 0};
+            var decoratorComponent2 = new TestComponentCollectionDecorator<IThreadDispatcherComponent> {Priority = 1};
             var component = new TestThreadDispatcherComponent();
             componentCollection.TryAdd(component);
 
