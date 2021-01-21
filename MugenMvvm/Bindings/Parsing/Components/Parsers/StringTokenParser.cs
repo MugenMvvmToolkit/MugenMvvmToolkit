@@ -257,7 +257,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
             var list = args.AsList();
             list.Insert(0, value);
-            return new MethodCallExpressionNode(StringType, nameof(string.Format), list);
+            return new MethodCallExpressionNode(StringType, nameof(string.Format), new ItemOrIReadOnlyList<IExpressionNode>((IReadOnlyList<IExpressionNode>) list));
         }
 
         private string? GetQuoteToken(ITokenParserContext context)

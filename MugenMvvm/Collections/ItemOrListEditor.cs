@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Collections
 {
@@ -9,7 +11,7 @@ namespace MugenMvvm.Collections
     {
         private bool _hasItem;
         private T? _item;
-        private List<T>? _list;
+        private IList<T>? _list;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ItemOrListEditor(object? rawValue)
@@ -60,11 +62,16 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor(List<T> list)
+        public ItemOrListEditor(IList<T> iList)
         {
-            _list = list;
+            _list = iList;
             _item = default!;
             _hasItem = false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrListEditor(List<T> list) : this(iList: list)
+        {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -118,6 +125,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrListEditor<T> FromRawValue(object? rawValue) => new(rawValue);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddRange(IEnumerable<T>? values) => AddRange(new ItemOrIEnumerable<T>(values));
 
         public void AddRange(ItemOrIEnumerable<T> value)
@@ -171,6 +179,10 @@ namespace MugenMvvm.Collections
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Contains(T item) => IndexOf(item) >= 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IndexOf(T item)
         {
             if (_list != null)
@@ -180,6 +192,7 @@ namespace MugenMvvm.Collections
             return -1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Remove(T item)
         {
             if (_list != null)
@@ -195,6 +208,7 @@ namespace MugenMvvm.Collections
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveAt(int index)
         {
             if ((uint) index >= (uint) Count)
@@ -208,6 +222,7 @@ namespace MugenMvvm.Collections
                 _list.RemoveAt(index);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
             if (_list == null)
@@ -238,11 +253,11 @@ namespace MugenMvvm.Collections
         {
             if (_list == null)
                 return new ItemOrIReadOnlyList<T>(_item, _hasItem);
-            return new ItemOrIReadOnlyList<T>(_list);
+            return new ItemOrIReadOnlyList<T>((IReadOnlyList<T>) _list);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public List<T> AsList()
+        public IList<T> AsList()
         {
             if (_list != null)
                 return _list;

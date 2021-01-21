@@ -4,5 +4,6 @@
     {
         public const int ValidatorProvider = 0;
         public const int CycleHandlerDecorator = 100;
+        public const int AsyncBehaviorDecorator = 100;
     }
 }
