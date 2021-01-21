@@ -79,7 +79,7 @@ namespace MugenMvvm.Ios.Extensions
         public static MugenApplicationConfiguration IosAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
             var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service;
-            var attachedMemberProvider = memberManager.GetOrAddComponent(context => new AttachedMemberProvider());
+            var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
 
             //NSObject
             attachedMemberProvider.Register(BindableMembers

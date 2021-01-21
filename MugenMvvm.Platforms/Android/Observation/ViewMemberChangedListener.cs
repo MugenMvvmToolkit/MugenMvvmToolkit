@@ -23,6 +23,8 @@ namespace MugenMvvm.Android.Observation
         public const string RefreshedEventName = "Refreshed";
         public const string SelectedIndexName = "SelectedIndex";
         public const string SelectedIndexEventName = "SelectedIndexChanged";
+        public const string CheckedMemberName = "Checked";
+        public const string CheckedEventName = "CheckedChanged";
 
         public static readonly ICharSequence ParentMemberNameNative = NativeBindableMemberMugenExtensions.ParentMemberName;
         public static readonly ICharSequence ParentEventNameNative = NativeBindableMemberMugenExtensions.ParentEventName;
@@ -34,6 +36,8 @@ namespace MugenMvvm.Android.Observation
         public static readonly ICharSequence RefreshedEventNameNative = NativeBindableMemberMugenExtensions.RefreshedEventName;
         public static readonly ICharSequence SelectedIndexNameNative = NativeBindableMemberMugenExtensions.SelectedIndexName;
         public static readonly ICharSequence SelectedIndexEventNameNative = NativeBindableMemberMugenExtensions.SelectedIndexEventName;
+        public static readonly ICharSequence CheckedMemberNameNative = NativeBindableMemberMugenExtensions.CheckedMemberName;
+        public static readonly ICharSequence CheckedEventNameNative = NativeBindableMemberMugenExtensions.CheckedEventName;
 
         private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new(3);
         private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new(3);
@@ -78,6 +82,10 @@ namespace MugenMvvm.Android.Observation
                 return SelectedIndexName;
             if (member == SelectedIndexEventNameNative)
                 return SelectedIndexEventName;
+            if (member == CheckedMemberNameNative)
+                return CheckedMemberName;
+            if (member == CheckedEventNameNative)
+                return CheckedEventName;
             if (!JavaToNetMapping.TryGetValue(member, out var r))
             {
                 r = member.ToString();
@@ -111,6 +119,10 @@ namespace MugenMvvm.Android.Observation
                     return SelectedIndexNameNative;
                 case SelectedIndexEventName:
                     return SelectedIndexEventNameNative;
+                case CheckedMemberName:
+                    return CheckedMemberNameNative;
+                case CheckedEventName:
+                    return CheckedEventNameNative;
             }
 
             if (!NetToJavaMapping.TryGetValue(member, out var r))

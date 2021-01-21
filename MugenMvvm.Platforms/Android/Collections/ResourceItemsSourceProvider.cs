@@ -23,7 +23,7 @@ namespace MugenMvvm.Android.Collections
         public virtual void OnViewCreated(View view)
         {
             view.BindableMembers().SetDataContext(null);
-            view.BindableMembers().SetParent(view);
+            view.BindableMembers().SetParent(Owner);
         }
     }
 }

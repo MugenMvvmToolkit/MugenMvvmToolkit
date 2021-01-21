@@ -1,5 +1,6 @@
 package com.mugen.mvvm.views;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.constants.LifecycleState;
+import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
@@ -181,9 +183,12 @@ public final class BindableMemberMugenExtensions {
     }
 
     public static void setParent(@NonNull View view, @Nullable Object parent) {
-        if (view == parent)
+        if (view == parent) {
+            if (MugenUtils.hasFlag(MugenInitializationFlags.Debug))
+                Log.e(MugenUtils.LogTag, "setParent to self " + view);
             return;
-        
+        }
+
         Object oldParent = getParentRaw(view);
         parent = ViewMugenExtensions.tryWrap(parent);
         if (oldParent == parent)
