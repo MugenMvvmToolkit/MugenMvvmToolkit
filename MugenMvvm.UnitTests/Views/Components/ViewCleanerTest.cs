@@ -128,9 +128,13 @@ namespace MugenMvvm.UnitTests.Views.Components
 
         private sealed class TestCleanableViewModel : TestViewModel, IHasService<IMessenger>
         {
-            public IMessenger Service => throw new NotSupportedException();
-
             public IMessenger? ServiceOptional { get; set; }
+
+            IMessenger? IHasService<IMessenger>.GetService(bool optional)
+            {
+                optional.ShouldBeTrue();
+                return ServiceOptional;
+            }
         }
 
         private sealed class TestCleanableView : ICleanableView

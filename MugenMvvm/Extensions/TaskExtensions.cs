@@ -66,7 +66,7 @@ namespace MugenMvvm.Extensions
             where TTask : Task
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
-            return task.WithBusyIndicator(busyManager.Service, message, millisecondsDelay, metadata);
+            return task.WithBusyIndicator(busyManager.GetService(false)!, message, millisecondsDelay, metadata);
         }
 
         public static TTask WithBusyIndicator<TTask>(this TTask task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0,
@@ -88,7 +88,7 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
-            return task.WithBusyIndicator(busyManager.Service, message, millisecondsDelay, metadata);
+            return task.WithBusyIndicator(busyManager.GetService(false)!, message, millisecondsDelay, metadata);
         }
 
         public static async ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0,

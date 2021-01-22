@@ -60,7 +60,7 @@ namespace MugenMvvm.Bindings.Extensions
         public static bool HasErrors(object target, object? membersRaw, IReadOnlyMetadataContext? metadata)
         {
             if (target is IHasService<IValidator> hasValidator)
-                return hasValidator.Service.HasErrors(ItemOrIReadOnlyList.FromRawValue<string>(membersRaw), null, metadata);
+                return hasValidator.GetService(false)!.HasErrors(ItemOrIReadOnlyList.FromRawValue<string>(membersRaw), null, metadata);
 
             if (target is INotifyDataErrorInfo dataErrorInfo)
             {
@@ -78,7 +78,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (target is IHasService<IValidator> hasValidator)
             {
-                var validator = hasValidator.Service;
+                var validator = hasValidator.GetService(false)!;
                 ItemOrListEditor<object> errors = default;
                 foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
                 {
@@ -105,7 +105,7 @@ namespace MugenMvvm.Bindings.Extensions
             if (target is IHasService<IValidator> hasValidator)
             {
                 var editor = new ItemOrListEditor<object>();
-                hasValidator.Service.GetErrors(ItemOrIReadOnlyList.FromRawValue<string>(membersRaw), ref editor, null, metadata);
+                hasValidator.GetService(false)!.GetErrors(ItemOrIReadOnlyList.FromRawValue<string>(membersRaw), ref editor, null, metadata);
                 return editor.ToItemOrList().AsList();
             }
 

@@ -35,7 +35,7 @@ namespace MugenMvvm.Validation.Components
         void IValidatorErrorsChangedListener.OnErrorsChanged(IValidator validator, ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
         {
             if (_target is IHasService<IMessenger> hasService)
-                hasService.ServiceOptional?.Publish(validator, members.GetRawValue() ?? "", metadata);
+                hasService.GetService(true)?.Publish(validator, members.GetRawValue() ?? "", metadata);
         }
     }
 }

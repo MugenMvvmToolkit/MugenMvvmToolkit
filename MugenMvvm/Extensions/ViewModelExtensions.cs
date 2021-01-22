@@ -102,7 +102,7 @@ namespace MugenMvvm.Extensions
         public static TService? TryGetService<TService>(this IViewModelBase viewModel, bool optional) where TService : class
         {
             if (viewModel is IHasService<TService> hasService)
-                return optional ? hasService.ServiceOptional : hasService.Service;
+                return hasService.GetService(optional);
             return null;
         }
 

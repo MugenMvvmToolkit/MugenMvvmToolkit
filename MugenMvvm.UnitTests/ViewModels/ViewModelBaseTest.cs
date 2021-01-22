@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         {
             var viewModel = new TestViewModelBase();
             var hasService = (IHasService<IBusyManager>) viewModel;
-            hasService.ServiceOptional.ShouldBeNull();
+            hasService.GetService(true).ShouldBeNull();
             viewModel.TryGetService<IBusyManager>(true).ShouldBeNull();
         }
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         {
             var viewModel = new TestViewModelBase();
             var hasService = (IHasService<IMessenger>) viewModel;
-            hasService.ServiceOptional.ShouldBeNull();
+            hasService.GetService(true).ShouldBeNull();
             viewModel.TryGetService<IMessenger>(true).ShouldBeNull();
         }
 

@@ -132,13 +132,17 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 
             public IWeakReference? Value { get; set; }
 
-            IBusyManager IHasService<IBusyManager>.Service => throw new NotSupportedException();
+            IBusyManager? IHasService<IBusyManager>.GetService(bool optional)
+            {
+                optional.ShouldBeTrue();
+                return BusyManager;
+            }
 
-            IBusyManager? IHasService<IBusyManager>.ServiceOptional => BusyManager;
-
-            IMessenger IHasService<IMessenger>.Service => throw new NotSupportedException();
-
-            IMessenger? IHasService<IMessenger>.ServiceOptional => Messenger;
+            IMessenger? IHasService<IMessenger>.GetService(bool optional)
+            {
+                optional.ShouldBeTrue();
+                return Messenger;
+            }
         }
     }
 }

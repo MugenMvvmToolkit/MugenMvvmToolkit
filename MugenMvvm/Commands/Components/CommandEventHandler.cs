@@ -49,7 +49,7 @@ namespace MugenMvvm.Commands.Components
         public ActionToken AddNotifier(object? notifier, IReadOnlyMetadataContext? metadata = null)
         {
             if (notifier is IHasService<IMessenger> hasMessenger)
-                return AddNotifier(hasMessenger.Service, metadata);
+                return AddNotifier(hasMessenger.GetService(false)!, metadata);
 
             if (notifier is IMessenger messenger)
                 return AddNotifier(messenger, metadata);

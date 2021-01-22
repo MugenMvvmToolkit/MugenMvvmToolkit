@@ -226,11 +226,11 @@ namespace MugenMvvm.Bindings.Extensions
                                               .CustomImplementation((member, target, listener, metadata) =>
                                               {
                                                   var component = new ErrorsChangedValidatorListener(listener);
-                                                  target.Service.AddComponent(component);
+                                                  target.GetService(false)!.AddComponent(component);
                                                   return new ActionToken((t, c) =>
                                                   {
                                                       var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
-                                                      hasService?.Service.RemoveComponent((IComponent<IValidator>) c!);
+                                                      hasService?.GetService(false)!.RemoveComponent((IComponent<IValidator>) c!);
                                                   }, target.ToWeakReference(), component);
                                               })
                                               .Build();

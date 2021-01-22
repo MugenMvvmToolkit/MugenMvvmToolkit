@@ -201,7 +201,7 @@ namespace MugenMvvm
                     if (_service != null)
                         return _service;
                     if (_serviceConfiguration != null)
-                        return _serviceConfiguration.Service;
+                        return _serviceConfiguration.GetService(false)!;
                     return GetFallbackService();
                 }
             }
@@ -214,7 +214,7 @@ namespace MugenMvvm
                     if (_service != null)
                         return _service;
                     if (_serviceConfiguration != null)
-                        return _serviceConfiguration.ServiceOptional;
+                        return _serviceConfiguration.GetService(true);
                     return Configuration.FallbackConfiguration?.Optional<TService>();
                 }
             }

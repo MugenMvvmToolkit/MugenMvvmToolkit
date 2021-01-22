@@ -1,9 +1,7 @@
 ﻿namespace MugenMvvm.Interfaces.Models
 {
-    public interface IHasService<out TService> where TService : class
+    public interface IHasService<out T> where T : class
     {
-        TService Service { get; }
-
-        TService? ServiceOptional { get; }
+        T? GetService(bool optional);
     }
 }

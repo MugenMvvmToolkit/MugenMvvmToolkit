@@ -119,7 +119,11 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             public IMessenger Service { get; set; } = null!;
 
-            public IMessenger ServiceOptional => throw new NotSupportedException();
+            IMessenger IHasService<IMessenger>.GetService(bool optional)
+            {
+                optional.ShouldBeFalse();
+                return Service;
+            }
         }
 
         private sealed class TestInitializableView : IInitializableView

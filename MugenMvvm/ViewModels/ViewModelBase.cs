@@ -46,18 +46,6 @@ namespace MugenMvvm.ViewModels
 
         protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 
-        IBusyManager IHasService<IBusyManager>.Service => BusyManager;
-
-        IBusyManager? IHasService<IBusyManager>.ServiceOptional => _busyManager;
-
-        IMessenger? IHasService<IMessenger>.ServiceOptional => _messenger;
-
-        IMessenger IHasService<IMessenger>.Service => Messenger;
-
-        IViewModelManager IHasService<IViewModelManager>.Service => ViewModelManager;
-
-        IViewModelManager? IHasService<IViewModelManager>.ServiceOptional => _viewModelManager;
-
         public void Dispose()
         {
             if (IsDisposed || !CanDispose())
@@ -146,5 +134,11 @@ namespace MugenMvvm.ViewModels
         void IBusyManagerListener.OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata) => OnBeginBusy(busyManager, busyToken, metadata);
 
         void IBusyManagerListener.OnBusyStateChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata) => OnBusyStateChanged(busyManager, metadata);
+
+        IBusyManager? IHasService<IBusyManager>.GetService(bool optional) => optional ? _busyManager : BusyManager;
+
+        IMessenger? IHasService<IMessenger>.GetService(bool optional) => optional ? _messenger : Messenger;
+
+        IViewModelManager IHasService<IViewModelManager>.GetService(bool optional) => ViewModelManager;
     }
 }

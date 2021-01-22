@@ -30,7 +30,7 @@ namespace MugenMvvm.ViewModels.Components
         public int Priority { get; set; } = ViewModelComponentPriority.InheritParentServiceResolver;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static object? GetService<T>(object vm) where T : class => (vm as IHasService<T>)?.Service;
+        private static object? GetService<T>(object vm) where T : class => (vm as IHasService<T>)?.GetService(false);
 
         public object? TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {

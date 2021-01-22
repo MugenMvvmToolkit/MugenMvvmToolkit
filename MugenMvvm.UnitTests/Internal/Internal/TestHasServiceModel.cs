@@ -7,5 +7,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
         public T Service { get; set; } = default!;
 
         public T? ServiceOptional { get; set; }
+
+        T? IHasService<T>.GetService(bool optional) => optional ? ServiceOptional : Service;
     }
 }
