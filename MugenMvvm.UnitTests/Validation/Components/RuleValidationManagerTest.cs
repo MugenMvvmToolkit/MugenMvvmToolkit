@@ -10,8 +10,10 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class RuleValidationManagerTest : UnitTestBase
     {
-        [Fact]
-        public void ShouldAddResolveRulesBasedOnCondition()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldAddResolveRulesBasedOnCondition(bool useCache)
         {
             var target1 = this;
             var target2 = "1";
@@ -21,7 +23,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var rule3 = new TestValidationRule();
 
             var validationManager = new ValidationManager();
-            var component = new RuleValidationManager();
+            var component = new RuleValidationManager(useCache);
             validationManager.AddComponent(component);
             validationManager.AddComponent(new TestValidatorProviderComponent
             {
@@ -35,6 +37,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             validationManager.TryGetValidator(target1).ShouldEqual(validator);
             var ruleValidatorComponent = validator.GetComponents<RuleValidationHandler>().Single();
+            ruleValidatorComponent.UseCache.ShouldEqual(useCache);
             var rules = ruleValidatorComponent.Rules.AsList().ToList();
             rules.Count.ShouldEqual(2);
             rules.Remove(rule1).ShouldBeTrue();
@@ -43,6 +46,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.ClearComponents();
             validationManager.TryGetValidator(target2).ShouldEqual(validator);
             ruleValidatorComponent = validator.GetComponents<RuleValidationHandler>().Single();
+            ruleValidatorComponent.UseCache.ShouldEqual(useCache);
             rules = ruleValidatorComponent.Rules.AsList().ToList();
             rules.Count.ShouldEqual(1);
             rules.Remove(rule3).ShouldBeTrue();
@@ -57,12 +61,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
             components.Count.ShouldEqual(2);
 
             ruleValidatorComponent = components.AsList().Single(validatorComponent => validatorComponent.Target == target1);
+            ruleValidatorComponent.UseCache.ShouldEqual(useCache);
             rules = ruleValidatorComponent.Rules.AsList().ToList();
             rules.Count.ShouldEqual(2);
             rules.Remove(rule1).ShouldBeTrue();
             rules.Remove(rule2).ShouldBeTrue();
 
             ruleValidatorComponent = components.AsList().Single(validatorComponent => ReferenceEquals(validatorComponent.Target, target2));
+            ruleValidatorComponent.UseCache.ShouldEqual(useCache);
             rules = ruleValidatorComponent.Rules.AsList().ToList();
             rules.Count.ShouldEqual(1);
             rules.Remove(rule3).ShouldBeTrue();

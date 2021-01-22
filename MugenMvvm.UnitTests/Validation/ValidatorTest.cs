@@ -239,35 +239,6 @@ namespace MugenMvvm.UnitTests.Validation
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ResetErrorsShouldBeHandledByComponents(int componentCount)
-        {
-            var errors = new[] {new ValidationErrorInfo(this, "1", "1"), new ValidationErrorInfo(this, "2", "2")};
-            var source = new object();
-            var count = 0;
-            var validator = GetComponentOwner();
-
-            for (var i = 0; i < componentCount; i++)
-            {
-                var component = new TestValidatorErrorManagerComponent(validator)
-                {
-                    ResetErrors = (s, e, metadata) =>
-                    {
-                        ++count;
-                        e.ShouldEqual(errors);
-                        s.ShouldEqual(source);
-                        metadata.ShouldEqual(DefaultMetadata);
-                    }
-                };
-                validator.AddComponent(component);
-            }
-
-            validator.ResetErrors(source, errors, DefaultMetadata);
-            count.ShouldEqual(componentCount);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
         public void ClearErrorsShouldBeHandledByComponents(int componentCount)
         {
             ItemOrIReadOnlyList<string> memberName = "test";

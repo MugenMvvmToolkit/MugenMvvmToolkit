@@ -83,15 +83,6 @@ namespace MugenMvvm.Extensions.Components
                 c.SetErrors(validator, source, errors, metadata);
         }
 
-        public static void ResetErrors(this ItemOrArray<IValidatorErrorManagerComponent> components, IValidator validator,
-            object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(validator, nameof(validator));
-            Should.NotBeNull(source, nameof(source));
-            foreach (var c in components)
-                c.ResetErrors(validator, source, errors, metadata);
-        }
-
         public static void ClearErrors(this ItemOrArray<IValidatorErrorManagerComponent> components, IValidator validator, ItemOrIReadOnlyList<string> members,
             object? source, IReadOnlyMetadataContext? metadata)
         {

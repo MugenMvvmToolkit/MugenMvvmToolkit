@@ -60,8 +60,7 @@ namespace MugenMvvm.Bindings.Members.Components
         }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
-            object request,
-            IReadOnlyMetadataContext? metadata)
+            object request, IReadOnlyMetadataContext? metadata)
         {
             if (request is not IReadOnlyList<IMemberInfo> members)
                 return default;

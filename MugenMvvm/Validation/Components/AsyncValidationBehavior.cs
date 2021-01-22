@@ -76,9 +76,6 @@ namespace MugenMvvm.Validation.Components
         public void SetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata) =>
             _errorManagerComponents.SetErrors(validator, source, errors, metadata);
 
-        public void ResetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata) =>
-            _errorManagerComponents.ResetErrors(validator, source, errors, metadata);
-
         public void ClearErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata) =>
             _errorManagerComponents.ClearErrors(validator, members, source, metadata);
 

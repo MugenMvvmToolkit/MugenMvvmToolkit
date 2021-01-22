@@ -49,7 +49,8 @@ namespace MugenMvvm.UnitTests.Validation
             errorTcs.TrySetResult(error);
             errors = await task;
             task.IsCompleted.ShouldBeTrue();
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(target, memberName, null)).ShouldBeTrue();
         }
 
         [Fact]
@@ -79,7 +80,8 @@ namespace MugenMvvm.UnitTests.Validation
             error = null;
             errors = await rule.ValidateAsync(target, memberName, default, DefaultMetadata);
             invokeCount.ShouldEqual(2);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(target, memberName, null)).ShouldBeTrue();
         }
 
         [Fact]
@@ -147,7 +149,8 @@ namespace MugenMvvm.UnitTests.Validation
             canValidate = false;
             tcs = new TaskCompletionSource<bool>();
             errors = await rule.ValidateAsync(validationModel, propertyName, cts.Token, DefaultMetadata);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
 
             canValidate = true;
             validationModel.Property = "test";
@@ -156,7 +159,8 @@ namespace MugenMvvm.UnitTests.Validation
             tcs.TrySetResult(true);
             errors = await task;
             task.IsCompleted.ShouldBeTrue();
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Fact]
@@ -190,12 +194,14 @@ namespace MugenMvvm.UnitTests.Validation
 
             canValidate = false;
             errors = await rule.ValidateAsync(validationModel, propertyName, default, DefaultMetadata);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
 
             canValidate = true;
             validationModel.Property = "test";
             errors = await rule.ValidateAsync(validationModel, propertyName, default, DefaultMetadata);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Fact]
@@ -231,8 +237,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             canValidate = false;
             errors = await rule.ValidateAsync(target, memberName, default, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(target, memberName, null)).ShouldBeTrue();
         }
 
         [Fact]
@@ -294,7 +300,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = "";
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -316,7 +323,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             value = 0;
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -338,7 +346,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             value = new string[0];
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -364,7 +373,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = "test";
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -386,7 +396,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = "test";
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -408,7 +419,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             value = 1;
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -430,7 +442,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             value = new[] {""};
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -451,7 +464,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = "test";
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         [Theory]
@@ -473,7 +487,8 @@ namespace MugenMvvm.UnitTests.Validation
 
             validationModel.Property = null;
             errors = await rule.ValidateAsync(validationModel, propertyName, default, null);
-            errors.Count.ShouldEqual(0);
+            errors.Count.ShouldEqual(1);
+            errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
 
         private sealed class ValidationModel

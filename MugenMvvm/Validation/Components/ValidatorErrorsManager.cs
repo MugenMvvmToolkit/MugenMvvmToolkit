@@ -20,13 +20,16 @@ namespace MugenMvvm.Validation.Components
             _errors = new Dictionary<CacheKey, List<ValidationErrorInfo>>(this);
         }
 
-        private static bool ContainsError(List<ValidationErrorInfo> errors, ValidationErrorInfo error)
+        private static bool RemoveError(List<ValidationErrorInfo> errors, ValidationErrorInfo error)
         {
             for (var i = 0; i < errors.Count; i++)
             {
                 var e = errors[i];
                 if (Equals(e.Target, error.Target) && Equals(e.Error, error.Error))
+                {
+                    errors.RemoveAt(i);
                     return true;
+                }
             }
 
             return false;
@@ -47,7 +50,7 @@ namespace MugenMvvm.Validation.Components
         private static void AddErrors(ref ItemOrListEditor<object> errors, List<ValidationErrorInfo> value)
         {
             for (int i = 0; i < value.Count; i++)
-                errors.Add(value[i].Error);
+                errors.Add(value[i].Error!);
         }
 
         public bool HasErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata)
@@ -140,11 +143,45 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        public void SetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata) =>
-            SetErrors(validator, source, errors, false, metadata);
+        public void SetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata)
+        {
+            ItemOrListEditor<string> toNotify = default;
+            lock (_errors)
+            {
+                foreach (var error in errors)
+                {
+                    if (error.HasError && (!_errors.TryGetValue(new CacheKey(source, error.Member), out var value) || value.Count == 0 || !RemoveError(value, error)))
+                        Add(ref toNotify, error.Member);
+                }
 
-        public void ResetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata) =>
-            SetErrors(validator, source, errors, true, metadata);
+                foreach (var error in errors)
+                {
+                    if (_errors.TryGetValue(new CacheKey(source, error.Member), out var value) && value.Count != 0)
+                    {
+                        Add(ref toNotify, error.Member);
+                        value.Clear();
+                    }
+                }
+
+                foreach (var error in errors)
+                {
+                    if (!error.HasError)
+                        continue;
+
+                    var key = new CacheKey(source, error.Member);
+                    if (!_errors.TryGetValue(key, out var value))
+                    {
+                        value = new List<ValidationErrorInfo>(2);
+                        _errors[key] = value;
+                    }
+
+                    value.Add(error);
+                }
+            }
+
+            if (toNotify.Count != 0)
+                validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, toNotify, metadata);
+        }
 
         public void ClearErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata)
         {
@@ -175,56 +212,6 @@ namespace MugenMvvm.Validation.Components
                             Add(ref toNotify, member);
                         }
                     }
-                }
-            }
-
-            if (toNotify.Count != 0)
-                validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, toNotify, metadata);
-        }
-
-        private void SetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, bool reset, IReadOnlyMetadataContext? metadata)
-        {
-            ItemOrListEditor<string> toNotify = default;
-            lock (_errors)
-            {
-                foreach (var error in errors)
-                {
-                    if (!_errors.TryGetValue(new CacheKey(source, error.Member), out var value) || value.Count == 0 || !ContainsError(value, error))
-                        Add(ref toNotify, error.Member);
-                }
-
-                if (reset)
-                {
-                    foreach (var error in _errors)
-                    {
-                        if (!error.Key.Source.Equals(source))
-                            continue;
-
-                        if (!errors.Contains(error.Key.Member) && error.Value.Count != 0)
-                            Add(ref toNotify, error.Key.Member);
-
-                        error.Value.Clear();
-                    }
-                }
-                else
-                {
-                    foreach (var error in errors)
-                    {
-                        if (_errors.TryGetValue(new CacheKey(source, error.Member), out var value))
-                            value.Clear();
-                    }
-                }
-
-                foreach (var error in errors)
-                {
-                    var key = new CacheKey(source, error.Member);
-                    if (!_errors.TryGetValue(key, out var value))
-                    {
-                        value = new List<ValidationErrorInfo>(2);
-                        _errors[key] = value;
-                    }
-
-                    value.Add(error);
                 }
             }
 

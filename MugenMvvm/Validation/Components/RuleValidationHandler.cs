@@ -1,20 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidationHandler : ValidationHandlerBase, IDisposable
+    public sealed class RuleValidationHandler : IValidationHandlerComponent, IDisposable
     {
+        [ThreadStatic]
+        private static List<ValidationErrorInfo>? _errorsCache;
+
         public readonly ItemOrIReadOnlyList<IValidationRule> Rules;
         private readonly CancellationTokenSource? _disposeToken;
 
-        public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules)
+        public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules, bool useCache)
         {
             Should.NotBeNull(target, nameof(target));
+            UseCache = useCache;
             Target = target;
             Rules = rules;
             foreach (var rule in rules)
@@ -27,21 +33,46 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
+        public bool UseCache { get; }
+
         public object Target { get; }
 
-        protected override ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken,
-            IReadOnlyMetadataContext? metadata)
+        private static ItemOrListEditor<ValidationErrorInfo> GetItemOrListEditor(int count, bool useCache)
+        {
+            if (count < 2)
+                return default;
+            if (useCache)
+            {
+                var errors = _errorsCache;
+                if (errors == null)
+                {
+                    errors = new List<ValidationErrorInfo>(count);
+                    _errorsCache = errors;
+                }
+                else
+                    errors.Clear();
+
+                return new ItemOrListEditor<ValidationErrorInfo>(errors);
+            }
+
+            return new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>(count));
+        }
+
+        public Task TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (_disposeToken == null)
-                return new ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>(Validate(member, metadata));
-            return ValidateInternalAsync(member,
+            {
+                Validate(validator, member, metadata);
+                return Task.CompletedTask;
+            }
+
+            return ValidateAsync(validator, member,
                 cancellationToken.CanBeCanceled ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeToken.Token).Token : _disposeToken.Token, metadata);
         }
 
-        private async ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateInternalAsync(string? member, CancellationToken cancellationToken,
-            IReadOnlyMetadataContext? metadata)
+        private async Task ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrListEditor<ValidationErrorInfo> editor = default;
+            var editor = GetItemOrListEditor(Rules.Count, false);
             ItemOrListEditor<ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>> tasks = default;
             foreach (var rule in Rules)
             {
@@ -54,12 +85,13 @@ namespace MugenMvvm.Validation.Components
 
             foreach (var task in tasks.ToItemOrList())
                 editor.AddRange(await task.ConfigureAwait(false));
-            return editor;
+
+            validator.SetErrors(this, editor, metadata);
         }
 
-        private ItemOrIReadOnlyList<ValidationErrorInfo> Validate(string? member, IReadOnlyMetadataContext? metadata)
+        private void Validate(IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrListEditor<ValidationErrorInfo> editor = default;
+            var editor = GetItemOrListEditor(Rules.Count, true);
             foreach (var rule in Rules)
             {
                 var task = rule.ValidateAsync(Target, member, default, metadata);
@@ -69,7 +101,7 @@ namespace MugenMvvm.Validation.Components
                 editor.AddRange(task.Result);
             }
 
-            return editor;
+            validator.SetErrors(this, editor, metadata);
         }
 
         void IDisposable.Dispose() => _disposeToken?.Cancel();

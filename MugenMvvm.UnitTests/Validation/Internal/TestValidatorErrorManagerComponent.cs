@@ -26,8 +26,6 @@ namespace MugenMvvm.UnitTests.Validation.Internal
 
         public Action<object, ItemOrIReadOnlyList<ValidationErrorInfo>, IReadOnlyMetadataContext?>? SetErrors { get; set; }
 
-        public Action<object, ItemOrIReadOnlyList<ValidationErrorInfo>, IReadOnlyMetadataContext?>? ResetErrors { get; set; }
-
         public Action<ItemOrIReadOnlyList<string>, object?, IReadOnlyMetadataContext?>? ClearErrors { get; set; }
 
         public int Priority { get; set; }
@@ -50,12 +48,6 @@ namespace MugenMvvm.UnitTests.Validation.Internal
         {
             _validator?.ShouldEqual(validator);
             SetErrors?.Invoke(source, errors, metadata);
-        }
-
-        void IValidatorErrorManagerComponent.ResetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata)
-        {
-            _validator?.ShouldEqual(validator);
-            ResetErrors?.Invoke(source, errors, metadata);
         }
 
         void IValidatorErrorManagerComponent.ClearErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata)

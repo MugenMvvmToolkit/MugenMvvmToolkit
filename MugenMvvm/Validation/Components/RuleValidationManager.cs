@@ -14,12 +14,19 @@ namespace MugenMvvm.Validation.Components
     {
         private readonly List<(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)> _rules;
 
-        public RuleValidationManager()
+        public RuleValidationManager() : this(true)
+        {
+        }
+
+        public RuleValidationManager(bool useCache)
         {
             _rules = new List<(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)>();
+            UseCache = useCache;
         }
 
         public int Priority { get; set; } = ValidationComponentPriority.ValidatorProvider;
+
+        public bool UseCache { get; }
 
         public void AddRule(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition) => AddRules(ItemOrIReadOnlyList.FromItem(rule), condition);
 
@@ -54,7 +61,7 @@ namespace MugenMvvm.Validation.Components
 
             if (rules.Count == 0)
                 return null;
-            return new RuleValidationHandler(target, rules.ToItemOrList());
+            return new RuleValidationHandler(target, rules.ToItemOrList(), UseCache);
         }
     }
 }

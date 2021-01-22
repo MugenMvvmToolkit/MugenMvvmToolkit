@@ -11,8 +11,10 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class RuleValidationHandlerTest : UnitTestBase
     {
-        [Fact]
-        public async Task ValidateShouldUseRules1()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ValidateShouldUseRules1(bool useCache)
         {
             var member = "Test2";
             var rules = new[]
@@ -32,7 +34,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
             };
 
             var validator = new Validator();
-            var component = new RuleValidationHandler(this, rules);
+            var component = new RuleValidationHandler(this, rules, useCache);
+            component.UseCache.ShouldEqual(useCache);
             validator.AddComponent(component);
             validator.AddComponent(new ValidatorErrorManager());
 
@@ -45,8 +48,10 @@ namespace MugenMvvm.UnitTests.Validation.Components
             errors[0].ShouldEqual(new ValidationErrorInfo(this, member, member));
         }
 
-        [Fact]
-        public async Task ValidateShouldUseRules2()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ValidateShouldUseRules2(bool useCache)
         {
             var memberName1 = "Test1";
             var memberName2 = "Test2";
@@ -81,7 +86,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
             };
 
             var validator = new Validator();
-            var component = new RuleValidationHandler(this, rules);
+            var component = new RuleValidationHandler(this, rules, useCache);
+            component.UseCache.ShouldEqual(useCache);
             validator.AddComponent(component);
             validator.AddComponent(new ValidatorErrorManager());
 

@@ -32,15 +32,12 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly EnumFlags<MemberFlags> StaticPublic = Static | Public;
         public static readonly EnumFlags<MemberFlags> StaticNonPublic = Static | NonPublic;
 
-        public static readonly EnumFlags<MemberFlags> StaticOnly = StaticPublic | StaticNonPublic;
-        public static readonly EnumFlags<MemberFlags> InstanceOnly = InstancePublic | InstanceNonPublic;
+        public static EnumFlags<MemberFlags> All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension | NonObservable;
 
-        public static readonly EnumFlags<MemberFlags> All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension;
-
-        public static readonly EnumFlags<MemberFlags> InstancePublicAll = All & ~(Static | NonPublic);
-        public static readonly EnumFlags<MemberFlags> StaticPublicAll = All & ~(Instance | NonPublic);
-        public static readonly EnumFlags<MemberFlags> InstanceAll = All & ~Static;
-        public static readonly EnumFlags<MemberFlags> StaticAll = All & ~Instance;
+        public static EnumFlags<MemberFlags> InstancePublicAll = All & ~(Static | NonPublic);
+        public static EnumFlags<MemberFlags> StaticPublicAll = All & ~(Instance | NonPublic);
+        public static EnumFlags<MemberFlags> InstanceAll = All & ~Static;
+        public static EnumFlags<MemberFlags> StaticAll = All & ~Instance;
 
         public MemberFlags(ushort value, int priority, string? name = null, long? flag = null) : base(value, name, flag)
         {

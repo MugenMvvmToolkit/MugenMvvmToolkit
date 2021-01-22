@@ -66,11 +66,14 @@ namespace MugenMvvm.Validation
             public ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(object t, string? member, CancellationToken cancellationToken,
                 IReadOnlyMetadataContext? metadata)
             {
-                if (t is not T target || _condition != null && !_condition(target, _state, metadata))
+                if (t is not T target)
                     return default;
 
                 if (!string.IsNullOrEmpty(member) && !string.Equals(_memberName, member) && !ContainsDependencyMember(member!))
                     return default;
+
+                if (_condition != null && !_condition(target, _state, metadata))
+                    return new ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>(ToError(target, null));
 
                 if (_validator is Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator)
                     return new ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>(ToError(target, validator(target, _memberAccessor(target), _state, metadata)));
@@ -80,12 +83,7 @@ namespace MugenMvvm.Validation
                        .AsValueTask();
             }
 
-            private ItemOrIReadOnlyList<ValidationErrorInfo> ToError(object target, object? error)
-            {
-                if (error == null)
-                    return default;
-                return new ValidationErrorInfo(target, _memberName, error);
-            }
+            private ItemOrIReadOnlyList<ValidationErrorInfo> ToError(object target, object? error) => new ValidationErrorInfo(target, _memberName, error);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private bool ContainsDependencyMember(string memberName) => ItemOrIReadOnlyList.FromRawValue<string>(_dependencyMembers).Contains(memberName, StringComparer.Ordinal);
