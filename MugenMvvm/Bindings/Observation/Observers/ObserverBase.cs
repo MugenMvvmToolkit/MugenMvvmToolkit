@@ -135,17 +135,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             if (IsDisposed)
                 return;
             var oldListeners = _listeners;
-            if (oldListeners == null)
-                _listeners = listener;
-            else if (oldListeners is IMemberPathObserverListener[] listeners)
-            {
-                Array.Resize(ref listeners, listeners.Length + 1);
-                listeners[listeners.Length - 1] = listener;
-                _listeners = listeners;
-            }
-            else
-                _listeners = new[] {(IMemberPathObserverListener) oldListeners, listener};
-
+            MugenExtensions.AddRaw(ref _listeners, listener);
             if (oldListeners == null)
                 OnListenersAdded();
         }
@@ -229,7 +219,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             }
             catch
             {
-                ;
+                // ignored
             }
         }
 

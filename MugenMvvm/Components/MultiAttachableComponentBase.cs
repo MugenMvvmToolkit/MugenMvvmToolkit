@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -44,16 +43,7 @@ namespace MugenMvvm.Components
 
             lock (this)
             {
-                if (_owners == null)
-                    _owners = o;
-                else if (_owners is T[] items)
-                {
-                    Array.Resize(ref items, items.Length + 1);
-                    items[items.Length - 1] = o;
-                    _owners = items;
-                }
-                else
-                    _owners = new[] {(T) _owners, o};
+                MugenExtensions.AddRaw(ref _owners, o);
             }
 
             OnAttached(o, metadata);

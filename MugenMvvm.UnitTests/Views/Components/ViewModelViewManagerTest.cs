@@ -26,13 +26,11 @@ namespace MugenMvvm.UnitTests.Views.Components
         }
 
         [Theory]
-        [InlineData(1, true)]
-        [InlineData(1, false)]
-        [InlineData(10, true)]
-        [InlineData(10, false)]
-        public async Task ShouldInitializeCleanupGetViews(int count, bool owner)
+        [InlineData(1)]
+        [InlineData(10)]
+        public async Task ShouldInitializeCleanupGetViews(int count)
         {
-            var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
+            var viewModel = new TestViewModel();
             var manager = new ViewManager();
             var component = new ViewModelViewManager();
             manager.AddComponent(component);
@@ -66,14 +64,12 @@ namespace MugenMvvm.UnitTests.Views.Components
         }
 
         [Theory]
-        [InlineData(1, true)]
-        [InlineData(1, false)]
-        [InlineData(10, true)]
-        [InlineData(10, false)]
-        public async Task TryCleanupAsyncShouldNotifyViewLifecycle(int count, bool owner)
+        [InlineData(1)]
+        [InlineData(10)]
+        public async Task TryCleanupAsyncShouldNotifyListeners(int count)
         {
             const int viewCount = 10;
-            var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
+            var viewModel = new TestViewModel();
             var manager = new ViewManager();
             var component = new ViewModelViewManager();
             manager.AddComponent(component);
@@ -122,16 +118,14 @@ namespace MugenMvvm.UnitTests.Views.Components
         }
 
         [Theory]
-        [InlineData(1, true)]
-        [InlineData(1, false)]
-        [InlineData(10, true)]
-        [InlineData(10, false)]
-        public async Task TryInitializeAsyncShouldInitializeViewAndNotifyListeners(int count, bool owner)
+        [InlineData(1)]
+        [InlineData(10)]
+        public async Task TryInitializeAsyncShouldInitializeViewAndNotifyListeners(int count)
         {
             var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
             var view = new object();
             var clearView = view;
-            var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
+            var viewModel = new TestViewModel();
             var manager = new ViewManager();
             var component = new ViewModelViewManager();
             manager.AddComponent(component);

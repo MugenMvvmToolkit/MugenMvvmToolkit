@@ -2,7 +2,6 @@
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Navigation;
 
 namespace MugenMvvm.Metadata
@@ -10,7 +9,7 @@ namespace MugenMvvm.Metadata
     internal static class InternalMetadata
     {
         private static IMetadataContextKey<HashSet<string>>? _openedNavigationProviders;
-        private static IMetadataContextKey<List<IView>>? _views;
+        private static IMetadataContextKey<object?>? _views;
         private static IMetadataContextKey<bool>? _isDisposed;
         private static IMetadataContextKey<string>? _createdId;
         private static IMetadataContextKey<object?>? _view;
@@ -44,7 +43,7 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<bool> IsDisposed => _isDisposed ??= GetBuilder(_isDisposed, nameof(IsDisposed)).Build();
 
-        public static IMetadataContextKey<List<IView>> Views => _views ??= GetBuilder(_views, nameof(Views)).Build();
+        public static IMetadataContextKey<object?> Views => _views ??= GetBuilder(_views, nameof(Views)).Build();
 
         public static IMetadataContextKey<string> CreatedId => _createdId ??= GetBuilder(_createdId, nameof(CreatedId)).Build();
 

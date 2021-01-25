@@ -163,6 +163,20 @@ namespace MugenMvvm.Extensions
             return -1;
         }
 
+        internal static void AddRaw<T>(ref object? source, T value) where T : class
+        {
+            if (source == null)
+                source = value;
+            else if (source is T[] items)
+            {
+                Array.Resize(ref items, items.Length + 1);
+                items[items.Length - 1] = value;
+                source = items;
+            }
+            else
+                source = new[] {(T) source, value};
+        }
+
         internal static bool RemoveRaw<T>(ref object? source, T value) where T : class
         {
             if (source == null)

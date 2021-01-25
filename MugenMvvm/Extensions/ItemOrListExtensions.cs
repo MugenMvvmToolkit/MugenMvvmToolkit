@@ -95,6 +95,8 @@ namespace MugenMvvm.Extensions
 
         internal static ItemOrIReadOnlyList<T> ToItemOrList<T>(this List<T> list, bool clear)
         {
+            if (list.Count == 0)
+                return default;
             if (list.Count == 1)
             {
                 var r = list[0];
