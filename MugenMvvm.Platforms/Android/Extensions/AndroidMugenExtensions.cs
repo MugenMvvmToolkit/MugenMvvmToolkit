@@ -84,9 +84,7 @@ namespace MugenMvvm.Android.Extensions
 
             configuration
                 .ServiceConfiguration<IWeakReferenceManager>()
-                .Service
-                .GetOrAddComponent<WeakReferenceProvider>()
-                .TrackResurrection = true;
+                .WithComponent(new AndroidWeakReferenceProvider());
 
             return configuration;
         }
