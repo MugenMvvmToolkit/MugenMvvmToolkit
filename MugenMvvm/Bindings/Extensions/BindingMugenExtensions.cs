@@ -266,13 +266,17 @@ namespace MugenMvvm.Bindings.Extensions
             }
         }
 
-        public static void VisitParameterExpressions(this IBindingExpressionInitializerContext context, IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        public static void VisitParameterExpressions(this IBindingExpressionInitializerContext context, ItemOrIReadOnlyList<IExpressionVisitor> visitors,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(context, nameof(context));
-            Should.NotBeNull(visitor, nameof(visitor));
-            var parameters = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
-            for (var i = 0; i < parameters.Count; i++)
-                parameters[i] = parameters[i].Accept(visitor, metadata);
+            var parameters = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions, true);
+            foreach (var visitor in visitors)
+            {
+                for (var i = 0; i < parameters.Count; i++)
+                    parameters[i] = parameters[i].Accept(visitor, metadata);
+            }
+
             context.ParameterExpressions = parameters.ToItemOrList();
         }
 

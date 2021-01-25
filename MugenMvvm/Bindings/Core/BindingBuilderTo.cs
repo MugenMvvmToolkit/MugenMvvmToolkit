@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Core
             Should.NotBeNull(pathOrExpression, nameof(pathOrExpression));
             _fromBuilder = from;
             _pathOrExpression = pathOrExpression;
-            _parameters = new ItemOrListEditor<KeyValuePair<string?, object>>(parameters);
+            _parameters = new ItemOrListEditor<KeyValuePair<string?, object>>(parameters, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -139,7 +139,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                                 return sourceObserver;
                             }
                         };
-                        var itemOrList = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
+                        var itemOrList = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions, true);
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
                         context.ParameterExpressions = itemOrList.ToItemOrList();
 
@@ -288,7 +288,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                             return sourceObserver2;
                         };
 
-                        var itemOrList = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
+                        var itemOrList = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions, true);
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
                         context.ParameterExpressions = itemOrList.ToItemOrList();
 

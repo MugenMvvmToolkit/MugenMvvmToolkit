@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing;
-using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
-using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
@@ -41,17 +40,7 @@ namespace MugenMvvm.Bindings.Core.Components
             }
 
             if (ParameterVisitors.Count != 0)
-            {
-                var parameters = new ItemOrListEditor<IExpressionNode>(context.ParameterExpressions);
-                for (var i = 0; i < ParameterVisitors.Count; i++)
-                {
-                    var visitor = ParameterVisitors[i];
-                    for (var j = 0; j < parameters.Count; j++)
-                        parameters[j] = parameters[j].Accept(visitor, metadata);
-                }
-
-                context.ParameterExpressions = parameters.ToItemOrList();
-            }
+                context.VisitParameterExpressions(ParameterVisitors, metadata);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace MugenMvvm.Collections
             {
                 _item = default;
                 _hasItem = false;
-                if (enumerable is List<T> l)
+                if (enumerable is IList<T> l)
                     _list = l;
                 else
                     _list = new List<T>(enumerable);
@@ -42,13 +42,13 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor(ItemOrIEnumerable<T> itemOrList)
+        public ItemOrListEditor(ItemOrIEnumerable<T> itemOrList, bool isRawList)
         {
             if (itemOrList.List != null)
             {
                 _item = default;
                 _hasItem = false;
-                if (itemOrList.List is List<T> l)
+                if (isRawList && itemOrList.List is IList<T> l)
                     _list = l;
                 else
                     _list = new List<T>(itemOrList.List);
@@ -75,7 +75,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor(T? item, List<T>? list, bool hasItem)
+        public ItemOrListEditor(T? item, IList<T>? list, bool hasItem)
         {
             _item = item!;
             _list = list;

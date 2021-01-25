@@ -20,17 +20,20 @@ namespace MugenMvvm.UnitTests.Collections
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void IndexCountToItemOrListGetRawValueInternalShouldBeCorrect(int count)
+        [InlineData(0, true)]
+        [InlineData(1, true)]
+        [InlineData(10, true)]
+        [InlineData(0, false)]
+        [InlineData(1, false)]
+        [InlineData(10, false)]
+        public void IndexCountToItemOrListGetRawValueInternalShouldBeCorrect(int count, bool isRawList)
         {
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
                 objects.Add(new object());
             ItemOrIReadOnlyList<object> itemOrList = objects;
 
-            var editor = new ItemOrListEditor<object>(itemOrList);
+            var editor = new ItemOrListEditor<object>(itemOrList, isRawList);
             editor.Count.ShouldEqual(objects.Count);
             editor.IsEmpty.ShouldEqual(count == 0);
             for (var i = 0; i < editor.Count; i++)
