@@ -16,19 +16,21 @@ namespace MugenMvvm.Internal
         IFallbackServiceConfiguration, IHasPriority
     {
         private readonly Func<bool> _isInitializing;
+        private readonly Func<object, bool>? _canIgnore;
         private readonly int _threadId;
 
-        public AsyncInitializationAssertBehavior(Func<bool> isInitializing)
+        public AsyncInitializationAssertBehavior(Func<bool> isInitializing, Func<object, bool>? canIgnore = null)
         {
             Should.NotBeNull(isInitializing, nameof(isInitializing));
             _isInitializing = isInitializing;
+            _canIgnore = canIgnore;
             _threadId = Environment.CurrentManagedThreadId;
             MugenService.Configuration.FallbackConfiguration ??= this;
         }
 
         public int Priority => int.MaxValue;
 
-        public bool CanDecorate<T>(IReadOnlyMetadataContext? metadata) where T : class => true;
+        public bool CanDecorate<T>(IReadOnlyMetadataContext? metadata) where T : class => _canIgnore == null || !_canIgnore(typeof(T));
 
         public void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata)
         {
@@ -46,7 +48,7 @@ namespace MugenMvvm.Internal
         {
             if (Assert())
             {
-                if (collection.Owner is not IComponentCollection)
+                if (collection.Owner is not IComponentCollection && (_canIgnore == null || !_canIgnore(collection.Owner)))
                     collection.TryAddComponent(this);
             }
             else

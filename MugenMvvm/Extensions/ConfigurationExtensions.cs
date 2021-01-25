@@ -51,10 +51,11 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        public static MugenApplicationConfiguration WithAsyncInitializationAssert(this MugenApplicationConfiguration configuration, Func<bool> isInitializing)
+        public static MugenApplicationConfiguration WithAsyncInitializationAssert(this MugenApplicationConfiguration configuration, Func<bool> isInitializing,
+            Func<object, bool>? canIgnore = null)
         {
             configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager())
-                         .WithComponent(new AsyncInitializationAssertBehavior(isInitializing));
+                         .WithComponent(new AsyncInitializationAssertBehavior(isInitializing, canIgnore));
             return configuration;
         }
 
