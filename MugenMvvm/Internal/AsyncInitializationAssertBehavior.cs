@@ -32,8 +32,11 @@ namespace MugenMvvm.Internal
 
         public bool CanDecorate<T>(IReadOnlyMetadataContext? metadata) where T : class => _canIgnore == null || !_canIgnore(typeof(T));
 
-        public void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata)
+        public void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata) where T : class
         {
+            if (!CanDecorate<T>(metadata))
+                return;
+
             if (!Assert())
             {
                 collection.RemoveComponent(this);

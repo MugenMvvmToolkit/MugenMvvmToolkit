@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Components
     {
         bool CanDecorate<T>(IReadOnlyMetadataContext? metadata) where T : class;
 
-        void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata);
+        void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata) where T : class;
     }
 }

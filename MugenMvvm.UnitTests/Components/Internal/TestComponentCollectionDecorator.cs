@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTests.Components.Internal
 
         public int Priority { get; set; }
 
-        public void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata)
+        public void Decorate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (DecorateHandler is DecorateDelegate<T> decorate)
                 decorate(collection, ref components, metadata);

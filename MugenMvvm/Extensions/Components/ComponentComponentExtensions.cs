@@ -160,39 +160,39 @@ namespace MugenMvvm.Extensions.Components
                 c.OnRemoved(collection, component, metadata);
         }
 
-        public static void Decorate<TComponent>(this IComponentCollectionDecoratorBase[] decorators, IComponentCollection collection, ref ItemOrListEditor<TComponent> components,
+        public static void Decorate<T>(this IComponentCollectionDecoratorBase[] decorators, IComponentCollection collection, ref ItemOrListEditor<T> components,
             IReadOnlyMetadataContext? metadata)
-            where TComponent : class
+            where T : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
             foreach (var decorator in decorators)
             {
-                if (decorator is IComponentCollectionDecorator<TComponent> d1)
+                if (decorator is IComponentCollectionDecorator<T> d1)
                     d1.Decorate(collection, ref components, metadata);
                 else if (decorator is IComponentCollectionDecorator d2)
                     d2.Decorate(collection, ref components, metadata);
             }
         }
 
-        public static bool HasDecorators<TComponent>(this IComponentCollectionDecoratorBase[] decorators, IReadOnlyMetadataContext? metadata) where TComponent : class
+        public static bool HasDecorators<T>(this IComponentCollectionDecoratorBase[] decorators, IReadOnlyMetadataContext? metadata) where T : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
             foreach (var decorator in decorators)
             {
-                if (decorator is IComponentCollectionDecorator<TComponent>)
+                if (decorator is IComponentCollectionDecorator<T>)
                     return true;
-                if (decorator is IComponentCollectionDecorator d && d.CanDecorate<TComponent>(metadata))
+                if (decorator is IComponentCollectionDecorator d && d.CanDecorate<T>(metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static ItemOrArray<TComponent> Decorate<TComponent>(this IComponentCollectionDecorator<TComponent> decorator, ref ItemOrListEditor<TComponent> components)
-            where TComponent : class
+        public static ItemOrArray<T> Decorate<T>(this IComponentCollectionDecorator<T> decorator, ref ItemOrListEditor<T> components)
+            where T : class
         {
             Should.NotBeNull(decorator, nameof(decorator));
-            if (decorator is not TComponent decoratorComponent)
+            if (decorator is not T decoratorComponent)
                 return default;
 
             var index = components.IndexOf(decoratorComponent);
@@ -210,7 +210,7 @@ namespace MugenMvvm.Extensions.Components
                 return c;
             }
 
-            var result = new TComponent[length];
+            var result = new T[length];
             var position = 0;
             for (var i = index; i < components.Count; i++)
             {
