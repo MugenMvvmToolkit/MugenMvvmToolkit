@@ -34,20 +34,20 @@ namespace MugenMvvm.Extensions
             (TView?) view.TryWrap(typeof(TView), metadata, wrapperManager);
 
         public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
-            wrapperManager.DefaultIfNull().TryWrap(wrapperType, view, metadata);
+            wrapperManager.DefaultIfNull(view.ViewModel).TryWrap(wrapperType, view, metadata);
 
         public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class =>
             (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
 
         public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
-            wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
+            wrapperManager.DefaultIfNull(view.ViewModel).Wrap(wrapperType, view, metadata);
 
         public static bool CanWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class =>
             view.CanWrap(typeof(TView), metadata, wrapperManager);
 
         public static bool CanWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) =>
-            wrapperManager.DefaultIfNull().CanWrap(wrapperType, view, metadata);
+            wrapperManager.DefaultIfNull(view.ViewModel).CanWrap(wrapperType, view, metadata);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsUndefined(this IViewMapping? mapping) => ReferenceEquals(mapping, ViewMapping.Undefined);

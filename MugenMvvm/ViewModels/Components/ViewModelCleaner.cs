@@ -34,7 +34,7 @@ namespace MugenMvvm.ViewModels.Components
 
         protected virtual void Cleanup(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            var viewManager = _viewManager.DefaultIfNull();
+            var viewManager = _viewManager.DefaultIfNull(viewModel);
             foreach (var v in viewManager.GetViews(viewModel, metadata))
                 viewManager.TryCleanupAsync(v, state, default, metadata);
 

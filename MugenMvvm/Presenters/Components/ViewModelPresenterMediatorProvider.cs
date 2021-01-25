@@ -59,7 +59,7 @@ namespace MugenMvvm.Presenters.Components
                 return null;
             }
 
-            if (ViewType.IsAssignableFrom(mapping.ViewType) || _wrapperManager.DefaultIfNull().CanWrap(ViewType, mapping.ViewType, metadata))
+            if (ViewType.IsAssignableFrom(mapping.ViewType) || _wrapperManager.DefaultIfNull(viewModel).CanWrap(ViewType, mapping.ViewType, metadata))
                 return _getMediator(presenter, viewModel, mapping, metadata);
             return null;
         }

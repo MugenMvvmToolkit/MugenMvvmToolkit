@@ -43,12 +43,12 @@ namespace MugenMvvm.Extensions
         }
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
-            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).GetResult();
+            viewManager.DefaultIfNull(viewModel).InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).GetResult();
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Type viewType, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)
         {
             Should.NotBeNull(viewType, nameof(viewType));
-            return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).GetResult();
+            return viewManager.DefaultIfNull(viewModel).InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).GetResult();
         }
 
         public static T InitializeService<TViewModel, T>(this TViewModel viewModel, ref T? service, object? request = null, Action<TViewModel, T>? callback = null,
@@ -83,7 +83,7 @@ namespace MugenMvvm.Extensions
 
         public static bool IsInState(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null,
             IViewModelManager? viewModelManager = null)
-            => viewModelManager.DefaultIfNull().IsInState(viewModel, state, metadata);
+            => viewModelManager.DefaultIfNull(viewModel).IsInState(viewModel, state, metadata);
 
         public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -108,7 +108,7 @@ namespace MugenMvvm.Extensions
 
         public static void NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state = null,
             IReadOnlyMetadataContext? metadata = null, IViewModelManager? manager = null) =>
-            manager.DefaultIfNull().OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
+            manager.DefaultIfNull(viewModel).OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
 
         public static IViewModelBase? TryGetViewModelView<TView>(object request, out TView? view) where TView : class
         {

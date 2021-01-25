@@ -98,7 +98,7 @@ namespace MugenMvvm.Android.Views
                 else if (view is IFragmentView f)
                     FragmentMugenExtensions.Remove(f);
             }
-            else if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsEmpty)
+            else if (_presenter.DefaultIfNull(request.ViewModel).TryShow(request, default, metadata).IsEmpty)
             {
                 if (view is IActivityView activity)
                     activity.Finish();
@@ -111,7 +111,7 @@ namespace MugenMvvm.Android.Views
 
         private void Finish(IActivityView activityView)
         {
-            if (!ActivityMugenExtensions.IsTaskRoot(activityView) || _presenter.DefaultIfNull().Show(activityView).IsEmpty)
+            if (!ActivityMugenExtensions.IsTaskRoot(activityView) || _presenter.DefaultIfNull(activityView).Show(activityView).IsEmpty)
                 activityView.Finish();
         }
 
@@ -119,7 +119,7 @@ namespace MugenMvvm.Android.Views
         {
             bundle.PutString(AndroidInternalConstant.BundleVmId, view.ViewModel.GetId());
 
-            var serializer = _serializer.DefaultIfNull();
+            var serializer = _serializer.DefaultIfNull(view.ViewModel);
             if (!serializer.IsSupported(SerializationFormat.AppStateBytes))
             {
                 bundle.Remove(AndroidInternalConstant.BundleViewState);
@@ -146,7 +146,7 @@ namespace MugenMvvm.Android.Views
                 if (bundle == null)
                     return null;
 
-                var serializer = _serializer.DefaultIfNull();
+                var serializer = _serializer.DefaultIfNull(viewModel);
                 if (!serializer.IsSupported(DeserializationFormat.AppStateBytes))
                     return null;
 

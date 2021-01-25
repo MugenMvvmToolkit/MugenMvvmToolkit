@@ -55,7 +55,7 @@ namespace MugenMvvm.Android.Extensions
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Object container, int resourceId, IReadOnlyMetadataContext? metadata = null,
             IViewManager? viewManager = null) =>
-            viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).GetResult();
+            viewManager.DefaultIfNull(viewModel).InitializeAsync(ViewMapping.Undefined, new ResourceViewRequest(viewModel, container, resourceId), default, metadata).GetResult();
 
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, IBindViewCallback? bindViewCallback = null)
         {

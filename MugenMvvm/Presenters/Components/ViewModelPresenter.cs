@@ -71,7 +71,7 @@ namespace MugenMvvm.Presenters.Components
                     return default;
 
                 var dictionary = viewModel.Metadata.Get(InternalMetadata.Mediators);
-                foreach (var mapping in _viewManager.DefaultIfNull().GetMappings(request, metadata))
+                foreach (var mapping in _viewManager.DefaultIfNull(viewModel).GetMappings(request, metadata))
                 {
                     if (dictionary == null || !dictionary.TryGetValue(mapping.Id, out var mediator))
                     {

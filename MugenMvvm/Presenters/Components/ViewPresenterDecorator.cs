@@ -43,7 +43,7 @@ namespace MugenMvvm.Presenters.Components
             if (canDisposeViewModel && DisposeViewModelOnClose)
             {
                 foreach (var presenterResult in result)
-                foreach (var callback in _navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(presenterResult, metadata))
+                foreach (var callback in _navigationDispatcher.DefaultIfNull(viewModel).GetNavigationCallbacks(presenterResult, metadata))
                 {
                     if (callback.CallbackType == NavigationCallbackType.Close)
                     {
