@@ -114,7 +114,7 @@ namespace MugenMvvm.Extensions
             if (itemOrList.Count == 0)
                 return Default.Array<TValue>();
             var values = new TValue[itemOrList.Count];
-            for (int i = 0; i < values.Length; i++) 
+            for (var i = 0; i < values.Length; i++)
                 values[i] = selector(itemOrList[i]);
             return values;
         }

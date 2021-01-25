@@ -16,8 +16,6 @@ namespace MugenMvvm.UnitTests.Internal.Internal
             _attachedValueManager = attachedValueManager;
         }
 
-        public delegate AttachedValueStorage TryGetAttachedValuesDelegate(object item, IReadOnlyMetadataContext? metadata);
-
         public TryGetAttachedValuesDelegate? TryGetAttachedValues { get; set; }
 
         public int Priority { get; set; }
@@ -30,5 +28,7 @@ namespace MugenMvvm.UnitTests.Internal.Internal
                 return default;
             return TryGetAttachedValues(item, metadata);
         }
+
+        public delegate AttachedValueStorage TryGetAttachedValuesDelegate(object item, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -42,7 +42,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) => 
+        public static IView GetOrCreateView(this IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null) =>
             viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, viewModel, default, metadata).GetResult();
 
         public static IView GetOrCreateView(this IViewModelBase viewModel, Type viewType, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)

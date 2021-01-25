@@ -8,13 +8,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestTargetValueInterceptorComponent : ITargetValueInterceptorComponent, IHasPriority
     {
-        public delegate object? InterceptTargetValueDelegate(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata);
-
         public InterceptTargetValueDelegate? InterceptTargetValue { get; set; }
 
         public int Priority { get; set; }
 
         object? ITargetValueInterceptorComponent.InterceptTargetValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata) =>
             InterceptTargetValue?.Invoke(binding, sourceMember, value, metadata);
+
+        public delegate object? InterceptTargetValueDelegate(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata);
     }
 }

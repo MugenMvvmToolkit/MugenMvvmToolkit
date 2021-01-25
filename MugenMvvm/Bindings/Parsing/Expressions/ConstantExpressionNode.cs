@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Parsing.Expressions
 {

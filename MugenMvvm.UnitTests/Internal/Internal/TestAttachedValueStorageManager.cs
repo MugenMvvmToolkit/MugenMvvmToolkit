@@ -8,10 +8,6 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public class TestAttachedValueStorageManager : IAttachedValueStorageManager, IHasPriority
     {
-        public delegate bool ClearDelegate(object item, object? internalState, string path, out object? oldValue);
-
-        public delegate void SetDelegate(object item, object? internalState, string path, object? value, out object? oldValue);
-
         public Func<object, object?, object?, Func<object, string, object?, object?, bool>?, ItemOrIReadOnlyList<KeyValuePair<string, object?>>>? TryGetValues { get; set; }
 
         public Func<object, object?, int>? GetCount { get; set; }
@@ -82,5 +78,9 @@ namespace MugenMvvm.UnitTests.Internal.Internal
             ClearKey!.Invoke(item, internalState, path, out oldValue);
 
         bool IAttachedValueStorageManager.Clear(object item, ref object? internalState) => Clear!.Invoke(item);
+
+        public delegate bool ClearDelegate(object item, object? internalState, string path, out object? oldValue);
+
+        public delegate void SetDelegate(object item, object? internalState, string path, object? value, out object? oldValue);
     }
 }

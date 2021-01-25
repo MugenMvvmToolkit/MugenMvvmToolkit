@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
-
+  
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) or $(TargetFramework.StartsWith('net5')) ">
     <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
   </PropertyGroup>

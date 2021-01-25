@@ -59,8 +59,6 @@ namespace MugenMvvm.Validation
                     _converterDelegate = ConvertResult;
             }
 
-            private ItemOrIReadOnlyList<ValidationErrorInfo> ConvertResult(Task<object?> task, object? target) => ToError(target!, task.Result);
-
             public bool IsAsync => _validator is Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>;
 
             public ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(object t, string? member, CancellationToken cancellationToken,
@@ -82,6 +80,8 @@ namespace MugenMvvm.Validation
                        .ContinueWith(_converterDelegate!, target, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current)
                        .AsValueTask();
             }
+
+            private ItemOrIReadOnlyList<ValidationErrorInfo> ConvertResult(Task<object?> task, object? target) => ToError(target!, task.Result);
 
             private ItemOrIReadOnlyList<ValidationErrorInfo> ToError(object target, object? error) => new ValidationErrorInfo(target, _memberName, error);
 

@@ -66,6 +66,8 @@ namespace MugenMvvm.Android.Native.Views.Fragments
 
         private static Delegate cb_setupDialog_Landroid_app_Dialog_I;
 
+        private static Delegate cb_setViewResourceId_I;
+
         // Metadata.xml XPath constructor reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenDialogFragmentLite']/constructor[@name='MugenDialogFragmentLite' and count(parameter)=0]"
         [Register(".ctor", "()V", "")]
         public unsafe MugenDialogFragmentLite()
@@ -358,6 +360,15 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         {
             const string __id = "dismissAllowingStateLoss.()V";
             _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, null);
+        }
+
+        [Register("setViewResourceId", "(I)V", "GetSetViewResourceId_IHandler")]
+        public virtual unsafe void SetViewResourceId(int resourceId)
+        {
+            const string __id = "setViewResourceId.(I)V";
+            var __args = stackalloc JniArgumentValue[1];
+            __args[0] = new JniArgumentValue(resourceId);
+            _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, __args);
         }
 
 #pragma warning disable 0169
@@ -728,33 +739,19 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             __this.SetupDialog(dialog, style);
         }
 #pragma warning restore 0169
-
-        static Delegate cb_setViewResourceId_I;
 #pragma warning disable 0169
-        static Delegate GetSetViewResourceId_IHandler ()
+        private static Delegate GetSetViewResourceId_IHandler()
         {
             if (cb_setViewResourceId_I == null)
-                cb_setViewResourceId_I = JNINativeWrapper.CreateDelegate ((_JniMarshal_PPI_V) n_SetViewResourceId_I);
+                cb_setViewResourceId_I = JNINativeWrapper.CreateDelegate((_JniMarshal_PPI_V) n_SetViewResourceId_I);
             return cb_setViewResourceId_I;
         }
 
-        static void n_SetViewResourceId_I (IntPtr jnienv, IntPtr native__this, int resourceId)
+        private static void n_SetViewResourceId_I(IntPtr jnienv, IntPtr native__this, int resourceId)
         {
-            var __this = global::Java.Lang.Object.GetObject<global::MugenMvvm.Android.Native.Views.Fragments.FragmentWrapper> (jnienv, native__this, JniHandleOwnership.DoNotTransfer);
-            __this.SetViewResourceId (resourceId);
+            var __this = GetObject<FragmentWrapper>(jnienv, native__this, JniHandleOwnership.DoNotTransfer);
+            __this.SetViewResourceId(resourceId);
         }
 #pragma warning restore 0169
-
-        [Register ("setViewResourceId", "(I)V", "GetSetViewResourceId_IHandler")]
-        public virtual unsafe void SetViewResourceId (int resourceId)
-        {
-            const string __id = "setViewResourceId.(I)V";
-            try {
-                JniArgumentValue* __args = stackalloc JniArgumentValue [1];
-                __args [0] = new JniArgumentValue (resourceId);
-                _members.InstanceMethods.InvokeVirtualVoidMethod (__id, this, __args);
-            } finally {
-            }
-        }
     }
 }

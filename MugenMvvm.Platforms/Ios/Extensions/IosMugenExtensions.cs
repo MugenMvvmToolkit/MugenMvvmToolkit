@@ -8,7 +8,6 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
-using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;

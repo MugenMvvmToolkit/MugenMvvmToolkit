@@ -240,7 +240,7 @@ namespace MugenMvvm.Components
 
             public static ComponentTracker Get<T>(ItemOrArray<T> components) where T : class =>
                 new(components.GetRawValue(), typeof(T),
-                    (o, decorator, m) => o is T || decorator is IComponentCollectionDecorator<T> || (decorator is IComponentCollectionDecorator d && d.CanDecorate<T>(m)));
+                    (o, decorator, m) => o is T || decorator is IComponentCollectionDecorator<T> || decorator is IComponentCollectionDecorator d && d.CanDecorate<T>(m));
         }
     }
 }

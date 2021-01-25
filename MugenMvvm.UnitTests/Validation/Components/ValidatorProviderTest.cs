@@ -9,6 +9,20 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class ValidatorProviderTest : UnitTestBase
     {
+        [Fact]
+        public void TryGetValidatorShouldReturnValidator2()
+        {
+            var target = new TestViewModelBase();
+            var component = new ValidatorProvider();
+            component.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
+            var validator = component.TryGetValidator(null!, target, DefaultMetadata);
+            validator.ShouldBeType<Validator>();
+            validator.Components.Count.ShouldEqual(3);
+            validator.Components.Get<CycleHandlerValidatorBehavior>().Count.ShouldEqual(1);
+            validator.Components.Get<ObservableValidatorBehavior>().Count.ShouldEqual(1);
+            validator.Components.Get<ValidatorErrorManager>().Count.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -23,20 +37,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.Components.Get<ValidatorErrorManager>().Count.ShouldEqual(1);
             if (isAsync)
                 validator.Components.Get<AsyncValidationBehavior>().Count.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryGetValidatorShouldReturnValidator2()
-        {
-            var target = new TestViewModelBase();
-            var component = new ValidatorProvider();
-            component.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
-            var validator = component.TryGetValidator(null!, target, DefaultMetadata);
-            validator.ShouldBeType<Validator>();
-            validator.Components.Count.ShouldEqual(3);
-            validator.Components.Get<CycleHandlerValidatorBehavior>().Count.ShouldEqual(1);
-            validator.Components.Get<ObservableValidatorBehavior>().Count.ShouldEqual(1);
-            validator.Components.Get<ValidatorErrorManager>().Count.ShouldEqual(1);
         }
     }
 }

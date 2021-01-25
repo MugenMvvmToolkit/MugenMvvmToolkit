@@ -143,7 +143,7 @@ namespace MugenMvvm.UnitTests.Validation
         public void GetErrorsRawShouldBeHandledByComponents(int componentCount)
         {
             var source = new object();
-            ItemOrListEditor<object> errors = new ItemOrListEditor<object>(new List<object>());
+            var errors = new ItemOrListEditor<object>(new List<object>());
             ItemOrIReadOnlyList<string> memberName = "test";
             var validator = GetComponentOwner();
             validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTests.Validation
         public void GetErrorsShouldBeHandledByComponents(int componentCount)
         {
             var source = new object();
-            ItemOrListEditor<ValidationErrorInfo> errors = new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>());
+            var errors = new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>());
             ItemOrIReadOnlyList<string> memberName = "test";
             var validator = GetComponentOwner();
             validator.GetErrors(memberName, ref errors, null, DefaultMetadata);

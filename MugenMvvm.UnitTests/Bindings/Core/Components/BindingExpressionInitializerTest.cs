@@ -13,7 +13,6 @@ using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;

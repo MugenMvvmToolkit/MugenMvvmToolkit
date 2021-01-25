@@ -24,9 +24,9 @@ namespace MugenMvvm.Validation.Components
             UseCache = useCache;
         }
 
-        public int Priority { get; set; } = ValidationComponentPriority.ValidatorProvider;
-
         public bool UseCache { get; }
+
+        public int Priority { get; set; } = ValidationComponentPriority.ValidatorProvider;
 
         public void AddRule(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition) => AddRules(ItemOrIReadOnlyList.FromItem(rule), condition);
 

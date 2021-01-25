@@ -43,28 +43,83 @@ namespace MugenMvvm.UnitTests.Validation.Components
         }
 
         [Fact]
-        public void HasErrorsShouldBeValid()
+        public void ClearErrorsShouldNotifyListeners()
         {
+            string[] members = {Member1, Member2};
+            var invokeCount = 0;
+            var ignore = true;
+            _validator.AddComponent(new TestValidatorErrorsChangedListener
+            {
+                OnErrorsChanged = (validator, list, m) =>
+                {
+                    if (ignore)
+                        return;
+                    ++invokeCount;
+                    validator.ShouldEqual(_validator);
+                    list.AsList().ShouldEqual(members);
+                    m.ShouldEqual(DefaultMetadata);
+                }
+            });
+
+            ignore = true;
             AddDefaultErrors();
-            _validator.HasErrors().ShouldBeTrue();
-            _validator.HasErrors(default, TwoErrorSource).ShouldBeTrue();
-            _validator.HasErrors(default, SingleErrorSource).ShouldBeTrue();
-            _validator.HasErrors(default, NoErrorSource).ShouldBeFalse();
+            ignore = false;
 
-            _validator.HasErrors(new[] {Member1, Member2}).ShouldBeTrue();
-            _validator.HasErrors(new[] {Member1, Member2}, TwoErrorSource).ShouldBeTrue();
-            _validator.HasErrors(new[] {Member1, Member2}, SingleErrorSource).ShouldBeTrue();
-            _validator.HasErrors(new[] {Member1, Member2}, NoErrorSource).ShouldBeFalse();
+            _validator.ClearErrors(default, null, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
 
-            _validator.HasErrors(Member2).ShouldBeTrue();
-            _validator.HasErrors(Member2, TwoErrorSource).ShouldBeTrue();
-            _validator.HasErrors(Member2, SingleErrorSource).ShouldBeFalse();
-            _validator.HasErrors(Member2, NoErrorSource).ShouldBeFalse();
+            ignore = true;
+            AddDefaultErrors();
+            invokeCount = 0;
+            ignore = false;
+            members = new[] {Member1};
+            _validator.ClearErrors(Member1, null, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
 
-            _validator.HasErrors(Member1).ShouldBeTrue();
-            _validator.HasErrors(Member1, TwoErrorSource).ShouldBeTrue();
-            _validator.HasErrors(Member1, SingleErrorSource).ShouldBeTrue();
-            _validator.HasErrors(Member1, NoErrorSource).ShouldBeFalse();
+            ignore = true;
+            AddDefaultErrors();
+            invokeCount = 0;
+            ignore = false;
+            _validator.ClearErrors(Member1, NoErrorSource, DefaultMetadata);
+            invokeCount.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void ClearShouldBeValid()
+        {
+            var errors = new ItemOrListEditor<ValidationErrorInfo>();
+
+            AddDefaultErrors();
+            _validator.ClearErrors();
+            _validator.GetErrors(default, ref errors);
+            errors.Count.ShouldEqual(0);
+
+            AddDefaultErrors();
+            errors.Clear();
+            _validator.ClearErrors(new[] {Member1, Member2});
+            _validator.GetErrors(default, ref errors);
+            errors.Count.ShouldEqual(0);
+
+            AddDefaultErrors();
+            errors.Clear();
+            _validator.ClearErrors(Member1);
+            _validator.GetErrors(default, ref errors);
+            errors.Count.ShouldEqual(1);
+            errors[0].ShouldEqual(_member2Error);
+
+            AddDefaultErrors();
+            errors.Clear();
+            _validator.ClearErrors(Member1, SingleErrorSource);
+            _validator.GetErrors(default, ref errors);
+            errors.Count.ShouldEqual(2);
+            errors.AsList().ShouldContain(_sourceErrors[TwoErrorSource]);
+
+            AddDefaultErrors();
+            errors.Clear();
+            _validator.ClearErrors(Member1, NoErrorSource);
+            _validator.GetErrors(default, ref errors);
+            errors.Count.ShouldEqual(3);
+            errors.AsList().ShouldContain(_allErrors);
         }
 
         [Fact]
@@ -232,59 +287,28 @@ namespace MugenMvvm.UnitTests.Validation.Components
         }
 
         [Fact]
-        public void SetErrorsShouldNotifyListeners()
+        public void HasErrorsShouldBeValid()
         {
-            string[] members = {Member1, Member2};
-            int invokeCount = 0;
-            _validator.AddComponent(new TestValidatorErrorsChangedListener
-            {
-                OnErrorsChanged = (validator, list, m) =>
-                {
-                    ++invokeCount;
-                    validator.ShouldEqual(_validator);
-                    list.AsList().ShouldEqual(members);
-                    m.ShouldEqual(DefaultMetadata);
-                }
-            });
+            AddDefaultErrors();
+            _validator.HasErrors().ShouldBeTrue();
+            _validator.HasErrors(default, TwoErrorSource).ShouldBeTrue();
+            _validator.HasErrors(default, SingleErrorSource).ShouldBeTrue();
+            _validator.HasErrors(default, NoErrorSource).ShouldBeFalse();
 
-            invokeCount = 0;
-            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error, _member2Error}, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
+            _validator.HasErrors(new[] {Member1, Member2}).ShouldBeTrue();
+            _validator.HasErrors(new[] {Member1, Member2}, TwoErrorSource).ShouldBeTrue();
+            _validator.HasErrors(new[] {Member1, Member2}, SingleErrorSource).ShouldBeTrue();
+            _validator.HasErrors(new[] {Member1, Member2}, NoErrorSource).ShouldBeFalse();
 
-            invokeCount = 0;
-            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error, _member2Error, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null)}, DefaultMetadata);
-            invokeCount.ShouldEqual(0);
+            _validator.HasErrors(Member2).ShouldBeTrue();
+            _validator.HasErrors(Member2, TwoErrorSource).ShouldBeTrue();
+            _validator.HasErrors(Member2, SingleErrorSource).ShouldBeFalse();
+            _validator.HasErrors(Member2, NoErrorSource).ShouldBeFalse();
 
-            invokeCount = 0;
-            members = new[] {Member2};
-            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error}, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
-
-            invokeCount = 0;
-            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error}, DefaultMetadata);
-            invokeCount.ShouldEqual(0);
-
-            invokeCount = 0;
-            _validator.SetErrors(TwoErrorSource, _member1Error, DefaultMetadata);
-            invokeCount.ShouldEqual(0);
-
-            invokeCount = 0;
-            _validator.SetErrors(TwoErrorSource, _member2Error, DefaultMetadata);
-            invokeCount.ShouldEqual(0);
-
-            invokeCount = 0;
-            members = new[] {Member1};
-            _validator.SetErrors(SingleErrorSource, _member1Error, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
-
-            invokeCount = 0;
-            _validator.SetErrors(SingleErrorSource, default, DefaultMetadata);
-            invokeCount.ShouldEqual(0);
-
-            invokeCount = 0;
-            members = new[] {Member1};
-            _validator.SetErrors(SingleErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), DefaultMetadata);
-            invokeCount.ShouldEqual(1);
+            _validator.HasErrors(Member1).ShouldBeTrue();
+            _validator.HasErrors(Member1, TwoErrorSource).ShouldBeTrue();
+            _validator.HasErrors(Member1, SingleErrorSource).ShouldBeTrue();
+            _validator.HasErrors(Member1, NoErrorSource).ShouldBeFalse();
         }
 
         [Fact]
@@ -317,17 +341,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
         }
 
         [Fact]
-        public void ClearErrorsShouldNotifyListeners()
+        public void SetErrorsShouldNotifyListeners()
         {
             string[] members = {Member1, Member2};
-            int invokeCount = 0;
-            bool ignore = true;
+            var invokeCount = 0;
             _validator.AddComponent(new TestValidatorErrorsChangedListener
             {
                 OnErrorsChanged = (validator, list, m) =>
                 {
-                    if (ignore)
-                        return;
                     ++invokeCount;
                     validator.ShouldEqual(_validator);
                     list.AsList().ShouldEqual(members);
@@ -335,65 +356,45 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 }
             });
 
-            ignore = true;
-            AddDefaultErrors();
-            ignore = false;
-
-            _validator.ClearErrors(default, null, DefaultMetadata);
+            invokeCount = 0;
+            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error, _member2Error}, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
-            ignore = true;
-            AddDefaultErrors();
             invokeCount = 0;
-            ignore = false;
-            members = new[] {Member1};
-            _validator.ClearErrors(Member1, null, DefaultMetadata);
-            invokeCount.ShouldEqual(1);
-
-            ignore = true;
-            AddDefaultErrors();
-            invokeCount = 0;
-            ignore = false;
-            _validator.ClearErrors(Member1, NoErrorSource, DefaultMetadata);
+            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error, _member2Error, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null)},
+                DefaultMetadata);
             invokeCount.ShouldEqual(0);
-        }
 
-        [Fact]
-        public void ClearShouldBeValid()
-        {
-            var errors = new ItemOrListEditor<ValidationErrorInfo>();
+            invokeCount = 0;
+            members = new[] {Member2};
+            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error}, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
 
-            AddDefaultErrors();
-            _validator.ClearErrors();
-            _validator.GetErrors(default, ref errors);
-            errors.Count.ShouldEqual(0);
+            invokeCount = 0;
+            _validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error}, DefaultMetadata);
+            invokeCount.ShouldEqual(0);
 
-            AddDefaultErrors();
-            errors.Clear();
-            _validator.ClearErrors(new[] {Member1, Member2});
-            _validator.GetErrors(default, ref errors);
-            errors.Count.ShouldEqual(0);
+            invokeCount = 0;
+            _validator.SetErrors(TwoErrorSource, _member1Error, DefaultMetadata);
+            invokeCount.ShouldEqual(0);
 
-            AddDefaultErrors();
-            errors.Clear();
-            _validator.ClearErrors(Member1);
-            _validator.GetErrors(default, ref errors);
-            errors.Count.ShouldEqual(1);
-            errors[0].ShouldEqual(_member2Error);
+            invokeCount = 0;
+            _validator.SetErrors(TwoErrorSource, _member2Error, DefaultMetadata);
+            invokeCount.ShouldEqual(0);
 
-            AddDefaultErrors();
-            errors.Clear();
-            _validator.ClearErrors(Member1, SingleErrorSource);
-            _validator.GetErrors(default, ref errors);
-            errors.Count.ShouldEqual(2);
-            errors.AsList().ShouldContain(_sourceErrors[TwoErrorSource]);
+            invokeCount = 0;
+            members = new[] {Member1};
+            _validator.SetErrors(SingleErrorSource, _member1Error, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
 
-            AddDefaultErrors();
-            errors.Clear();
-            _validator.ClearErrors(Member1, NoErrorSource);
-            _validator.GetErrors(default, ref errors);
-            errors.Count.ShouldEqual(3);
-            errors.AsList().ShouldContain(_allErrors);
+            invokeCount = 0;
+            _validator.SetErrors(SingleErrorSource, default, DefaultMetadata);
+            invokeCount.ShouldEqual(0);
+
+            invokeCount = 0;
+            members = new[] {Member1};
+            _validator.SetErrors(SingleErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), DefaultMetadata);
+            invokeCount.ShouldEqual(1);
         }
 
         private void AddDefaultErrors()

@@ -51,7 +51,8 @@ namespace MugenMvvm.Android.Collections
             var hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
             if (providerType == NativeBindableMemberMugenExtensions.ContentRawProviderType)
                 ContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector) itemTemplateSelector).Collection = value;
-            else if (providerType == NativeBindableMemberMugenExtensions.ContentProviderType || providerType == NativeBindableMemberMugenExtensions.ResourceOrContentProviderType && hasFragments)
+            else if (providerType == NativeBindableMemberMugenExtensions.ContentProviderType ||
+                     providerType == NativeBindableMemberMugenExtensions.ResourceOrContentProviderType && hasFragments)
             {
                 if (itemsSourceProvider is not ContentItemsSourceProvider provider)
                 {

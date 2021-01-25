@@ -8,10 +8,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
 {
     public class TestMemberPathObserver : IMemberPathObserver
     {
-        public delegate MemberPathLastMember GetLastMemberDelegate(IReadOnlyMetadataContext? metadata);
-
-        public delegate MemberPathMembers GetMembersDelegate(IReadOnlyMetadataContext? metadata);
-
         public Action? Dispose { get; set; }
 
         public Action<IMemberPathObserverListener>? AddListener { get; set; }
@@ -53,5 +49,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Internal
                 return default;
             return GetLastMember.Invoke(metadata);
         }
+
+        public delegate MemberPathLastMember GetLastMemberDelegate(IReadOnlyMetadataContext? metadata);
+
+        public delegate MemberPathMembers GetMembersDelegate(IReadOnlyMetadataContext? metadata);
     }
 }

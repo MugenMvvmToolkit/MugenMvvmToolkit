@@ -7,8 +7,12 @@ using MugenMvvm.Bindings.Interfaces.Observation.Components;
 using MugenMvvm.Bindings.Interfaces.Resources;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Components;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+
+#if NET461
+using MugenMvvm.Extensions;
+
+#endif
 
 namespace MugenMvvm.Bindings.Observation.Components
 {

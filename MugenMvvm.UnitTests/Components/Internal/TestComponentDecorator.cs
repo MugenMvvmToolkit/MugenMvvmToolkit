@@ -14,8 +14,6 @@ namespace MugenMvvm.UnitTests.Components.Internal
         {
         }
 
-        public delegate void DecorateDelegate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata);
-
         public new ItemOrArray<TComponent> Components => base.Components;
 
         public DecorateDelegate? DecorateHandler { get; set; }
@@ -33,5 +31,7 @@ namespace MugenMvvm.UnitTests.Components.Internal
             else
                 DecorateHandler.Invoke(collection, ref components, metadata);
         }
+
+        public delegate void DecorateDelegate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata);
     }
 }

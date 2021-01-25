@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests
                 {typeof(IObservationManager), new ObservationManager()},
                 {typeof(IResourceManager), new ResourceManager()},
                 {typeof(IExpressionParser), new ExpressionParser()},
-                {typeof(IExpressionCompiler), new ExpressionCompiler()},
+                {typeof(IExpressionCompiler), new ExpressionCompiler()}
             };
             var fallback = new TestFallbackServiceConfiguration
             {

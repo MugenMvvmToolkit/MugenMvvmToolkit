@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using Should;
 using Xunit;

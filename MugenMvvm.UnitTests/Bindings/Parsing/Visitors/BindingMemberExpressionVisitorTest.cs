@@ -11,7 +11,6 @@ using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Bindings.Resources.Internal;

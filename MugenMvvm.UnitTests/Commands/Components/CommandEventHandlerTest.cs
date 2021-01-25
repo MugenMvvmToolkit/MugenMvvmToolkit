@@ -50,6 +50,16 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(1);
         }
 
+        [Fact(Skip = ReleaseTest)]
+        public void ShouldListenPropertyChangedWeak()
+        {
+            var propertyChangedModel = new TestNotifyPropertyChangedModel();
+            var reference = ShouldListenPropertyChangedWeakImpl(propertyChangedModel);
+            GcCollect();
+            propertyChangedModel.OnPropertyChanged("test");
+            reference.IsAlive.ShouldBeFalse();
+        }
+
         [Fact]
         public void ShouldSubscribeUnsubscribeRaiseEventHandler()
         {
@@ -323,16 +333,6 @@ namespace MugenMvvm.UnitTests.Commands.Components
             conditionEventCommandComponent.Dispose();
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(canDispose ? 0 : 1);
-        }
-
-        [Fact(Skip = ReleaseTest)]
-        public void ShouldListenPropertyChangedWeak()
-        {
-            var propertyChangedModel = new TestNotifyPropertyChangedModel();
-            var reference = ShouldListenPropertyChangedWeakImpl(propertyChangedModel);
-            GcCollect();
-            propertyChangedModel.OnPropertyChanged("test");
-            reference.IsAlive.ShouldBeFalse();
         }
 
         private static WeakReference ShouldListenPropertyChangedWeakImpl(TestNotifyPropertyChangedModel propertyChangedModel)

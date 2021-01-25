@@ -18,7 +18,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Internal;
-using MugenMvvm.Validation;
 
 namespace MugenMvvm.Bindings.Extensions
 {

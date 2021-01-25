@@ -41,6 +41,13 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
         }
 
+        [Fact]
+        public void TryGetServiceShouldReturnNullUnknownComponent()
+        {
+            var component = new ViewModelServiceProvider();
+            component.TryGetService(null!, new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
+        }
+
 
         [Fact]
         public void TryGetServiceShouldReturnValidator()
@@ -59,13 +66,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             });
             var component = new ViewModelServiceProvider(validationManager: validationManager);
             component.TryGetService(null!, vm, typeof(IValidator), DefaultMetadata).ShouldEqual(validator);
-        }
-
-        [Fact]
-        public void TryGetServiceShouldReturnNullUnknownComponent()
-        {
-            var component = new ViewModelServiceProvider();
-            component.TryGetService(null!, new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
         }
     }
 }

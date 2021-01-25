@@ -14,69 +14,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class MethodMemberInfoTest : UnitTestBase
     {
-        [Theory]
-        [InlineData(nameof(Method1), false)]
-        [InlineData(nameof(NonObservable), true)]
-        public void ConstructorShouldInitializeMember1(string method, bool nonObservable)
-        {
-            var reflectedType = typeof(string);
-            string name = "Test";
-            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(method)!;
-            MethodMemberInfo? memberInfo = null;
-
-            var testEventListener = new TestWeakEventListener();
-            var result = new ActionToken((o, o1) => { });
-            var count = 0;
-            var memberObserver = new MemberObserver((target, member, listener, meta) =>
-            {
-                ++count;
-                target.ShouldEqual(this);
-                listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
-                return result;
-            }, this);
-
-            var observerRequestCount = 0;
-            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
-            {
-                TryGetMemberObserver = (type, o, arg4) =>
-                {
-                    ++observerRequestCount;
-                    o.ShouldEqual(memberInfo);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    type.ShouldEqual(reflectedType);
-                    return memberObserver;
-                }
-            });
-
-
-            memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType);
-            memberInfo.Name.ShouldEqual(name);
-            memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
-            memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
-            memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
-            memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.MemberFlags.ShouldEqual((MemberFlags.Public | MemberFlags.Instance) | (nonObservable ? MemberFlags.NonObservable : default));
-            memberInfo.IsGenericMethod.ShouldBeFalse();
-            memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
-
-            var parameters = memberInfo.GetParameters();
-            parameters.Count.ShouldEqual(1);
-
-            var parameterInfo = parameters[0];
-            parameterInfo.ParameterType.ShouldEqual(typeof(string));
-            parameterInfo.HasDefaultValue.ShouldBeFalse();
-            parameterInfo.UnderlyingParameter.ShouldEqual(methodInfo.GetParameters()[0]);
-            parameterInfo.IsDefined(typeof(ObfuscationAttribute)).ShouldBeTrue();
-            parameterInfo.IsDefined(typeof(InlineDataAttribute)).ShouldBeFalse();
-
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
-            count.ShouldEqual(1);
-            observerRequestCount.ShouldEqual(1);
-
-            memberInfo.Invoke(this, new object[] {name}, DefaultMetadata).ShouldEqual(name);
-        }
-
         [Fact]
         public void ConstructorShouldInitializeMember2()
         {
@@ -132,6 +69,69 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
 
             memberInfo.Invoke("st", Default.Array<object?>(), DefaultMetadata).ShouldEqual('s');
+        }
+
+        [Theory]
+        [InlineData(nameof(Method1), false)]
+        [InlineData(nameof(NonObservable), true)]
+        public void ConstructorShouldInitializeMember1(string method, bool nonObservable)
+        {
+            var reflectedType = typeof(string);
+            string name = "Test";
+            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(method)!;
+            MethodMemberInfo? memberInfo = null;
+
+            var testEventListener = new TestWeakEventListener();
+            var result = new ActionToken((o, o1) => { });
+            var count = 0;
+            var memberObserver = new MemberObserver((target, member, listener, meta) =>
+            {
+                ++count;
+                target.ShouldEqual(this);
+                listener.ShouldEqual(testEventListener);
+                meta.ShouldEqual(DefaultMetadata);
+                return result;
+            }, this);
+
+            var observerRequestCount = 0;
+            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg4) =>
+                {
+                    ++observerRequestCount;
+                    o.ShouldEqual(memberInfo);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    type.ShouldEqual(reflectedType);
+                    return memberObserver;
+                }
+            });
+
+
+            memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType);
+            memberInfo.Name.ShouldEqual(name);
+            memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
+            memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
+            memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
+            memberInfo.MemberType.ShouldEqual(MemberType.Method);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance | (nonObservable ? MemberFlags.NonObservable : default));
+            memberInfo.IsGenericMethod.ShouldBeFalse();
+            memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
+
+            var parameters = memberInfo.GetParameters();
+            parameters.Count.ShouldEqual(1);
+
+            var parameterInfo = parameters[0];
+            parameterInfo.ParameterType.ShouldEqual(typeof(string));
+            parameterInfo.HasDefaultValue.ShouldBeFalse();
+            parameterInfo.UnderlyingParameter.ShouldEqual(methodInfo.GetParameters()[0]);
+            parameterInfo.IsDefined(typeof(ObfuscationAttribute)).ShouldBeTrue();
+            parameterInfo.IsDefined(typeof(InlineDataAttribute)).ShouldBeFalse();
+
+            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            count.ShouldEqual(1);
+            observerRequestCount.ShouldEqual(1);
+
+            memberInfo.Invoke(this, new object[] {name}, DefaultMetadata).ShouldEqual(name);
         }
 
         public string Method1([Obfuscation] string v) => v;

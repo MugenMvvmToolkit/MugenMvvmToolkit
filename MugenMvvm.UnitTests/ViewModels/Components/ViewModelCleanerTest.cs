@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Enums;

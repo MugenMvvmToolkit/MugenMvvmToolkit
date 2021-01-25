@@ -49,7 +49,7 @@ namespace MugenMvvm.Validation.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void AddErrors(ref ItemOrListEditor<object> errors, List<ValidationErrorInfo> value)
         {
-            for (int i = 0; i < value.Count; i++)
+            for (var i = 0; i < value.Count; i++)
                 errors.Add(value[i].Error!);
         }
 

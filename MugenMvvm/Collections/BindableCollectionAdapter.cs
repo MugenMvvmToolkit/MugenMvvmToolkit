@@ -43,16 +43,6 @@ namespace MugenMvvm.Collections
             _executionMode = ThreadExecutionMode.Main;
         }
 
-        protected enum CollectionChangedAction
-        {
-            Add = 1,
-            Move = 2,
-            Remove = 3,
-            Replace = 4,
-            Reset = 5,
-            Changed = 6
-        }
-
         public IEnumerable? Collection
         {
             get => _collection;
@@ -353,6 +343,16 @@ namespace MugenMvvm.Collections
         }
 
         void IThreadDispatcherHandler.Execute(object? state) => ExecutePendingEvents((int) state!);
+
+        protected enum CollectionChangedAction
+        {
+            Add = 1,
+            Move = 2,
+            Remove = 3,
+            Replace = 4,
+            Reset = 5,
+            Changed = 6
+        }
 
         [StructLayout(LayoutKind.Auto)]
         protected readonly struct CollectionChangedEvent

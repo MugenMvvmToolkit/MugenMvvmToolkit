@@ -79,8 +79,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(1);
         }
 
-        protected virtual MemberType MemberType => MemberType.Event;
-
         [Fact]
         public void TryObserverShouldUseObservationManager()
         {
@@ -103,6 +101,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(1);
             token.ShouldEqual(actionToken);
         }
+
+        protected virtual MemberType MemberType => MemberType.Event;
 
         protected virtual DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType,
             EnumFlags<MemberFlags> accessModifiers, object? underlyingMember,

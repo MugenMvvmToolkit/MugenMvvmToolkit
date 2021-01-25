@@ -26,7 +26,6 @@ using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
-using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Parsing.Components.Parsers;

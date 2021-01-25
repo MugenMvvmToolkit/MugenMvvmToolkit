@@ -288,7 +288,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (propertyInfo == null)
                 return MemberFlags.Instance;
-            return ((propertyInfo.GetGetMethod(true) ?? propertyInfo.GetSetMethod(true)).GetAccessModifiers()) | propertyInfo.GetObservableFlags();
+            return GetAccessModifiers((MemberInfo) (propertyInfo.GetGetMethod(true) ?? propertyInfo.GetSetMethod(true))!) | propertyInfo.GetObservableFlags();
         }
 
         public static EnumFlags<MemberFlags> GetAccessModifiers(this MethodBase? method)

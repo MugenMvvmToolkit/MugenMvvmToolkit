@@ -41,15 +41,6 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             _condition = Condition;
         }
 
-        internal enum BindingMemberType : byte
-        {
-            Source = 1,
-            Target = 2,
-            Resource = 3,
-            Instance = 4,
-            Constant = 5
-        }
-
         public EnumFlags<MemberFlags> MemberFlags { get; set; }
 
         public EnumFlags<BindingMemberExpressionFlags> Flags { get; set; }
@@ -274,6 +265,15 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 return GetOrAddBindingMember(expression, null, metadata) ?? expression;
 
             return expression;
+        }
+
+        internal enum BindingMemberType : byte
+        {
+            Source = 1,
+            Target = 2,
+            Resource = 3,
+            Instance = 4,
+            Constant = 5
         }
 
         [StructLayout(LayoutKind.Auto)]

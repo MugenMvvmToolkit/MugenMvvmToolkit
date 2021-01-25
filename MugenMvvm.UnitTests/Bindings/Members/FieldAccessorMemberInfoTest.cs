@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.DeclaringType.ShouldEqual(fieldInfo.DeclaringType);
             memberInfo.UnderlyingMember.ShouldEqual(fieldInfo);
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
-            memberInfo.MemberFlags.ShouldEqual((MemberFlags.Public | MemberFlags.Instance) | (nonObservable ? MemberFlags.NonObservable : default));
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance | (nonObservable ? MemberFlags.NonObservable : default));
 
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);

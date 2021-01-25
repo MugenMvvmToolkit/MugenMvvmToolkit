@@ -18,8 +18,6 @@ namespace MugenMvvm.Extensions
         private static readonly Dictionary<Type, Func<bool>> CanBoxCache = new(InternalEqualityComparer.Type);
         private static Dictionary<Type, MethodInfo>? _boxMethods;
 
-        public delegate object? BoxingDelegate<T>(T? value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(bool value)
         {
@@ -160,6 +158,8 @@ namespace MugenMvvm.Extensions
 
             return _boxMethods;
         }
+
+        public delegate object? BoxingDelegate<T>(T? value);
 
         internal static class IntCache
         {
