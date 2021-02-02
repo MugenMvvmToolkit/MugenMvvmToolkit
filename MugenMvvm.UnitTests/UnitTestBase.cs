@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests
     {
         protected const string SharedContext = nameof(SharedContext);
 
-        protected const string SharedContextTest = nameof(SharedContextTest);
+        protected const string SharedContextTest = null;
 
 #if DEBUG
         protected const string ReleaseTest = "NOT SUPPORTED IN DEBUG";
@@ -41,6 +41,7 @@ namespace MugenMvvm.UnitTests
         protected const string ReleaseTest = null;
 #endif
 
+        protected static readonly WeakReferenceManager WeakReferenceManager;
         protected static readonly ObservationManager ObservationManager;
         protected static readonly ResourceManager ResourceManager;
         protected static readonly ComponentCollectionManager ComponentCollectionManager;
@@ -65,13 +66,11 @@ namespace MugenMvvm.UnitTests
             ThreadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
             ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent {Priority = int.MinValue});
 
-            var weakReferenceManager = new WeakReferenceManager(ComponentCollectionManager);
-            weakReferenceManager.AddComponent(new WeakReferenceProvider());
-            MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(weakReferenceManager);
+            WeakReferenceManager = new WeakReferenceManager(ComponentCollectionManager);
+            WeakReferenceManager.AddComponent(new WeakReferenceProvider());
 
             ReflectionManager = new ReflectionManager(ComponentCollectionManager);
             ReflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
-            MugenService.Configuration.InitializeInstance<IReflectionManager>(ReflectionManager);
 
             GlobalValueConverter = new GlobalValueConverter(ComponentCollectionManager);
             GlobalValueConverter.AddComponent(new DefaultGlobalValueConverter());
@@ -84,11 +83,18 @@ namespace MugenMvvm.UnitTests
             ILogger logger = new Logger(ComponentCollectionManager);
             logger.AddComponent(new DelegateLogger((l, msg, e, m) => _outputHelper?.WriteLine($"{l} - {msg} {e?.Flatten()}"), (level, context) => true));
             MugenService.Configuration.InitializeInstance(logger);
+            ResetGlobalServices();
         }
 
         public UnitTestBase(ITestOutputHelper? outputHelper = null)
         {
             _outputHelper = outputHelper;
+        }
+
+        protected static void ResetGlobalServices()
+        {
+            MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(WeakReferenceManager);
+            MugenService.Configuration.InitializeInstance<IReflectionManager>(ReflectionManager);
         }
 
         protected static void WaitCompletion(int milliseconds = 10) => Thread.Sleep(milliseconds);

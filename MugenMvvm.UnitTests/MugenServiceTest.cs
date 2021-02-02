@@ -125,6 +125,7 @@ namespace MugenMvvm.UnitTests
             MugenService.ResourceManager.ShouldEqual(services[typeof(IResourceManager)]);
             MugenService.ExpressionParser.ShouldEqual(services[typeof(IExpressionParser)]);
             MugenService.ExpressionCompiler.ShouldEqual(services[typeof(IExpressionCompiler)]);
+            ResetGlobalServices();
         }
 
         [Fact]
