@@ -3,16 +3,27 @@ using System.Collections.Generic;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Enums;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
+using IParameterInfo = MugenMvvm.Bindings.Interfaces.Members.IParameterInfo;
 
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
-    public class DelegateMethodMemberInfoTest : DelegateObservableMemberInfoTest
+    [Collection(SharedContext)]
+    public class DelegateMethodMemberInfoTest : DelegateObservableMemberInfoTest, IDisposable
     {
+        public DelegateMethodMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IObservationManager>(ObservationManager);
+        }
+
+        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
+
         [Fact]
         public void GetParametersShouldUseDelegate()
         {

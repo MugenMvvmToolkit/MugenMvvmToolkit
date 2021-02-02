@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Bindings.Compiling.Components;
 using MugenMvvm.Bindings.Constants;
+using MugenMvvm.Bindings.Convert;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
@@ -34,27 +35,26 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         private readonly MethodCallIndexerExpressionBuilder _component;
         private readonly TestMemberManagerComponent _memberManagerComponent;
         private readonly TestTypeResolverComponent _typeResolver;
+        private readonly TestExpressionBuilderContext _context;
 
         public MethodCallIndexerExpressionBuilderTest()
         {
-            var memberManager = new MemberManager();
-            _memberManagerComponent = new TestMemberManagerComponent();
+            _context = new TestExpressionBuilderContext();
+            var memberManager = new MemberManager(ComponentCollectionManager);
+            _memberManagerComponent = new TestMemberManagerComponent(memberManager);
             memberManager.AddComponent(_memberManagerComponent);
-
-            var resourceResolver = new ResourceManager();
-            _typeResolver = new TestTypeResolverComponent();
+            var resourceResolver = new ResourceManager(ComponentCollectionManager);
+            _typeResolver = new TestTypeResolverComponent(resourceResolver);
             resourceResolver.AddComponent(_typeResolver);
-
-            _component = new MethodCallIndexerExpressionBuilder(memberManager, resourceResolver);
+            _component = new MethodCallIndexerExpressionBuilder(memberManager, resourceResolver, GlobalValueConverter);
         }
 
         [Fact]
         public void TryBuildShouldBuildArray()
         {
-            var ctx = new TestExpressionBuilderContext();
             var array = new[] {1, 2, 3};
             var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(array), new[] {ConstantExpressionNode.Get(1)});
-            var build = _component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(_context, expressionNode)!;
             build.Invoke().ShouldEqual(array[1]);
         }
 
@@ -63,8 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             var invokeCount = 0;
             const string memberName = BindingInternalConstant.IndexerGetterName;
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
+            var metadataContext = _context.Metadata;
             var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
@@ -89,8 +88,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
             var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(this), new[] {ConstantExpressionNode.False});
-            var build = _component.TryBuild(ctx, expressionNode)!;
-            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
+            var build = _component.TryBuild(_context, expressionNode)!;
+            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -99,8 +98,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             var invokeCount = 0;
             const string memberName = nameof(InstanceMethod1);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
+            var metadataContext = _context.Metadata;
             var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
@@ -124,9 +122,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -135,8 +133,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             var invokeCount = 0;
             const string memberName = nameof(InstanceMethod1);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
+            var metadataContext = _context.Metadata;
             var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
@@ -162,10 +159,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(_context, expressionNode)!;
 
             members = new[] {result};
-            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -173,8 +170,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         public void TryBuildShouldBuildMethodCallInstanceNoArgsUnderlyingMember()
         {
             const string memberName = nameof(InstanceMethod1);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
+            var metadataContext = _context.Metadata;
             var result = new TestMethodMemberInfo
             {
                 UnderlyingMember = GetType().GetMethod(memberName)
@@ -190,7 +186,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(_context, expressionNode)!;
 
             var invokeCount = 0;
             InstanceMethod1Delegate = () =>
@@ -208,8 +204,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             var invokeCount = 0;
             const string memberName = nameof(StaticMethod1);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
+            var metadataContext = _context.Metadata;
             var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
@@ -233,9 +228,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, default);
-            var build = _component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -243,8 +238,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         public void TryBuildShouldBuildMethodCallStaticNoArgsUnderlyingMember()
         {
             const string memberName = nameof(StaticMethod1);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
+            var metadataContext = _context.Metadata;
             var result = new TestMethodMemberInfo
             {
                 UnderlyingMember = GetType().GetMethod(memberName)
@@ -260,7 +254,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, default);
-            var build = _component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(_context, expressionNode)!;
 
             var invokeCount = 0;
             StaticMethod1Delegate = () =>
@@ -285,8 +279,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         public void TryBuildShouldThrowInstanceNoArgsDynamic()
         {
             const string memberName = nameof(InstanceMethod1);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
+            var metadataContext = _context.Metadata;
 
             var members = Default.Array<IMemberInfo>();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
@@ -300,9 +293,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(_context, expressionNode)!;
 
-            ShouldThrow(() => build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata));
+            ShouldThrow(() => build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata));
         }
 
         public Func<object?>? InstanceMethod1Delegate { get; set; }
@@ -320,7 +313,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(MethodInvokerInstance.Method);
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -329,39 +321,39 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             };
 
 
-            var call = GetMethodCall(ctx, memberName, underlying, instance, state, 2M, 3M);
+            var call = GetMethodCall(_context, memberName, underlying, instance, state, 2M, 3M);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method(2M, 3M), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, 2, 3);
+            call = GetMethodCall(_context, memberName, underlying, instance, state, 2, 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method(2, 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, 2M, "t");
+            call = GetMethodCall(_context, memberName, underlying, instance, state, 2M, "t");
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method(2M, "t"), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, 2, "t");
+            call = GetMethodCall(_context, memberName, underlying, instance, state, 2, "t");
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method(2, "t"), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, "t", 2M);
+            call = GetMethodCall(_context, memberName, underlying, instance, state, "t", 2M);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method("t", 2M), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, 2, 3, "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, instance, state, 2, 3, "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method(2, 3, "st", 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, 2M, 3M, "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, instance, state, 2M, 3M, "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method(2M, 3M, "st", 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, 2M, "t", "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, instance, state, 2M, "t", "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method(2M, "t", "st", 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, instance, state, "t", 2M, "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, instance, state, "t", 2M, "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method("t", 2M, "st", 3), call.args);
         }
@@ -377,7 +369,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(MethodInvokerInstance.Method1);
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -385,7 +376,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var call = GetMethodCall(ctx, memberName, underlying, instance, state, "st");
+            var call = GetMethodCall(_context, memberName, underlying, instance, state, "st");
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method1("st", 0M, "", int.MaxValue), "st", 0M, "", int.MaxValue);
         }
@@ -401,7 +392,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(MethodInvokerInstance.Method2);
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -409,7 +399,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var call = GetMethodCall(ctx, memberName, underlying, instance, state, 2, 3);
+            var call = GetMethodCall(_context, memberName, underlying, instance, state, 2, 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method2(2, 3), call.args);
         }
@@ -425,7 +415,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(MethodInvokerInstance.Method3);
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -433,7 +422,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var call = GetMethodCall(ctx, memberName, false, instance, state, 1, 2);
+            var call = GetMethodCall(_context, memberName, false, instance, state, 1, 2);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             instance.Assert(() => instance.Method3(1, 2, DefaultMetadata), 1, 2, DefaultMetadata);
         }
@@ -450,8 +439,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 new MethodMemberInfo(memberName, typeof(MethodInvokerInstance).GetMethod(memberName)!, false, typeof(MethodInvokerInstance), null, null)
             };
             var instance = new MethodInvokerInstance();
-            var ctx = new TestExpressionBuilderContext();
-            var metadata = ctx.Metadata;
+            var metadata = _context.Metadata;
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -469,7 +457,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return typeof(decimal);
             };
 
-            var call = GetMethodCall(ctx, memberName, false, instance, state, new[] {typeName}, 1);
+            var call = GetMethodCall(_context, memberName, false, instance, state, new[] {typeName}, 1);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             invokeCount.ShouldEqual(1);
             instance.Assert(() => instance.Method4<decimal>(1), 1M);
@@ -484,43 +472,42 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             const string memberName = nameof(MethodInvokerStatic.Method);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) => members;
 
             var type = typeof(MethodInvokerStatic);
-            var call = GetMethodCall(ctx, memberName, underlying, type, state, 2M, 3M);
+            var call = GetMethodCall(_context, memberName, underlying, type, state, 2M, 3M);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method(2M, 3M), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, 2, 3);
+            call = GetMethodCall(_context, memberName, underlying, type, state, 2, 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method(2, 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, 2M, "t");
+            call = GetMethodCall(_context, memberName, underlying, type, state, 2M, "t");
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method(2M, "t"), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, 2, "t");
+            call = GetMethodCall(_context, memberName, underlying, type, state, 2, "t");
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method(2, "t"), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, "t", 2M);
+            call = GetMethodCall(_context, memberName, underlying, type, state, "t", 2M);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method("t", 2M), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, 2, 3, "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, type, state, 2, 3, "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method(2, 3, "st", 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, 2M, 3M, "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, type, state, 2M, 3M, "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method(2M, 3M, "st", 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, 2M, "t", "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, type, state, 2M, "t", "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method(2M, "t", "st", 3), call.args);
 
-            call = GetMethodCall(ctx, memberName, underlying, type, state, "t", 2M, "st", 3);
+            call = GetMethodCall(_context, memberName, underlying, type, state, "t", 2M, "st", 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method("t", 2M, "st", 3), call.args);
         }
@@ -534,7 +521,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             const string memberName = nameof(MethodInvokerStatic.Method1);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -542,7 +528,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var call = GetMethodCall(ctx, memberName, underlying, typeof(MethodInvokerStatic), state, "st");
+            var call = GetMethodCall(_context, memberName, underlying, typeof(MethodInvokerStatic), state, "st");
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method1("st", 0M, "", int.MaxValue), "st", 0M, "", int.MaxValue);
         }
@@ -556,7 +542,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             const string memberName = nameof(MethodInvokerStatic.Method2);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -564,7 +549,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var call = GetMethodCall(ctx, memberName, underlying, typeof(MethodInvokerStatic), state, 2, 3);
+            var call = GetMethodCall(_context, memberName, underlying, typeof(MethodInvokerStatic), state, 2, 3);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method2(2, 3), call.args);
         }
@@ -578,7 +563,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             const string memberName = nameof(MethodInvokerStatic.Method3);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
-            var ctx = new TestExpressionBuilderContext();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -586,7 +570,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return members;
             };
 
-            var call = GetMethodCall(ctx, memberName, false, typeof(MethodInvokerStatic), state, 1, 2);
+            var call = GetMethodCall(_context, memberName, false, typeof(MethodInvokerStatic), state, 1, 2);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method3(1, 2, DefaultMetadata), 1, 2, DefaultMetadata);
         }
@@ -601,8 +585,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             {
                 new MethodMemberInfo(memberName, typeof(MethodInvokerStatic).GetMethod(memberName)!, false, typeof(MethodInvokerInstance), null, null)
             };
-            var ctx = new TestExpressionBuilderContext();
-            var metadata = ctx.Metadata;
+            var metadata = _context.Metadata;
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
@@ -620,7 +603,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return typeof(decimal);
             };
 
-            var call = GetMethodCall(ctx, memberName, false, typeof(MethodInvokerStatic), state, new[] {typeName}, 1);
+            var call = GetMethodCall(_context, memberName, false, typeof(MethodInvokerStatic), state, new[] {typeName}, 1);
             call.exp.Invoke(call.parameters, call.compiledArgs);
             invokeCount.ShouldEqual(1);
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method4<decimal>(1), 1M);

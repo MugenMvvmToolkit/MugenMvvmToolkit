@@ -1,45 +1,40 @@
-﻿using MugenMvvm.Bindings.Parsing;
-using MugenMvvm.Bindings.Parsing.Components.Parsers;
+﻿using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
-    public class IndexerTokenParserTest : UnitTestBase
+    public class IndexerTokenParserTest : TokenParserTestBase<IndexerTokenParser>
     {
+        public IndexerTokenParserTest(ITestOutputHelper? outputHelper = null) : base(new ConstantTokenParser(), outputHelper)
+        {
+        }
+
         [Fact]
         public void TryParseShouldIgnoreNotIndexerExpression()
         {
-            var component = new IndexerTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new ConstantTokenParser()}
-            };
-            ctx.Initialize("null", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Initialize("null", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
 
         [Fact]
         public void TryParseShouldParseIndexerExpression()
         {
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new DigitTokenParser()}
-            };
-            ctx.Initialize("[1,2 , 3]", DefaultMetadata);
+            Context.Parsers = new DigitTokenParser();
+            Context.Initialize("[1,2 , 3]", DefaultMetadata);
 
-            var component = new IndexerTokenParser();
-            component.TryParse(ctx, null)
-                     .ShouldEqual(new IndexExpressionNode(null, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
+            Parser.TryParse(Context, null)
+                  .ShouldEqual(new IndexExpressionNode(null, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
 
-            ctx.Initialize("[1,2 , 3]", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Null)
-                     .ShouldEqual(new IndexExpressionNode(ConstantExpressionNode.Null,
-                         new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
+            Context.Initialize("[1,2 , 3]", DefaultMetadata);
+            Parser.TryParse(Context, ConstantExpressionNode.Null)
+                  .ShouldEqual(new IndexExpressionNode(ConstantExpressionNode.Null,
+                      new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
 
-            ctx.Initialize("[1,2,]", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Initialize("[1,2,]", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
     }
 }

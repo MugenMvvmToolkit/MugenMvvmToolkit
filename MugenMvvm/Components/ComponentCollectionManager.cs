@@ -36,7 +36,7 @@ namespace MugenMvvm.Components
                     return collection;
             }
 
-            return new ComponentCollection(owner);
+            return new ComponentCollection(owner, this);
         }
     }
 }

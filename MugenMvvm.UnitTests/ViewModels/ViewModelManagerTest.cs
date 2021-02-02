@@ -16,8 +16,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         [Fact]
         public void GetServiceShouldThrowNoComponents()
         {
-            var manager = new ViewModelManager();
-            ShouldThrow<InvalidOperationException>(() => manager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).GetService(new TestViewModel(), typeof(object), DefaultMetadata));
         }
 
         [Theory]
@@ -26,7 +25,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         public void IsInStateShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var owner = new ViewModelManager();
+            var owner = GetComponentOwner(ComponentCollectionManager);
             var target = new TestViewModel();
             var state = ViewModelLifecycleState.Created;
 
@@ -60,7 +59,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         [InlineData(10)]
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
-            var manager = new ViewModelManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             var state = "state";
             var viewModel = new TestViewModel();
@@ -91,7 +90,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         [InlineData(10)]
         public void GetServiceShouldBeHandledByComponents(int count)
         {
-            var manager = new ViewModelManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var viewModel = new TestViewModel();
             var service = new object();
             var executeCount = 0;
@@ -125,7 +124,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         [InlineData(10)]
         public void TryGetViewModelShouldBeHandledByComponents(int count)
         {
-            var manager = new ViewModelManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var viewModel = new TestViewModel();
             var executeCount = 0;
             for (var i = 0; i < count; i++)
@@ -151,6 +150,6 @@ namespace MugenMvvm.UnitTests.ViewModels
             executeCount.ShouldEqual(count);
         }
 
-        protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

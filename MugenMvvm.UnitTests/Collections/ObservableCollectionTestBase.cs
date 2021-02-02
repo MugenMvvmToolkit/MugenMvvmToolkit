@@ -1019,9 +1019,8 @@ namespace MugenMvvm.UnitTests.Collections
             clear.ShouldEqual(count * listenersCount);
         }
 
-        protected virtual IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items);
+        protected virtual IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items, ComponentCollectionManager);
 
-        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionManager? collectionProvider = null) =>
-            new SynchronizedObservableCollection<object>(collectionProvider);
+        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new SynchronizedObservableCollection<object>(componentCollectionManager);
     }
 }

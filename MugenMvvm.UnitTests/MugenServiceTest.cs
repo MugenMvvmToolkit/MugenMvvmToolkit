@@ -48,9 +48,12 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests
 {
-    public class MugenServiceTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class MugenServiceTest : UnitTestBase, IDisposable
     {
-        [Fact]
+        public void Dispose() => MugenService.Configuration.FallbackConfiguration = null;
+
+        [Fact(Skip = SharedContextTest)]
         public void DefaultServicesShouldBeValid()
         {
             var services = new Dictionary<Type, object>
@@ -128,7 +131,6 @@ namespace MugenMvvm.UnitTests
         public void InitializeInstanceShouldUseConstantValue()
         {
             MugenService.Configuration.Clear<MugenServiceTest>();
-            MugenService.Configuration.FallbackConfiguration = null;
             ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
             MugenService.Optional<MugenServiceTest>().ShouldBeNull();
 
@@ -141,7 +143,7 @@ namespace MugenMvvm.UnitTests
             MugenService.Optional<MugenServiceTest>().ShouldBeNull();
         }
 
-        [Fact]
+        [Fact(Skip = SharedContextTest)]
         public void InitializeInstanceShouldUseFallback()
         {
             MugenService.Configuration.Clear<MugenServiceTest>();
@@ -177,7 +179,6 @@ namespace MugenMvvm.UnitTests
         public void InitializeInstanceShouldUseHasService()
         {
             MugenService.Configuration.Clear<MugenServiceTest>();
-            MugenService.Configuration.FallbackConfiguration = null;
             var service = new TestHasServiceModel<MugenServiceTest> {Service = this, ServiceOptional = new MugenServiceTest()};
             ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
             MugenService.Optional<MugenServiceTest>().ShouldBeNull();

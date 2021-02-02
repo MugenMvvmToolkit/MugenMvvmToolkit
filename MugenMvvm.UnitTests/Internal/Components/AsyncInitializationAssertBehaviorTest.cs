@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Internal.Components
 {
+    [Collection(SharedContext)]
     public class AsyncInitializationAssertBehaviorTest : UnitTestBase, IDisposable
     {
         private readonly AsyncInitializationAssertBehavior _behavior;
@@ -17,10 +19,15 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public AsyncInitializationAssertBehaviorTest()
         {
             _isInitializing = true;
-            _behavior = new AsyncInitializationAssertBehavior(() => _isInitializing);
+            _behavior = new AsyncInitializationAssertBehavior(() => _isInitializing, null, false);
+            MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
         }
 
-        public void Dispose() => MugenService.Configuration.FallbackConfiguration = null;
+        public void Dispose()
+        {
+            MugenService.Configuration.FallbackConfiguration = null;
+            MugenService.Configuration.Clear<IComponentCollectionManager>();
+        }
 
         [Fact]
         public void ShouldAddListenerIfInitializing()
@@ -42,7 +49,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public async Task ShouldAssertOnDecorate()
         {
             _isInitializing = true;
-            var componentCollection = new ComponentCollection(this);
+            var componentCollection = new ComponentCollection(this, ComponentCollectionManager);
             componentCollection.AddComponent(_behavior);
 
             componentCollection.Add("");
@@ -61,7 +68,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public async Task ShouldDecorateMemberManager()
         {
             _isInitializing = true;
-            var componentCollection = new ComponentCollection(this);
+            var componentCollection = new ComponentCollection(this, ComponentCollectionManager);
             componentCollection.AddComponent(_behavior);
 
             var item = componentCollection.Get<IMemberManagerComponent>().Item;
@@ -77,11 +84,9 @@ namespace MugenMvvm.UnitTests.Internal.Components
         [Fact]
         public async Task ShouldInitializeFallbackConfiguration()
         {
-            MugenService.Configuration.FallbackConfiguration.ShouldEqual(_behavior);
             _behavior.Optional<object>().ShouldBeNull();
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => _behavior.Optional<object>()));
-            await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => _behavior.Instance<object>()));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => _behavior.Optional<string>()));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => _behavior.Instance<string>()));
 
             _isInitializing = false;
             await Task.Run(() => _behavior.Optional<object>());

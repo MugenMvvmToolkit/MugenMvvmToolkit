@@ -9,11 +9,19 @@ using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingParameterHandlerTest : UnitTestBase
     {
+        private readonly TestBinding _binding;
+
+        public BindingParameterHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _binding = new TestBinding(ComponentCollectionManager);
+        }
+
         [Fact]
         public void DisposeShouldDisposeValues()
         {
@@ -60,13 +68,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 Type = typeof(int)
             };
-            var binding = new TestBinding();
             var targetNullValue = new object();
             var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
-            handler.InterceptSourceValue(binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldBeNull();
+            handler.InterceptSourceValue(_binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldBeNull();
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptSourceValue(binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldEqual(targetNullValue);
+            handler.InterceptSourceValue(_binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldEqual(targetNullValue);
         }
 
         [Fact]
@@ -78,7 +85,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var value = new object();
             var result = new object();
-            var binding = new TestBinding();
             var converterParameter = new object();
             var converter = new TestBindingValueConverter
             {
@@ -92,7 +98,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
             var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
-            handler.InterceptSourceValue(binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
+            handler.InterceptSourceValue(_binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
         }
 
         [Fact]
@@ -102,13 +108,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 Type = typeof(int)
             };
-            var binding = new TestBinding();
             var fallback = new object();
             var handler = new BindingParameterHandler(default, default, new BindingParameterValue(fallback, null), default);
-            handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(fallback);
+            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(fallback);
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(0);
+            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(0);
         }
 
         [Fact]
@@ -118,13 +123,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 Type = typeof(int)
             };
-            var binding = new TestBinding();
             var targetNullValue = new object();
             var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
-            handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(targetNullValue);
+            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(targetNullValue);
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(null);
+            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(null);
         }
 
         [Fact]
@@ -136,7 +140,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var value = new object();
             var result = new object();
-            var binding = new TestBinding();
             var converterParameter = new object();
             var converter = new TestBindingValueConverter
             {
@@ -150,7 +153,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
             var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
-            handler.InterceptTargetValue(binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
+            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
         }
     }
 }

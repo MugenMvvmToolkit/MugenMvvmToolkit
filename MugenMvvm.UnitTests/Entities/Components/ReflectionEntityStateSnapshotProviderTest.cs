@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using MugenMvvm.Entities;
 using MugenMvvm.Entities.Components;
+using MugenMvvm.Extensions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Entities.Components
 {
@@ -13,12 +16,21 @@ namespace MugenMvvm.UnitTests.Entities.Components
         private const string StringValue = "test";
         private static readonly Guid GuidValue = Guid.NewGuid();
 
+        private readonly EntityManager _entityManager;
+        private readonly ReflectionEntityStateSnapshotProvider _entityStateSnapshotProvider;
+
+        public ReflectionEntityStateSnapshotProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _entityManager = new EntityManager(ComponentCollectionManager);
+            _entityStateSnapshotProvider = new ReflectionEntityStateSnapshotProvider(ReflectionManager);
+            _entityManager.AddComponent(_entityStateSnapshotProvider);
+        }
+
         [Fact]
         public void ShouldDumpValues()
         {
-            var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
             values.Count.ShouldEqual(3);
@@ -56,9 +68,8 @@ namespace MugenMvvm.UnitTests.Entities.Components
         [Fact]
         public void ShouldSaveAndRestoreState()
         {
-            var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var entitySnapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+            var entitySnapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             stateModel.Int = int.MaxValue;
             stateModel.Int.ShouldEqual(int.MaxValue);
@@ -74,9 +85,8 @@ namespace MugenMvvm.UnitTests.Entities.Components
         [Fact]
         public void ShouldTrackEntityChanges()
         {
-            var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel).ShouldBeFalse();
 
@@ -99,9 +109,8 @@ namespace MugenMvvm.UnitTests.Entities.Components
         [Fact]
         public void ShouldTrackPropertyChanges()
         {
-            var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
             snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
@@ -135,12 +144,9 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldUseFilter()
         {
             var stateModel = GetModel();
-            var manager = new ReflectionEntityStateSnapshotProvider
-            {
-                MemberFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
-                MemberFilter = info => info.Name == nameof(stateModel.Guid)
-            };
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
+            _entityStateSnapshotProvider.MemberFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+            _entityStateSnapshotProvider.MemberFilter = info => info.Name == nameof(stateModel.Guid);
+            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
             values.Count.ShouldEqual(1);

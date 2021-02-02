@@ -5,21 +5,27 @@ using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Internal.Components
 {
     public abstract class AttachedValueStorageProviderTestBase : UnitTestBase
     {
         protected const string TestPath = "Test";
+        protected readonly AttachedValueManager LocalAttachedValueManager;
+
+        protected AttachedValueStorageProviderTestBase(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            LocalAttachedValueManager = new AttachedValueManager(ComponentCollectionManager);
+            // ReSharper disable once VirtualMemberCallInConstructor
+            LocalAttachedValueManager.AddComponent(GetComponent());
+        }
 
         [Fact]
         public virtual void AddOrUpdateShouldAddNewValue1()
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.AddOrUpdate(TestPath, this, this, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(this);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
             v.ShouldEqual(this);
@@ -30,10 +36,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             var invokeCount = 0;
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
 
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.AddOrUpdate(TestPath, this, (i, state) =>
             {
                 ++invokeCount;
@@ -53,10 +57,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var oldValue = new object();
             var newValue = new object();
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
 
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.AddOrUpdate(TestPath, newValue, this, (o, key, currentValue, state) =>
             {
@@ -79,10 +81,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var oldValue = new object();
             var newValue = new object();
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
 
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.AddOrUpdate(TestPath, this, (it, state) =>
             {
@@ -107,9 +107,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ClearShouldNotKeepRef()
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var weakReference = ClearShouldNotKeepRefImpl(item, manager);
+            var weakReference = ClearShouldNotKeepRefImpl(item, LocalAttachedValueManager);
             GcCollect();
             weakReference.IsAlive.ShouldBeFalse();
         }
@@ -118,10 +116,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void GetOrAddShouldAddNewValue1()
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.GetOrAdd(TestPath, this).ShouldEqual(this);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
             v.ShouldEqual(this);
@@ -132,15 +127,13 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             var invokeCount = 0;
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
 
-            attachedValues.GetOrAdd(TestPath, manager, (o, providerComponent) =>
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            attachedValues.GetOrAdd(TestPath, LocalAttachedValueManager, (o, providerComponent) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(item);
-                providerComponent.ShouldEqual(manager);
+                providerComponent.ShouldEqual(LocalAttachedValueManager);
                 return this;
             }).ShouldEqual(this);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
@@ -154,10 +147,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var oldValue = new object();
             var newValue = new object();
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.GetOrAdd(TestPath, newValue).ShouldEqual(oldValue);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
@@ -169,10 +159,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             var oldValue = new object();
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.GetOrAdd<object, object>(TestPath, this, (_, __) => throw new NotSupportedException()).ShouldEqual(oldValue);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
@@ -183,10 +170,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ShouldBeEphemeron1()
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-
-            var weakReference = ShouldBeEphemeronImpl1(item, manager);
+            var weakReference = ShouldBeEphemeronImpl1(item, LocalAttachedValueManager);
             item = null;
             GcCollect();
 
@@ -197,11 +181,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ShouldBeEphemeron2()
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-
             var weakReference = new WeakReference(item);
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             attachedValues.Set(TestPath, item, out _);
 
             attachedValues = default;
@@ -215,9 +196,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ShouldGetSetValues()
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
 
             attachedValues.Contains(TestPath).ShouldBeFalse();
             attachedValues.TryGet(TestPath, out var value).ShouldBeFalse();
@@ -241,10 +220,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void TryGetValuesShouldReturnAllValues(int count)
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
-
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             var hashSet = new HashSet<KeyValuePair<string, object?>>();
             var values = new List<KeyValuePair<string, object?>>();
             for (var i = 0; i < count; i++)
@@ -252,6 +228,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
                 var pair = new KeyValuePair<string, object?>(TestPath + i, i);
                 attachedValues.Set(pair.Key, pair.Value, out _);
                 values.Add(pair);
+                hashSet.Add(pair);
             }
 
             attachedValues.GetValues(this, (o, key, value, arg3) =>
@@ -271,9 +248,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ClearShouldClearByPath(int count)
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
 
             for (var i = 0; i < count; i++)
             {
@@ -300,10 +275,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ClearShouldClearAll(int count)
         {
             var item = GetSupportedItem();
-            var manager = new AttachedValueManager();
-            manager.AddComponent(GetComponent());
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
 
+            var attachedValues = LocalAttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
             for (var i = 0; i < count; i++)
             {
                 var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);

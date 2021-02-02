@@ -8,11 +8,23 @@ using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class EventInfoMemberObserverProviderTest : UnitTestBase
     {
+        private readonly ReflectionManager _reflectionManager;
+        private readonly ObservationManager _observationManager;
+
+        public EventInfoMemberObserverProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _observationManager = new ObservationManager(ComponentCollectionManager);
+            _reflectionManager = new ReflectionManager(ComponentCollectionManager);
+            _reflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
+            _observationManager.AddComponent(new EventInfoMemberObserverProvider(AttachedValueManager, _reflectionManager));
+        }
+
         [Fact]
         public void TryGetMemberObserverShouldObserveEventHandler()
         {
@@ -31,9 +43,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
             var eventInfo = typeof(TestEventClass).GetEvent(nameof(TestEventClass.EventHandler));
             eventInfo.ShouldNotBeNull();
-            var component = new EventInfoMemberObserverProvider();
 
-            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(typeof(TestEventClass), eventInfo!, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -67,9 +78,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
             var eventInfo = typeof(TestEventClass).GetEvent(nameof(TestEventClass.EventHandlerStatic));
             eventInfo.ShouldNotBeNull();
-            var component = new EventInfoMemberObserverProvider();
 
-            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(typeof(TestEventClass), eventInfo!, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(null, listener, DefaultMetadata);
@@ -89,10 +99,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         [Fact]
         public void TryGetMemberObserverShouldObserveEventUsingReflectionDelegateProvider()
         {
-            var delegateProvider = new ReflectionManager();
-            var testDelegateProvider = new TestReflectionDelegateProviderComponent(delegateProvider);
-            delegateProvider.AddComponent(testDelegateProvider);
-            delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
+            var testDelegateProvider = new TestReflectionDelegateProviderComponent(_reflectionManager);
+            _reflectionManager.AddComponent(testDelegateProvider);
 
             var msg = new EventArgs();
             var target = new TestEventClass();
@@ -110,9 +118,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
             var eventInfo = typeof(TestEventClass).GetEvent(nameof(TestEventClass.Action));
             eventInfo.ShouldNotBeNull();
-            var component = new EventInfoMemberObserverProvider(reflectionManager: delegateProvider);
 
-            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(typeof(TestEventClass), eventInfo!, DefaultMetadata);
             observer.IsEmpty.ShouldBeTrue();
 
             testDelegateProvider.CanCreateDelegate = (type, info) =>
@@ -120,7 +127,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 type.ShouldEqual(typeof(Action));
                 return true;
             };
-            observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
+            observer = _observationManager.TryGetMemberObserver(typeof(TestEventClass), eventInfo!, DefaultMetadata);
 
             testDelegateProvider.TryCreateDelegate = (type, o, arg3) =>
             {
@@ -143,11 +150,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         }
 
         [Fact]
-        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
-        {
-            var component = new EventInfoMemberObserverProvider();
-            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
+        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest() =>
+            _observationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
         public sealed class TestEventClass
         {

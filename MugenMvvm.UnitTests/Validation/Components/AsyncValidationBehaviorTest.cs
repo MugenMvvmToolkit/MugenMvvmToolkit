@@ -6,32 +6,39 @@ using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class AsyncValidationBehaviorTest : UnitTestBase
     {
+        private readonly Validator _validator;
+
+        public AsyncValidationBehaviorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _validator = new Validator(null, ComponentCollectionManager);
+            _validator.AddComponent(new AsyncValidationBehavior());
+        }
+
         [Fact]
         public async Task HasErrorsShouldReturnTrueAsync()
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<object?>();
-            var validator = new Validator();
-            validator.AddComponent(new TestValidationHandlerComponent(validator)
+            _validator.AddComponent(new TestValidationHandlerComponent(_validator)
             {
                 TryValidateAsync = (s, token, arg3) => tcs.Task
             });
-            validator.AddComponent(new AsyncValidationBehavior());
 
-            validator.HasErrors().ShouldBeFalse();
-            var task = validator.ValidateAsync(expectedMember, CancellationToken.None);
-            validator.HasErrors().ShouldBeTrue();
-            validator.HasErrors(expectedMember).ShouldBeTrue();
+            _validator.HasErrors().ShouldBeFalse();
+            var task = _validator.ValidateAsync(expectedMember, CancellationToken.None);
+            _validator.HasErrors().ShouldBeTrue();
+            _validator.HasErrors(expectedMember).ShouldBeTrue();
             tcs.SetResult(null);
             await task;
 
-            validator.HasErrors().ShouldBeFalse();
-            validator.HasErrors(expectedMember).ShouldBeFalse();
+            _validator.HasErrors().ShouldBeFalse();
+            _validator.HasErrors(expectedMember).ShouldBeFalse();
         }
 
         [Fact]
@@ -39,8 +46,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var expectedMember = "test";
             var tcs = new TaskCompletionSource<object>();
-            var validator = new Validator();
-            validator.AddComponent(new TestValidationHandlerComponent(validator)
+            _validator.AddComponent(new TestValidationHandlerComponent(_validator)
             {
                 TryValidateAsync = (s, token, arg3) =>
                 {
@@ -48,13 +54,12 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     return tcs.Task;
                 }
             });
-            validator.AddComponent(new AsyncValidationBehavior());
 
-            var task = validator.ValidateAsync(expectedMember, CancellationToken.None)!;
+            var task = _validator.ValidateAsync(expectedMember, CancellationToken.None)!;
             task.IsCompleted.ShouldBeFalse();
 
 #pragma warning disable 4014
-            validator.ValidateAsync(expectedMember, CancellationToken.None);
+            _validator.ValidateAsync(expectedMember, CancellationToken.None);
 #pragma warning restore 4014
             await task.WaitSafeAsync();
             task.IsCanceled.ShouldBeTrue();
@@ -68,20 +73,19 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var expectedMember = "test";
             var invokeCount = 0;
             var tcs = new TaskCompletionSource<object?>();
-            var validator = new Validator();
-            validator.AddComponent(new TestValidationHandlerComponent(validator)
+            _validator.AddComponent(new TestValidationHandlerComponent(_validator)
             {
                 TryValidateAsync = (s, token, arg3) => tcs.Task
             });
-            validator.AddComponent(new AsyncValidationBehavior());
+
             for (var i = 0; i < count; i++)
             {
-                validator.AddComponent(new TestAsyncValidationListener
+                _validator.AddComponent(new TestAsyncValidationListener
                 {
                     OnAsyncValidation = (v, m, t, meta) =>
                     {
                         ++invokeCount;
-                        v.ShouldEqual(validator);
+                        v.ShouldEqual(_validator);
                         m.ShouldEqual(expectedMember);
                         t.ShouldEqual(tcs.Task);
                         meta.ShouldEqual(DefaultMetadata);
@@ -90,7 +94,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             }
 
             invokeCount.ShouldEqual(0);
-            var task = validator.ValidateAsync(expectedMember, CancellationToken.None, DefaultMetadata);
+            var task = _validator.ValidateAsync(expectedMember, CancellationToken.None, DefaultMetadata);
             invokeCount.ShouldEqual(count);
             tcs.TrySetResult(null);
             await task;

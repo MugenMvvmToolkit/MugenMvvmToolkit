@@ -13,6 +13,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
+    [Collection(SharedContext)]
     public class SinglePathObserverTest : ObserverBaseTest<SinglePathObserver>
     {
         protected static readonly IMemberPath DefaultPath = MemberPath.Get("test");
@@ -22,12 +23,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         {
             var memberFlags = MemberFlags.All;
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => default
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var singlePathObserver = GetObserver(this, path, memberFlags, false);
             var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
             lastMember.IsAvailable.ShouldBeFalse();
@@ -45,12 +45,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         {
             var memberFlags = MemberFlags.All;
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => default
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var singlePathObserver = GetObserver(this, path, memberFlags, true);
             var lastMember = singlePathObserver.GetLastMember(DefaultMetadata);
             lastMember.IsAvailable.ShouldBeFalse();
@@ -72,7 +71,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var accessorInfo = new TestAccessorMemberInfo();
             var memberFlags = MemberFlags.All;
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -82,9 +82,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     r.ShouldEqual(path.Path);
                     return accessorInfo;
                 }
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var singlePathObserver = GetObserver(this, path, memberFlags, optional);
             var members = singlePathObserver.GetMembers(DefaultMetadata);
             members.Members.Item.ShouldEqual(accessorInfo);
@@ -100,12 +98,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var memberFlags = MemberFlags.All;
             var error = new Exception();
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => throw error
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var singlePathObserver = GetObserver(this, path, memberFlags, optional);
             var members = singlePathObserver.GetMembers(DefaultMetadata);
             members.IsAvailable.ShouldBeFalse();
@@ -121,7 +118,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var accessorInfo = new TestAccessorMemberInfo();
             var memberFlags = MemberFlags.All;
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -131,9 +129,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     r.ShouldEqual(path.Path);
                     return accessorInfo;
                 }
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var singlePathObserver = GetObserver(this, path, memberFlags, optional);
             var members = singlePathObserver.GetLastMember(DefaultMetadata);
             members.Member.ShouldEqual(accessorInfo);
@@ -149,12 +145,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var memberFlags = MemberFlags.All;
             var error = new Exception();
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => throw error
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var singlePathObserver = GetObserver(this, path, memberFlags, optional);
             var members = singlePathObserver.GetLastMember(DefaultMetadata);
             members.IsAvailable.ShouldBeFalse();
@@ -178,11 +173,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return new ActionToken((o1, o2) => currentListener = null);
                 }
             };
-            var component = new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => accessorInfo
-            };
-            using var _ = MugenService.AddComponent(component);
+            });
 
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
@@ -195,11 +189,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         public void ObserverShouldNotifyListenersError(int count)
         {
             IEventListener? currentListener = null;
-            var component = new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => default
-            };
-            using var _ = MugenService.AddComponent(component);
+            });
 
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());

@@ -5,45 +5,48 @@ using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Extensions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class ExtensionMethodMemberProviderTest : UnitTestBase
     {
+        private readonly MemberManager _memberManager;
+        private readonly ExtensionMethodMemberProvider _provider;
+
+        public ExtensionMethodMemberProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _memberManager = new MemberManager(ComponentCollectionManager);
+            _provider = new ExtensionMethodMemberProvider();
+            _provider.Add(typeof(ExtensionMethodMemberProviderComponentExtTest));
+            _memberManager.AddComponent(_provider);
+        }
+
         [Fact]
         public void TryGetMembersShouldReturnExtensionMethodsAddRemove()
         {
-            var memberManager = new MemberManager();
-            var provider = new ExtensionMethodMemberProvider();
-            memberManager.AddComponent(provider);
-            provider.Add(typeof(ExtensionMethodMemberProviderComponentExtTest));
-
-            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(_memberManager, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
             var method = typeof(ExtensionMethodMemberProviderComponentExtTest).GetMethod(nameof(ExtensionMethodMemberProviderComponentExtTest.Method), new[] {typeof(string)});
-            var itemOrList = provider.TryGetMembers(null!, typeof(string), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
+            var itemOrList = _provider.TryGetMembers(_memberManager, typeof(string), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method,
+                DefaultMetadata);
             itemOrList.Item!.UnderlyingMember.ShouldEqual(method);
 
             method = typeof(ExtensionMethodMemberProviderComponentExtTest).GetMethod(nameof(ExtensionMethodMemberProviderComponentExtTest.Method), new[] {typeof(int)});
-            itemOrList = provider.TryGetMembers(null!, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
+            itemOrList = _provider.TryGetMembers(_memberManager, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
             itemOrList.Item!.UnderlyingMember.ShouldEqual(method);
 
-            provider.Remove(typeof(ExtensionMethodMemberProviderComponentExtTest));
-            itemOrList = provider.TryGetMembers(null!, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
+            _provider.Remove(typeof(ExtensionMethodMemberProviderComponentExtTest));
+            itemOrList = _provider.TryGetMembers(_memberManager, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
             itemOrList.IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
         public void TryGetMembersShouldReturnExtensionMethodsGeneric()
         {
-            var memberManager = new MemberManager();
-            var provider = new ExtensionMethodMemberProvider();
-            memberManager.AddComponent(provider);
-            provider.Add(typeof(ExtensionMethodMemberProviderComponentExtTest));
+            _provider.TryGetMembers(_memberManager, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
-            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
-
-            var members = provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata);
+            var members = _provider.TryGetMembers(_memberManager, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata);
             members.Count.ShouldEqual(2);
 
             var methodInfos = typeof(Enumerable)

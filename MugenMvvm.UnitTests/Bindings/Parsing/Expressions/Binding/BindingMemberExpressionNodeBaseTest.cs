@@ -1,20 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Enums;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
-    public abstract class BindingMemberExpressionNodeBaseTest<T> : UnitTestBase
+    [Collection(SharedContext)]
+    public abstract class BindingMemberExpressionNodeBaseTest<T> : UnitTestBase, IDisposable
         where T : BindingMemberExpressionNodeBase<T>
     {
         protected const string Path = "Path";
         protected const string ResourceName = "R";
+
+        protected BindingMemberExpressionNodeBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
+            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+        }
+
+        public virtual void Dispose()
+        {
+            MugenService.Configuration.Clear<IMemberManager>();
+            MugenService.Configuration.Clear<IObservationManager>();
+        }
 
         [Fact]
         public void AcceptShouldCreateNewNode2()

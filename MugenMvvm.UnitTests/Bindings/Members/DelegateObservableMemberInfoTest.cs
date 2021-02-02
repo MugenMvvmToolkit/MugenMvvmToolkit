@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
@@ -9,11 +10,25 @@ using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
-    public class DelegateObservableMemberInfoTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class DelegateObservableMemberInfoTest : UnitTestBase, IDisposable
     {
+        public DelegateObservableMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
+        }
+
+        public void Dispose()
+        {
+            MugenService.Configuration.Clear<IObservationManager>();
+            MugenService.Configuration.Clear<IMemberManager>();
+        }
+
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -85,7 +100,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var invokeCount = 0;
             var actionToken = new ActionToken((o, o1) => { });
             var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, null, null);
-            using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3) =>
                 {

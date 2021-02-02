@@ -12,19 +12,29 @@ using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingParameterInitializerTest : UnitTestBase
     {
+        private readonly ExpressionCompiler _compiler;
+        private readonly BindingParameterInitializer _initializer;
+        private readonly BindingExpressionInitializerContext _context;
+
+        public BindingParameterInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _compiler = new ExpressionCompiler(ComponentCollectionManager);
+            _initializer = new BindingParameterInitializer(_compiler);
+            _context = new BindingExpressionInitializerContext(this);
+        }
+
         [Fact]
         public void InitializeShouldIgnoreEmptyParameters()
         {
-            var initializer = new BindingParameterInitializer();
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            initializer.Initialize(null!, context);
-            context.Components.ShouldBeEmpty();
+            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            _initializer.Initialize(null!, _context);
+            _context.Components.ShouldBeEmpty();
         }
 
         [Theory]
@@ -32,7 +42,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [InlineData(false)]
         public void InitializeShouldAddParameterHandlerComponent(bool ignore)
         {
-            var context = new BindingExpressionInitializerContext(this);
             var target = new object();
             var src = new object();
             var converter = new object();
@@ -51,13 +60,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         {
                             t.ShouldEqual(target);
                             src.ShouldEqual(s);
-                            m.ShouldEqual(context.GetMetadataOrDefault());
+                            m.ShouldEqual(_context.GetMetadataOrDefault());
                             return converterParameter;
                         },
                         VisitHandler = (visitor, metadataContext) =>
                         {
                             ++parameterVisitCount;
-                            metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                            metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                             if (visitor is BindingMemberExpressionVisitor expressionVisitor)
                             {
                                 expressionVisitor.Flags.ShouldEqual(BindingMemberExpressionFlags.Observable);
@@ -77,7 +86,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         {
                             t.ShouldEqual(target);
                             src.ShouldEqual(s);
-                            m.ShouldEqual(context.GetMetadataOrDefault());
+                            m.ShouldEqual(_context.GetMetadataOrDefault());
                             return fallback;
                         }
                     })),
@@ -85,31 +94,29 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     ConstantExpressionNode.Get(nullValue))
             };
             var exp = new TestCompiledExpression();
-            var compiler = new ExpressionCompiler();
-            compiler.AddComponent(new TestExpressionCompilerComponent
+            _compiler.AddComponent(new TestExpressionCompilerComponent
             {
                 TryCompile = (node, m) =>
                 {
                     node.ShouldEqual(parameters[2].Right);
-                    m.ShouldEqual(context.GetMetadataOrDefault());
+                    m.ShouldEqual(_context.GetMetadataOrDefault());
                     return exp;
                 }
             });
 
-            var initializer = new BindingParameterInitializer(compiler);
-            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameters, DefaultMetadata);
+            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameters, DefaultMetadata);
             if (ignore)
-                context.Components[BindingParameterNameConstant.ParameterHandler] = null;
-            initializer.Initialize(null!, context);
-            context.Components.Count.ShouldEqual(1);
+                _context.Components[BindingParameterNameConstant.ParameterHandler] = null;
+            _initializer.Initialize(null!, _context);
+            _context.Components.Count.ShouldEqual(1);
             if (ignore)
             {
-                context.Components[BindingParameterNameConstant.ParameterHandler].ShouldBeNull();
+                _context.Components[BindingParameterNameConstant.ParameterHandler].ShouldBeNull();
                 return;
             }
 
             parameterVisitCount.ShouldEqual(1);
-            var bindingComponentProvider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.ParameterHandler]!;
+            var bindingComponentProvider = (IBindingComponentProvider) _context.Components[BindingParameterNameConstant.ParameterHandler]!;
             var component = (BindingParameterHandler) bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
 
             component.Converter.Parameter.ShouldEqual(converter);

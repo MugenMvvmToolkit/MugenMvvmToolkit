@@ -14,10 +14,10 @@ namespace MugenMvvm.UnitTests.Serialization
     public class SerializerTest : ComponentOwnerTestBase<Serializer>
     {
         [Fact]
-        public void DeserializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(DeserializationFormat.JsonBytes, null!));
+        public void DeserializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).Deserialize(DeserializationFormat.JsonBytes, null!));
 
         [Fact]
-        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(SerializationFormat.JsonBytes!, null!));
+        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).Serialize(SerializationFormat.JsonBytes!, null!));
 
         [Theory]
         [InlineData(1)]
@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Serialization
         {
             var format = new SerializationFormat<string, Stream?>(1, "Test");
             var request = "r";
-            var serializer = new Serializer();
+            var serializer = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Serialization
             var request = "test";
             var ctx = new SerializationContext<string, Stream>(format, request);
             var result = Stream.Null;
-            var serializer = new Serializer();
+            var serializer = GetComponentOwner(ComponentCollectionManager);
             serializer.AddComponent(new TestSerializationContextProvider(serializer)
             {
                 TryGetSerializationContext = (f, r, arg4) =>
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Serialization
             var request = "test";
             var ctx = new SerializationContext<string, Stream>(format, request);
             var result = Stream.Null;
-            var serializer = new Serializer();
+            var serializer = GetComponentOwner(ComponentCollectionManager);
             serializer.AddComponent(new TestSerializationContextProvider(serializer)
             {
                 TryGetSerializationContext = (f, r, arg4) =>
@@ -140,6 +140,6 @@ namespace MugenMvvm.UnitTests.Serialization
             executeCount.ShouldEqual(count);
         }
 
-        protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override Serializer GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

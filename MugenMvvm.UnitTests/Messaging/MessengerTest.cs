@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Messaging
         [Fact]
         public void GetSubscribersShouldReturnEmptyListNoComponents()
         {
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Messaging
         public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
         {
             var invokedCount = 0;
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             var hasCache = new TestHasCache {Invalidate = (o, arg3) => { ++invokedCount; }};
             messenger.AddComponent(new MessengerHandlerSubscriber());
             messenger.Components.TryAdd(hasCache);
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests.Messaging
             var message = new object();
             var ctx = new MessageContext(sender, message, DefaultMetadata);
             var invokeCount = 0;
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Messaging
             var ctx = new MessageContext(new object(), new object(), DefaultMetadata);
             var invokeCount = 0;
             var result = false;
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             for (var i = 0; i < count; i++)
             {
                 var component = new TestMessagePublisherComponent(messenger)
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTests.Messaging
         {
             var threadMode = executionMode == null ? null : ThreadExecutionMode.Get(executionMode.Value);
             var invokeCount = 0;
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             var result = false;
             for (var i = 0; i < count; i++)
             {
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTests.Messaging
         public void UnsubscribeShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             var result = false;
             for (var i = 0; i < count; i++)
             {
@@ -193,7 +193,7 @@ namespace MugenMvvm.UnitTests.Messaging
         {
             var invokeCount = 0;
             var result = false;
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             for (var i = 0; i < count; i++)
             {
                 var component = new TestMessengerSubscriberComponent(messenger)
@@ -223,7 +223,7 @@ namespace MugenMvvm.UnitTests.Messaging
         [InlineData(10)]
         public void GetSubscribersShouldBeHandledByComponents(int count)
         {
-            var messenger = new Messenger();
+            var messenger = GetComponentOwner(ComponentCollectionManager);
             var subscribers = new HashSet<MessengerSubscriberInfo>();
             for (var i = 0; i < count; i++)
                 subscribers.Add(new MessengerSubscriberInfo(new object(), ThreadExecutionMode.Background));
@@ -249,6 +249,6 @@ namespace MugenMvvm.UnitTests.Messaging
             subscribers.Count.ShouldEqual(0);
         }
 
-        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override Messenger GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

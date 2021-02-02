@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.ViewModels;
@@ -11,41 +10,46 @@ using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Views.Components
 {
     public class UndefinedMappingViewInitializerTest : UnitTestBase
     {
+        private readonly View _view;
+        private readonly ViewMapping _viewMapping;
+        private readonly TestViewModel _viewModel;
+        private readonly ViewManager _viewManager;
+
+        public UndefinedMappingViewInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _viewModel = new TestViewModel();
+            _viewMapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
+            _view = new View(_viewMapping, this, _viewModel);
+            _viewManager = new ViewManager(ComponentCollectionManager);
+            _viewManager.AddComponent(new UndefinedMappingViewInitializer());
+        }
+
         [Fact]
         public async Task TryCleanupAsyncShouldBeHandledByComponents()
         {
-            var viewType = typeof(object);
-            var viewModelType = typeof(TestViewModel);
-            var mapping = new ViewMapping("id", viewModelType, viewType, DefaultMetadata);
-            var view = new View(mapping, new object(), new TestViewModel());
-            var viewModel = new TestViewModel();
             var result = true;
             var invokeCount = 0;
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryCleanupAsync = (v, r, meta, token) =>
                 {
                     ++invokeCount;
-                    v.ShouldEqual(view);
-                    r.ShouldEqual(viewModel);
+                    v.ShouldEqual(_view);
+                    r.ShouldEqual(_viewModel);
                     meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     return new ValueTask<bool>(result);
                 }
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            var r = await viewManager.TryCleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
+            var r = await _viewManager.TryCleanupAsync(_view, _viewModel, DefaultCancellationToken, DefaultMetadata);
             r.ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
@@ -55,64 +59,56 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var view = new object();
             var oldView = new object();
-            var request = new ViewModelViewRequest(new TestViewModel(), view);
+            var request = new ViewModelViewRequest(_viewModel, view);
             var mapping = ViewMapping.Undefined;
             var result = new ValueTask<IView?>();
-            var viewMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
             var invokeCount = 0;
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewMappingProviderComponent
+            _viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, context) =>
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return viewMapping;
+                    return _viewMapping;
                 }
             });
-            viewManager.AddComponent(new TestViewProviderComponent
+            _viewManager.AddComponent(new TestViewProviderComponent
             {
                 TryGetViews = (o, context) =>
                 {
                     o.ShouldEqual(request.ViewModel);
                     context.ShouldEqual(DefaultMetadata);
-                    return new View(viewMapping, oldView, request.ViewModel!);
+                    return new View(_viewMapping, oldView, request.ViewModel!);
                 }
             });
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (m, r, meta, token) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(viewMapping);
+                    m.ShouldEqual(_viewMapping);
                     request.View.ShouldEqual(view);
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            (await viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await _viewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
         public async Task TryInitializeAsyncShouldBeHandledByComponentsMoreThatOneMapping()
         {
-            var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
+            var request = new ViewModelViewRequest(_viewModel, typeof(object));
             var mapping = ViewMapping.Undefined;
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewMappingProviderComponent
+            _viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, context) =>
                 {
@@ -121,7 +117,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     return new[] {new ViewMapping("1", typeof(IViewModelBase), typeof(object)), new ViewMapping("1", typeof(IViewModelBase), typeof(object))};
                 }
             });
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (m, r, meta, token) =>
                 {
@@ -129,60 +125,49 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(mapping);
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            (await viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await _viewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
         public async Task TryInitializeAsyncShouldBeHandledByComponentsNotUndefinedMapping()
         {
-            var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
-            var mapping = new ViewMapping("id", typeof(IViewModelBase), typeof(object), DefaultMetadata);
+            var request = new ViewModelViewRequest(_viewModel, typeof(object));
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (m, r, meta, token) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(mapping);
+                    m.ShouldEqual(_viewMapping);
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            (await viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await _viewManager.TryInitializeAsync(_viewMapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
         public async Task TryInitializeAsyncShouldBeHandledByComponentsWithNewMapping1()
         {
-            var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
+            var request = new ViewModelViewRequest(_viewModel, typeof(object));
             var mapping = ViewMapping.Undefined;
-            var newMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
+            var newMapping = _viewMapping;
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewMappingProviderComponent
+            _viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, context) =>
                 {
@@ -191,7 +176,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     return newMapping;
                 }
             });
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (m, r, meta, token) =>
                 {
@@ -200,29 +185,24 @@ namespace MugenMvvm.UnitTests.Views.Components
                     request.View.ShouldBeNull();
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            (await viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await _viewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
         public async Task TryInitializeAsyncShouldBeHandledByComponentsWithNewMapping2()
         {
-            var request = new ViewModelViewRequest(new TestViewModel(), typeof(int));
+            var request = new ViewModelViewRequest(_viewModel, typeof(int));
             var mapping = ViewMapping.Undefined;
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (m, r, meta, token) =>
                 {
@@ -234,30 +214,25 @@ namespace MugenMvvm.UnitTests.Views.Components
                     request.View.ShouldBeNull();
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            (await viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await _viewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
         public async Task TryInitializeAsyncShouldBeHandledByComponentsWithNewMapping3()
         {
-            var request = new TestViewModel();
+            var request = _viewModel;
             var mapping = ViewMapping.Undefined;
-            var newMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
+            var newMapping = _viewMapping;
             var result = new ValueTask<IView?>();
             var invokeCount = 0;
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewMappingProviderComponent
+            _viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, context) =>
                 {
@@ -266,7 +241,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     return newMapping;
                 }
             });
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (m, r, meta, token) =>
                 {
@@ -274,55 +249,43 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(newMapping);
                     r.ShouldEqual(request);
                     meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            (await viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await _viewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
         public async Task TryInitializeAsyncShouldReturnCreatedView()
         {
-            var request = new ViewModelViewRequest(new TestViewModel(), typeof(object));
-            var mapping = ViewMapping.Undefined;
-            var viewMapping = new ViewMapping("1", typeof(IViewModelBase), typeof(object));
-            var result = new View(viewMapping, this, request.ViewModel!);
-            var cancellationToken = new CancellationTokenSource().Token;
-
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewMappingProviderComponent
+            var request = new ViewModelViewRequest(_viewModel, typeof(object));
+            _viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, context) =>
                 {
                     o.ShouldEqual(request);
                     context.ShouldEqual(DefaultMetadata);
-                    return viewMapping;
+                    return _viewMapping;
                 }
             });
-            viewManager.AddComponent(new TestViewProviderComponent
+            _viewManager.AddComponent(new TestViewProviderComponent
             {
                 TryGetViews = (o, context) =>
                 {
                     o.ShouldEqual(request.ViewModel);
                     context.ShouldEqual(DefaultMetadata);
-                    return result;
+                    return _view;
                 }
             });
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (m, r, meta, token) => throw new NotSupportedException()
             });
 
-            var component = new UndefinedMappingViewInitializer();
-            viewManager.AddComponent(component);
-
-            (await viewManager.TryInitializeAsync(mapping, request, cancellationToken, DefaultMetadata)).ShouldEqual(result);
+            (await _viewManager.TryInitializeAsync(ViewMapping.Undefined, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(_view);
         }
     }
 }

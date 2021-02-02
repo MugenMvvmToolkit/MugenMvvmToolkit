@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Presenters
         [InlineData(10)]
         public void ShowShouldBeHandledByComponents(int componentCount)
         {
-            var presenter = new Presenter();
+            var presenter = GetComponentOwner(ComponentCollectionManager);
             var results = new List<PresenterResult>();
             var cancellationToken = new CancellationTokenSource().Token;
             var request = new TestHasServiceModel<object>();
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Presenters
         [InlineData(10)]
         public void TryCloseShouldBeHandledByComponents(int componentCount)
         {
-            var presenter = new Presenter();
+            var presenter = GetComponentOwner(ComponentCollectionManager);
             var results = new List<PresenterResult>();
             var cancellationToken = new CancellationTokenSource().Token;
             var request = new TestHasServiceModel<object>();
@@ -81,6 +81,6 @@ namespace MugenMvvm.UnitTests.Presenters
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override Presenter GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override Presenter GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

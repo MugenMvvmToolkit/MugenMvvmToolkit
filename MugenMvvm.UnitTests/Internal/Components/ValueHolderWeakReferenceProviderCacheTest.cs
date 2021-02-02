@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             var invokeCount = 0;
             var weak = new WeakReferenceImpl(this, true);
-            var manager = new WeakReferenceManager();
+            var manager = new WeakReferenceManager(ComponentCollectionManager);
             manager.AddComponent(new ValueHolderWeakReferenceProviderCache());
             manager.AddComponent(new TestWeakReferenceProviderComponent(manager)
             {

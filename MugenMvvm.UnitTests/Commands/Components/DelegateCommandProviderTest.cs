@@ -14,15 +14,18 @@ namespace MugenMvvm.UnitTests.Commands.Components
 {
     public class DelegateCommandProviderTest : UnitTestBase
     {
+        private readonly CommandManager _commandManager;
         private readonly DelegateCommandProvider _component;
 
         public DelegateCommandProviderTest()
         {
-            _component = new DelegateCommandProvider();
+            _commandManager = new CommandManager(ComponentCollectionManager);
+            _component = new DelegateCommandProvider(ThreadDispatcher, ComponentCollectionManager);
+            _commandManager.AddComponent(_component);
         }
 
         [Fact]
-        public void TryGetCommandShouldReturnNullNotSupportedType() => _component.TryGetCommand<object>(null!, this, _component, DefaultMetadata).ShouldBeNull();
+        public void TryGetCommandShouldReturnNullNotSupportedType() => _commandManager.TryGetCommand<object>(this, this, DefaultMetadata).ShouldBeNull();
 
         [Theory]
         [InlineData(false, null, null, false, false, false, false)]
@@ -42,7 +45,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
             var request = DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify);
 
-            var command = _component.TryGetCommand<object>(null!, this, request, metadata)!;
+            var command = _commandManager.TryGetCommand<object>(this, request, metadata)!;
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateCommandExecutor<object>>();
@@ -68,19 +71,19 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Action execute = () => { };
             Func<bool> canExecute = () => true;
             var request = DelegateCommandRequest.Get(execute, canExecute, null, null, null, default, null);
-            var command1 = _component.TryGetCommand<object>(null!, metadataOwner, request, null)!;
-            var command2 = _component.TryGetCommand<object>(null!, metadataOwner, request, null)!;
+            var command1 = _commandManager.TryGetCommand<object>(metadataOwner, request, null)!;
+            var command2 = _commandManager.TryGetCommand<object>(metadataOwner, request, null)!;
             if (cache)
                 command1.GetComponent<CommandEventHandler>().ShouldEqual(command2.GetComponent<CommandEventHandler>());
             else
                 command1.GetComponent<CommandEventHandler>().ShouldNotEqual(command2.GetComponent<CommandEventHandler>());
 
-            var command3 = _component.TryGetCommand<object>(null!, this, request, null)!;
-            var command4 = _component.TryGetCommand<object>(null!, this, request, null)!;
+            var command3 = _commandManager.TryGetCommand<object>(this, request, null)!;
+            var command4 = _commandManager.TryGetCommand<object>(this, request, null)!;
             command3.GetComponent<CommandEventHandler>().ShouldNotEqual(command4.GetComponent<CommandEventHandler>());
 
-            command1 = _component.TryGetCommand<object>(null!, metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null), null)!;
-            command2 = _component.TryGetCommand<object>(null!, metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null), null)!;
+            command1 = _commandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null), null)!;
+            command2 = _commandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null), null)!;
             command1.GetComponent<CommandEventHandler>().ShouldNotEqual(command2.GetComponent<CommandEventHandler>());
         }
 

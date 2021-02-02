@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(10)]
         public void TryGetAttachedValuesShouldUseComponents(int componentCount)
         {
-            var manager = new AttachedValueManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var request = this;
             var storageManager = new TestAttachedValueStorageManager();
             var state = "";
@@ -53,6 +53,6 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

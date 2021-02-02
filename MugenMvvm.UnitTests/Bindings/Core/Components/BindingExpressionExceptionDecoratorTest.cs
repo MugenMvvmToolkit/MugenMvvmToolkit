@@ -6,19 +6,26 @@ using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionExceptionDecoratorTest : UnitTestBase
     {
+        private readonly BindingManager _bindingManager;
+
+        public BindingExpressionExceptionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _bindingManager = new BindingManager(ComponentCollectionManager);
+            _bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
+        }
+
         [Fact]
         public void TryParseBindingExpressionShouldWrapExceptionToInvalidBinding()
         {
             var request = "";
             var exception = new Exception();
-            var bindingManager = new BindingManager();
-            bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent(bindingManager)
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent(_bindingManager)
             {
                 TryParseBindingExpression = (o, arg3) =>
                 {
@@ -28,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             });
 
-            var expression = bindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
+            var expression = _bindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
             expression.ShouldNotBeNull();
 
             var binding = (InvalidBinding) expression.Build(this, this, DefaultMetadata);
@@ -58,14 +65,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 };
             }
 
-            var bindingManager = new BindingManager();
-            bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, arg3) => expressions
             });
 
-            var result = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
+            var result = _bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
             result.Count.ShouldEqual(count);
 
             for (var i = 0; i < result.Count; i++)

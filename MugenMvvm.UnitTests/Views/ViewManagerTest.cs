@@ -21,10 +21,9 @@ namespace MugenMvvm.UnitTests.Views
         [Fact]
         public void InitializeAsyncShouldThrowNoComponents()
         {
-            var viewManager = new ViewManager();
             ShouldThrow<InvalidOperationException>(() =>
             {
-                var result = viewManager.InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this).Result;
+                var result = GetComponentOwner(ComponentCollectionManager).InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this).Result;
             });
         }
 
@@ -34,7 +33,7 @@ namespace MugenMvvm.UnitTests.Views
         public void IsInStateShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var owner = new ViewManager();
+            var owner = GetComponentOwner(ComponentCollectionManager);
             var target = new object();
             var state = ViewLifecycleState.Appeared;
 
@@ -68,7 +67,7 @@ namespace MugenMvvm.UnitTests.Views
         [InlineData(10)]
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
-            var manager = new ViewManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             var state = "state";
             var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
@@ -99,7 +98,7 @@ namespace MugenMvvm.UnitTests.Views
         [InlineData(10)]
         public void GetViewsShouldBeHandledByComponents(int count)
         {
-            var viewManager = new ViewManager();
+            var viewManager = GetComponentOwner(ComponentCollectionManager);
             var views = new List<IView>();
             var viewModel = new TestViewModel();
             for (var i = 0; i < count; i++)
@@ -127,7 +126,7 @@ namespace MugenMvvm.UnitTests.Views
         [InlineData(10)]
         public void GetMappingsShouldBeHandledByComponents(int count)
         {
-            var viewManager = new ViewManager();
+            var viewManager = GetComponentOwner(ComponentCollectionManager);
             var mappings = new List<IViewMapping>();
             var view = new object();
             for (var i = 0; i < count; i++)
@@ -155,7 +154,7 @@ namespace MugenMvvm.UnitTests.Views
         [InlineData(10)]
         public async Task InitializeAsyncShouldBeHandledByComponents(int componentCount)
         {
-            var manager = new ViewManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var result = new ValueTask<IView?>(new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel()));
             var cancellationToken = new CancellationTokenSource().Token;
             var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
@@ -191,7 +190,7 @@ namespace MugenMvvm.UnitTests.Views
         [InlineData(10)]
         public async Task CleanupAsyncShouldBeHandledByComponents(int componentCount)
         {
-            var manager = new ViewManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var result = true;
             var cancellationToken = new CancellationTokenSource().Token;
             var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
@@ -223,6 +222,6 @@ namespace MugenMvvm.UnitTests.Views
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override ViewManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

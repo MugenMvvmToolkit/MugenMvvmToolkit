@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Converters;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
@@ -9,59 +8,50 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
-    public class MethodCallExpressionConverterTest : UnitTestBase
+    public class MethodCallExpressionConverterTest : ExpressionConverterTestBase<MethodCallExpressionConverter>
     {
         [Fact]
         public void TryConvertShouldConvertMethod()
         {
             var target = new TestConverterClass();
             var method = target.GetType().GetMethod(nameof(target.Method))!;
-            var ctx = new ExpressionConverterContext<Expression>();
             var targetExp = Expression.Constant(target);
             var argExp = Expression.Constant(null);
             var expectedResult = new MethodCallExpressionNode(ConstantExpressionNode.Get(target), method.Name, new[]
             {
                 ConstantExpressionNode.Null
             });
-            ctx.SetExpression(argExp, ConstantExpressionNode.Null);
-            ctx.SetExpression(targetExp, expectedResult.Target!);
-
-            var component = new MethodCallExpressionConverter();
-            component.TryConvert(ctx, Expression.Call(targetExp, method, argExp)).ShouldEqual(expectedResult);
+            Context.SetExpression(argExp, ConstantExpressionNode.Null);
+            Context.SetExpression(targetExp, expectedResult.Target!);
+            Converter.TryConvert(Context, Expression.Call(targetExp, method, argExp)).ShouldEqual(expectedResult);
         }
 
         [Fact]
         public void TryConvertShouldConvertMethodStatic()
         {
             var method = typeof(TestConverterClass).GetMethod(nameof(TestConverterClass.MethodStatic))!;
-            var ctx = new ExpressionConverterContext<Expression>();
             var argExp = Expression.Constant(null);
             var expectedResult = new MethodCallExpressionNode(ConstantExpressionNode.Get<TestConverterClass>(), method.Name, new[]
             {
                 ConstantExpressionNode.Null
             });
-            ctx.SetExpression(argExp, ConstantExpressionNode.Null);
-
-            var component = new MethodCallExpressionConverter();
-            component.TryConvert(ctx, Expression.Call(null, method, argExp)).ShouldEqual(expectedResult);
+            Context.SetExpression(argExp, ConstantExpressionNode.Null);
+            Converter.TryConvert(Context, Expression.Call(null, method, argExp)).ShouldEqual(expectedResult);
         }
 
         [Fact]
         public void TryConvertShouldConvertMethodStaticExtension()
         {
             var method = typeof(TestConverterStaticClass).GetMethod(nameof(TestConverterStaticClass.TestMethod))!;
-            var ctx = new ExpressionConverterContext<Expression>();
             var targetExp = Expression.Constant("");
             var argExp = Expression.Constant(null);
             var expectedResult = new MethodCallExpressionNode(ConstantExpressionNode.EmptyString, method.Name, new[]
             {
                 ConstantExpressionNode.Null
             });
-            ctx.SetExpression(argExp, ConstantExpressionNode.Null);
-            ctx.SetExpression(targetExp, ConstantExpressionNode.EmptyString);
-
-            var component = new MethodCallExpressionConverter();
-            component.TryConvert(ctx, Expression.Call(null, method, targetExp, argExp)).ShouldEqual(expectedResult);
+            Context.SetExpression(argExp, ConstantExpressionNode.Null);
+            Context.SetExpression(targetExp, ConstantExpressionNode.EmptyString);
+            Converter.TryConvert(Context, Expression.Call(null, method, targetExp, argExp)).ShouldEqual(expectedResult);
         }
 
         [Fact]
@@ -69,9 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
         {
             var target = new TestResourceExtensionClass();
             var method = target.GetType().GetMethod(nameof(target.MethodResourceExt));
-            var ctx = new ExpressionConverterContext<Expression>();
-            var component = new MethodCallExpressionConverter();
-            var expressionNode = component.TryConvert(ctx, Expression.Call(Expression.Constant(target), method!, Expression.Constant("")));
+            var expressionNode = Converter.TryConvert(Context, Expression.Call(Expression.Constant(target), method!, Expression.Constant("")));
             expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.MethodResource)));
         }
 
@@ -80,7 +68,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
         {
             var target = new TestConverterClass();
             var method = target.GetType().GetMethod(nameof(target.Method))!;
-            var ctx = new ExpressionConverterContext<Expression>();
             var targetExp = Expression.Constant(target);
             var argExp = Expression.Constant(null);
             var expectedResult = new MethodCallExpressionNode(
@@ -88,19 +75,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
                 {
                     ConstantExpressionNode.Null
                 });
-            ctx.SetExpression(argExp, ConstantExpressionNode.Null);
-            ctx.SetExpression(targetExp, expectedResult.Target!);
-
-            var component = new MethodCallExpressionConverter();
-            component.TryConvert(ctx, Expression.Call(targetExp, method, argExp)).ShouldEqual(expectedResult);
+            Context.SetExpression(argExp, ConstantExpressionNode.Null);
+            Context.SetExpression(targetExp, expectedResult.Target!);
+            Converter.TryConvert(Context, Expression.Call(targetExp, method, argExp)).ShouldEqual(expectedResult);
         }
 
         [Fact]
-        public void TryConvertShouldIgnoreNotMethodExpression()
-        {
-            var component = new MethodCallExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
+        public void TryConvertShouldIgnoreNotMethodExpression() => Converter.TryConvert(Context, Expression.Parameter(typeof(object))).ShouldBeNull();
     }
 }

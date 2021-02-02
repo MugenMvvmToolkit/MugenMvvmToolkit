@@ -4,95 +4,95 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Convert.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Convert.Components
 {
     public class DefaultGlobalValueConverterTest : UnitTestBase
     {
+        private readonly DefaultGlobalValueConverter _component;
+
+        public DefaultGlobalValueConverterTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _component = new DefaultGlobalValueConverter();
+        }
+
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
-            var component = new DefaultGlobalValueConverter();
-            component.Priority.ShouldEqual(ConverterComponentPriority.Converter);
-            component.Priority = int.MaxValue;
-            component.Priority.ShouldEqual(int.MaxValue);
+            _component.Priority.ShouldEqual(ConverterComponentPriority.Converter);
+            _component.Priority = int.MaxValue;
+            _component.Priority.ShouldEqual(int.MaxValue);
         }
 
         [Fact]
         public void TryConvertShouldHandleConvertible()
         {
-            var component = new DefaultGlobalValueConverter();
             object? value = int.MaxValue.ToString();
 
-            component.TryConvert(null!, ref value, typeof(int), null, null).ShouldEqual(true);
+            _component.TryConvert(null!, ref value, typeof(int), null, null).ShouldEqual(true);
             value.ShouldEqual(int.MaxValue);
 
             const float f = 1.1f;
-            component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
-            value = f.ToString(component.FormatProvider());
-            component.TryConvert(null!, ref value, typeof(float), null, null).ShouldEqual(true);
+            _component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
+            value = f.ToString(_component.FormatProvider());
+            _component.TryConvert(null!, ref value, typeof(float), null, null).ShouldEqual(true);
             value.ShouldEqual(f);
         }
 
         [Fact]
         public void TryConvertShouldHandleEnum()
         {
-            var component = new DefaultGlobalValueConverter();
             object? value = StringComparison.CurrentCulture.ToString();
-
-            component.TryConvert(null!, ref value, typeof(StringComparison), null, null).ShouldEqual(true);
+            _component.TryConvert(null!, ref value, typeof(StringComparison), null, null).ShouldEqual(true);
             value.ShouldEqual(StringComparison.CurrentCulture);
         }
 
         [Fact]
         public void TryConvertShouldHandleInstanceOfType()
         {
-            var component = new DefaultGlobalValueConverter();
             object? value = this;
-            component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
+            _component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
             value.ShouldEqual(this);
         }
 
         [Fact]
         public void TryConvertShouldHandleNull()
         {
-            var component = new DefaultGlobalValueConverter();
             object? value = null;
-            component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
+            _component.TryConvert(null!, ref value, typeof(object), null, null).ShouldEqual(true);
             value.ShouldBeNull();
 
             value = null;
-            component.TryConvert(null!, ref value, typeof(bool), null, null).ShouldEqual(true);
+            _component.TryConvert(null!, ref value, typeof(bool), null, null).ShouldEqual(true);
             value.ShouldEqual(false);
         }
 
         [Fact]
         public void TryConvertShouldHandleString()
         {
-            var component = new DefaultGlobalValueConverter();
             object? value = this;
-            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
+            _component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
             value.ShouldEqual(ToString());
 
             const float f = 1.1f;
             value = f;
-            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
+            _component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
             value.ShouldEqual(f.ToString());
 
-            component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
+            _component.FormatProvider = () => new NumberFormatInfo {CurrencyDecimalSeparator = ";", NumberDecimalSeparator = ";"};
             value = f;
-            component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
-            value.ShouldEqual(f.ToString(component.FormatProvider()));
+            _component.TryConvert(null!, ref value, typeof(string), null, null).ShouldEqual(true);
+            value.ShouldEqual(f.ToString(_component.FormatProvider()));
         }
 
         [Fact]
         public void TryConvertShouldIgnoreNotConvertibleValue()
         {
-            var component = new DefaultGlobalValueConverter();
             var v = new object();
             var value = v;
 
-            component.TryConvert(null!, ref value, GetType(), null, null).ShouldBeFalse();
+            _component.TryConvert(null!, ref value, GetType(), null, null).ShouldBeFalse();
             value.ShouldEqual(v);
         }
     }

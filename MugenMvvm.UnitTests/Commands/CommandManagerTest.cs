@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Commands
         [Fact]
         public void GetCommandShouldThrowNoComponents()
         {
-            var commandManager = GetComponentOwner();
+            var commandManager = GetComponentOwner(ComponentCollectionManager);
             ShouldThrow<InvalidOperationException>(() => commandManager.GetCommand<string>(commandManager, commandManager, DefaultMetadata));
         }
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void GetCommandShouldBeHandledByComponents(int componentCount)
         {
             var owner = new object();
-            var commandManager = GetComponentOwner();
+            var commandManager = GetComponentOwner(ComponentCollectionManager);
             ICompositeCommand command = new CompositeCommand();
             var count = 0;
             for (var i = 0; i < componentCount; i++)
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void GetCommandShouldNotifyListeners(int componentCount)
         {
             var owner = new object();
-            var commandManager = GetComponentOwner();
+            var commandManager = GetComponentOwner(ComponentCollectionManager);
             ICompositeCommand command = new CompositeCommand();
             var component = new TestCommandProviderComponent(commandManager)
             {
@@ -84,6 +84,6 @@ namespace MugenMvvm.UnitTests.Commands
             count.ShouldEqual(componentCount);
         }
 
-        protected override ICommandManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new CommandManager(collectionProvider);
+        protected override ICommandManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new CommandManager(componentCollectionManager);
     }
 }

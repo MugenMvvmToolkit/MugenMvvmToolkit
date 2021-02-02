@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Validation
         public void DisposeShouldClearComponentsMetadataNotifyListeners(int count, bool canDispose)
         {
             var invokeCount = 0;
-            var validator = new Validator();
+            var validator = GetComponentOwner(ComponentCollectionManager);
             validator.IsDisposable.ShouldBeTrue();
             validator.IsDisposable = canDispose;
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Validation
         {
             var memberName = "test";
             var count = 0;
-            var validator = GetComponentOwner();
+            var validator = GetComponentOwner(ComponentCollectionManager);
             var cts = new CancellationTokenSource();
             var tasks = new List<TaskCompletionSource<object>>();
 
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Validation
             var source = new object();
             var count = 0;
             var hasErrors = false;
-            var validator = GetComponentOwner();
+            var validator = GetComponentOwner(ComponentCollectionManager);
             validator.HasErrors().ShouldBeFalse();
             for (var i = 0; i < componentCount; i++)
             {
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTests.Validation
             var source = new object();
             var errors = new ItemOrListEditor<object>(new List<object>());
             ItemOrIReadOnlyList<string> memberName = "test";
-            var validator = GetComponentOwner();
+            var validator = GetComponentOwner(ComponentCollectionManager);
             validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
             errors.Count.ShouldEqual(0);
 
@@ -180,7 +180,7 @@ namespace MugenMvvm.UnitTests.Validation
             var source = new object();
             var errors = new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>());
             ItemOrIReadOnlyList<string> memberName = "test";
-            var validator = GetComponentOwner();
+            var validator = GetComponentOwner(ComponentCollectionManager);
             validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
             errors.Count.ShouldEqual(0);
 
@@ -215,7 +215,7 @@ namespace MugenMvvm.UnitTests.Validation
             var errors = new[] {new ValidationErrorInfo(this, "1", "1"), new ValidationErrorInfo(this, "2", "2")};
             var source = new object();
             var count = 0;
-            var validator = GetComponentOwner();
+            var validator = GetComponentOwner(ComponentCollectionManager);
 
             for (var i = 0; i < componentCount; i++)
             {
@@ -244,7 +244,7 @@ namespace MugenMvvm.UnitTests.Validation
             ItemOrIReadOnlyList<string> memberName = "test";
             var source = new object();
             var count = 0;
-            var validator = GetComponentOwner();
+            var validator = GetComponentOwner(ComponentCollectionManager);
 
             for (var i = 0; i < componentCount; i++)
             {
@@ -265,6 +265,6 @@ namespace MugenMvvm.UnitTests.Validation
             count.ShouldEqual(componentCount);
         }
 
-        protected override Validator GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(null, collectionProvider);
+        protected override Validator GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(null, componentCollectionManager);
     }
 }

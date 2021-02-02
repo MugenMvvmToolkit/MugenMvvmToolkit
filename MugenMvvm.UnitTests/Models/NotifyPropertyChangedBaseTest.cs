@@ -2,42 +2,56 @@
 using System.ComponentModel;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Models
 {
+    [Collection(SharedContext)]
     public class NotifyPropertyChangedBaseTest : UnitTestBase
     {
+        private readonly ThreadDispatcher _threadDispatcher;
+        private readonly TestNotifyPropertyChangedModel _model;
+
+        public NotifyPropertyChangedBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
+            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent(_threadDispatcher));
+            _model = new TestNotifyPropertyChangedModel {ThreadDispatcher = _threadDispatcher};
+        }
+
         [Fact]
         public void ClearPropertyChangedSubscribersShouldRemoveHolderSubscribers()
         {
             var invokeCountEvent = 0;
             string propertyName = "Test";
-            var model = new TestNotifyPropertyChangedModel();
-            IValueHolder<MemberListenerCollection> holder = model;
+
+            IValueHolder<MemberListenerCollection> holder = _model;
             holder.Value = new MemberListenerCollection();
             holder.Value.Add(new TestWeakEventListener
             {
                 TryHandle = (sender, args, _) =>
                 {
-                    sender.ShouldEqual(model);
+                    sender.ShouldEqual(_model);
                     ((PropertyChangedEventArgs) args!).PropertyName.ShouldEqual(propertyName);
                     ++invokeCountEvent;
                     return true;
                 }
             }, propertyName);
 
-            model.OnPropertyChanged(propertyName);
+            _model.OnPropertyChanged(propertyName);
             invokeCountEvent.ShouldEqual(1);
 
-            model.ClearPropertyChangedSubscribers();
+            _model.ClearPropertyChangedSubscribers();
             invokeCountEvent = 0;
-            model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            _model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCountEvent.ShouldEqual(0);
             holder.Value.ShouldBeNull();
         }
@@ -47,20 +61,20 @@ namespace MugenMvvm.UnitTests.Models
         {
             var invokeCountEvent = 0;
             string propertyName = "Test";
-            var model = new TestNotifyPropertyChangedModel();
-            model.PropertyChanged += (sender, args) =>
+
+            _model.PropertyChanged += (sender, args) =>
             {
-                sender.ShouldEqual(model);
+                sender.ShouldEqual(_model);
                 args.PropertyName.ShouldEqual(propertyName);
                 ++invokeCountEvent;
             };
 
-            model.OnPropertyChanged(propertyName);
+            _model.OnPropertyChanged(propertyName);
             invokeCountEvent.ShouldEqual(1);
 
-            model.ClearPropertyChangedSubscribers();
+            _model.ClearPropertyChangedSubscribers();
             invokeCountEvent = 0;
-            model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            _model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCountEvent.ShouldEqual(0);
         }
 
@@ -70,22 +84,20 @@ namespace MugenMvvm.UnitTests.Models
             var invokeCount = 0;
             var invokeCountEvent = 0;
             string propertyName = "";
-            var model = new TestNotifyPropertyChangedModel
+
+            _model.OnPropertyChangedInternalHandler = args =>
             {
-                OnPropertyChangedInternalHandler = args =>
-                {
-                    args.PropertyName.ShouldEqual(propertyName);
-                    ++invokeCount;
-                }
+                args.PropertyName.ShouldEqual(propertyName);
+                ++invokeCount;
             };
-            model.PropertyChanged += (sender, args) =>
+            _model.PropertyChanged += (sender, args) =>
             {
-                sender.ShouldEqual(model);
+                sender.ShouldEqual(_model);
                 args.PropertyName.ShouldEqual(propertyName);
                 ++invokeCountEvent;
             };
 
-            model.InvalidateProperties();
+            _model.InvalidateProperties();
             invokeCount.ShouldEqual(1);
             invokeCountEvent.ShouldEqual(1);
         }
@@ -95,7 +107,8 @@ namespace MugenMvvm.UnitTests.Models
         {
             Action<object?>? invokeAction = null;
             object? state = null;
-            using var t = MugenService.AddComponent(new TestThreadDispatcherComponent
+            _threadDispatcher.RemoveComponents<TestThreadDispatcherComponent>();
+            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
                 CanExecuteInline = (mode, context) => false,
                 Execute = (action, mode, arg3, arg4) =>
@@ -110,22 +123,20 @@ namespace MugenMvvm.UnitTests.Models
             string propertyName = "Test";
             var invokeCount = 0;
             var invokeCountEvent = 0;
-            var model = new TestNotifyPropertyChangedModel
+
+            _model.OnPropertyChangedInternalHandler = args =>
             {
-                OnPropertyChangedInternalHandler = args =>
-                {
-                    args.PropertyName.ShouldEqual(propertyName);
-                    ++invokeCount;
-                }
+                args.PropertyName.ShouldEqual(propertyName);
+                ++invokeCount;
             };
-            model.PropertyChanged += (sender, args) =>
+            _model.PropertyChanged += (sender, args) =>
             {
-                sender.ShouldEqual(model);
+                sender.ShouldEqual(_model);
                 args.PropertyName.ShouldEqual(propertyName);
                 ++invokeCountEvent;
             };
 
-            model.OnPropertyChanged(propertyName);
+            _model.OnPropertyChanged(propertyName);
             invokeCount.ShouldEqual(0);
             invokeCountEvent.ShouldEqual(0);
 
@@ -133,7 +144,7 @@ namespace MugenMvvm.UnitTests.Models
             invokeCount.ShouldEqual(1);
             invokeCountEvent.ShouldEqual(1);
 
-            model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            _model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCount.ShouldEqual(1);
             invokeCountEvent.ShouldEqual(1);
 
@@ -148,26 +159,24 @@ namespace MugenMvvm.UnitTests.Models
             var invokeCount = 0;
             var invokeCountEvent = 0;
             string propertyName = "Test";
-            var model = new TestNotifyPropertyChangedModel
+
+            _model.OnPropertyChangedInternalHandler = args =>
             {
-                OnPropertyChangedInternalHandler = args =>
-                {
-                    args.PropertyName.ShouldEqual(propertyName);
-                    ++invokeCount;
-                }
+                args.PropertyName.ShouldEqual(propertyName);
+                ++invokeCount;
             };
-            model.PropertyChanged += (sender, args) =>
+            _model.PropertyChanged += (sender, args) =>
             {
-                sender.ShouldEqual(model);
+                sender.ShouldEqual(_model);
                 args.PropertyName.ShouldEqual(propertyName);
                 ++invokeCountEvent;
             };
 
-            model.OnPropertyChanged(propertyName);
+            _model.OnPropertyChanged(propertyName);
             invokeCount.ShouldEqual(1);
             invokeCountEvent.ShouldEqual(1);
 
-            model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            _model.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCount.ShouldEqual(2);
             invokeCountEvent.ShouldEqual(2);
         }
@@ -180,21 +189,19 @@ namespace MugenMvvm.UnitTests.Models
             var endSuspendCount = 0;
             var endSuspendDirtyCount = 0;
             string propertyName = "";
-            var model = new TestNotifyPropertyChangedModel
+
+            _model.OnPropertyChangedInternalHandler = args =>
             {
-                OnPropertyChangedInternalHandler = args =>
-                {
-                    args.PropertyName.ShouldEqual(propertyName);
-                    ++invokeCount;
-                }
+                args.PropertyName.ShouldEqual(propertyName);
+                ++invokeCount;
             };
-            model.PropertyChanged += (sender, args) =>
+            _model.PropertyChanged += (sender, args) =>
             {
-                sender.ShouldEqual(model);
+                sender.ShouldEqual(_model);
                 args.PropertyName.ShouldEqual(propertyName);
                 ++invokeCountEvent;
             };
-            model.OnEndSuspendHandler = b =>
+            _model.OnEndSuspendHandler = b =>
             {
                 if (b)
                     ++endSuspendDirtyCount;
@@ -202,14 +209,14 @@ namespace MugenMvvm.UnitTests.Models
                     ++endSuspendCount;
             };
 
-            model.Suspend().Dispose();
+            _model.Suspend().Dispose();
             endSuspendCount.ShouldEqual(1);
             endSuspendDirtyCount.ShouldEqual(0);
             invokeCount.ShouldEqual(0);
             invokeCountEvent.ShouldEqual(0);
 
-            var token = model.Suspend();
-            model.OnPropertyChanged(nameof(model.Property));
+            var token = _model.Suspend();
+            _model.OnPropertyChanged(nameof(_model.Property));
             invokeCount.ShouldEqual(0);
             invokeCountEvent.ShouldEqual(0);
             token.Dispose();

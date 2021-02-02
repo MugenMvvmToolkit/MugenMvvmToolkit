@@ -1,16 +1,20 @@
 ﻿using System;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
-    public class FieldAccessorMemberInfoTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class FieldAccessorMemberInfoTest : UnitTestBase, IDisposable
     {
         public static readonly string? InitOnlyStaticField = "";
 
@@ -27,6 +31,18 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
         public string? Field1;
         public int Field2;
+
+        public FieldAccessorMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
+        }
+
+        public void Dispose()
+        {
+            MugenService.Configuration.Clear<IObservationManager>();
+            MugenService.Configuration.Clear<IMemberManager>();
+        }
 
         [Theory]
         [InlineData(nameof(Field1), false)]
@@ -55,7 +71,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, fieldInfo);
 
             var observerRequestCount = 0;
-            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {
@@ -127,7 +143,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, fieldInfo);
 
             var observerRequestCount = 0;
-            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {

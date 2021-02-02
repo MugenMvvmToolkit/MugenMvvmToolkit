@@ -7,16 +7,24 @@ using MugenMvvm.ViewModels;
 using MugenMvvm.ViewModels.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class TypeViewModelProviderTest : UnitTestBase
     {
+        private readonly ViewModelManager _viewModelManager;
+
+        public TypeViewModelProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
+        }
+
         [Fact]
         public void ShouldIgnoreNonGuidRequest()
         {
-            var component = new TypeViewModelProvider();
-            component.TryGetViewModel(null!, this, DefaultMetadata).ShouldBeNull();
+            _viewModelManager.AddComponent(new TypeViewModelProvider());
+            _viewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
         }
 
         [Fact]
@@ -24,8 +32,8 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         {
             var viewModel = new TestViewModel();
             var lifeCycles = new List<ViewModelLifecycleState>();
-            var manager = new ViewModelManager();
-            manager.AddComponent(new TestViewModelLifecycleListener
+
+            _viewModelManager.AddComponent(new TestViewModelLifecycleListener
             {
                 OnLifecycleChanged = (vm, state, arg4, m) =>
                 {
@@ -34,7 +42,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                     lifeCycles.Add(state);
                 }
             });
-            manager.AddComponent(new TypeViewModelProvider(new TestServiceProvider
+            _viewModelManager.AddComponent(new TypeViewModelProvider(new TestServiceProvider
             {
                 GetService = type =>
                 {
@@ -43,7 +51,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 }
             }));
 
-            manager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
+            _viewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
             lifeCycles.Count.ShouldEqual(2);
             lifeCycles[0].ShouldEqual(ViewModelLifecycleState.Initializing);
             lifeCycles[1].ShouldEqual(ViewModelLifecycleState.Initialized);

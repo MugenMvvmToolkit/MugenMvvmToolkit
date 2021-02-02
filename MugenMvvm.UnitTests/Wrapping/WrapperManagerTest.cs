@@ -15,8 +15,7 @@ namespace MugenMvvm.UnitTests.Wrapping
         [Fact]
         public void WrapShouldThrowNoComponents()
         {
-            var manager = new WrapperManager();
-            ShouldThrow<ArgumentException>(() => manager.Wrap(typeof(IComponent), this, DefaultMetadata));
+            ShouldThrow<ArgumentException>(() => GetComponentOwner(ComponentCollectionManager).Wrap(typeof(IComponent), this, DefaultMetadata));
         }
 
         [Theory]
@@ -24,7 +23,7 @@ namespace MugenMvvm.UnitTests.Wrapping
         [InlineData(10)]
         public void CanWrapShouldBeHandledByComponents(int count)
         {
-            var manager = new WrapperManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var expectedTargetType = GetType();
             var expectedWrapperType = typeof(bool);
@@ -59,7 +58,7 @@ namespace MugenMvvm.UnitTests.Wrapping
         [InlineData(10)]
         public void WrapShouldBeHandledByComponents(int count)
         {
-            var manager = new WrapperManager();
+            var manager = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var listenerExecuteCount = 0;
             var expectedWrapperType = typeof(bool);
@@ -99,6 +98,6 @@ namespace MugenMvvm.UnitTests.Wrapping
             listenerExecuteCount.ShouldEqual(count);
         }
 
-        protected override WrapperManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override WrapperManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

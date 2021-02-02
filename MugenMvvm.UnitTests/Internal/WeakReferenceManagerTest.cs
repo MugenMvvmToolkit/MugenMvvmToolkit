@@ -14,15 +14,14 @@ namespace MugenMvvm.UnitTests.Internal
         [Fact]
         public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull()
         {
-            var weakReferenceManager = new WeakReferenceManager();
+            var weakReferenceManager = GetComponentOwner(ComponentCollectionManager);
             weakReferenceManager.GetWeakReference(null, DefaultMetadata).ShouldEqual(WeakReferenceImpl.Empty);
         }
 
         [Fact]
         public void GetWeakReferenceShouldThrowNoComponents()
         {
-            var weakReferenceManager = new WeakReferenceManager();
-            ShouldThrow<InvalidOperationException>(() => weakReferenceManager.GetWeakReference(this, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).GetWeakReference(this, DefaultMetadata));
         }
 
         [Theory]
@@ -31,7 +30,7 @@ namespace MugenMvvm.UnitTests.Internal
         public void GetWeakReferenceShouldBeHandledByComponents(int count)
         {
             var result = new WeakReferenceImpl(this, true);
-            var weakReferenceManager = new WeakReferenceManager();
+            var weakReferenceManager = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -55,6 +54,6 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override WeakReferenceManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override WeakReferenceManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

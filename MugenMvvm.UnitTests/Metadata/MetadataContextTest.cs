@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections;
+using MugenMvvm.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Metadata;
@@ -12,9 +14,17 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Metadata
 {
-    public class MetadataContextTest : ReadOnlyMetadataContextTestBase
+    [Collection(SharedContext)]
+    public class MetadataContextTest : ReadOnlyMetadataContextTestBase, IDisposable
     {
         protected IMetadataContextKey<int> TestKey = MetadataContextKey.FromKey<int>(nameof(TestKey));
+
+        public MetadataContextTest()
+        {
+            MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
+        }
+
+        public void Dispose() => MugenService.Configuration.Clear<IComponentCollectionManager>();
 
         [Fact]
         public void AddOrUpdateShouldUseSetter1()

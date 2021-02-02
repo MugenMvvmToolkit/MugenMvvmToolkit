@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
@@ -8,18 +7,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
-    public class UnaryTokenParserTest : UnitTestBase
+    public class UnaryTokenParserTest : TokenParserTestBase<UnaryTokenParser>
     {
         [Fact]
         public void TryParseShouldIgnoreNotUnaryExpression()
         {
-            var component = new UnaryTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new DigitTokenParser()}
-            };
-            ctx.Initialize("1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Parsers = new DigitTokenParser();
+            Context.Initialize("1", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
 
         [Fact]
@@ -27,27 +22,23 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         {
             var token = new UnaryTokenType("-");
             const string memberName = "test";
-            var component = new UnaryTokenParser();
-            component.Mapping.Clear();
+            Parser.Mapping.Clear();
 
-            var ctx = new TokenParserContext
-            {
-                Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new MemberTokenParser()}
-            };
+            Context.Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new MemberTokenParser()};
 
-            ctx.Initialize("-1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Initialize("-1", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
 
-            component.Mapping['-'] = new[] {token};
-            ctx.Initialize("-1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(new UnaryExpressionNode(token, ConstantExpressionNode.Get(1)));
+            Parser.Mapping['-'] = new[] {token};
+            Context.Initialize("-1", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldEqual(new UnaryExpressionNode(token, ConstantExpressionNode.Get(1)));
 
-            ctx.Initialize($"-{memberName}.{memberName}", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(new UnaryExpressionNode(token, new MemberExpressionNode(new MemberExpressionNode(null, memberName), memberName)));
+            Context.Initialize($"-{memberName}.{memberName}", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldEqual(new UnaryExpressionNode(token, new MemberExpressionNode(new MemberExpressionNode(null, memberName), memberName)));
 
             token.IsSingleExpression = true;
-            ctx.Initialize($"-{memberName}.{memberName}", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(new UnaryExpressionNode(token, new MemberExpressionNode(null, memberName)));
+            Context.Initialize($"-{memberName}.{memberName}", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldEqual(new UnaryExpressionNode(token, new MemberExpressionNode(null, memberName)));
         }
     }
 }

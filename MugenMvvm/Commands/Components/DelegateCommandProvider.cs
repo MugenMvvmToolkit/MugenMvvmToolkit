@@ -42,7 +42,7 @@ namespace MugenMvvm.Commands.Components
         {
             if (request is Delegate execute)
             {
-                var compositeCommand = new CompositeCommand();
+                var compositeCommand = new CompositeCommand(null, _componentCollectionManager);
                 compositeCommand.AddComponent(new DelegateCommandExecutor<TParameter>(execute, null, CommandExecutionBehavior, AllowMultipleExecution));
                 return compositeCommand;
             }

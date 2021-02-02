@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Convert
         [InlineData(10)]
         public void ConvertShouldBeHandledByComponents(int componentCount)
         {
-            var converter = new GlobalValueConverter();
+            var converter = GetComponentOwner(ComponentCollectionManager);
             var value = new object();
             var result = new object();
             var type = typeof(string);
@@ -53,6 +53,6 @@ namespace MugenMvvm.UnitTests.Bindings.Convert
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override GlobalValueConverter GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override GlobalValueConverter GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

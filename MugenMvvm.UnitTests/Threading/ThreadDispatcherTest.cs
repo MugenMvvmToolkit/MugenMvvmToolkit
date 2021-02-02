@@ -13,12 +13,12 @@ namespace MugenMvvm.UnitTests.Threading
     public class ThreadDispatcherTest : ComponentOwnerTestBase<ThreadDispatcher>
     {
         [Fact]
-        public void CanExecuteInlineShouldReturnFalseNoComponents() => new ThreadDispatcher().CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
+        public void CanExecuteInlineShouldReturnFalseNoComponents() => GetComponentOwner(ComponentCollectionManager).CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
 
         [Fact]
         public void ExecuteShouldThrowNoComponents()
         {
-            var dispatcher = new ThreadDispatcher();
+            var dispatcher = GetComponentOwner(ComponentCollectionManager);
             ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, t => { }, dispatcher));
             ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), dispatcher));
         }
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Threading
         [InlineData(10)]
         public void CanExecuteInlineShouldBeHandledByComponents(int count)
         {
-            var dispatcher = new ThreadDispatcher();
+            var dispatcher = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var mode = ThreadExecutionMode.Background;
             var result = false;
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Threading
         [InlineData(10)]
         public void ExecuteShouldBeHandledByComponents(int count)
         {
-            var dispatcher = new ThreadDispatcher();
+            var dispatcher = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var mode = ThreadExecutionMode.Background;
             object? handler = null;
@@ -96,6 +96,6 @@ namespace MugenMvvm.UnitTests.Threading
             executeCount.ShouldEqual(count);
         }
 
-        protected override ThreadDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override ThreadDispatcher GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
         public ExpressionCompilerCacheTest()
         {
-            _compiler = new ExpressionCompiler();
+            _compiler = new ExpressionCompiler(ComponentCollectionManager);
             _compiler.AddComponent(new ExpressionCompilerCache());
         }
 

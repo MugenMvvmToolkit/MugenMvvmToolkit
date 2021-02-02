@@ -6,11 +6,20 @@ using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class RuleValidationHandlerTest : UnitTestBase
     {
+        private readonly Validator _validator;
+
+        public RuleValidationHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _validator = new Validator(null, ComponentCollectionManager);
+            _validator.AddComponent(new ValidatorErrorManager());
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -33,17 +42,16 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 }
             };
 
-            var validator = new Validator();
+
             var component = new RuleValidationHandler(this, rules, useCache);
             component.UseCache.ShouldEqual(useCache);
-            validator.AddComponent(component);
-            validator.AddComponent(new ValidatorErrorManager());
+            _validator.AddComponent(component);
 
             ItemOrListEditor<ValidationErrorInfo> errors = default;
-            var validateAsync = validator.ValidateAsync(member);
+            var validateAsync = _validator.ValidateAsync(member);
             validateAsync.IsCompleted.ShouldBeTrue();
             await validateAsync;
-            validator.GetErrors(member, ref errors);
+            _validator.GetErrors(member, ref errors);
             errors.Count.ShouldEqual(1);
             errors[0].ShouldEqual(new ValidationErrorInfo(this, member, member));
         }
@@ -85,28 +93,26 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 }
             };
 
-            var validator = new Validator();
             var component = new RuleValidationHandler(this, rules, useCache);
             component.UseCache.ShouldEqual(useCache);
-            validator.AddComponent(component);
-            validator.AddComponent(new ValidatorErrorManager());
+            _validator.AddComponent(component);
 
             ItemOrListEditor<ValidationErrorInfo> errors = default;
-            var validateAsync = validator.ValidateAsync(memberName2);
+            var validateAsync = _validator.ValidateAsync(memberName2);
             validateAsync.IsCompleted.ShouldBeTrue();
             await validateAsync;
-            validator.GetErrors(memberName2, ref errors);
+            _validator.GetErrors(memberName2, ref errors);
             errors.Count.ShouldEqual(1);
             errors[0].ShouldEqual(new ValidationErrorInfo(this, memberName2, memberName2));
 
-            var task = validator.ValidateAsync(memberName1);
+            var task = _validator.ValidateAsync(memberName1);
             task.IsCompleted.ShouldBeFalse();
 
             tcs.TrySetResult(null);
             await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Clear();
-            validator.GetErrors(memberName1, ref errors);
+            _validator.GetErrors(memberName1, ref errors);
             errors[0].ShouldEqual(new ValidationErrorInfo(this, memberName1, memberName1));
         }
     }

@@ -12,39 +12,51 @@ using MugenMvvm.Validation.Components;
 using MugenMvvm.ViewModels;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class ObservableValidatorBehaviorTest : UnitTestBase
     {
+        private readonly Messenger _messenger;
+        private readonly Validator _validator;
+        private readonly ViewModelManager _viewModelManager;
+        private readonly TestViewModelBase _vm;
+
+        public ObservableValidatorBehaviorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _messenger = new Messenger(ComponentCollectionManager);
+            _validator = new Validator(null, ComponentCollectionManager);
+            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
+            _vm = new TestViewModelBase(_viewModelManager) {ThreadDispatcher = ThreadDispatcher};
+            _validator.AddComponent(new ObservableValidatorBehavior(_vm));
+        }
+
         [Fact]
         public void ShouldNotifyViewModelOnErrorsChanged()
         {
             string propertyName = "test";
             var invokeCount = 0;
-            var messenger = new Messenger();
-            var validator = new Validator();
-            messenger.AddComponent(new TestMessagePublisherComponent(messenger)
+
+            _messenger.AddComponent(new TestMessagePublisherComponent(_messenger)
             {
                 TryPublish = context =>
                 {
                     ++invokeCount;
-                    context.Sender.ShouldEqual(validator);
+                    context.Sender.ShouldEqual(_validator);
                     context.Message.ShouldEqual(propertyName);
                     return true;
                 }
             });
-            var vmManager = new ViewModelManager();
-            vmManager.AddComponent(new TestViewModelServiceProviderComponent
-            {
-                TryGetService = (_, _, _) => messenger
-            });
-            var vm = new TestViewModelBase(vmManager);
-            vm.Messenger.ShouldEqual(messenger);
-            validator.AddComponent(new ObservableValidatorBehavior(vm));
 
+            _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
+            {
+                TryGetService = (_, _, _) => _messenger
+            });
+
+            _vm.Messenger.ShouldEqual(_messenger);
             invokeCount.ShouldEqual(0);
-            validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, propertyName, DefaultMetadata);
+            _validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(_validator, propertyName, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 
@@ -53,9 +65,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             string propertyName = "test";
             var invokeCount = 0;
-            var vm = new TestViewModelBase();
-            var validator = new Validator();
-            validator.AddComponent(new TestValidationHandlerComponent(validator)
+
+            _validator.AddComponent(new TestValidationHandlerComponent(_validator)
             {
                 TryValidateAsync = (s, _, _) =>
                 {
@@ -64,15 +75,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     return Task.CompletedTask;
                 }
             });
-            var component = new ObservableValidatorBehavior(vm);
-            validator.AddComponent(component);
 
             invokeCount.ShouldEqual(0);
-            vm.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            _vm.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCount.ShouldEqual(1);
 
-            component.Dispose();
-            vm.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            _validator.Dispose();
+            _vm.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCount.ShouldEqual(1);
         }
     }

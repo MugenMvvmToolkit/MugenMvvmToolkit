@@ -4,6 +4,7 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
@@ -13,9 +14,18 @@ namespace MugenMvvm.Views.Components
 {
     public class ViewCleaner : IViewLifecycleListener, IHasPriority, IComponentCollectionChangedListener
     {
+        private readonly IAttachedValueManager? _attachedValueManager;
+
+        public ViewCleaner(IAttachedValueManager? attachedValueManager = null)
+        {
+            _attachedValueManager = attachedValueManager;
+        }
+
         public bool ClearDataContext { get; set; }
 
         public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
+
+        protected IAttachedValueManager AttachedValueManager => _attachedValueManager.DefaultIfNull();
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -41,7 +51,7 @@ namespace MugenMvvm.Views.Components
             view.Components.RemoveComponent(this);
             view.Components.Clear(metadata);
             view.Components.ClearComponents(metadata);
-            view.Target.AttachedValues().Clear();
+            view.Target.AttachedValues(null, _attachedValueManager).Clear();
             if (ClearDataContext)
                 view.Target.BindableMembers().SetDataContext(null);
         }

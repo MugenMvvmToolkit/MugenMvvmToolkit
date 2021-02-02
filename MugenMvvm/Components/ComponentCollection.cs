@@ -13,13 +13,15 @@ namespace MugenMvvm.Components
     public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasComponentAddedHandler, IHasComponentRemovedHandler,
         IComparer<IComponentCollectionDecoratorBase>
     {
+        private readonly IComponentCollectionManager? _componentCollectionManager;
         private readonly List<object> _items;
         private IComponentCollection? _components;
         private ComponentTracker[] _componentTrackers;
         private IComponentCollectionDecoratorBase[] _decorators;
 
-        public ComponentCollection(object owner)
+        public ComponentCollection(object owner, IComponentCollectionManager? componentCollectionManager = null)
         {
+            _componentCollectionManager = componentCollectionManager;
             Owner = owner;
             _items = new List<object>();
             _componentTrackers = Default.Array<ComponentTracker>();
@@ -32,7 +34,7 @@ namespace MugenMvvm.Components
 
         bool IComponentOwner.HasComponents => _components != null && _components.Count != 0;
 
-        IComponentCollection IComponentOwner.Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
+        IComponentCollection IComponentOwner.Components => _components ?? _componentCollectionManager.EnsureInitialized(ref _components, this);
 
         public bool TryAdd(object component, IReadOnlyMetadataContext? metadata = null)
         {

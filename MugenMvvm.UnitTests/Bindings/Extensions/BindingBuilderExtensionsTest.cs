@@ -15,6 +15,7 @@ using MugenMvvm.UnitTests.Bindings.Convert.Internal;
 using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Extensions
 {
@@ -22,13 +23,20 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
     {
         private static readonly BindingExpressionRequest ConverterRequest = new("", null, default);
         private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
+        private readonly BindingManager _bindingManager;
+        private readonly TestBinding _binding;
+
+        public BindingBuilderExtensionsTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _bindingManager = new BindingManager(ComponentCollectionManager);
+            _binding = new TestBinding(ComponentCollectionManager);
+        }
 
         [Fact]
         public void BindShouldBuildBinding1()
         {
             var target = this;
             object? source = null;
-            var binding = new TestBinding();
             var testBuilder = new TestBindingBuilder
             {
                 Build = (o, o1, arg3) =>
@@ -36,12 +44,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
+                    return _binding;
                 }
             };
-            var bindingManager = new BindingManager();
+
             var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, arg3) =>
                 {
@@ -52,7 +60,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 }
             });
 
-            target.Bind(Delegate, DefaultMetadata, bindingManager).Item.ShouldEqual(binding);
+            target.Bind(Delegate, DefaultMetadata, _bindingManager).Item.ShouldEqual(_binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -62,7 +70,6 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
             var del = new BindingBuilderDelegate<BindingBuilderExtensionsTest, string>(builderTarget => ConverterRequest);
             var target = this;
             var source = "";
-            var binding = new TestBinding();
             var testBuilder = new TestBindingBuilder
             {
                 Build = (o, o1, arg3) =>
@@ -70,12 +77,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
+                    return _binding;
                 }
             };
-            var bindingManager = new BindingManager();
+
             var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, arg3) =>
                 {
@@ -86,7 +93,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 }
             });
 
-            target.Bind(source, del, DefaultMetadata, bindingManager).Item.ShouldEqual(binding);
+            target.Bind(source, del, DefaultMetadata, _bindingManager).Item.ShouldEqual(_binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -96,7 +103,6 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
             var request = "Test";
             var target = this;
             var source = "";
-            var binding = new TestBinding();
             var testBuilder = new TestBindingBuilder
             {
                 Build = (o, o1, arg3) =>
@@ -104,12 +110,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
+                    return _binding;
                 }
             };
-            var bindingManager = new BindingManager();
+
             var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, arg3) =>
                 {
@@ -120,10 +126,10 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 }
             });
 
-            var readOnlyList = target.Bind(request, source, DefaultMetadata, bindingManager).AsList();
+            var readOnlyList = target.Bind(request, source, DefaultMetadata, _bindingManager).AsList();
             readOnlyList.Count.ShouldEqual(2);
-            readOnlyList[0].ShouldEqual(binding);
-            readOnlyList[1].ShouldEqual(binding);
+            readOnlyList[0].ShouldEqual(_binding);
+            readOnlyList[1].ShouldEqual(_binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -133,7 +139,6 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
             var request = "Test";
             var target = this;
             var source = "";
-            var binding = new TestBinding();
             var buildInvokeCount = 0;
             var testBuilder = new TestBindingBuilder
             {
@@ -143,12 +148,11 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return binding;
+                    return _binding;
                 }
             };
-            var bindingManager = new BindingManager();
             var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, arg3) =>
                 {
@@ -159,7 +163,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 }
             });
 
-            target.Bind(request, source, DefaultMetadata, bindingManager, false).IsEmpty.ShouldBeTrue();
+            target.Bind(request, source, DefaultMetadata, _bindingManager, false).IsEmpty.ShouldBeTrue();
             invokeCount.ShouldEqual(1);
             buildInvokeCount.ShouldEqual(2);
         }
@@ -322,9 +326,8 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
         public void ParseBindingExpressionShouldUseBindingBuilderRequest()
         {
             var testBuilder = new TestBindingBuilder();
-            var bindingManager = new BindingManager();
             var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent(bindingManager)
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent(_bindingManager)
             {
                 TryParseBindingExpression = (o, arg3) =>
                 {
@@ -335,7 +338,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 }
             });
 
-            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testBuilder);
+            _bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testBuilder);
             invokeCount.ShouldEqual(1);
         }
 

@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
         [InlineData(10)]
         public void TryGetResourceValueShouldBeHandledByComponents(int componentCount)
         {
-            var resolver = new ResourceManager();
+            var resolver = GetComponentOwner(ComponentCollectionManager);
             var name = "name";
             var request = this;
             var result = new ResourceResolverResult(this);
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
         [InlineData(10)]
         public void TryGetTypeShouldBeHandledByComponents(int componentCount)
         {
-            var resolver = new ResourceManager();
+            var resolver = GetComponentOwner(ComponentCollectionManager);
             var name = "name";
             var request = this;
             var result = typeof(string);
@@ -78,6 +78,6 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override ResourceManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override ResourceManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

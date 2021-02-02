@@ -10,26 +10,33 @@ using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Collections.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections
 {
     public class BindableCollectionAdapterTest : UnitTestBase
     {
+        protected readonly ThreadDispatcher LocalThreadDispatcher;
+
+        public BindableCollectionAdapterTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            LocalThreadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
+            LocalThreadDispatcher.AddComponent(new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true});
+        }
+
         [Fact]
         public void ShouldTrackChanges1()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
-            var observableCollection = new SynchronizedObservableCollection<object?>();
+            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
+            var collectionAdapter = GetCollection(LocalThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
@@ -75,12 +82,9 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldTrackChanges2()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
             var observableCollection = new ObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
+            var collectionAdapter = GetCollection(LocalThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
@@ -127,12 +131,9 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate1()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
-            var observableCollection = new SynchronizedObservableCollection<object?>();
+            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
+            var collectionAdapter = GetCollection(LocalThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
@@ -157,12 +158,9 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate2()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
-            var observableCollection = new SynchronizedObservableCollection<object?>();
+            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
+            var collectionAdapter = GetCollection(LocalThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
@@ -199,11 +197,12 @@ namespace MugenMvvm.UnitTests.Collections
                     return true;
                 }
             };
-            using var t = MugenService.AddComponent(dispatcherComponent);
+            LocalThreadDispatcher.RemoveComponents<IThreadDispatcherComponent>();
+            using var t = LocalThreadDispatcher.AddComponent(dispatcherComponent);
 
-            var observableCollection = new SynchronizedObservableCollection<object?>();
+            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new SuspendableObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
+            var collectionAdapter = GetCollection(LocalThreadDispatcher, adapterCollection);
             collectionAdapter.BatchSize = 3;
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
@@ -246,11 +245,12 @@ namespace MugenMvvm.UnitTests.Collections
                     return true;
                 }
             };
-            using var t = MugenService.AddComponent(dispatcherComponent);
+            LocalThreadDispatcher.RemoveComponents<IThreadDispatcherComponent>();
+            using var t = LocalThreadDispatcher.AddComponent(dispatcherComponent);
 
-            var observableCollection = new SynchronizedObservableCollection<object?>();
+            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
+            var collectionAdapter = GetCollection(LocalThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
@@ -284,11 +284,12 @@ namespace MugenMvvm.UnitTests.Collections
                     return true;
                 }
             };
-            using var t = MugenService.AddComponent(dispatcherComponent);
+            LocalThreadDispatcher.RemoveComponents<IThreadDispatcherComponent>();
+            using var t = LocalThreadDispatcher.AddComponent(dispatcherComponent);
 
             var observableCollection = new ObservableCollection<object?>();
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = GetCollection(adapterCollection);
+            var collectionAdapter = GetCollection(LocalThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
@@ -310,9 +311,7 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.ShouldEqual(observableCollection);
         }
 
-        protected override void InitializeThreadDispatcher() => MugenService.Configuration.InitializeInstance<IThreadDispatcher>(new ThreadDispatcher());
-
-        protected virtual BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new(source);
+        protected virtual BindableCollectionAdapter GetCollection(IThreadDispatcher threadDispatcher, IList<object?>? source = null) => new(source, threadDispatcher);
 
         private class SuspendableObservableCollection<T> : ObservableCollection<T>, ISuspendable
         {

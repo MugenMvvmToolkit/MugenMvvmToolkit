@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
@@ -11,11 +12,18 @@ using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
-    public class MethodAccessorMemberInfoTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class MethodAccessorMemberInfoTest : UnitTestBase, IDisposable
     {
+        public MethodAccessorMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+        }
+
         [Theory]
         [InlineData(true, true, true)]
         [InlineData(true, true, false)]
@@ -102,7 +110,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             MethodAccessorMemberInfo? memberInfo = null;
             var reflectedType = typeof(string);
             var observerRequestCount = 0;
-            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {
@@ -145,5 +153,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             else
                 ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, setValue, DefaultMetadata));
         }
+
+        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
     }
 }

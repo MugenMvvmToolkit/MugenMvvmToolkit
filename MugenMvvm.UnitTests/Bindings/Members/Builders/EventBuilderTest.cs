@@ -2,15 +2,25 @@
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members.Builders;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
-    public class EventBuilderTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class EventBuilderTest : UnitTestBase, IDisposable
     {
+        public EventBuilderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
+        }
+
+        public void Dispose() => MugenService.Configuration.Clear<IAttachedValueManager>();
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -43,7 +53,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var target = isStatic ? null : new object();
             var attachedInvokeCount = 0;
             INotifiableMemberInfo? memberInfo = null;
-            var builder = new EventBuilder<object>("t", typeof(object), typeof(EventHandler));
+            var builder = new EventBuilder<object>(NewId(), typeof(object), typeof(EventHandler));
             if (withAttachedHandler)
             {
                 builder = builder.AttachedHandler((member, t, metadata) =>

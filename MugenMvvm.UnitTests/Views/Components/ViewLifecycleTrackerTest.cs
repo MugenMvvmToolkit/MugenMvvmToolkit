@@ -16,9 +16,8 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var viewModel = new TestViewModel();
             var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var manager = new ViewManager();
-            var component = new ViewLifecycleTracker();
-            manager.AddComponent(component);
+            var manager = new ViewManager(ComponentCollectionManager);
+            manager.AddComponent(new ViewLifecycleTracker(AttachedValueManager));
 
             manager.IsInState(view, ViewLifecycleState.Appeared).ShouldBeFalse();
             manager.IsInState(view, ViewLifecycleState.Disappeared).ShouldBeFalse();

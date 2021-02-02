@@ -82,7 +82,7 @@ namespace MugenMvvm.Models
             if (IsSuspended)
                 _isNotificationsDirty = true;
             else
-                MugenService.ThreadDispatcher.Execute(ThreadExecutionMode.Main, this, args);
+                MugenExtensions.DefaultIfNull<IThreadDispatcher>(null, this).Execute(ThreadExecutionMode.Main, this, args);
         }
 
         protected void ClearPropertyChangedSubscribers()

@@ -24,8 +24,8 @@ namespace MugenMvvm.Presenters
 
         public ViewModelPresenterMediator(IViewModelBase viewModel, IViewMapping mapping, IViewPresenter viewPresenter,
             IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null,
-            IThreadDispatcher? threadDispatcher = null)
-            : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher)
+            IThreadDispatcher? threadDispatcher = null, IViewModelManager? viewModelManager = null)
+            : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher, viewModelManager)
         {
             Should.NotBeNull(viewPresenter, nameof(viewPresenter));
             ViewPresenter = viewPresenter;

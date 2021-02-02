@@ -14,6 +14,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
+    [Collection(SharedContext)]
     public abstract class MultiPathObserverTestBase<TObserver> : ObserverBaseTest<TObserver> where TObserver : MultiPathObserverBase
     {
         protected const string MemberPath1 = "Test1";
@@ -48,7 +49,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return new ActionToken((o1, o2) => currentListener = null);
                 }
             };
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -60,9 +62,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
                 disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 }
             };
 
-            var component = new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -151,9 +151,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var observer = GetObserver(root, path, memberFlags, hasStablePath, optional);
             var members = observer.GetMembers(DefaultMetadata);
             members.IsAvailable.ShouldBeFalse();
@@ -242,7 +240,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 }
             };
 
-            var component = new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -268,9 +266,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var observer = GetObserver(root, path, memberFlags, hasStablePath, optional);
             var members = observer.GetLastMember(DefaultMetadata);
             members.IsAvailable.ShouldBeFalse();
@@ -313,12 +309,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var memberFlags = MemberFlags.All;
             var error = new Exception();
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => throw error
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var observer = GetObserver(this, path, memberFlags, hasStablePath, optional);
             var members = observer.GetMembers(DefaultMetadata);
             members.IsAvailable.ShouldBeFalse();
@@ -336,12 +331,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var memberFlags = MemberFlags.All;
             var error = new Exception();
             var path = DefaultPath;
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => throw error
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var observer = GetObserver(this, path, memberFlags, hasStablePath, optional);
             var members = observer.GetLastMember(DefaultMetadata);
             members.IsAvailable.ShouldBeFalse();
@@ -374,7 +368,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 GetValue = (o, context) => target2
             };
             var accessorInfo3 = new TestAccessorMemberInfo();
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -386,9 +381,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.Members, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed =>
             {
@@ -403,12 +396,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         public void ObserverShouldNotifyListenersError(int count)
         {
             IEventListener? currentListener = null;
-            var component = new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) => default
-            };
-            using var _ = MugenService.AddComponent(component);
-
+            });
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
         }

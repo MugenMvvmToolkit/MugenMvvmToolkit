@@ -38,7 +38,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return new ActionToken((o1, o2) => currentListener = null);
                 }
             };
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -52,9 +53,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 
                     return accessorInfo;
                 }
-            };
-            using var _ = MugenService.AddComponent(component);
-
+            });
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
                 disposed => currentListener.ShouldBeNull());

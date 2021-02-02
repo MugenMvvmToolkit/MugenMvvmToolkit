@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Validation
         [Fact]
         public void GetAggregatorValidatorShouldThrowNoComponents()
         {
-            var provider = GetComponentOwner();
+            var provider = GetComponentOwner(ComponentCollectionManager);
             ShouldThrow<InvalidOperationException>(() => provider.GetValidator(this, DefaultMetadata));
         }
 
@@ -24,8 +24,8 @@ namespace MugenMvvm.UnitTests.Validation
         [InlineData(10)]
         public void GetValidatorShouldBeHandledByComponents(int componentCount)
         {
-            var provider = GetComponentOwner();
-            var validator = new Validator();
+            var provider = GetComponentOwner(ComponentCollectionManager);
+            var validator = new Validator(null, ComponentCollectionManager);
             ItemOrIReadOnlyList<object> requests = this;
             var count = 0;
             var listenerCount = 0;
@@ -63,6 +63,6 @@ namespace MugenMvvm.UnitTests.Validation
             listenerCount.ShouldEqual(count);
         }
 
-        protected override ValidationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override ValidationManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

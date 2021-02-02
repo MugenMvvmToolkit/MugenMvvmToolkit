@@ -6,9 +6,11 @@ using MugenMvvm.Enums;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
+using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
+    [Collection(SharedContext)]
     public class RootMultiPathObserverTest : MultiPathObserverTestBase<RootMultiPathObserver>
     {
         public override void ObserverShouldNotifyListenersLastMember(int count)
@@ -35,7 +37,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return new ActionToken((o1, o2) => currentListener = null);
                 }
             };
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -47,9 +50,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
-            };
-
-            using var _ = MugenService.AddComponent(component);
+            });
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
                 disposed => currentListener.ShouldBeNull(), 0);

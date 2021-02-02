@@ -18,14 +18,20 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
     public class ExpressionConverterContextTest : MetadataOwnerTestBase
     {
+        private readonly ExpressionConverterContext<Expression> _context;
+
+        public ExpressionConverterContextTest()
+        {
+            _context = new ExpressionConverterContext<Expression>();
+        }
+
         [Fact]
         public void ConvertShouldReturnExpression()
         {
             var constantExpression = Expression.Constant("");
             var result = ConstantExpressionNode.Null;
-            var context = new ExpressionConverterContext<Expression>();
-            context.SetExpression(constantExpression, result);
-            context.Convert(constantExpression).ShouldEqual(result);
+            _context.SetExpression(constantExpression, result);
+            _context.Convert(constantExpression).ShouldEqual(result);
         }
 
         [Fact]
@@ -40,13 +46,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         {
             var constantExpression = Expression.Constant("");
             var result = ConstantExpressionNode.Null;
-            var context = new ExpressionConverterContext<Expression>();
-            context.SetExpression(constantExpression, result);
-            context.Metadata.Set(BindingMetadata.EventArgs, "");
 
-            context.Initialize(DefaultMetadata);
-            context.TryGetExpression(constantExpression).ShouldBeNull();
-            context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
+            _context.SetExpression(constantExpression, result);
+            _context.Metadata.Set(BindingMetadata.EventArgs, "");
+
+            _context.Initialize(DefaultMetadata);
+            _context.TryGetExpression(constantExpression).ShouldBeNull();
+            _context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }
 
         [Theory]
@@ -54,24 +60,22 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         [InlineData(100)]
         public void TryGetSetClearExpressionShouldUpdateExpressions(int count)
         {
-            var context = new ExpressionConverterContext<Expression>();
-            context.TryGetExpression(Expression.Constant(0)).ShouldBeNull();
-
+            _context.TryGetExpression(Expression.Constant(0)).ShouldBeNull();
             var valueTuples = new List<(Expression, IExpressionNode)>();
             for (var i = 0; i < count; i++)
                 valueTuples.Add((Expression.Constant(i), ConstantExpressionNode.Get(i)));
 
             for (var i = 0; i < count; i++)
-                context.SetExpression(valueTuples[i].Item1, valueTuples[i].Item2);
+                _context.SetExpression(valueTuples[i].Item1, valueTuples[i].Item2);
 
             for (var i = 0; i < count; i++)
-                context.TryGetExpression(valueTuples[i].Item1).ShouldEqual(valueTuples[i].Item2);
+                _context.TryGetExpression(valueTuples[i].Item1).ShouldEqual(valueTuples[i].Item2);
 
             for (var i = 0; i < count; i++)
             {
-                context.TryGetExpression(valueTuples[i].Item1).ShouldEqual(valueTuples[i].Item2);
-                context.ClearExpression(valueTuples[i].Item1);
-                context.TryGetExpression(valueTuples[i].Item1).ShouldBeNull();
+                _context.TryGetExpression(valueTuples[i].Item1).ShouldEqual(valueTuples[i].Item2);
+                _context.ClearExpression(valueTuples[i].Item1);
+                _context.TryGetExpression(valueTuples[i].Item1).ShouldBeNull();
             }
         }
 
@@ -81,7 +85,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         public void ConvertShouldBeHandledByConverters(int componentCount)
         {
             var invokeCount = 0;
-            var context = new ExpressionConverterContext<Expression>();
             var list = new List<IExpressionConverterComponent<Expression>>();
             var constantExpression = Expression.Constant("");
             var result = ConstantExpressionNode.Null;
@@ -94,7 +97,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                     TryConvert = (ctx, ex) =>
                     {
                         ++invokeCount;
-                        ctx.ShouldEqual(context);
+                        ctx.ShouldEqual(_context);
                         ex.ShouldEqual(constantExpression);
                         if (isLast)
                             return result;
@@ -104,17 +107,15 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                 list.Add(component);
             }
 
-            context.Converters = list.ToArray();
-
-            context.Convert(constantExpression).ShouldEqual(result);
+            _context.Converters = list.ToArray();
+            _context.Convert(constantExpression).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
         {
-            var ctx = new ExpressionConverterContext<Expression>();
-            ctx.Initialize(metadata);
-            return ctx;
+            _context.Initialize(metadata);
+            return _context;
         }
     }
 }

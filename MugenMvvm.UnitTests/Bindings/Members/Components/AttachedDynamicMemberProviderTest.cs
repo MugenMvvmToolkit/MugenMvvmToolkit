@@ -11,17 +11,25 @@ using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class AttachedDynamicMemberProviderTest : UnitTestBase
     {
-        [Fact]
-        public void TryGetMembersShouldReturnNullResult()
+        private readonly MemberManager _memberManager;
+        private readonly AttachedDynamicMemberProvider _provider;
+
+        public AttachedDynamicMemberProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            var component = new AttachedDynamicMemberProvider();
-            component.TryGetMembers(null!, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _memberManager = new MemberManager(ComponentCollectionManager);
+            _provider = new AttachedDynamicMemberProvider();
+            _memberManager.AddComponent(_provider);
         }
+
+        [Fact]
+        public void TryGetMembersShouldReturnNullResult() =>
+            _provider.TryGetMembers(_memberManager, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
         [Theory]
         [InlineData(1, true)]
@@ -39,10 +47,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             {
                 Invalidate = (o, arg3) => ++invalidateCount
             };
-            var owner = new MemberManager();
-            var component = new AttachedDynamicMemberProvider();
-            owner.AddComponent(component);
-            owner.Components.TryAdd(hasCache);
+
+            _memberManager.Components.TryAdd(hasCache);
             var list = new List<IMemberInfo>();
             var delegates = new List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>>();
             for (var i = 0; i < count; i++)
@@ -58,23 +64,23 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     return info;
                 };
                 delegates.Add(func);
-                component.Register(func);
+                _provider.Register(func);
             }
 
             invalidateCount.ShouldEqual(count);
-            component.TryGetMembers(null!, requestType, name, memberType, DefaultMetadata).AsList().ShouldEqual(list);
+            _provider.TryGetMembers(_memberManager, requestType, name, memberType, DefaultMetadata).AsList().ShouldEqual(list);
             list.Count.ShouldEqual(count);
 
             invalidateCount = 0;
             if (clear)
-                component.Clear();
+                _provider.Clear();
             else
             {
                 foreach (var @delegate in delegates)
-                    component.Unregister(@delegate);
+                    _provider.Unregister(@delegate);
             }
 
-            component.TryGetMembers(null!, typeof(object), string.Empty, memberType, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(_memberManager, typeof(object), string.Empty, memberType, DefaultMetadata).IsEmpty.ShouldBeTrue();
             invalidateCount.ShouldEqual(clear ? 1 : count);
         }
     }

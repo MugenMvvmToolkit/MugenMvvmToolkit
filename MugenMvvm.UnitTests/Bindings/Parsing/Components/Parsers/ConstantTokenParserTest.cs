@@ -1,42 +1,35 @@
-﻿using MugenMvvm.Bindings.Interfaces.Parsing.Components;
-using MugenMvvm.Bindings.Parsing;
-using MugenMvvm.Bindings.Parsing.Components.Parsers;
+﻿using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
-    public class ConstantTokenParserTest : UnitTestBase
+    public class ConstantTokenParserTest : TokenParserTestBase<ConstantTokenParser>
     {
+        public ConstantTokenParserTest(ITestOutputHelper? outputHelper = null) : base(new DigitTokenParser(), outputHelper)
+        {
+        }
+
         [Fact]
         public void TryParseShouldIgnoreNotConstantExpression()
         {
-            var component = new ConstantTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new ITokenParserComponent[]
-                {
-                    new DigitTokenParser()
-                }
-            };
-            ctx.Initialize("1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Initialize("1", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
 
         [Fact]
         public void TryParseShouldParseConstantExpression()
         {
             const string name = "test";
-            var component = new ConstantTokenParser();
-            var ctx = new TokenParserContext();
-            ctx.Initialize(name, DefaultMetadata);
-            component.LiteralToExpression.Clear();
-            component.LiteralToExpression[name] = ConstantExpressionNode.Null;
+            Context.Initialize(name, DefaultMetadata);
+            Parser.LiteralToExpression.Clear();
+            Parser.LiteralToExpression[name] = ConstantExpressionNode.Null;
 
-            component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Null);
-            component.LiteralToExpression.Clear();
-            component.TryParse(ctx, null).ShouldBeNull();
+            Parser.TryParse(Context, null).ShouldEqual(ConstantExpressionNode.Null);
+            Parser.LiteralToExpression.Clear();
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
     }
 }

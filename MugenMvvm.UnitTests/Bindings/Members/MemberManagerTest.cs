@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var memberType = MemberType.Accessor;
             var memberFlags = MemberFlags.All;
             var request = "test";
-            var memberManager = new MemberManager();
+            var memberManager = GetComponentOwner(ComponentCollectionManager);
             var member = new TestAccessorMemberInfo();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
@@ -52,6 +52,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(count);
         }
 
-        protected override IMemberManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new MemberManager(collectionProvider);
+        protected override IMemberManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new MemberManager(componentCollectionManager);
     }
 }

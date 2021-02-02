@@ -4,6 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.ViewModels;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using Should;
@@ -18,7 +19,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var lifecycleState = ViewLifecycleState.Appeared;
             var state = new object();
-            var awareViewModel = new ViewLifecycleAwareViewModel();
+            var awareViewModel = new ViewLifecycleAwareViewModel(new ViewModelManager(ComponentCollectionManager));
             var invokeCount = 0;
             var view = new View(ViewMapping.Undefined, new object(), awareViewModel);
 
@@ -37,6 +38,10 @@ namespace MugenMvvm.UnitTests.Views.Components
 
         private class ViewLifecycleAwareViewModel : TestViewModelBase, IViewLifecycleAwareViewModel
         {
+            public ViewLifecycleAwareViewModel(IViewModelManager? viewModelManager = null) : base(viewModelManager)
+            {
+            }
+
             public Action<IView, ViewLifecycleState, object?, IReadOnlyMetadataContext?>? OnViewLifecycleChanged { get; set; }
 
             void IViewLifecycleAwareViewModel.OnViewLifecycleChanged(IView view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>

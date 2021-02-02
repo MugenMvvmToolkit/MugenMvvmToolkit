@@ -5,6 +5,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -22,7 +23,8 @@ namespace MugenMvvm.App.Components
         private INavigationContext? _backgroundCloseContext;
         private INavigationContext? _backgroundNewContext;
 
-        public AppLifecycleTracker(INavigationDispatcher? navigationDispatcher = null, IMessenger? messenger = null)
+        public AppLifecycleTracker(INavigationDispatcher? navigationDispatcher = null, IMessenger? messenger = null, IAttachedValueManager? attachedValueManager = null) :
+            base(attachedValueManager)
         {
             _navigationDispatcher = navigationDispatcher;
             _messenger = messenger;

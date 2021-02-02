@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Converters;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
@@ -7,22 +6,12 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
-    public class DefaultExpressionConverterTest : UnitTestBase
+    public class DefaultExpressionConverterTest : ExpressionConverterTestBase<DefaultExpressionConverter>
     {
         [Fact]
-        public void TryConvertShouldConvertConstantExpression()
-        {
-            var component = new DefaultExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Default(typeof(int))).ShouldEqual(ConstantExpressionNode.Get(0));
-        }
+        public void TryConvertShouldConvertConstantExpression() => Converter.TryConvert(Context, Expression.Default(typeof(int))).ShouldEqual(ConstantExpressionNode.Get(0));
 
         [Fact]
-        public void TryConvertShouldIgnoreNotDefaultExpression()
-        {
-            var component = new DefaultExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
+        public void TryConvertShouldIgnoreNotDefaultExpression() => Converter.TryConvert(Context, Expression.Parameter(typeof(object))).ShouldBeNull();
     }
 }

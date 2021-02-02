@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var invokeCount = 0;
             var testExp = new TestBindingBuilder();
 
-            var bindingManager = new BindingManager();
+            var bindingManager = new BindingManager(ComponentCollectionManager);
             var cache = new BindingBuilderDelegateExpressionParser();
             var component = new TestBindingExpressionParserComponent
             {

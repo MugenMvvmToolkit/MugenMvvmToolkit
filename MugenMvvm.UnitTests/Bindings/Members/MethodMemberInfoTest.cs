@@ -1,19 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
-    public class MethodMemberInfoTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class MethodMemberInfoTest : UnitTestBase, IDisposable
     {
+        public MethodMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+        }
+
+        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
+
         [Fact]
         public void ConstructorShouldInitializeMember2()
         {
@@ -94,7 +105,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, this);
 
             var observerRequestCount = 0;
-            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {

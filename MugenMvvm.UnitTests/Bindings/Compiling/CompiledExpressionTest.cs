@@ -16,6 +16,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Compiling
 {
+    [Collection(SharedContext)]
     public class CompiledExpressionTest : UnitTestBase
     {
         [Fact]

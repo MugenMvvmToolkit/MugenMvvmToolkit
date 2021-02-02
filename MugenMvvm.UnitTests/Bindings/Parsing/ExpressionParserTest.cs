@@ -497,7 +497,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                 parameterCount);
         }
 
-        protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
 
         private void ValidateExpression<TTarget, TSource>(string targetName, Expression<Func<TTarget, object?>> target, Expression<Func<TSource, object?>> source,
             IExpressionNode expectedResult, int count,

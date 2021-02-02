@@ -6,10 +6,10 @@ using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
@@ -20,25 +20,49 @@ using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Views.Components
 {
-    public class ViewCleanerTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class ViewCleanerTest : UnitTestBase, IDisposable
     {
+        private readonly View _view;
+        private readonly TestCleanableView _rawView;
+        private readonly TestCleanableViewModel _viewModel;
+        private readonly ViewManager _viewManager;
+        private readonly ViewCleaner _viewCleaner;
+
+        public ViewCleanerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _viewModel = new TestCleanableViewModel();
+            _rawView = new TestCleanableView();
+            _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(TestCleanableView), DefaultMetadata), _rawView, _viewModel, null, ComponentCollectionManager);
+            _viewManager = new ViewManager(ComponentCollectionManager);
+            _viewCleaner = new ViewCleaner(AttachedValueManager);
+            _viewManager.AddComponent(_viewCleaner);
+            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
+            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
+        }
+
+        public void Dispose()
+        {
+            MugenService.Configuration.Clear<IMemberManager>();
+            MugenService.Configuration.Clear<IAttachedValueManager>();
+        }
+
         [Fact]
         public void ShouldCleanCleanableViews()
         {
             var state = "t";
             var invokeCount = 0;
             var componentInvokeCount = 0;
-            var rawView = new TestCleanableView
+
+            _rawView.Cleanup = (o, arg3) =>
             {
-                Cleanup = (o, arg3) =>
-                {
-                    invokeCount++;
-                    o.ShouldEqual(state);
-                    arg3.ShouldEqual(DefaultMetadata);
-                }
+                invokeCount++;
+                o.ShouldEqual(state);
+                arg3.ShouldEqual(DefaultMetadata);
             };
             var componentView = new TestCleanableView
             {
@@ -49,80 +73,68 @@ namespace MugenMvvm.UnitTests.Views.Components
                     arg3.ShouldEqual(DefaultMetadata);
                 }
             };
-            var viewModel = new TestCleanableViewModel();
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), rawView.GetType()), rawView, viewModel);
-            view.Components.TryAdd(componentView);
-            view.Components.Components.TryAdd(this);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner());
+
+            _view.Components.TryAdd(componentView);
+            _view.Components.Components.TryAdd(this);
 
             state = null;
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, state, DefaultMetadata);
-            view.Components.Remove(componentView, DefaultMetadata);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, DefaultMetadata);
+            _view.Components.Remove(componentView, DefaultMetadata);
             invokeCount.ShouldEqual(0);
             componentInvokeCount.ShouldEqual(1);
-            view.Components.TryAdd(componentView, DefaultMetadata);
+            _view.Components.TryAdd(componentView, DefaultMetadata);
             componentInvokeCount = 0;
             state = "t";
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, state, DefaultMetadata);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(1);
-            view.Components.Count.ShouldEqual(0);
-            view.Components.Components.Count.ShouldEqual(0);
+            _view.Components.Count.ShouldEqual(0);
+            _view.Components.Components.Count.ShouldEqual(0);
         }
 
         [Fact]
         public void ShouldClearDataContext()
         {
             var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
-            using var t = MugenService.AddComponent(new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
             });
 
-
-            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner {ClearDataContext = true});
-            view.Target.BindableMembers().SetDataContext(viewModel);
-            view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
-            view.Target.BindableMembers().DataContext().ShouldBeNull();
+            _viewCleaner.ClearDataContext = true;
+            _viewModel.ServiceOptional = new Messenger(ComponentCollectionManager);
+            _view.Target.BindableMembers().SetDataContext(_viewModel);
+            _view.Target.BindableMembers().DataContext().ShouldEqual(_viewModel);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            _view.Target.BindableMembers().DataContext().ShouldBeNull();
         }
 
         [Fact]
         public void ShouldClearMetadata()
         {
-            var viewModel = new TestCleanableViewModel();
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner());
-            view.Metadata.Set(ViewModelMetadata.Id, "");
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
-            view.Metadata.Count.ShouldEqual(0);
+            _view.Metadata.Set(ViewModelMetadata.Id, "");
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            _view.Metadata.Count.ShouldEqual(0);
         }
 
         [Fact]
         public void ShouldUnsubscribeViewModel()
         {
             var invokeCount = 0;
-            var viewModel = new TestCleanableViewModel {ServiceOptional = new Messenger()};
-            viewModel.ServiceOptional.AddComponent(new TestMessengerSubscriberComponent
+            _viewModel.ServiceOptional = new Messenger(ComponentCollectionManager);
+            _viewModel.ServiceOptional.AddComponent(new TestMessengerSubscriberComponent
             {
                 TryUnsubscribe = (o, arg3) =>
                 {
                     ++invokeCount;
-                    o.ShouldEqual(this);
+                    o.ShouldEqual(_view.Target);
                     arg3.ShouldEqual(DefaultMetadata);
                     return true;
                 }
             });
-            var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new ViewCleaner());
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 

@@ -18,19 +18,28 @@ using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionPriorityDecoratorTest : UnitTestBase
     {
+        private readonly BindingManager _bindingManager;
+        private readonly BindingExpressionPriorityDecorator _decorator;
+
+        public BindingExpressionPriorityDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _bindingManager = new BindingManager(ComponentCollectionManager);
+            _decorator = new BindingExpressionPriorityDecorator();
+            _bindingManager.AddComponent(_decorator);
+        }
+
         [Fact]
         public void TryParseBindingExpressionShouldIgnoreNonListResult()
         {
             var request = "";
             var exp = new TestBindingBuilder();
-            var bindingManager = new BindingManager();
-            bindingManager.AddComponent(new BindingExpressionPriorityDecorator());
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, arg3) =>
                 {
@@ -39,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return exp;
                 }
             });
-            bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
+            _bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
         }
 
         [Theory]
@@ -70,18 +79,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             else
                 result = new Collection<IBindingBuilder>(expressions);
 
-            var bindingManager = new BindingManager();
-            var decorator = new BindingExpressionPriorityDecorator {FakeMemberPriority = 2};
-            decorator.BindingMemberPriorities.Clear();
-            decorator.BindingMemberPriorities[maxPriorityName] = int.MaxValue;
-            decorator.BindingMemberPriorities[minPriorityName] = int.MinValue;
-            bindingManager.AddComponent(decorator);
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            _decorator.FakeMemberPriority = 2;
+            _decorator.BindingMemberPriorities.Clear();
+            _decorator.BindingMemberPriorities[maxPriorityName] = int.MaxValue;
+            _decorator.BindingMemberPriorities[minPriorityName] = int.MinValue;
+            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, arg3) => ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(result)
             });
 
-            var bindingExpressions = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
+            var bindingExpressions = _bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
             bindingExpressions.ShouldEqual(expected);
         }
 

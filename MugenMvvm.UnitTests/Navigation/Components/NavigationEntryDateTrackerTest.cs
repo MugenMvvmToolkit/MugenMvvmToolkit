@@ -7,21 +7,30 @@ using MugenMvvm.Navigation.Components;
 using MugenMvvm.UnitTests.Navigation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationEntryDateTrackerTest : UnitTestBase
     {
+        private readonly NavigationDispatcher _navigationDispatcher;
+        private readonly NavigationEntryDateTracker _component;
+
+        public NavigationEntryDateTrackerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _navigationDispatcher = new NavigationDispatcher(ComponentCollectionManager);
+            _component = new NavigationEntryDateTracker();
+            _navigationDispatcher.AddComponent(_component);
+        }
+
         [Fact]
         public void OnNavigationEntryAddedShouldSetDate()
         {
-            var dispatcher = new NavigationDispatcher();
             var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
-            var component = new NavigationEntryDateTracker();
 
             var utcNow = DateTime.UtcNow;
-            component.OnNavigationEntryAdded(dispatcher, entry, context);
+            _component.OnNavigationEntryAdded(_navigationDispatcher, entry, context);
 
             var dateTime = entry.Metadata.Get(NavigationMetadata.NavigationDate);
             utcNow.ShouldBeLessThanOrEqualTo(dateTime);
@@ -30,25 +39,21 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [Fact]
         public void OnNavigationEntryRemovedShouldNotSetDate()
         {
-            var dispatcher = new NavigationDispatcher();
             var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
-            var component = new NavigationEntryDateTracker();
 
-            component.OnNavigationEntryRemoved(dispatcher, entry, context);
+            _component.OnNavigationEntryRemoved(_navigationDispatcher, entry, context);
             entry.Metadata.Contains(NavigationMetadata.NavigationDate).ShouldBeFalse();
         }
 
         [Fact]
         public void OnNavigationEntryUpdatedShouldSetDate()
         {
-            var dispatcher = new NavigationDispatcher();
             var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
-            var component = new NavigationEntryDateTracker();
 
             var utcNow = DateTime.UtcNow;
-            component.OnNavigationEntryUpdated(dispatcher, entry, context);
+            _component.OnNavigationEntryUpdated(_navigationDispatcher, entry, context);
 
             var dateTime = entry.Metadata.Get(NavigationMetadata.NavigationDate);
             utcNow.ShouldBeLessThanOrEqualTo(dateTime);

@@ -4,38 +4,23 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using MugenMvvm.Bindings.Convert;
 using MugenMvvm.Bindings.Convert.Components;
-using MugenMvvm.Bindings.Core;
-using MugenMvvm.Bindings.Interfaces.Convert;
-using MugenMvvm.Bindings.Interfaces.Core;
-using MugenMvvm.Bindings.Interfaces.Members;
-using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
-using MugenMvvm.Bindings.Interfaces.Resources;
-using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Bindings.Resources.Components;
-using MugenMvvm.Commands;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Commands;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
-using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
 using MugenMvvm.Serialization;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Threading.Internal;
-using MugenMvvm.ViewModels;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -46,80 +31,71 @@ namespace MugenMvvm.UnitTests
 {
     public class UnitTestBase
     {
+        protected const string SharedContext = nameof(SharedContext);
+
+        protected const string SharedContextTest = nameof(SharedContextTest);
+
 #if DEBUG
         protected const string ReleaseTest = "NOT SUPPORTED IN DEBUG";
 #else
         protected const string ReleaseTest = null;
 #endif
 
+        protected static readonly ObservationManager ObservationManager;
+        protected static readonly ResourceManager ResourceManager;
+        protected static readonly ComponentCollectionManager ComponentCollectionManager;
+        protected static readonly ReflectionManager ReflectionManager;
+        protected static readonly AttachedValueManager AttachedValueManager;
+        protected static readonly ThreadDispatcher ThreadDispatcher;
+        protected static readonly GlobalValueConverter GlobalValueConverter;
         protected static readonly ReadOnlyDictionary<string, object?> EmptyDictionary = new(new Dictionary<string, object?>());
         protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(1, ""), null);
+        protected static readonly CancellationToken DefaultCancellationToken = new CancellationTokenSource().Token;
         protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
+        private static ITestOutputHelper? _outputHelper;
 
-        public UnitTestBase(ITestOutputHelper? outputHelper = null)
+        static UnitTestBase()
         {
-            MugenService.Configuration.FallbackConfiguration = null;
-            MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
+            ComponentCollectionManager = new ComponentCollectionManager();
 
-            var attachedValueManager = new AttachedValueManager();
-            attachedValueManager.AddComponent(new ConditionalWeakTableAttachedValueStorage());
-            attachedValueManager.AddComponent(new StaticTypeAttachedValueStorage());
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(attachedValueManager);
+            AttachedValueManager = new AttachedValueManager(ComponentCollectionManager);
+            AttachedValueManager.AddComponent(new ConditionalWeakTableAttachedValueStorage());
+            AttachedValueManager.AddComponent(new StaticTypeAttachedValueStorage());
 
-            var weakReferenceManager = new WeakReferenceManager();
+            ThreadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent {Priority = int.MinValue});
+
+            var weakReferenceManager = new WeakReferenceManager(ComponentCollectionManager);
             weakReferenceManager.AddComponent(new WeakReferenceProvider());
             MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(weakReferenceManager);
 
-            InitializeThreadDispatcher();
+            ReflectionManager = new ReflectionManager(ComponentCollectionManager);
+            ReflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
+            MugenService.Configuration.InitializeInstance<IReflectionManager>(ReflectionManager);
 
-            var reflectionManager = new ReflectionManager();
-            reflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
-            MugenService.Configuration.InitializeInstance<IReflectionManager>(reflectionManager);
+            GlobalValueConverter = new GlobalValueConverter(ComponentCollectionManager);
+            GlobalValueConverter.AddComponent(new DefaultGlobalValueConverter());
 
-            var commandManager = new CommandManager();
-            MugenService.Configuration.InitializeInstance<ICommandManager>(commandManager);
+            ResourceManager = new ResourceManager(ComponentCollectionManager);
+            ResourceManager.AddComponent(new TypeResolver());
 
-            var converter = new GlobalValueConverter();
-            converter.AddComponent(new DefaultGlobalValueConverter());
-            MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(converter);
+            ObservationManager = new ObservationManager(ComponentCollectionManager);
 
-            var resourceResolver = new ResourceManager();
-            resourceResolver.AddComponent(new TypeResolver());
-            MugenService.Configuration.InitializeInstance<IResourceManager>(resourceResolver);
-
-            var memberManager = new MemberManager();
-            MugenService.Configuration.InitializeInstance<IMemberManager>(memberManager);
-
-            IBindingManager bindingManager = new BindingManager();
-            MugenService.Configuration.InitializeInstance(bindingManager);
-
-            IObservationManager observationManager = new ObservationManager();
-            MugenService.Configuration.InitializeInstance(observationManager);
-
-            IViewModelManager viewModelManager = new ViewModelManager();
-            MugenService.Configuration.InitializeInstance(viewModelManager);
-
-            IMessenger messenger = new Messenger();
-            MugenService.Configuration.InitializeInstance(messenger);
-
-            if (outputHelper != null)
-            {
-                ILogger logger = new Logger();
-                logger.AddComponent(new DelegateLogger((l, msg, e, m) => outputHelper.WriteLine($"{l} - {msg} {e?.Flatten()}"), (level, context) => true));
-                MugenService.Configuration.InitializeInstance(logger);
-            }
+            ILogger logger = new Logger(ComponentCollectionManager);
+            logger.AddComponent(new DelegateLogger((l, msg, e, m) => _outputHelper?.WriteLine($"{l} - {msg} {e?.Flatten()}"), (level, context) => true));
+            MugenService.Configuration.InitializeInstance(logger);
         }
 
-        protected virtual void InitializeThreadDispatcher()
+        public UnitTestBase(ITestOutputHelper? outputHelper = null)
         {
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent {Priority = int.MinValue});
-            MugenService.Configuration.InitializeInstance<IThreadDispatcher>(threadDispatcher);
+            _outputHelper = outputHelper;
         }
 
         protected static void WaitCompletion(int milliseconds = 10) => Thread.Sleep(milliseconds);
 
         protected static void ShouldThrow<T>(Action action) where T : Exception => Assert.Throws<T>(action);
+
+        protected static string NewId() => Guid.NewGuid().ToString("N");
 
         protected void ShouldThrow(Action action) => Assert.ThrowsAny<Exception>(action);
 

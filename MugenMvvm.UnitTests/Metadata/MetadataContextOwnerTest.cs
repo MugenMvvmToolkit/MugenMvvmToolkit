@@ -12,6 +12,6 @@ namespace MugenMvvm.UnitTests.Metadata
                 base.ComponentOwnerShouldUseCollectionFactory(true);
         }
 
-        protected override MetadataContext GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new();
+        protected override MetadataContext GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new();
     }
 }

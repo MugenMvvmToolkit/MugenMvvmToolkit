@@ -8,31 +8,27 @@ using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
-    public class LambdaExpressionBuilderTest : UnitTestBase
+    public class LambdaExpressionBuilderTest : ExpressionBuilderTestBase<LambdaExpressionBuilder>
     {
         [Fact]
         public void TryBuildShouldBuildLambdaExpression1()
         {
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc1))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilder();
             var dictionary = new Dictionary<IExpressionNode, Expression>();
-            var ctx = new TestExpressionBuilderContext
-            {
-                SetExpression = (node, ex) => dictionary[node] = ex,
-                ClearExpression = node => dictionary.Remove(node),
-                Build = node => dictionary[node]
-            };
 
-            ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
+            Context.SetExpression = (node, ex) => dictionary[node] = ex;
+            Context.ClearExpression = node => dictionary.Remove(node);
+            Context.Build = node => dictionary[node];
+            Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
+
             var parameter1 = new ParameterExpressionNode("i");
             var lambdaExpressionNode = new LambdaExpressionNode(parameter1, new[] {parameter1});
-            var expression = (Expression<Func<int, int>>) component.TryBuild(ctx, lambdaExpressionNode)!;
+            var expression = (Expression<Func<int, int>>) Builder.TryBuild(Context, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();
 
@@ -45,20 +41,17 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         public void TryBuildShouldBuildLambdaExpression2()
         {
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc2))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilder();
             var dictionary = new Dictionary<IExpressionNode, Expression>();
-            var ctx = new TestExpressionBuilderContext
-            {
-                SetExpression = (node, ex) => dictionary[node] = ex,
-                ClearExpression = node => dictionary.Remove(node),
-                Build = node => dictionary[node]
-            };
 
-            ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
+            Context.SetExpression = (node, ex) => dictionary[node] = ex;
+            Context.ClearExpression = node => dictionary.Remove(node);
+            Context.Build = node => dictionary[node];
+            Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
+
             var parameter1 = new ParameterExpressionNode("i1");
             var parameter2 = new ParameterExpressionNode("i2");
             var lambdaExpressionNode = new LambdaExpressionNode(parameter2, new[] {parameter1, parameter2});
-            var expression = (Expression<Func<int, int, int>>) component.TryBuild(ctx, lambdaExpressionNode)!;
+            var expression = (Expression<Func<int, int, int>>) Builder.TryBuild(Context, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();
 
@@ -71,43 +64,27 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         public void TryBuildShouldBuildLambdaExpression3()
         {
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc3))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilder();
-            var dictionary = new Dictionary<IExpressionNode, Expression>();
-            var ctx = new TestExpressionBuilderContext();
-
-            ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
+            Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
             var lambdaExpressionNode = new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>());
-            var expression = (Expression<Func<bool>>) component.TryBuild(ctx, lambdaExpressionNode)!;
-            dictionary.Count.ShouldEqual(0);
+            var expression = (Expression<Func<bool>>) Builder.TryBuild(Context, lambdaExpressionNode)!;
             expression.ShouldNotBeNull();
             expression.Compile().Invoke().ShouldEqual(false);
         }
 
         [Fact]
-        public void TryBuildShouldIgnoreLambdaExpressionNoParameter()
-        {
-            var component = new LambdaExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
-        }
+        public void TryBuildShouldIgnoreLambdaExpressionNoParameter() =>
+            Builder.TryBuild(Context, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
 
         [Fact]
         public void TryBuildShouldIgnoreLambdaExpressionWrongParameterCount()
         {
             var parameterInfoImpl = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc1))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfoImpl);
-            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
+            Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfoImpl);
+            Builder.TryBuild(Context, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
         }
 
         [Fact]
-        public void TryBuildShouldIgnoreNotLambdaExpression()
-        {
-            var component = new LambdaExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
+        public void TryBuildShouldIgnoreNotLambdaExpression() => Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
         public static void MethodWithFunc1(Func<int, int> func)

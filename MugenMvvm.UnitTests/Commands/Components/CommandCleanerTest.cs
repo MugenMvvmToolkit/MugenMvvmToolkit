@@ -6,21 +6,28 @@ using MugenMvvm.UnitTests.Commands.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Commands.Components
 {
     public class CommandCleanerTest : UnitTestBase
     {
+        private readonly CommandManager _commandManager;
+
+        public CommandCleanerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _commandManager = new CommandManager(ComponentCollectionManager);
+            _commandManager.AddComponent(new CommandCleaner());
+        }
+
         [Fact]
         public void ShouldRegisterDisposeToken()
         {
             var cmd = new CompositeCommand();
-            var commandManager = new CommandManager();
-            commandManager.AddComponent(new TestCommandProviderComponent
+            _commandManager.AddComponent(new TestCommandProviderComponent
             {
                 TryGetCommand = (_, _, _) => cmd
             });
-            commandManager.AddComponent(new CommandCleaner());
 
             ActionToken? actionToken = null;
             var owner = new TestHasDisposeCallback
@@ -32,7 +39,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 }
             };
 
-            var command = commandManager.GetCommand<object>(owner, this);
+            var command = _commandManager.GetCommand<object>(owner, this);
             command.ShouldEqual(cmd);
             cmd.IsDisposed.ShouldBeFalse();
             actionToken!.Value.Dispose();

@@ -20,8 +20,8 @@ namespace MugenMvvm.UnitTests.Presenters.Internal
         public NavigationType NavigationTypeField = NavigationType.Popup;
 
         public TestViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null,
-            INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
-            : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher)
+            INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null, IViewModelManager? viewModelManager = null)
+            : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher, viewModelManager)
         {
         }
 

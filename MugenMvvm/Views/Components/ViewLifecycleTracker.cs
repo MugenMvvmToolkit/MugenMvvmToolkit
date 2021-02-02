@@ -2,6 +2,7 @@
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
@@ -12,7 +13,11 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class ViewLifecycleTracker : LifecycleTrackerBase<ViewLifecycleState, object>, IHasPriority, IViewLifecycleListener
     {
-        public ViewLifecycleTracker()
+        public ViewLifecycleTracker() : this(null)
+        {
+        }
+
+        public ViewLifecycleTracker(IAttachedValueManager? attachedValueManager) : base(attachedValueManager)
         {
             Trackers.Add(TrackViewState);
         }

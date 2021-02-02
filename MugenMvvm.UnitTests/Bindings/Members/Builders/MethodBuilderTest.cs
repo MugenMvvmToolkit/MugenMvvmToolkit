@@ -1,19 +1,36 @@
 ﻿using System;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
+using IParameterInfo = MugenMvvm.Bindings.Interfaces.Members.IParameterInfo;
 
 namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
-    public class MethodBuilderTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class MethodBuilderTest : UnitTestBase, IDisposable
     {
+        public MethodBuilderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
+            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+        }
+
+        public void Dispose()
+        {
+            MugenService.Configuration.Clear<IAttachedValueManager>();
+            MugenService.Configuration.Clear<IObservationManager>();
+        }
+
         [Fact]
         public void TryGetAccessorHandlerShouldUseDelegate()
         {
@@ -36,6 +53,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                          .InvokeHandler((member, target, args, metadata) => "")
                          .Build();
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
+            invokeCount.ShouldEqual(1);
         }
 
         [Fact]
@@ -111,7 +129,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var raiseInvokeCount = 0;
             var result = new ActionToken((o, o1) => { });
             IMethodMemberInfo? memberInfo = null;
-            var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "").ObservableHandler(
+            var builder = new MethodBuilder<object, object>(NewId(), typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "").ObservableHandler(
                 (member, o, listener, metadata) =>
                 {
                     ++invokeCount;
@@ -165,12 +183,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         {
             var invokeCount = 0;
             var actionToken = new ActionToken((o, o1) => { });
-            var b = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, target, args, metadata) => "");
+            var b = new MethodBuilder<object, object>(NewId(), typeof(object), typeof(EventHandler)).InvokeHandler((member, target, args, metadata) => "");
             if (!observable)
                 b.NonObservable();
             var memberInfo = b.Build();
             memberInfo.MemberFlags.HasFlag(MemberFlags.NonObservable).ShouldEqual(!observable);
-            using var _ = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3) =>
                 {
@@ -247,14 +265,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var target = isStatic ? null : new object();
             var attachedInvokeCount = 0;
             IMethodMemberInfo? memberInfo = null;
-            var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "")
-                                                                                                      .AttachedHandler((member, t, metadata) =>
-                                                                                                      {
-                                                                                                          ++attachedInvokeCount;
-                                                                                                          member.ShouldEqual(memberInfo);
-                                                                                                          t.ShouldEqual(target);
-                                                                                                          metadata.ShouldEqual(DefaultMetadata);
-                                                                                                      });
+            var builder = new MethodBuilder<object, object>(NewId(), typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "")
+                                                                                                          .AttachedHandler((member, t, metadata) =>
+                                                                                                          {
+                                                                                                              ++attachedInvokeCount;
+                                                                                                              member.ShouldEqual(memberInfo);
+                                                                                                              t.ShouldEqual(target);
+                                                                                                              metadata.ShouldEqual(DefaultMetadata);
+                                                                                                          });
 
             if (isStatic)
                 builder.Static();

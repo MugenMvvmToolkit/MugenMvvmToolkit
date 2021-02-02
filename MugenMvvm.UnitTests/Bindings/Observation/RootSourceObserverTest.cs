@@ -1,17 +1,36 @@
 ﻿using System;
+using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation
 {
-    public class RootSourceObserverTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class RootSourceObserverTest : UnitTestBase, IDisposable
     {
+        public RootSourceObserverTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
+            MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(GlobalValueConverter);
+            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
+        }
+
+        public void Dispose()
+        {
+            MugenService.Configuration.Clear<IMemberManager>();
+            MugenService.Configuration.Clear<IGlobalValueConverter>();
+            MugenService.Configuration.Clear<IAttachedValueManager>();
+        }
+
         [Fact]
         public void ShouldListenParent()
         {
@@ -42,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                     return default;
                 }
             };
-            using var t = MugenService.AddComponent(new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
@@ -118,7 +137,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 GetValue = (o, context) => null,
                 TryObserve = (o, listener, arg3) => default
             };
-            using var t = MugenService.AddComponent(new TestMemberManagerComponent
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {

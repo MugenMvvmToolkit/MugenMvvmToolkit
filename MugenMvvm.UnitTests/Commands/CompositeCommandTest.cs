@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
@@ -16,8 +17,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Commands
 {
+    [Collection(SharedContext)]
     public class CompositeCommandTest : SuspendableComponentOwnerTestBase<CompositeCommand>
     {
+        public CompositeCommandTest()
+        {
+            MugenService.Configuration.InitializeInstance<ICommandManager>(new CommandManager());
+        }
+
         private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
         {
             if (value)
@@ -39,6 +46,12 @@ namespace MugenMvvm.UnitTests.Commands
             return null;
         }
 
+        public override void Dispose()
+        {
+            MugenService.Configuration.Clear<ICommandManager>();
+            base.Dispose();
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -46,7 +59,7 @@ namespace MugenMvvm.UnitTests.Commands
         {
             var count = 0;
             var canExecute = false;
-            var compositeCommand = GetComponentOwner();
+            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             compositeCommand.HasCanExecute().ShouldBeFalse();
             for (var i = 0; i < componentCount; i++)
             {
@@ -78,7 +91,7 @@ namespace MugenMvvm.UnitTests.Commands
         {
             var count = 0;
             var canExecute = false;
-            var compositeCommand = GetComponentOwner();
+            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             compositeCommand.CanExecute(compositeCommand).ShouldBeTrue();
             for (var i = 0; i < componentCount; i++)
             {
@@ -109,7 +122,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void AddCanExecuteChangedShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner();
+            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
@@ -135,7 +148,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void RemoveCanExecuteChangedShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner();
+            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
@@ -161,7 +174,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void RaiseCanExecuteChangedShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner();
+            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestCommandEventHandlerComponent
@@ -187,7 +200,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void DisposeShouldBeHandledByComponents(int componentCount, bool canDispose)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner();
+            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             compositeCommand.IsDisposable = canDispose;
             for (var i = 0; i < componentCount; i++)
             {
@@ -219,7 +232,7 @@ namespace MugenMvvm.UnitTests.Commands
         public void ExecuteShouldBeHandledByComponents(int componentCount)
         {
             var cts = new CancellationTokenSource().Token;
-            var compositeCommand = GetComponentOwner();
+            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             var tcs = new List<TaskCompletionSource<object>>();
             for (var i = 0; i < componentCount; i++)
             {
@@ -258,7 +271,7 @@ namespace MugenMvvm.UnitTests.Commands
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            var component = new TestCommandProviderComponent
+            MugenService.AddComponent(new TestCommandProviderComponent
             {
                 TryGetCommand = (s, o, m) =>
                 {
@@ -267,8 +280,7 @@ namespace MugenMvvm.UnitTests.Commands
                     m.ShouldEqual(metadata);
                     return new CompositeCommand();
                 }
-            };
-            using var t = MugenService.AddComponent(component);
+            });
 
             CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
             if (r is DelegateCommandRequest request)
@@ -301,7 +313,7 @@ namespace MugenMvvm.UnitTests.Commands
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            var component = new TestCommandProviderComponent
+            MugenService.AddComponent(new TestCommandProviderComponent
             {
                 TryGetCommand = (s, o, m) =>
                 {
@@ -310,8 +322,7 @@ namespace MugenMvvm.UnitTests.Commands
                     m.ShouldEqual(metadata);
                     return new CompositeCommand();
                 }
-            };
-            using var t = MugenService.AddComponent(component);
+            });
 
             CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
             if (r is DelegateCommandRequest request)
@@ -344,7 +355,7 @@ namespace MugenMvvm.UnitTests.Commands
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            var component = new TestCommandProviderComponent
+            MugenService.AddComponent(new TestCommandProviderComponent
             {
                 TryGetCommand = (s, o, arg3) =>
                 {
@@ -353,8 +364,7 @@ namespace MugenMvvm.UnitTests.Commands
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
                 }
-            };
-            using var t = MugenService.AddComponent(component);
+            });
 
             CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
             if (r is DelegateCommandRequest request)
@@ -387,7 +397,7 @@ namespace MugenMvvm.UnitTests.Commands
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            var component = new TestCommandProviderComponent
+            MugenService.AddComponent(new TestCommandProviderComponent
             {
                 TryGetCommand = (s, o, arg3) =>
                 {
@@ -396,8 +406,7 @@ namespace MugenMvvm.UnitTests.Commands
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
                 }
-            };
-            using var t = MugenService.AddComponent(component);
+            });
 
             CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
             if (r is DelegateCommandRequest request)
@@ -414,6 +423,6 @@ namespace MugenMvvm.UnitTests.Commands
                 DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
-        protected override CompositeCommand GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(null, collectionProvider);
+        protected override CompositeCommand GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(null, componentCollectionManager);
     }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.UnitTests.Collections.Internal;
-using MugenMvvm.UnitTests.Threading.Internal;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -22,9 +22,6 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldUseDiffableComparer()
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
             var comparer = new TestDiffableEqualityComparer
             {
                 AreItemsTheSame = (x1, x2) => true
@@ -33,9 +30,9 @@ namespace MugenMvvm.UnitTests.Collections
             var items = new object[] {1, 2, 3, 4};
             var resetItems = new object[] {4, 3, 2, 1};
 
-            var observableCollection = new SynchronizedObservableCollection<object?>(items);
+            var observableCollection = new SynchronizedObservableCollection<object?>(items, ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = (DiffableBindableCollectionAdapter) GetCollection(adapterCollection);
+            var collectionAdapter = (DiffableBindableCollectionAdapter) GetCollection(LocalThreadDispatcher, adapterCollection);
             collectionAdapter.DiffableComparer = comparer;
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
@@ -51,12 +48,9 @@ namespace MugenMvvm.UnitTests.Collections
         [InlineData(100, false)]
         public void ShouldUseCorrectIndexes(int iterationCount, bool detectMoves)
         {
-            var dispatcherComponent = new TestThreadDispatcherComponent {CanExecuteInline = (_, __) => true};
-            using var t = MugenService.AddComponent(dispatcherComponent);
-
-            var observableCollection = new SynchronizedObservableCollection<object?>();
+            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = (DiffableBindableCollectionAdapter) GetCollection(adapterCollection);
+            var collectionAdapter = (DiffableBindableCollectionAdapter) GetCollection(LocalThreadDispatcher, adapterCollection);
             collectionAdapter.DetectMoves = detectMoves;
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
@@ -83,6 +77,7 @@ namespace MugenMvvm.UnitTests.Collections
             }
         }
 
-        protected override BindableCollectionAdapter GetCollection(IList<object?>? source = null) => new DiffableBindableCollectionAdapter(source);
+        protected override BindableCollectionAdapter GetCollection(IThreadDispatcher threadDispatcher, IList<object?>? source = null) =>
+            new DiffableBindableCollectionAdapter(source, threadDispatcher);
     }
 }

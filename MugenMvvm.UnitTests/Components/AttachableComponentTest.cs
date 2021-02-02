@@ -12,12 +12,14 @@ namespace MugenMvvm.UnitTests.Components
         public void OnAttachedShouldAttachOwner()
         {
             var methodCallCount = 0;
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            testAttachableComponent.OnAttachedHandler = (test, context) =>
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>
             {
-                ++methodCallCount;
-                test.ShouldEqual(this);
-                context.ShouldEqual(DefaultMetadata);
+                OnAttachedHandler = (test, context) =>
+                {
+                    ++methodCallCount;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                }
             };
             IAttachableComponent attachable = testAttachableComponent;
             testAttachableComponent.IsAttached.ShouldBeFalse();
@@ -53,13 +55,15 @@ namespace MugenMvvm.UnitTests.Components
         {
             var methodCallCount = 0;
             var canAttach = false;
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            testAttachableComponent.OnAttachingHandler = (test, context) =>
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>
             {
-                ++methodCallCount;
-                test.ShouldEqual(this);
-                context.ShouldEqual(DefaultMetadata);
-                return canAttach;
+                OnAttachingHandler = (test, context) =>
+                {
+                    ++methodCallCount;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                    return canAttach;
+                }
             };
 
             IAttachableComponent attachable = testAttachableComponent;
@@ -75,12 +79,14 @@ namespace MugenMvvm.UnitTests.Components
         public void OnDetachedShouldDetachOwner()
         {
             var methodCallCount = 0;
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            testAttachableComponent.OnDetachedHandler = (test, context) =>
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>
             {
-                ++methodCallCount;
-                test.ShouldEqual(this);
-                context.ShouldEqual(DefaultMetadata);
+                OnDetachedHandler = (test, context) =>
+                {
+                    ++methodCallCount;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                }
             };
             IAttachableComponent attachable = testAttachableComponent;
             IDetachableComponent detachable = testAttachableComponent;

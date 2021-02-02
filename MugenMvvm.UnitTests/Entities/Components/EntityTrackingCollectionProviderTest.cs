@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
         [Fact]
         public void ShouldReturnCollection()
         {
-            var provider = new EntityTrackingCollectionProvider();
+            var provider = new EntityTrackingCollectionProvider(ComponentCollectionManager);
             provider.Priority.ShouldEqual(EntityComponentPriority.TrackingCollectionProvider);
             var collection = (EntityTrackingCollection) provider.TryGetTrackingCollection(null!, this, DefaultMetadata)!;
             collection.Components.Get<object>().Single().ShouldEqual(EntityStateTransitionManager.Instance);

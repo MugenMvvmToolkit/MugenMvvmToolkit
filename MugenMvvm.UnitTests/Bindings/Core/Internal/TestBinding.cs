@@ -4,13 +4,14 @@ using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Internal
 {
     public class TestBinding : ComponentOwnerBase<IBinding>, IBinding
     {
-        public TestBinding() : base(null)
+        public TestBinding(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
         }
 

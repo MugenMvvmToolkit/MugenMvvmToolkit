@@ -6,20 +6,17 @@ using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
-    public class NullConditionalExpressionBuilderTest : UnitTestBase
+    public class NullConditionalExpressionBuilderTest : ExpressionBuilderTestBase<NullConditionalExpressionBuilder>
     {
         [Fact]
         public void TryBuildShouldIgnoreNotNullConditionalExpression()
         {
-            var component = new NullConditionalExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+            Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
         }
 
         [Theory]
@@ -28,24 +25,19 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         public void TryBuildShouldBuildNullConditionalExpression1(string? value, int? result)
         {
             var node = new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, typeof(string))), nameof(string.Length));
-            var component = new NullConditionalExpressionBuilder();
-            TestExpressionBuilderContext ctx = null!;
-            ctx = new TestExpressionBuilderContext
+            Context.Build = expressionNode =>
             {
-                Build = expressionNode =>
+                if (expressionNode is IConstantExpressionNode constant)
+                    return Expression.Constant(constant.Value, constant.Type);
+                if (expressionNode is IMemberExpressionNode memberExpression)
                 {
-                    if (expressionNode is IConstantExpressionNode constant)
-                        return Expression.Constant(constant.Value, constant.Type);
-                    if (expressionNode is IMemberExpressionNode memberExpression)
-                    {
-                        var target = ((IExpressionBuilderContext) ctx).Build(memberExpression.Target!);
-                        return Expression.MakeMemberAccess(target, typeof(string).GetProperty(memberExpression.Member)!);
-                    }
-
-                    return null;
+                    var target = ((IExpressionBuilderContext) Context).Build(memberExpression.Target!);
+                    return Expression.MakeMemberAccess(target, typeof(string).GetProperty(memberExpression.Member)!);
                 }
+
+                return null;
             };
-            var expression = component.TryBuild(ctx, node)!;
+            var expression = Builder.TryBuild(Context, node)!;
             expression.Invoke().ShouldEqual(result);
         }
 
@@ -57,24 +49,19 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var node = new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, value.HasValue ? typeof(int) : typeof(int?))),
                 nameof(ToString),
                 default);
-            var component = new NullConditionalExpressionBuilder();
-            TestExpressionBuilderContext ctx = null!;
-            ctx = new TestExpressionBuilderContext
+            Context.Build = expressionNode =>
             {
-                Build = expressionNode =>
+                if (expressionNode is IConstantExpressionNode constant)
+                    return Expression.Constant(constant.Value, constant.Type);
+                if (expressionNode is IMethodCallExpressionNode methodCall)
                 {
-                    if (expressionNode is IConstantExpressionNode constant)
-                        return Expression.Constant(constant.Value, constant.Type);
-                    if (expressionNode is IMethodCallExpressionNode methodCall)
-                    {
-                        var target = ((IExpressionBuilderContext) ctx).Build(methodCall.Target!);
-                        return Expression.Call(target.ConvertIfNeed(typeof(object), false), typeof(object).GetMethods().FirstOrDefault(info => info.Name == nameof(ToString))!);
-                    }
-
-                    return null;
+                    var target = ((IExpressionBuilderContext) Context).Build(methodCall.Target!);
+                    return Expression.Call(target.ConvertIfNeed(typeof(object), false), typeof(object).GetMethods().FirstOrDefault(info => info.Name == nameof(ToString))!);
                 }
+
+                return null;
             };
-            var expression = component.TryBuild(ctx, node)!;
+            var expression = Builder.TryBuild(Context, node)!;
             expression.Invoke().ShouldEqual(result);
         }
     }

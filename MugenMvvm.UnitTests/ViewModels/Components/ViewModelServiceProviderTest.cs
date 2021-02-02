@@ -9,53 +9,55 @@ using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Validation.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.Validation;
+using MugenMvvm.ViewModels;
 using MugenMvvm.ViewModels.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class ViewModelServiceProviderTest : UnitTestBase
     {
+        private readonly ViewModelManager _viewModelManager;
+        private readonly ValidationManager _validationManager;
+
+        public ViewModelServiceProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _validationManager = new ValidationManager(ComponentCollectionManager);
+            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
+            _viewModelManager.AddComponent(new ViewModelServiceProvider(ReflectionManager, _validationManager, ThreadDispatcher, ComponentCollectionManager));
+        }
+
         [Fact]
         public void TryGetServiceShouldReturnBusyManager()
         {
-            var component = new ViewModelServiceProvider();
-            var service = (IBusyManager) component.TryGetService(null!, new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
+            var service = (IBusyManager) _viewModelManager.TryGetService(new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
             service.GetComponent<IBusyManagerComponent>().ShouldNotBeNull();
         }
 
         [Fact]
         public void TryGetServiceShouldReturnMessenger()
         {
-            var component = new ViewModelServiceProvider();
-            var service = (IMessenger) component.TryGetService(null!, new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
+            var service = (IMessenger) _viewModelManager.TryGetService(new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
             service.GetComponent<IMessagePublisherComponent>().ShouldNotBeNull();
             service.GetComponent<IMessengerSubscriberComponent>().ShouldNotBeNull();
         }
 
         [Fact]
-        public void TryGetServiceShouldReturnMetadataContext()
-        {
-            var component = new ViewModelServiceProvider();
-            component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
-        }
+        public void TryGetServiceShouldReturnMetadataContext() =>
+            _viewModelManager.TryGetService(new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
 
         [Fact]
-        public void TryGetServiceShouldReturnNullUnknownComponent()
-        {
-            var component = new ViewModelServiceProvider();
-            component.TryGetService(null!, new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
-        }
-
+        public void TryGetServiceShouldReturnNullUnknownComponent() => _viewModelManager.TryGetService(new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
 
         [Fact]
         public void TryGetServiceShouldReturnValidator()
         {
             var vm = new TestViewModel();
-            var validator = new Validator();
-            var validationManager = new ValidationManager();
-            validationManager.AddComponent(new TestValidatorProviderComponent
+            var validator = new Validator(null, ComponentCollectionManager);
+
+            _validationManager.AddComponent(new TestValidatorProviderComponent
             {
                 TryGetValidator = (o, context) =>
                 {
@@ -64,8 +66,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                     return validator;
                 }
             });
-            var component = new ViewModelServiceProvider(validationManager: validationManager);
-            component.TryGetService(null!, vm, typeof(IValidator), DefaultMetadata).ShouldEqual(validator);
+            _viewModelManager.TryGetService(vm, typeof(IValidator), DefaultMetadata).ShouldEqual(validator);
         }
     }
 }

@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Components
         [Fact]
         public void AttachDetachShouldAddRemoveDecorator()
         {
-            var threadDispatcher = new ThreadDispatcher();
+            var threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
             var decorator = new TestThreadDispatcherDecorator();
             threadDispatcher.AddComponent(decorator);
 
@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Components
         [Fact]
         public void ShouldDecorateItems()
         {
-            var collection = new ComponentCollection(this);
+            var collection = new ComponentCollection(this, ComponentCollectionManager);
             var decorator1 = new TestThreadDispatcherDecorator();
             var decorator2 = new TestThreadDispatcherDecorator();
             var component1 = new TestThreadDispatcherComponent();

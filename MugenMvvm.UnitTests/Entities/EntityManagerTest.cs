@@ -14,14 +14,14 @@ namespace MugenMvvm.UnitTests.Entities
         [Fact]
         public void GetSnapshotShouldThrowNoComponents()
         {
-            var entityManager = GetComponentOwner();
+            var entityManager = GetComponentOwner(ComponentCollectionManager);
             ShouldThrow<InvalidOperationException>(() => entityManager.GetSnapshot(this, DefaultMetadata));
         }
 
         [Fact]
         public void GetTrackingCollectionShouldThrowNoComponents()
         {
-            var entityManager = GetComponentOwner();
+            var entityManager = GetComponentOwner(ComponentCollectionManager);
             ShouldThrow<InvalidOperationException>(() => entityManager.GetTrackingCollection(entityManager, DefaultMetadata));
         }
 
@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Entities
         [InlineData(10)]
         public void TryGetTrackingCollectionShouldBeHandledByComponents(int componentCount)
         {
-            var entityManager = GetComponentOwner();
+            var entityManager = GetComponentOwner(ComponentCollectionManager);
             var collection = new EntityTrackingCollection();
             var count = 0;
             for (var i = 0; i < componentCount; i++)
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Entities
         public void TryGetSnapshotShouldBeHandledByComponents(int componentCount)
         {
             var entity = new object();
-            var entityManager = GetComponentOwner();
+            var entityManager = GetComponentOwner(ComponentCollectionManager);
             var snapshot = new TestEntityStateSnapshot();
             var count = 0;
             for (var i = 0; i < componentCount; i++)
@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTests.Entities
         [InlineData(10)]
         public void TryGetTrackingShouldNotifyListeners(int componentCount)
         {
-            var entityManager = GetComponentOwner();
+            var entityManager = GetComponentOwner(ComponentCollectionManager);
             var collection = new EntityTrackingCollection();
             var component = new TestEntityTrackingCollectionProviderComponent(entityManager)
             {
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTests.Entities
         public void TryGetSnapshotShouldNotifyListeners(int componentCount)
         {
             var entity = new object();
-            var entityManager = GetComponentOwner();
+            var entityManager = GetComponentOwner(ComponentCollectionManager);
             var snapshot = new TestEntityStateSnapshot();
             var component = new TestEntityStateSnapshotProviderComponent(entityManager)
             {
@@ -149,6 +149,6 @@ namespace MugenMvvm.UnitTests.Entities
             count.ShouldEqual(componentCount);
         }
 
-        protected override EntityManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override EntityManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

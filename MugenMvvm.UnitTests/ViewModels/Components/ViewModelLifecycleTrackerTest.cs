@@ -17,8 +17,8 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [InlineData(false)]
         public void ShouldTrackLifecycle(bool viewModelBase)
         {
-            var viewModel = viewModelBase ? new TestViewModelBase() : (IViewModelBase) new TestViewModel();
-            var manager = new ViewModelManager();
+            var manager = new ViewModelManager(ComponentCollectionManager);
+            var viewModel = viewModelBase ? new TestViewModelBase(manager) : (IViewModelBase) new TestViewModel();
             var component = new ViewModelLifecycleTracker();
             manager.AddComponent(component);
 

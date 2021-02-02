@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Converters;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
@@ -9,7 +8,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
-    public class LambdaExpressionConverterTest : UnitTestBase
+    public class LambdaExpressionConverterTest : ExpressionConverterTestBase<LambdaExpressionConverter>
     {
         [Fact]
         public void TryConvertShouldConvertLambdaExpression()
@@ -22,34 +21,26 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
                 new ParameterExpressionNode(p1.Name!),
                 new ParameterExpressionNode(p2.Name!)
             });
-            var ctx = new ExpressionConverterContext<Expression>
+
+            Context.Converters = new IExpressionConverterComponent<Expression>[]
             {
-                Converters = new IExpressionConverterComponent<Expression>[]
+                new TestExpressionConverterComponent<Expression>
                 {
-                    new TestExpressionConverterComponent<Expression>
+                    TryConvert = (context, expression) =>
                     {
-                        TryConvert = (context, expression) =>
-                        {
-                            context.TryGetExpression(p1).ShouldEqual(new ParameterExpressionNode(p1.Name!));
-                            context.TryGetExpression(p2).ShouldEqual(new ParameterExpressionNode(p2.Name!));
-                            return ConstantExpressionNode.EmptyString;
-                        }
+                        context.TryGetExpression(p1).ShouldEqual(new ParameterExpressionNode(p1.Name!));
+                        context.TryGetExpression(p2).ShouldEqual(new ParameterExpressionNode(p2.Name!));
+                        return ConstantExpressionNode.EmptyString;
                     }
                 }
             };
 
-            var component = new LambdaExpressionConverter();
-            component.TryConvert(ctx, Expression.Lambda(body, p1, p2)).ShouldEqual(expectedResult);
-            ctx.TryGetExpression(p1).ShouldBeNull();
-            ctx.TryGetExpression(p2).ShouldBeNull();
+            Converter.TryConvert(Context, Expression.Lambda(body, p1, p2)).ShouldEqual(expectedResult);
+            Context.TryGetExpression(p1).ShouldBeNull();
+            Context.TryGetExpression(p2).ShouldBeNull();
         }
 
         [Fact]
-        public void TryConvertShouldIgnoreNotLambdaExpression()
-        {
-            var component = new LambdaExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
-        }
+        public void TryConvertShouldIgnoreNotLambdaExpression() => Converter.TryConvert(Context, Expression.Parameter(typeof(object))).ShouldBeNull();
     }
 }

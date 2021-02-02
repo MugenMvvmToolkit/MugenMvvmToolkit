@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.UnitTests.Models.Internal
 {
-    public class TestNotifyPropertyChangedModel : NotifyPropertyChangedBase
+    public class TestNotifyPropertyChangedModel : NotifyPropertyChangedBase, IHasService<IThreadDispatcher>
     {
         private string? _property;
 
@@ -21,6 +23,8 @@ namespace MugenMvvm.UnitTests.Models.Internal
             }
         }
 
+        public IThreadDispatcher? ThreadDispatcher { get; set; }
+
         public Action<PropertyChangedEventArgs>? OnPropertyChangedInternalHandler { get; set; }
 
         public Action<bool>? OnEndSuspendHandler { get; set; }
@@ -30,6 +34,8 @@ namespace MugenMvvm.UnitTests.Models.Internal
         public new void OnPropertyChanged(PropertyChangedEventArgs args) => base.OnPropertyChanged(args);
 
         public new void ClearPropertyChangedSubscribers() => base.ClearPropertyChangedSubscribers();
+
+        public IThreadDispatcher? GetService(bool optional) => ThreadDispatcher;
 
         protected override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {

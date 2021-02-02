@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void GetComponentShouldCallDelegate()
         {
-            var binding = new TestBinding();
+            var binding = new TestBinding(ComponentCollectionManager);
             var state = "s";
             var target = new object();
             var source = new object();

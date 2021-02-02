@@ -1,35 +1,40 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
+using MugenMvvm.Extensions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class FakeMemberProviderTest : UnitTestBase
     {
-        [Fact]
-        public void TryGetMembersShouldReturnEmptyResultNoPrefix()
+        private readonly MemberManager _memberManager;
+        private readonly FakeMemberProvider _provider;
+
+        public FakeMemberProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            var component = new FakeMemberProvider();
-            component.TryGetMembers(null!, typeof(object), "test", MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _memberManager = new MemberManager(ComponentCollectionManager);
+            _provider = new FakeMemberProvider();
+            _memberManager.AddComponent(_provider);
         }
+
+        [Fact]
+        public void TryGetMembersShouldReturnEmptyResultNoPrefix() =>
+            _provider.TryGetMembers(_memberManager, typeof(object), "test", MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void TryGetMembersShouldReturnFakeMember1()
         {
-            var component = new FakeMemberProvider();
-            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Accessor, DefaultMetadata).Item
+            _provider.TryGetMembers(_memberManager, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Accessor, DefaultMetadata).Item
                      .ShouldBeType<ConstantMemberInfo>();
-            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(_memberManager, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
-        public void TryGetMembersShouldReturnFakeMember2()
-        {
-            var component = new FakeMemberProvider();
-            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefixSymbol}test", MemberType.Accessor, DefaultMetadata).Item
+        public void TryGetMembersShouldReturnFakeMember2() =>
+            _provider.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefixSymbol}test", MemberType.Accessor, DefaultMetadata).Item
                      .ShouldBeType<ConstantMemberInfo>();
-        }
     }
 }

@@ -1,17 +1,25 @@
 ﻿using System;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
-    public class PropertyAccessorMemberInfoTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class PropertyAccessorMemberInfoTest : UnitTestBase, IDisposable
     {
+        public PropertyAccessorMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+        }
+
         public static string? Property1Static { get; set; }
 
         public static int Property2Static { get; set; }
@@ -73,7 +81,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, propertyInfo);
 
             var observerRequestCount = 0;
-            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {
@@ -166,7 +174,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, propertyInfo);
 
             var observerRequestCount = 0;
-            using var t = MugenService.AddComponent(new TestMemberObserverProviderComponent
+            MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg4) =>
                 {
@@ -229,5 +237,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 Property2Static.ShouldEqual(int.MaxValue);
             }
         }
+
+        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
     }
 }

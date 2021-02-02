@@ -3,6 +3,7 @@ using System.Linq;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
@@ -10,17 +11,27 @@ using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class EventMemberObserverProviderTest : UnitTestBase
     {
-        [Fact]
-        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
+        private readonly ObservationManager _observationManager;
+        private readonly MemberManager _memberManager;
+        private readonly EventMemberObserverProvider _provider;
+
+        public EventMemberObserverProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            var component = new EventMemberObserverProvider();
-            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _memberManager = new MemberManager(ComponentCollectionManager);
+            _provider = new EventMemberObserverProvider(_memberManager);
+            _observationManager = new ObservationManager(ComponentCollectionManager);
+            _observationManager.AddComponent(_provider);
         }
+
+        [Fact]
+        public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest() =>
+            _observationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void TryGetMemberObserverShouldUseEventFinder1()
@@ -44,19 +55,17 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     return token;
                 }
             };
-            var component = new EventMemberObserverProvider
+
+            _provider.EventFinder = (type, o, arg3) =>
             {
-                EventFinder = (type, o, arg3) =>
-                {
-                    ++invokeCount;
-                    type.ShouldEqual(targetType);
-                    member.ShouldEqual(o);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return result;
-                }
+                ++invokeCount;
+                type.ShouldEqual(targetType);
+                member.ShouldEqual(o);
+                arg3.ShouldEqual(DefaultMetadata);
+                return result;
             };
 
-            var observer = component.TryGetMemberObserver(null!, targetType, member, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             invokeCount.ShouldEqual(1);
             tryObserveCount.ShouldEqual(0);
@@ -87,19 +96,17 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     return token;
                 }
             };
-            var component = new EventMemberObserverProvider
+
+            _provider.EventFinder = (type, o, arg3) =>
             {
-                EventFinder = (type, o, arg3) =>
-                {
-                    ++invokeCount;
-                    type.ShouldEqual(targetType);
-                    member.ShouldEqual(o);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return result;
-                }
+                ++invokeCount;
+                type.ShouldEqual(targetType);
+                member.ShouldEqual(o);
+                arg3.ShouldEqual(DefaultMetadata);
+                return result;
             };
 
-            var observer = component.TryGetMemberObserver(null!, targetType, member, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             invokeCount.ShouldEqual(1);
             tryObserveCount.ShouldEqual(0);
@@ -133,8 +140,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             };
 
-            var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            _memberManager.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -145,9 +151,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             });
 
-            var component = new EventMemberObserverProvider(memberManager);
-
-            var observer = component.TryGetMemberObserver(null!, targetType, member, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(2);
             set.Contains(memberName + BindingInternalConstant.ChangedEventPostfix).ShouldBeTrue();
@@ -183,8 +187,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             };
 
-            var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            _memberManager.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -196,8 +199,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             });
 
-            var component = new EventMemberObserverProvider(memberManager);
-            var observer = component.TryGetMemberObserver(null!, targetType, member, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(2);
             set.Contains(memberName + BindingInternalConstant.ChangedEventPostfix).ShouldBeTrue();
@@ -234,8 +236,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             };
 
-            var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            _memberManager.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -247,8 +248,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             });
 
-            var component = new EventMemberObserverProvider(memberManager);
-            var observer = component.TryGetMemberObserver(null!, targetType, member, DefaultMetadata);
+            var observer = _observationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(1);
             set.Contains(member).ShouldBeTrue();

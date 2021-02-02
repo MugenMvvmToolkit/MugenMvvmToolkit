@@ -15,9 +15,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             var invokeCount = 0;
             var path = MemberPath.Get("test");
-            var provider = new ObservationManager();
+            var provider = new ObservationManager(ComponentCollectionManager);
             var decorator = new MemberPathProviderCache();
-            var testPathProvider = new TestMemberPathProviderComponent
+            var testPathProvider = new TestMemberPathProviderComponent(provider)
             {
                 TryGetMemberPath = (o, arg3) =>
                 {

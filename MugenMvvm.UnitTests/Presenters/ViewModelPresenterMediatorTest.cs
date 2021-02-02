@@ -7,14 +7,14 @@ using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
 using MugenMvvm.Presenters;
 using MugenMvvm.Requests;
-using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Internal.Internal;
 using MugenMvvm.UnitTests.Navigation.Internal;
 using MugenMvvm.UnitTests.Presenters.Internal;
-using MugenMvvm.UnitTests.Threading.Internal;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.UnitTests.Views.Internal;
+using MugenMvvm.ViewModels;
 using MugenMvvm.Views;
+using MugenMvvm.Wrapping;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,29 +23,42 @@ namespace MugenMvvm.UnitTests.Presenters
 {
     public class ViewModelPresenterMediatorTest : UnitTestBase
     {
+        private readonly TestViewPresenter _viewPresenter;
+        private readonly TestViewModel _vm;
+        private readonly View _view;
+        private readonly ViewMapping _mapping;
+        private readonly NavigationDispatcher _navigationDispatcher;
+        private readonly WrapperManager _wrapperManager;
+        private readonly ViewManager _viewManager;
+        private readonly ViewModelManager _viewModelManager;
+        private readonly ViewModelPresenterMediator<object> _mediator;
+
         public ViewModelPresenterMediatorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
+            _viewPresenter = new TestViewPresenter();
+            _vm = new TestViewModel();
+            _mapping = new ViewMapping("id", _vm.GetType(), typeof(object), DefaultMetadata);
+            _view = new View(_mapping, new object(), _vm);
+            _navigationDispatcher = new NavigationDispatcher(ComponentCollectionManager);
+            _navigationDispatcher.AddComponent(new NavigationContextProvider());
+            _viewManager = new ViewManager(ComponentCollectionManager);
+            _viewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(_view)
+            });
+            _wrapperManager = new WrapperManager(ComponentCollectionManager);
+            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
+            _mediator = new ViewModelPresenterMediator<object>(_vm, _mapping, _viewPresenter, _viewManager, _wrapperManager, _navigationDispatcher, ThreadDispatcher,
+                _viewModelManager);
         }
 
         [Fact]
         public void ShouldCancelCloseReappearing()
         {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-
             var navigatedCount = 0;
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
             var shown = false;
             var canceled = false;
-            navigationDispatcher.AddComponent(new TestNavigationListener
+            _navigationDispatcher.AddComponent(new TestNavigationListener
             {
                 OnNavigated = context =>
                 {
@@ -60,7 +73,7 @@ namespace MugenMvvm.UnitTests.Presenters
                     ++navigatedCount;
                 }
             });
-            navigationDispatcher.AddComponent(new TestNavigationErrorListener
+            _navigationDispatcher.AddComponent(new TestNavigationErrorListener
             {
                 OnNavigationCanceled = (context, token) =>
                 {
@@ -69,39 +82,25 @@ namespace MugenMvvm.UnitTests.Presenters
                     canceled = true;
                 }
             });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.TryShow(null, default, DefaultMetadata);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
+            _mediator.TryShow(null, default, DefaultMetadata);
+
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
             navigatedCount.ShouldEqual(1);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, new CancelableRequest());
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Closing, new CancelableRequest());
             navigatedCount.ShouldEqual(1);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appearing);
             canceled.ShouldBeTrue();
         }
 
         [Fact]
         public void ShouldCloseAfterShow()
         {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
-
             var navigatedCount = 0;
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
             var shown = false;
-            navigationDispatcher.AddComponent(new TestNavigationListener
+            _navigationDispatcher.AddComponent(new TestNavigationListener
             {
                 OnNavigated = context =>
                 {
@@ -115,106 +114,77 @@ namespace MugenMvvm.UnitTests.Presenters
                         context.NavigationMode.ShouldEqual(NavigationMode.Close);
                 }
             });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.TryShow(null, default, DefaultMetadata);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closed);
+            _mediator.TryShow(null, default, DefaultMetadata);
+
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Closed);
             navigatedCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
             navigatedCount.ShouldEqual(1);
             WaitCompletion();
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Disappeared);
             navigatedCount.ShouldEqual(2);
         }
 
         [Fact]
         public void ShouldInitCleanViewFromLifecycle()
         {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
+            _mediator.TryShow(null, default, DefaultMetadata);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
+            _mediator.View.ShouldEqual(_view);
 
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.TryShow(null, default, DefaultMetadata);
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
-            mediator.View.ShouldEqual(view);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared);
+            _mediator.View.ShouldBeNull();
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared);
-            mediator.View.ShouldBeNull();
-
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing);
-            mediator.View.ShouldEqual(view);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing);
+            _mediator.View.ShouldEqual(_view);
         }
 
         [Fact]
         public void ShouldListenViewLifecycle()
         {
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
             var navigatingCount = 0;
             var navigatedCount = 0;
 
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            navigationDispatcher.AddComponent(new TestNavigationListener
+            _navigationDispatcher.AddComponent(new TestNavigationListener
             {
                 OnNavigating = context => { ++navigatingCount; },
                 OnNavigated = context => { ++navigatedCount; }
             });
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.TryShow(null, default, DefaultMetadata);
-            mediator.View.ShouldEqual(view);
+
+
+            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.View.ShouldEqual(_view);
 
             navigatingCount.ShouldEqual(1);
             navigatedCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appearing);
             navigatingCount.ShouldEqual(1);
             navigatedCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
             navigatingCount.ShouldEqual(1);
             navigatedCount.ShouldEqual(1);
 
             navigatingCount = navigatedCount = 0;
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appearing);
             navigatingCount.ShouldEqual(1);
             navigatedCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
             navigatingCount.ShouldEqual(1);
             navigatedCount.ShouldEqual(1);
 
             navigatingCount = navigatedCount = 0;
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, new CancelableRequest());
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Closing, new CancelableRequest());
             navigatingCount.ShouldEqual(1);
             navigatedCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Disappeared);
             navigatingCount.ShouldEqual(1);
             navigatedCount.ShouldEqual(1);
         }
@@ -223,9 +193,6 @@ namespace MugenMvvm.UnitTests.Presenters
         public void ShouldUseViewPresenter()
         {
             var viewRequest = new object();
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
             var showCount = 0;
             var initializeCount = 0;
             var closeCount = 0;
@@ -233,69 +200,63 @@ namespace MugenMvvm.UnitTests.Presenters
             var cleanupCount = 0;
             var getViewRequestCount = 0;
 
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewManagerComponent
+            _viewManager.RemoveComponents<TestViewManagerComponent>();
+            _viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (viewMapping, r, token, m) =>
                 {
                     r.ShouldEqual(viewRequest);
-                    return new ValueTask<IView?>(view);
+                    return new ValueTask<IView?>(_view);
                 }
             });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
 
-            viewPresenter.TryGetViewRequest = (p, v, m) =>
+            _viewPresenter.TryGetViewRequest = (p, v, m) =>
             {
-                p.ShouldEqual(mediator);
+                p.ShouldEqual(_mediator);
                 m.ShouldNotBeNull();
                 ++getViewRequestCount;
                 return viewRequest;
             };
-            viewPresenter.Initialize = (p, v, m) =>
+            _viewPresenter.Initialize = (p, v, m) =>
             {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
+                p.ShouldEqual(_mediator);
+                v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++initializeCount;
             };
-            viewPresenter.Show = (p, v, m) =>
+            _viewPresenter.Show = (p, v, m) =>
             {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
+                p.ShouldEqual(_mediator);
+                v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++showCount;
                 return Default.CompletedTask;
             };
-            viewPresenter.Activate = (p, v, m) =>
+            _viewPresenter.Activate = (p, v, m) =>
             {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
+                p.ShouldEqual(_mediator);
+                v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++activateCount;
                 return Default.CompletedTask;
             };
-            viewPresenter.Close = (p, v, m) =>
+            _viewPresenter.Close = (p, v, m) =>
             {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
+                p.ShouldEqual(_mediator);
+                v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++closeCount;
                 return Default.CompletedTask;
             };
-            viewPresenter.Cleanup = (p, v, m) =>
+            _viewPresenter.Cleanup = (p, v, m) =>
             {
-                p.ShouldEqual(mediator);
-                v.ShouldEqual(view.Target);
+                p.ShouldEqual(_mediator);
+                v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++cleanupCount;
             };
 
-            mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, DefaultMetadata);
             getViewRequestCount.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -303,8 +264,8 @@ namespace MugenMvvm.UnitTests.Presenters
             closeCount.ShouldEqual(0);
             cleanupCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
-            mediator.TryShow(null, default, DefaultMetadata);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
+            _mediator.TryShow(null, default, DefaultMetadata);
             getViewRequestCount.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -312,8 +273,8 @@ namespace MugenMvvm.UnitTests.Presenters
             closeCount.ShouldEqual(0);
             cleanupCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
-            mediator.TryClose(null, default, DefaultMetadata);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
+            _mediator.TryClose(null, default, DefaultMetadata);
             getViewRequestCount.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -321,7 +282,7 @@ namespace MugenMvvm.UnitTests.Presenters
             closeCount.ShouldEqual(1);
             cleanupCount.ShouldEqual(0);
 
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared);
+            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Disappeared);
             getViewRequestCount.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -338,45 +299,33 @@ namespace MugenMvvm.UnitTests.Presenters
         public void ShouldUseViewState(string stateString)
         {
             var state = ViewLifecycleState.Get(stateString);
-            var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
-            var view = new View(mapping, new object(), vm);
             var navigatingCount = 0;
             var navigateCanceledCount = 0;
             var navigatedCount = 0;
 
-            var viewPresenter = new TestViewPresenter();
-            var navigationDispatcher = new NavigationDispatcher();
-            navigationDispatcher.AddComponent(new NavigationContextProvider());
-            navigationDispatcher.AddComponent(new TestNavigationListener
+            _navigationDispatcher.AddComponent(new TestNavigationListener
             {
                 OnNavigating = context => ++navigatingCount,
                 OnNavigated = context => ++navigatedCount
             });
-            navigationDispatcher.AddComponent(new TestNavigationErrorListener
+            _navigationDispatcher.AddComponent(new TestNavigationErrorListener
             {
                 OnNavigationCanceled = (context, token) => ++navigateCanceledCount
             });
-            var viewManager = new ViewManager();
-            viewManager.Components.TryAdd(new TestLifecycleTrackerComponent<ViewLifecycleState>
+
+            _viewManager.Components.TryAdd(new TestLifecycleTrackerComponent<ViewLifecycleState>
             {
                 IsInState = (o, v, s, m) =>
                 {
-                    v.ShouldEqual(view.Target);
+                    v.ShouldEqual(_view.Target);
                     return s == state;
                 }
             });
-            viewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (viewMapping, r, token, m) => new ValueTask<IView?>(view)
-            });
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            var mediator = new ViewModelPresenterMediator<object>(vm, mapping, viewPresenter, viewManager, null, navigationDispatcher, threadDispatcher);
-            mediator.TryShow(null, default, DefaultMetadata);
+
+            _mediator.TryShow(null, default, DefaultMetadata);
 
             if (state != ViewLifecycleState.Closed)
-                mediator.View.ShouldEqual(view);
+                _mediator.View.ShouldEqual(_view);
 
             navigatingCount.ShouldEqual(1);
             if (state == ViewLifecycleState.Appeared)
@@ -394,7 +343,7 @@ namespace MugenMvvm.UnitTests.Presenters
                 navigatedCount.ShouldEqual(0);
                 navigateCanceledCount.ShouldEqual(0);
 
-                viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appeared);
+                _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
                 navigateCanceledCount.ShouldEqual(0);
                 navigatingCount.ShouldEqual(1);
                 navigatedCount.ShouldEqual(1);

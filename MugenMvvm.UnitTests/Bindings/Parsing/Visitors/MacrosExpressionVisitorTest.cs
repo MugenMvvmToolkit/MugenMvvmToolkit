@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 {
@@ -17,15 +18,20 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         private const string MemberName2 = "T2";
         private const string MemberName3 = "T3";
 
+        private readonly MacrosExpressionVisitor _visitor;
+
+        public MacrosExpressionVisitorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _visitor = new MacrosExpressionVisitor();
+        }
+
         [Fact]
         public void VisitorShouldConvertMacros()
         {
-            var visitor = new MacrosExpressionVisitor();
-            visitor.Macros.ShouldNotBeEmpty();
-
-            foreach (var member in visitor.Macros)
+            _visitor.Macros.ShouldNotBeEmpty();
+            foreach (var member in _visitor.Macros)
             {
-                var expressionNode = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, member.Key)).Accept(visitor);
+                var expressionNode = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, member.Key)).Accept(_visitor);
                 if (member.Key == MacrosConstant.Action)
                     expressionNode.ShouldEqual(new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + (Default.NextCounter() - 1).ToString()));
                 else
@@ -36,20 +42,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [Fact]
         public void VisitorShouldConvertMacrosTarget()
         {
-            var visitor = new MacrosExpressionVisitor();
-            visitor.MacrosTargets.ShouldNotBeEmpty();
-
+            _visitor.MacrosTargets.ShouldNotBeEmpty();
             var args = new IExpressionNode[]
                 {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
             var constantArgs = new IExpressionNode[]
                 {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
-            foreach (var member in visitor.MacrosTargets)
+            foreach (var member in _visitor.MacrosTargets)
             {
                 var arguments = args;
-                if (visitor.AccessorMethods.TryGetValue(member.Key, out var newName))
+                if (_visitor.AccessorMethods.TryGetValue(member.Key, out var newName))
                     arguments = constantArgs;
                 new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MethodCallExpressionNode(null, member.Key, args))
-                    .Accept(visitor)
+                    .Accept(_visitor)
                     .ShouldEqual(new MethodCallExpressionNode(member.Value, newName ?? member.Key, arguments, default, new Dictionary<string, object?>
                     {
                         {BindingParameterNameConstant.SuppressMethodAccessors, false}
@@ -60,10 +64,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [Fact]
         public void VisitorShouldConvertMethodAliases()
         {
-            var visitor = new MacrosExpressionVisitor();
-            visitor.MethodAliases.ShouldNotBeEmpty();
-
-            foreach (var member in visitor.MethodAliases)
+            _visitor.MethodAliases.ShouldNotBeEmpty();
+            foreach (var member in _visitor.MethodAliases)
             {
                 var methodCallExpressionNode = new MethodCallExpressionNode(null, member.Key,
                     new IExpressionNode[]
@@ -72,7 +74,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                         ConstantExpressionNode.Get(1)
                     });
                 new UnaryExpressionNode(UnaryTokenType.DynamicExpression, methodCallExpressionNode)
-                    .Accept(visitor)
+                    .Accept(_visitor)
                     .ShouldEqual(member.Value.UpdateArguments(methodCallExpressionNode.Arguments));
             }
         }
@@ -80,13 +82,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         [Fact]
         public void VisitorShouldConvertParametersToConstant()
         {
-            var visitor = new MacrosExpressionVisitor();
-            visitor.AccessorMethods.ShouldNotBeEmpty();
+            _visitor.AccessorMethods.ShouldNotBeEmpty();
 
-            foreach (var method in visitor.AccessorMethods)
+            foreach (var method in _visitor.AccessorMethods)
             {
                 new MethodCallExpressionNode(null, method.Key, default)
-                    .Accept(visitor)
+                    .Accept(_visitor)
                     .ShouldEqual(new MethodCallExpressionNode(null, method.Value, default, default, new Dictionary<string, object?>
                     {
                         {BindingParameterNameConstant.SuppressMethodAccessors, false}
@@ -103,10 +104,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 {"test", this},
                 {BindingParameterNameConstant.SuppressMethodAccessors, false}
             };
-            foreach (var method in visitor.AccessorMethods)
+            foreach (var method in _visitor.AccessorMethods)
             {
                 new MethodCallExpressionNode(null, method.Key, default, default, metadata)
-                    .Accept(visitor)
+                    .Accept(_visitor)
                     .ShouldEqual(new MethodCallExpressionNode(null, method.Value, default, default, mergedMetadata));
             }
 
@@ -114,10 +115,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
             var expectedArgs = new IExpressionNode[]
                 {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
-            foreach (var method in visitor.AccessorMethods)
+            foreach (var method in _visitor.AccessorMethods)
             {
                 new MethodCallExpressionNode(null, method.Key, args)
-                    .Accept(visitor)
+                    .Accept(_visitor)
                     .ShouldEqual(new MethodCallExpressionNode(null, method.Value, expectedArgs, default, new Dictionary<string, object?>
                     {
                         {BindingParameterNameConstant.SuppressMethodAccessors, false}

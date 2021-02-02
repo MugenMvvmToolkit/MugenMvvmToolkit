@@ -8,11 +8,21 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class MacrosBindingInitializerTest : UnitTestBase
     {
+        private readonly BindingExpressionInitializerContext _context;
+        private readonly MacrosBindingInitializer _initializer;
+
+        public MacrosBindingInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _context = new BindingExpressionInitializerContext(this);
+            _initializer = new MacrosBindingInitializer();
+        }
+
         [Fact]
         public void ParameterVisitorsShouldUpdateSourceExpression()
         {
@@ -21,11 +31,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var parameters = new IExpressionNode[] {new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5")};
             var handledParameters = new List<IExpressionNode>();
             var newNode = ConstantExpressionNode.Get(1);
-            var ctx = new BindingExpressionInitializerContext(this);
-            ctx.Initialize(this, this, target, source, parameters.ToList(), DefaultMetadata);
 
-            var initializer = new MacrosBindingInitializer();
-            initializer.ParameterVisitors.Add(new TestExpressionVisitor
+            _context.Initialize(this, this, target, source, parameters.ToList(), DefaultMetadata);
+            _initializer.ParameterVisitors.Add(new TestExpressionVisitor
             {
                 TraversalType = ExpressionTraversalType.Postorder,
                 Visit = (node, context) =>
@@ -33,15 +41,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     if (node == newNode)
                         return node;
                     handledParameters.Add(node);
-                    context.ShouldEqual(ctx.GetMetadataOrDefault());
+                    context.ShouldEqual(_context.GetMetadataOrDefault());
                     return newNode;
                 }
             });
 
-            initializer.Initialize(null!, ctx);
-            ctx.TargetExpression.ShouldEqual(target);
-            ctx.SourceExpression.ShouldEqual(source);
-            ctx.ParameterExpressions.AsList().ShouldEqual(new[] {newNode, newNode, newNode});
+            _initializer.Initialize(null!, _context);
+            _context.TargetExpression.ShouldEqual(target);
+            _context.SourceExpression.ShouldEqual(source);
+            _context.ParameterExpressions.AsList().ShouldEqual(new[] {newNode, newNode, newNode});
             handledParameters.ShouldEqual(parameters);
         }
 
@@ -52,11 +60,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var source = new MemberExpressionNode(null, "2");
             var parameters = new IExpressionNode[] {new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5")};
             var newNode = ConstantExpressionNode.Get(1);
-            var ctx = new BindingExpressionInitializerContext(this);
-            ctx.Initialize(this, this, target, source, parameters, DefaultMetadata);
 
-            var initializer = new MacrosBindingInitializer();
-            initializer.SourceVisitors.Add(new TestExpressionVisitor
+            _context.Initialize(this, this, target, source, parameters, DefaultMetadata);
+            _initializer.SourceVisitors.Add(new TestExpressionVisitor
             {
                 TraversalType = ExpressionTraversalType.Postorder,
                 Visit = (node, context) =>
@@ -64,15 +70,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     if (node == newNode)
                         return node;
                     node.ShouldEqual(source);
-                    context.ShouldEqual(ctx.GetMetadataOrDefault());
+                    context.ShouldEqual(_context.GetMetadataOrDefault());
                     return newNode;
                 }
             });
 
-            initializer.Initialize(null!, ctx);
-            ctx.TargetExpression.ShouldEqual(target);
-            ctx.SourceExpression.ShouldEqual(newNode);
-            ctx.ParameterExpressions.AsList().ShouldEqual(parameters);
+            _initializer.Initialize(null!, _context);
+            _context.TargetExpression.ShouldEqual(target);
+            _context.SourceExpression.ShouldEqual(newNode);
+            _context.ParameterExpressions.AsList().ShouldEqual(parameters);
         }
 
         [Fact]
@@ -82,11 +88,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var source = new MemberExpressionNode(null, "2");
             var parameters = new IExpressionNode[] {new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5")};
             var newNode = ConstantExpressionNode.Get(1);
-            var ctx = new BindingExpressionInitializerContext(this);
-            ctx.Initialize(this, this, target, source, parameters, DefaultMetadata);
 
-            var initializer = new MacrosBindingInitializer();
-            initializer.TargetVisitors.Add(new TestExpressionVisitor
+            _context.Initialize(this, this, target, source, parameters, DefaultMetadata);
+            _initializer.TargetVisitors.Add(new TestExpressionVisitor
             {
                 TraversalType = ExpressionTraversalType.Postorder,
                 Visit = (node, context) =>
@@ -94,15 +98,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     if (node == newNode)
                         return node;
                     node.ShouldEqual(target);
-                    context.ShouldEqual(ctx.GetMetadataOrDefault());
+                    context.ShouldEqual(_context.GetMetadataOrDefault());
                     return newNode;
                 }
             });
 
-            initializer.Initialize(null!, ctx);
-            ctx.TargetExpression.ShouldEqual(newNode);
-            ctx.SourceExpression.ShouldEqual(source);
-            ctx.ParameterExpressions.AsList().ShouldEqual(parameters);
+            _initializer.Initialize(null!, _context);
+            _context.TargetExpression.ShouldEqual(newNode);
+            _context.SourceExpression.ShouldEqual(source);
+            _context.ParameterExpressions.AsList().ShouldEqual(parameters);
         }
     }
 }

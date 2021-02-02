@@ -9,7 +9,9 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Metadata;
+using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -260,25 +262,25 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
 
         private static ExpressionCompiler GetInitializedCompiler()
         {
-            var memberManager = new MemberManager();
+            var memberManager = new MemberManager(ComponentCollectionManager);
             memberManager.AddComponent(new MemberSelector());
             memberManager.AddComponent(new NameRequestMemberManagerDecorator());
-            memberManager.AddComponent(new ReflectionMemberProvider());
+            memberManager.AddComponent(new ReflectionMemberProvider(ObservationManager));
             memberManager.AddComponent(new ExtensionMethodMemberProvider());
 
-            var expressionCompiler = new ExpressionCompiler();
+            var expressionCompiler = new ExpressionCompiler(ComponentCollectionManager);
             expressionCompiler.AddComponent(new BinaryExpressionBuilder());
             expressionCompiler.AddComponent(new ConditionExpressionBuilder());
             expressionCompiler.AddComponent(new ConstantExpressionBuilder());
             expressionCompiler.AddComponent(new LambdaExpressionBuilder());
             expressionCompiler.AddComponent(new MemberExpressionBuilder(memberManager));
-            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilder(memberManager));
+            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilder(memberManager, ResourceManager, GlobalValueConverter));
             expressionCompiler.AddComponent(new NullConditionalExpressionBuilder());
             expressionCompiler.AddComponent(new UnaryExpressionBuilder());
             expressionCompiler.AddComponent(new CompiledExpressionCompiler());
             return expressionCompiler;
         }
 
-        protected override ExpressionCompiler GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override ExpressionCompiler GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }

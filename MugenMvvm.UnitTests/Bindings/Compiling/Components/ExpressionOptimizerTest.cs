@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
         public ExpressionOptimizerTest()
         {
-            _compiler = new ExpressionCompiler();
+            _compiler = new ExpressionCompiler(ComponentCollectionManager);
             _compiler.AddComponent(new ExpressionOptimizer());
         }
 

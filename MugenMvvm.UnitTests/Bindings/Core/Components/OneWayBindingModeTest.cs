@@ -9,37 +9,43 @@ using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class OneWayBindingModeTest : UnitTestBase
     {
+        private readonly TestBinding _binding;
+
+        public OneWayBindingModeTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _binding = new TestBinding(ComponentCollectionManager);
+        }
+
         [Fact]
         public void ShouldUpdateBindingIfTargetAvailable()
         {
             var updateCount = 0;
-            var binding = new TestBinding
+            
+            _binding.UpdateSource = () => throw new NotSupportedException();
+            _binding.UpdateTarget = () => ++updateCount;
+            _binding.Target = new TestMemberPathObserver
             {
-                UpdateSource = () => throw new NotSupportedException(),
-                UpdateTarget = () => ++updateCount,
-                Target = new TestMemberPathObserver
-                {
-                    GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
-                }
+                GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
             };
 
             IBindingSourceObserverListener mode = OneWayBindingMode.Instance;
-            binding.AddComponent(mode);
+            _binding.AddComponent(mode);
             updateCount.ShouldEqual(1);
-            binding.GetComponents<object>().Single().ShouldEqual(mode);
+            _binding.GetComponents<object>().Single().ShouldEqual(mode);
 
-            mode.OnSourceLastMemberChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
+            mode.OnSourceLastMemberChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
             updateCount.ShouldEqual(2);
 
-            mode.OnSourcePathMembersChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
+            mode.OnSourcePathMembersChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
             updateCount.ShouldEqual(3);
 
-            mode.OnSourceError(binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
+            mode.OnSourceError(_binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
             updateCount.ShouldEqual(3);
         }
 
@@ -50,44 +56,42 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var updateCount = 0;
             var isAvailable = false;
-            var binding = new TestBinding
+            
+            _binding.UpdateSource = () => throw new NotSupportedException();
+            _binding.UpdateTarget = () => ++updateCount;
+            _binding.Target = new TestMemberPathObserver
             {
-                UpdateSource = () => throw new NotSupportedException(),
-                UpdateTarget = () => ++updateCount,
-                Target = new TestMemberPathObserver
+                GetLastMember = metadata =>
                 {
-                    GetLastMember = metadata =>
-                    {
-                        if (isAvailable)
-                            return new MemberPathLastMember(this, ConstantMemberInfo.Target);
-                        return default;
-                    }
+                    if (isAvailable)
+                        return new MemberPathLastMember(this, ConstantMemberInfo.Target);
+                    return default;
                 }
             };
 
             IBindingSourceObserverListener mode = OneWayBindingMode.Instance;
             var oneTimeMode = OneWayBindingMode.OneTimeHandlerComponent.Instance;
-            binding.AddComponent(mode);
+            _binding.AddComponent(mode);
             updateCount.ShouldEqual(1);
-            binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
+            _binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
 
             if (lastMember)
-                oneTimeMode.OnTargetLastMemberChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnTargetLastMemberChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
             else
-                oneTimeMode.OnTargetPathMembersChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnTargetPathMembersChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
 
             updateCount.ShouldEqual(1);
-            binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
+            _binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
 
             isAvailable = true;
-            oneTimeMode.OnTargetError(binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
+            oneTimeMode.OnTargetError(_binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
             updateCount.ShouldEqual(1);
-            binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
+            _binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
 
             if (lastMember)
-                oneTimeMode.OnTargetLastMemberChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnTargetLastMemberChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
             else
-                oneTimeMode.OnTargetPathMembersChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnTargetPathMembersChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
             updateCount.ShouldEqual(2);
         }
     }

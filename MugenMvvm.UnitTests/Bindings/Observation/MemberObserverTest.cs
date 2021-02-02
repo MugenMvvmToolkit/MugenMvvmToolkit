@@ -35,8 +35,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 meta.ShouldEqual(DefaultMetadata);
                 return result;
             });
-            var observer = new MemberObserver(handler, member);
 
+            var observer = new MemberObserver(handler, member);
             observer.IsEmpty.ShouldBeFalse();
             observer.Deconstruct(out var h, out var m);
             handler.ShouldEqual(h);

@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 
         public InheritParentViewModelServiceProviderTest()
         {
-            _viewModelManager = new ViewModelManager();
+            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
             _viewModelManager.AddComponent(new InheritParentViewModelServiceProvider());
             _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
@@ -51,8 +51,8 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [InlineData(false)]
         public void TryGetServiceShouldGetServiceFromParentVm(bool vmMetadata)
         {
-            var messenger = new Messenger();
-            var busyManager = new BusyManager();
+            var messenger = new Messenger(ComponentCollectionManager);
+            var busyManager = new BusyManager(ComponentCollectionManager);
             using var t = _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (_, o, _) =>

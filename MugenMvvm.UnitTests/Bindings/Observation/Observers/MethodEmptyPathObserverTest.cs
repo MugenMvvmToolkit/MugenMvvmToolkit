@@ -11,6 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
+    [Collection(SharedContext)]
     public class MethodEmptyPathObserverTest : ObserverBaseTest<MethodEmptyPathObserver>
     {
         [Fact]
@@ -55,7 +56,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return new ActionToken((o1, o2) => currentListener = null);
                 }
             };
-            var component = new TestMemberManagerComponent
+
+            MugenService.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
@@ -69,8 +71,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 
                     throw new NotSupportedException();
                 }
-            };
-            using var _ = MugenService.AddComponent(component);
+            });
 
             var observer = new MethodEmptyPathObserver(MethodName, this, flags);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),

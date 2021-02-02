@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
@@ -18,11 +19,26 @@ using MugenMvvm.UnitTests.Components;
 using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core
 {
+    [Collection(SharedContext)]
     public class BindingTest : ComponentOwnerTestBase<Binding>
     {
+        public BindingTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IBindingManager>(new BindingManager(ComponentCollectionManager));
+            MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(GlobalValueConverter);
+        }
+
+        public override void Dispose()
+        {
+            MugenService.Configuration.Clear<IBindingManager>();
+            MugenService.Configuration.Clear<IGlobalValueConverter>();
+            base.Dispose();
+        }
+
         [Fact]
         public void AddShouldCallOnAttachingOnAttachedMethods()
         {
@@ -1302,7 +1318,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     m.ShouldBeNull();
                 }
             };
-            using var t = MugenService.AddComponent(testLifecycleListener);
+            MugenService.AddComponent(testLifecycleListener);
 
             binding.Dispose();
             disposeComponentCount.ShouldEqual(0);
@@ -1325,6 +1341,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
         protected virtual Binding GetBinding(IMemberPathObserver? target = null, object? source = null) => new(target ?? EmptyPathObserver.Empty, source);
 
-        protected override Binding GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => GetBinding();
+        protected override Binding GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => GetBinding();
     }
 }

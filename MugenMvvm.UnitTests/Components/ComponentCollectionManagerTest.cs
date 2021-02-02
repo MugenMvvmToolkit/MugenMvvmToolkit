@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTests.Components
         public void GetComponentCollectionShouldBeHandledByComponents()
         {
             var executed = 0;
-            var result = new ComponentCollection(this);
+            var result = new ComponentCollection(this, ComponentCollectionManager);
             var collectionProvider = GetComponentOwner();
             var component = new TestComponentCollectionProviderComponent
             {
@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTests.Components
         public void GetComponentCollectionShouldNotifyListeners()
         {
             var executed = 0;
-            var result = new ComponentCollection(this);
+            var result = new ComponentCollection(this, ComponentCollectionManager);
             var collectionProvider = GetComponentOwner();
             var component = new TestComponentCollectionProviderComponent
             {
@@ -74,6 +74,6 @@ namespace MugenMvvm.UnitTests.Components
         {
         }
 
-        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ComponentCollectionManager();
+        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new ComponentCollectionManager();
     }
 }

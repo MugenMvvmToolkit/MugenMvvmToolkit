@@ -18,22 +18,19 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         [Fact]
         public void GetMemberObserverShouldReturnEmptyObserver()
         {
-            var provider = new ObservationManager();
-            provider.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            GetComponentOwner(ComponentCollectionManager).TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
         public void GetMemberPathObserverShouldThrowEmpty()
         {
-            var provider = new ObservationManager();
-            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPathObserver(this, this, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).GetMemberPathObserver(this, this, DefaultMetadata));
         }
 
         [Fact]
         public void GetMemberPathShouldThrowEmpty()
         {
-            var provider = new ObservationManager();
-            ShouldThrow<InvalidOperationException>(() => provider.GetMemberPath(this, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).GetMemberPath(this, DefaultMetadata));
         }
 
         [Theory]
@@ -41,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         [InlineData(10)]
         public void GetMemberPathShouldBeHandledByComponents(int componentCount)
         {
-            var provider = new ObservationManager();
+            var provider = GetComponentOwner(ComponentCollectionManager);
             var request = this;
             var result = MemberPath.Empty;
             var invokeCount = 0;
@@ -73,7 +70,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         [InlineData(10)]
         public void GetMemberObserverShouldBeHandledByComponents(int componentCount)
         {
-            var provider = new ObservationManager();
+            var provider = GetComponentOwner(ComponentCollectionManager);
             var type = typeof(string);
             var request = this;
             var result = new MemberObserver((o, o1, arg3, arg4) => ActionToken.NoDoToken, this);
@@ -107,7 +104,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         [InlineData(10)]
         public void GetMemberPathObserverShouldBeHandledByComponents(int componentCount)
         {
-            var provider = new ObservationManager();
+            var provider = GetComponentOwner(ComponentCollectionManager);
             var target = typeof(string);
             var request = this;
             var result = EmptyPathObserver.Empty;
@@ -136,6 +133,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override IObservationManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new ObservationManager(collectionProvider);
+        protected override IObservationManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new ObservationManager(componentCollectionManager);
     }
 }

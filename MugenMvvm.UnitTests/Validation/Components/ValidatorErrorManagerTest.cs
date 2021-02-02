@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
         public ValidatorErrorManagerTest()
         {
-            _validator = new Validator();
+            _validator = new Validator(null, ComponentCollectionManager);
             _validator.AddComponent(new ValidatorErrorManager());
             _member1Error = new ValidationErrorInfo(new object(), Member1, Member1);
             _member2Error = new ValidationErrorInfo(new object(), Member2, Member2);

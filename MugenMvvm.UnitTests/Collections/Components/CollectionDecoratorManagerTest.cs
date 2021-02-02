@@ -562,6 +562,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
             clear.ShouldEqual(count * listenersCount);
         }
 
-        protected IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items);
+        protected IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items, ComponentCollectionManager);
     }
 }

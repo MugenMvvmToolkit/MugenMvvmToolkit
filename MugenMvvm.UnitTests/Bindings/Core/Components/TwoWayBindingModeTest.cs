@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var updateTargetCount = 0;
             var updateSourceCount = 0;
-            var binding = new TestBinding
+            var binding = new TestBinding(ComponentCollectionManager)
             {
                 UpdateSource = () => ++updateSourceCount,
                 UpdateTarget = () => ++updateTargetCount

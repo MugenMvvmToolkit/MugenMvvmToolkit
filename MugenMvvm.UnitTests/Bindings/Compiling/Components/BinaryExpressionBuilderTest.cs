@@ -1,46 +1,36 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Bindings.Compiling.Components;
 using MugenMvvm.Bindings.Enums;
-using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
-using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
-    public class BinaryExpressionBuilderTest : UnitTestBase
+    public class BinaryExpressionBuilderTest : ExpressionBuilderTestBase<BinaryExpressionBuilder>
     {
         [Fact]
-        public void TryBuildShouldIgnoreNotBinaryExpression()
-        {
-            var component = new BinaryExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
+        public void TryBuildShouldIgnoreNotBinaryExpression() => Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
 
         [Fact]
         public void TryBuildShouldIgnoreNotSupportBinaryExpression()
         {
-            var component = new BinaryExpressionBuilder();
-            component.Mapping.Clear();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, new BinaryExpressionNode(BinaryTokenType.LogicalOr, ConstantExpressionNode.False, ConstantExpressionNode.False)).ShouldBeNull();
+            Builder.Mapping.Clear();
+            Builder.TryBuild(Context, new BinaryExpressionNode(BinaryTokenType.LogicalOr, ConstantExpressionNode.False, ConstantExpressionNode.False)).ShouldBeNull();
         }
 
         [Theory]
         [MemberData(nameof(GetData))]
-        public void TryBuildShouldBuildBinaryExpression(IBinaryExpressionNode binaryExpression, IExpressionBuilderContext context, object result, bool invalid)
+        public void TryBuildShouldBuildBinaryExpression(IBinaryExpressionNode binaryExpression, object result, bool invalid)
         {
-            var component = new BinaryExpressionBuilder();
             if (invalid)
             {
-                ShouldThrow(() => component.TryBuild(context, binaryExpression));
+                ShouldThrow(() => Builder.TryBuild(Context, binaryExpression));
                 return;
             }
 
-            var expression = component.TryBuild(context, binaryExpression)!;
+            var expression = Builder.TryBuild(Context, binaryExpression)!;
             expression.ShouldNotBeNull();
             expression.Invoke().ShouldEqual(result);
         }
@@ -134,7 +124,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             return new[]
             {
                 new BinaryExpressionNode(binaryToken, leftExpression, rightExpression),
-                new TestExpressionBuilderContext(),
                 result,
                 invalid
             };

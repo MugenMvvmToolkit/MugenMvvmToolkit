@@ -12,18 +12,21 @@ namespace MugenMvvm.App
 {
     public sealed class MugenApplication : IMugenApplication
     {
+        private readonly IComponentCollectionManager? _componentCollectionManager;
         private IComponentCollection? _components;
         private IPlatformInfo? _deviceInfo;
 
-        public MugenApplication(IReadOnlyMetadataContext? metadata = null)
+        public MugenApplication(IReadOnlyMetadataContext? metadata = null, IComponentCollectionManager? componentCollectionManager = null, bool setInstance = true)
         {
+            _componentCollectionManager = componentCollectionManager;
             Metadata = metadata.ToNonReadonly();
-            MugenService.Configuration.InitializeInstance<IMugenApplication>(this);
+            if (setInstance)
+                MugenService.Configuration.InitializeInstance<IMugenApplication>(this);
         }
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
-        public IComponentCollection Components => _components ?? MugenService.ComponentCollectionManager.EnsureInitialized(ref _components, this);
+        public IComponentCollection Components => _components ?? _componentCollectionManager.EnsureInitialized(ref _components, this);
 
         public bool HasMetadata => Metadata.Count != 0;
 

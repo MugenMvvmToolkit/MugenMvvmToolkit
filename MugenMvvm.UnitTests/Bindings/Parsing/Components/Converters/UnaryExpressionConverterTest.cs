@@ -10,29 +10,22 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
-    public class UnaryExpressionConverterTest : UnitTestBase
+    public class UnaryExpressionConverterTest : ExpressionConverterTestBase<UnaryExpressionConverter>
     {
         [Fact]
         public void TryConvertShouldIgnoreNotSupportUnaryExpression()
         {
-            var component = new UnaryExpressionConverter();
-            component.Mapping.Clear();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.MakeUnary(ExpressionType.Negate, Expression.Constant(1), null!)).ShouldBeNull();
+            Converter.Mapping.Clear();
+            Converter.TryConvert(Context, Expression.MakeUnary(ExpressionType.Negate, Expression.Constant(1), null!)).ShouldBeNull();
         }
 
         [Fact]
-        public void TryConvertShouldIgnoreNotUnaryExpression()
-        {
-            var component = new UnaryExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
-        }
+        public void TryConvertShouldIgnoreNotUnaryExpression() => Converter.TryConvert(Context, Expression.Constant("")).ShouldBeNull();
 
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryConvertShouldConvertUnaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
-            new UnaryExpressionConverter().TryConvert(ctx, expression).ShouldEqual(result);
+            Converter.TryConvert(ctx, expression).ShouldEqual(result);
 
         public static IEnumerable<object?[]> GetData() =>
             new[]

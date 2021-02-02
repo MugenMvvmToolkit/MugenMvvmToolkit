@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
@@ -9,25 +8,20 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
-    public class StringTokenParserTest : UnitTestBase
+    public class StringTokenParserTest : TokenParserTestBase<StringTokenParser>
     {
         [Fact]
         public void TryParseShouldIgnoreNotStringExpression()
         {
-            var component = new StringTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new DigitTokenParser()}
-            };
-            ctx.Initialize("1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Parsers = new DigitTokenParser();
+            Context.Initialize("1", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
 
         [Fact]
         public void TryParseShouldParseStringFormatExpression()
         {
-            var component = new StringTokenParser();
-            var ctx = new TokenParserContext {Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new BinaryTokenParser()}};
+            Context.Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new BinaryTokenParser()};
 
             var expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
                 new IExpressionNode[]
@@ -35,8 +29,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                     ConstantExpressionNode.Get("{0} test {1}"),
                     new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)), ConstantExpressionNode.Get(2)
                 }, new string[0]);
-            ctx.Initialize("$@'{1+1} test {2}'", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(expected);
+            Context.Initialize("$@'{1+1} test {2}'", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldEqual(expected);
 
             expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
                 new IExpressionNode[]
@@ -44,8 +38,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                     ConstantExpressionNode.Get("{0:n} test {1:t}"),
                     new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)), ConstantExpressionNode.Get(2)
                 }, new string[0]);
-            ctx.Initialize("@$'{1+1:n} test {2:t}'", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(expected);
+            Context.Initialize("@$'{1+1:n} test {2:t}'", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldEqual(expected);
 
             expected = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
                 new IExpressionNode[]
@@ -53,8 +47,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                     ConstantExpressionNode.Get("{0:n} {test} {1:t}"),
                     new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)), ConstantExpressionNode.Get(2)
                 }, new string[0]);
-            ctx.Initialize("$'{1+1:n} {{test}} {2:t}'", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(expected);
+            Context.Initialize("$'{1+1:n} {{test}} {2:t}'", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldEqual(expected);
         }
 
         [Theory]
@@ -71,13 +65,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [InlineData("@t\"\"", null)]
         public void TryParseShouldParseStringExpression(string expression, object result)
         {
-            var component = new StringTokenParser();
-            var ctx = new TokenParserContext();
-            ctx.Initialize(expression, DefaultMetadata);
+            Context.Initialize(expression, DefaultMetadata);
             if (result == null)
-                component.TryParse(ctx, null).ShouldBeNull();
+                Parser.TryParse(Context, null).ShouldBeNull();
             else
-                component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(result));
+                Parser.TryParse(Context, null).ShouldEqual(ConstantExpressionNode.Get(result));
         }
     }
 }

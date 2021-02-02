@@ -10,29 +10,25 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
-    public class BinaryExpressionConverterTest : UnitTestBase
+    public class BinaryExpressionConverterTest : ExpressionConverterTestBase<BinaryExpressionConverter>
     {
         [Fact]
         public void TryConvertShouldIgnoreNotBinaryExpression()
         {
-            var component = new BinaryExpressionConverter();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Constant("")).ShouldBeNull();
+            Converter.TryConvert(Context, Expression.Constant("")).ShouldBeNull();
         }
 
         [Fact]
         public void TryConvertShouldIgnoreNotSupportBinaryExpression()
         {
-            var component = new BinaryExpressionConverter();
-            component.Mapping.Clear();
-            var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.MakeBinary(ExpressionType.Add, Expression.Constant(1), Expression.Constant(1))).ShouldBeNull();
+            Converter.Mapping.Clear();
+            Converter.TryConvert(Context, Expression.MakeBinary(ExpressionType.Add, Expression.Constant(1), Expression.Constant(1))).ShouldBeNull();
         }
 
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryConvertShouldConvertBinaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
-            new BinaryExpressionConverter().TryConvert(ctx, expression).ShouldEqual(result);
+            Converter.TryConvert(ctx, expression).ShouldEqual(result);
 
         public static IEnumerable<object?[]> GetData() =>
             new[]

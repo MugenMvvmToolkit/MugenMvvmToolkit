@@ -8,26 +8,34 @@ using MugenMvvm.Messaging.Components;
 using MugenMvvm.UnitTests.Messaging.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Messaging.Components
 {
     public class MessengerHandlerSubscriberTest : UnitTestBase
     {
+        private readonly Messenger _messenger;
+        private readonly MessengerHandlerSubscriber _messengerHandlerComponent;
+
+        public MessengerHandlerSubscriberTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _messenger = new Messenger(ComponentCollectionManager);
+            _messengerHandlerComponent = new MessengerHandlerSubscriber(ReflectionManager);
+            _messenger.AddComponent(_messengerHandlerComponent);
+        }
+
         [Fact]
         public void HandleShouldReturnInvalidResultTargetIsNotAlive()
         {
             var invokedCount = 0;
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
             var handler = new TestMessengerHandler
             {
                 HandleString = (s, context) => { ++invokedCount; }
             };
             var weakRef = handler.ToWeakReference();
-            component.TrySubscribe(messenger, weakRef, null, null);
+            _messenger.TrySubscribe(weakRef, null, null);
 
-            var handlers = component.TryGetMessengerHandlers(messenger, typeof(string), null)!.AsList();
+            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(string), null)!.AsList();
             weakRef.Release();
             handlers[0].Handle(new MessageContext(this, "")).ShouldEqual(MessengerResult.Invalid);
         }
@@ -35,28 +43,21 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         [Fact]
         public void TryGetMessengerHandlersShouldUnsubscribeIfSubscriberIsNotAlive()
         {
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
             var handler = new TestMessengerHandler();
             var weakRef = handler.ToWeakReference();
-            component.TrySubscribe(messenger, weakRef, null, null);
+            _messenger.TrySubscribe(weakRef, null, null);
 
-            component.TryGetMessengerHandlers(messenger, typeof(string), null)!.AsList().Count.ShouldEqual(1);
+            _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(string), null)!.AsList().Count.ShouldEqual(1);
             weakRef.Release();
-            component.TryGetMessengerHandlers(messenger, typeof(string), null).AsList().ShouldBeEmpty();
+            _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(string), null).AsList().ShouldBeEmpty();
         }
 
         [Fact]
         public void TrySubscribeUnsubscribeShouldReturnFalseNotSupported()
         {
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
-
-            component.TrySubscribe(messenger, this, null, DefaultMetadata).ShouldBeFalse();
-            component.TryGetSubscribers(messenger, null).AsList().ShouldBeEmpty();
-            component.TryUnsubscribe(messenger, this, DefaultMetadata).ShouldBeFalse();
+            _messenger.TrySubscribe(this, null, DefaultMetadata).ShouldBeFalse();
+            _messenger.GetSubscribers(null).AsList().ShouldBeEmpty();
+            _messenger.TryUnsubscribe(this, DefaultMetadata).ShouldBeFalse();
         }
 
         [Theory]
@@ -64,30 +65,26 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         [InlineData(10)]
         public void TrySubscribeUnsubscribeGetAllTest(int count)
         {
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
-
             var hashSet = new HashSet<MessengerSubscriberInfo>();
             for (var i = 0; i < count; i++)
             {
                 var handler = new TestMessengerHandler();
                 ThreadExecutionMode.TryGet(i, out var mode);
-                component.TrySubscribe(messenger, handler, mode, DefaultMetadata).ShouldBeTrue();
+                _messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
 
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
             }
 
-            var subscribers = component.TryGetSubscribers(messenger, DefaultMetadata)!.AsList();
+            var subscribers = _messenger.GetSubscribers(DefaultMetadata)!.AsList();
             subscribers.Count.ShouldEqual(hashSet.Count);
             foreach (var messengerSubscriberInfo in subscribers)
                 hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
             hashSet.Count.ShouldEqual(0);
 
             foreach (var messengerSubscriberInfo in subscribers)
-                component.TryUnsubscribe(messenger, messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
-            component.TryGetSubscribers(messenger, DefaultMetadata).AsList().ShouldBeEmpty();
+                _messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
+            _messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -97,11 +94,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         [InlineData(10, false)]
         public void TrySubscribeUnsubscribeGetAllTestWeakReference(int count, bool keepAlive)
         {
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
             var list = new List<object>();
-            messenger.AddComponent(component);
-
             var hashSet = new HashSet<MessengerSubscriberInfo>();
             for (var i = 0; i < count; i++)
             {
@@ -109,12 +102,12 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 if (keepAlive)
                     list.Add(handler.Target!);
                 ThreadExecutionMode.TryGet(i, out var mode);
-                component.TrySubscribe(messenger, handler, mode, DefaultMetadata).ShouldBeTrue();
+                _messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
             }
 
-            var subscribers = component.TryGetSubscribers(messenger, DefaultMetadata)!.AsList();
+            var subscribers = _messenger.GetSubscribers(DefaultMetadata)!.AsList();
             subscribers.Count.ShouldEqual(hashSet.Count);
             foreach (var messengerSubscriberInfo in subscribers)
                 hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
@@ -123,8 +116,8 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             GcCollect();
 
             foreach (var messengerSubscriberInfo in subscribers)
-                component.TryUnsubscribe(messenger, messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
-            component.TryGetSubscribers(messenger, DefaultMetadata).AsList().ShouldBeEmpty();
+                _messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
+            _messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -132,18 +125,14 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         [InlineData(10)]
         public void TryUnsubscribeAllShouldRemoveAllSubscribers(int count)
         {
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
-
             for (var i = 0; i < count; i++)
             {
                 var handler = new TestMessengerHandler();
-                component.TrySubscribe(messenger, handler, ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
+                _messenger.TrySubscribe(handler, ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
             }
 
-            component.TryUnsubscribeAll(messenger, DefaultMetadata);
-            component.TryGetSubscribers(messenger, DefaultMetadata).AsList().ShouldBeEmpty();
+            _messengerHandlerComponent.TryUnsubscribeAll(_messenger, DefaultMetadata);
+            _messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -156,9 +145,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             var invokedCount = 0;
             var invokedStringCount = 0;
             IMessageContext? ctx = null;
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
 
             invokedCount.ShouldEqual(0);
             var handler = new TestMessengerHandler
@@ -177,12 +163,12 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 }
             };
             if (isWeak)
-                component.TrySubscribe(messenger, handler.ToWeakReference(), ThreadExecutionMode.Current, null);
+                _messenger.TrySubscribe(handler.ToWeakReference(), ThreadExecutionMode.Current, null);
             else
-                component.TrySubscribe(messenger, handler, ThreadExecutionMode.Current, null);
+                _messenger.TrySubscribe(handler, ThreadExecutionMode.Current, null);
 
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = component.TryGetMessengerHandlers(messenger, typeof(int), DefaultMetadata)!.AsList();
+            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(int), DefaultMetadata)!.AsList();
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -190,7 +176,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             invokedStringCount.ShouldEqual(0);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = component.TryGetMessengerHandlers(messenger, typeof(string), DefaultMetadata)!.AsList();
+            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(string), DefaultMetadata)!.AsList();
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -207,9 +193,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             const int intMessage = 1;
             var invokedCount = 0;
             IMessageContext? ctx = null;
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
 
             invokedCount.ShouldEqual(0);
             var handler = new TestMessengerHandlerGeneric<object>
@@ -222,19 +205,19 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 }
             };
             if (isWeak)
-                component.TrySubscribe(messenger, handler.ToWeakReference(), ThreadExecutionMode.Current, null);
+                _messenger.TrySubscribe(handler.ToWeakReference(), ThreadExecutionMode.Current, null);
             else
-                component.TrySubscribe(messenger, handler, ThreadExecutionMode.Current, null);
+                _messenger.TrySubscribe(handler, ThreadExecutionMode.Current, null);
 
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = component.TryGetMessengerHandlers(messenger, typeof(int), DefaultMetadata)!.AsList();
+            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(int), DefaultMetadata)!.AsList();
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = component.TryGetMessengerHandlers(messenger, typeof(string), DefaultMetadata)!.AsList();
+            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(string), DefaultMetadata)!.AsList();
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -251,9 +234,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             var invokedCount = 0;
             Type? canHandleType = null;
             IMessageContext? ctx = null;
-            var messenger = new Messenger();
-            var component = new MessengerHandlerSubscriber();
-            messenger.AddComponent(component);
 
             invokedCount.ShouldEqual(0);
             var handler = new TestMessengerHandlerRaw
@@ -271,12 +251,12 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 }
             };
             if (isWeak)
-                component.TrySubscribe(messenger, handler.ToWeakReference(), ThreadExecutionMode.Current, null);
+                _messenger.TrySubscribe(handler.ToWeakReference(), ThreadExecutionMode.Current, null);
             else
-                component.TrySubscribe(messenger, handler, ThreadExecutionMode.Current, null);
+                _messenger.TrySubscribe(handler, ThreadExecutionMode.Current, null);
 
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = component.TryGetMessengerHandlers(messenger, typeof(int), DefaultMetadata)!.AsList();
+            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(int), DefaultMetadata)!.AsList();
             canHandleType.ShouldEqual(typeof(int));
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
@@ -284,7 +264,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             invokedCount.ShouldEqual(1);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = component.TryGetMessengerHandlers(messenger, typeof(string), DefaultMetadata)!.AsList();
+            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(_messenger, typeof(string), DefaultMetadata)!.AsList();
             canHandleType.ShouldEqual(typeof(string));
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);

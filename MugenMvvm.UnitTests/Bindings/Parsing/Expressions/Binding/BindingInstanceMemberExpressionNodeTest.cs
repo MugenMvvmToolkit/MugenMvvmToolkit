@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath |
                 BindingMemberExpressionFlags.ObservableMethods, MemberFlags.All, "M");
 
-            using var t1 = MugenService.AddComponent(new TestMemberPathProviderComponent
+            MugenService.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, arg3) =>
                 {
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     return path;
                 }
             });
-            using var t2 = MugenService.AddComponent(new TestMemberPathObserverProviderComponent
+            MugenService.AddComponent(new TestMemberPathObserverProviderComponent
             {
                 TryGetMemberPathObserver = (t, req, arg4) =>
                 {
@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         public void GetSourceShouldReturnInstance()
         {
             var path = MemberPath.Get(Path);
-            using var t = MugenService.AddComponent(new TestMemberPathProviderComponent
+            MugenService.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, arg3) =>
                 {

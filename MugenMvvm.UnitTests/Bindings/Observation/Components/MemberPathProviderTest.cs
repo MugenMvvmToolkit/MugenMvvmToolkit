@@ -1,32 +1,33 @@
 ﻿using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
+using MugenMvvm.Extensions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
     public class MemberPathProviderTest : UnitTestBase
     {
-        [Fact]
-        public void TryGetMemberPathShouldReturnEmptyPath()
+        private readonly ObservationManager _observationManager;
+
+        public MemberPathProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            var component = new MemberPathProvider();
-            component.TryGetMemberPath(null!, "", DefaultMetadata).ShouldEqual(MemberPath.Empty);
+            _observationManager = new ObservationManager(ComponentCollectionManager);
+            _observationManager.AddComponent(new MemberPathProvider());
         }
 
         [Fact]
-        public void TryGetMemberPathShouldReturnEmptyUnsupportedRequest()
-        {
-            var component = new MemberPathProvider();
-            component.TryGetMemberPath(null!, this, DefaultMetadata).ShouldBeNull();
-        }
+        public void TryGetMemberPathShouldReturnEmptyPath() => _observationManager.TryGetMemberPath("", DefaultMetadata).ShouldEqual(MemberPath.Empty);
+
+        [Fact]
+        public void TryGetMemberPathShouldReturnEmptyUnsupportedRequest() => _observationManager.TryGetMemberPath(this, DefaultMetadata).ShouldBeNull();
 
         [Fact]
         public void TryGetMemberPathShouldReturnMultiPath()
         {
             const string member = "Test.Test[T]";
-            var component = new MemberPathProvider();
-            var path = component.TryGetMemberPath(null!, member, DefaultMetadata)!;
+            var path = _observationManager.TryGetMemberPath(member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
             path.Members.AsList().ShouldEqual(new[] {"Test", "Test", "[T]"});
         }
@@ -35,8 +36,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void TryGetMemberPathShouldReturnSinglePath()
         {
             const string member = "Test";
-            var component = new MemberPathProvider();
-            var path = component.TryGetMemberPath(null!, member, DefaultMetadata)!;
+            var path = _observationManager.TryGetMemberPath(member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
             path.Members.Item.ShouldEqual(member);
         }

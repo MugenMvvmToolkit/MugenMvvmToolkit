@@ -1,45 +1,42 @@
 ﻿using System;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
-    public class DigitTokenParserTest : UnitTestBase
+    public class DigitTokenParserTest : TokenParserTestBase<DigitTokenParser>
     {
+        public DigitTokenParserTest(ITestOutputHelper? outputHelper = null) : base(new ConstantTokenParser(), outputHelper)
+        {
+        }
+
         [Fact]
         public void TryParseShouldIgnoreNotDigitExpression()
         {
-            var component = new DigitTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new ConstantTokenParser()}
-            };
-            ctx.Initialize("null", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Initialize("null", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
 
         [Fact]
         public void TryParseShouldParseCustomDigitExpression()
         {
             var invokeCount = 0;
-            var component = new DigitTokenParser();
-            var ctx = new TokenParserContext();
-            ctx.Initialize("1dp", DefaultMetadata);
-            component.PostfixToConverter.Clear();
-            component.PostfixToConverter["dp"] = (value, integer, postfix, context, format) =>
+            Context.Initialize("1dp", DefaultMetadata);
+            Parser.PostfixToConverter.Clear();
+            Parser.PostfixToConverter["dp"] = (value, integer, postfix, context, format) =>
             {
                 ++invokeCount;
-                format.ShouldEqual(component.FormatProvider);
+                format.ShouldEqual(Parser.FormatProvider);
                 value.ToString().ShouldEqual("1");
                 integer.ShouldBeTrue();
                 postfix.ShouldEqual("dp");
-                context.ShouldEqual(ctx);
+                context.ShouldEqual(Context);
                 return ConstantExpressionNode.Get(1);
             };
-            component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(1));
+            Parser.TryParse(Context, null).ShouldEqual(ConstantExpressionNode.Get(1));
             invokeCount.ShouldEqual(1);
         }
 
@@ -67,13 +64,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         {
             if (expression.EndsWith("m", StringComparison.OrdinalIgnoreCase))
                 result = System.Convert.ToDecimal(result);
-            var component = new DigitTokenParser();
-            var ctx = new TokenParserContext();
-            ctx.Initialize(expression, DefaultMetadata);
+
+            Context.Initialize(expression, DefaultMetadata);
             if (result == null)
-                component.TryParse(ctx, null).ShouldBeNull();
+                Parser.TryParse(Context, null).ShouldBeNull();
             else
-                component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(result));
+                Parser.TryParse(Context, null).ShouldEqual(ConstantExpressionNode.Get(result));
         }
     }
 }

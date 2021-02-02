@@ -17,64 +17,60 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
     {
         private const string SourceString = "Test2423";
 
+        private readonly TokenParserContext _context;
+
+        public TokenParserContextTest()
+        {
+            _context = new TokenParserContext();
+            _context.Initialize(SourceString, DefaultMetadata);
+        }
+
         [Fact]
         public void GetValueShouldSubstring()
         {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            context.GetValue(1, 3).ShouldEqual("es");
+            _context.GetValue(1, 3).ShouldEqual("es");
         }
 
         [Fact]
         public void InitializeShouldClearPrevValues()
         {
-            var context = new TokenParserContext();
-            context.Metadata.Set(BindingMetadata.EventArgs, "");
-            context.Initialize(SourceString, DefaultMetadata);
-            context.Position = 1;
+            _context.Metadata.Set(BindingMetadata.EventArgs, "");
+            _context.Position = 1;
 
-            context.Initialize(SourceString, DefaultMetadata);
-            context.Position.ShouldEqual(0);
-            context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
+            _context.Initialize(SourceString, DefaultMetadata);
+            _context.Position.ShouldEqual(0);
+            _context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }
 
         [Fact]
         public void LengthShouldUseLimit()
         {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            context.Length.ShouldEqual(SourceString.Length);
-            context.Limit = 1;
-            context.Length.ShouldEqual(1);
-            context.Limit = null;
-            context.Length.ShouldEqual(SourceString.Length);
+            _context.Length.ShouldEqual(SourceString.Length);
+            _context.Limit = 1;
+            _context.Length.ShouldEqual(1);
+            _context.Limit = null;
+            _context.Length.ShouldEqual(SourceString.Length);
         }
 
         [Fact]
         public void LimitShouldThrowWrongValue()
         {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            ShouldThrow<ArgumentException>(() => context.Limit = int.MaxValue);
-            ShouldThrow<ArgumentException>(() => context.Limit = -1);
+            ShouldThrow<ArgumentException>(() => _context.Limit = int.MaxValue);
+            ShouldThrow<ArgumentException>(() => _context.Limit = -1);
         }
 
         [Fact]
         public void PositionShouldThrowWrongValue()
         {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            ShouldThrow<ArgumentException>(() => context.Limit = int.MaxValue);
-            ShouldThrow<ArgumentException>(() => context.Limit = -1);
+            ShouldThrow<ArgumentException>(() => _context.Limit = int.MaxValue);
+            ShouldThrow<ArgumentException>(() => _context.Limit = -1);
         }
 
         [Fact]
         public void TokenAtShouldUsePosition()
         {
-            var context = new TokenParserContext();
-            context.Initialize(SourceString, DefaultMetadata);
-            context.TokenAt(0).ShouldEqual(SourceString[0]);
-            context.TokenAt(4).ShouldEqual(SourceString[4]);
+            _context.TokenAt(0).ShouldEqual(SourceString[0]);
+            _context.TokenAt(4).ShouldEqual(SourceString[4]);
         }
 
         [Theory]
@@ -83,7 +79,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         public void TryParseShouldBeHandledByParsers(int componentCount)
         {
             var invokeCount = 0;
-            var context = new TokenParserContext();
             var list = new List<TestTokenParserComponent>();
             var constantExpression = ConstantExpressionNode.False;
             var result = ConstantExpressionNode.Null;
@@ -96,7 +91,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                     TryParse = (ctx, ex) =>
                     {
                         ++invokeCount;
-                        ctx.ShouldEqual(context);
+                        ctx.ShouldEqual(_context);
                         ex.ShouldEqual(constantExpression);
                         if (isLast)
                             return result;
@@ -106,9 +101,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                 list.Add(component);
             }
 
-            context.Parsers = list.ToArray();
-
-            context.TryParse(constantExpression).ShouldEqual(result);
+            _context.Parsers = list.ToArray();
+            _context.TryParse(constantExpression).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -118,7 +112,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         public void TryParseShouldBeHandledByParsersWithCondition(int componentCount)
         {
             var invokeCount = 0;
-            var context = new TokenParserContext();
             var list = new List<TestTokenParserComponent>();
             var constantExpression = ConstantExpressionNode.False;
             var result = ConstantExpressionNode.Null;
@@ -131,7 +124,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                     TryParse = (ctx, ex) =>
                     {
                         ++invokeCount;
-                        ctx.ShouldEqual(context);
+                        ctx.ShouldEqual(_context);
                         ex.ShouldEqual(constantExpression);
                         if (canReturn)
                             return result;
@@ -141,11 +134,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                 list.Add(component);
             }
 
-            context.Parsers = list.ToArray();
-
-            context.TryParse(constantExpression, (parserContext, component) =>
+            _context.Parsers = list.ToArray();
+            _context.TryParse(constantExpression, (parserContext, component) =>
             {
-                context.ShouldEqual(context);
+                parserContext.ShouldEqual(_context);
                 return ((IHasPriority) component).Priority == 0;
             }).ShouldEqual(result);
             invokeCount.ShouldEqual(1);

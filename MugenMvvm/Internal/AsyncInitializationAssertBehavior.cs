@@ -19,13 +19,14 @@ namespace MugenMvvm.Internal
         private readonly Func<object, bool>? _canIgnore;
         private readonly int _threadId;
 
-        public AsyncInitializationAssertBehavior(Func<bool> isInitializing, Func<object, bool>? canIgnore = null)
+        public AsyncInitializationAssertBehavior(Func<bool> isInitializing, Func<object, bool>? canIgnore = null, bool setFallback = true)
         {
             Should.NotBeNull(isInitializing, nameof(isInitializing));
             _isInitializing = isInitializing;
             _canIgnore = canIgnore;
             _threadId = Environment.CurrentManagedThreadId;
-            MugenService.Configuration.FallbackConfiguration ??= this;
+            if (setFallback)
+                MugenService.Configuration.FallbackConfiguration ??= this;
         }
 
         public int Priority => int.MaxValue;

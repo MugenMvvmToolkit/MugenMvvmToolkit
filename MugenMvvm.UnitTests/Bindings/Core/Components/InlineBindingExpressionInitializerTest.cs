@@ -7,44 +7,48 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class InlineBindingExpressionInitializerTest : UnitTestBase
     {
+        private readonly BindingExpressionInitializerContext _context;
+        private readonly InlineBindingExpressionInitializer _initializer;
+
+        public InlineBindingExpressionInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _context = new BindingExpressionInitializerContext(this);
+            _initializer = new InlineBindingExpressionInitializer();
+        }
+
         [Fact]
         public void ShouldIgnoreBindingModeContext()
         {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
-            context.Components[BindingParameterNameConstant.Mode] = null;
+            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
+            _context.Components[BindingParameterNameConstant.Mode] = null;
 
-            var initializer = new InlineBindingExpressionInitializer();
-            initializer.Initialize(null!, context);
-            context.Components.Single().Key.ShouldEqual(BindingParameterNameConstant.Mode);
+            _initializer.Initialize(null!, _context);
+            _context.Components.Single().Key.ShouldEqual(BindingParameterNameConstant.Mode);
         }
 
         [Fact]
         public void ShouldIgnoreEventContext()
         {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
-            context.Components[BindingParameterNameConstant.EventHandler] = null;
+            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
+            _context.Components[BindingParameterNameConstant.EventHandler] = null;
 
-            var initializer = new InlineBindingExpressionInitializer();
-            initializer.Initialize(null!, context);
-            context.Components.Single().Key.ShouldEqual(BindingParameterNameConstant.EventHandler);
+            _initializer.Initialize(null!, _context);
+            _context.Components.Single().Key.ShouldEqual(BindingParameterNameConstant.EventHandler);
         }
 
         [Fact]
         public void ShouldSetOneTimeModeConstantExpression()
         {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
+            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, MemberExpressionNode.Source, default, null);
 
-            var initializer = new InlineBindingExpressionInitializer();
-            initializer.Initialize(null!, context);
-            var pair = context.Components.Single();
+            _initializer.Initialize(null!, _context);
+            var pair = _context.Components.Single();
             pair.Key.ShouldEqual(BindingParameterNameConstant.Mode);
             pair.Value.ShouldEqual(OneTimeBindingMode.Instance);
         }
@@ -52,12 +56,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [Fact]
         public void ShouldSetOneTimeModeStaticExpression()
         {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, new TestBindingMemberExpressionNode {MemberFlags = MemberFlags.StaticAll}, default, null);
+            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, new TestBindingMemberExpressionNode {MemberFlags = MemberFlags.StaticAll}, default,
+                null);
 
-            var initializer = new InlineBindingExpressionInitializer {UseOneTimeModeForStaticMembersImplicit = true};
-            initializer.Initialize(null!, context);
-            var pair = context.Components.Single();
+            _initializer.UseOneTimeModeForStaticMembersImplicit = true;
+            _initializer.Initialize(null!, _context);
+            var pair = _context.Components.Single();
             pair.Key.ShouldEqual(BindingParameterNameConstant.Mode);
             pair.Value.ShouldEqual(OneTimeBindingMode.Instance);
         }
@@ -67,13 +71,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [InlineData(false)]
         public void ShouldIgnoreBindingMemberContext(bool isStatic)
         {
-            var context = new BindingExpressionInitializerContext(this);
-            context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter,
+            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter,
                 new TestBindingMemberExpressionNode {MemberFlags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll}, default, null);
 
-            var initializer = new InlineBindingExpressionInitializer {UseOneTimeModeForStaticMembersImplicit = false};
-            initializer.Initialize(null!, context);
-            context.Components.Count.ShouldEqual(0);
+            _initializer.UseOneTimeModeForStaticMembersImplicit = false;
+            _initializer.Initialize(null!, _context);
+            _context.Components.Count.ShouldEqual(0);
         }
     }
 }

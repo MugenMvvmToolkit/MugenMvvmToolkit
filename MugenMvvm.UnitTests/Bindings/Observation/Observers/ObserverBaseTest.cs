@@ -1,17 +1,30 @@
 ﻿using System;
 using System.Linq;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
-    public abstract class ObserverBaseTest<TObserver> : UnitTestBase where TObserver : IMemberPathObserver
+    [Collection(SharedContext)]
+    public abstract class ObserverBaseTest<TObserver> : UnitTestBase, IDisposable where TObserver : IMemberPathObserver
     {
         protected const string MethodName = "MM";
+        protected readonly MemberManager LocalMemberManager;
+
+        protected ObserverBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            LocalMemberManager = new MemberManager(ComponentCollectionManager);
+            MugenService.Configuration.InitializeInstance<IMemberManager>(LocalMemberManager);
+        }
+
+        public void Dispose() => MugenService.Configuration.Clear<IMemberManager>();
 
         [Fact]
         public void ConstructorShouldInitializeValues1()

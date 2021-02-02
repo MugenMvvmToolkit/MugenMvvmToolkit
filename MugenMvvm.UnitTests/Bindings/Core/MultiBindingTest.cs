@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
@@ -17,11 +18,25 @@ using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core
 {
-    public class MultiBindingTest : UnitTestBase
+    [Collection(SharedContext)]
+    public class MultiBindingTest : UnitTestBase, IDisposable
     {
+        public MultiBindingTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IBindingManager>(new BindingManager(ComponentCollectionManager));
+            MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(GlobalValueConverter);
+        }
+
+        public void Dispose()
+        {
+            MugenService.Configuration.Clear<IBindingManager>();
+            MugenService.Configuration.Clear<IGlobalValueConverter>();
+        }
+
         [Fact]
         public virtual void DisposeShouldDisposeExpression()
         {
@@ -77,7 +92,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     m.ShouldBeNull();
                 }
             };
-            using var t = MugenService.AddComponent(testLifecycleListener);
+            MugenService.AddComponent(testLifecycleListener);
 
             binding.Dispose();
             binding.State.ShouldEqual(BindingState.Disposed);

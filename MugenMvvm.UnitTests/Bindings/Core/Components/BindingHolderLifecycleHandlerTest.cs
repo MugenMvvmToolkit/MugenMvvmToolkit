@@ -15,13 +15,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [Fact]
         public void OnLifecycleChangedShouldBeHandledByBindingHolderComponent()
         {
-            var binding = new TestBinding();
+            var binding = new TestBinding(ComponentCollectionManager);
             var target = new object();
-            var manager = new BindingManager();
+            var manager = new BindingManager(ComponentCollectionManager);
 
             var registerCount = 0;
             var unregisterCount = 0;
-            var holder = new TestBindingHolderComponent(manager)
+
+            manager.AddComponent(new TestBindingHolderComponent(manager)
             {
                 TryRegister = (o, b, arg3) =>
                 {
@@ -39,9 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     arg3.ShouldEqual(DefaultMetadata);
                     return true;
                 }
-            };
-
-            manager.AddComponent(holder);
+            });
             manager.AddComponent(new BindingHolderLifecycleHandler());
 
             binding.Target = new TestMemberPathObserver {Target = target};

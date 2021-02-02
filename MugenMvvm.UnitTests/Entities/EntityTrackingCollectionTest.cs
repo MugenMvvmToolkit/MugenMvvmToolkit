@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Entities
             var expectedChangedState = EntityState.Added;
             var changingInvokeCount = 0;
             var changedInvokeCount = 0;
-            var collection = new EntityTrackingCollection();
+            var collection = new EntityTrackingCollection(null, ComponentCollectionManager);
             var changingListener = new TestEntityStateChangingListener
             {
                 OnEntityStateChanging = (trackingCollection, o, arg3, arg4, arg5) =>
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Entities
         public void ShouldRemoveObjectOnDetachState()
         {
             var target = new object();
-            var collection = new EntityTrackingCollection();
+            var collection = new EntityTrackingCollection(null, ComponentCollectionManager);
 
             collection.GetState(target).ShouldEqual(EntityState.Detached);
             collection.SetState(target, EntityState.Added);
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Entities
                 GetHashCode = model => ((TestModel) model).IntProperty,
                 Equals = (model, testModel) => ((TestModel) model).IntProperty == ((TestModel) testModel).IntProperty
             };
-            var collection = new EntityTrackingCollection(comparer);
+            var collection = new EntityTrackingCollection(comparer, ComponentCollectionManager);
 
             var item1 = new TestModel {IntProperty = 1};
             var item2 = new TestModel {IntProperty = 1};
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Entities
         public void ShouldAddRemoveClear(int count)
         {
             var items = new List<object>();
-            var collection = new EntityTrackingCollection();
+            var collection = new EntityTrackingCollection(null, ComponentCollectionManager);
             collection.HasChanges.ShouldBeFalse();
 
             for (var i = 0; i < count; i++)

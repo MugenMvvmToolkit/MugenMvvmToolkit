@@ -31,6 +31,7 @@ namespace MugenMvvm.Presenters
 
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IThreadDispatcher? _threadDispatcher;
+        private readonly IViewModelManager? _viewModelManager;
         private readonly IViewManager? _viewManager;
         private readonly IWrapperManager? _wrapperManager;
 
@@ -38,7 +39,7 @@ namespace MugenMvvm.Presenters
         private string? _navigationId;
 
         protected ViewModelPresenterMediatorBase(IViewModelBase viewModel, IViewMapping mapping, IViewManager? viewManager = null, IWrapperManager? wrapperManager = null,
-            INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
+            INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null, IViewModelManager? viewModelManager = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(mapping, nameof(mapping));
@@ -48,6 +49,7 @@ namespace MugenMvvm.Presenters
             _wrapperManager = wrapperManager;
             _navigationDispatcher = navigationDispatcher;
             _threadDispatcher = threadDispatcher;
+            _viewModelManager = viewModelManager;
             _id = $"{GetType().FullName}{mapping.Id}";
         }
 
@@ -86,6 +88,8 @@ namespace MugenMvvm.Presenters
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
         protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
+
+        protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 
         public IPresenterResult? TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -267,7 +271,6 @@ namespace MugenMvvm.Presenters
                     return;
                 }
 
-
                 if (!await NavigationDispatcher.OnNavigatingAsync(context, cancellationToken).ConfigureAwait(false))
                 {
                     OnNavigationCanceled(context, cancellationToken);
@@ -444,7 +447,7 @@ namespace MugenMvvm.Presenters
 
         private bool EnsureValidState(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            if (ViewModel.IsInState(ViewModelLifecycleState.Disposed))
+            if (ViewModel.IsInState(ViewModelLifecycleState.Disposed, navigationContext.GetMetadataOrDefault(), _viewModelManager))
             {
                 OnNavigationFailed(navigationContext, new ObjectDisposedException(ViewModel.GetType().FullName));
                 return false;

@@ -12,11 +12,13 @@ namespace MugenMvvm.UnitTests.Threading.Components
     public class SynchronizationContextThreadDispatcherTest : UnitTestBase
     {
         private readonly TestSynchronizationContext _synchronizationContext;
+        private readonly SynchronizationContextThreadDispatcher _component;
 
         public SynchronizationContextThreadDispatcherTest()
         {
             _synchronizationContext = new TestSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+            _component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
         }
 
         [Fact]
@@ -39,18 +41,10 @@ namespace MugenMvvm.UnitTests.Threading.Components
         }
 
         [Fact]
-        public void CanExecuteInlineShouldReturnFalseMainAsync()
-        {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
-            component.CanExecuteInline(null!, ThreadExecutionMode.MainAsync, DefaultMetadata).ShouldBeFalse();
-        }
+        public void CanExecuteInlineShouldReturnFalseMainAsync() => _component.CanExecuteInline(null!, ThreadExecutionMode.MainAsync, DefaultMetadata).ShouldBeFalse();
 
         [Fact]
-        public void CanExecuteInlineShouldReturnTrueCurrent()
-        {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
-            component.CanExecuteInline(null!, ThreadExecutionMode.Current, DefaultMetadata).ShouldBeTrue();
-        }
+        public void CanExecuteInlineShouldReturnTrueCurrent() => _component.CanExecuteInline(null!, ThreadExecutionMode.Current, DefaultMetadata).ShouldBeTrue();
 
         [Fact]
         public void CanExecuteInlineShouldReturnTrueMain()
@@ -62,8 +56,6 @@ namespace MugenMvvm.UnitTests.Threading.Components
         [Fact]
         public void TryExecuteShouldExecuteInline()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
-
             var executed = 0;
             var state = new object();
             Action action = () => ++executed;
@@ -86,28 +78,27 @@ namespace MugenMvvm.UnitTests.Threading.Components
             };
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Current, action, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.Current, action, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Current, actionWithState, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.Current, actionWithState, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Current, handler, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.Current, handler, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.Current, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.Current, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
-            component.TryExecute(null!, ThreadExecutionMode.Current, component, component, DefaultMetadata).ShouldBeFalse();
+            _component.TryExecute(null!, ThreadExecutionMode.Current, _component, _component, DefaultMetadata).ShouldBeFalse();
         }
 
         [Fact]
         public void TryExecuteShouldExecuteUsingContext()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
             var executed = 0;
             var state = new object();
             Action action = () => ++executed;
@@ -135,43 +126,42 @@ namespace MugenMvvm.UnitTests.Threading.Components
             };
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.MainAsync, action, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.MainAsync, action, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.MainAsync, actionWithState, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.MainAsync, actionWithState, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.MainAsync, handler, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.MainAsync, handler, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.MainAsync, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.MainAsync, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.MainAsync, callback, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.MainAsync, callback, state, DefaultMetadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
 
-            component.TryExecute(null!, ThreadExecutionMode.MainAsync, component, component, DefaultMetadata).ShouldBeFalse();
+            _component.TryExecute(null!, ThreadExecutionMode.MainAsync, _component, _component, DefaultMetadata).ShouldBeFalse();
         }
 
         [Fact]
         public void TryExecuteShouldExecuteUsingThreadPool()
         {
-            var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
             var executed = 0;
             var state = new object();
             Action action = () => ++executed;
@@ -199,31 +189,31 @@ namespace MugenMvvm.UnitTests.Threading.Components
             };
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, action, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, action, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, actionWithState, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, actionWithState, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, handler, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, handler, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
             executed = 0;
-            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, callback, state, DefaultMetadata).ShouldBeTrue();
+            _component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, callback, state, DefaultMetadata).ShouldBeTrue();
             WaitThreadPool();
             executed.ShouldEqual(1);
 
-            component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, component, component, DefaultMetadata).ShouldBeFalse();
+            _component.TryExecute(null!, ThreadExecutionMode.BackgroundAsync, _component, _component, DefaultMetadata).ShouldBeFalse();
         }
 
         private static void WaitThreadPool()

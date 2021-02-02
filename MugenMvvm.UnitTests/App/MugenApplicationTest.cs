@@ -8,27 +8,34 @@ using MugenMvvm.UnitTests.App.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.App
 {
     public class MugenApplicationTest : UnitTestBase
     {
+        private readonly MugenApplication _application;
+
+        public MugenApplicationTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _application = new MugenApplication(null, ComponentCollectionManager);
+        }
+
         [Fact]
         public void ConstructorShouldInitializeDefaultValues()
         {
-            var mugenApplication = new MugenApplication();
-            mugenApplication.Metadata.ShouldNotBeNull();
-            mugenApplication.HasMetadata.ShouldBeFalse();
-            mugenApplication.Components.ShouldNotBeNull();
-            mugenApplication.HasComponents.ShouldBeFalse();
-            var deviceInfo = mugenApplication.PlatformInfo;
+            _application.Metadata.ShouldNotBeNull();
+            _application.HasMetadata.ShouldBeFalse();
+            _application.Components.ShouldNotBeNull();
+            _application.HasComponents.ShouldBeFalse();
+            var deviceInfo = _application.PlatformInfo;
             deviceInfo.ShouldNotBeNull();
             deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
             deviceInfo.Type.ShouldEqual(new PlatformType("-"));
             deviceInfo.ApplicationVersion.ShouldEqual("0.0");
             deviceInfo.DeviceVersion.ShouldEqual("0.0");
             deviceInfo.Metadata.ShouldNotBeNull();
-            MugenService.Application.ShouldEqual(mugenApplication);
+            MugenService.Application.ShouldEqual(_application);
         }
 
         [Fact]
@@ -37,8 +44,7 @@ namespace MugenMvvm.UnitTests.App
             var state = this;
             var states = new List<ApplicationLifecycleState>();
             var device = new PlatformInfo(PlatformType.UnitTest, new MetadataContext());
-            var application = new MugenApplication();
-            application.AddComponent(new TestApplicationLifecycleListener(application)
+            using var app = _application.AddComponent(new TestApplicationLifecycleListener(_application)
             {
                 OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
                 {
@@ -47,8 +53,8 @@ namespace MugenMvvm.UnitTests.App
                     metadata.ShouldEqual(DefaultMetadata);
                 }
             });
-            application.Initialize(device, state, DefaultMetadata);
-            application.PlatformInfo.ShouldEqual(device);
+            _application.Initialize(device, state, DefaultMetadata);
+            _application.PlatformInfo.ShouldEqual(device);
             states.Count.ShouldEqual(2);
             states[0].ShouldEqual(ApplicationLifecycleState.Initializing);
             states[1].ShouldEqual(ApplicationLifecycleState.Initialized);
@@ -60,16 +66,15 @@ namespace MugenMvvm.UnitTests.App
         public void IsInStateShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var owner = new MugenApplication();
-            var target = owner;
+            var target = _application;
             var state = ApplicationLifecycleState.Activated;
 
-            owner.IsInState(state, DefaultMetadata).ShouldBeFalse();
+            _application.IsInState(state, DefaultMetadata).ShouldBeFalse();
 
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i - 1 == componentCount;
-                var component = new TestLifecycleTrackerComponent<ApplicationLifecycleState>(owner)
+                var component = new TestLifecycleTrackerComponent<ApplicationLifecycleState>(_application)
                 {
                     IsInState = (o, t, s, m) =>
                     {
@@ -82,10 +87,10 @@ namespace MugenMvvm.UnitTests.App
                     },
                     Priority = -i
                 };
-                owner.Components.TryAdd(component);
+                _application.Components.TryAdd(component);
             }
 
-            owner.IsInState(state, DefaultMetadata).ShouldBeFalse();
+            _application.IsInState(state, DefaultMetadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
         }
 
@@ -94,13 +99,12 @@ namespace MugenMvvm.UnitTests.App
         [InlineData(10)]
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
-            var application = new MugenApplication();
             var invokeCount = 0;
             var state = "state";
             var lifecycleState = ApplicationLifecycleState.Initialized;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestApplicationLifecycleListener(application)
+                var component = new TestApplicationLifecycleListener(_application)
                 {
                     OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
                     {
@@ -111,10 +115,10 @@ namespace MugenMvvm.UnitTests.App
                     },
                     Priority = i
                 };
-                application.AddComponent(component);
+                _application.AddComponent(component);
             }
 
-            application.OnLifecycleChanged(lifecycleState, state, DefaultMetadata);
+            _application.OnLifecycleChanged(lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
 
@@ -123,13 +127,12 @@ namespace MugenMvvm.UnitTests.App
         [InlineData(10)]
         public void OnUnhandledExceptionShouldBeHandledByComponents(int count)
         {
-            var application = new MugenApplication();
             var invokeCount = 0;
             var type = UnhandledExceptionType.System;
             var ex = new Exception();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestUnhandledExceptionHandlerComponent(application)
+                var component = new TestUnhandledExceptionHandlerComponent(_application)
                 {
                     OnUnhandledException = (e, t, metadata) =>
                     {
@@ -140,10 +143,10 @@ namespace MugenMvvm.UnitTests.App
                     },
                     Priority = i
                 };
-                application.AddComponent(component);
+                _application.AddComponent(component);
             }
 
-            application.OnUnhandledException(ex, type, DefaultMetadata);
+            _application.OnUnhandledException(ex, type, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
     }

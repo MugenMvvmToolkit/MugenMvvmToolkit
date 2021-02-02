@@ -20,18 +20,31 @@ using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionInitializerTest : UnitTestBase
     {
+        private readonly BindingExpressionInitializerContext _context;
+        private readonly BindingManager _bindingManager;
+        private readonly ExpressionCompiler _compiler;
+        private readonly MemberManager _memberManager;
+        private readonly BindingExpressionInitializer _component;
+
+        public BindingExpressionInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _context = new BindingExpressionInitializerContext(this);
+            _bindingManager = new BindingManager(ComponentCollectionManager);
+            _compiler = new ExpressionCompiler(ComponentCollectionManager);
+            _memberManager = new MemberManager(ComponentCollectionManager);
+            _component = new BindingExpressionInitializer(_compiler, _memberManager);
+            _bindingManager.AddComponent(_component);
+        }
+
         [Fact]
         public void InitializeShouldIgnoreHasEventComponent()
         {
-            var context = new BindingExpressionInitializerContext(this);
-            var bindingManager = new BindingManager();
-            var component = new BindingExpressionInitializer();
-            bindingManager.AddComponent(component);
             var target = new TestExpressionNode
             {
                 VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
@@ -40,19 +53,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
             };
-            context.Initialize(this, this, target, source, default, DefaultMetadata);
-            context.Components[BindingParameterNameConstant.EventHandler] = null;
-            component.Initialize(null!, context);
+            _context.Initialize(this, this, target, source, default, DefaultMetadata);
+            _context.Components[BindingParameterNameConstant.EventHandler] = null;
+            _component.Initialize(_bindingManager, _context);
         }
 
         [Fact]
         public void ShouldUseParentDataContextForDataContextBind()
         {
-            var context = new BindingExpressionInitializerContext(this);
-            var bindingManager = new BindingManager();
-            var component = new BindingExpressionInitializer();
-            bindingManager.AddComponent(component);
-
             var sourceVisitCount = 0;
             var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
             {
@@ -64,16 +72,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 VisitHandler = (visitor, metadataContext) =>
                 {
                     ++sourceVisitCount;
-                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                    metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.HasFlag(BindingMemberExpressionFlags.ParentDataContext);
                     return null;
                 }
             };
-            context.Initialize(this, this, target, source, default, DefaultMetadata);
-            component.Initialize(null!, context);
+            _context.Initialize(this, this, target, source, default, DefaultMetadata);
+            _component.Initialize(null!, _context);
             sourceVisitCount.ShouldEqual(1);
-            context.Components.ShouldBeEmpty();
+            _context.Components.ShouldBeEmpty();
         }
 
         [Theory]
@@ -86,15 +94,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var suppressMethodAccessors = true;
             var suppressIndexAccessors = true;
             var memberFlags = MemberFlags.Static;
-            var context = new BindingExpressionInitializerContext(this);
-            var bindingManager = new BindingManager();
-            var component = new BindingExpressionInitializer();
-            bindingManager.AddComponent(component);
-            component.Flags.ShouldNotEqual(flags);
-            component.SuppressIndexAccessors.ShouldNotEqual(suppressIndexAccessors);
-            component.SuppressMethodAccessors.ShouldNotEqual(suppressMethodAccessors);
-            component.MemberFlags.ShouldNotEqual(memberFlags);
-            component.MemberFlags = memberFlags;
+
+            _component.Flags.ShouldNotEqual(flags);
+            _component.SuppressIndexAccessors.ShouldNotEqual(suppressIndexAccessors);
+            _component.SuppressMethodAccessors.ShouldNotEqual(suppressMethodAccessors);
+            _component.MemberFlags.ShouldNotEqual(memberFlags);
+            _component.MemberFlags = memberFlags;
 
             IExpressionNode[]? parameters;
             if (parametersSetting)
@@ -112,9 +117,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             else
             {
                 parameters = default;
-                component.Flags = flags;
-                component.SuppressIndexAccessors = suppressIndexAccessors;
-                component.SuppressMethodAccessors = suppressMethodAccessors;
+                _component.Flags = flags;
+                _component.SuppressIndexAccessors = suppressIndexAccessors;
+                _component.SuppressMethodAccessors = suppressMethodAccessors;
             }
 
             var targetVisitCount = 0;
@@ -124,7 +129,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 VisitHandler = (visitor, metadataContext) =>
                 {
                     ++targetVisitCount;
-                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                    metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
                     expressionVisitor.SuppressIndexAccessors.ShouldEqual(suppressIndexAccessors);
@@ -138,7 +143,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 VisitHandler = (visitor, metadataContext) =>
                 {
                     ++sourceVisitCount;
-                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                    metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false));
                     expressionVisitor.SuppressIndexAccessors.ShouldEqual(suppressIndexAccessors);
@@ -147,11 +152,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return null;
                 }
             };
-            context.Initialize(this, this, target, source, parameters, DefaultMetadata);
-            component.Initialize(null!, context);
+            _context.Initialize(this, this, target, source, parameters, DefaultMetadata);
+            _component.Initialize(null!, _context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
-            context.Components.ShouldBeEmpty();
+            _context.Components.ShouldBeEmpty();
         }
 
         [Theory]
@@ -173,14 +178,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var suppressIndexAccessors = true;
             var toggleEnabledState = true;
             var memberFlags = MemberFlags.Static | MemberFlags.Public;
-            var context = new BindingExpressionInitializerContext(this);
 
-            var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            _memberManager.AddComponent(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, meta) =>
                 {
-                    meta.ShouldEqual(context.GetMetadataOrDefault());
+                    meta.ShouldEqual(_context.GetMetadataOrDefault());
                     if (r.Equals(targetPath.Members[0]))
                     {
                         f.ShouldEqual(MemberFlags.StaticPublic);
@@ -192,7 +195,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                             GetValue = (o1, metadataContext) =>
                             {
                                 o1.ShouldBeNull();
-                                metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                                metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                                 return this;
                             }
                         };
@@ -217,7 +220,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             IExpressionNode cmdParameterNode;
             var exp = new TestCompiledExpression();
             object cmdParameter;
-            var compiler = new ExpressionCompiler();
             if (cmdParameterMode == 1)
             {
                 cmdParameter = new object();
@@ -232,13 +234,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     {
                         t.ShouldEqual(targetSrc);
                         s.ShouldEqual(sourceSrc);
-                        m.ShouldEqual(context.GetMetadataOrDefault());
+                        m.ShouldEqual(_context.GetMetadataOrDefault());
                         return cmdParameter;
                     },
                     VisitHandler = (visitor, metadataContext) =>
                     {
                         ++parameterVisitCount;
-                        metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                        metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                         if (visitor is BindingMemberExpressionVisitor expressionVisitor)
                         {
                             expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~BindingMemberExpressionFlags.ObservableMethods);
@@ -254,12 +256,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     cmdParameterNode = new UnaryExpressionNode(UnaryTokenType.Minus, cmdParameterNode);
                     cmdParameter = new TestMemberPathObserver();
-                    compiler.AddComponent(new TestExpressionCompilerComponent
+                    _compiler.AddComponent(new TestExpressionCompilerComponent
                     {
                         TryCompile = (node, m) =>
                         {
                             node.ShouldEqual(cmdParameterNode);
-                            m.ShouldEqual(context.GetMetadataOrDefault());
+                            m.ShouldEqual(_context.GetMetadataOrDefault());
                             return exp;
                         }
                     });
@@ -268,15 +270,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             else
                 throw new NotSupportedException();
 
-            var bindingManager = new BindingManager();
-            var component = new BindingExpressionInitializer(compiler, memberManager);
-            bindingManager.AddComponent(component);
-            component.Flags.ShouldNotEqual(flags);
-            component.SuppressIndexAccessors.ShouldNotEqual(suppressIndexAccessors);
-            component.SuppressMethodAccessors.ShouldNotEqual(suppressMethodAccessors);
-            component.ToggleEnabledState.ShouldNotEqual(toggleEnabledState);
-            component.MemberFlags.ShouldNotEqual(memberFlags);
-            component.MemberFlags = memberFlags;
+            _component.Flags.ShouldNotEqual(flags);
+            _component.SuppressIndexAccessors.ShouldNotEqual(suppressIndexAccessors);
+            _component.SuppressMethodAccessors.ShouldNotEqual(suppressMethodAccessors);
+            _component.ToggleEnabledState.ShouldNotEqual(toggleEnabledState);
+            _component.MemberFlags.ShouldNotEqual(memberFlags);
+            _component.MemberFlags = memberFlags;
 
             IExpressionNode[] parameters;
             if (parametersSetting)
@@ -290,7 +289,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Optional),
                     new MemberExpressionNode(null, BindingParameterNameConstant.ToggleEnabled),
-                    new MemberExpressionNode(null, component.OneTimeBindingMode),
+                    new MemberExpressionNode(null, _component.OneTimeBindingMode),
                     new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)
                 };
             }
@@ -299,10 +298,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.Metadata = BindingMetadata.IsMultiBinding.ToContext(false);
                 parameters = new[]
                     {new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)};
-                component.Flags = flags;
-                component.SuppressIndexAccessors = suppressIndexAccessors;
-                component.SuppressMethodAccessors = suppressMethodAccessors;
-                component.ToggleEnabledState = toggleEnabledState;
+                _component.Flags = flags;
+                _component.SuppressIndexAccessors = suppressIndexAccessors;
+                _component.SuppressMethodAccessors = suppressMethodAccessors;
+                _component.ToggleEnabledState = toggleEnabledState;
             }
 
             var targetVisitCount = 0;
@@ -314,13 +313,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     t.ShouldEqual(targetSrc);
                     s.ShouldEqual(sourceSrc);
-                    m.ShouldEqual(context.GetMetadataOrDefault());
+                    m.ShouldEqual(_context.GetMetadataOrDefault());
                     return (targetSrc, targetPath);
                 },
                 VisitHandler = (visitor, metadataContext) =>
                 {
                     ++targetVisitCount;
-                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                    metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
                     expressionVisitor.SuppressIndexAccessors.ShouldEqual(suppressIndexAccessors);
@@ -334,7 +333,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 VisitHandler = (visitor, metadataContext) =>
                 {
                     ++sourceVisitCount;
-                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                    metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
                     expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods));
                     expressionVisitor.SuppressIndexAccessors.ShouldBeTrue();
@@ -344,12 +343,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            context.Initialize(targetSrc, sourceSrc, target, source, parameters, DefaultMetadata);
-            component.Initialize(null!, context);
+            _context.Initialize(targetSrc, sourceSrc, target, source, parameters, DefaultMetadata);
+            _component.Initialize(_bindingManager, _context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
-            context.Components[BindingParameterNameConstant.Mode].ShouldBeNull();
-            var bindingComponentProvider = (IBindingComponentProvider) context.Components[BindingParameterNameConstant.EventHandler]!;
+            _context.Components[BindingParameterNameConstant.Mode].ShouldBeNull();
+            var bindingComponentProvider = (IBindingComponentProvider) _context.Components[BindingParameterNameConstant.EventHandler]!;
             var bindingComponent = (BindingEventHandler) bindingComponentProvider.TryGetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
             if (parametersSetting)
                 bindingComponent.ShouldBeType<BindingEventHandler>();

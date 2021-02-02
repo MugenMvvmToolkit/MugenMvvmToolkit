@@ -1,43 +1,37 @@
-﻿using MugenMvvm.Bindings.Parsing;
-using MugenMvvm.Bindings.Parsing.Components.Parsers;
+﻿using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 {
-    public class MemberTokenParserTest : UnitTestBase
+    public class MemberTokenParserTest : TokenParserTestBase<MemberTokenParser>
     {
+        public MemberTokenParserTest(ITestOutputHelper? outputHelper = null) : base(new DigitTokenParser(), outputHelper)
+        {
+        }
+
         [Fact]
         public void TryParseShouldIgnoreNotMemberExpression()
         {
-            var component = new MemberTokenParser();
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new DigitTokenParser()}
-            };
-            ctx.Initialize("1", DefaultMetadata);
-            component.TryParse(ctx, null).ShouldBeNull();
+            Context.Initialize("1", DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldBeNull();
         }
 
         [Fact]
         public void TryParseShouldParseMemberExpression()
         {
             const string memberName = "Test";
-            var ctx = new TokenParserContext
-            {
-                Parsers = new[] {new DigitTokenParser()}
-            };
-            ctx.Initialize(memberName, DefaultMetadata);
 
-            var component = new MemberTokenParser();
-            component.TryParse(ctx, null).ShouldEqual(new MemberExpressionNode(null, memberName));
+            Context.Initialize(memberName, DefaultMetadata);
+            Parser.TryParse(Context, null).ShouldEqual(new MemberExpressionNode(null, memberName));
 
-            ctx.Initialize($".{memberName}", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new MemberExpressionNode(ConstantExpressionNode.Null, memberName));
+            Context.Initialize($".{memberName}", DefaultMetadata);
+            Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldEqual(new MemberExpressionNode(ConstantExpressionNode.Null, memberName));
 
-            ctx.Initialize($"{memberName}", DefaultMetadata);
-            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldBeNull();
+            Context.Initialize($"{memberName}", DefaultMetadata);
+            Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldBeNull();
         }
     }
 }

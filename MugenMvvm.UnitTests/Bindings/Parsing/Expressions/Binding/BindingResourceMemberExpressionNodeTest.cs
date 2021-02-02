@@ -14,11 +14,24 @@ using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Bindings.Resources.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
+    [Collection(SharedContext)]
     public class BindingResourceMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest<BindingResourceMemberExpressionNode>
     {
+        public BindingResourceMemberExpressionNodeTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            MugenService.Configuration.InitializeInstance<IResourceManager>(new ResourceManager(ComponentCollectionManager));
+        }
+
+        public override void Dispose()
+        {
+            MugenService.Configuration.Clear<IResourceManager>();
+            base.Dispose();
+        }
+
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -46,7 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var src = new object();
             var resource = new object();
 
-            using var t1 = MugenService.AddComponent(new TestResourceResolverComponent
+            MugenService.AddComponent(new TestResourceResolverComponent
             {
                 TryGetResource = (s, o, arg4) =>
                 {
@@ -56,7 +69,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     return new ResourceResolverResult(resource);
                 }
             });
-            using var t2 = MugenService.AddComponent(new TestMemberPathProviderComponent
+            MugenService.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, arg3) =>
                 {
@@ -82,7 +95,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var resource = new object();
 
 
-            using var t1 = MugenService.AddComponent(new TestResourceResolverComponent
+            MugenService.AddComponent(new TestResourceResolverComponent
             {
                 TryGetResource = (s, o, arg4) =>
                 {
@@ -92,7 +105,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     return new ResourceResolverResult(resource);
                 }
             });
-            using var t2 = MugenService.AddComponent(new TestMemberPathProviderComponent
+            MugenService.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, arg3) =>
                 {
@@ -107,7 +120,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 BindingMemberExpressionFlags.ObservableMethods,
                 MemberFlags.All, "M");
 
-            using var t3 = MugenService.AddComponent(new TestMemberPathObserverProviderComponent
+            MugenService.AddComponent(new TestMemberPathObserverProviderComponent
             {
                 TryGetMemberPathObserver = (target, req, arg4) =>
                 {
@@ -137,7 +150,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var src = new object();
             var resource = new TestDynamicResource {Value = new object()};
 
-            using var t1 = MugenService.AddComponent(new TestResourceResolverComponent
+            MugenService.AddComponent(new TestResourceResolverComponent
             {
                 TryGetResource = (s, o, arg4) =>
                 {
@@ -153,7 +166,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 BindingMemberExpressionFlags.ObservableMethods,
                 MemberFlags.All, "M");
 
-            using var t2 = MugenService.AddComponent(new TestMemberPathProviderComponent
+            MugenService.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, arg3) =>
                 {
@@ -162,7 +175,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     return path;
                 }
             });
-            using var t3 = MugenService.AddComponent(new TestMemberPathObserverProviderComponent
+            MugenService.AddComponent(new TestMemberPathObserverProviderComponent
             {
                 TryGetMemberPathObserver = (target, req, arg4) =>
                 {
@@ -192,7 +205,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var resource = new object();
 
 
-            using var t1 = MugenService.AddComponent(new TestResourceResolverComponent
+            MugenService.AddComponent(new TestResourceResolverComponent
             {
                 TryGetResource = (s, o, arg4) =>
                 {
@@ -203,7 +216,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 }
             });
 
-            using var t2 = MugenService.AddComponent(new TestMemberPathProviderComponent
+            MugenService.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, arg3) =>
                 {

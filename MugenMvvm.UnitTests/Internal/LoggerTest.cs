@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Internal
         public void CanLogShouldBeHandledByComponents(int count, string l, bool withMetadata)
         {
             var logLevel = LogLevel.Get(l);
-            var logger = new Logger();
+            var logger = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Internal
             var logLevel = LogLevel.Get(l);
             var message = l;
             var exception = withMetadata ? new Exception() : null;
-            var logger = new Logger();
+            var logger = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(10)]
         public void GetLoggerShouldBeHandledByComponents(int count)
         {
-            var logger = new Logger();
+            var logger = GetComponentOwner(ComponentCollectionManager);
             var request = new object();
             var result = new Logger();
             var invokeCount = 0;
@@ -118,6 +118,6 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override Logger GetComponentOwner(IComponentCollectionManager? collectionProvider = null) => new(collectionProvider);
+        protected override Logger GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }
 }
