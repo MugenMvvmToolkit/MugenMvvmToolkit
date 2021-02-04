@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Navigation;
 
 namespace MugenMvvm.Metadata

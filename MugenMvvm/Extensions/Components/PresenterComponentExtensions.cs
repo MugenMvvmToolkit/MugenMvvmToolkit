@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.Presenters.Components;
+using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Presentation.Components;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 

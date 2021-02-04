@@ -6,9 +6,9 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Presenters;
+using MugenMvvm.Presentation;
 
 namespace MugenMvvm.Extensions
 {

@@ -15,14 +15,14 @@ using IParameterInfo = MugenMvvm.Bindings.Interfaces.Members.IParameterInfo;
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
     [Collection(SharedContext)]
-    public class DelegateMethodMemberInfoTest : DelegateObservableMemberInfoTest, IDisposable
+    public class DelegateMethodMemberInfoTest : DelegateObservableMemberInfoTest
     {
         public DelegateMethodMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             MugenService.Configuration.InitializeInstance<IObservationManager>(ObservationManager);
         }
 
-        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
+        public override void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
 
         [Fact]
         public void GetParametersShouldUseDelegate()

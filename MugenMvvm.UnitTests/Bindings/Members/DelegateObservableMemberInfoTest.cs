@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             MugenService.Configuration.Clear<IObservationManager>();
             MugenService.Configuration.Clear<IMemberManager>();
