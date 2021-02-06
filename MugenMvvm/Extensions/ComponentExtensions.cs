@@ -36,7 +36,8 @@ namespace MugenMvvm.Extensions
         public static T DefaultIfNull<T>(this T? component) where T : class, IComponentOwner => component ?? MugenService.Instance<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DefaultIfNull<T>(this T? component, object? source) where T : class, IComponentOwner => component ?? (source as IHasService<T>)?.GetService(false) ?? MugenService.Instance<T>();
+        public static T DefaultIfNull<T>(this T? component, object? source) where T : class, IComponentOwner =>
+            component ?? (source as IHasService<T>)?.GetService(false) ?? (T?) (source as IServiceProvider)?.GetService(typeof(T)) ?? MugenService.Instance<T>();
 
         public static void TryInvalidateCache(this IComponentOwner? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {

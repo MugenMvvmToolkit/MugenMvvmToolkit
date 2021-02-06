@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Input;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
@@ -53,7 +54,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 {nameof(BindableMembers.RelativeSource), nameof(BindableMembers.RelativeSource)},
                 {"El", nameof(BindableMembers.ElementSource)},
                 {"Element", nameof(BindableMembers.ElementSource)},
-                {nameof(BindableMembers.ElementSource), nameof(BindableMembers.ElementSource)}
+                {nameof(BindableMembers.ElementSource), nameof(BindableMembers.ElementSource)},
+                {nameof(ICommand.CanExecute), nameof(ICommand.CanExecute)}
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>(11)
             {

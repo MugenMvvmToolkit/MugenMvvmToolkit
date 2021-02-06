@@ -19,17 +19,17 @@ namespace MugenMvvm.Bindings.Parsing.Components
     {
         private readonly ComponentTracker _componentTracker;
         private readonly ExpressionConverterContext<Expression> _context;
-        private readonly TokenParserContext _parserContext;
+        private readonly StringTokenParserContext _parserContext;
 
         [Preserve(Conditional = true)]
         public ExpressionConverter()
         {
             _context = new ExpressionConverterContext<Expression>();
-            _parserContext = new TokenParserContext();
+            _parserContext = new StringTokenParserContext();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>(
                 (components, state, _) => state.Converters = components, _context);
-            _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
+            _componentTracker.AddListener<ITokenParserComponent, StringTokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 
         public int Priority { get; set; } = ParsingComponentPriority.Converter;

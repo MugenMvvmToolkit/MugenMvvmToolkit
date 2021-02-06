@@ -60,25 +60,25 @@ namespace MugenMvvm.Commands
             bool? allowMultipleExecution = null,
             CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, Func<object?, object?, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            MugenService.CommandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
+            MugenExtensions.GetCommand(null, owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
 
         public static ICompositeCommand Create<T>(object? owner, Action<T> execute, Func<T, bool>? canExecute = null, ItemOrIEnumerable<object> notifiers = default,
             bool? allowMultipleExecution = null,
             CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, Func<object?, object?, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            MugenService.CommandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
+            MugenExtensions.GetCommand(null, owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
 
         public static ICompositeCommand CreateFromTask(object? owner, Func<Task> execute, Func<bool>? canExecute = null, ItemOrIEnumerable<object> notifiers = default,
             bool? allowMultipleExecution = null,
             CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, Func<object?, object?, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            MugenService.CommandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
+            MugenExtensions.GetCommand(null, owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
 
         public static ICompositeCommand CreateFromTask<T>(object? owner, Func<T, Task> execute, Func<T, bool>? canExecute = null, ItemOrIEnumerable<object> notifiers = default,
             bool? allowMultipleExecution = null, CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null,
             Func<object?, object?, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null) =>
-            MugenService.CommandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
+            MugenExtensions.GetCommand(null, owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
 
         public bool CanExecute(object? parameter) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, null);
 

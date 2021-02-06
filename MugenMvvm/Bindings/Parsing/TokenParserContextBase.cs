@@ -13,18 +13,19 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing
 {
-    public sealed class TokenParserContext : MetadataOwnerBase, ITokenParserContext, IHasTarget<string>
+    public abstract class TokenParserContextBase<T> : MetadataOwnerBase, ITokenParserContext, IHasTarget<T> where T : class
     {
         private int? _limit;
         private object? _parsers;
         private int _position;
+        private int _length;
 
-        public TokenParserContext() : base(null)
+        protected TokenParserContextBase(IReadOnlyMetadataContext? metadata) : base(metadata)
         {
-            Source = string.Empty;
+            Source = null!;
         }
 
-        public string Source { get; private set; }
+        public T Source { get; private set; }
 
         public ItemOrArray<ITokenParserComponent> Parsers
         {
@@ -48,44 +49,39 @@ namespace MugenMvvm.Bindings.Parsing
             get => _limit;
             set
             {
-                Should.BeValid(value == null || value.Value <= Source.Length && value >= 0, nameof(value));
+                Should.BeValid(value == null || value.Value <= _length && value >= 0, nameof(value));
                 _limit = value;
             }
         }
 
-        public int Length
-        {
-            get
-            {
-                if (_limit == null)
-                    return Source.Length;
-                return _limit.Value;
-            }
-        }
+        public int Length => _limit ?? _length;
 
-        string IHasTarget<string>.Target => Source;
+        T IHasTarget<T>.Target => Source;
+
+        public abstract char TokenAt(int position);
+
+        public abstract string GetValue(int start, int end);
+
+#if SPAN_API
+        public abstract ReadOnlySpan<char> GetValueSpan(int start, int end);
+#endif
+
+        protected abstract int GetLength();
 
         public override string ToString() =>
-            $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{Source}'";
+            $"Position '{Position}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{Source}'";
 
-        public void Initialize(string source, IReadOnlyMetadataContext? metadata)
+        public void Initialize(T source, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNullOrEmpty(source, nameof(source));
+            Should.NotBeNull(source, nameof(source));
             Source = source;
             Position = 0;
             Limit = null;
+            _length = GetLength();
             MetadataRaw?.Clear();
             if (!metadata.IsNullOrEmpty())
                 Metadata.Merge(metadata!);
         }
-
-        public char TokenAt(int position) => Source[position];
-
-        public string GetValue(int start, int end) => Source.Substring(start, end - start);
-
-#if SPAN_API
-        public ReadOnlySpan<char> GetValueSpan(int start, int end) => Source.AsSpan(start, end - start);
-#endif
 
         public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null) =>
             Parsers.TryParse(this, expression, condition);
@@ -96,7 +92,7 @@ namespace MugenMvvm.Bindings.Parsing
                 return "EOF";
             if (position < 0)
                 return "BOF";
-            return Source[position].ToString();
+            return TokenAt(position).ToString();
         }
     }
 }

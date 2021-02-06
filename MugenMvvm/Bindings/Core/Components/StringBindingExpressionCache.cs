@@ -11,11 +11,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class BindingExpressionParserCache : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
+    public sealed class StringBindingExpressionCache : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
     {
         private readonly Dictionary<string, object?> _cache;
 
-        public BindingExpressionParserCache(int priority = BindingComponentPriority.BuilderCache)
+        public StringBindingExpressionCache(int priority = BindingComponentPriority.BuilderCache)
             : base(priority)
         {
             _cache = new Dictionary<string, object?>(59, StringComparer.Ordinal);

@@ -13,14 +13,14 @@ namespace MugenMvvm.Bindings.Parsing.Components
     public sealed class StringExpressionParser : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
         private readonly ComponentTracker _componentTracker;
-        private readonly TokenParserContext _parserContext;
+        private readonly StringTokenParserContext _parserContext;
 
         [Preserve(Conditional = true)]
         public StringExpressionParser()
         {
-            _parserContext = new TokenParserContext();
+            _parserContext = new StringTokenParserContext();
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
+            _componentTracker.AddListener<ITokenParserComponent, StringTokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 
         public int Priority { get; set; } = ParsingComponentPriority.TokenParser;
