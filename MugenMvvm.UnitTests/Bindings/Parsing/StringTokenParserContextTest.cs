@@ -13,15 +13,15 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing
 {
-    public class TokenParserContextTest : MetadataOwnerTestBase
+    public class StringTokenParserContextTest : MetadataOwnerTestBase
     {
         private const string SourceString = "Test2423";
 
-        private readonly TokenParserContext _context;
+        private readonly StringTokenParserContext _context;
 
-        public TokenParserContextTest()
+        public StringTokenParserContextTest()
         {
-            _context = new TokenParserContext();
+            _context = new StringTokenParserContext();
             _context.Initialize(SourceString, DefaultMetadata);
         }
 
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
         {
-            var ctx = new TokenParserContext();
+            var ctx = new StringTokenParserContext();
             ctx.Initialize("Test", metadata);
             return ctx;
         }

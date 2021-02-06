@@ -8,7 +8,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
-    public class BindingExpressionParserCacheTest : UnitTestBase
+    public class StringBindingExpressionCacheTest : UnitTestBase
     {
         [Fact]
         public void TryParseBindingExpressionShouldCacheRequest()
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var testExp = new TestBindingBuilder();
 
             var bindingManager = new BindingManager(ComponentCollectionManager);
-            var cache = new BindingExpressionParserCache();
+            var cache = new StringBindingExpressionCache();
             var component = new TestBindingExpressionParserComponent(bindingManager)
             {
                 TryParseBindingExpression = (o, arg3) =>

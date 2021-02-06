@@ -8,12 +8,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
     public abstract class TokenParserTestBase<T> : UnitTestBase where T : class, ITokenParserComponent, new()
     {
         protected readonly T Parser;
-        protected readonly TokenParserContext Context;
+        protected readonly StringTokenParserContext Context;
 
         protected TokenParserTestBase(ItemOrArray<ITokenParserComponent> parsers = default, ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             Parser = new T();
-            Context = new TokenParserContext
+            Context = new StringTokenParserContext
             {
                 Parsers = parsers
             };

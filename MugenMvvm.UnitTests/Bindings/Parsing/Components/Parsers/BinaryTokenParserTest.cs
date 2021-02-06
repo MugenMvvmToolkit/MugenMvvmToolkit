@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 
         [Theory]
         [MemberData(nameof(GetData))]
-        public void TryParseShouldParseBinaryExpression(TokenParserContext ctx, IExpressionNode? expression, IExpressionNode result) =>
+        public void TryParseShouldParseBinaryExpression(StringTokenParserContext ctx, IExpressionNode? expression, IExpressionNode result) =>
             Parser.TryParse(ctx, expression).ShouldEqual(result);
 
         public static IEnumerable<object?[]> GetData() =>
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 
         private static object?[] GetBinary(BinaryTokenType binaryToken)
         {
-            var context = new TokenParserContext
+            var context = new StringTokenParserContext
             {
                 Parsers = new ITokenParserComponent[]
                 {
