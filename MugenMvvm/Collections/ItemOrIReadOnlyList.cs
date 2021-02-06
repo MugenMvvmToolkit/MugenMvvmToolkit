@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Collections
 {
@@ -20,6 +21,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIReadOnlyList<T> FromList<T>(IReadOnlyList<T>? readOnlyList) => new(readOnlyList);
 
+        [Preserve(Conditional = true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIReadOnlyList<T> FromRawValue<T>(object? value)
         {

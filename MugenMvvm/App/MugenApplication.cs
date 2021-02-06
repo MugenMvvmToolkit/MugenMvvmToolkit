@@ -34,7 +34,12 @@ namespace MugenMvvm.App
 
         public IPlatformInfo PlatformInfo
         {
-            get => _deviceInfo ??= new PlatformInfo(new PlatformType("-"));
+            get
+            {
+                if (_deviceInfo == null)
+                    ExceptionManager.ThrowObjectNotInitialized(this);
+                return _deviceInfo;
+            }
             private set => _deviceInfo = value;
         }
 
@@ -50,8 +55,6 @@ namespace MugenMvvm.App
         public void Initialize(IPlatformInfo platformInfo, object? state, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(platformInfo, nameof(platformInfo));
-            if (_deviceInfo != null && _deviceInfo.HasMetadata)
-                platformInfo.Metadata.Merge(_deviceInfo.Metadata);
             PlatformInfo = platformInfo;
             OnLifecycleChanged(ApplicationLifecycleState.Initializing, state, metadata);
             OnLifecycleChanged(ApplicationLifecycleState.Initialized, state, metadata);

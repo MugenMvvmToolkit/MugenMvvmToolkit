@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Collections
 {
@@ -23,6 +24,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIEnumerable<T> FromList<T>(IEnumerable<T>? enumerable) => new(enumerable);
 
+        [Preserve(Conditional = true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIEnumerable<T> FromRawValue<T>(object? value)
         {

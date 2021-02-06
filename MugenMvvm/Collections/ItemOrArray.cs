@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Collections
 {
@@ -23,6 +24,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrArray<T> FromList<T>(T[]? array) => new(array);
 
+        [Preserve(Conditional = true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrArray<T> FromRawValue<T>(object? value)
         {

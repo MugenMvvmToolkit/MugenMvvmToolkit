@@ -28,14 +28,11 @@ namespace MugenMvvm.UnitTests.App
             _application.HasMetadata.ShouldBeFalse();
             _application.Components.ShouldNotBeNull();
             _application.HasComponents.ShouldBeFalse();
-            var deviceInfo = _application.PlatformInfo;
-            deviceInfo.ShouldNotBeNull();
-            deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
-            deviceInfo.Type.ShouldEqual(new PlatformType("-"));
-            deviceInfo.ApplicationVersion.ShouldEqual("0.0");
-            deviceInfo.DeviceVersion.ShouldEqual("0.0");
-            deviceInfo.Metadata.ShouldNotBeNull();
             MugenService.Application.ShouldEqual(_application);
+            ShouldThrow<InvalidOperationException>(() =>
+            {
+                var _ = _application.PlatformInfo;
+            });
         }
 
         [Fact]
