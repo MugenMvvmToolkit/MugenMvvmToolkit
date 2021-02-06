@@ -45,6 +45,8 @@
     <TransformFile Include="Android\Transforms\Metadata.xml" />
     <TransformFile Include="Android\Transforms\EnumFields.xml" />
     <TransformFile Include="Android\Transforms\EnumMethods.xml" />
+
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">

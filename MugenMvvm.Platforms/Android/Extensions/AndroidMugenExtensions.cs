@@ -38,7 +38,6 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal.Components;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
@@ -60,6 +59,12 @@ namespace MugenMvvm.Android.Extensions
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, IBindViewCallback? bindViewCallback = null)
         {
             MugenAndroidUtils.Initialize(bindViewCallback ?? BindViewCallback.Instance, new NativeLifecycleDispatcher());
+
+            configuration.ServiceConfiguration<IExpressionParser>()
+                         .WithComponent(new NativeStringExpressionParser());
+
+            configuration.ServiceConfiguration<IBindingManager>()
+                         .WithComponent(new NativeStringBindingExpressionCache());
 
             configuration.ServiceConfiguration<IAttachedValueManager>()
                          .WithComponent(new AndroidAttachedValueStorageProvider());
