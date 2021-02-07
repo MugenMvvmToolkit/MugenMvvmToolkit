@@ -26,5 +26,7 @@ namespace MugenMvvm.Android.Internal
             _handle = handle;
             Length = length;
         }
+
+        public override string ToString() => new(Span);
     }
 }
