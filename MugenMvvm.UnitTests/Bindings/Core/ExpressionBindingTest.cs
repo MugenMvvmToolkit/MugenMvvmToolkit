@@ -23,9 +23,9 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Core
 {
     [Collection(SharedContext)]
-    public class MultiBindingTest : UnitTestBase, IDisposable
+    public class ExpressionBindingTest : UnitTestBase, IDisposable
     {
-        public MultiBindingTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public ExpressionBindingTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             MugenService.Configuration.InitializeInstance<IBindingManager>(new BindingManager(ComponentCollectionManager));
             MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(GlobalValueConverter);
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             };
 
             var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
-            var binding = new MultiBinding(target, ItemOrArray.FromItem<object?>(source), expression);
+            var binding = new ExpressionBinding(target, ItemOrArray.FromItem<object?>(source), expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);
@@ -113,24 +113,24 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         }
 
         [Fact]
-        public void MetadataShouldReturnBindingAndMultiBinding()
+        public void MetadataShouldReturnBindingAndExpressionBinding()
         {
-            var binding = new MultiBinding(EmptyPathObserver.Empty, sources: default, new TestCompiledExpression());
+            var binding = new ExpressionBinding(EmptyPathObserver.Empty, sources: default, new TestCompiledExpression());
             var context = (IReadOnlyMetadataContext) binding;
             context.Count.ShouldEqual(2);
             context.Contains(BindingMetadata.Binding).ShouldBeTrue();
-            context.Contains(BindingMetadata.IsMultiBinding).ShouldBeTrue();
+            context.Contains(BindingMetadata.IsExpressionBinding).ShouldBeTrue();
             context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
-            context.TryGet(BindingMetadata.IsMultiBinding, out var isMulti).ShouldBeTrue();
+            context.TryGet(BindingMetadata.IsExpressionBinding, out var isMulti).ShouldBeTrue();
             b.ShouldEqual(binding);
             isMulti.ShouldBeTrue();
-            context.GetValues().AsList().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsMultiBinding.ToValue(true)});
+            context.GetValues().AsList().ShouldEqual(new[] {BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsExpressionBinding.ToValue(true)});
         }
 
         [Fact]
         public void UpdateTargetShouldUseObserverValue()
         {
-            MultiBinding? binding = null;
+            ExpressionBinding? binding = null;
             var targetObj = new object();
             var sourceObj = new object();
             object sourceValue = "2";
@@ -180,7 +180,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 GetLastMember = metadata => new MemberPathLastMember(sourceObj, sourceMember)
             };
 
-            binding = new MultiBinding(target, ItemOrArray.FromItem<object?>(source), expression);
+            binding = new ExpressionBinding(target, ItemOrArray.FromItem<object?>(source), expression);
             binding.Expression.ShouldEqual(expression);
             binding.UpdateTarget();
             targetSet.ShouldEqual(1);

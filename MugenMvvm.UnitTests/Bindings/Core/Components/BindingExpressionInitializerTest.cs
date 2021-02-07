@@ -295,7 +295,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
             else
             {
-                binding.Metadata = BindingMetadata.IsMultiBinding.ToContext(false);
+                binding.Metadata = BindingMetadata.IsExpressionBinding.ToContext(false);
                 parameters = new[]
                     {new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)};
                 _component.Flags = flags;

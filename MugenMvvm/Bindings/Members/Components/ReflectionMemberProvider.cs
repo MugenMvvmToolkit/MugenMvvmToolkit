@@ -28,7 +28,7 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             _observationManager = observationManager;
             _types = new HashSet<Type>(InternalEqualityComparer.Type);
-            _cache = new Dictionary<CacheKey, object?>(this);
+            _cache = new Dictionary<CacheKey, object?>(59, this);
         }
 
         public int Priority { get; set; } = MemberComponentPriority.Instance;

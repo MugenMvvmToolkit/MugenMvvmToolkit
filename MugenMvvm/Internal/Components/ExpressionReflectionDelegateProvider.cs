@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
@@ -228,18 +229,20 @@ namespace MugenMvvm.Internal.Components
             if (!typeof(Delegate).IsAssignableFrom(delegateType))
                 return null;
 
+            var offset = method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) ? 1 : 0;
             var mParameters = method.GetParameters();
             var eParameters = delegateType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic)?.GetParameters();
-            if (eParameters == null || mParameters.Length != eParameters.Length)
+            if (eParameters == null || mParameters.Length - offset != eParameters.Length)
                 return null;
+
             if (method.IsGenericMethodDefinition)
             {
                 var genericArguments = method.GetGenericArguments();
                 var types = new Type[genericArguments.Length];
                 var index = 0;
-                for (var i = 0; i < mParameters.Length; i++)
+                for (var i = 0; i < eParameters.Length; i++)
                 {
-                    if (mParameters[i].ParameterType.IsGenericParameter)
+                    if (mParameters[i + offset].ParameterType.IsGenericParameter)
                         types[index++] = eParameters[i].ParameterType;
                 }
 
@@ -256,9 +259,9 @@ namespace MugenMvvm.Internal.Components
                 mParameters = method.GetParameters();
             }
 
-            for (var i = 0; i < mParameters.Length; i++)
+            for (var i = 0; i < eParameters.Length; i++)
             {
-                var mParameter = mParameters[i].ParameterType;
+                var mParameter = mParameters[i + offset].ParameterType;
                 var eParameter = eParameters[i].ParameterType;
                 if (!mParameter.IsAssignableFrom(eParameter) || mParameter.IsValueType != eParameter.IsValueType)
                     return null;

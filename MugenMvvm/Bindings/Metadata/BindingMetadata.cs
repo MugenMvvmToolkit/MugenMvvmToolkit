@@ -13,7 +13,7 @@ namespace MugenMvvm.Bindings.Metadata
         private static IMetadataContextKey<IBinding>? _binding;
         private static IMetadataContextKey<object>? _eventArgs;
         private static IMetadataContextKey<bool>? _suppressHolderRegistration;
-        private static IMetadataContextKey<bool>? _isMultiBinding;
+        private static IMetadataContextKey<bool>? _isExpressionBinding;
 
         [AllowNull]
         public static IMetadataContextKey<IBinding> Binding
@@ -37,10 +37,10 @@ namespace MugenMvvm.Bindings.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool> IsMultiBinding
+        public static IMetadataContextKey<bool> IsExpressionBinding
         {
-            get => _isMultiBinding ??= GetBuilder(_isMultiBinding, nameof(IsMultiBinding)).Build();
-            set => _isMultiBinding = value;
+            get => _isExpressionBinding ??= GetBuilder(_isExpressionBinding, nameof(IsExpressionBinding)).Build();
+            set => _isExpressionBinding = value;
         }
 
         private static MetadataContextKey.Builder<T> GetBuilder<T>(IMetadataContextKey<T>? _, string name) => MetadataContextKey.Create<T>(typeof(BindingMetadata), name);

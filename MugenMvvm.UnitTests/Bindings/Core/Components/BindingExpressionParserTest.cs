@@ -212,7 +212,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [InlineData(10, 10, true, false)]
         [InlineData(10, 10, false, true)]
         [InlineData(10, 10, false, false)]
-        public void TryParseBindingExpressionShouldBuildMultiBinding(int expressionCount, int count, bool includeNullComponent, bool includeFactoryComponent)
+        public void TryParseBindingExpressionShouldBuildExpressionBinding(int expressionCount, int count, bool includeNullComponent, bool includeFactoryComponent)
         {
             var target = new object();
             var source = new object();
@@ -322,7 +322,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 expression.TargetExpression.ShouldEqual(result.Target);
                 invokeCount.ShouldEqual(0);
 
-                var binding = (MultiBinding) expression.Build(target, source, DefaultMetadata);
+                var binding = (ExpressionBinding) expression.Build(target, source, DefaultMetadata);
                 binding.Expression.ShouldEqual(exp);
                 expression.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{count}"));
                 invokeCount.ShouldEqual(count);
@@ -331,7 +331,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.State.ShouldEqual(BindingState.Valid);
                 binding.GetComponents<object>().AsList().ShouldContain(components);
 
-                binding = (MultiBinding) expression.Build(target, source, DefaultMetadata);
+                binding = (ExpressionBinding) expression.Build(target, source, DefaultMetadata);
                 binding.Expression.ShouldEqual(exp);
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);

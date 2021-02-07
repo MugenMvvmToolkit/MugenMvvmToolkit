@@ -16,8 +16,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class EventInfoMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {
-        private static readonly MethodInfo RaiseMethod = typeof(BindingMugenExtensions)
-            .GetMethodOrThrow(nameof(BindingMugenExtensions.Raise), BindingFlagsEx.StaticPublic);
+        private static readonly MethodInfo RaiseMethod = typeof(BindingMugenExtensions).GetMethodOrThrow(nameof(BindingMugenExtensions.Raise), BindingFlagsEx.StaticPublic);
 
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;

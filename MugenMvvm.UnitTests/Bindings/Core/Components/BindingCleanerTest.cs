@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public void Dispose() => MugenService.Configuration.Clear<IBindingManager>();
 
         [Fact]
-        public void ShouldClearMultiBinding()
+        public void ShouldClearExpressionBinding()
         {
             var targetDisposed = false;
             var sourceDisposed = false;
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
 
             var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
-            var binding = new MultiBinding(target, new ItemOrArray<object?>(source, true), expression);
+            var binding = new ExpressionBinding(target, new ItemOrArray<object?>(source, true), expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);

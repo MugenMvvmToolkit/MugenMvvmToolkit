@@ -31,6 +31,8 @@ namespace MugenMvvm.Bindings.Members.Components
         private static int GetPriority(IMemberInfo member, Type requestedType)
         {
             var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
+            if (member is IHasPriority hasPriority)
+                priority += hasPriority.Priority;
             var flags = member.MemberFlags;
             foreach (var f in MemberFlags.GetAll())
             {

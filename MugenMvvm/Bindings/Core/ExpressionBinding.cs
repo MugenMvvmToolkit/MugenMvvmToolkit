@@ -12,11 +12,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Core
 {
-    public sealed class MultiBinding : Binding, IValueExpression
+    public sealed class ExpressionBinding : Binding, IValueExpression
     {
         private ICompiledExpression? _expression;
 
-        public MultiBinding(IMemberPathObserver target, ItemOrArray<object?> sources, ICompiledExpression expression)
+        public ExpressionBinding(IMemberPathObserver target, ItemOrArray<object?> sources, ICompiledExpression expression)
             : base(target, sources.GetRawValue())
         {
             Should.NotBeNull(expression, nameof(expression));
@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Core
                 ClearFlag(HasItem);
         }
 
-        internal MultiBinding(IMemberPathObserver target, object? source, ICompiledExpression expression)
+        internal ExpressionBinding(IMemberPathObserver target, object? source, ICompiledExpression expression)
             : base(target, source)
         {
             Should.NotBeNull(expression, nameof(expression));
@@ -48,13 +48,13 @@ namespace MugenMvvm.Bindings.Core
         protected override int GetMetadataCount() => 2;
 
         protected override ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() =>
-            new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true)};
+            new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsExpressionBinding.ToValue(true)};
 
-        protected override bool ContainsMetadata(IMetadataContextKey contextKey) => base.ContainsMetadata(contextKey) || BindingMetadata.IsMultiBinding.Equals(contextKey);
+        protected override bool ContainsMetadata(IMetadataContextKey contextKey) => base.ContainsMetadata(contextKey) || BindingMetadata.IsExpressionBinding.Equals(contextKey);
 
         protected override bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {
-            if (BindingMetadata.IsMultiBinding.Equals(contextKey))
+            if (BindingMetadata.IsExpressionBinding.Equals(contextKey))
             {
                 value = BoxingExtensions.TrueObject;
                 return true;

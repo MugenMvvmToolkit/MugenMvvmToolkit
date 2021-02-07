@@ -87,7 +87,7 @@ namespace MugenMvvm.Bindings.Core.Components
                         ((IBindingMemberExpressionNode) _sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
-                return InitializeBinding(new MultiBinding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
+                return InitializeBinding(new ExpressionBinding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
                     BindingMugenExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression) _compiledExpression!), target, source, metadata);
             }
 

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -165,6 +166,12 @@ namespace MugenMvvm
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Instance<IExpressionCompiler>();
+        }
+
+        public static IServiceProvider ServiceProvider
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IServiceProvider>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

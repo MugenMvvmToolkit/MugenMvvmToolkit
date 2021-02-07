@@ -185,7 +185,7 @@ namespace MugenMvvm.Bindings.Extensions
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
                                                    .Parent()
                                                    .GetBuilder()
-                                                   .WrapMember(Members.BindableMembers.For<object>().ParentNative())
+                                                   .WrapMember(nameof(Members.BindableMembers.ParentNative))
                                                    .Build());
         }
 
