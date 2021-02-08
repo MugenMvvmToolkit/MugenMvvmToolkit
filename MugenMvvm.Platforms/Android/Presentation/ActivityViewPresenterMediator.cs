@@ -18,14 +18,14 @@ using MugenMvvm.Presentation;
 
 namespace MugenMvvm.Android.Presentation
 {
-    public class ActivityViewPresenter : ViewPresenterBase<IActivityView>
+    public class ActivityViewPresenterMediator : ViewPresenterMediatorBase<IActivityView>
     {
         private static int _counter;
 
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IPresenter? _presenter;
 
-        public ActivityViewPresenter(IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
+        public ActivityViewPresenterMediator(IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
             _presenter = presenter;
             _navigationDispatcher = navigationDispatcher;
@@ -89,7 +89,7 @@ namespace MugenMvvm.Android.Presentation
         {
             if (navigationContext.NavigationMode == NavigationMode.New && view == null)
             {
-                return new ActivityViewRequest<(ActivityViewPresenter, IViewModelPresenterMediator, INavigationContext, int)>(mediator.ViewModel, mediator.Mapping,
+                return new ActivityViewRequest<(ActivityViewPresenterMediator, IViewModelPresenterMediator, INavigationContext, int)>(mediator.ViewModel, mediator.Mapping,
                     state => state.Item1.NewActivity(state.Item2, state.Item3, state.Item4),
                     (v, l, s, state, m) => state.Item1.IsTargetActivity(v, l, s, state.Item2, state.Item3, state.Item4, m),
                     (this, mediator, navigationContext, Interlocked.Increment(ref _counter)));

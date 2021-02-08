@@ -15,13 +15,13 @@ using UIKit;
 
 namespace MugenMvvm.Ios.Presentation
 {
-    public class NavigationControllerViewPresenter : ViewPresenterBase<UIViewController>
+    public class NavigationControllerViewPresenterMediator : ViewPresenterMediatorBase<UIViewController>
     {
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IPresenter? _presenter;
         private readonly IViewManager? _viewManager;
 
-        public NavigationControllerViewPresenter(UINavigationController navigationController, IViewManager? viewManager = null, IPresenter? presenter = null,
+        public NavigationControllerViewPresenterMediator(UINavigationController navigationController, IViewManager? viewManager = null, IPresenter? presenter = null,
             INavigationDispatcher? navigationDispatcher = null)
         {
             Should.NotBeNull(navigationController, nameof(navigationController));

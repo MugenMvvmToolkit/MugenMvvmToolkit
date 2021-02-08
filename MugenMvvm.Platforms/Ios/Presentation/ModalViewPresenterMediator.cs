@@ -15,13 +15,13 @@ using UIKit;
 
 namespace MugenMvvm.Ios.Presentation
 {
-    public class ModalViewPresenter : ViewPresenterBase<UIViewController>
+    public class ModalViewPresenterMediator : ViewPresenterMediatorBase<UIViewController>
     {
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly MugenAdaptivePresentationControllerDelegate _presentationControllerDelegate;
         private readonly IViewManager? _viewManager;
 
-        public ModalViewPresenter(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
+        public ModalViewPresenterMediator(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
         {
             _viewManager = viewManager;
             _navigationDispatcher = navigationDispatcher;
@@ -82,9 +82,9 @@ namespace MugenMvvm.Ios.Presentation
 
         private sealed class MugenAdaptivePresentationControllerDelegate : UIAdaptivePresentationControllerDelegate
         {
-            private readonly ModalViewPresenter _presenter;
+            private readonly ModalViewPresenterMediator _presenter;
 
-            public MugenAdaptivePresentationControllerDelegate(ModalViewPresenter presenter)
+            public MugenAdaptivePresentationControllerDelegate(ModalViewPresenterMediator presenter)
             {
                 _presenter = presenter;
             }

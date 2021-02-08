@@ -84,8 +84,8 @@ namespace MugenMvvm.Android.Extensions
                          .Trackers.Add(TrackViewState);
 
             configuration.ServiceConfiguration<IPresenter>()
-                         .WithComponent(new ActivityViewPresenter())
-                         .WithComponent(new FragmentDialogViewPresenter());
+                         .WithComponent(new ActivityViewPresenterMediator())
+                         .WithComponent(new FragmentDialogViewPresenterMediator());
 
             configuration
                 .ServiceConfiguration<IWeakReferenceManager>()

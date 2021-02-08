@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTests.Presentation.Internal
 {
-    public class TestViewPresenter : IViewPresenter
+    public class TestViewPresenterMediator : IViewPresenterMediator
     {
         public Func<IViewModelPresenterMediator, object?, INavigationContext, object?>? TryGetViewRequest { get; set; }
 
@@ -23,22 +23,22 @@ namespace MugenMvvm.UnitTests.Presentation.Internal
 
         public NavigationType NavigationType { get; set; } = NavigationType.Alert;
 
-        object? IViewPresenter.TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext)
+        object? IViewPresenterMediator.TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext)
             => TryGetViewRequest?.Invoke(mediator, view, navigationContext);
 
-        void IViewPresenter.Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
+        void IViewPresenterMediator.Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
             => Initialize?.Invoke(mediator, view, navigationContext);
 
-        void IViewPresenter.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
+        void IViewPresenterMediator.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
             => Cleanup?.Invoke(mediator, view, navigationContext);
 
-        Task IViewPresenter.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
+        Task IViewPresenterMediator.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
             => Activate?.Invoke(mediator, view, navigationContext) ?? Default.CompletedTask;
 
-        Task IViewPresenter.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
+        Task IViewPresenterMediator.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
             => Show?.Invoke(mediator, view, navigationContext) ?? Default.CompletedTask;
 
-        Task IViewPresenter.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
+        Task IViewPresenterMediator.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
             => Close?.Invoke(mediator, view, navigationContext) ?? Default.CompletedTask;
     }
 }

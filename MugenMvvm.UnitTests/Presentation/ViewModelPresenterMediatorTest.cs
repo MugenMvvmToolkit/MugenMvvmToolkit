@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Presentation
 {
     public class ViewModelPresenterMediatorTest : UnitTestBase
     {
-        private readonly TestViewPresenter _viewPresenter;
+        private readonly TestViewPresenterMediator _viewPresenter;
         private readonly TestViewModel _vm;
         private readonly View _view;
         private readonly ViewMapping _mapping;
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Presentation
 
         public ViewModelPresenterMediatorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _viewPresenter = new TestViewPresenter();
+            _viewPresenter = new TestViewPresenterMediator();
             _vm = new TestViewModel();
             _mapping = new ViewMapping("id", _vm.GetType(), typeof(object), DefaultMetadata);
             _view = new View(_mapping, new object(), _vm);

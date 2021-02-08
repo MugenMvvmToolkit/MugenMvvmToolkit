@@ -41,7 +41,7 @@ namespace MugenMvvm.Ios.Presentation
 
         private static void SetNavigationController(IPresenter presenter, UIWindow window, UINavigationController controller)
         {
-            presenter.AddComponent(new NavigationControllerViewPresenter(controller) {Priority = ComponentPriority.Min});
+            presenter.AddComponent(new NavigationControllerViewPresenterMediator(controller) {Priority = ComponentPriority.Min});
             window.RootViewController = controller;
             window.MakeKeyAndVisible();
         }

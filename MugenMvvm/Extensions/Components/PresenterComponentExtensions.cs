@@ -60,7 +60,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IViewPresenter? TryGetViewPresenter(this ItemOrArray<IViewPresenterProviderComponent> components, IPresenter presenter, IViewModelBase viewModel,
+        public static IViewPresenterMediator? TryGetViewPresenter(this ItemOrArray<IViewPresenterMediatorProviderComponent> components, IPresenter presenter, IViewModelBase viewModel,
             IViewMapping mapping,
             IReadOnlyMetadataContext? metadata)
         {

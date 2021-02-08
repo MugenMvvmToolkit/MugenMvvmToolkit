@@ -195,7 +195,7 @@ namespace MugenMvvm.Extensions
         private static IViewModelPresenterMediator? GetViewModelPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,
             IReadOnlyMetadataContext? metadata)
         {
-            var viewPresenter = presenter.GetComponents<IViewPresenterProviderComponent>(metadata).TryGetViewPresenter(presenter, viewModel, mapping, metadata);
+            var viewPresenter = presenter.GetComponents<IViewPresenterMediatorProviderComponent>(metadata).TryGetViewPresenter(presenter, viewModel, mapping, metadata);
             if (viewPresenter == null)
                 return null;
             return new ViewModelPresenterMediator<object>(viewModel, mapping, viewPresenter);

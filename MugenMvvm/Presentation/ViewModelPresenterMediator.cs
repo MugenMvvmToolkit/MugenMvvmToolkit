@@ -18,20 +18,21 @@ namespace MugenMvvm.Presentation
 {
     public class ViewModelPresenterMediator<TView> : ViewModelPresenterMediatorBase<TView>, IViewLifecycleListener, IHasPriority where TView : class
     {
-        protected readonly IViewPresenter ViewPresenter;
         protected bool IsAppeared;
         protected bool LifecycleAdded;
 
-        public ViewModelPresenterMediator(IViewModelBase viewModel, IViewMapping mapping, IViewPresenter viewPresenter,
+        public ViewModelPresenterMediator(IViewModelBase viewModel, IViewMapping mapping, IViewPresenterMediator viewPresenterMediator,
             IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null,
             IThreadDispatcher? threadDispatcher = null, IViewModelManager? viewModelManager = null)
             : base(viewModel, mapping, viewManager, wrapperManager, navigationDispatcher, threadDispatcher, viewModelManager)
         {
-            Should.NotBeNull(viewPresenter, nameof(viewPresenter));
-            ViewPresenter = viewPresenter;
+            Should.NotBeNull(viewPresenterMediator, nameof(viewPresenterMediator));
+            ViewPresenterMediator = viewPresenterMediator;
         }
 
-        public override NavigationType NavigationType => ViewPresenter.NavigationType;
+        public override NavigationType NavigationType => ViewPresenterMediator.NavigationType;
+
+        public IViewPresenterMediator ViewPresenterMediator { get; }
 
         public int Priority { get; set; } = ComponentPriority.Min;
 
@@ -109,12 +110,12 @@ namespace MugenMvvm.Presentation
         }
 
         protected override object GetViewRequest(object? view, INavigationContext navigationContext)
-            => ViewPresenter.TryGetViewRequest(this, view, navigationContext) ?? base.GetViewRequest(view, navigationContext);
+            => ViewPresenterMediator.TryGetViewRequest(this, view, navigationContext) ?? base.GetViewRequest(view, navigationContext);
 
         protected override async Task ShowViewAsync(TView view, INavigationContext navigationContext)
         {
             var isAppeared = IsAppeared;
-            await ViewPresenter.ShowAsync(this, view, navigationContext).ConfigureAwait(false);
+            await ViewPresenterMediator.ShowAsync(this, view, navigationContext).ConfigureAwait(false);
             if (IsAppeared && isAppeared)
                 OnViewShown(null);
         }
@@ -122,7 +123,7 @@ namespace MugenMvvm.Presentation
         protected override async ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
         {
             var isAppeared = IsAppeared;
-            await ViewPresenter.ActivateAsync(this, view, navigationContext).ConfigureAwait(false);
+            await ViewPresenterMediator.ActivateAsync(this, view, navigationContext).ConfigureAwait(false);
             if (IsAppeared && isAppeared)
                 OnViewActivated(null);
             return true;
@@ -143,16 +144,16 @@ namespace MugenMvvm.Presentation
                 return;
             }
 
-            ViewPresenter.Initialize(this, view, navigationContext);
+            ViewPresenterMediator.Initialize(this, view, navigationContext);
             if (ViewManager.IsInState(view, ViewLifecycleState.Appeared, meta))
                 IsAppeared = true;
             else if (ViewManager.IsInState(view, ViewLifecycleState.Disappeared, meta))
                 IsAppeared = false;
         }
 
-        protected override Task CloseViewAsync(TView view, INavigationContext navigationContext) => ViewPresenter.CloseAsync(this, view, navigationContext);
+        protected override Task CloseViewAsync(TView view, INavigationContext navigationContext) => ViewPresenterMediator.CloseAsync(this, view, navigationContext);
 
-        protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenter.Cleanup(this, view, navigationContext);
+        protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenterMediator.Cleanup(this, view, navigationContext);
 
         void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {

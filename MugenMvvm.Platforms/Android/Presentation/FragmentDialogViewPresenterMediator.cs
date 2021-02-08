@@ -11,11 +11,11 @@ using MugenMvvm.Presentation;
 
 namespace MugenMvvm.Android.Presentation
 {
-    public class FragmentDialogViewPresenter : ViewPresenterBase<IDialogFragmentView>
+    public class FragmentDialogViewPresenterMediator : ViewPresenterMediatorBase<IDialogFragmentView>
     {
         private readonly INavigationDispatcher? _navigationDispatcher;
 
-        public FragmentDialogViewPresenter(INavigationDispatcher? navigationDispatcher = null)
+        public FragmentDialogViewPresenterMediator(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
         }

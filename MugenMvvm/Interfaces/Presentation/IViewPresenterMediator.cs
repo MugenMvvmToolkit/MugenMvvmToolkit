@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Navigation;
 
 namespace MugenMvvm.Interfaces.Presentation
 {
-    public interface IViewPresenter
+    public interface IViewPresenterMediator
     {
         NavigationType NavigationType { get; }
 

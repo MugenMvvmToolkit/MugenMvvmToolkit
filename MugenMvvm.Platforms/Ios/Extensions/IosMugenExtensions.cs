@@ -61,7 +61,7 @@ namespace MugenMvvm.Ios.Extensions
 
             configuration
                 .ServiceConfiguration<IPresenter>()
-                .WithComponent(new ModalViewPresenter());
+                .WithComponent(new ModalViewPresenterMediator());
 
             return configuration;
         }
