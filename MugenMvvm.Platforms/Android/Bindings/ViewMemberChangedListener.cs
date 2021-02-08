@@ -9,7 +9,7 @@ using MugenMvvm.Internal;
 using Object = Java.Lang.Object;
 using String = Java.Lang.String;
 
-namespace MugenMvvm.Android.Observation
+namespace MugenMvvm.Android.Bindings
 {
     public sealed class ViewMemberChangedListener : Object, INativeMemberChangedListener
     {

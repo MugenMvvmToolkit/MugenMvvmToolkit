@@ -10,7 +10,7 @@ using MugenMvvm.Internal;
 using MugenMvvm.Ios.Interfaces;
 using UIKit;
 
-namespace MugenMvvm.Ios.Members
+namespace MugenMvvm.Ios.Bindings
 {
     public static class IosBindableMembers
     {

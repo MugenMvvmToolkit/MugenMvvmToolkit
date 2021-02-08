@@ -3,14 +3,13 @@ using System.Runtime.CompilerServices;
 using Android.Views;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
-using MugenMvvm.Android.Observation;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Android.Members
+namespace MugenMvvm.Android.Bindings
 {
     public static class ViewBindableMembers
     {

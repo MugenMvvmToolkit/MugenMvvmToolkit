@@ -21,7 +21,6 @@ using MugenMvvm.Ios.Bindings;
 using MugenMvvm.Ios.Collections;
 using MugenMvvm.Ios.Constants;
 using MugenMvvm.Ios.Internal;
-using MugenMvvm.Ios.Members;
 using MugenMvvm.Ios.Navigation;
 using MugenMvvm.Ios.Presentation;
 using MugenMvvm.Ios.Views;

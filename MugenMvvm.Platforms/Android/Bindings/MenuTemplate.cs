@@ -1,7 +1,6 @@
 ﻿using System;
 using Android.Views;
 using MugenMvvm.Android.Interfaces;
-using MugenMvvm.Android.Members;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members;
 

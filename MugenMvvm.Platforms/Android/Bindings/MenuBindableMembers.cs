@@ -8,7 +8,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Android.Members
+namespace MugenMvvm.Android.Bindings
 {
     public static class MenuBindableMembers
     {
