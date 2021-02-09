@@ -15,24 +15,23 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Parsing.Components
 {
-    public sealed class ExpressionConverter : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
+    public sealed class ExpressionParserConverter : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
         private readonly ComponentTracker _componentTracker;
         private readonly ExpressionConverterContext<Expression> _context;
         private readonly StringTokenParserContext _parserContext;
 
         [Preserve(Conditional = true)]
-        public ExpressionConverter()
+        public ExpressionParserConverter()
         {
             _context = new ExpressionConverterContext<Expression>();
             _parserContext = new StringTokenParserContext();
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>(
-                (components, state, _) => state.Converters = components, _context);
+            _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
             _componentTracker.AddListener<ITokenParserComponent, StringTokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Converter;
+        public int Priority { get; set; } = ParsingComponentPriority.TokenParser;
 
         protected override void OnAttached(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
@@ -107,6 +106,12 @@ namespace MugenMvvm.Bindings.Parsing.Components
 
         ItemOrIReadOnlyList<ExpressionParserResult> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
         {
+            if (expression is string stringExpression)
+            {
+                _parserContext.Initialize(stringExpression, metadata);
+                return _parserContext.ParseExpression();
+            }
+
             if (expression is BindingExpressionRequest request)
                 return Parse(request, metadata);
 

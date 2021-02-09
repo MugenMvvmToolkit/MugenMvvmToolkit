@@ -84,12 +84,12 @@ namespace MugenMvvm.UnitTests.Internal.Components
         [Fact]
         public async Task ShouldInitializeFallbackConfiguration()
         {
-            _behavior.Optional<object>().ShouldBeNull();
+            _behavior.Optional<string>().ShouldBeNull();
             await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => _behavior.Optional<string>()));
             await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => _behavior.Instance<string>()));
 
             _isInitializing = false;
-            await Task.Run(() => _behavior.Optional<object>());
+            await Task.Run(() => _behavior.Optional<string>());
         }
     }
 }

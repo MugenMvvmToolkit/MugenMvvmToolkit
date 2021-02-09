@@ -114,7 +114,6 @@ namespace MugenMvvm.Bindings.Extensions
                 cfg.WithComponent(new ResourceMemberPathObserverCache());
 
             configuration.WithAppService(MugenService.Optional<IExpressionParser>() ?? new ExpressionParser())
-                         .WithComponent(new StringExpressionParser())
                          .WithComponent(new UnaryTokenParser())
                          .WithComponent(new MemberTokenParser())
                          .WithComponent(new BinaryTokenParser())
@@ -128,7 +127,7 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new StringTokenParser())
                          .WithComponent(new NullConditionalMemberTokenParser())
                          .WithComponent(new AssignmentTokenParser())
-                         .WithComponent(new ExpressionConverter())
+                         .WithComponent(new ExpressionParserConverter())
                          .WithComponent(new BinaryExpressionConverter())
                          .WithComponent(new UnaryExpressionConverter())
                          .WithComponent(new ConstantExpressionConverter())

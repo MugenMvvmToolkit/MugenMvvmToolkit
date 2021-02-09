@@ -11,6 +11,15 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EnumFlags<T> CommonFlags<T>(this EnumFlags<T> flags, EnumFlags<T> value) where T : class, IFlagsEnum => new(flags.Flags & value.Flags);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EnumFlags<T> RemoveFlags<T>(this EnumFlags<T> flags, EnumFlags<T> value) where T : class, IFlagsEnum => new(flags.Flags & ~value.Flags);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasAnyFlags<T>(this EnumFlags<T> flags, EnumFlags<T> value) where T : class, IFlagsEnum => (flags.Flags & value.Flags) != 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlag<T>(this EnumFlags<T> flags, long flag) where T : class, IFlagsEnum => (flags.Flags & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

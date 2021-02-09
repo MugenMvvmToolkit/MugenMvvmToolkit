@@ -567,8 +567,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         private static IExpressionParser GetInitializedExpressionParser()
         {
             var expressionParser = new ExpressionParser();
+            expressionParser.AddComponent(new ExpressionParserConverter());
+
             //parsers
-            expressionParser.AddComponent(new StringExpressionParser());
             expressionParser.AddComponent(new AssignmentTokenParser());
             expressionParser.AddComponent(new BinaryTokenParser());
             expressionParser.AddComponent(new ConditionTokenParser());
@@ -584,7 +585,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             expressionParser.AddComponent(new UnaryTokenParser());
 
             //converters
-            expressionParser.AddComponent(new ExpressionConverter());
             expressionParser.AddComponent(new BinaryExpressionConverter());
             expressionParser.AddComponent(new ConditionExpressionConverter());
             expressionParser.AddComponent(new ConstantExpressionConverter());

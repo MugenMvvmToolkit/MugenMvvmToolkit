@@ -15,7 +15,6 @@
         public const int Assignment = 920;
 
         public const int TokenParser = 0;
-        public const int Converter = 0;
         public const int Optimizer = 100;
     }
 }
