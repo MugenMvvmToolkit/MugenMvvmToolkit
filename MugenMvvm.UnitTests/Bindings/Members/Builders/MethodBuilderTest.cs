@@ -278,9 +278,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 builder.Static();
 
             memberInfo = builder.Build();
-            memberInfo.Invoke(target, Default.Array<object>(), DefaultMetadata);
+            memberInfo.Invoke(target, Array.Empty<object>(), DefaultMetadata);
             attachedInvokeCount.ShouldEqual(1);
-            memberInfo.Invoke(target, Default.Array<object>(), DefaultMetadata);
+            memberInfo.Invoke(target, Array.Empty<object>(), DefaultMetadata);
             attachedInvokeCount.ShouldEqual(1);
         }
 

@@ -24,8 +24,8 @@ namespace MugenMvvm.Collections.Components
 
         public FilterCollectionDecorator()
         {
-            _keys = Default.Array<int>();
-            _values = Default.Array<object?>();
+            _keys = Array.Empty<int>();
+            _values = Array.Empty<object?>();
             _size = 0;
             _internalFilter = FilterInternal;
         }
@@ -223,8 +223,8 @@ namespace MugenMvvm.Collections.Components
             }
             else
             {
-                _keys = Default.Array<int>();
-                _values = Default.Array<object?>();
+                _keys = Array.Empty<int>();
+                _values = Array.Empty<object?>();
             }
         }
 

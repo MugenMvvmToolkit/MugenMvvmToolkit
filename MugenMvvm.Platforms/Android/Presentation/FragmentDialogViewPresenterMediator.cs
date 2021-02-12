@@ -24,7 +24,7 @@ namespace MugenMvvm.Android.Presentation
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext) => Default.CompletedTask;
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext) => Task.CompletedTask;
 
         protected override Task ShowAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
         {
@@ -34,13 +34,13 @@ namespace MugenMvvm.Android.Presentation
                 FragmentMugenExtensions.Show(view, NavigationDispatcher.GetTopView<IActivityView>()!, null!);
             }
 
-            return Default.CompletedTask;
+            return Task.CompletedTask;
         }
 
         protected override Task CloseAsync(IViewModelPresenterMediator mediator, IDialogFragmentView view, INavigationContext navigationContext)
         {
             view.DismissAllowingStateLoss();
-            return Default.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

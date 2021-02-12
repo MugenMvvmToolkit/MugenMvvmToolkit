@@ -102,16 +102,16 @@ namespace MugenMvvm.Android.Presentation
         {
             var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
             if (Equals(topActivityView, view))
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             return RefreshActivityAsync(mediator, view, navigationContext);
         }
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => Default.CompletedTask;
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => Task.CompletedTask;
 
         protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
             view.Finish();
-            return Default.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
-using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.ViewModels;
 
@@ -13,8 +12,6 @@ namespace MugenMvvm.Internal
 {
     public static class Default
     {
-        public static readonly Task CompletedTask = Task.CompletedTask;
-
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new(string.Empty);
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new(nameof(IList.Count));
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new(InternalConstant.IndexerName);
@@ -26,43 +23,34 @@ namespace MugenMvvm.Internal
         private static readonly Dictionary<Type, Array> EmptyArrayCache = new(InternalEqualityComparer.Type);
         private static int _counter;
 
-        public static T[] Array<T>() => EmptyArrayImpl<T>.Instance;
-
         public static Array Array(Type type)
         {
             Should.NotBeNull(type, nameof(type));
             if (type == typeof(object))
-                return EmptyArrayImpl<object>.Instance;
+                return System.Array.Empty<object>();
             if (type == typeof(string))
-                return EmptyArrayImpl<string>.Instance;
+                return System.Array.Empty<string>();
             if (type == typeof(int))
-                return EmptyArrayImpl<int>.Instance;
-            return GetEmptyArray<object>(type, false);
+                return System.Array.Empty<int>();
+            return GetEmptyArray<object>(type);
         }
 
         public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>() where TKey : notnull => EmptyDictionaryImpl<TKey, TValue>.Instance;
 
         internal static int NextCounter() => Interlocked.Increment(ref _counter);
 
-        private static Array GetEmptyArray<T>(Type type, bool isGeneric)
+        private static Array GetEmptyArray<T>(Type type)
         {
-            if (isGeneric)
-                type = typeof(T);
             lock (EmptyArrayCache)
             {
                 if (!EmptyArrayCache.TryGetValue(type, out var array))
                 {
-                    array = isGeneric ? new T[0] : System.Array.CreateInstance(type, EmptySize);
+                    array = System.Array.CreateInstance(type, EmptySize);
                     EmptyArrayCache[type] = array;
                 }
 
                 return array;
             }
-        }
-
-        private static class EmptyArrayImpl<T>
-        {
-            public static readonly T[] Instance = (T[]) GetEmptyArray<T>(typeof(Default), true);
         }
 
         private static class EmptyDictionaryImpl<TKey, TValue> where TKey : notnull

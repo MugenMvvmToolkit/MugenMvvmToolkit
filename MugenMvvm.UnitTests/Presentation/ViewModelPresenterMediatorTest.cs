@@ -230,7 +230,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++showCount;
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             };
             _viewPresenter.Activate = (p, v, m) =>
             {
@@ -238,7 +238,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++activateCount;
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             };
             _viewPresenter.Close = (p, v, m) =>
             {
@@ -246,7 +246,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 v.ShouldEqual(_view.Target);
                 m.ShouldNotBeNull();
                 ++closeCount;
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             };
             _viewPresenter.Cleanup = (p, v, m) =>
             {

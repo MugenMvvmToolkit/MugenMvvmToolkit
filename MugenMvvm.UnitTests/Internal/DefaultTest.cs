@@ -1,4 +1,6 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
+using System.Threading.Tasks;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
@@ -10,9 +12,9 @@ namespace MugenMvvm.UnitTests.Internal
         [Fact]
         public void ValuesShouldBeValid()
         {
-            Default.Array<string>().ShouldBeEmpty();
+            Array.Empty<string>().ShouldBeEmpty();
             Default.Array(typeof(string)).ShouldBeEmpty();
-            Default.Array<short>().ShouldEqual(Default.Array(typeof(short)));
+            Array.Empty<short>().ShouldEqual(Default.Array(typeof(short)));
             Default.ReadOnlyDictionary<object, object>().ShouldBeEmpty();
             (Default.NextCounter() + 1).ShouldEqual(Default.NextCounter());
 
@@ -20,7 +22,7 @@ namespace MugenMvvm.UnitTests.Internal
             Default.CountPropertyChangedArgs.PropertyName.ShouldEqual("Count");
             Default.IndexerPropertyChangedArgs.PropertyName.ShouldEqual("Item[]");
             Default.ResetCollectionEventArgs.Action.ShouldEqual(NotifyCollectionChangedAction.Reset);
-            Default.CompletedTask.IsCompleted.ShouldBeTrue();
+            Task.CompletedTask.IsCompleted.ShouldBeTrue();
         }
     }
 }

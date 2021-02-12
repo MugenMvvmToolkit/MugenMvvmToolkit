@@ -58,28 +58,28 @@ namespace MugenMvvm.Ios.Presentation
         {
             var controllers = NavigationController.ViewControllers;
             if (controllers == null)
-                return Default.CompletedTask;
+                return Task.CompletedTask;
 
             var animated = navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated);
             if (controllers.Length != 1 && Equals(NavigationController.TopViewController, view))
             {
                 NavigationController.PopViewController(animated);
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             }
 
             var index = Array.IndexOf(controllers, view);
             if (index < 0)
-                return Default.CompletedTask;
+                return Task.CompletedTask;
 
             var cancelableRequest = new CancelableRequest(state: this);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, cancelableRequest, navigationContext.GetMetadataOrDefault());
             if (cancelableRequest.Cancel.GetValueOrDefault())
-                return Default.CompletedTask;
+                return Task.CompletedTask;
 
             MugenExtensions.RemoveAt(ref controllers, index);
             NavigationController.SetViewControllers(controllers, animated);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closed, null, navigationContext.GetMetadataOrDefault());
-            return Default.CompletedTask;
+            return Task.CompletedTask;
         }
 
         private async Task ShowInternalAsync(bool bringToFront, IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)

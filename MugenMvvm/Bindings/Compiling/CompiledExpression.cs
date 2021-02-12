@@ -71,7 +71,7 @@ namespace MugenMvvm.Bindings.Compiling
 
         public object? Invoke(ItemOrArray<ParameterValue> values, IReadOnlyMetadataContext? metadata)
         {
-            var key = values.List ?? values.Item.Type ?? (object) Default.Array<Type>();
+            var key = values.List ?? values.Item.Type ?? (object) Array.Empty<Type>();
             if (!_cache.TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);

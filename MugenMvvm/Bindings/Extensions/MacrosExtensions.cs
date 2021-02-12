@@ -135,7 +135,7 @@ namespace MugenMvvm.Bindings.Extensions
                     return errors;
             }
 
-            return Default.Array<object>();
+            return Array.Empty<object>();
         }
 
         [return: NotNullIfNotNull("target")]

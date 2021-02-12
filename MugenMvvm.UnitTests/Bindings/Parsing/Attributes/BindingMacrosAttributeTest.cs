@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnResourceExpression2()
         {
-            var call = Expression.Call(typeof(BindingMacrosAttributeTest), nameof(StaticMethod), Default.Array<Type>());
+            var call = Expression.Call(typeof(BindingMacrosAttributeTest), nameof(StaticMethod), Array.Empty<Type>());
             var attribute = (BindingMacrosAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnResourceExpression3()
         {
             const string name = "TT";
-            var call = Expression.Call(typeof(BindingMacrosAttributeTest), nameof(ResourceMethod), Default.Array<Type>(), Expression.Constant(name));
+            var call = Expression.Call(typeof(BindingMacrosAttributeTest), nameof(ResourceMethod), Array.Empty<Type>(), Expression.Constant(name));
             var attribute = (BindingMacrosAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();

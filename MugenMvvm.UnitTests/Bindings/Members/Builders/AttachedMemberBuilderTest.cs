@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            var request = new MemberTypesRequest(name, Default.Array<Type>());
+            var request = new MemberTypesRequest(name, Array.Empty<Type>());
             var descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             build.MemberType.ShouldEqual(MemberType.Method);

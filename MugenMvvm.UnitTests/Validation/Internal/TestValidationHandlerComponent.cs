@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Validation.Internal
         Task IValidationHandlerComponent.TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _validator?.ShouldEqual(validator);
-            return TryValidateAsync?.Invoke(member, cancellationToken, metadata) ?? Default.CompletedTask;
+            return TryValidateAsync?.Invoke(member, cancellationToken, metadata) ?? Task.CompletedTask;
         }
     }
 }

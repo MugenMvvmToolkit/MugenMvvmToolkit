@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
 
-            memberInfo.Invoke("st", Default.Array<object?>(), DefaultMetadata).ShouldEqual('s');
+            memberInfo.Invoke("st", Array.Empty<object?>(), DefaultMetadata).ShouldEqual('s');
         }
 
         [Theory]

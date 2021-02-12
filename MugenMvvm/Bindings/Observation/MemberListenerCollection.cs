@@ -19,7 +19,7 @@ namespace MugenMvvm.Bindings.Observation
 
         public MemberListenerCollection()
         {
-            _listeners = Default.Array<WeakEventListener<string>>();
+            _listeners = Array.Empty<WeakEventListener<string>>();
         }
 
         public int Count => _size - _removedSize;
@@ -128,7 +128,7 @@ namespace MugenMvvm.Bindings.Observation
         {
             if (_size == 0)
                 return;
-            _listeners = Default.Array<WeakEventListener<string>>();
+            _listeners = Array.Empty<WeakEventListener<string>>();
             _size = 0;
             _removedSize = 0;
             OnListenersRemoved();
@@ -207,7 +207,7 @@ namespace MugenMvvm.Bindings.Observation
             {
                 _size = 0;
                 _removedSize = 0;
-                _listeners = Default.Array<WeakEventListener<string>>();
+                _listeners = Array.Empty<WeakEventListener<string>>();
                 return;
             }
 
@@ -228,7 +228,7 @@ namespace MugenMvvm.Bindings.Observation
             }
 
             if (_size == 0)
-                _listeners = Default.Array<WeakEventListener<string>>();
+                _listeners = Array.Empty<WeakEventListener<string>>();
             else
             {
                 var capacity = EventListenerCollection.GetCapacity(_size);

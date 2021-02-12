@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnMemberExpression2()
         {
-            var call = Expression.Call(typeof(BindingMemberAttributeTest), nameof(StaticMethod), Default.Array<Type>());
+            var call = Expression.Call(typeof(BindingMemberAttributeTest), nameof(StaticMethod), Array.Empty<Type>());
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression3()
         {
             const string name = "TT";
-            var call = Expression.Call(typeof(BindingMemberAttributeTest), nameof(StaticMemberMethod), Default.Array<Type>(), Expression.Constant(name));
+            var call = Expression.Call(typeof(BindingMemberAttributeTest), nameof(StaticMemberMethod), Array.Empty<Type>(), Expression.Constant(name));
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnMemberExpression4()
         {
-            var call = Expression.Call(Expression.Constant(this), nameof(Method), Default.Array<Type>());
+            var call = Expression.Call(Expression.Constant(this), nameof(Method), Array.Empty<Type>());
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression5()
         {
             const string name = "TT";
-            var call = Expression.Call(Expression.Constant(this), nameof(MemberMethod), Default.Array<Type>(), Expression.Constant(name));
+            var call = Expression.Call(Expression.Constant(this), nameof(MemberMethod), Array.Empty<Type>(), Expression.Constant(name));
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnMemberExpression8()
         {
-            var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.L), Default.Array<Type>(), Expression.Constant(""));
+            var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.L), Array.Empty<Type>(), Expression.Constant(""));
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression9()
         {
             const string name = "TT";
-            var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.M), Default.Array<Type>(), Expression.Constant(""),
+            var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.M), Array.Empty<Type>(), Expression.Constant(""),
                 Expression.Constant(name));
             var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>

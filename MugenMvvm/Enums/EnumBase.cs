@@ -46,14 +46,14 @@ namespace MugenMvvm.Enums
             Should.BeOfType<IEnum>(enumType, nameof(enumType));
             if (TypeToEnums.TryGetValue(enumType, out var provider))
                 return provider();
-            return Default.Array<IEnum>();
+            return Array.Empty<IEnum>();
         }
 
         public static TEnum[] GetAll<TEnum>() where TEnum : class, IEnum
         {
             var provider = EnumProvider<TEnum>.Provider;
             if (provider == null)
-                return Default.Array<TEnum>();
+                return Array.Empty<TEnum>();
             return provider();
         }
 

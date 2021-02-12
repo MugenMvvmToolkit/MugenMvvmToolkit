@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
             _decorator.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _decorator.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Default.Array<Type>()), DefaultMetadata).IsEmpty
+            _decorator.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Array.Empty<Type>()), DefaultMetadata).IsEmpty
                       .ShouldBeTrue();
             _decorator.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 new object[] {members, methods[0].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[0]}.Concat(additionMembers)},
                 new object[] {members, methods[1].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[1]}.Concat(additionMembers)},
                 new object[] {members, methods[2].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[2], methods[3]}.Concat(additionMembers)},
-                new object[] {members, Default.Array<Type>(), additionMembers},
+                new object[] {members, Array.Empty<Type>(), additionMembers},
                 new object[] {members, new[] {typeof(Guid)}, additionMembers}
             };
         }

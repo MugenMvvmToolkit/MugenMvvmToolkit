@@ -185,7 +185,7 @@ namespace MugenMvvm.Extensions
             }
 
             if (components.Count == 0)
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             if (components.Count == 1)
                 return GetResult(components[0]);
 
@@ -198,7 +198,7 @@ namespace MugenMvvm.Extensions
             }
 
             if (tasks.Count == 0)
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             return tasks.WhenAll();
         }
 

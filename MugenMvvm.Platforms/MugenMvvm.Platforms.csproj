@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>xamarin.ios10;monoandroid10.0</TargetFrameworks>
+    <TargetFrameworks>xamarin.ios10;monoandroid10.0;net5.0-windows;net461;</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,13 +24,21 @@
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) or $(TargetFramework.StartsWith('net5.0-windows')) ">
+    <AssemblyName>MugenMvvm.Windows</AssemblyName>
+    <UseWpf>true</UseWpf>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Common\**\*.cs" />
     <Compile Remove="Android\**\*.cs" />
     <Compile Remove="Ios\**\*.cs" />
+    <Compile Remove="Windows\**\*.cs" />
     <None Include="Common\**\*.cs" />
     <None Include="Android\**\*.cs" />
     <None Include="Ios\**\*.cs" />
+    <None Include="Windows\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +59,16 @@
     <Compile Include="Ios\**\*.cs" />
     <Compile Include="Common\IContentTemplateSelector.cs" />
     <Compile Include="Common\ICollectionViewManager.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) or $(TargetFramework.StartsWith('net5.0-windows')) ">
+    <Compile Include="Windows\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4'))">
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
   </ItemGroup>
 
   <ItemGroup>

@@ -32,7 +32,7 @@ namespace MugenMvvm.Extensions
         public static Task WhenAll(this ItemOrListEditor<Task> editor)
         {
             if (editor.Count == 0)
-                return Default.CompletedTask;
+                return Task.CompletedTask;
             if (editor.Count == 1)
                 return editor[0];
             return Task.WhenAll(editor.AsList());

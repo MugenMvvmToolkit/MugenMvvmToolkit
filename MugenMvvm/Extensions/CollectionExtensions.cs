@@ -57,7 +57,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(collection, nameof(collection));
             var count = collection.Count;
             if (count == 0)
-                return Default.Array<TResult>();
+                return Array.Empty<TResult>();
             var array = new TResult[count];
             count = 0;
             foreach (var item in collection)
@@ -107,7 +107,7 @@ namespace MugenMvvm.Extensions
             Should.BeValid(index < items.Length, nameof(index));
             if (items.Length == 1)
             {
-                items = Default.Array<T>();
+                items = Array.Empty<T>();
                 return;
             }
 

@@ -114,7 +114,7 @@ namespace MugenMvvm.Extensions
         internal static TValue[] ToArray<T, TValue>(this ItemOrIReadOnlyList<T> itemOrList, Func<T, TValue> selector)
         {
             if (itemOrList.Count == 0)
-                return Default.Array<TValue>();
+                return Array.Empty<TValue>();
             var values = new TValue[itemOrList.Count];
             for (var i = 0; i < values.Length; i++)
                 values[i] = selector(itemOrList[i]);

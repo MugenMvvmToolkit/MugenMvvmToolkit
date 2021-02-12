@@ -33,12 +33,12 @@ namespace MugenMvvm.UnitTests.Presentation.Internal
             => Cleanup?.Invoke(mediator, view, navigationContext);
 
         Task IViewPresenterMediator.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
-            => Activate?.Invoke(mediator, view, navigationContext) ?? Default.CompletedTask;
+            => Activate?.Invoke(mediator, view, navigationContext) ?? Task.CompletedTask;
 
         Task IViewPresenterMediator.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
-            => Show?.Invoke(mediator, view, navigationContext) ?? Default.CompletedTask;
+            => Show?.Invoke(mediator, view, navigationContext) ?? Task.CompletedTask;
 
         Task IViewPresenterMediator.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
-            => Close?.Invoke(mediator, view, navigationContext) ?? Default.CompletedTask;
+            => Close?.Invoke(mediator, view, navigationContext) ?? Task.CompletedTask;
     }
 }

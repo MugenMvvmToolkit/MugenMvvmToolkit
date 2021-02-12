@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldIgnoreExpression1()
         {
-            var call = Expression.Call(typeof(IgnoreBindingMemberAttributeTest), nameof(StaticMethod), Default.Array<Type>());
+            var call = Expression.Call(typeof(IgnoreBindingMemberAttributeTest), nameof(StaticMethod), Array.Empty<Type>());
             var attribute = (IgnoreBindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldIgnoreExpression2()
         {
-            var call = Expression.Call(Expression.Constant(this), nameof(Method), Default.Array<Type>());
+            var call = Expression.Call(Expression.Constant(this), nameof(Method), Array.Empty<Type>());
             var attribute = (IgnoreBindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldIgnoreExpression5()
         {
-            var call = Expression.Call(typeof(IgnoreBindingMemberAttributeTestExt), nameof(IgnoreBindingMemberAttributeTestExt.L), Default.Array<Type>(), Expression.Constant(""),
+            var call = Expression.Call(typeof(IgnoreBindingMemberAttributeTestExt), nameof(IgnoreBindingMemberAttributeTestExt.L), Array.Empty<Type>(), Expression.Constant(""),
                 Expression.Constant(1));
             var attribute = (IgnoreBindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>

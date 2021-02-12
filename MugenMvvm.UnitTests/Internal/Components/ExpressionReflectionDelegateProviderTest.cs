@@ -57,8 +57,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
         [Fact]
         public void TryGetActivatorShouldGenerateCorrectDelegate1()
         {
-            var activator = _reflectionManager.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>())!)!;
-            var o = (TestConstructorReflectionClass) activator(Default.Array<object>());
+            var activator = _reflectionManager.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Array.Empty<Type>())!)!;
+            var o = (TestConstructorReflectionClass) activator(Array.Empty<object>());
             o.ConstructorIntValue.ShouldEqual(0);
             o.ConstructorStringValue.ShouldBeNull();
         }
@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         [Fact]
         public void TryGetActivatorShouldGenerateCorrectDelegate4()
         {
-            var activator = (Func<TestConstructorReflectionClass>) _reflectionManager.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>())!,
+            var activator = (Func<TestConstructorReflectionClass>) _reflectionManager.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Array.Empty<Type>())!,
                 typeof(Func<TestConstructorReflectionClass>))!;
             var o = activator();
             o.ConstructorIntValue.ShouldEqual(0);
@@ -242,7 +242,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var invoker = _reflectionManager.TryGetMethodInvoker(method)!;
 
             target.IsNoArgsInvoked.ShouldBeFalse();
-            invoker.Invoke(target, Default.Array<object>()).ShouldBeNull();
+            invoker.Invoke(target, Array.Empty<object>()).ShouldBeNull();
             target.IsNoArgsInvoked.ShouldBeTrue();
         }
 
@@ -253,7 +253,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var invoker = _reflectionManager.TryGetMethodInvoker(method)!;
 
             TestMethodClass.IsNoArgsStaticInvoked = false;
-            invoker.Invoke(null, Default.Array<object>()).ShouldBeNull();
+            invoker.Invoke(null, Array.Empty<object>()).ShouldBeNull();
             TestMethodClass.IsNoArgsStaticInvoked.ShouldBeTrue();
         }
 

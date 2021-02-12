@@ -41,7 +41,7 @@ namespace MugenMvvm.Ios.Presentation
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
             => base.CanPresent(presenter, viewModel, mapping, metadata) && typeof(IModalView).IsAssignableFrom(mapping.ViewType);
 
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => Default.CompletedTask;
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => Task.CompletedTask;
 
         protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
         {
@@ -52,13 +52,13 @@ namespace MugenMvvm.Ios.Presentation
             }
 
             if (navigationContext.NavigationMode != NavigationMode.New)
-                return Default.CompletedTask;
+                return Task.CompletedTask;
 
             var topView = NavigationDispatcher.GetTopView<UIViewController>(includePending: false, metadata: navigationContext.GetMetadataOrDefault());
             if (topView == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(UIViewController), nameof(topView));
             topView.PresentViewController(view, navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated), null);
-            return Default.CompletedTask;
+            return Task.CompletedTask;
         }
 
         protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
@@ -77,7 +77,7 @@ namespace MugenMvvm.Ios.Presentation
                 });
             }
 
-            return Default.CompletedTask;
+            return Task.CompletedTask;
         }
 
         private sealed class MugenAdaptivePresentationControllerDelegate : UIAdaptivePresentationControllerDelegate

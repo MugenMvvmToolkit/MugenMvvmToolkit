@@ -22,6 +22,6 @@ namespace MugenMvvm.UnitTests.Entities.Internal
         void IEntityStateSnapshot.Restore(object entity, IReadOnlyMetadataContext? metadata) => Restore?.Invoke(entity, metadata);
 
         ItemOrIReadOnlyList<EntityStateValue> IEntityStateSnapshot.Dump(object entity, IReadOnlyMetadataContext? metadata) =>
-            Dump?.Invoke(entity, metadata) ?? Default.Array<EntityStateValue>();
+            Dump?.Invoke(entity, metadata) ?? Array.Empty<EntityStateValue>();
     }
 }

@@ -70,7 +70,7 @@ namespace MugenMvvm
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowCannotGetComponent(object owner, Type componentType) =>
-            throw new InvalidOperationException(CannotGetComponentFormat2.Format(owner.GetType(), componentType));
+            throw new InvalidOperationException(CannotGetComponentFormat2.Format(componentType, owner.GetType()));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]

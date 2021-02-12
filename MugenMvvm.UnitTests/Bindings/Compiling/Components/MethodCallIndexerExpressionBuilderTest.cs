@@ -147,7 +147,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 }
             };
 
-            var members = Default.Array<IMemberInfo>();
+            var members = Array.Empty<IMemberInfo>();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
@@ -281,7 +281,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(InstanceMethod1);
             var metadataContext = _context.Metadata;
 
-            var members = Default.Array<IMemberInfo>();
+            var members = Array.Empty<IMemberInfo>();
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
@@ -316,7 +316,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -372,7 +372,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -395,7 +395,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -418,7 +418,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -443,7 +443,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -524,7 +524,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -545,7 +545,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -566,7 +566,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -589,7 +589,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 if (t == typeof(object))
-                    return Default.Array<IMemberInfo>();
+                    return Array.Empty<IMemberInfo>();
                 return members;
             };
 
@@ -655,7 +655,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             object? instance, int state, IReadOnlyList<string>? typeArgs, params object[] args)
         {
             var parameters = new List<Expression>();
-            var compilingArgs = state == 2 ? args : Default.Array<object?>();
+            var compilingArgs = state == 2 ? args : Array.Empty<object?>();
 
             if (state == 2)
             {

@@ -346,7 +346,7 @@ namespace MugenMvvm.UnitTests.Commands
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var owner = new object();
-            Func<Task> execute = () => Default.CompletedTask;
+            Func<Task> execute = () => Task.CompletedTask;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
@@ -388,7 +388,7 @@ namespace MugenMvvm.UnitTests.Commands
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var owner = new object();
-            Func<object?, Task> execute = item => Default.CompletedTask;
+            Func<object?, Task> execute = item => Task.CompletedTask;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;

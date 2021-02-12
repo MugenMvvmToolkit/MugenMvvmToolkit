@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc3))!.GetParameters()[0]);
             Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
-            var lambdaExpressionNode = new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>());
+            var lambdaExpressionNode = new LambdaExpressionNode(ConstantExpressionNode.False, Array.Empty<IParameterExpressionNode>());
             var expression = (Expression<Func<bool>>) Builder.TryBuild(Context, lambdaExpressionNode)!;
             expression.ShouldNotBeNull();
             expression.Compile().Invoke().ShouldEqual(false);
@@ -73,14 +73,14 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
         [Fact]
         public void TryBuildShouldIgnoreLambdaExpressionNoParameter() =>
-            Builder.TryBuild(Context, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
+            Builder.TryBuild(Context, new LambdaExpressionNode(ConstantExpressionNode.False, Array.Empty<IParameterExpressionNode>())).ShouldBeNull();
 
         [Fact]
         public void TryBuildShouldIgnoreLambdaExpressionWrongParameterCount()
         {
             var parameterInfoImpl = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc1))!.GetParameters()[0]);
             Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfoImpl);
-            Builder.TryBuild(Context, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
+            Builder.TryBuild(Context, new LambdaExpressionNode(ConstantExpressionNode.False, Array.Empty<IParameterExpressionNode>())).ShouldBeNull();
         }
 
         [Fact]

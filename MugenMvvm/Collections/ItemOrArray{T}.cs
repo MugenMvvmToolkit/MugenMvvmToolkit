@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -113,7 +114,7 @@ namespace MugenMvvm.Collections
             if (List != null)
                 return List;
             if (Count == 0)
-                return Default.Array<T>();
+                return Array.Empty<T>();
             return new[] {Item!};
         }
 
@@ -123,7 +124,7 @@ namespace MugenMvvm.Collections
             if (List != null)
                 return List.ToArray();
             if (Count == 0)
-                return Default.Array<T>();
+                return Array.Empty<T>();
             return new[] {Item!};
         }
 

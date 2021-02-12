@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
@@ -60,7 +61,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             AssertEmpty(ItemOrIReadOnlyList.FromList<string>(array: null));
             AssertEmpty(new ItemOrIReadOnlyList<string>(array: null));
-            AssertEmpty(new ItemOrIReadOnlyList<string>(Default.Array<string>()));
+            AssertEmpty(new ItemOrIReadOnlyList<string>(Array.Empty<string>()));
 
             ItemOrIEnumerableTest.AssertEmpty<string>(new ItemOrIReadOnlyList<string>(array: null));
         }
@@ -118,7 +119,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             AssertEmpty(ItemOrIReadOnlyList.FromList<string>(readOnlyList: null));
             AssertEmpty(new ItemOrIReadOnlyList<string>(readOnlyList: null));
-            AssertEmpty(new ItemOrIReadOnlyList<string>(readOnlyList: Default.Array<string>()));
+            AssertEmpty(new ItemOrIReadOnlyList<string>(readOnlyList: Array.Empty<string>()));
         }
 
         [Fact]
@@ -156,19 +157,19 @@ namespace MugenMvvm.UnitTests.Collections
             itemOrList.Count.ShouldEqual(0);
             itemOrList.HasItem.ShouldBeFalse();
             itemOrList.List.ShouldBeNull();
-            itemOrList.AsList().ShouldEqual(Default.Array<T>());
-            itemOrList.ToArray().ShouldEqual(Default.Array<T>());
+            itemOrList.AsList().ShouldEqual(Array.Empty<T>());
+            itemOrList.ToArray().ShouldEqual(Array.Empty<T>());
             itemOrList.FirstOrDefault().ShouldEqual(default);
             itemOrList.GetRawValue().ShouldEqual(null);
             var buffer = new List<T>();
             foreach (var i in itemOrList)
                 buffer.Add(i);
-            buffer.ShouldEqual(Default.Array<T>());
+            buffer.ShouldEqual(Array.Empty<T>());
 
             buffer.Clear();
             for (var i = 0; i < itemOrList.Count; i++)
                 buffer.Add(itemOrList[i]);
-            buffer.ShouldEqual(Default.Array<T>());
+            buffer.ShouldEqual(Array.Empty<T>());
         }
 
         internal static void AssertItem<T>(ItemOrIReadOnlyList<T> itemOrList, T item) where T : class

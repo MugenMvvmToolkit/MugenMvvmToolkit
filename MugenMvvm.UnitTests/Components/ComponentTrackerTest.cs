@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTests.Components
             executed.ShouldEqual(listenersCount);
 
             executed = 0;
-            expectedComponents = Default.Array<IComponent>();
+            expectedComponents = Array.Empty<IComponent>();
             _componentTracker.Detach(_componentCollection, DefaultMetadata);
             executed.ShouldEqual(listenersCount);
         }

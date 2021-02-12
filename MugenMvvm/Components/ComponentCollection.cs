@@ -24,8 +24,8 @@ namespace MugenMvvm.Components
             _componentCollectionManager = componentCollectionManager;
             Owner = owner;
             _items = new List<object>();
-            _componentTrackers = Default.Array<ComponentTracker>();
-            _decorators = Default.Array<IComponentCollectionDecoratorBase>();
+            _componentTrackers = Array.Empty<ComponentTracker>();
+            _decorators = Array.Empty<IComponentCollectionDecoratorBase>();
         }
 
         public object Owner { get; }
@@ -91,7 +91,7 @@ namespace MugenMvvm.Components
             lock (_items)
             {
                 _items.Clear();
-                _componentTrackers = Default.Array<ComponentTracker>();
+                _componentTrackers = Array.Empty<ComponentTracker>();
             }
 
             var changedListeners = _components == null ? default : _components.Get<IComponentCollectionChangedListener>(metadata);
@@ -138,7 +138,7 @@ namespace MugenMvvm.Components
             }
 
             if (newSize == 0)
-                _componentTrackers = Default.Array<ComponentTracker>();
+                _componentTrackers = Array.Empty<ComponentTracker>();
             else if (newSize != componentTrackers.Length)
                 Array.Resize(ref _componentTrackers, newSize);
         }

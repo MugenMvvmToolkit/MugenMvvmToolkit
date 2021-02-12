@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -175,7 +176,7 @@ namespace MugenMvvm.Collections
             if (List != null)
                 return List;
             if (_fixedCount == 0)
-                return Default.Array<T>();
+                return Array.Empty<T>();
             return new[] {Item!};
         }
 
@@ -186,7 +187,7 @@ namespace MugenMvvm.Collections
                 return List.ToArray();
             if (_fixedCount == 1)
                 return new[] {Item!};
-            return Default.Array<T>();
+            return Array.Empty<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

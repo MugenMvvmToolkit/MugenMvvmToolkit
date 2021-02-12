@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.Metadata.Internal
             ref ItemOrListEditor<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
-            var array = GetValues?.Invoke() ?? Default.Array<KeyValuePair<IMetadataContextKey, object?>>();
+            var array = GetValues?.Invoke() ?? Array.Empty<KeyValuePair<IMetadataContextKey, object?>>();
             values.AddRange(array);
         }
 

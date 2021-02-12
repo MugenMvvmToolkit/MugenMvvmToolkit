@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests
         protected static readonly ReadOnlyDictionary<string, object?> EmptyDictionary = new(new Dictionary<string, object?>());
         protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(1, ""), null);
         protected static readonly CancellationToken DefaultCancellationToken = new CancellationTokenSource().Token;
-        protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
+        protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Array.Empty<KeyValuePair<IMetadataContextKey, object?>>());
         private static ITestOutputHelper? _outputHelper;
 
         static UnitTestBase()

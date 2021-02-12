@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Commands.Internal
         Task ICommandExecutorComponent.ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _command?.ShouldEqual(command);
-            return ExecuteAsync?.Invoke(parameter, cancellationToken, metadata) ?? Default.CompletedTask;
+            return ExecuteAsync?.Invoke(parameter, cancellationToken, metadata) ?? Task.CompletedTask;
         }
     }
 }

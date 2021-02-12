@@ -77,11 +77,11 @@ namespace MugenMvvm.UnitTests.Presentation.Internal
                 base.OnNavigationFailed(navigationContext, exception);
         }
 
-        protected override Task ShowViewAsync(T view, INavigationContext context) => ShowViewHandler?.Invoke(context) ?? Default.CompletedTask;
+        protected override Task ShowViewAsync(T view, INavigationContext context) => ShowViewHandler?.Invoke(context) ?? Task.CompletedTask;
 
         protected override void InitializeView(T view, INavigationContext context) => InitializeViewHandler?.Invoke(context);
 
-        protected override Task CloseViewAsync(T view, INavigationContext context) => CloseViewHandler?.Invoke(context) ?? Default.CompletedTask;
+        protected override Task CloseViewAsync(T view, INavigationContext context) => CloseViewHandler?.Invoke(context) ?? Task.CompletedTask;
 
         protected override void CleanupView(T view, INavigationContext context) => CleanupViewHandler?.Invoke(context);
     }
