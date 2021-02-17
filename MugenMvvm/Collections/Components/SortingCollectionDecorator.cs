@@ -40,19 +40,6 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public bool OnReset(ICollection collection, ref IEnumerable<object?>? items)
-        {
-            if (items == null)
-                _items.Clear();
-            else
-            {
-                Reset(items);
-                items = this;
-            }
-
-            return true;
-        }
-
         public IEnumerator<object?> GetEnumerator()
         {
             for (var i = 0; i < _items.Count; i++)
@@ -110,6 +97,19 @@ namespace MugenMvvm.Collections.Components
                 item.UpdateIndex(value);
                 _items[i] = item;
             }
+        }
+
+        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
+        {
+            if (items == null)
+                _items.Clear();
+            else
+            {
+                Reset(items);
+                items = this;
+            }
+
+            return true;
         }
 
         IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => items.OrderBy(arg => arg, Comparer);
