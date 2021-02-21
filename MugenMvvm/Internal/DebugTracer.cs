@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using MugenMvvm.Bindings.Constants;
@@ -43,8 +44,8 @@ namespace MugenMvvm.Internal
 
         private static ILogger? Logger => _logger ??= MugenService.Optional<ILogger>()?.GetLogger(typeof(DebugTracer));
 
-        public static void AddConsoleLogger(ILogger logger) =>
-            logger.AddComponent(new DelegateLogger((level, s, e, _) => Console.Out.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}"), (_, _) => true));
+        public static void AddTraceLogger(ILogger logger) =>
+            logger.AddComponent(new DelegateLogger((level, s, e, _) => Trace.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}"), (_, _) => true));
 
         public static void TraceApp(IMugenApplication application) => application.AddComponent(new ApplicationTracer());
 

@@ -152,7 +152,7 @@ namespace MugenMvvm.Extensions
 
         public static MugenApplicationConfiguration TraceConfiguration(this MugenApplicationConfiguration configuration, bool traceApp = true, bool traceBinding = true,
             bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true,
-            bool includeConsoleLogger = true)
+            bool includeTraceLogger = true)
         {
             var cfg = configuration.WithAppService(MugenService.Optional<ILogger>() ?? new Logger());
             if (traceApp)
@@ -169,8 +169,8 @@ namespace MugenMvvm.Extensions
                 DebugTracer.TraceViewModel(configuration.ServiceConfiguration<IViewModelManager>().Service);
             if (traceView)
                 DebugTracer.TraceView(configuration.ServiceConfiguration<IViewManager>().Service);
-            if (includeConsoleLogger)
-                DebugTracer.AddConsoleLogger(cfg.Service);
+            if (includeTraceLogger)
+                DebugTracer.AddTraceLogger(cfg.Service);
             return configuration;
         }
 
