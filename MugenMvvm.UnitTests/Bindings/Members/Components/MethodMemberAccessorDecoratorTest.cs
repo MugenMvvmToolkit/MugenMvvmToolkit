@@ -4,7 +4,6 @@ using System.Linq;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
-using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTests.Bindings.Members.Internal;
@@ -26,6 +25,43 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             _memberManager.AddComponent(TestMemberManagerComponent.Selector);
             _memberManager.AddComponent(new NameRequestMemberManagerDecorator());
             _memberManager.AddComponent(new MethodMemberAccessorDecorator(GlobalValueConverter));
+        }
+
+        [Fact]
+        public void TryGetMembersShouldHandleCustomMethodCallNoParameters()
+        {
+            var accessor = new TestAccessorMemberInfo();
+            var method = new TestMethodMemberInfo
+            {
+                DeclaringType = typeof(object),
+                MemberFlags = MemberFlags.InstancePublic,
+                TryGetAccessor = (flags, objects, arg3) =>
+                {
+                    flags.ShouldEqual(default);
+                    objects!.Count.ShouldEqual(0);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return accessor;
+                },
+                GetParameters = () => default
+            };
+
+            _memberManager.AddComponent(new TestMemberProviderComponent
+            {
+                TryGetMembers = (type, s, t, arg3) =>
+                {
+                    if (t == MemberType.Method)
+                        return method;
+                    return default;
+                }
+            });
+            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNoParameters)}()", DefaultMetadata)
+                          .IsEmpty
+                          .ShouldBeTrue();
+            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNoParameters)}()", DefaultMetadata)
+                          .AsList()
+                          .OfType<TestAccessorMemberInfo>()
+                          .Single()
+                          .ShouldEqual(accessor);
         }
 
         [Fact]
@@ -137,7 +173,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             const int index1 = 2;
             _memberManager.AddComponent(_reflectionMemberProvider);
 
-            var members = _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1})", DefaultMetadata)
+            var members = _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1})",
+                                            DefaultMetadata)
                                         .AsList()
                                         .OfType<MethodAccessorMemberInfo>()
                                         .ToList();
@@ -229,6 +266,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             public const string OptionalValue = "index2";
 
+            public Func<int>? GetValueRaw { get; set; }
+
             public Func<int, int>? GetIndex { get; set; }
 
             public Func<string, string, object>? GetIndexOptional { get; set; }
@@ -236,6 +275,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             public Func<string, IReadOnlyMetadataContext, object>? GetIndexMetadata { get; set; }
 
             public Func<int, int[], object>? GetIndexParams { get; set; }
+
+            public int GetValueNoParameters() => GetValueRaw!();
 
             public int GetValue(int index) => GetIndex!(index);
 

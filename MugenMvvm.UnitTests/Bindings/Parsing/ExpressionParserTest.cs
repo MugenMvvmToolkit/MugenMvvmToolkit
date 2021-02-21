@@ -32,9 +32,19 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         }
 
         [Fact]
+        public void ParserShouldParseExpression1()
+        {
+            var targetName = "Test";
+            var parser = GetExpressionParser();
+            var item = parser.TryParse($"{targetName}").Item;
+            item.Target.ShouldEqual(MemberExpressionNode.Get(null, targetName));
+            item.Source.ShouldEqual(MemberExpressionNode.Empty);
+        }
+
+        [Fact]
         public void ParserShouldConvertExpressions1()
         {
-            var parser = GetInitializedExpressionParser();
+            var parser = GetExpressionParser();
             var item = parser.TryParse(new BindingExpressionRequest(nameof(Test), null, default), DefaultMetadata).Item;
             item.Target.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
@@ -95,7 +105,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         [Fact]
         public void ParserShouldConvertExpressions2()
         {
-            var parser = GetInitializedExpressionParser();
+            var parser = GetExpressionParser();
             var selfExpression = GetExpression(this, arg => arg);
             var testExpression = GetExpression(this, arg => arg.Test);
             var stPropertyExpression = GetExpression(this, arg => arg.StringProperty);
@@ -145,7 +155,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                 }, new[] {"string", "string", "int"});
             var source = "1.Where<string>(x => x == \"test\").Aggregate<string, string, int>(\"seed\", (s1, s2) => s1 + s2, s1 => s1.Length)";
 
-            var parser = GetInitializedExpressionParser();
+            var parser = GetExpressionParser();
 
             var item = parser.TryParse(new BindingExpressionRequest(source, source, new KeyValuePair<string?, object>(null, source)), DefaultMetadata).Item;
             item.Target.ShouldEqual(expectedResult);
@@ -156,7 +166,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         [Fact]
         public void ParserShouldParseActionExpression()
         {
-            var result = GetInitializedExpressionParser().TryParse("@1+2; @1+2", DefaultMetadata).AsList();
+            var result = GetExpressionParser().TryParse("@1+2; @1+2", DefaultMetadata).AsList();
             result.Count.ShouldEqual(2);
             for (var i = 0; i < result.Count; i++)
             {
@@ -513,7 +523,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                 requests.Add(new BindingExpressionRequest(target, source, parameters));
             }
 
-            var parser = GetInitializedExpressionParser();
+            var parser = GetExpressionParser();
             var list = (requests.Count == 1 ? parser.TryParse(requests[0], DefaultMetadata) : parser.TryParse(requests, DefaultMetadata)).AsList();
             list.Count.ShouldEqual(count);
             for (var i = 0; i < count; i++)
@@ -546,7 +556,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             }
 
             var exp = builder.ToString();
-            var list = GetInitializedExpressionParser().TryParse(exp, DefaultMetadata).AsList();
+            var list = GetExpressionParser().TryParse(exp, DefaultMetadata).AsList();
             list.Count.ShouldEqual(count);
             for (var i = 0; i < count; i++)
             {
@@ -564,7 +574,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             }
         }
 
-        private static IExpressionParser GetInitializedExpressionParser()
+        private static IExpressionParser GetExpressionParser()
         {
             var expressionParser = new ExpressionParser();
             expressionParser.AddComponent(new ExpressionParserConverter());

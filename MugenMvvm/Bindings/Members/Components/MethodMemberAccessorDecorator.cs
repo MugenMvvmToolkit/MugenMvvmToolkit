@@ -36,7 +36,7 @@ namespace MugenMvvm.Bindings.Members.Components
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
             var methodArgsRaw = BindingMugenExtensions.GetMethodArgsRaw(name, out var methodName);
-            if (methodArgsRaw.IsEmpty)
+            if (methodName == null)
                 return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
             _members.Clear();
@@ -45,8 +45,18 @@ namespace MugenMvvm.Bindings.Members.Components
             {
                 if (_members[i] is IMethodMemberInfo methodInfo)
                 {
-                    var values = _globalValueConverter.TryGetInvokeArgs(methodInfo.GetParameters(), methodArgsRaw, metadata, out var flags);
-                    if (!values.IsEmpty)
+                    var parameters = methodInfo.GetParameters();
+                    EnumFlags<ArgumentFlags> flags;
+                    ItemOrArray<object?> values;
+                    if (parameters.Count == 0)
+                    {
+                        flags = default;
+                        values = default;
+                    }
+                    else
+                        values = _globalValueConverter.TryGetInvokeArgs(parameters, methodArgsRaw, metadata, out flags);
+
+                    if (parameters.Count == 0 || !values.IsEmpty)
                     {
                         _members[i] = methodInfo.TryGetAccessor(flags, values, metadata) ?? new MethodAccessorMemberInfo(methodName, methodInfo, null, values, flags, type);
                         continue;
