@@ -632,12 +632,12 @@ namespace MugenMvvm.Bindings.Extensions
 #endif
         }
 
-        public static ItemOrArray<string> GetMethodArgsRaw(string path, out string methodName)
+        public static ItemOrArray<string> GetMethodArgsRaw(string path, out string? methodName)
         {
             var startIndex = path.IndexOf('(');
             if (startIndex < 0 || !path.EndsWith(")", StringComparison.Ordinal))
             {
-                methodName = path;
+                methodName = null;
                 return default;
             }
 
