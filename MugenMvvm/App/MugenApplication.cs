@@ -32,6 +32,8 @@ namespace MugenMvvm.App
 
         public IMetadataContext Metadata { get; }
 
+        public EnumFlags<ApplicationFlags> Flags { get; private set; }
+
         public IPlatformInfo PlatformInfo
         {
             get
@@ -52,12 +54,14 @@ namespace MugenMvvm.App
         public void OnLifecycleChanged(ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null) =>
             Components.Get<IApplicationLifecycleListener>().OnLifecycleChanged(this, lifecycleState, state, metadata);
 
-        public void Initialize(IPlatformInfo platformInfo, object? state, IReadOnlyMetadataContext? metadata = null)
+        public void Initialize(IPlatformInfo platformInfo, object? state = null, EnumFlags<ApplicationFlags> flags = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(platformInfo, nameof(platformInfo));
+            Flags = flags;
             PlatformInfo = platformInfo;
             OnLifecycleChanged(ApplicationLifecycleState.Initializing, state, metadata);
             OnLifecycleChanged(ApplicationLifecycleState.Initialized, state, metadata);
+            Flags |= ApplicationFlags.Initialized;
         }
     }
 }

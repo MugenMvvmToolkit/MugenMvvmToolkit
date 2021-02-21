@@ -62,7 +62,9 @@ namespace MugenMvvm.Extensions
         public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, SynchronizationContext? synchronizationContext,
             IServiceProvider? serviceProvider = null)
         {
-            if (serviceProvider != null)
+            if (serviceProvider == null)
+                MugenService.Configuration.InitializeInstance(MugenService.Optional<IServiceProvider>() ?? new MugenServiceProvider());
+            else
                 MugenService.Configuration.InitializeInstance(serviceProvider);
 
             configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager());

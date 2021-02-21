@@ -38,6 +38,7 @@ namespace MugenMvvm.UnitTests.App
         [Fact]
         public void InitializeShouldBeHandledByComponent()
         {
+            var flags = ApplicationFlags.DesignMode;
             var state = this;
             var states = new List<ApplicationLifecycleState>();
             var device = new PlatformInfo(PlatformType.UnitTest, new MetadataContext());
@@ -50,8 +51,9 @@ namespace MugenMvvm.UnitTests.App
                     metadata.ShouldEqual(DefaultMetadata);
                 }
             });
-            _application.Initialize(device, state, DefaultMetadata);
+            _application.Initialize(device, state, flags, DefaultMetadata);
             _application.PlatformInfo.ShouldEqual(device);
+            _application.Flags.ShouldEqual(flags | ApplicationFlags.Initialized);
             states.Count.ShouldEqual(2);
             states[0].ShouldEqual(ApplicationLifecycleState.Initializing);
             states[1].ShouldEqual(ApplicationLifecycleState.Initialized);

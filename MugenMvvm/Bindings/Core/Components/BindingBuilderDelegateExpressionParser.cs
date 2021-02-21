@@ -61,8 +61,9 @@ namespace MugenMvvm.Bindings.Core.Components
                 if (del.HasClosure())
                     ExceptionManager.ThrowCannotUseExpressionClosure(del);
                 _singleValueArray[0] = del;
-                return Components.TryParseBindingExpression(bindingManager, GetRequestMethod.MakeGenericMethod(type.GetGenericArguments()).Invoke(null, _singleValueArray)!,
-                    metadata).GetRawValue();
+                return Components
+                       .TryParseBindingExpression(bindingManager, GetRequestMethod.MakeGenericMethod(type.GetGenericArguments()).Invoke(null, _singleValueArray)!, metadata)
+                       .GetRawValue();
             }
 
             return this;
