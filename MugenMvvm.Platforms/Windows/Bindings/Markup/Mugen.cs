@@ -63,7 +63,10 @@ namespace MugenMvvm.Windows.Bindings.Markup
                 return;
 
             if (IsInDesignMode())
-                BindDesignMode(target.Bind(bind));
+            {
+                if (CanBind())
+                    BindDesignMode(target.Bind(bind));
+            }
             else
                 target.Bind(bind, includeResult: false);
         }
