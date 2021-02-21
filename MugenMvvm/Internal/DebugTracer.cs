@@ -1,5 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿#if !ANDROID
+#define TRACE
+#endif
+using System;
 using System.Text;
 using System.Threading;
 using MugenMvvm.Bindings.Constants;
@@ -28,6 +30,12 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
+#if ANDROID
+using Android.Util;
+
+#else
+using System.Diagnostics;
+#endif
 
 namespace MugenMvvm.Internal
 {
@@ -45,7 +53,22 @@ namespace MugenMvvm.Internal
         private static ILogger? Logger => _logger ??= MugenService.Optional<ILogger>()?.GetLogger(typeof(DebugTracer));
 
         public static void AddTraceLogger(ILogger logger) =>
-            logger.AddComponent(new DelegateLogger((level, s, e, _) => Trace.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}"), (_, _) => true));
+            logger.AddComponent(new DelegateLogger((level, s, e, _) =>
+            {
+#if ANDROID
+                const string tag = "MugenMvvm";
+                if (e != null)
+                    s += Environment.NewLine + e.Flatten(true);
+                if (level == LogLevel.Error || level == LogLevel.Fatal)
+                    Log.Error(tag, s.ToString());
+                else if (level == LogLevel.Warning)
+                    Log.Warn(tag, s.ToString());
+                else
+                    Log.Info(tag, s.ToString());
+#else
+                Trace.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}");
+#endif
+            }, (_, _) => true));
 
         public static void TraceApp(IMugenApplication application) => application.AddComponent(new ApplicationTracer());
 
