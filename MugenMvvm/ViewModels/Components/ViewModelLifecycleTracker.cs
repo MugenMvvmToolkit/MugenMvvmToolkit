@@ -18,6 +18,13 @@ namespace MugenMvvm.ViewModels.Components
         {
             if (state == ViewModelLifecycleState.Created)
                 return true;
+            if (state == ViewModelLifecycleState.Initialized)
+            {
+                if (target is ViewModelBase vm)
+                    return vm.IsInitialized;
+                return ((IViewModelBase) target).Metadata.TryGet(InternalMetadata.IsInitialized, out var v) && v;
+            }
+
             if (state == ViewModelLifecycleState.Disposed)
             {
                 if (target is ViewModelBase vm)
@@ -33,6 +40,13 @@ namespace MugenMvvm.ViewModels.Components
         {
             if (lifecycleState == ViewModelLifecycleState.Disposed && viewModel is not ViewModelBase)
                 viewModel.Metadata.Set(InternalMetadata.IsDisposed, true, out _);
+            else if (lifecycleState == ViewModelLifecycleState.Initialized)
+            {
+                if (viewModel is ViewModelBase vm)
+                    vm.IsInitialized = true;
+                else
+                    viewModel.Metadata.Set(InternalMetadata.IsInitialized, true, out _);
+            }
         }
     }
 }

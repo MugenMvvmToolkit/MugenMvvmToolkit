@@ -7,29 +7,49 @@ using MugenMvvm.ViewModels;
 using MugenMvvm.ViewModels.Components;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class ViewModelLifecycleTrackerTest : UnitTestBase
     {
+        private readonly ViewModelManager _viewModelManager;
+
+        public ViewModelLifecycleTrackerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
+            _viewModelManager.AddComponent(new ViewModelLifecycleTracker());
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackLifecycle(bool viewModelBase)
+        public void ShouldTrackInitializedLifecycle(bool viewModelBase)
         {
-            var manager = new ViewModelManager(ComponentCollectionManager);
-            var viewModel = viewModelBase ? new TestViewModelBase(manager) : (IViewModelBase) new TestViewModel();
-            var component = new ViewModelLifecycleTracker();
-            manager.AddComponent(component);
+            var viewModel = viewModelBase ? new TestViewModelBase(_viewModelManager) : (IViewModelBase) new TestViewModel();
 
-            viewModel.IsInState(ViewModelLifecycleState.Created, null, manager).ShouldBeTrue();
-            viewModel.IsInState(ViewModelLifecycleState.Disposed, null, manager).ShouldBeFalse();
+            viewModel.IsInState(ViewModelLifecycleState.Created, null, _viewModelManager).ShouldBeTrue();
+            viewModel.IsInState(ViewModelLifecycleState.Initialized, null, _viewModelManager).ShouldBeFalse();
+
+            _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initialized);
+            viewModel.IsInState(ViewModelLifecycleState.Initialized, null, _viewModelManager).ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldTrackDisposeLifecycle(bool viewModelBase)
+        {
+            var viewModel = viewModelBase ? new TestViewModelBase(_viewModelManager) : (IViewModelBase) new TestViewModel();
+
+            viewModel.IsInState(ViewModelLifecycleState.Created, null, _viewModelManager).ShouldBeTrue();
+            viewModel.IsInState(ViewModelLifecycleState.Disposed, null, _viewModelManager).ShouldBeFalse();
 
             if (viewModelBase)
                 ((IDisposable) viewModel).Dispose();
             else
-                manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed);
-            viewModel.IsInState(ViewModelLifecycleState.Disposed, null, manager).ShouldBeTrue();
+                _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed);
+            viewModel.IsInState(ViewModelLifecycleState.Disposed, null, _viewModelManager).ShouldBeTrue();
         }
     }
 }

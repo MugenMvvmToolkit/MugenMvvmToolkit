@@ -11,6 +11,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<HashSet<string>>? _openedNavigationProviders;
         private static IMetadataContextKey<object?>? _views;
         private static IMetadataContextKey<bool>? _isDisposed;
+        private static IMetadataContextKey<bool>? _isInitialized;
         private static IMetadataContextKey<string>? _createdId;
         private static IMetadataContextKey<object?>? _view;
         private static IMetadataContextKey<Dictionary<string, IViewModelPresenterMediator>>? _mediators;
@@ -42,6 +43,8 @@ namespace MugenMvvm.Metadata
             => _mediators ??= GetBuilder(_mediators, nameof(Mediators)).Build();
 
         public static IMetadataContextKey<bool> IsDisposed => _isDisposed ??= GetBuilder(_isDisposed, nameof(IsDisposed)).Build();
+
+        public static IMetadataContextKey<bool> IsInitialized => _isInitialized ??= GetBuilder(_isInitialized, nameof(IsInitialized)).Build();
 
         public static IMetadataContextKey<object?> Views => _views ??= GetBuilder(_views, nameof(Views)).Build();
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Internal.Internal;
@@ -14,47 +15,69 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
     public class TypeViewModelProviderTest : UnitTestBase
     {
         private readonly ViewModelManager _viewModelManager;
+        private readonly TestServiceProvider _serviceProvider;
 
         public TypeViewModelProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
+            _serviceProvider = new TestServiceProvider();
             _viewModelManager = new ViewModelManager(ComponentCollectionManager);
+            _viewModelManager.AddComponent(new TypeViewModelProvider(_serviceProvider));
         }
 
         [Fact]
-        public void ShouldIgnoreNonGuidRequest()
+        public void ShouldIgnoreNonGuidRequest() => _viewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+
+        [Fact]
+        public void ShouldUseServiceResolverAndCheckInitializedState()
         {
-            _viewModelManager.AddComponent(new TypeViewModelProvider());
-            _viewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+            var viewModel = new TestViewModel();
+            _viewModelManager.AddComponent(new TestViewModelLifecycleListener
+            {
+                OnLifecycleChanged = (_, _, _, _) => throw new NotSupportedException()
+            });
+            _viewModelManager.Components.Add(new TestLifecycleTrackerComponent<ViewModelLifecycleState>
+            {
+                IsInState = (_, vm, st, m) =>
+                {
+                    m.ShouldEqual(DefaultMetadata);
+                    vm.ShouldEqual(viewModel);
+                    return st == ViewModelLifecycleState.Initialized;
+                }
+            });
+            _serviceProvider.GetService = type =>
+            {
+                type.ShouldEqual(viewModel.GetType());
+                return viewModel;
+            };
+
+            _viewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
         }
 
         [Fact]
         public void ShouldUseServiceResolverAndNotifyLifecycle()
         {
             var viewModel = new TestViewModel();
-            var lifeCycles = new List<ViewModelLifecycleState>();
+            var lifecycleStates = new List<ViewModelLifecycleState>();
 
             _viewModelManager.AddComponent(new TestViewModelLifecycleListener
             {
-                OnLifecycleChanged = (vm, state, arg4, m) =>
+                OnLifecycleChanged = (vm, state, _, m) =>
                 {
                     vm.ShouldEqual(viewModel);
                     m.ShouldEqual(DefaultMetadata);
-                    lifeCycles.Add(state);
+                    lifecycleStates.Add(state);
                 }
             });
-            _viewModelManager.AddComponent(new TypeViewModelProvider(new TestServiceProvider
+            _serviceProvider.GetService = type =>
             {
-                GetService = type =>
-                {
-                    type.ShouldEqual(viewModel.GetType());
-                    return viewModel;
-                }
-            }));
+                type.ShouldEqual(viewModel.GetType());
+                return viewModel;
+            };
 
             _viewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
-            lifeCycles.Count.ShouldEqual(2);
-            lifeCycles[0].ShouldEqual(ViewModelLifecycleState.Initializing);
-            lifeCycles[1].ShouldEqual(ViewModelLifecycleState.Initialized);
+            lifecycleStates.Count.ShouldEqual(2);
+            lifecycleStates[0].ShouldEqual(ViewModelLifecycleState.Initializing);
+            lifecycleStates[1].ShouldEqual(ViewModelLifecycleState.Initialized);
         }
     }
 }

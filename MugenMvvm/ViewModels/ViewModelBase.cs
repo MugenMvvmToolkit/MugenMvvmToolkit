@@ -46,6 +46,8 @@ namespace MugenMvvm.ViewModels
 
         protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 
+        internal bool IsInitialized { get; set; }
+
         public void Dispose()
         {
             if (IsDisposed || !CanDispose())

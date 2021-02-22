@@ -28,7 +28,7 @@ namespace MugenMvvm.ViewModels.Components
                 return null;
 
             var viewModel = (IViewModelBase?) _serviceProvider.DefaultIfNull().GetService(type);
-            if (viewModel != null)
+            if (viewModel != null && !viewModel.IsInState(ViewModelLifecycleState.Initialized, metadata, viewModelManager))
             {
                 viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initializing, request, metadata);
                 viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initialized, request, metadata);
