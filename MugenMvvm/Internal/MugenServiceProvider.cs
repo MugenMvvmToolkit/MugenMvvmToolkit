@@ -8,31 +8,35 @@ namespace MugenMvvm.Internal
 {
     public sealed class MugenServiceProvider : IServiceProvider
     {
-        private readonly Dictionary<Type, Func<object>?> _factories;
         private readonly IViewModelManager? _viewModelManager;
+        private ConstantExpression? _viewModelManagerConstant;
 
-        public MugenServiceProvider(IViewModelManager? viewModelManager = null, Dictionary<Type, Func<object>?>? factories = null)
+        public MugenServiceProvider(IViewModelManager? viewModelManager = null)
         {
             _viewModelManager = viewModelManager;
-            _factories = factories ?? new Dictionary<Type, Func<object>?>(17, InternalEqualityComparer.Type);
+            Factories = new Dictionary<Type, object?>(17, InternalEqualityComparer.Type);
         }
+
+        public Dictionary<Type, object?> Factories { get; }
 
         public object? GetService(Type serviceType)
         {
-            Func<object>? factory;
-            lock (_factories)
+            object? value;
+            lock (Factories)
             {
-                if (!_factories.TryGetValue(serviceType, out factory))
+                if (!Factories.TryGetValue(serviceType, out value))
                 {
-                    factory = Generate(serviceType);
-                    _factories[serviceType] = factory;
+                    value = Generate(serviceType);
+                    Factories[serviceType] = value;
                 }
             }
 
-            return factory?.Invoke();
+            if (value is Func<Type, object?> factory)
+                return factory.Invoke(serviceType);
+            return value;
         }
 
-        private Func<object>? Generate(Type type)
+        private Func<Type, object>? Generate(Type type)
         {
             var constructors = type.GetConstructors();
             if (constructors.Length != 1)
@@ -53,7 +57,7 @@ namespace MugenMvvm.Internal
                         return null;
 
                     if (_viewModelManager != null && parameterInfo.ParameterType == typeof(IViewModelManager))
-                        expressions[i] = Expression.Constant(_viewModelManager, parameterInfo.ParameterType);
+                        expressions[i] = _viewModelManagerConstant ??= Expression.Constant(_viewModelManager, parameterInfo.ParameterType);
                     else
                         expressions[i] = Expression.Constant(parameterInfo.DefaultValue, parameterInfo.ParameterType);
                 }
@@ -61,7 +65,7 @@ namespace MugenMvvm.Internal
                 expression = Expression.New(constructor, expressions);
             }
 
-            return Expression.Lambda<Func<object>>(expression, Array.Empty<ParameterExpression>()).CompileEx();
+            return Expression.Lambda<Func<Type, object>>(expression, MugenExtensions.GetParametersExpression<Type>()).CompileEx();
         }
     }
 }

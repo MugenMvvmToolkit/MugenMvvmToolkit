@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.ViewModels;
@@ -13,13 +12,11 @@ namespace MugenMvvm.UnitTests.Internal
     {
         private readonly MugenServiceProvider _serviceProvider;
         private readonly ViewModelManager _viewModelManager;
-        private readonly Dictionary<Type, Func<object>?> _factories;
 
         public MugenServiceProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _viewModelManager = new ViewModelManager(ComponentCollectionManager);
-            _factories = new Dictionary<Type, Func<object>?>();
-            _serviceProvider = new MugenServiceProvider(_viewModelManager, _factories);
+            _serviceProvider = new MugenServiceProvider(_viewModelManager);
         }
 
         [Fact]
@@ -38,7 +35,14 @@ namespace MugenMvvm.UnitTests.Internal
         [Fact]
         public void ShouldUseDelegateFromConstructor()
         {
-            _factories[typeof(MugenServiceProviderTest)] = () => this;
+            _serviceProvider.Factories[typeof(MugenServiceProviderTest)] = this;
+            _serviceProvider.GetService(typeof(MugenServiceProviderTest)).ShouldEqual(this);
+
+            _serviceProvider.Factories[typeof(MugenServiceProviderTest)] = new Func<Type, object>((t) =>
+            {
+                t.ShouldEqual(typeof(MugenServiceProviderTest));
+                return this;
+            });
             _serviceProvider.GetService(typeof(MugenServiceProviderTest)).ShouldEqual(this);
         }
 
