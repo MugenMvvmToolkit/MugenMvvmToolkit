@@ -39,6 +39,7 @@ import com.mugen.mvvm.views.support.ViewPager2MugenExtensions;
 import com.mugen.mvvm.views.support.ViewPagerMugenExtensions;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 
 public final class BindableMemberMugenExtensions {
@@ -61,58 +62,17 @@ public final class BindableMemberMugenExtensions {
     public static final int ContentRawProviderType = 3;
     public static final int ResourceOrContentProviderType = 4;
     protected final static Object NullParent = "";
+    private static final HashSet<CharSequence> GlobalMemberListenerNames = new HashSet<CharSequence>() {{
+        add(ParentEventName);
+        add(ParentMemberName);
+        add(HomeButtonClick);
+    }};
 
     private BindableMemberMugenExtensions() {
     }
 
-    public static boolean getChecked(@NonNull View view) {
-        return ((Checkable) view).isChecked();
-    }
-
-    public static void setChecked(@NonNull View view, boolean value) {
-        ((Checkable) view).setChecked(value);
-    }
-
-    @Nullable
-    public static CharSequence getText(@NonNull View view) {
-        return ((TextView) view).getText();
-    }
-
-    public static void setText(@NonNull View view, @Nullable CharSequence text) {
-        ((TextView) view).setText(text);
-        if (text != null && view instanceof EditText)
-            ((EditText) view).setSelection(((EditText) view).length());
-    }
-
-    @Nullable
-    public static CharSequence getText(@NonNull Object view) {
-        if (TabLayoutTabMugenExtensions.isSupported(view))
-            return TabLayoutTabMugenExtensions.getText(view);
-        return getText((View) view);
-    }
-
-    public static void setText(@NonNull Object view, @Nullable CharSequence text) {
-        if (TabLayoutTabMugenExtensions.isSupported(view))
-            TabLayoutTabMugenExtensions.getText(view);
-        else
-            setText((View) view, text);
-    }
-
-    @Nullable
-    public static Object findRelativeSource(@NonNull View view, @NonNull String name, int level) {
-        int nameLevel = 0;
-        Object target = getParentRaw(view);
-        while (target != null) {
-            if (typeNameEqual(target.getClass(), name) && ++nameLevel == level)
-                return target;
-
-            if (target instanceof View)
-                target = getParentRaw((View) target);
-            else
-                target = null;
-        }
-
-        return null;
+    public static HashSet<CharSequence> getGlobalMemberListenerNames() {
+        return GlobalMemberListenerNames;
     }
 
     @Nullable
@@ -129,7 +89,7 @@ public final class BindableMemberMugenExtensions {
 
     public static boolean addMemberListener(@NonNull Object target, @NonNull CharSequence memberNameChar) {
         String memberName = (String) memberNameChar;
-        if (ParentEventName.equals(memberName) || ParentMemberName.equals(memberName) || HomeButtonClick.equals(memberName))
+        if (GlobalMemberListenerNames.contains(memberNameChar))
             return true;
 
         AttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(target, false);
@@ -177,6 +137,18 @@ public final class BindableMemberMugenExtensions {
         return true;
     }
 
+    public static boolean onMemberChanged(@NonNull Object target, @NonNull CharSequence memberName, @Nullable Object args) {
+        AttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(target, false);
+        if (attachedValues == null)
+            return false;
+        MemberChangedListenerWrapper listener = attachedValues.getMemberListenerWrapper(false);
+        if (listener == null)
+            return false;
+
+        listener.onChanged(target, memberName, args);
+        return true;
+    }
+
     @Nullable
     public static Object getParent(@NonNull View view) {
         return getParentRaw(view);
@@ -198,26 +170,44 @@ public final class BindableMemberMugenExtensions {
         onMemberChanged(view, ParentMemberName, null);
     }
 
-    public static boolean onMemberChanged(@NonNull Object target, @NonNull CharSequence memberName, @Nullable Object args) {
-        AttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(target, false);
-        if (attachedValues == null)
-            return false;
-        MemberChangedListenerWrapper listener = attachedValues.getMemberListenerWrapper(false);
-        if (listener == null)
-            return false;
-
-        listener.onChanged(target, memberName, args);
-        return true;
-    }
-
     public static boolean isChildRecycleSupported(@NonNull View view) {
         IChildViewManager childViewManager = MugenService.getChildViewManager();
         if (childViewManager != null && childViewManager.isSupported(view))
             return childViewManager.isChildRecycleSupported(view);
+        return !TabLayoutMugenExtensions.isSupported(view);
+    }
 
-        if (TabLayoutMugenExtensions.isSupported(view))
-            return false;
-        return true;
+    public static boolean getChecked(@NonNull View view) {
+        return ((Checkable) view).isChecked();
+    }
+
+    public static void setChecked(@NonNull View view, boolean value) {
+        ((Checkable) view).setChecked(value);
+    }
+
+    @Nullable
+    public static CharSequence getText(@NonNull View view) {
+        return ((TextView) view).getText();
+    }
+
+    public static void setText(@NonNull View view, @Nullable CharSequence text) {
+        ((TextView) view).setText(text);
+        if (text != null && view instanceof EditText)
+            ((EditText) view).setSelection(((EditText) view).length());
+    }
+
+    @Nullable
+    public static CharSequence getText(@NonNull Object view) {
+        if (TabLayoutTabMugenExtensions.isSupported(view))
+            return TabLayoutTabMugenExtensions.getText(view);
+        return getText((View) view);
+    }
+
+    public static void setText(@NonNull Object view, @Nullable CharSequence text) {
+        if (TabLayoutTabMugenExtensions.isSupported(view))
+            TabLayoutTabMugenExtensions.getText(view);
+        else
+            setText((View) view, text);
     }
 
     @Nullable
@@ -423,6 +413,22 @@ public final class BindableMemberMugenExtensions {
             LifecycleMugenExtensions.onLifecycleChanged(content, LifecycleState.Resume, null);
     }
 
+    @Nullable
+    public static Object findRelativeSource(@NonNull View view, @NonNull String name, int level) {
+        int nameLevel = 0;
+        Object target = getParentRaw(view);
+        while (target != null) {
+            if (typeNameEqual(target.getClass(), name) && ++nameLevel == level)
+                return target;
+
+            if (target instanceof View)
+                target = getParentRaw((View) target);
+            else
+                target = null;
+        }
+
+        return null;
+    }
 
     @Nullable
     private static Object getParentRaw(@NonNull View view) {
