@@ -58,6 +58,12 @@ namespace MugenMvvm.Extensions
 
         public static ValueTaskAwaiter<T?> GetAwaiter<T>(this ShowPresenterResult<T> showResult) => showResult.CloseCallback.GetResultAsync<T>().GetAwaiter()!;
 
+        public static ConfiguredValueTaskAwaitable<INavigationContext> ConfigureAwait(this ShowPresenterResult showResult, bool continueOnCapturedContext) =>
+            showResult.CloseCallback.AsTask(true).ConfigureAwait(continueOnCapturedContext);
+
+        public static ConfiguredValueTaskAwaitable<T?> ConfigureAwait<T>(this ShowPresenterResult<T> showResult, bool continueOnCapturedContext) =>
+            showResult.CloseCallback.GetResultAsync<T>().ConfigureAwait(continueOnCapturedContext);
+
         private static async ValueTask<T?> GetResultAsync<T>(this INavigationCallback callback)
         {
             var navigationContext = await callback.AsTask(true).ConfigureAwait(false);
