@@ -32,17 +32,17 @@ namespace MugenMvvm.ViewModels
 
         public bool IsBusy => BusyToken != null;
 
-        public IBusyToken? BusyToken => _busyManager?.TryGetToken(this, (_, token, _) => !token.IsSuspended && !token.IsCompleted);
+        public IBusyToken? BusyToken => _busyManager?.TryGetToken<object?>(null, (_, token, _) => !token.IsSuspended && !token.IsCompleted);
 
-        public IBusyManager BusyManager => this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm));
+        public IBusyManager BusyManager => _busyManager ?? this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm));
 
-        public IMessenger Messenger => this.InitializeService(ref _messenger);
+        public IMessenger Messenger => _messenger ?? this.InitializeService(ref _messenger);
 
         public bool IsDisposed { get; private set; }
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => this.InitializeService(ref _metadata);
+        public IMetadataContext Metadata => _metadata ?? this.InitializeService(ref _metadata);
 
         protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 

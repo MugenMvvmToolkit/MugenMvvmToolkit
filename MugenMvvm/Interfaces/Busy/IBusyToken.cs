@@ -6,6 +6,8 @@ namespace MugenMvvm.Interfaces.Busy
 {
     public interface IBusyToken : IDisposable, ISuspendable
     {
+        IBusyManager Owner { get; }
+
         bool IsCompleted { get; }
 
         object? Message { get; }

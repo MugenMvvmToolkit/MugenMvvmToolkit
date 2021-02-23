@@ -32,8 +32,8 @@ namespace MugenMvvm.Busy.Components
             }
 
             if (request is IBusyToken busyToken)
-                return BeginBusy(new BusyToken(this, busyToken), delay, metadata);
-            return BeginBusy(new BusyToken(this, request), delay, metadata);
+                return BeginBusy(new BusyToken(this, busyToken, busyManager), delay, metadata);
+            return BeginBusy(new BusyToken(this, request, busyManager), delay, metadata);
         }
 
         public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state,
@@ -66,7 +66,7 @@ namespace MugenMvvm.Busy.Components
                             var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>) state!;
                             tuple.Item1.Owner.BeginBusy(tuple.Item1, 0, tuple.Item2);
                         }
-                    }, metadata == null ? busyToken : (object) Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
+                    }, metadata == null ? busyToken : Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
                 return busyToken;
             }
 
@@ -92,19 +92,24 @@ namespace MugenMvvm.Busy.Components
             private BusyToken? _next;
             private BusyToken? _prev;
             private int _suspendCount;
+            private readonly IBusyManager _owner;
 
-            public BusyToken(BusyTokenManager owner, object? message)
+            public BusyToken(BusyTokenManager owner, object? message, IBusyManager busyManager)
             {
                 Message = message;
                 Owner = owner;
+                _owner = busyManager;
             }
 
-            public BusyToken(BusyTokenManager owner, IBusyToken token)
+            public BusyToken(BusyTokenManager owner, IBusyToken token, IBusyManager busyManager)
             {
                 token.RegisterCallback(this);
                 Message = token.Message;
                 Owner = owner;
+                _owner = busyManager;
             }
+
+            IBusyManager IBusyToken.Owner => _owner;
 
             public bool IsCompleted => this == _listeners;
 

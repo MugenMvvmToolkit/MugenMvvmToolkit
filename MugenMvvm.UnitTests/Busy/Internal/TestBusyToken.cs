@@ -6,6 +6,8 @@ namespace MugenMvvm.UnitTests.Busy.Internal
 {
     public class TestBusyToken : IBusyToken
     {
+        public IBusyManager Owner { get; set; } = null!;
+
         public bool IsCompleted { get; set; }
 
         public object? Message { get; set; }
