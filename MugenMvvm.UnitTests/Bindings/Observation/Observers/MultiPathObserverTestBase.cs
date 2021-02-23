@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     throw new NotSupportedException();
                 }
             });
-            var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
+            var observer = GetObserver(root, DefaultPath, MemberFlags.InstanceAll, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
                 disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
@@ -106,7 +106,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         o.ShouldEqual(root);
                     rootListener = listener;
                     return new ActionToken((o1, o2) => rootListener = null);
-                }
+                },
+                MemberFlags = memberFlags
             };
             var accessorInfo2 = new TestAccessorMemberInfo
             {
@@ -221,7 +222,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                         o.ShouldEqual(root);
                     rootListener = listener;
                     return new ActionToken((o1, o2) => rootListener = null);
-                }
+                },
+                MemberFlags = memberFlags
             };
             var accessorInfo2 = new TestAccessorMemberInfo
             {
@@ -382,7 +384,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     throw new NotSupportedException();
                 }
             });
-            var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
+            var observer = GetObserver(root, DefaultPath, MemberFlags.InstanceAll, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.Members, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed =>
             {
                 if (disposed)

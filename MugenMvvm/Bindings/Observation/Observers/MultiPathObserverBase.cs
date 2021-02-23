@@ -53,12 +53,16 @@ namespace MugenMvvm.Bindings.Observation.Observers
             UpdateIfNeed();
             if (PenultimateValueOrException is IWeakReference penultimateRef)
             {
-                var penultimateValue = penultimateRef.Target;
                 var members = Members;
-                if (penultimateValue == null || members == null)
+                if (members == null)
                     return default;
 
-                return new MemberPathLastMember(penultimateValue, members[members.Length - 1]);
+                var penultimateValue = penultimateRef.Target;
+                var member = members[members.Length - 1];
+                if (penultimateValue == null && !member.MemberFlags.HasFlag(Enums.MemberFlags.Extension))
+                    return default;
+
+                return new MemberPathLastMember(penultimateValue, member);
             }
 
             if (PenultimateValueOrException is Exception e)
@@ -126,7 +130,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                     if (i == 1)
                         memberFlags = memberFlags.SetInstanceOrStaticFlags(false);
                     var member = memberManager.TryGetMember(type, i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags, paths[i], metadata);
-                    if (member == null)
+                    if (member == null || target == null && !member.MemberFlags.HasFlag(Enums.MemberFlags.Static) && !member.MemberFlags.HasFlag(Enums.MemberFlags.Extension))
                     {
                         if (Optional)
                             SetMembers(null, null, null);
@@ -143,13 +147,13 @@ namespace MugenMvvm.Bindings.Observation.Observers
                         SubscribeMember(i, target, observable, metadata);
 
                     target = (member as IAccessorMemberInfo)?.GetValue(target, metadata);
-                    if (target.IsNullOrUnsetValue())
+                    if (target.IsUnsetValue())
                     {
                         SetMembers(null, null, null);
                         return true;
                     }
 
-                    type = target.GetType();
+                    type = target?.GetType() ?? member.Type;
                 }
 
                 if (HasListeners)

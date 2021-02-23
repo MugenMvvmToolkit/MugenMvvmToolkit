@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     throw new NotSupportedException();
                 }
             });
-            var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
+            var observer = GetObserver(root, DefaultPath, MemberFlags.InstanceAll, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
                 disposed => currentListener.ShouldBeNull(),
                 isValueType ? 0 : 1, false);
