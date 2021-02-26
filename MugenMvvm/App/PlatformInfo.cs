@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
@@ -8,19 +9,32 @@ namespace MugenMvvm.App
     public class PlatformInfo : MetadataOwnerBase, IPlatformInfo
     {
         public static readonly IPlatformInfo UnitTest = new PlatformInfo(PlatformType.UnitTest);
+        private string? _applicationVersion;
+        private string? _deviceVersion;
+        private PlatformIdiom? _idiom;
 
-        protected internal PlatformInfo(PlatformType type, IReadOnlyMetadataContext? metadata = null) : base(metadata)
+        public PlatformInfo(PlatformType type, PlatformIdiom? idiom = null, string? applicationVersion = null, string? deviceVersion = null,
+            IReadOnlyMetadataContext? metadata = null) : base(metadata)
         {
             Should.NotBeNull(type, nameof(type));
             Type = type;
+            _idiom = idiom;
+            _applicationVersion = applicationVersion;
+            _deviceVersion = deviceVersion;
         }
 
-        public virtual PlatformIdiom Idiom => PlatformIdiom.Unknown;
+        public PlatformIdiom Idiom => _idiom ??= GetIdiom();
 
-        public virtual string ApplicationVersion => "0.0";
+        public string ApplicationVersion => _applicationVersion ??= GetAppVersion();
 
-        public virtual string DeviceVersion => "0.0";
+        public string DeviceVersion => _deviceVersion ??= GetDeviceVersion();
 
         public PlatformType Type { get; }
+
+        protected virtual PlatformIdiom GetIdiom() => PlatformIdiom.Unknown;
+
+        protected virtual string GetAppVersion() => Environment.Version.ToString();
+
+        protected virtual string GetDeviceVersion() => Environment.OSVersion.ToString();
     }
 }
