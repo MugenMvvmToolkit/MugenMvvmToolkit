@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.App
             var flags = ApplicationFlags.DesignMode;
             var state = this;
             var states = new List<ApplicationLifecycleState>();
-            var device = new PlatformInfo(PlatformType.UnitTest, new MetadataContext());
+            var device = PlatformInfo.UnitTest;
             using var app = _application.AddComponent(new TestApplicationLifecycleListener(_application)
             {
                 OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>

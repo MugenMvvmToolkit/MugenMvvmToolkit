@@ -32,9 +32,9 @@ using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
 #if ANDROID
 using Android.Util;
-
 #else
 using System.Diagnostics;
+
 #endif
 
 namespace MugenMvvm.Internal
@@ -66,7 +66,10 @@ namespace MugenMvvm.Internal
                 else
                     Log.Info(tag, s.ToString());
 #else
-                Trace.WriteLine($"{level.Name}/{s}{Environment.NewLine}{e?.Flatten(true)}");
+                s = $"{level.Name}/{s}";
+                if (e != null)
+                    s += Environment.NewLine + e.Flatten(true);
+                Trace.WriteLine(s.ToString());
 #endif
             }, (_, _) => true));
 
@@ -388,7 +391,7 @@ namespace MugenMvvm.Internal
             {
                 var mappings = Components.TryGetMappings(viewManager, request, metadata);
                 var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
-                Logger.Trace()?.Log($"{ViewTag}mappings for ({request}, viewmodel={vm}, view={view}) {Dump(mappings)}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewTag}found mappings for ({request}, viewmodel={vm}, view={view}) {Dump(mappings)}, metadata={metadata.Dump()}");
                 return mappings;
             }
         }

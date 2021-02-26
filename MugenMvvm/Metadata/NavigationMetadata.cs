@@ -9,12 +9,20 @@ namespace MugenMvvm.Metadata
     public static class NavigationMetadata
     {
         private static IMetadataContextKey<string>? _viewName;
+        private static IMetadataContextKey<object>? _owner;
         private static IMetadataContextKey<bool>? _nonModal;
         private static IMetadataContextKey<bool>? _animated;
         private static IMetadataContextKey<bool>? _forceClose;
         private static IMetadataContextKey<NavigationType>? _navigationType;
         private static IMetadataContextKey<bool>? _clearBackStack;
         private static IMetadataContextKey<DateTime>? _navigationDate;
+
+        [AllowNull]
+        public static IMetadataContextKey<object> Owner
+        {
+            get => _owner ??= GetBuilder(_owner, nameof(Owner)).NotNull().Build();
+            set => _owner = value;
+        }
 
         [AllowNull]
         public static IMetadataContextKey<NavigationType> NavigationType

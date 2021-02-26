@@ -6,26 +6,32 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
-using MugenMvvm.Presentation;
 using MugenMvvm.Requests;
 
-namespace MugenMvvm.Windows.Presentation
+namespace MugenMvvm.Presentation
 {
-    public abstract class WindowViewPresenterMediatorBase<T> : ViewPresenterMediatorBase<T> where T : class
+    public abstract class DialogViewPresenterMediatorBase<T> : ViewPresenterMediatorBase<T> where T : class
     {
         private readonly Dictionary<object, INavigationContext> _contextMap;
         private readonly IViewManager? _viewManager;
+        private readonly INavigationDispatcher? _navigationDispatcher;
 
-        protected WindowViewPresenterMediatorBase(IViewManager? viewManager)
+        protected DialogViewPresenterMediatorBase(IViewManager? viewManager, INavigationDispatcher? navigationDispatcher)
         {
             _contextMap = new Dictionary<object, INavigationContext>(InternalEqualityComparer.Reference);
             _viewManager = viewManager;
+            _navigationDispatcher = navigationDispatcher;
         }
 
+        public bool UseParentViewModelAsOwner { get; set; } = true;
+
         public override NavigationType NavigationType => NavigationType.Window;
+
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
         protected IViewManager ViewManager => _viewManager.DefaultIfNull();
 
@@ -93,6 +99,49 @@ namespace MugenMvvm.Windows.Presentation
                 return null;
             _contextMap.TryGetValue(view, out var v);
             return v;
+        }
+
+        protected TOwner? TryGetOwner<TOwner>(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext, bool includeDefault) where TOwner : class
+        {
+            var owner = TryGetView<TOwner>(navigationContext.GetOrDefault(NavigationMetadata.Owner), navigationContext);
+            if (owner == null)
+            {
+                if (UseParentViewModelAsOwner)
+                    owner = TryGetViewFromParent<TOwner>(mediator.ViewModel, navigationContext);
+                if (owner == null && includeDefault)
+                    owner = NavigationDispatcher.GetTopView<TOwner>(NavigationType, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault());
+            }
+
+            return owner;
+        }
+
+        private TView? TryGetViewFromParent<TView>(IViewModelBase? viewModel, INavigationContext navigationContext) where TView : class
+        {
+            viewModel = viewModel?.GetOrDefault(ViewModelMetadata.ParentViewModel);
+            while (viewModel != null)
+            {
+                var view = TryGetView<TView>(viewModel, navigationContext);
+                if (view != null)
+                    return view;
+                viewModel = viewModel.GetOrDefault(ViewModelMetadata.ParentViewModel);
+            }
+
+            return null;
+        }
+
+        private TView? TryGetView<TView>(object? target, INavigationContext navigationContext) where TView : class
+        {
+            if (target == null)
+                return null;
+            if (target is TView view)
+                return view;
+            foreach (var v in ViewManager.GetViews(target, navigationContext.GetMetadataOrDefault()))
+            {
+                if (v.Target is TView r)
+                    return r;
+            }
+
+            return null;
         }
     }
 }

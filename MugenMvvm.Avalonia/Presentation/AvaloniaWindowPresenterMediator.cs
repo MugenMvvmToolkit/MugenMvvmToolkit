@@ -1,21 +1,21 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Windows;
+using Avalonia.Controls;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Presentation;
 
-namespace MugenMvvm.Windows.Presentation
+namespace MugenMvvm.Avalonia.Presentation
 {
-    public sealed class WpfWindowPresenterMediator : DialogViewPresenterMediatorBase<Window>
+    public sealed class AvaloniaWindowPresenterMediator : DialogViewPresenterMediatorBase<Window>
     {
         private readonly EventHandler _activatedHandler;
         private readonly EventHandler _closedHandler;
-        private readonly CancelEventHandler _closingHandler;
+        private readonly EventHandler<CancelEventArgs> _closingHandler;
         private readonly EventHandler _deactivatedHandler;
 
-        public WpfWindowPresenterMediator(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null) : base(viewManager, navigationDispatcher)
+        public AvaloniaWindowPresenterMediator(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null) : base(viewManager, navigationDispatcher)
         {
             _activatedHandler = OnActivated;
             _deactivatedHandler = OnDeactivated;
@@ -43,11 +43,16 @@ namespace MugenMvvm.Windows.Presentation
 
         protected override void Show(IViewModelPresenterMediator mediator, Window view, bool nonModal, INavigationContext navigationContext)
         {
-            view.Owner = TryGetOwner<Window>(mediator, view, navigationContext, false);
+            var owner = TryGetOwner<Window>(mediator, view, navigationContext, !nonModal);
             if (nonModal)
-                view.Show();
+            {
+                if (owner == null)
+                    view.Show();
+                else
+                    view.Show(owner);
+            }
             else
-                view.ShowDialog();
+                view.ShowDialog(owner!);
         }
 
         protected override void Close(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext) => view.Close();

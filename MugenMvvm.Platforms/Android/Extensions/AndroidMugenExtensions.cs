@@ -409,7 +409,7 @@ namespace MugenMvvm.Android.Extensions
 
                                                                NativeBindableMemberMugenExtensions.SetContent(target, newValue!);
                                                            })
-                                                           .Observable()
+                                                           .ObservableAutoHandler()
                                                            .Build());
 
             //adapterview/recyclerview/viewpager/viewpager2/viewgroup/tablayout

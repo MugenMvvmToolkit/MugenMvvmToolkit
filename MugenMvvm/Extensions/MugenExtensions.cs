@@ -11,6 +11,7 @@ using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Commands;
@@ -25,9 +26,12 @@ using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
+using MugenMvvm.Navigation;
 using MugenMvvm.Threading;
 using MugenMvvm.Wrapping.Components;
 
@@ -35,6 +39,24 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        public static void Start<TViewModel>(this IMugenApplication? _, IReadOnlyMetadataContext? metadata = null)
+            where TViewModel : IViewModelBase => Start(null, typeof(TViewModel), metadata);
+
+        public static void Start(this IMugenApplication? _, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (metadata.IsNullOrEmpty())
+                metadata = NavigationMetadata.NonModal.ToContext(true);
+            else
+            {
+                var context = metadata.ToNonReadonly();
+                context.Set(NavigationMetadata.NonModal, true);
+                metadata = context;
+            }
+
+            var vm = MugenService.ViewModelManager.GetViewModel(viewModelType, metadata);
+            vm.ShowAsync(default, metadata).CloseCallback.AddCallback(NavigationCallbackDelegateListener.DisposeTargetCallback);
+        }
+
         public static IBusyToken BeginBusy(this IBusyManager busyManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(busyManager, nameof(busyManager));

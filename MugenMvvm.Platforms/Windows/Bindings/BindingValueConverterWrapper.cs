@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
 using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Interfaces.Metadata;
+#if AVALONIA
+using Avalonia.Data.Converters;
 
+namespace MugenMvvm.Avalonia.Bindings
+#else
+using System.Windows.Data;
 namespace MugenMvvm.Windows.Bindings
+#endif
 {
     public sealed class BindingValueConverterWrapper : IBindingValueConverter
     {

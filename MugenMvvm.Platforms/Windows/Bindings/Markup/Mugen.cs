@@ -20,9 +20,9 @@ namespace MugenMvvm.Windows.Bindings.Markup
             "Bind", typeof(string), typeof(Mugen), new PropertyMetadata(default(string), OnBindChanged));
 
 
-        public static void SetBind(DependencyObject element, string value) => element.SetValue(BindProperty, value);
+        public static void SetBind(DependencyObject element, string? value) => element.SetValue(BindProperty, value);
 
-        public static string GetBind(DependencyObject element) => (string) element.GetValue(BindProperty);
+        public static string? GetBind(DependencyObject element) => (string?) element.GetValue(BindProperty);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsInDesignMode()
@@ -58,17 +58,17 @@ namespace MugenMvvm.Windows.Bindings.Markup
 
         private static void OnBindChanged(DependencyObject target, DependencyPropertyChangedEventArgs e)
         {
-            var bind = (string) e.NewValue;
+            var bind = (string?) e.NewValue;
             if (string.IsNullOrEmpty(bind))
                 return;
 
             if (IsInDesignMode())
             {
                 if (CanBind())
-                    BindDesignMode(target.Bind(bind));
+                    BindDesignMode(target.Bind(bind!));
             }
             else
-                target.Bind(bind, includeResult: false);
+                target.Bind(bind!, includeResult: false);
         }
     }
 }

@@ -1,0 +1,29 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;net461</TargetFrameworks>
+    <DefineConstants>AVALONIA</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RootNamespace>MugenMvvm.Avalonia</RootNamespace>
+    <Nullable>enable</Nullable>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\MugenMvvm.Platforms\Windows\Bindings\BindingExtensionExpressionParser.cs" Link="Bindings\BindingExtensionExpressionParser.cs" />
+    <Compile Include="..\MugenMvvm.Platforms\Windows\Bindings\BindingValueConverterWrapper.cs" Link="Bindings\BindingValueConverterWrapper.cs" />
+    <Compile Include="..\MugenMvvm.Platforms\Windows\Bindings\Markup\MugenBindingExtensionCommon.cs" Link="Bindings\Markup\MugenBindingExtensionCommon.cs" />
+    <Compile Include="..\MugenMvvm.Platforms\Windows\Collections\ObservableCollectionAdapter.cs" Link="Collections\ObservableCollectionAdapter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />
+  </ItemGroup>
+
+</Project>

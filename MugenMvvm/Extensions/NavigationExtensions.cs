@@ -58,13 +58,14 @@ namespace MugenMvvm.Extensions
         }
 
         public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
-            IReadOnlyMetadataContext? metadata = null)
+            object? ignoreTarget = null, IReadOnlyMetadataContext? metadata = null)
             where TView : class =>
             navigationDispatcher.GetTopNavigation((navigationType, includePending), (entry, state, m) =>
             {
                 if (!state.includePending && entry.IsPending)
                     return null;
-                if (state.navigationType != null && entry.NavigationType != state.navigationType || entry.Target is not IViewModelBase viewModel)
+                if (state.navigationType != null && entry.NavigationType != state.navigationType || Equals(entry.Target, ignoreTarget) ||
+                    entry.Target is not IViewModelBase viewModel)
                     return null;
                 foreach (var t in MugenService.ViewManager.GetViews(viewModel, m))
                 {
@@ -88,8 +89,7 @@ namespace MugenMvvm.Extensions
             }, metadata);
 
         public static TResult? GetTopNavigation<TResult, TState>(this INavigationDispatcher navigationDispatcher, TState state,
-            Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate,
-            IReadOnlyMetadataContext? metadata = null)
+            Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate, IReadOnlyMetadataContext? metadata = null)
             where TResult : class
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));

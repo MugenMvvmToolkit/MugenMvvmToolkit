@@ -55,7 +55,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             return this;
         }
 
-        public CustomPropertyBuilder<TTarget, TValue> Observable()
+        public CustomPropertyBuilder<TTarget, TValue> ObservableAutoHandler()
         {
             Should.BeSupported(_tryObserve == null, nameof(ObservableHandler));
             _isObservable = true;

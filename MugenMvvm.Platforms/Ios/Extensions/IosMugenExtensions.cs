@@ -110,7 +110,7 @@ namespace MugenMvvm.Ios.Extensions
                                             .ParentNative()
                                             .GetBuilder()
                                             .CustomGetter((member, target, metadata) => target.ParentViewController ?? target.PresentingViewController)
-                                            .Observable()
+                                            .ObservableAutoHandler()
                                             .Build());
 
             //UIView
@@ -126,7 +126,7 @@ namespace MugenMvvm.Ios.Extensions
                                                     return controller;
                                                 return target.Superview;
                                             })
-                                            .Observable()
+                                            .ObservableAutoHandler()
                                             .Build());
             attachedMemberProvider.Register(BindableMembers
                                             .For<UIView>()

@@ -40,7 +40,8 @@ namespace MugenMvvm.Android.Presentation
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext, int requestId)
         {
             var flags = navigationContext.GetOrDefault(NavigationMetadata.ClearBackStack) ? (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
-            StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType), requestId, flags, navigationContext);
+            StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault()), requestId,
+                flags, navigationContext);
         }
 
         protected virtual bool IsTargetActivity(object view, ViewLifecycleState lifecycleState, object? state, IViewModelPresenterMediator mediator,
@@ -63,7 +64,7 @@ namespace MugenMvvm.Android.Presentation
                 flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 
-            var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
+            var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType, true, null, navigationContext.GetMetadataOrDefault());
             if (Equals(topActivity, view))
                 return;
 
@@ -100,7 +101,7 @@ namespace MugenMvvm.Android.Presentation
 
         protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
         {
-            var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType);
+            var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType, true, null, navigationContext.GetMetadataOrDefault());
             if (Equals(topActivityView, view))
                 return Task.CompletedTask;
             return RefreshActivityAsync(mediator, view, navigationContext);

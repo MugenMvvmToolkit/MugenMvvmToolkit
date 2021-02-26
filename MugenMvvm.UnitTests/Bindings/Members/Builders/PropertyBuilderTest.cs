@@ -421,13 +421,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public void CustomObservableShouldRaise(bool withAttachedHandler, bool isStatic)
+        public void CustomObservableAutoHandlerShouldRaise(bool withAttachedHandler, bool isStatic)
         {
             var message = "m";
             var target = isStatic ? null : new object();
             var attachedInvokeCount = 0;
             IAccessorMemberInfo? memberInfo = null;
-            var builder = new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler)).CustomGetter((member, o, metadata) => "").Observable();
+            var builder = new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler)).CustomGetter((member, o, metadata) => "").ObservableAutoHandler();
             if (withAttachedHandler)
             {
                 builder = builder.AttachedHandler((member, t, metadata) =>

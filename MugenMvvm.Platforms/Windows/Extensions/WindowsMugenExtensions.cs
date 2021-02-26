@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using MugenMvvm.App.Configuration;
@@ -12,15 +11,12 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presentation;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Windows.Bindings;
+using MugenMvvm.Windows.Collections;
 using MugenMvvm.Windows.Internal;
 using MugenMvvm.Windows.Presentation;
 
@@ -60,8 +56,7 @@ namespace MugenMvvm.Windows.Extensions
             var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
 
             attachedMemberProvider.Register(new DependencyPropertyAccessorMemberInfo(FrameworkElement.DataContextProperty, nameof(BindableMembers.DataContext),
-                typeof(FrameworkElement),
-                MemberFlags.InstancePublic));
+                typeof(FrameworkElement), MemberFlags.InstancePublic));
 
             var enabledMember = memberManager.TryGetMember(typeof(UIElement), MemberType.Accessor, MemberFlags.InstancePublicAll, nameof(UIElement.IsEnabled));
             if (enabledMember != null)
@@ -76,6 +71,13 @@ namespace MugenMvvm.Windows.Extensions
                                                            .CustomSetter((member, target, value, metadata) => target.Visibility = value ? Visibility.Visible : Visibility.Collapsed)
                                                            .Observable(visibilityAccessor)
                                                            .Build());
+            attachedMemberProvider.Register(BindableMembers.For<ItemsControl>()
+                                                           .DiffableEqualityComparer()
+                                                           .GetBuilder()
+                                                           .NonObservable()
+                                                           .PropertyChangedHandler((_, target, _, newValue, _) =>
+                                                               ObservableCollectionAdapter.GetOrAdd(target).Adapter.DiffableComparer = newValue)
+                                                           .Build());
 
             attachedMemberProvider.Register(BindableMembers.For<FrameworkElement>()
                                                            .ElementSourceMethod()
@@ -86,7 +88,8 @@ namespace MugenMvvm.Windows.Extensions
                                                            .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                            .Build());
 
-            attachedMemberProvider.Register(BindableMembers.For<FrameworkElement>().ParentNative()
+            attachedMemberProvider.Register(BindableMembers.For<FrameworkElement>()
+                                                           .ParentNative()
                                                            .GetBuilder()
                                                            .CustomGetter((_, target, _) => target.Parent)
                                                            .Observable(memberManager.TryGetMember(typeof(FrameworkElement), MemberType.Event, MemberFlags.InstancePublicAll,
@@ -94,35 +97,15 @@ namespace MugenMvvm.Windows.Extensions
                                                            .Build());
 
             attachedMemberProvider.Register(AttachedMemberBuilder.Property<ItemsControl, IEnumerable?>(nameof(ItemsControl.ItemsSource))
-                                                                 .CustomGetter((_, target, _) =>
-                                                                 {
-                                                                     if (target.ItemsSource is ObservableCollectionEx c)
-                                                                         return c.Adapter.Collection;
-                                                                     return target.ItemsSource;
-                                                                 })
+                                                                 .CustomGetter((_, target, _) => ObservableCollectionAdapter.GetItemsSource(target.ItemsSource))
                                                                  .CustomSetter((member, target, value, metadata) =>
                                                                  {
-                                                                     if (ReferenceEquals(member.GetValue(target, metadata), value))
-                                                                         return;
-
-                                                                     if (target.ItemsSource is not ObservableCollectionEx c)
-                                                                     {
-                                                                         c = new ObservableCollectionEx();
-                                                                         target.ItemsSource = c;
-                                                                     }
-
-                                                                     c.Adapter.Collection = value;
+                                                                     if (!ReferenceEquals(member.GetValue(target, metadata), value))
+                                                                         ObservableCollectionAdapter.GetOrAdd(target).Adapter.Collection = value;
                                                                  })
-                                                                 .Observable()
                                                                  .Build());
             return configuration;
         }
-
-        public static ItemOrIReadOnlyList<IPresenterResult> Start<TViewModel>(this IMugenApplication? _, IReadOnlyMetadataContext? metadata = null)
-            where TViewModel : IViewModelBase => Start(null, typeof(TViewModel), metadata);
-
-        public static ItemOrIReadOnlyList<IPresenterResult> Start(this IMugenApplication? _, Type viewModelType, IReadOnlyMetadataContext? metadata = null) =>
-            MugenService.Presenter.Show(MugenService.ServiceProvider.GetService(viewModelType)!, default, metadata);
 
         private static void ConfigureWpfApp()
         {
@@ -144,16 +127,6 @@ namespace MugenMvvm.Windows.Extensions
         {
             MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivating, e);
             MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, e);
-        }
-
-        private sealed class ObservableCollectionEx : ObservableCollection<object?>
-        {
-            public ObservableCollectionEx()
-            {
-                Adapter = new DiffableBindableCollectionAdapter(this);
-            }
-
-            public BindableCollectionAdapter Adapter { get; }
         }
     }
 }

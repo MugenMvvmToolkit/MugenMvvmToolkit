@@ -7,9 +7,14 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Windows.Bindings.Markup;
+#if AVALONIA
+using MugenMvvm.Avalonia.Bindings.Markup;
 
+namespace MugenMvvm.Avalonia.Bindings
+#else
+using MugenMvvm.Windows.Bindings.Markup;
 namespace MugenMvvm.Windows.Bindings
+#endif
 {
     public sealed class BindingExtensionExpressionParser : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent
     {

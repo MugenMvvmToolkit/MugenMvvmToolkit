@@ -54,7 +54,7 @@ namespace MugenMvvm.Ios.Presentation
             if (navigationContext.NavigationMode != NavigationMode.New)
                 return Task.CompletedTask;
 
-            var topView = NavigationDispatcher.GetTopView<UIViewController>(includePending: false, metadata: navigationContext.GetMetadataOrDefault());
+            var topView = NavigationDispatcher.GetTopView<UIViewController>(null, false, mediator.ViewModel, navigationContext.GetMetadataOrDefault());
             if (topView == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(UIViewController), nameof(topView));
             topView.PresentViewController(view, navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated), null);

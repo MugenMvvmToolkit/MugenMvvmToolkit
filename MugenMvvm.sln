@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.Platforms", "Muge
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvm.UnitTests.Android", "MugenMvvm.UnitTests.Android\MugenMvvm.UnitTests.Android.csproj", "{3243B7DE-291F-4280-AA74-CF3EACC73F57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvm.Avalonia", "MugenMvvm.Avalonia\MugenMvvm.Avalonia.csproj", "{498ED8BD-226A-453A-98B5-17E956814E3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{3243B7DE-291F-4280-AA74-CF3EACC73F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3243B7DE-291F-4280-AA74-CF3EACC73F57}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3243B7DE-291F-4280-AA74-CF3EACC73F57}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{498ED8BD-226A-453A-98B5-17E956814E3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{498ED8BD-226A-453A-98B5-17E956814E3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{498ED8BD-226A-453A-98B5-17E956814E3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{498ED8BD-226A-453A-98B5-17E956814E3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
