@@ -12,14 +12,14 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
-    public class PropertyChangedMemberObserverProviderTest : UnitTestBase
+    public class PropertyChangedObserverProviderTest : UnitTestBase
     {
         private readonly ObservationManager _observationManager;
 
-        public PropertyChangedMemberObserverProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public PropertyChangedObserverProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _observationManager = new ObservationManager(ComponentCollectionManager);
-            _observationManager.AddComponent(new PropertyChangedMemberObserverProvider(AttachedValueManager));
+            _observationManager.AddComponent(new PropertyChangedObserverProvider(AttachedValueManager));
         }
 
         [Fact]

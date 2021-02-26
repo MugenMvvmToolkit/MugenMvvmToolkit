@@ -12,17 +12,17 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
-    public class EventInfoMemberObserverProviderTest : UnitTestBase
+    public class EventInfoObserverProviderTest : UnitTestBase
     {
         private readonly ReflectionManager _reflectionManager;
         private readonly ObservationManager _observationManager;
 
-        public EventInfoMemberObserverProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public EventInfoObserverProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _observationManager = new ObservationManager(ComponentCollectionManager);
             _reflectionManager = new ReflectionManager(ComponentCollectionManager);
             _reflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
-            _observationManager.AddComponent(new EventInfoMemberObserverProvider(AttachedValueManager, _reflectionManager));
+            _observationManager.AddComponent(new EventInfoObserverProvider(AttachedValueManager, _reflectionManager));
         }
 
         [Fact]

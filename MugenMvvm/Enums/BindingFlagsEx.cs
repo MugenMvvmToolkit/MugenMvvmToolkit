@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Enums
 {
-    public static class BindingFlagsEx
+    internal static class BindingFlagsEx
     {
         public const BindingFlags All = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         public const BindingFlags InstancePublic = BindingFlags.Instance | BindingFlags.Public;

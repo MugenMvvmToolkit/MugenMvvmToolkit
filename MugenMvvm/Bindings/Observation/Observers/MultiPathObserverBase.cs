@@ -132,7 +132,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                     var member = memberManager.TryGetMember(type, i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags, paths[i], metadata);
                     if (member == null || target == null && !member.MemberFlags.HasFlag(Enums.MemberFlags.Static) && !member.MemberFlags.HasFlag(Enums.MemberFlags.Extension))
                     {
-                        if (Optional)
+                        if (Optional || target == null && i != 0)
                             SetMembers(null, null, null);
                         else
                             ExceptionManager.ThrowInvalidBindingMember(type, paths[i]);

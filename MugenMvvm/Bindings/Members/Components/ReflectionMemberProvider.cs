@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
@@ -39,7 +40,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var isSetter = name == BindingInternalConstant.IndexerSetterName;
             if (isGetter || isSetter)
             {
-                var propertyInfos = t.GetProperties(BindingFlagsEx.All);
+                var propertyInfos = t.GetProperties(BindingFlagsEx.All | BindingFlags.DeclaredOnly);
                 for (var i = 0; i < propertyInfos.Length; i++)
                 {
                     var propertyInfo = propertyInfos[i];
@@ -54,7 +55,7 @@ namespace MugenMvvm.Bindings.Members.Components
             }
             else
             {
-                var methods = t.GetMethods(BindingFlagsEx.All);
+                var methods = t.GetMethods(BindingFlagsEx.All | BindingFlags.DeclaredOnly);
                 for (var index = 0; index < methods.Length; index++)
                 {
                     var methodInfo = methods[index];
@@ -118,7 +119,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var key = new CacheKey(CacheKey.Event, name, t);
             if (!_cache.TryGetValue(key, out var v))
             {
-                var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
+                var eventInfo = t.GetEvent(name, BindingFlagsEx.All | BindingFlags.DeclaredOnly);
                 if (eventInfo != null)
                 {
                     var memberObserver = _observationManager.DefaultIfNull().TryGetMemberObserver(requestedType, eventInfo, metadata);
@@ -140,7 +141,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var key = new CacheKey(CacheKey.Field, name, t);
             if (!_cache.TryGetValue(key, out var v))
             {
-                var field = t.GetField(name, BindingFlagsEx.All);
+                var field = t.GetField(name, BindingFlagsEx.All | BindingFlags.DeclaredOnly);
                 if (field != null)
                     v = new FieldAccessorMemberInfo(name, field, requestedType);
                 _cache[key] = v;
@@ -157,7 +158,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var key = new CacheKey(CacheKey.Property, name, t);
             if (!_cache.TryGetValue(key, out var v))
             {
-                var property = t.GetProperty(name, BindingFlagsEx.All);
+                var property = t.GetProperty(name, BindingFlagsEx.All | BindingFlags.DeclaredOnly);
                 if (property != null)
                     v = new PropertyAccessorMemberInfo(name, property, requestedType);
                 _cache[key] = v;

@@ -103,13 +103,13 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new ReflectionMemberProvider());
 
             var cfg = configuration.WithAppService(MugenService.Optional<IObservationManager>() ?? new ObservationManager())
-                                   .WithComponent(new EventInfoMemberObserverProvider())
+                                   .WithComponent(new EventInfoObserverProvider())
                                    .WithComponent(new EventMemberObserverProvider())
                                    .WithComponent(new MemberPathObserverProvider())
                                    .WithComponent(new MemberPathProvider())
                                    .WithComponent(new MemberPathProviderCache())
                                    .WithComponent(new NonObservableMemberObserverDecorator())
-                                   .WithComponent(new PropertyChangedMemberObserverProvider());
+                                   .WithComponent(new PropertyChangedObserverProvider());
             if (cacheResources)
                 cfg.WithComponent(new ResourceMemberPathObserverCache());
 

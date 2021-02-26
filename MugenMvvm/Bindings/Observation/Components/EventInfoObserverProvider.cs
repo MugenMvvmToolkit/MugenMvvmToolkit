@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation.Components
 {
-    public sealed class EventInfoMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
+    public sealed class EventInfoObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {
         private static readonly MethodInfo RaiseMethod = typeof(BindingMugenExtensions).GetMethodOrThrow(nameof(BindingMugenExtensions.Raise), BindingFlagsEx.StaticPublic);
 
@@ -24,7 +24,7 @@ namespace MugenMvvm.Bindings.Observation.Components
         private readonly IReflectionManager? _reflectionManager;
 
         [Preserve(Conditional = true)]
-        public EventInfoMemberObserverProvider(IAttachedValueManager? attachedValueManager = null, IReflectionManager? reflectionManager = null)
+        public EventInfoObserverProvider(IAttachedValueManager? attachedValueManager = null, IReflectionManager? reflectionManager = null)
         {
             _attachedValueManager = attachedValueManager;
             _reflectionManager = reflectionManager;

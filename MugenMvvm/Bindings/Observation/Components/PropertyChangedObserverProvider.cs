@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation.Components
 {
-    public sealed class PropertyChangedMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
+    public sealed class PropertyChangedObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {
         public static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHolderHandler = TryObserveHolder;
         private static readonly Func<object, object?, MemberListenerCollection> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Observation.Components
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
 
         [Preserve(Conditional = true)]
-        public PropertyChangedMemberObserverProvider(IAttachedValueManager? attachedValueManager = null)
+        public PropertyChangedObserverProvider(IAttachedValueManager? attachedValueManager = null)
         {
             _attachedValueManager = attachedValueManager;
             _memberObserverHandler = TryObserve;
