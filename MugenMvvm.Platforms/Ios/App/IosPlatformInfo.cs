@@ -8,22 +8,14 @@ namespace MugenMvvm.Ios.App
 {
     public class IosPlatformInfo : PlatformInfo
     {
-        private string? _applicationVersion;
-        private string? _deviceVersion;
-        private PlatformIdiom? _idiom;
-
         public IosPlatformInfo(IReadOnlyMetadataContext? metadata = null)
-            : base(PlatformType.iOS, metadata)
+            : base(PlatformType.iOS, null, null, null, metadata)
         {
         }
 
-        public override string ApplicationVersion => _applicationVersion ??= GetVersion();
+        protected override string GetDeviceVersion() => UIDevice.CurrentDevice.SystemVersion;
 
-        public override string DeviceVersion => _deviceVersion ??= UIDevice.CurrentDevice.SystemVersion;
-
-        public override PlatformIdiom Idiom => _idiom ??= GetIdiom();
-
-        private static PlatformIdiom GetIdiom() =>
+        protected override PlatformIdiom GetIdiom() =>
             UIDevice.CurrentDevice.UserInterfaceIdiom switch
             {
                 UIUserInterfaceIdiom.Pad => PlatformIdiom.Tablet,
@@ -32,7 +24,7 @@ namespace MugenMvvm.Ios.App
                 _ => PlatformIdiom.Unknown
             };
 
-        private static string GetVersion()
+        protected override string GetAppVersion()
         {
             var version = NSBundle.MainBundle.InfoDictionary.ObjectForKey(new NSString("CFBundleShortVersionString"))?.ToString();
             if (version == null)
