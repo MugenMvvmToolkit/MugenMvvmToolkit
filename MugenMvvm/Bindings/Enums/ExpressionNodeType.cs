@@ -20,6 +20,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly ExpressionNodeType Lambda = new(8);
         public static readonly ExpressionNodeType Parameter = new(9);
         public static readonly ExpressionNodeType BindingParameter = new(10);
+        public static readonly ExpressionNodeType TypeAccess = new(11);
 
         public ExpressionNodeType(int value, string? name = null) : base(value, name)
         {

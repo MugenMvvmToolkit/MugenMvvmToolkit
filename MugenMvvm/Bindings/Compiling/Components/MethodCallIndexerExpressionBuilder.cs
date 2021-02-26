@@ -482,8 +482,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return null;
             }
 
-            var target = context.Build(methodCallExpression.Target);
-            var type = BindingMugenExtensions.GetTargetType(ref target);
+            var target = context.BuildTarget(methodCallExpression.Target, out var type);
             return TryBuildExpression(context, methodCallExpression.Method, new TargetData(type, target), GetArguments(methodCallExpression, context),
                 _resourceResolver.GetTypes(methodCallExpression.TypeArgs, context.Metadata));
         }
@@ -496,9 +495,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return null;
             }
 
-            var target = context.Build(indexExpression.Target);
-            var type = BindingMugenExtensions.GetTargetType(ref target);
-
+            var target = context.BuildTarget(indexExpression.Target, out var type);
             if (type.IsArray)
             {
                 var expressions = ToExpressions(context, indexExpression.Arguments, null, typeof(int));

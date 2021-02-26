@@ -242,18 +242,6 @@ namespace MugenMvvm.Bindings.Extensions
             return st == tt;
         }
 
-        public static Type GetTargetType([MaybeNull] ref Expression target)
-        {
-            var type = target.Type;
-            if (target is ConstantExpression constant && constant.Value is Type value)
-            {
-                type = value;
-                target = null!;
-            }
-
-            return type;
-        }
-
         public static bool IsNullableType(this Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
         public static Type GetNonNullableType(this Type type) => IsNullableType(type) ? type.GetGenericArguments()[0] : type;

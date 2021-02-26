@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 
             Context.SetExpression(arg1, ConstantExpressionNode.Get(1));
             Context.SetExpression(arg2, ConstantExpressionNode.Get(2));
-            var expectedResult = new MethodCallExpressionNode(ConstantExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayExpressionConverter.NewArrayInit), new[]
+            var expectedResult = new MethodCallExpressionNode(TypeAccessExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayExpressionConverter.NewArrayInit), new[]
             {
                 ConstantExpressionNode.Get(1),
                 ConstantExpressionNode.Get(2)

@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
         public void TryConvertShouldConvertStaticMember()
         {
             var propertyInfo = typeof(TestConverterClass).GetProperty(nameof(TestConverterClass.PropertyStatic))!;
-            var expectedResult = new MemberExpressionNode(ConstantExpressionNode.Get<TestConverterClass>(), propertyInfo.Name);
+            var expectedResult = new MemberExpressionNode(TypeAccessExpressionNode.Get<TestConverterClass>(), propertyInfo.Name);
             Converter.TryConvert(Context, Expression.Property(null, propertyInfo)).ShouldEqual(expectedResult);
         }
 

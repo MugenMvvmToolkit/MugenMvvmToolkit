@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             var attribute = (IgnoreBindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
-            result.ShouldEqual(ConstantExpressionNode.Get<IgnoreBindingMemberAttributeTest>());
+            result.ShouldEqual(TypeAccessExpressionNode.Get<IgnoreBindingMemberAttributeTest>());
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             var attribute = (IgnoreBindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(access.Member)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, access, out var result).ShouldBeTrue();
-            result.ShouldEqual(ConstantExpressionNode.Get<IgnoreBindingMemberAttributeTest>());
+            result.ShouldEqual(TypeAccessExpressionNode.Get<IgnoreBindingMemberAttributeTest>());
         }
 
         [Fact]

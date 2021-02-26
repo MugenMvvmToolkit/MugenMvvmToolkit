@@ -36,8 +36,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Constant;
 
-        public static ConstantExpressionNode Get<TType>() => TypeCache<TType>.TypeConstant;
-
         public static ConstantExpressionNode Get(bool value)
         {
             if (value)
@@ -104,11 +102,6 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
                 return items;
             }
-        }
-
-        private static class TypeCache<TType>
-        {
-            public static readonly ConstantExpressionNode TypeConstant = new(typeof(TType), typeof(TType).GetType(), Expression.Constant(typeof(TType)));
         }
     }
 }

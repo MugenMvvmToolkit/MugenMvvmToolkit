@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
         {
             var method = typeof(TestConverterClass).GetMethod(nameof(TestConverterClass.MethodStatic))!;
             var argExp = Expression.Constant(null);
-            var expectedResult = new MethodCallExpressionNode(ConstantExpressionNode.Get<TestConverterClass>(), method.Name, new[]
+            var expectedResult = new MethodCallExpressionNode(TypeAccessExpressionNode.Get<TestConverterClass>(), method.Name, new[]
             {
                 ConstantExpressionNode.Null
             });

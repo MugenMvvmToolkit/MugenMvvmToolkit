@@ -80,7 +80,7 @@ namespace MugenMvvm.Bindings.Extensions
         public static IExpressionNode? ConvertTarget(this IExpressionConverterContext<Expression> context, Expression? expression, MemberInfo member)
         {
             if (!context.TryConvertExtension(member.DeclaringType ?? typeof(object), expression, out var result))
-                result = context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
+                result = context.ConvertOptional(expression) ?? TypeAccessExpressionNode.Get(member.DeclaringType!);
             if (ReferenceEquals(result, ConstantExpressionNode.Null) || ReferenceEquals(result, MemberExpressionNode.Empty))
                 result = null;
             return result;

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
@@ -14,6 +15,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
     {
         public int Priority { get; set; } = ParsingComponentPriority.Convert;
 
+        [Preserve]
         public static T[] NewArrayInit<T>(params T[] items) => items;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
@@ -21,7 +23,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
             if (expression is not NewArrayExpression newArrayExpression || newArrayExpression.NodeType != ExpressionType.NewArrayInit)
                 return null;
 
-            return new MethodCallExpressionNode(ConstantExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayInit),
+            return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayInit),
                 context.Convert(new ItemOrIReadOnlyList<Expression>(newArrayExpression.Expressions)), expression.Type.GetElementType()!.AssemblyQualifiedName!);
         }
     }

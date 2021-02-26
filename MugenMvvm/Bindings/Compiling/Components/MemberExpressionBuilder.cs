@@ -65,8 +65,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             if (expression is not IMemberExpressionNode memberExpression || memberExpression.Target == null)
                 return null;
 
-            var target = context.Build(memberExpression.Target);
-            var type = BindingMugenExtensions.GetTargetType(ref target);
+            var target = context.BuildTarget(memberExpression.Target, out var type);
             EnumFlags<MemberFlags> flags;
             if (target == null)
             {

@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         public MacrosExpressionVisitor()
         {
             _memberBuilder = new StringBuilder();
-            var target = ConstantExpressionNode.Get(typeof(BindingMugenExtensions), typeof(Type));
+            var target = TypeAccessExpressionNode.Get(typeof(BindingMugenExtensions));
             var bindingImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetBinding), default);
             var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), default);
             Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>(3)
@@ -40,9 +40,9 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>(3)
             {
-                {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), default)},
-                {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), default)},
-                {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), default)}
+                {nameof(string.Format), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), default)},
+                {nameof(Equals), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<object>(), nameof(Equals), default)},
+                {nameof(ReferenceEquals), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<object>(), nameof(ReferenceEquals), default)}
             };
             AccessorMethods = new Dictionary<string, string>(11)
             {

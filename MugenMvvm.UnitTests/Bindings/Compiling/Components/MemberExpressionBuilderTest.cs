@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
+            var expressionNode = new MemberExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
 
             build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(StaticProperty);
@@ -172,7 +172,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return default;
             };
 
-            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
+            var expressionNode = new MemberExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName);
             _component.TryBuild(_context, expressionNode).ShouldBeNull();
         }
 
@@ -195,7 +195,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
+            var expressionNode = new MemberExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
 
             build.Invoke().ShouldEqual(StaticProperty);

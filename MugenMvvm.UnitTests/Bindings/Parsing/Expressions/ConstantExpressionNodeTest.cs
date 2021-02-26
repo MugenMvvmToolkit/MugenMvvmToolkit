@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
     public class ConstantExpressionNodeTest : UnitTestBase
     {
         [Fact]
-        public void AcceptShouldCreateNewNode2()
+        public void AcceptShouldCreateNewNode()
         {
             var newNode = new ConstantExpressionNode("-");
             var visitor = new TestExpressionVisitor
@@ -84,16 +84,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var constantExpressionNode = ConstantExpressionNode.Get(null, typeof(string));
             constantExpressionNode.Type.ShouldEqual(typeof(string));
             constantExpressionNode.Value.ShouldEqual(null);
-        }
-
-        [Fact]
-        public void GetTypeShouldUseCache()
-        {
-            var exp = ConstantExpressionNode.Get<string>();
-            exp.Type.ShouldEqual(typeof(string).GetType());
-            exp.ConstantExpression!.Value.ShouldEqual(typeof(string));
-            exp.Value.ShouldEqual(typeof(string));
-            exp.ShouldEqual(ConstantExpressionNode.Get<string>());
         }
 
         [Fact]

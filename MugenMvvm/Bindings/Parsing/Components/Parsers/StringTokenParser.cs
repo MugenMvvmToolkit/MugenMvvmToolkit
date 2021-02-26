@@ -18,8 +18,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
     //note doesn't support unicode escape sequence
     public sealed class StringTokenParser : ITokenParserComponent, IHasPriority
     {
-        public static readonly ConstantExpressionNode StringType = ConstantExpressionNode.Get<string>();
-
         public StringTokenParser()
         {
             QuoteTokens = new List<string>(3)
@@ -253,11 +251,11 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 return value;
 
             if (args.Count == 1)
-                return new MethodCallExpressionNode(StringType, nameof(string.Format), new[] {value, args[0]});
+                return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), new[] {value, args[0]});
 
             var list = args.AsList();
             list.Insert(0, value);
-            return new MethodCallExpressionNode(StringType, nameof(string.Format), new ItemOrIReadOnlyList<IExpressionNode>((IReadOnlyList<IExpressionNode>) list));
+            return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), new ItemOrIReadOnlyList<IExpressionNode>((IReadOnlyList<IExpressionNode>) list));
         }
 
         private string? GetQuoteToken(ITokenParserContext context)

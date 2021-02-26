@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, default);
+            var expressionNode = new MethodCallExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName, default);
             var build = _component.TryBuild(_context, expressionNode)!;
 
             build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(this);
@@ -253,7 +253,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, default);
+            var expressionNode = new MethodCallExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName, default);
             var build = _component.TryBuild(_context, expressionNode)!;
 
             var invokeCount = 0;
@@ -671,15 +671,15 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             switch (state)
             {
                 case ConstantParameterTypeState:
-                    target = ConstantExpressionNode.Get(instance);
+                    target = instance is Type tt ? TypeAccessExpressionNode.Get(tt) : ConstantExpressionNode.Get(instance);
                     break;
                 case ConstantObjectParameterTypeState:
                     target = ConstantExpressionNode.Get(instance, typeof(object));
                     break;
                 default:
-                    if (instance is Type)
+                    if (instance is Type t)
                     {
-                        target = ConstantExpressionNode.Get(instance);
+                        target = TypeAccessExpressionNode.Get(t);
                         break;
                     }
 

@@ -104,6 +104,19 @@ namespace MugenMvvm.Bindings.Extensions
             return null;
         }
 
+        public static Expression? BuildTarget(this IExpressionBuilderContext context, IExpressionNode expression, out Type targetType)
+        {
+            if (expression is ITypeAccessExpressionNode accessExpression)
+            {
+                targetType = accessExpression.Type;
+                return null;
+            }
+
+            var result = context.Build(expression);
+            targetType = result.Type;
+            return result;
+        }
+
         public static TypeResolver GetTypeResolver(this IResourceManager resourceManager)
         {
             Should.NotBeNull(resourceManager, nameof(resourceManager));

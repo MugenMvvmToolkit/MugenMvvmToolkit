@@ -228,7 +228,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                     new MethodCallExpressionNode(ConstantExpressionNode.Get("1"), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))},
                         new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
-                new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
+                new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
                     new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}, new string[0]),
                 new ConditionExpressionNode(
                     new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(10, typeof(int))),
@@ -430,7 +430,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                     new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(StringProperty)), "IndexOf",
                         new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))}, new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
-                new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), nameof(string.Format),
+                new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
                     new IExpressionNode[]
                         {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1, typeof(int)), ConstantExpressionNode.Get(2, typeof(int))},
                     new string[0]),
