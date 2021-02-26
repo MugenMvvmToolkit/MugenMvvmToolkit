@@ -41,18 +41,18 @@ namespace MugenMvvm.Avalonia.Presentation
 
         protected override void Activate(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext) => view.Activate();
 
-        protected override void Show(IViewModelPresenterMediator mediator, Window view, bool nonModal, INavigationContext navigationContext)
+        protected override void Show(IViewModelPresenterMediator mediator, Window view, bool modal, INavigationContext navigationContext)
         {
-            var owner = TryGetOwner<Window>(mediator, view, navigationContext, !nonModal);
-            if (nonModal)
+            var owner = TryGetOwner<Window>(mediator, navigationContext, modal, modal);
+            if (modal)
+                view.ShowDialog(owner!);
+            else
             {
                 if (owner == null)
                     view.Show();
                 else
                     view.Show(owner);
             }
-            else
-                view.ShowDialog(owner!);
         }
 
         protected override void Close(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext) => view.Close();

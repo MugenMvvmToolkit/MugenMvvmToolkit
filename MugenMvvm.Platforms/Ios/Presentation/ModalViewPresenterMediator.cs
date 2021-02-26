@@ -6,7 +6,6 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 using MugenMvvm.Ios.Interfaces;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presentation;
@@ -32,8 +31,6 @@ namespace MugenMvvm.Ios.Presentation
 
         public bool Animated { get; set; } = true;
 
-        public bool NonModal { get; set; } = true;
-
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
         protected IViewManager ViewManager => _viewManager.DefaultIfNull();
@@ -47,7 +44,7 @@ namespace MugenMvvm.Ios.Presentation
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
             {
-                view.ModalInPresentation = !navigationContext.GetOrDefault(NavigationMetadata.NonModal, NonModal);
+                view.ModalInPresentation = navigationContext.GetOrDefault(NavigationMetadata.Modal);
                 view.PresentationController.Delegate = _presentationControllerDelegate;
             }
 

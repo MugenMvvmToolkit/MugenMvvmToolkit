@@ -41,13 +41,13 @@ namespace MugenMvvm.Windows.Presentation
 
         protected override void Activate(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext) => view.Activate();
 
-        protected override void Show(IViewModelPresenterMediator mediator, Window view, bool nonModal, INavigationContext navigationContext)
+        protected override void Show(IViewModelPresenterMediator mediator, Window view, bool modal, INavigationContext navigationContext)
         {
-            view.Owner = TryGetOwner<Window>(mediator, view, navigationContext, false);
-            if (nonModal)
-                view.Show();
-            else
+            view.Owner = TryGetOwner<Window>(mediator, navigationContext, modal, modal);
+            if (modal)
                 view.ShowDialog();
+            else
+                view.Show();
         }
 
         protected override void Close(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext) => view.Close();

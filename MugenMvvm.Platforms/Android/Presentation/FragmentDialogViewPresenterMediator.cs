@@ -30,7 +30,7 @@ namespace MugenMvvm.Android.Presentation
         {
             if (navigationContext.NavigationMode == NavigationMode.New)
             {
-                view.Cancelable = navigationContext.GetOrDefault(NavigationMetadata.NonModal);
+                view.Cancelable = !navigationContext.GetOrDefault(NavigationMetadata.Modal);
                 FragmentMugenExtensions.Show(view, NavigationDispatcher.GetTopView<IActivityView>(null, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault())!, null!);
             }
 

@@ -27,8 +27,6 @@ namespace MugenMvvm.Presentation
             _navigationDispatcher = navigationDispatcher;
         }
 
-        public bool UseParentViewModelAsOwner { get; set; } = true;
-
         public override NavigationType NavigationType => NavigationType.Window;
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
@@ -37,7 +35,7 @@ namespace MugenMvvm.Presentation
 
         protected abstract void Activate(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext);
 
-        protected abstract void Show(IViewModelPresenterMediator mediator, T view, bool nonModal, INavigationContext navigationContext);
+        protected abstract void Show(IViewModelPresenterMediator mediator, T view, bool modal, INavigationContext navigationContext);
 
         protected abstract void Close(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext);
 
@@ -76,7 +74,7 @@ namespace MugenMvvm.Presentation
         {
             using var ctx = AddContext(view, navigationContext);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing, null, navigationContext.GetMetadataOrDefault());
-            Show(mediator, view, navigationContext.GetOrDefault(NavigationMetadata.NonModal), navigationContext);
+            Show(mediator, view, navigationContext.GetOrDefault(NavigationMetadata.Modal), navigationContext);
             return Task.CompletedTask;
         }
 
@@ -101,12 +99,13 @@ namespace MugenMvvm.Presentation
             return v;
         }
 
-        protected TOwner? TryGetOwner<TOwner>(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext, bool includeDefault) where TOwner : class
+        protected TOwner? TryGetOwner<TOwner>(IViewModelPresenterMediator mediator, INavigationContext navigationContext, bool useParentViewModelAsOwner, bool includeDefault)
+            where TOwner : class
         {
             var owner = TryGetView<TOwner>(navigationContext.GetOrDefault(NavigationMetadata.Owner), navigationContext);
             if (owner == null)
             {
-                if (UseParentViewModelAsOwner)
+                if (useParentViewModelAsOwner)
                     owner = TryGetViewFromParent<TOwner>(mediator.ViewModel, navigationContext);
                 if (owner == null && includeDefault)
                     owner = NavigationDispatcher.GetTopView<TOwner>(NavigationType, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault());

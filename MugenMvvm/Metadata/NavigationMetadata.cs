@@ -46,9 +46,9 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool> NonModal
+        public static IMetadataContextKey<bool> Modal
         {
-            get => _nonModal ??= GetBuilder(_nonModal, nameof(NonModal)).Serializable().Build();
+            get => _nonModal ??= GetBuilder(_nonModal, nameof(Modal)).DefaultValue(true).Serializable().Build();
             set => _nonModal = value;
         }
 

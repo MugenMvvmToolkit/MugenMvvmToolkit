@@ -45,11 +45,11 @@ namespace MugenMvvm.Extensions
         public static void Start(this IMugenApplication? _, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
         {
             if (metadata.IsNullOrEmpty())
-                metadata = NavigationMetadata.NonModal.ToContext(true);
+                metadata = NavigationMetadata.Modal.ToContext(false);
             else
             {
                 var context = metadata.ToNonReadonly();
-                context.Set(NavigationMetadata.NonModal, true);
+                context.Set(NavigationMetadata.Modal, false);
                 metadata = context;
             }
 
