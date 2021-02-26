@@ -167,7 +167,7 @@ namespace MugenMvvm.Extensions
         {
             if (owner.HasMetadata && owner.Metadata.TryGet(key, out var v, defaultValue))
                 return v;
-            return default;
+            return key.GetDefaultValue(EmptyMetadataContext.Instance, defaultValue);
         }
     }
 }

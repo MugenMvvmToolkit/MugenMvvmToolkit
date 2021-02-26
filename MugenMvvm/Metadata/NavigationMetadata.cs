@@ -55,7 +55,7 @@ namespace MugenMvvm.Metadata
         [AllowNull]
         public static IMetadataContextKey<bool> Animated
         {
-            get => _animated ??= GetBuilder(_animated, nameof(Animated)).Serializable().Build();
+            get => _animated ??= GetBuilder(_animated, nameof(Animated)).DefaultValue(true).Serializable().Build();
             set => _animated = value;
         }
 

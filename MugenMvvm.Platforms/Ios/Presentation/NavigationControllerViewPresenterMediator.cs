@@ -33,8 +33,6 @@ namespace MugenMvvm.Ios.Presentation
 
         public override NavigationType NavigationType => NavigationType.Page;
 
-        public bool Animated { get; set; } = true;
-
         public UINavigationController NavigationController { get; }
 
         public Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, bool>? CanPresentHandler { get; set; }
@@ -60,7 +58,7 @@ namespace MugenMvvm.Ios.Presentation
             if (controllers == null)
                 return Task.CompletedTask;
 
-            var animated = navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated);
+            var animated = navigationContext.GetOrDefault(NavigationMetadata.Animated);
             if (controllers.Length != 1 && Equals(NavigationController.TopViewController, view))
             {
                 NavigationController.PopViewController(animated);
@@ -88,7 +86,7 @@ namespace MugenMvvm.Ios.Presentation
             if (metadata.Get(NavigationMetadata.ClearBackStack))
                 await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
 
-            var animated = metadata.Get(NavigationMetadata.Animated, Animated);
+            var animated = metadata.Get(NavigationMetadata.Animated);
             if (!bringToFront)
             {
                 NavigationController.PushViewController(view, animated);

@@ -29,8 +29,6 @@ namespace MugenMvvm.Ios.Presentation
 
         public override NavigationType NavigationType => NavigationType.Popup;
 
-        public bool Animated { get; set; } = true;
-
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
         protected IViewManager ViewManager => _viewManager.DefaultIfNull();
@@ -54,7 +52,7 @@ namespace MugenMvvm.Ios.Presentation
             var topView = NavigationDispatcher.GetTopView<UIViewController>(null, false, mediator.ViewModel, navigationContext.GetMetadataOrDefault());
             if (topView == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(UIViewController), nameof(topView));
-            topView.PresentViewController(view, navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated), null);
+            topView.PresentViewController(view, navigationContext.GetOrDefault(NavigationMetadata.Animated), null);
             return Task.CompletedTask;
         }
 
@@ -64,7 +62,7 @@ namespace MugenMvvm.Ios.Presentation
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, request, navigationContext.GetMetadataOrDefault());
             if (!request.Cancel.GetValueOrDefault())
             {
-                var animated = navigationContext.GetOrDefault(NavigationMetadata.Animated, Animated);
+                var animated = navigationContext.GetOrDefault(NavigationMetadata.Animated);
                 var childViewController = view.PresentedViewController;
                 view.DismissViewController(animated, () =>
                 {
