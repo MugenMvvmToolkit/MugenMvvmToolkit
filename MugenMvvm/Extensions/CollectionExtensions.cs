@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
@@ -21,6 +22,19 @@ namespace MugenMvvm.Extensions
             if (component == null)
                 return collection as IEnumerable<object?> ?? collection.Cast<object?>();
             return component.DecorateItems((ICollection) collection);
+        }
+
+        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> value)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            if (value.List == null)
+            {
+                collection.Clear();
+                if (value.HasItem)
+                    collection.Add(value.Item!);
+            }
+            else
+                collection.AddRange(value.List);
         }
 
         public static MonitorLocker TryLock(this ICollection? collection)

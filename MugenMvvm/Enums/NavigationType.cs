@@ -13,9 +13,9 @@ namespace MugenMvvm.Enums
         public static readonly NavigationType Undefined = new(nameof(Undefined));
 
         public static readonly NavigationType Tab = new(nameof(Tab)) {IsNestedNavigation = true};
-        public static readonly NavigationType Window = new(nameof(Window)) {IsRootNavigation = true};
-        public static readonly NavigationType Popup = new(nameof(Popup)) {IsRootNavigation = true};
         public static readonly NavigationType Page = new(nameof(Page)) {IsRootNavigation = true};
+        public static readonly NavigationType Popup = new(nameof(Popup));
+        public static readonly NavigationType Window = new(nameof(Window)) {IsRootNavigation = true};
 
         public static readonly NavigationType Background = new(nameof(Background));
         public static readonly NavigationType Alert = new(nameof(Alert));

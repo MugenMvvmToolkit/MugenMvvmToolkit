@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         {
             _presenter = new Presenter(ComponentCollectionManager);
             _navigationDispatcher = new NavigationDispatcher(ComponentCollectionManager);
-            _entryManager = new NavigationEntryManager(_navigationDispatcher);
+            _entryManager = new NavigationEntryManager();
             _navigationDispatcher.AddComponent(_entryManager);
             _presenter.AddComponent(_entryManager);
         }
@@ -56,56 +56,74 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeFalse();
         }
 
-        [Fact]
-        public void OnNavigationCanceledShouldRemoveOnlyPendingEntries()
+        [Theory]
+        [InlineData(nameof(NavigationMode.New), true)]
+        [InlineData(nameof(NavigationMode.Close), false)]
+        public void OnNavigationCanceledShouldRemoveOnlyPendingEntries(string modeName, bool shouldRemove)
         {
+            var id1 = "id1";
+            var id2 = "id2";
+            var mode = NavigationMode.Get(modeName);
             var provider = new TestNavigationProvider {Id = "t"};
             _presenter.AddComponent(new TestPresenterComponent
             {
                 TryShow = (o, context, arg3) => ItemOrIReadOnlyList.FromItem((IPresenterResult) o)
             });
 
-            var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
-            var presenterResult = new PresenterResult(this, "id2", provider, NavigationType.Background);
+            var navigationContext = new NavigationContext(this, provider, id1, NavigationType.Background, NavigationMode.New);
+            var presenterResult = new PresenterResult(this, id2, provider, NavigationType.Background);
             _navigationDispatcher.OnNavigated(navigationContext);
             _presenter.TryShow(presenterResult);
 
             var entries = _navigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
-            entries.AsList().Single(entry => entry.NavigationId == presenterResult.NavigationId).ShouldNotBeNull();
+            entries.AsList().Single(entry => entry.NavigationId == id1).ShouldNotBeNull();
+            entries.AsList().Single(entry => entry.NavigationId == id2).ShouldNotBeNull();
 
-            _navigationDispatcher.OnNavigationCanceled(navigationContext);
-            _navigationDispatcher.OnNavigationCanceled(new NavigationContext(this, provider, "id2", NavigationType.Background, NavigationMode.New));
+            _navigationDispatcher.OnNavigationCanceled(new NavigationContext(this, provider, id1, NavigationType.Background, mode));
+            _navigationDispatcher.OnNavigationCanceled(new NavigationContext(this, provider, id2, NavigationType.Background, mode));
 
             entries = _navigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
-            entries.AsList().SingleOrDefault(entry => entry.NavigationId == presenterResult.NavigationId).ShouldBeNull();
+            var navigationEntry = entries.AsList().SingleOrDefault(entry => entry.NavigationId == id1);
+            if (shouldRemove)
+                navigationEntry.ShouldBeNull();
+            else
+                navigationEntry.ShouldNotBeNull();
+            entries.AsList().SingleOrDefault(entry => entry.NavigationId == id2).ShouldBeNull();
         }
 
-        [Fact]
-        public void OnNavigationFailedShouldRemoveOnlyPendingEntries()
+        [Theory]
+        [InlineData(nameof(NavigationMode.New), true)]
+        [InlineData(nameof(NavigationMode.Close), false)]
+        public void OnNavigationFailedShouldRemoveOnlyPendingEntries(string modeName, bool shouldRemove)
         {
+            var id1 = "id1";
+            var id2 = "id2";
+            var mode = NavigationMode.Get(modeName);
             var provider = new TestNavigationProvider {Id = "t"};
             _presenter.AddComponent(new TestPresenterComponent
             {
                 TryShow = (o, context, arg3) => ItemOrIReadOnlyList.FromItem((IPresenterResult) o)
             });
 
-            var navigationContext = new NavigationContext(this, provider, "id1", NavigationType.Background, NavigationMode.New);
-            var presenterResult = new PresenterResult(this, "id2", provider, NavigationType.Background);
+            var navigationContext = new NavigationContext(this, provider, id1, NavigationType.Background, NavigationMode.New);
+            var presenterResult = new PresenterResult(this, id2, provider, NavigationType.Background);
             _navigationDispatcher.OnNavigated(navigationContext);
             _presenter.TryShow(presenterResult);
 
             var entries = _navigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
-            entries.AsList().Single(entry => entry.NavigationId == presenterResult.NavigationId).ShouldNotBeNull();
+            entries.AsList().Single(entry => entry.NavigationId == id1).ShouldNotBeNull();
+            entries.AsList().Single(entry => entry.NavigationId == id2).ShouldNotBeNull();
 
-            _navigationDispatcher.OnNavigationFailed(navigationContext, new Exception());
-            _navigationDispatcher.OnNavigationFailed(new NavigationContext(this, provider, "id2", NavigationType.Background, NavigationMode.New), new Exception());
+            _navigationDispatcher.OnNavigationFailed(new NavigationContext(this, provider, id1, NavigationType.Background, mode), new Exception());
+            _navigationDispatcher.OnNavigationFailed(new NavigationContext(this, provider, id2, NavigationType.Background, mode), new Exception());
 
             entries = _navigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).ShouldNotBeNull();
-            entries.AsList().SingleOrDefault(entry => entry.NavigationId == presenterResult.NavigationId).ShouldBeNull();
+            var navigationEntry = entries.AsList().SingleOrDefault(entry => entry.NavigationId == id1);
+            if (shouldRemove)
+                navigationEntry.ShouldBeNull();
+            else
+                navigationEntry.ShouldNotBeNull();
+            entries.AsList().SingleOrDefault(entry => entry.NavigationId == id2).ShouldBeNull();
         }
 
         [Theory]

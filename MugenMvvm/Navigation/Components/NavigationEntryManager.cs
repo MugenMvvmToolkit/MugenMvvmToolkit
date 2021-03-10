@@ -16,18 +16,18 @@ using MugenMvvm.Interfaces.Presentation.Components;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationEntryManager : ComponentDecoratorBase<IPresenter, IPresenterComponent>, INavigationEntryProviderComponent,
-        INavigationListener, INavigationErrorListener, IPresenterComponent
+    public sealed class NavigationEntryManager : ComponentDecoratorBase<IPresenter, IPresenterComponent>, INavigationEntryProviderComponent, IPresenterComponent
     {
-        private readonly INavigationDispatcher? _navigationDispatcher;
+        private INavigationDispatcher? _navigationDispatcher;
         private readonly Dictionary<NavigationType, List<INavigationEntry>> _navigationEntries;
+        private readonly NavigationEntryListener _navigationListener;
 
         [Preserve(Conditional = true)]
-        public NavigationEntryManager(INavigationDispatcher? navigationDispatcher = null, int priority = ComponentPriority.Max)
+        public NavigationEntryManager(int priority = ComponentPriority.Max)
             : base(priority)
         {
-            _navigationDispatcher = navigationDispatcher;
             _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
+            _navigationListener = new NavigationEntryListener(this);
         }
 
         private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
@@ -53,34 +53,9 @@ namespace MugenMvvm.Navigation.Components
             return result.ToItemOrList();
         }
 
-        public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
-            => UpdateEntries(navigationDispatcher, true, navigationContext, false);
-
-        public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
-            => UpdateEntries(navigationDispatcher, true, navigationContext, false);
-
-        public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
-        {
-            if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
-            {
-                UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext,
-                    !navigationContext.NavigationMode.IsClose,
-                    navigationContext.GetMetadataOrDefault());
-            }
-        }
-
-        public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
-        {
-            if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsClose || navigationContext.NavigationMode.IsNew)
-            {
-                UpdateEntries(navigationDispatcher, false, navigationContext.Target, navigationContext.NavigationProvider, navigationContext,
-                    !navigationContext.NavigationMode.IsClose,
-                    navigationContext.GetMetadataOrDefault());
-            }
-        }
-
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
+            using var token = _navigationListener.Suspend(request, metadata);
             var result = Components.TryShow(presenter, request, cancellationToken, metadata);
             foreach (var r in result)
                 UpdateEntries(_navigationDispatcher.DefaultIfNull(), true, r.Target, r.NavigationProvider, r, true, r.GetMetadataOrDefault());
@@ -150,6 +125,71 @@ namespace MugenMvvm.Navigation.Components
                     .GetComponents<INavigationEntryListener>(metadata)
                     .OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationInfo);
             }
+        }
+
+        private sealed class NavigationEntryListener : SuspendableNavigationListenerBase, INavigationListener
+        {
+            private readonly NavigationEntryManager _entryManager;
+
+            public NavigationEntryListener(NavigationEntryManager entryManager)
+            {
+                _entryManager = entryManager;
+            }
+
+            protected override void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
+                => _entryManager.UpdateEntries(navigationDispatcher, !navigationContext.NavigationMode.IsNew, navigationContext, false);
+
+            protected override void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+                => _entryManager.UpdateEntries(navigationDispatcher, !navigationContext.NavigationMode.IsNew, navigationContext, false);
+
+            protected override void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+            }
+
+            protected override void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+            }
+
+            void INavigationListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
+                {
+                    _entryManager.UpdateEntries(navigationDispatcher, true, navigationContext.Target, navigationContext.NavigationProvider, navigationContext,
+                        !navigationContext.NavigationMode.IsClose, navigationContext.GetMetadataOrDefault());
+                }
+            }
+
+            void INavigationListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsClose || navigationContext.NavigationMode.IsNew)
+                {
+                    _entryManager.UpdateEntries(navigationDispatcher, false, navigationContext.Target, navigationContext.NavigationProvider, navigationContext,
+                        !navigationContext.NavigationMode.IsClose, navigationContext.GetMetadataOrDefault());
+                }
+            }
+        }
+
+        public override void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is INavigationDispatcher navigationDispatcher)
+            {
+                if (Interlocked.CompareExchange(ref _navigationDispatcher, navigationDispatcher, null) != null)
+                    ExceptionManager.ThrowObjectInitialized(this);
+                navigationDispatcher.AddComponent(_navigationListener);
+            }
+
+            base.OnAttached(owner, metadata);
+        }
+
+        public override void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is INavigationDispatcher navigationDispatcher)
+            {
+                if (Interlocked.CompareExchange(ref _navigationDispatcher, null, navigationDispatcher) == navigationDispatcher)
+                    navigationDispatcher.RemoveComponent(_navigationListener);
+            }
+
+            base.OnDetached(owner, metadata);
         }
     }
 }

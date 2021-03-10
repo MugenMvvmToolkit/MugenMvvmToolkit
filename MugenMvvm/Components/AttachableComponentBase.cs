@@ -28,6 +28,39 @@ namespace MugenMvvm.Components
 
         protected bool IsAttached => _owner != null;
 
+        public virtual bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is T o)
+                return OnAttaching(o, metadata);
+            return true;
+        }
+
+        public virtual void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is not T o)
+                return;
+
+            if (Interlocked.CompareExchange(ref _owner, o, null) != null)
+                ExceptionManager.ThrowObjectInitialized(this);
+            OnAttached(o, metadata);
+        }
+
+        public virtual bool OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is T o)
+                return OnDetaching(o, metadata);
+            return true;
+        }
+
+        public virtual void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is T o)
+            {
+                OnDetached(o, metadata);
+                Interlocked.CompareExchange(ref _owner, null, o);
+            }
+        }
+
         protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => OwnerOptional == null;
 
         protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
@@ -38,39 +71,6 @@ namespace MugenMvvm.Components
 
         protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
-        }
-
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (owner is T o)
-                return OnAttaching(o, metadata);
-            return true;
-        }
-
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (owner is not T o)
-                return;
-
-            if (Interlocked.CompareExchange(ref _owner, o, null) != null)
-                ExceptionManager.ThrowObjectInitialized(this);
-            OnAttached(o, metadata);
-        }
-
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (owner is T o)
-                return OnDetaching(o, metadata);
-            return true;
-        }
-
-        void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (owner is T o)
-            {
-                OnDetached(o, metadata);
-                Interlocked.CompareExchange(ref _owner, null, o);
-            }
         }
     }
 }
