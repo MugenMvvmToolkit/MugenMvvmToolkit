@@ -23,17 +23,9 @@ import java.util.ArrayList;
 
 public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
-    @NonNull
+    @Nullable
     @Override
-    public Object getView(@NonNull Object container, int resourceId, boolean trackLifecycle) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Context context;
-        if (container instanceof IActivityView)
-            context = (Context) ((IActivityView) container).getActivity();
-        else if (container instanceof View)
-            context = ((View) container).getContext();
-        else
-            context = (Context) container;
-
+    public Object getView(@Nullable Object container, int resourceId, boolean trackLifecycle) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class clazz = ViewMugenExtensions.tryGetClassByLayoutId(resourceId);
         if (clazz != null && IFragmentView.class.isAssignableFrom(clazz)) {
             IFragmentView fragmentView = (IFragmentView) clazz.getConstructor().newInstance();
@@ -41,6 +33,19 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
                 fragmentView.setViewResourceId(resourceId);
             return fragmentView;
         }
+
+        Context context;
+        if (container instanceof IActivityView)
+            context = (Context) ((IActivityView) container).getActivity();
+        else if (container instanceof View)
+            context = ((View) container).getContext();
+        else
+            context = (Context) container;
+        if (context == null)
+            context = ActivityMugenExtensions.getCurrentActivity();
+
+        if (context == null)
+            return null;
 
         View view = LayoutInflater.from(context).inflate(resourceId, null);
         if (trackLifecycle) {

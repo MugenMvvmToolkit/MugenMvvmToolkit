@@ -180,8 +180,8 @@ public final class ViewMugenExtensions {
         return value;
     }
 
-    @NonNull
-    public static Object getView(@NonNull Object container, int resourceId, boolean trackLifecycle) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    @Nullable
+    public static Object getView(@Nullable Object container, int resourceId, boolean trackLifecycle) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         return ViewMugenExtensions.tryWrap(MugenService.getViewFactory().getView(container, resourceId, trackLifecycle));
     }
 
@@ -252,7 +252,9 @@ public final class ViewMugenExtensions {
     }
 
     @NonNull
-    public static Object tryWrap(@NonNull Object target) {
+    public static Object tryWrap(@Nullable Object target) {
+        if (target == null)
+            return null;
         if (!MugenUtils.isNativeMode())
             return target;
 

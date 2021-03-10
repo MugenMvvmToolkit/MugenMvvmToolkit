@@ -11,6 +11,7 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Views
 {
@@ -49,6 +50,12 @@ namespace MugenMvvm.Android.Views
                     viewRequest.View = view;
                     mapping = viewMapping;
                 }
+            }
+            else if (mapping is IResourceViewMapping resourceViewMapping)
+            {
+                var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
+                view ??= ViewMugenExtensions.GetView(null!, resourceViewMapping.ResourceId, true);
+                request = ViewModelViewRequest.GetRequestOrRaw(request, viewModel, view);
             }
 
             return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
