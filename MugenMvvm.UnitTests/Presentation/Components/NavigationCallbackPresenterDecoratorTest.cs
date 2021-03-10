@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
         {
             var suspended = false;
             var addedCallbacks = new List<(IPresenterResult, NavigationCallbackType)>();
-            var presenterResult1 = new PresenterResult(this, "t1", NavigationProvider.System, NavigationType.Tab);
+            var presenterResult1 = new PresenterResult(this, "t1", NavigationProvider.System, NavigationType.Page);
             var presenterResult2 = new PresenterResult(this, "t2", NavigationProvider.System, NavigationType.Window);
             _presenter.AddComponent(new TestPresenterComponent
             {
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
         {
             var suspended = false;
             var addedCallbacks = new List<(IPresenterResult, NavigationCallbackType)>();
-            var presenterResult1 = new PresenterResult(this, "t1", NavigationProvider.System, NavigationType.Tab);
+            var presenterResult1 = new PresenterResult(this, "t1", NavigationProvider.System, NavigationType.Page);
             var presenterResult2 = new PresenterResult(this, "t2", NavigationProvider.System, NavigationType.Window);
             _presenter.AddComponent(new TestPresenterComponent
             {

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -16,6 +18,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Presentation;
@@ -24,7 +27,9 @@ namespace MugenMvvm.Avalonia.Extensions
 {
     public static class AvaloniaMugenExtensions
     {
-        public static MugenApplicationConfiguration AvaloniaConfiguration(this MugenApplicationConfiguration configuration)
+        private static int _activeWindows;
+
+        public static MugenApplicationConfiguration AvaloniaConfiguration(this MugenApplicationConfiguration configuration, bool listenAppLifecycle = true)
         {
             configuration.ServiceConfiguration<IPresenter>()
                          .WithComponent(new AvaloniaWindowPresenterMediator());
@@ -35,7 +40,31 @@ namespace MugenMvvm.Avalonia.Extensions
             configuration.ServiceConfiguration<IBindingManager>()
                          .WithComponent(new BindingExtensionExpressionParser());
 
+            if (listenAppLifecycle)
+                WindowBase.IsActiveProperty.Changed.AddClassHandler<WindowBase>(OnActiveChanged);
+
             return configuration;
+        }
+
+        private static void OnActiveChanged(WindowBase owner, AvaloniaPropertyChangedEventArgs args)
+        {
+            var newValue = (bool?) args.NewValue;
+            if (newValue.GetValueOrDefault())
+            {
+                if (Interlocked.Increment(ref _activeWindows) == 1)
+                {
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activating, args);
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, args);
+                }
+            }
+            else
+            {
+                if (Interlocked.Decrement(ref _activeWindows) == 0)
+                {
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivating, args);
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, args);
+                }
+            }
         }
 
         public static MugenApplicationConfiguration AvaloniaBindingConfiguration(this MugenApplicationConfiguration configuration)

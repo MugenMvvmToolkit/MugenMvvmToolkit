@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Navigation
         }
 
         [Theory]
-        [InlineData(1, "1", "Tab")]
+        [InlineData(1, "1", "Page")]
         [InlineData(2, "12", "Window")]
         public void ConstructorShouldInitializeCallback(int callbackType, string operationId, string navigationType)
         {

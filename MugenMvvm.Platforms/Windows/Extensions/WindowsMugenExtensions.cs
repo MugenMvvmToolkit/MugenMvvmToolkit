@@ -24,7 +24,7 @@ namespace MugenMvvm.Windows.Extensions
 {
     public static class WindowsMugenExtensions
     {
-        public static MugenApplicationConfiguration WpfConfiguration(this MugenApplicationConfiguration configuration)
+        public static MugenApplicationConfiguration WpfConfiguration(this MugenApplicationConfiguration configuration, bool listenAppLifecycle = true)
         {
             configuration.ServiceConfiguration<IPresenter>()
                          .WithComponent(new WpfWindowPresenterMediator());
@@ -35,7 +35,15 @@ namespace MugenMvvm.Windows.Extensions
             configuration.ServiceConfiguration<IBindingManager>()
                          .WithComponent(new BindingExtensionExpressionParser());
 
-            ConfigureWpfApp();
+            if (listenAppLifecycle)
+            {
+                var app = Application.Current;
+                if (app != null)
+                {
+                    app.Activated += WpfAppOnActivated;
+                    app.Deactivated += WpfAppOnDeactivated;
+                }
+            }
             return configuration;
         }
 
@@ -105,16 +113,6 @@ namespace MugenMvvm.Windows.Extensions
                                                                  })
                                                                  .Build());
             return configuration;
-        }
-
-        private static void ConfigureWpfApp()
-        {
-            var app = Application.Current;
-            if (app != null)
-            {
-                app.Activated += WpfAppOnActivated;
-                app.Deactivated += WpfAppOnDeactivated;
-            }
         }
 
         private static void WpfAppOnActivated(object? sender, EventArgs e)
