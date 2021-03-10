@@ -27,7 +27,7 @@ namespace MugenMvvm.Avalonia.Extensions
 {
     public static class AvaloniaMugenExtensions
     {
-        private static int _activeWindows;
+        private static int _activeWindowCount;
 
         public static MugenApplicationConfiguration AvaloniaConfiguration(this MugenApplicationConfiguration configuration, bool listenAppLifecycle = true)
         {
@@ -51,7 +51,7 @@ namespace MugenMvvm.Avalonia.Extensions
             var newValue = (bool?) args.NewValue;
             if (newValue.GetValueOrDefault())
             {
-                if (Interlocked.Increment(ref _activeWindows) == 1)
+                if (Interlocked.Increment(ref _activeWindowCount) == 1)
                 {
                     MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activating, args);
                     MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, args);
@@ -59,7 +59,7 @@ namespace MugenMvvm.Avalonia.Extensions
             }
             else
             {
-                if (Interlocked.Decrement(ref _activeWindows) == 0)
+                if (Interlocked.Decrement(ref _activeWindowCount) == 0)
                 {
                     MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivating, args);
                     MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, args);
