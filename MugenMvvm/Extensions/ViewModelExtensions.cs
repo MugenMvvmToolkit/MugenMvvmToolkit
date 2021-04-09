@@ -140,5 +140,16 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(token, nameof(token));
             viewModel.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable) o!).Dispose(), token));
         }
+
+        public static bool IsServiceOwner<T>(IViewModelBase viewModel, T service) where T : class
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(service, nameof(service));
+            var parentVm = viewModel.GetOrDefault(ViewModelMetadata.ParentViewModel);
+            if (parentVm == null || parentVm is not IHasService<T> hasService)
+                return true;
+
+            return !ReferenceEquals(hasService.GetService(true), service);
+        }
     }
 }

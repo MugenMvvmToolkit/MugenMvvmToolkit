@@ -41,15 +41,28 @@ namespace MugenMvvm.ViewModels.Components
             var busyManager = viewModel.TryGetService<IBusyManager>(true);
             if (busyManager != null)
             {
-                busyManager.ClearBusy();
-                busyManager.ClearComponents(metadata);
+                if (MugenExtensions.IsServiceOwner(viewModel, busyManager))
+                {
+                    busyManager.ClearBusy();
+                    busyManager.ClearComponents(metadata);
+                }
+                else
+                    busyManager.Components.Remove(viewModel, metadata);
             }
 
             var messenger = viewModel.TryGetService<IMessenger>(true);
             if (messenger != null)
             {
-                messenger.UnsubscribeAll(metadata);
-                messenger.ClearComponents(metadata);
+                if (MugenExtensions.IsServiceOwner(viewModel, messenger))
+                {
+                    messenger.UnsubscribeAll(metadata);
+                    messenger.ClearComponents(metadata);
+                }
+                else
+                {
+                    messenger.TryUnsubscribe(viewModel, metadata);
+                    messenger.Components.Remove(viewModel, metadata);
+                }
             }
 
             viewModel.ClearMetadata(true);
