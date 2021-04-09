@@ -19,6 +19,7 @@ namespace MugenMvvm.Presentation
         private readonly Dictionary<object, INavigationContext> _contextMap;
         private readonly IViewManager? _viewManager;
         private readonly INavigationDispatcher? _navigationDispatcher;
+        private bool _isShowing;
 
         protected DialogViewPresenterMediatorBase(IViewManager? viewManager, INavigationDispatcher? navigationDispatcher)
         {
@@ -59,7 +60,10 @@ namespace MugenMvvm.Presentation
         protected virtual void OnActivated(object? sender, EventArgs? e)
         {
             var metadata = GetNavigationContext(sender).GetMetadataOrDefault();
-            ViewManager.OnLifecycleChanged(sender!, ViewLifecycleState.Appearing, null, metadata);
+            if (_isShowing)
+                _isShowing = false;
+            else
+                ViewManager.OnLifecycleChanged(sender!, ViewLifecycleState.Appearing, null, metadata);
             ViewManager.OnLifecycleChanged(sender!, ViewLifecycleState.Appeared, null, metadata);
         }
 
@@ -74,6 +78,7 @@ namespace MugenMvvm.Presentation
         {
             using var ctx = AddContext(view, navigationContext);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing, null, navigationContext.GetMetadataOrDefault());
+            _isShowing = true;
             Show(mediator, view, navigationContext.GetOrDefault(NavigationMetadata.Modal), navigationContext);
             return Task.CompletedTask;
         }
