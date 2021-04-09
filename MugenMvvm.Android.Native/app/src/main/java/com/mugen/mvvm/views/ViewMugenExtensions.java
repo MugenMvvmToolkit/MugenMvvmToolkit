@@ -2,6 +2,7 @@ package com.mugen.mvvm.views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -181,43 +182,38 @@ public final class ViewMugenExtensions {
     }
 
     @Nullable
-    public static Object getView(@Nullable Object container, int resourceId, boolean trackLifecycle) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        return ViewMugenExtensions.tryWrap(MugenService.getViewFactory().getView(container, resourceId, trackLifecycle));
+    public static Object getView(@Nullable Object container, int resourceId, boolean trackLifecycle, @Nullable Bundle metadata) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        return ViewMugenExtensions.tryWrap(MugenService.getViewFactory().getView(container, resourceId, trackLifecycle, metadata));
     }
 
     public static void onParentChanged(@NonNull View view) {
         ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
-        for (int i = 0; i < viewDispatchers.size(); i++) {
+        for (int i = 0; i < viewDispatchers.size(); i++)
             viewDispatchers.get(i).onParentChanged(view);
-        }
     }
 
     public static void onInitializingView(@NonNull Object owner, @NonNull View view) {
         ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
-        for (int i = 0; i < viewDispatchers.size(); i++) {
+        for (int i = 0; i < viewDispatchers.size(); i++)
             viewDispatchers.get(i).onInitializing(owner, view);
-        }
     }
 
     public static void onInitializedView(@NonNull Object owner, @NonNull View view) {
         ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
-        for (int i = 0; i < viewDispatchers.size(); i++) {
+        for (int i = 0; i < viewDispatchers.size(); i++)
             viewDispatchers.get(i).onInitialized(owner, view);
-        }
     }
 
     public static void onInflatingView(int resourceId, @NonNull Context context) {
         ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
-        for (int i = 0; i < viewDispatchers.size(); i++) {
+        for (int i = 0; i < viewDispatchers.size(); i++)
             viewDispatchers.get(i).onInflating(resourceId, context);
-        }
     }
 
     public static void onInflatedView(@NonNull View view, int resourceId, @NonNull Context context) {
         ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
-        for (int i = 0; i < viewDispatchers.size(); i++) {
+        for (int i = 0; i < viewDispatchers.size(); i++)
             viewDispatchers.get(i).onInflated(view, resourceId, context);
-        }
     }
 
     @Nullable
@@ -225,9 +221,8 @@ public final class ViewMugenExtensions {
         if (view == null)
             return null;
         ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
-        for (int i = 0; i < viewDispatchers.size(); i++) {
+        for (int i = 0; i < viewDispatchers.size(); i++)
             view = viewDispatchers.get(i).onCreated(view, context, attrs);
-        }
         return view;
     }
 
@@ -235,9 +230,8 @@ public final class ViewMugenExtensions {
         if (view == null)
             return;
         ArrayList<IViewDispatcher> viewDispatchers = MugenService.getViewDispatchers();
-        for (int i = 0; i < viewDispatchers.size(); i++) {
+        for (int i = 0; i < viewDispatchers.size(); i++)
             viewDispatchers.get(i).onDestroy(view);
-        }
     }
 
     @Nullable

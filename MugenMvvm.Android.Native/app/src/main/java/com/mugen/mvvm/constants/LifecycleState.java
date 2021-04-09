@@ -21,6 +21,8 @@ public final class LifecycleState {
     public static final int DismissAllowingStateLoss = 18;
     public static final int Cancel = 19;
     public static final int AppBackground = 20;
+    public static final int Appear = 21;
+    public static final int Disappear = 22;
 
     private LifecycleState() {
     }

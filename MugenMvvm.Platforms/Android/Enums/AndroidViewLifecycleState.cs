@@ -91,6 +91,10 @@ namespace MugenMvvm.Android.Enums
                     return DismissingAllowingStateLoss;
                 case NativeLifecycleState.Cancel:
                     return Canceling;
+                case NativeLifecycleState.Appear:
+                    return Appearing;
+                case NativeLifecycleState.Disappear:
+                    return Disappearing;
             }
 
             return null;
@@ -138,6 +142,10 @@ namespace MugenMvvm.Android.Enums
                     return DismissedAllowingStateLoss;
                 case NativeLifecycleState.Cancel:
                     return Canceled;
+                case NativeLifecycleState.Appear:
+                    return Appeared;
+                case NativeLifecycleState.Disappear:
+                    return Disappeared;
             }
 
             return null;

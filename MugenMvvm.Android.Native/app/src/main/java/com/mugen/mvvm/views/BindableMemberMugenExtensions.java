@@ -191,7 +191,12 @@ public final class BindableMemberMugenExtensions {
     }
 
     public static void setText(@NonNull View view, @Nullable CharSequence text) {
-        ((TextView) view).setText(text);
+        TextView txtView = (TextView) view;
+        CharSequence txt = txtView.getText();
+        if (text != null && text.equals(txt) || (text instanceof String && ((String) text).contentEquals(txt)))
+            return;
+
+        txtView.setText(text);
         if (text != null && view instanceof EditText)
             ((EditText) view).setSelection(((EditText) view).length());
     }

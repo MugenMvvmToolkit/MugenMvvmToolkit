@@ -1,6 +1,7 @@
 package com.mugen.mvvm.internal;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -25,7 +26,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
     @Nullable
     @Override
-    public Object getView(@Nullable Object container, int resourceId, boolean trackLifecycle) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Object getView(@Nullable Object container, int resourceId, boolean trackLifecycle, @Nullable Bundle metadata) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class clazz = ViewMugenExtensions.tryGetClassByLayoutId(resourceId);
         if (clazz != null && IFragmentView.class.isAssignableFrom(clazz)) {
             IFragmentView fragmentView = (IFragmentView) clazz.getConstructor().newInstance();
@@ -34,19 +35,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
             return fragmentView;
         }
 
-        Context context;
-        if (container instanceof IActivityView)
-            context = (Context) ((IActivityView) container).getActivity();
-        else if (container instanceof View)
-            context = ((View) container).getContext();
-        else
-            context = (Context) container;
-        if (context == null)
-            context = ActivityMugenExtensions.getCurrentActivity();
-
-        if (context == null)
-            return null;
-
+        Context context = getContext(container);
         View view = LayoutInflater.from(context).inflate(resourceId, null);
         if (trackLifecycle) {
             Context activity = ActivityMugenExtensions.getActivity(context);
@@ -80,5 +69,19 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
     @Override
     public int getPriority() {
         return PriorityConstants.PreInitializer;
+    }
+
+    protected Context getContext(@Nullable Object container) {
+        Context context;
+        if (container instanceof IActivityView)
+            context = (Context) ((IActivityView) container).getActivity();
+        else if (container instanceof View)
+            context = ((View) container).getContext();
+        else
+            context = (Context) container;
+
+        if (context == null)
+            return ActivityMugenExtensions.getCurrentActivity();
+        return null;
     }
 }
