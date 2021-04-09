@@ -34,7 +34,7 @@ namespace MugenMvvm.Extensions
                     collection.Add(value.Item!);
             }
             else
-                collection.AddRange(value.List);
+                collection.Reset(value.List);
         }
 
         public static MonitorLocker TryLock(this ICollection? collection)

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using MugenMvvm.Collections;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 
@@ -85,7 +86,7 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
-        public static string Dump(this IReadOnlyMetadataContext? metadata, string nullResult = "null")
+        public static string Dump(this IReadOnlyMetadataContext? metadata, string nullResult = InternalConstant.Null)
         {
             if (metadata == null)
                 return nullResult;

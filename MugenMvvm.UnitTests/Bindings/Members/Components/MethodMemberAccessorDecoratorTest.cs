@@ -65,6 +65,44 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         }
 
         [Fact]
+        public void TryGetMembersShouldHandleCustomMethodCallNullParameters()
+        {
+            var accessor = new TestAccessorMemberInfo();
+            var method = new TestMethodMemberInfo
+            {
+                DeclaringType = typeof(object),
+                MemberFlags = MemberFlags.InstancePublic,
+                TryGetAccessor = (flags, objects, arg3) =>
+                {
+                    flags.ShouldEqual(default);
+                    objects!.Count.ShouldEqual(1);
+                    objects[0].ShouldBeNull();
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return accessor;
+                },
+                GetParameters = () => new[] {new TestParameterInfo {ParameterType = typeof(string)}}
+            };
+
+            _memberManager.AddComponent(new TestMemberProviderComponent
+            {
+                TryGetMembers = (type, s, t, arg3) =>
+                {
+                    if (t == MemberType.Method)
+                        return method;
+                    return default;
+                }
+            });
+            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNull)}(null)", DefaultMetadata)
+                          .IsEmpty
+                          .ShouldBeTrue();
+            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNull)}(null)", DefaultMetadata)
+                          .AsList()
+                          .OfType<TestAccessorMemberInfo>()
+                          .Single()
+                          .ShouldEqual(accessor);
+        }
+
+        [Fact]
         public void TryGetMembersShouldHandleCustomMethodCall()
         {
             const int index = 1;
@@ -268,6 +306,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             public Func<int>? GetValueRaw { get; set; }
 
+            public Func<string?, string?>? GetValueNullRaw { get; set; }
+
             public Func<int, int>? GetIndex { get; set; }
 
             public Func<string, string, object>? GetIndexOptional { get; set; }
@@ -277,6 +317,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             public Func<int, int[], object>? GetIndexParams { get; set; }
 
             public int GetValueNoParameters() => GetValueRaw!();
+
+            public string? GetValueNull(string? value) => GetValueNullRaw!(value);
 
             public int GetValue(int index) => GetIndex!(index);
 

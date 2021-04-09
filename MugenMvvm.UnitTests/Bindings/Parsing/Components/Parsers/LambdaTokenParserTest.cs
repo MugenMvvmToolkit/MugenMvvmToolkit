@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Constants;
 using Should;
 using Xunit;
 
@@ -11,7 +12,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotLambdaExpression()
         {
             Context.Parsers = new ConstantTokenParser();
-            Context.Initialize("null", DefaultMetadata);
+            Context.Initialize(InternalConstant.Null, DefaultMetadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 

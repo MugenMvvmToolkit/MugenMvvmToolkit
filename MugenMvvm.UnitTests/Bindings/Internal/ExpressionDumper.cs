@@ -5,6 +5,7 @@ using System.Text;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Constants;
 
 namespace MugenMvvm.UnitTests.Bindings.Internal
 {
@@ -13,7 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Internal
         public static string ToCode(this IExpressionNode? expression, bool valueToConstant)
         {
             if (expression == null)
-                return "null";
+                return InternalConstant.Null;
             switch (expression)
             {
                 case IBinaryExpressionNode ex:
@@ -47,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Internal
         private static string ToCodeValue(object? value)
         {
             if (value == null)
-                return "null";
+                return InternalConstant.Null;
             if (value is string)
                 return "\"" + value + "\"";
             if (value is Type type)

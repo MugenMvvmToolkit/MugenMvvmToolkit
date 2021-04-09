@@ -27,6 +27,7 @@ using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Collections;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -254,19 +255,19 @@ namespace MugenMvvm.Bindings.Extensions
             return args;
         }
 
-        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<string> args,
+        public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, ItemOrArray<string?> args,
             IReadOnlyMetadataContext? metadata,
             out EnumFlags<ArgumentFlags> flags) =>
             converter.TryGetInvokeArgs(parameters, parameters.Count, args, metadata, out flags);
 
         public static ItemOrArray<object?> TryGetInvokeArgs(this IGlobalValueConverter? converter, ItemOrIReadOnlyList<IParameterInfo> parameters, int parametersCount,
-            ItemOrArray<string> args,
+            ItemOrArray<string?> args,
             IReadOnlyMetadataContext? metadata, out EnumFlags<ArgumentFlags> flags)
         {
             try
             {
                 return converter.TryGetInvokeArgs(parameters, parametersCount, (args, converter.DefaultIfNull(), metadata), args.Count,
-                    ((ItemOrArray<string> args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
+                    ((ItemOrArray<string?> args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
                     {
                         var targetType = parameter.IsParamArray() && parameter.ParameterType.IsArray ? parameter.ParameterType.GetElementType()! : parameter.ParameterType;
                         return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
@@ -624,7 +625,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state) => new(listener, state);
 
-        public static ItemOrArray<string> GetIndexerArgsRaw(string path)
+        public static ItemOrArray<string?> GetIndexerArgsRaw(string path)
         {
             var start = 1;
             if (path.StartsWith("Item[", StringComparison.Ordinal))
@@ -645,7 +646,7 @@ namespace MugenMvvm.Bindings.Extensions
 #endif
         }
 
-        public static ItemOrArray<string> GetMethodArgsRaw(string path, out string? methodName)
+        public static ItemOrArray<string?> GetMethodArgsRaw(string path, out string? methodName)
         {
             var startIndex = path.IndexOf('(');
             if (startIndex < 0 || !path.EndsWith(")", StringComparison.Ordinal))
@@ -816,7 +817,7 @@ namespace MugenMvvm.Bindings.Extensions
 #if SPAN_API
         private static ReadOnlySpan<char> RemoveBounds(this ReadOnlySpan<char> st, int start = 1) => st.Slice(start, st.Length - start - 1);
 
-        private static ItemOrArray<string> UnescapeString(this ReadOnlySpan<char> source, char separator)
+        private static ItemOrArray<string?> UnescapeString(this ReadOnlySpan<char> source, char separator)
         {
             var length = 1;
             for (var i = 0; i < source.Length; i++)
@@ -825,10 +826,7 @@ namespace MugenMvvm.Bindings.Extensions
                     ++length;
             }
 
-            if (length == 0)
-                return default;
-
-            var args = ItemOrArray.Get<string>(length);
+            var args = ItemOrArray.Get<string?>(length);
             var index = 0;
             foreach (var arg in source.Split(separator))
             {
@@ -836,6 +834,12 @@ namespace MugenMvvm.Bindings.Extensions
                 if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal)
                     || value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
                     value = value.RemoveBounds();
+                else if (value.SequenceEqual(InternalConstant.Null))
+                {
+                    args.SetAt(index++, null);
+                    continue;
+                }
+
                 args.SetAt(index++, value.ToString());
             }
 
@@ -844,7 +848,7 @@ namespace MugenMvvm.Bindings.Extensions
 #else
         private static string RemoveBounds(this string st, int start = 1) => st.Substring(start, st.Length - start - 1);
 
-        private static string[] UnescapeString(this string[] args)
+        private static string?[] UnescapeString(this string[] args)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -852,7 +856,9 @@ namespace MugenMvvm.Bindings.Extensions
                 if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal)
                     || value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
                     value = value.RemoveBounds();
-                args[i] = value;
+                else if (value == InternalConstant.Null)
+                    value = null;
+                args[i] = value!;
             }
 
             return args;
@@ -866,7 +872,7 @@ namespace MugenMvvm.Bindings.Extensions
 
             if (value == null)
             {
-                builder.Insert(0, "null");
+                builder.Insert(0, InternalConstant.Null);
                 return;
             }
 

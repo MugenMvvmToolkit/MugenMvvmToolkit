@@ -156,8 +156,8 @@ namespace MugenMvvm.Internal
         private static string GetTarget(object? source)
         {
             if (source is IMemberPathObserver pathObserver)
-                return $"{pathObserver.Target ?? "null"}, path={pathObserver.Path.Path}";
-            return source?.ToString() ?? "null";
+                return $"{pathObserver.Target ?? InternalConstant.Null}, path={pathObserver.Path.Path}";
+            return source?.ToString() ?? InternalConstant.Null;
         }
 
         private static object? GetPrevNavigationTarget(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
@@ -243,9 +243,9 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Logger.Trace()?.Log($"{ApplicationTag}before ({lifecycleState}) state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ApplicationTag}before ({lifecycleState}) state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(application, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ApplicationTag}after ({lifecycleState}) state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ApplicationTag}after ({lifecycleState}) state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
             }
 
             public void OnUnhandledException(IMugenApplication application, Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata) =>
@@ -368,9 +368,9 @@ namespace MugenMvvm.Internal
             public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
                 IReadOnlyMetadataContext? metadata)
             {
-                Logger.Trace()?.Log($"{ViewModelTag}before ({lifecycleState}) viewmodel={viewModel}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewModelTag}before ({lifecycleState}) viewmodel={viewModel}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ViewModelTag}after ({lifecycleState}) viewmodel={viewModel}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewModelTag}after ({lifecycleState}) viewmodel={viewModel}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
                 if (lifecycleState == ViewModelLifecycleState.Created)
                     ++_createdCount;
                 else if (lifecycleState == ViewModelLifecycleState.Disposed)
@@ -418,9 +418,9 @@ namespace MugenMvvm.Internal
 
             public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ViewTag}after ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? "null"}, metadata={metadata.Dump()}");
+                Logger.Trace()?.Log($"{ViewTag}after ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
             }
         }
     }

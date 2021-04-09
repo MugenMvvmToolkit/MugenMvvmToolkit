@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -68,7 +69,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         public override string ToString()
         {
             if (Value == null)
-                return "null";
+                return InternalConstant.Null;
             if (Value is bool)
                 return Value.ToString()!.ToLowerInvariant();
             if (Value is string v)

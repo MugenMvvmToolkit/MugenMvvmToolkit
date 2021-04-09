@@ -8,5 +8,8 @@
         public const string LifecycleListKey = "!ll!";
         public const string IndexerName = "Item[]";
         public const string CustomIndexerName = "ItemIndex";
+        public const string Null = "null";
+        public const string False = "false";
+        public const string True = "true";
     }
 }

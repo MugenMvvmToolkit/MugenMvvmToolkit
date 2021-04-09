@@ -94,7 +94,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
         protected MemberPathObserverRequest GetObserverRequest(string path, IReadOnlyMetadataContext? metadata) =>
             new(MugenService.ObservationManager.GetMemberPath(path, metadata), MemberFlags,
                 Flags.HasFlag(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlag(BindingMemberExpressionFlags.StablePath),
-                Flags.HasFlag(BindingMemberExpressionFlags.Observable), Flags.HasFlag(BindingMemberExpressionFlags.StablePath), this);
+                Flags.HasFlag(BindingMemberExpressionFlags.Observable), Flags.HasFlag(BindingMemberExpressionFlags.Optional), this);
 
         protected string MergePath(string value)
         {
