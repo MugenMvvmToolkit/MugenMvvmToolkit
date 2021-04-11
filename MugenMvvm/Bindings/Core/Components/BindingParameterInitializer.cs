@@ -58,7 +58,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
-            if (context.Components.ContainsKey(BindingParameterNameConstant.ParameterHandler) || context.Components.ContainsKey(BindingParameterNameConstant.EventHandler))
+            if (context.Components.ContainsKey(BindingParameterNameConstant.ParameterHandler))
                 return;
 
             _memberExpressionVisitor.Flags = BindingMemberExpressionFlags.Observable;
