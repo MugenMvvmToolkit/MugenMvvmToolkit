@@ -38,7 +38,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
         Context context = getContext(container);
         View view = LayoutInflater.from(context).inflate(resourceId, null);
         if (trackLifecycle) {
-            Context activity = ActivityMugenExtensions.getActivity(context);
+            Context activity = ActivityMugenExtensions.tryGetActivity(context);
             if (activity instanceof IHasStateView) {
                 ArrayList<Object> views = ((ActivityAttachedValues) ViewMugenExtensions.getNativeAttachedValues(activity, true)).getViews(true);
                 views.add(view);

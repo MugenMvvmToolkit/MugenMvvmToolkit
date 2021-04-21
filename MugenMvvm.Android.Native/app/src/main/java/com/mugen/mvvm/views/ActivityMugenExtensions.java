@@ -92,7 +92,7 @@ public final class ActivityMugenExtensions {
     }
 
     @Nullable
-    public static Context getActivity(@NonNull Context context) {
+    public static Context tryGetActivity(@NonNull Context context) {
         while (true) {
             if (context instanceof Activity)
                 return context;

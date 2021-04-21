@@ -438,7 +438,7 @@ public final class BindableMemberMugenExtensions {
     @Nullable
     private static Object getParentRaw(@NonNull View view) {
         if (view.getId() == android.R.id.content)
-            return ViewMugenExtensions.tryWrap(ActivityMugenExtensions.getActivity(view.getContext()));
+            return ViewMugenExtensions.tryWrap(ActivityMugenExtensions.tryGetActivity(view.getContext()));
 
         ViewAttachedValues attachedValues = ViewMugenExtensions.getNativeAttachedValues(view, false);
         Object parent = attachedValues == null ? null : attachedValues.getParent();

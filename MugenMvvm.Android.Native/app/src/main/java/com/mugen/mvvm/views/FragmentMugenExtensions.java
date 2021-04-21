@@ -56,7 +56,7 @@ public final class FragmentMugenExtensions {
         }
 
         //noinspection ConstantConditions
-        return ActivityMugenExtensions.getActivity(container.getContext());
+        return ActivityMugenExtensions.tryGetActivity(container.getContext());
     }
 
     public static Object getFragmentManager(@NonNull Object owner) {

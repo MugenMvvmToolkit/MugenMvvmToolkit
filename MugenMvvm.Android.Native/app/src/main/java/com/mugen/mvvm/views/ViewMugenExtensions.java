@@ -96,7 +96,7 @@ public final class ViewMugenExtensions {
         }
 
         if (ActionBarMugenExtensions.isSupported(target)) {
-            ActivityAttachedValues attachedValues = (ActivityAttachedValues) getNativeAttachedValues(ActivityMugenExtensions.getActivity(ActionBarMugenExtensions.getThemedContext(target)), true);
+            ActivityAttachedValues attachedValues = (ActivityAttachedValues) getNativeAttachedValues(ActivityMugenExtensions.tryGetActivity(ActionBarMugenExtensions.getThemedContext(target)), true);
             AttachedValues result = attachedValues.getActionBarAttachedValues();
             if (result != null || !required)
                 return result;

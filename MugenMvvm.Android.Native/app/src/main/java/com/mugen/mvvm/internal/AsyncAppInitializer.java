@@ -144,7 +144,7 @@ public class AsyncAppInitializer implements IAsyncAppInitializer, ILifecycleDisp
         if (view instanceof IActivityView)
             return ((IActivityView) view).isFinishing();
         if (view instanceof View) {
-            Activity activity = (Activity) ActivityMugenExtensions.getActivity(((View) view).getContext());
+            Activity activity = (Activity) ActivityMugenExtensions.tryGetActivity(((View) view).getContext());
             if (activity == null)
                 return false;
             return activity.isFinishing();
