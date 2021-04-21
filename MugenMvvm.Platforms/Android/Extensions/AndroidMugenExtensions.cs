@@ -301,7 +301,7 @@ namespace MugenMvvm.Android.Extensions
                                                            .CustomGetter((member, target, metadata) =>
                                                            {
                                                                if (ActionBarMugenExtensions.IsSupported(target))
-                                                                   return ActivityMugenExtensions.GetActivity(ActionBarMugenExtensions.GetThemedContext(target));
+                                                                   return ActivityMugenExtensions.TryGetActivity(ActionBarMugenExtensions.GetThemedContext(target));
                                                                return null;
                                                            })
                                                            .Build());
