@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.ViewModels;
@@ -30,6 +31,13 @@ namespace MugenMvvm.UnitTests.Internal
         }
 
         [Fact]
+        public void ShouldCreateClassWithMetadata()
+        {
+            var manager = (TestClassMetadata) _serviceProvider.GetService(typeof(TestClassMetadata), DefaultMetadata)!;
+            manager.Metadata.ShouldEqual(DefaultMetadata);
+        }
+
+        [Fact]
         public void ShouldIgnoreNonEmptyConstructor() => _serviceProvider.GetService(typeof(string)).ShouldBeNull();
 
         [Fact]
@@ -38,12 +46,13 @@ namespace MugenMvvm.UnitTests.Internal
             _serviceProvider.Factories[typeof(MugenServiceProviderTest)] = this;
             _serviceProvider.GetService(typeof(MugenServiceProviderTest)).ShouldEqual(this);
 
-            _serviceProvider.Factories[typeof(MugenServiceProviderTest)] = new Func<Type, object>((t) =>
+            _serviceProvider.Factories[typeof(MugenServiceProviderTest)] = new Func<Type, IReadOnlyMetadataContext?, object>((t, m) =>
             {
                 t.ShouldEqual(typeof(MugenServiceProviderTest));
+                m.ShouldEqual(DefaultMetadata);
                 return this;
             });
-            _serviceProvider.GetService(typeof(MugenServiceProviderTest)).ShouldEqual(this);
+            _serviceProvider.GetService(typeof(MugenServiceProviderTest), DefaultMetadata).ShouldEqual(this);
         }
 
         public sealed class TestClassNoParameters
@@ -57,6 +66,16 @@ namespace MugenMvvm.UnitTests.Internal
             public TestClassViewModelManager(IViewModelManager? viewModelManager = null)
             {
                 ViewModelManager = viewModelManager;
+            }
+        }
+
+        public sealed class TestClassMetadata
+        {
+            public readonly IReadOnlyMetadataContext? Metadata;
+
+            public TestClassMetadata(IReadOnlyMetadataContext? metadata = null)
+            {
+                Metadata = metadata;
             }
         }
     }

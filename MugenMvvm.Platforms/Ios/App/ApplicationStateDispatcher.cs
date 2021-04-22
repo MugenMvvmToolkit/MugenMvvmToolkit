@@ -84,7 +84,7 @@ namespace MugenMvvm.Ios.App
                 }
                 else if (viewType != null && request.RestorationIdentifier == IosInternalConstants.RootViewControllerId)
                 {
-                    var controller = (UIViewController?) _serviceProvider.DefaultIfNull().GetService(viewType);
+                    var controller = (UIViewController?) _serviceProvider.DefaultIfNull().GetService(viewType, metadata);
                     if (controller != null && !_presenter.DefaultIfNull().TryShow(controller, default, metadata).IsEmpty)
                     {
                         controller.RestorationIdentifier = IosInternalConstants.RootViewControllerId;

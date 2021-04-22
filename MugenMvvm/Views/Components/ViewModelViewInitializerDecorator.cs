@@ -46,6 +46,6 @@ namespace MugenMvvm.Views.Components
 
         private object ToViewModelViewRequest(IViewMapping mapping, object request, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata) =>
             ViewModelViewRequest.GetRequestOrRaw(request, viewModel ?? _viewModelManager.DefaultIfNull().TryGetViewModel(mapping.ViewModelType, metadata),
-                view ?? _serviceProvider.DefaultIfNull().GetService(mapping.ViewType));
+                view ?? _serviceProvider.DefaultIfNull().GetService(mapping.ViewType, metadata));
     }
 }

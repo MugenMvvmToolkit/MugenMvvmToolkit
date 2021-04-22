@@ -10,12 +10,12 @@ using MugenMvvm.Interfaces.ViewModels.Components;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class TypeViewModelProvider : IViewModelProviderComponent, IHasPriority
+    public sealed class ViewModelProvider : IViewModelProviderComponent, IHasPriority
     {
         private readonly IServiceProvider? _serviceProvider;
 
         [Preserve(Conditional = true)]
-        public TypeViewModelProvider(IServiceProvider? serviceProvider = null)
+        public ViewModelProvider(IServiceProvider? serviceProvider = null)
         {
             _serviceProvider = serviceProvider;
         }
@@ -27,7 +27,7 @@ namespace MugenMvvm.ViewModels.Components
             if (request is not Type type)
                 return null;
 
-            var viewModel = (IViewModelBase?) _serviceProvider.DefaultIfNull().GetService(type);
+            var viewModel = (IViewModelBase?) _serviceProvider.DefaultIfNull().GetService(type, metadata);
             if (viewModel != null && !viewModel.IsInState(ViewModelLifecycleState.Initialized, metadata, viewModelManager))
             {
                 viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initializing, request, metadata);

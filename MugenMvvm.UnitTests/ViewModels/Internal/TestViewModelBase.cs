@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Internal
 {
     public class TestViewModelBase : ViewModelBase, IHasService<IThreadDispatcher>
     {
-        public TestViewModelBase(IViewModelManager? viewModelManager = null) : base(viewModelManager)
+        public TestViewModelBase(IViewModelManager? viewModelManager = null, IReadOnlyMetadataContext? metadata = null) : base(viewModelManager, metadata)
         {
         }
 

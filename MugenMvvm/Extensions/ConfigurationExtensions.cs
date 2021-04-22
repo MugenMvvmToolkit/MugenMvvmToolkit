@@ -126,10 +126,11 @@ namespace MugenMvvm.Extensions
 
             configuration.WithAppService(MugenService.Optional<IViewModelManager>() ?? new ViewModelManager())
                          .WithComponent(new CacheViewModelProvider())
-                         .WithComponent(new TypeViewModelProvider())
+                         .WithComponent(new ViewModelProvider())
                          .WithComponent(new InheritParentViewModelServiceProvider())
                          .WithComponent(new ViewModelCleaner())
                          .WithComponent(new ViewModelLifecycleTracker())
+                         .WithComponent(new ViewModelMetadataInitializer())
                          .WithComponent(new ViewModelServiceProvider());
 
             configuration.WithAppService(MugenService.Optional<IViewManager>() ?? new ViewManager())

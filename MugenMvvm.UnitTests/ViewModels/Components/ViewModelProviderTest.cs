@@ -12,16 +12,16 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.ViewModels.Components
 {
-    public class TypeViewModelProviderTest : UnitTestBase
+    public class ViewModelProviderTest : UnitTestBase
     {
         private readonly ViewModelManager _viewModelManager;
         private readonly TestServiceProvider _serviceProvider;
 
-        public TypeViewModelProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public ViewModelProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _serviceProvider = new TestServiceProvider();
             _viewModelManager = new ViewModelManager(ComponentCollectionManager);
-            _viewModelManager.AddComponent(new TypeViewModelProvider(_serviceProvider));
+            _viewModelManager.AddComponent(new ViewModelProvider(_serviceProvider));
         }
 
         [Fact]

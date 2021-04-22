@@ -39,6 +39,14 @@ namespace MugenMvvm.Extensions
         public static T DefaultIfNull<T>(this T? component, object? source) where T : class, IComponentOwner =>
             component ?? (source as IHasService<T>)?.GetService(false) ?? (T?) (source as IServiceProvider)?.GetService(typeof(T)) ?? MugenService.Instance<T>();
 
+        public static object? GetService(this IServiceProvider serviceProvider, Type serviceType, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
+            if (serviceProvider is IMugenServiceProvider mugenServiceProvider)
+                return mugenServiceProvider.GetService(serviceType, metadata);
+            return serviceProvider.GetService(serviceType);
+        }
+
         public static void TryInvalidateCache(this IComponentOwner? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (owner == null)

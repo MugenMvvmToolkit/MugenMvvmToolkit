@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Views.Components
 
         private class ViewLifecycleAwareViewModel : TestViewModelBase, IViewLifecycleAwareViewModel
         {
-            public ViewLifecycleAwareViewModel(IViewModelManager? viewModelManager = null) : base(viewModelManager)
+            public ViewLifecycleAwareViewModel(IViewModelManager? viewModelManager = null, IReadOnlyMetadataContext? metadata = null) : base(viewModelManager, metadata)
             {
             }
 

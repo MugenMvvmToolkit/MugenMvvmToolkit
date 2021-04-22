@@ -2,12 +2,20 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class MugenServiceProvider : IServiceProvider
+    public sealed class MugenServiceProvider : IMugenServiceProvider
     {
+        private static readonly ParameterExpression[] Parameters =
+        {
+            MugenExtensions.GetParameterExpression<Type>(),
+            MugenExtensions.GetParameterExpression<IReadOnlyMetadataContext>()
+        };
+
         private readonly IViewModelManager? _viewModelManager;
         private ConstantExpression? _viewModelManagerConstant;
 
@@ -19,7 +27,7 @@ namespace MugenMvvm.Internal
 
         public Dictionary<Type, object?> Factories { get; }
 
-        public object? GetService(Type serviceType)
+        public object? GetService(Type serviceType, IReadOnlyMetadataContext? metadata)
         {
             object? value;
             lock (Factories)
@@ -31,12 +39,14 @@ namespace MugenMvvm.Internal
                 }
             }
 
-            if (value is Func<Type, object?> factory)
-                return factory.Invoke(serviceType);
+            if (value is Func<Type, IReadOnlyMetadataContext?, object?> factory)
+                return factory.Invoke(serviceType, metadata);
             return value;
         }
 
-        private Func<Type, object>? Generate(Type type)
+        public object? GetService(Type serviceType) => GetService(serviceType, null);
+
+        private Func<Type, IReadOnlyMetadataContext?, object>? Generate(Type type)
         {
             var constructors = type.GetConstructors();
             if (constructors.Length != 1)
@@ -58,6 +68,8 @@ namespace MugenMvvm.Internal
 
                     if (_viewModelManager != null && parameterInfo.ParameterType == typeof(IViewModelManager))
                         expressions[i] = _viewModelManagerConstant ??= Expression.Constant(_viewModelManager, parameterInfo.ParameterType);
+                    else if (parameterInfo.ParameterType == typeof(IReadOnlyMetadataContext))
+                        expressions[i] = Parameters[1];
                     else
                         expressions[i] = Expression.Constant(parameterInfo.DefaultValue, parameterInfo.ParameterType);
                 }
@@ -65,7 +77,7 @@ namespace MugenMvvm.Internal
                 expression = Expression.New(constructor, expressions);
             }
 
-            return Expression.Lambda<Func<Type, object>>(expression, MugenExtensions.GetParametersExpression<Type>()).CompileEx();
+            return Expression.Lambda<Func<Type, IReadOnlyMetadataContext?, object>>(expression, Parameters).CompileEx();
         }
     }
 }

@@ -24,10 +24,10 @@ namespace MugenMvvm.ViewModels
         private IMetadataContext? _metadata;
         private IMessenger? _messenger;
 
-        protected ViewModelBase(IViewModelManager? viewModelManager = null)
+        protected ViewModelBase(IViewModelManager? viewModelManager = null, IReadOnlyMetadataContext? metadata = null)
         {
             _viewModelManager = viewModelManager;
-            this.NotifyLifecycleChanged(ViewModelLifecycleState.Created, manager: _viewModelManager);
+            this.NotifyLifecycleChanged(ViewModelLifecycleState.Created, manager: _viewModelManager, metadata: metadata);
         }
 
         public bool IsBusy => BusyToken != null;
@@ -86,12 +86,8 @@ namespace MugenMvvm.ViewModels
                 token.Dispose();
         }
 
-        protected virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null)
-        {
-            var vm = ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
-            vm.Metadata.Set(ViewModelMetadata.ParentViewModel, this);
-            return vm;
-        }
+        protected virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null) =>
+            ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
 
         protected virtual void OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
