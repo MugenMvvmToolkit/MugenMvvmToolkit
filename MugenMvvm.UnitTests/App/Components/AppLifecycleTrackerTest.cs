@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.App.Components
 
         public AppLifecycleTrackerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _application = new MugenApplication(null, ComponentCollectionManager, false);
+            _application = new MugenApplication(null, ComponentCollectionManager);
             _navigationDispatcher = new NavigationDispatcher(ComponentCollectionManager);
             _messenger = new Messenger(ComponentCollectionManager);
             _application.AddComponent(new AppLifecycleTracker(_navigationDispatcher, _messenger, AttachedValueManager));

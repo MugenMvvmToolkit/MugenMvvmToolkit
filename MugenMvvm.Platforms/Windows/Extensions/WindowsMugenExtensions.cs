@@ -60,7 +60,7 @@ namespace MugenMvvm.Windows.Extensions
 
         public static MugenApplicationConfiguration WpfAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
-            var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service;
+            var memberManager = configuration.GetService<IMemberManager>();
             var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
 
             attachedMemberProvider.Register(new DependencyPropertyAccessorMemberInfo(FrameworkElement.DataContextProperty, nameof(BindableMembers.DataContext),

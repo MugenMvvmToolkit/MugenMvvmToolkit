@@ -63,11 +63,15 @@ namespace MugenMvvm.Extensions
             IServiceProvider? serviceProvider = null)
         {
             if (serviceProvider == null)
-                MugenService.Configuration.InitializeInstance(MugenService.Optional<IServiceProvider>() ?? new MugenServiceProvider());
+            {
+                if (!configuration.HasService<IServiceProvider>())
+                    configuration.InitializeService(new MugenServiceProvider());
+            }
             else
-                MugenService.Configuration.InitializeInstance(serviceProvider);
+                configuration.InitializeService(serviceProvider);
 
-            configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager());
+            if (!configuration.HasService<IComponentCollectionManager>())
+                configuration.WithAppService(new ComponentCollectionManager());
 
             configuration.Application.AddComponent(new AppLifecycleTracker());
 
@@ -159,17 +163,17 @@ namespace MugenMvvm.Extensions
             if (traceApp)
                 DebugTracer.TraceApp(configuration.Application);
             if (traceBinding)
-                DebugTracer.TraceBindings(configuration.ServiceConfiguration<IBindingManager>().Service);
+                DebugTracer.TraceBindings(configuration.GetService<IBindingManager>());
             if (traceMessenger)
-                DebugTracer.TraceMessenger(configuration.ServiceConfiguration<IMessenger>().Service);
+                DebugTracer.TraceMessenger(configuration.GetService<IMessenger>());
             if (traceNavigation)
-                DebugTracer.TraceNavigation(configuration.ServiceConfiguration<INavigationDispatcher>().Service);
+                DebugTracer.TraceNavigation(configuration.GetService<INavigationDispatcher>());
             if (tracePresenter)
-                DebugTracer.TracePresenter(configuration.ServiceConfiguration<IPresenter>().Service);
+                DebugTracer.TracePresenter(configuration.GetService<IPresenter>());
             if (traceViewModel)
-                DebugTracer.TraceViewModel(configuration.ServiceConfiguration<IViewModelManager>().Service);
+                DebugTracer.TraceViewModel(configuration.GetService<IViewModelManager>());
             if (traceView)
-                DebugTracer.TraceView(configuration.ServiceConfiguration<IViewManager>().Service);
+                DebugTracer.TraceView(configuration.GetService<IViewManager>());
             if (includeTraceLogger)
                 DebugTracer.AddTraceLogger(cfg.Service);
             return configuration;
@@ -177,11 +181,8 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service)
-            where TService : class
-        {
-            MugenService.Configuration.InitializeInstance((TService) service);
-            return configuration.ServiceConfiguration((TService) service);
-        }
+            where TService : class =>
+            configuration.InitializeService((TService) service);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component,

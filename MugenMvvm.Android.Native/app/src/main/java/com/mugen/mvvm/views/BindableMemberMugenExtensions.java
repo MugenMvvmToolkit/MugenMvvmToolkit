@@ -104,7 +104,7 @@ public final class BindableMemberMugenExtensions {
 
         ArrayList<IMemberListenerManager> memberListenerManagers = MugenService.getMemberListenerManagers();
         for (int i = 0; i < memberListenerManagers.size(); i++) {
-            IMemberListener memberListener = memberListenerManagers.get(i).tryGetListener(listeners, target, memberName);
+            IMemberListener memberListener = memberListenerManagers.get(i).tryGetListener(target, memberName, listeners);
             if (memberListener != null) {
                 if (listeners == null) {
                     if (attachedValues == null)

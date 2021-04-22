@@ -28,7 +28,6 @@ namespace MugenMvvm.UnitTests.App
             _application.HasMetadata.ShouldBeFalse();
             _application.Components.ShouldNotBeNull();
             _application.HasComponents.ShouldBeFalse();
-            MugenService.Application.ShouldEqual(_application);
             ShouldThrow<InvalidOperationException>(() =>
             {
                 var _ = _application.PlatformInfo;

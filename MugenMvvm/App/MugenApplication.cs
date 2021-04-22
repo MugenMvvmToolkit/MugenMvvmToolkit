@@ -16,12 +16,10 @@ namespace MugenMvvm.App
         private IComponentCollection? _components;
         private IPlatformInfo? _deviceInfo;
 
-        public MugenApplication(IReadOnlyMetadataContext? metadata = null, IComponentCollectionManager? componentCollectionManager = null, bool setInstance = true)
+        public MugenApplication(IReadOnlyMetadataContext? metadata = null, IComponentCollectionManager? componentCollectionManager = null)
         {
             _componentCollectionManager = componentCollectionManager;
             Metadata = metadata.ToNonReadonly();
-            if (setInstance)
-                MugenService.Configuration.InitializeInstance<IMugenApplication>(this);
         }
 
         public bool HasComponents => _components != null && _components.Count != 0;

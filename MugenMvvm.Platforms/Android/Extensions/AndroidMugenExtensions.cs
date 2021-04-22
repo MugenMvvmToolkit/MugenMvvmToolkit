@@ -95,8 +95,7 @@ namespace MugenMvvm.Android.Extensions
         public static MugenApplicationConfiguration AndroidBindingConfiguration(this MugenApplicationConfiguration configuration)
         {
             var digitTokenParser = configuration
-                                   .ServiceConfiguration<IExpressionParser>()
-                                   .Service
+                                   .GetService<IExpressionParser>()
                                    .GetOrAddComponent<DigitTokenParser>();
             var converter = new DigitTokenParser.ConvertDelegate(ConvertAndroidDigits);
             digitTokenParser.PostfixToConverter[AndroidInternalConstant.DpMetric] = converter;
@@ -106,7 +105,7 @@ namespace MugenMvvm.Android.Extensions
             digitTokenParser.PostfixToConverter[AndroidInternalConstant.PtMetric] = converter;
             digitTokenParser.PostfixToConverter[AndroidInternalConstant.SpMetric] = converter;
 
-            var macrosBindingInitializer = configuration.ServiceConfiguration<IBindingManager>().Service.GetMacrosPostInitializer();
+            var macrosBindingInitializer = configuration.GetService<IBindingManager>().GetMacrosPostInitializer();
             var resourceVisitor = new ResourceExpressionVisitor();
             macrosBindingInitializer.TargetVisitors.Add(resourceVisitor);
             macrosBindingInitializer.SourceVisitors.Add(resourceVisitor);
@@ -117,7 +116,7 @@ namespace MugenMvvm.Android.Extensions
 
         public static MugenApplicationConfiguration AndroidAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
-            var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service.GetAttachedMemberProvider();
+            var attachedMemberProvider = configuration.GetService<IMemberManager>().GetAttachedMemberProvider();
             //object
             attachedMemberProvider.Register(BindableMembers.For<Object>()
                                                            .CollectionViewManager()

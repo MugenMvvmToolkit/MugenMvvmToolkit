@@ -77,7 +77,7 @@ namespace MugenMvvm.Avalonia.Extensions
 
         public static MugenApplicationConfiguration AvaloniaAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
-            var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service;
+            var memberManager = configuration.GetService<IMemberManager>();
             var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
 
             attachedMemberProvider.Register(BindableMembers.For<StyledElement>()
