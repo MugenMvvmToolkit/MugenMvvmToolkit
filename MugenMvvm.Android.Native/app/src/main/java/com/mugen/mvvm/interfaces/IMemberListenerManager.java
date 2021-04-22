@@ -7,5 +7,5 @@ import java.util.HashMap;
 
 public interface IMemberListenerManager extends IHasPriority {
     @Nullable
-    IMemberListener tryGetListener(@Nullable HashMap<String, IMemberListener> listeners, @NonNull Object target, @NonNull String memberName);
+    IMemberListener tryGetListener(@NonNull Object target, @NonNull String memberName, @Nullable HashMap<String, IMemberListener> listeners);
 }

@@ -26,7 +26,7 @@ public class ViewMemberListenerManager implements IMemberListenerManager {
 
     @Nullable
     @Override
-    public IMemberListener tryGetListener(@Nullable HashMap<String, IMemberListener> listeners, @NonNull Object target, @NonNull String memberName) {
+    public IMemberListener tryGetListener(@NonNull Object target, @NonNull String memberName, @Nullable HashMap<String, IMemberListener> listeners) {
         if (target instanceof View) {
             View view = (View) target;
             if (BindableMemberMugenExtensions.ClickEventName.equals(memberName) || isTextViewMember(view, memberName)) {
