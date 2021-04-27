@@ -330,12 +330,12 @@ namespace MugenMvvm.Bindings.Extensions
 
         internal static HashSet<Type> SelfAndBaseTypes(Type type, bool addClasses = true, bool addInterfaces = true, HashSet<Type>? types = null)
         {
-            types ??= new HashSet<Type>();
+            types ??= new HashSet<Type>(InternalEqualityComparer.Type);
             types.Add(type);
             if (addClasses)
                 AddSelfAndBaseClasses(types, type);
             if (addInterfaces)
-                AddInterface(types, type, true);
+                AddInterfaces(types, type, true);
             return types;
         }
 
@@ -402,14 +402,14 @@ namespace MugenMvvm.Bindings.Extensions
             }
         }
 
-        private static void AddInterface(HashSet<Type> types, Type type, bool isFirstCall)
+        private static void AddInterfaces(HashSet<Type> types, Type type, bool isFirstCall)
         {
             if (!isFirstCall && type.IsInterface && types.Contains(type))
                 return;
+
             types.Add(type);
-            var interfaces = type.GetInterfaces();
-            for (var index = 0; index < interfaces.Length; index++)
-                AddInterface(types, interfaces[index], false);
+            foreach (var t in type.GetInterfaces())
+                AddInterfaces(types, t, false);
         }
     }
 }

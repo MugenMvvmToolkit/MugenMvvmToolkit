@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -24,12 +25,14 @@ namespace MugenMvvm.Views.Components
 
         public int Priority { get; set; } = ViewComponentPriority.MappingProvider;
 
-        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null, IReadOnlyMetadataContext? metadata = null)
+        public IViewMapping AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null,
+            IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModelType, typeof(IViewModelBase), nameof(viewModelType));
             Should.NotBeNull(viewType, nameof(viewType));
             var mapping = new ViewMapping(id ?? $"{viewModelType.Name}{viewType.Name}{name}", viewModelType, viewType, metadata);
             AddMapping(mapping, exactlyEqual, name);
+            return mapping;
         }
 
         public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null)
@@ -107,36 +110,25 @@ namespace MugenMvvm.Views.Components
                 Mapping = mapping;
             }
 
-            public bool IsValidViewType(Type viewType, object? target, IReadOnlyMetadataContext? metadata)
+            public bool IsValidViewType(Type viewType, object? target, IReadOnlyMetadataContext? metadata) => IsValidType(Mapping.ViewType, viewType, target, metadata);
+
+            public bool IsValidViewModelType(Type viewModelType, object? target, IReadOnlyMetadataContext? metadata) =>
+                IsValidType(Mapping.ViewModelType, viewModelType, target, metadata);
+
+            private bool IsValidType(Type mappingType, Type requestedType, object? target, IReadOnlyMetadataContext? metadata)
             {
                 if (_name != GetViewNameFromContext(target, metadata))
                     return false;
 
-                if (_exactlyEqual)
+                if (mappingType.IsGenericTypeDefinition)
                 {
-                    if (viewType == Mapping.ViewType)
+                    if (requestedType.IsGenericType && mappingType == requestedType.GetGenericTypeDefinition())
                         return true;
                 }
-                else if (Mapping.ViewType.IsAssignableFrom(viewType))
+                else if (mappingType == requestedType)
                     return true;
 
-                return false;
-            }
-
-            public bool IsValidViewModelType(Type viewModelType, object? target, IReadOnlyMetadataContext? metadata)
-            {
-                if (_name != GetViewNameFromContext(target, metadata))
-                    return false;
-
-                if (_exactlyEqual)
-                {
-                    if (viewModelType == Mapping.ViewModelType)
-                        return true;
-                }
-                else if (Mapping.ViewModelType.IsAssignableFrom(viewModelType))
-                    return true;
-
-                return false;
+                return !_exactlyEqual && mappingType.IsAssignableFromGeneric(requestedType);
             }
 
             private static string? GetViewNameFromContext(object? target, IReadOnlyMetadataContext? metadata) =>

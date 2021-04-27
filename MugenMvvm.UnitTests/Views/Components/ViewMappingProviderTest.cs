@@ -33,6 +33,50 @@ namespace MugenMvvm.UnitTests.Views.Components
             _component.TryGetMappings(null!, vm, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
+        [Fact]
+        public void ShouldSupportGenericViewModelMappings1()
+        {
+            var mapping = _component.AddMapping(typeof(GenericViewModelBase<>), typeof(BaseView), true);
+            var vm = new GenericViewModelBase<object>();
+            _component.TryGetMappings(null!, vm, null).Item.ShouldEqual(mapping);
+
+            vm = new GenericViewModel();
+            _component.TryGetMappings(null!, vm, null).IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldSupportGenericViewModelMappings2()
+        {
+            var mapping = _component.AddMapping(typeof(GenericViewModelBase<>), typeof(BaseView), false);
+            var vm = new GenericViewModelBase<object>();
+            _component.TryGetMappings(null!, vm, null).Item.ShouldEqual(mapping);
+
+            vm = new GenericViewModel();
+            _component.TryGetMappings(null!, vm, null).Item.ShouldEqual(mapping);
+        }
+
+        [Fact]
+        public void ShouldSupportGenericViewMappings1()
+        {
+            var mapping = _component.AddMapping(typeof(ViewModelImpl), typeof(GenericViewBase<>), true);
+            var vm = new GenericViewBase<object>();
+            _component.TryGetMappings(null!, vm, null).Item.ShouldEqual(mapping);
+
+            vm = new GenericView();
+            _component.TryGetMappings(null!, vm, null).IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldSupportGenericViewMappings2()
+        {
+            var mapping = _component.AddMapping(typeof(ViewModelImpl), typeof(GenericViewBase<>), false);
+            var vm = new GenericViewBase<object>();
+            _component.TryGetMappings(null!, vm, null).Item.ShouldEqual(mapping);
+
+            vm = new GenericView();
+            _component.TryGetMappings(null!, vm, null).Item.ShouldEqual(mapping);
+        }
+
         [Theory]
         [InlineData(null, false)]
         [InlineData("test", false)]
@@ -314,6 +358,22 @@ namespace MugenMvvm.UnitTests.Views.Components
         }
 
         public class ViewImpl : BaseView
+        {
+        }
+
+        public class GenericViewModelBase<T> : TestViewModel
+        {
+        }
+
+        public class GenericViewModel : GenericViewModelBase<object>
+        {
+        }
+
+        public class GenericViewBase<T>
+        {
+        }
+
+        public class GenericView : GenericViewBase<object>
         {
         }
     }
