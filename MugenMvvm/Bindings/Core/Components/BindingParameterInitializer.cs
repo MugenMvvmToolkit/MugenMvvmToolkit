@@ -65,14 +65,14 @@ namespace MugenMvvm.Bindings.Core.Components
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
             var metadata = context.GetMetadataOrDefault();
-            var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Converter,
-                metadata);
+            var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.Converter, false, metadata);
             var converterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
-                BindingParameterNameConstant.ConverterParameter, metadata);
-            var fallback = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Fallback,
-                metadata);
+                BindingParameterNameConstant.ConverterParameter, true, metadata);
+            var fallback = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.Fallback, false, metadata);
             var targetNullValue = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
-                BindingParameterNameConstant.TargetNullValue, metadata);
+                BindingParameterNameConstant.TargetNullValue, false, metadata);
             if (!converter.IsEmpty || !converterParameter.IsEmpty || !fallback.IsEmpty || !targetNullValue.IsEmpty)
             {
                 var state = (converter, converterParameter, fallback, targetNullValue);

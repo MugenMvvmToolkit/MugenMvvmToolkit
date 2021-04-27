@@ -122,7 +122,8 @@ namespace MugenMvvm.Bindings.Compiling
         public void ClearExpression(IExpressionNode expression)
         {
             Should.NotBeNull(expression, nameof(expression));
-            _expressions.Remove(expression);
+            if (expression is not IBindingMemberExpressionNode)
+                _expressions.Remove(expression);
         }
 
         public Expression? TryBuild(IExpressionNode expression) => ExpressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);

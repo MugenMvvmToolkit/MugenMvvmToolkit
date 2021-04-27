@@ -295,8 +295,8 @@ namespace MugenMvvm.Bindings.Extensions
         }
 
         public static BindingParameterExpression TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler,
-            BindingMemberExpressionVisitor memberExpressionVisitor,
-            BindingMemberExpressionCollectorVisitor memberExpressionCollectorVisitor, string parameterName, IReadOnlyMetadataContext? metadata)
+            BindingMemberExpressionVisitor memberExpressionVisitor, BindingMemberExpressionCollectorVisitor memberExpressionCollectorVisitor,
+            string parameterName, bool dynamicParameter, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(context, nameof(context));
             var expression = context.TryGetParameterValue<IExpressionNode>(parameterName);
@@ -312,7 +312,7 @@ namespace MugenMvvm.Bindings.Extensions
 
             var collect = memberExpressionCollectorVisitor.Collect(ref expression, metadata);
             var compiledExpression = compiler.DefaultIfNull().Compile(expression, metadata);
-            if (collect.IsEmpty)
+            if (!dynamicParameter && collect.IsEmpty)
                 return new BindingParameterExpression(compiledExpression.Invoke(default, metadata), null);
             return new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
         }

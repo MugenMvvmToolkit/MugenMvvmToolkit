@@ -105,8 +105,8 @@ namespace MugenMvvm.Bindings.Core.Components
             }
 
             _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.Observable;
-            var parameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.CommandParameter,
-                metadata);
+            var parameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.CommandParameter, true, metadata);
             var toggle = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.ToggleEnabled).GetValueOrDefault(ToggleEnabledState);
             context.Components[BindingParameterNameConstant.EventHandler] =
                 new DelegateBindingComponentProvider<(BindingParameterExpression, bool, bool)>(GetEventHandlerDelegate, (parameter, toggle, IsOneTime(context)));
