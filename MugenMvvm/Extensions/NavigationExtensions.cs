@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
@@ -16,6 +17,50 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        public static async ValueTask<TResult?> NavigateAsync<TState, TResult>(this INavigationDispatcher navigationDispatcher, object? target,
+            INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, TState state,
+            Func<TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<TResult>> handler, TResult? defaultResult = default,
+            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(handler, nameof(handler));
+            var context = navigationDispatcher.GetNavigationContext(target, navigationProvider, navigationId, navigationType, NavigationMode.New, metadata);
+            try
+            {
+                if (!await navigationDispatcher.OnNavigatingAsync(context, cancellationToken).ConfigureAwait(false))
+                    return defaultResult;
+
+                var task = handler(state, cancellationToken, metadata);
+                navigationDispatcher.OnNavigated(context);
+
+                var result = await task.ConfigureAwait(false);
+                context = navigationDispatcher.GetNavigationContext(target, navigationProvider, navigationId, navigationType, NavigationMode.Close, metadata);
+                navigationDispatcher.OnNavigated(context);
+                return result;
+            }
+            catch (Exception e)
+            {
+                navigationDispatcher.OnNavigationFailedOrCancelled(context, e);
+                return defaultResult;
+            }
+        }
+
+        public static bool OnNavigationFailedOrCancelled(this INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            Should.NotBeNull(exception, nameof(exception));
+            exception = exception.TryGetBaseException(out var canceledException);
+            if (canceledException == null)
+            {
+                navigationDispatcher.OnNavigationFailed(navigationContext, exception);
+                return true;
+            }
+
+            navigationDispatcher.OnNavigationCanceled(navigationContext, canceledException.CancellationToken);
+            return false;
+        }
+
         public static object? GetNextNavigationTarget(this INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
             navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
             {

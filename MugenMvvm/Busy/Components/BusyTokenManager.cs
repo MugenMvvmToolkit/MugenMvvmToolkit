@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
@@ -70,7 +69,7 @@ namespace MugenMvvm.Busy.Components
                 return busyToken;
             }
 
-            if (busyToken.Combine())
+            if (busyToken.SetSuspended(false) || !busyToken.IsCompleted)
             {
                 foreach (var owner in Owners)
                     owner.GetComponents<IBusyManagerListener>(metadata).OnBeginBusy(owner, busyToken, metadata);
@@ -88,28 +87,40 @@ namespace MugenMvvm.Busy.Components
         private sealed class BusyToken : IBusyToken, IBusyTokenCallback
         {
             public readonly BusyTokenManager Owner;
+            private readonly IBusyManager _owner;
             private object? _listeners;
             private BusyToken? _next;
             private BusyToken? _prev;
             private int _suspendCount;
-            private readonly IBusyManager _owner;
 
-            public BusyToken(BusyTokenManager owner, object? message, IBusyManager busyManager)
+            public BusyToken(BusyTokenManager owner, object? message, IBusyManager busyManager, IBusyToken? busyToken = null)
             {
                 Message = message;
                 Owner = owner;
                 _owner = busyManager;
+                ++_suspendCount;
+                IsSuspended = true;
+                lock (Locker)
+                {
+                    if (Owner._busyTail != null)
+                    {
+                        _prev = Owner._busyTail;
+                        Owner._busyTail._next = this;
+                    }
+
+                    Owner._busyTail = this;
+
+                    if (busyToken != null && busyToken.IsSuspended)
+                        ++_suspendCount;
+                }
+
+                busyToken?.RegisterCallback(this);
             }
 
             public BusyToken(BusyTokenManager owner, IBusyToken token, IBusyManager busyManager)
+                : this(owner, token.Message, busyManager, token)
             {
-                token.RegisterCallback(this);
-                Message = token.Message;
-                Owner = owner;
-                _owner = busyManager;
             }
-
-            IBusyManager IBusyToken.Owner => _owner;
 
             public bool IsCompleted => this == _listeners;
 
@@ -118,6 +129,8 @@ namespace MugenMvvm.Busy.Components
             public bool IsSuspended { get; private set; }
 
             private object Locker => Owner.Locker;
+
+            IBusyManager IBusyToken.Owner => _owner;
 
             public IBusyToken? TryGetToken<TState>(Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata)
             {
@@ -152,21 +165,20 @@ namespace MugenMvvm.Busy.Components
                 return tokens.ToItemOrList();
             }
 
-            public bool Combine()
+            public bool SetSuspended(bool suspended)
             {
-                if (IsCompleted)
-                    return false;
                 lock (Locker)
                 {
                     if (IsCompleted)
                         return false;
-                    if (Owner._busyTail != null)
-                    {
-                        _prev = Owner._busyTail;
-                        Owner._busyTail._next = this;
-                    }
 
-                    Owner._busyTail = this;
+                    var value = (suspended ? ++_suspendCount : --_suspendCount) != 0;
+                    if (IsSuspended == value)
+                        return false;
+
+                    IsSuspended = value;
+                    foreach (var t in GetListeners())
+                        t?.OnSuspendChanged(value);
                 }
 
                 Owner.OnBusyInfoChanged();
@@ -199,13 +211,7 @@ namespace MugenMvvm.Busy.Components
 
             public void OnCompleted(IBusyToken token) => Dispose();
 
-            public void OnSuspendChanged(bool suspended)
-            {
-                if (suspended)
-                    Suspend();
-                else
-                    OnEndSuspend();
-            }
+            public void OnSuspendChanged(bool suspended) => SetSuspended(suspended);
 
             public void Dispose()
             {
@@ -228,35 +234,10 @@ namespace MugenMvvm.Busy.Components
                 Owner.OnBusyInfoChanged();
             }
 
-            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+            public ActionToken Suspend(object? state, IReadOnlyMetadataContext? metadata)
             {
-                if (Interlocked.Increment(ref _suspendCount) == 1)
-                    SetSuspended(true);
-
-                return new ActionToken((t, _) => ((BusyToken) t!).OnEndSuspend(), this);
-            }
-
-            private void OnEndSuspend()
-            {
-                if (Interlocked.Decrement(ref _suspendCount) == 0)
-                    SetSuspended(false);
-            }
-
-            private void SetSuspended(bool suspended)
-            {
-                lock (Locker)
-                {
-                    if (IsCompleted)
-                        return;
-                    if (IsSuspended == suspended)
-                        return;
-
-                    IsSuspended = suspended;
-                    foreach (var t in GetListeners())
-                        t?.OnSuspendChanged(suspended);
-                }
-
-                Owner.OnBusyInfoChanged();
+                SetSuspended(true);
+                return new ActionToken((t, _) => ((BusyToken) t!).SetSuspended(false), this);
             }
 
             private void RemoveCallback(IBusyTokenCallback callback)
