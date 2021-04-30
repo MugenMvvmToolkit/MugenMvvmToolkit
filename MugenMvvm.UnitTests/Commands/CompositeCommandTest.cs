@@ -229,13 +229,16 @@ namespace MugenMvvm.UnitTests.Commands
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ExecuteShouldBeHandledByComponents(int componentCount)
+        public async Task ExecuteShouldBeHandledByComponents(int componentCount)
         {
+            int invokeCount = 0;
             var cts = new CancellationTokenSource().Token;
             var compositeCommand = GetComponentOwner(ComponentCollectionManager);
-            var tcs = new List<TaskCompletionSource<object>>();
+            var tcs = new TaskCompletionSource<bool>[componentCount];
             for (var i = 0; i < componentCount; i++)
             {
+                var tc = new TaskCompletionSource<bool>();
+                tcs[i] = tc;
                 var component = new TestCommandExecutorComponent(compositeCommand)
                 {
                     ExecuteAsync = (p, c, m) =>
@@ -243,16 +246,18 @@ namespace MugenMvvm.UnitTests.Commands
                         p.ShouldEqual(compositeCommand);
                         c.ShouldEqual(cts);
                         m.ShouldEqual(DefaultMetadata);
-                        var t = new TaskCompletionSource<object>();
-                        tcs.Add(t);
-                        return t.Task;
+                        ++invokeCount;
+                        return tc.Task.AsValueTask();
                     }
                 };
                 compositeCommand.AddComponent(component);
             }
 
-            compositeCommand.ExecuteAsync(compositeCommand, cts, DefaultMetadata);
-            tcs.Count.ShouldEqual(componentCount);
+            var task = compositeCommand.ExecuteAsync(compositeCommand, cts, DefaultMetadata);
+            foreach (var tc in tcs)
+                tc.SetResult(true);
+            (await task).ShouldBeTrue();
+            invokeCount.ShouldEqual(componentCount);
         }
 
         [Theory]

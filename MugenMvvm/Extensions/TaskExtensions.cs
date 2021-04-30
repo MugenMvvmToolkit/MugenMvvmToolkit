@@ -8,7 +8,6 @@ using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -19,6 +18,22 @@ namespace MugenMvvm.Extensions
             if (task.IsCompletedSuccessfully)
                 return task.Result;
             return task.AsTask().Result;
+        }
+
+        public static async ValueTask<T> LogException<T>(this ValueTask<T> task, UnhandledExceptionType exceptionType)
+        {
+            Should.NotBeNull(task, nameof(task));
+            if (task.IsCompletedSuccessfully)
+                return task.Result;
+            try
+            {
+                return await task.ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                MugenService.Application.OnUnhandledException(e, exceptionType);
+                throw;
+            }
         }
 
         public static T LogException<T>(this T task, UnhandledExceptionType exceptionType) where T : Task

@@ -75,29 +75,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static async ValueTask<bool> TryCleanupAsync(this ItemOrArray<IViewManagerComponent> components, IViewManager viewManager, IView view, object? state,
+        public static ValueTask<bool> TryCleanupAsync(this ItemOrArray<IViewManagerComponent> components, IViewManager viewManager, IView view, object? state,
             CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
-            if (components.Count == 0)
-                return false;
-            if (components.Count == 1)
-                return await components[0].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata).ConfigureAwait(false);
-
-            var editor = new ItemOrListEditor<ValueTask<bool>>();
-            foreach (var c in components)
-                editor.Add(c.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata));
-
-            var result = false;
-            foreach (var t in editor.ToItemOrList())
-            {
-                if (await t.ConfigureAwait(false))
-                    result = true;
-            }
-
-            return result;
+            return components.InvokeAllAsync((viewManager, view, state), cancellationToken, metadata,
+                (component, s, c, m) => component.TryCleanupAsync(s.viewManager, s.view, s.state, c, m));
         }
     }
 }

@@ -209,8 +209,8 @@ namespace MugenMvvm.UnitTests.Views.Components
             if (state == 1)
                 cancellationTokenSource.Cancel();
             var task = _viewManager.TryCleanupAsync(_view, _viewModel, cancellationToken, DefaultMetadata);
-            task.IsCompleted.ShouldBeFalse();
-            action!();
+            task.IsCompleted.ShouldEqual(state == 1);
+            action?.Invoke();
             await task.WaitSafeAsync();
             switch (state)
             {

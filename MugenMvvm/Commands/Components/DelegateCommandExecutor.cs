@@ -46,24 +46,22 @@ namespace MugenMvvm.Commands.Components
             return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
         }
 
-        public async Task ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
                 if (_allowMultipleExecution)
-                {
-                    await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
-                    return;
-                }
+                    return await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
 
                 if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
-                    return;
+                    return false;
 
                 cancellationToken.ThrowIfCancellationRequested();
                 command.RaiseCanExecuteChanged();
-                await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
+                var result = await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
                 _executingCommand = null;
                 command.RaiseCanExecuteChanged();
+                return result;
             }
             catch
             {
@@ -81,14 +79,14 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        private async Task ExecuteInternalAsync(ICommand command, object? parameter, CancellationToken cancellationToken)
+        private async ValueTask<bool> ExecuteInternalAsync(ICommand command, object? parameter, CancellationToken cancellationToken)
         {
             var executeAction = _execute;
             if (executeAction == null || cancellationToken.IsCancellationRequested)
-                return;
+                return false;
 
             if (!_executionBehavior.BeforeExecute(command, parameter))
-                return;
+                return false;
 
             if (executeAction is Action execute)
                 execute();
@@ -100,6 +98,7 @@ namespace MugenMvvm.Commands.Components
                 await ((Func<T, Task>) executeAction).Invoke((T) parameter!).ConfigureAwait(false);
 
             _executionBehavior.AfterExecute(command, parameter);
+            return true;
         }
     }
 }

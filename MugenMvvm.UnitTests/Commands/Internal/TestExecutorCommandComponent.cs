@@ -18,12 +18,12 @@ namespace MugenMvvm.UnitTests.Commands.Internal
             _command = command;
         }
 
-        public Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task>? ExecuteAsync { get; set; }
+        public Func<object?, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>? ExecuteAsync { get; set; }
 
-        Task ICommandExecutorComponent.ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        ValueTask<bool> ICommandExecutorComponent.ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _command?.ShouldEqual(command);
-            return ExecuteAsync?.Invoke(parameter, cancellationToken, metadata) ?? Task.CompletedTask;
+            return ExecuteAsync?.Invoke(parameter, cancellationToken, metadata) ?? default;
         }
     }
 }

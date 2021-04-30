@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var exception = new NotSupportedException();
             Action execute = () => throw exception;
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, null, default, null)!;
+            var task = component.ExecuteAsync(_command, null, default, null).AsTask();
             task.IsFaulted.ShouldBeTrue();
             task.Exception!.GetBaseException().ShouldEqual(exception);
         }
@@ -139,15 +139,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CheckCanExecuteThrow, true);
             _command.AddComponent(component);
 
-            var task = component.ExecuteAsync(_command, null, default, null)!;
+            var task = component.ExecuteAsync(_command, null, default, null).AsTask();
             task.IsFaulted.ShouldBeTrue();
             task.Exception!.GetBaseException().ShouldBeType<InvalidOperationException>();
             executed.ShouldEqual(0);
             canExecuted.ShouldEqual(1);
 
             canExecuteValue = true;
-            task = component.ExecuteAsync(_command, null, default, null);
-            await task;
+            task = component.ExecuteAsync(_command, null, default, null).AsTask();
+            (await task).ShouldBeTrue();
             executed.ShouldEqual(1);
             canExecuted.ShouldEqual(2);
         }

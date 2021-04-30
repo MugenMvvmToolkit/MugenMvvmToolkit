@@ -173,18 +173,35 @@ namespace MugenMvvm.Extensions
             return 0;
         }
 
-        public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken,
-            IReadOnlyMetadataContext? metadata,
-            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> getResult)
+        public static async ValueTask<bool> InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> invoke)
             where TComponent : class, IComponent
         {
-            Should.NotBeNull(getResult, nameof(getResult));
+            Should.NotBeNull(invoke, nameof(invoke));
+            var result = false;
+            foreach (var c in components)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false))
+                    result = true;
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
-            Task GetResult(TComponent component)
+            return result;
+        }
+
+        public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> invoke)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+
+            Task Invoke(TComponent component)
             {
                 try
                 {
-                    return getResult(component, state, cancellationToken, metadata);
+                    return invoke(component, state, cancellationToken, metadata);
                 }
                 catch (Exception e)
                 {
@@ -195,12 +212,12 @@ namespace MugenMvvm.Extensions
             if (components.Count == 0)
                 return Task.CompletedTask;
             if (components.Count == 1)
-                return GetResult(components[0]);
+                return Invoke(components[0]);
 
             var tasks = new ItemOrListEditor<Task>();
             foreach (var c in components)
             {
-                var result = GetResult(c);
+                var result = Invoke(c);
                 if (!result.IsCompleted || result.IsFaulted || result.IsCanceled)
                     tasks.Add(result);
             }
