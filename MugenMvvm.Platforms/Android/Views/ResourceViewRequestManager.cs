@@ -9,8 +9,10 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Views
@@ -19,6 +21,24 @@ namespace MugenMvvm.Android.Views
     {
         public ResourceViewRequestManager(int priority = ViewComponentPriority.ResourceRequestDecorator) : base(priority)
         {
+        }
+
+        private static Object? TryGetParentView(IViewManager viewManager, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata)
+        {
+            if (viewModel == null)
+                return null;
+
+            var parentVm = viewModel.GetOrDefault(ViewModelMetadata.ParentViewModel);
+            if (parentVm == null)
+                return null;
+
+            foreach (var view in viewManager.GetViews(parentVm, metadata))
+            {
+                if (view.Target is Object obj)
+                    return obj;
+            }
+
+            return null;
         }
 
         public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
@@ -54,7 +74,7 @@ namespace MugenMvvm.Android.Views
             else if (mapping is IResourceViewMapping resourceViewMapping)
             {
                 var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
-                view ??= ViewMugenExtensions.GetView(null!, resourceViewMapping.ResourceId, true, null!);
+                view ??= ViewMugenExtensions.GetView(TryGetParentView(viewManager, viewModel, metadata)!, resourceViewMapping.ResourceId, true, null!);
                 request = ViewModelViewRequest.GetRequestOrRaw(request, viewModel, view);
             }
 

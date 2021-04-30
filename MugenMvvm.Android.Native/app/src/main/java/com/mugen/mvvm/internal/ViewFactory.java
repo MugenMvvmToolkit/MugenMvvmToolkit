@@ -82,6 +82,6 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
         if (context == null)
             return ActivityMugenExtensions.getCurrentActivity();
-        return null;
+        return context;
     }
 }
