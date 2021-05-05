@@ -28,6 +28,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
         private const float NotExactlyEqualWeight = 1f;
         private const float NotExactlyEqualBoxWeight = 1.1f;
         private const float NotExactlyEqualUnsafeCastWeight = 1000f;
+        private const float NotExactlyEqualUnsafeCastObjectWeight = 10f;
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
 
@@ -184,7 +185,8 @@ namespace MugenMvvm.Bindings.Compiling.Components
             return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs).ConvertIfNeed(result.Method.Type, true);
         }
 
-        private static int TrySelectMethod(ItemOrArray<MethodData> methods, ItemOrArray<ArgumentData> args, out bool resultHasParams)
+        private static int TrySelectMethod(ItemOrArray<MethodData> methods, ItemOrArray<ArgumentData> args, out bool resultHasParams,
+            float safeWeight = NotExactlyEqualUnsafeCastWeight)
         {
             var result = -1;
             resultHasParams = true;
@@ -253,7 +255,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                             }
 
                             ++usageCount;
-                            notExactlyEqual += NotExactlyEqualUnsafeCastWeight;
+                            notExactlyEqual += argType == typeof(object) ? NotExactlyEqualUnsafeCastObjectWeight : NotExactlyEqualUnsafeCastWeight;
                         }
                     }
 
@@ -289,7 +291,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 }
             }
 
-            if (result != -1 && resultNotExactlyEqual >= NotExactlyEqualUnsafeCastWeight && args.All(data => !data.IsLambda))
+            if (result != -1 && resultNotExactlyEqual >= safeWeight && args.All(data => !data.IsLambda))
                 return -1;
 
             return result;
