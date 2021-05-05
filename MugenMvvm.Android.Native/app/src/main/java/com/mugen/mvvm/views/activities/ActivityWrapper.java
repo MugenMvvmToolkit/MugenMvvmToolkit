@@ -56,4 +56,9 @@ public class ActivityWrapper implements IActivityView {
     public int getViewId() {
         return Target.getViewId();
     }
+
+    @Override
+    public Context getContext() {
+        return Target.getContext();
+    }
 }

@@ -46,6 +46,11 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
     }
 
     @Override
+    public Context getContext() {
+        return this;
+    }
+
+    @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(MugenContextWrapper.wrap(newBase));
     }

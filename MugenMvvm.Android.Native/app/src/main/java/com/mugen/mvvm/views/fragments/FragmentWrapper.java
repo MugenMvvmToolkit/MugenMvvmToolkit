@@ -1,5 +1,7 @@
 package com.mugen.mvvm.views.fragments;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -38,5 +40,10 @@ public class FragmentWrapper implements IFragmentView {
     @Override
     public int getViewId() {
         return Target.getViewId();
+    }
+
+    @Override
+    public Context getContext() {
+        return Target.getContext();
     }
 }

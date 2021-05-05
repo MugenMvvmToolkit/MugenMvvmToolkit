@@ -46,6 +46,11 @@ public class MugenActivity extends Activity implements INativeActivityView {
     }
 
     @Override
+    public Context getContext() {
+        return this;
+    }
+
+    @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(MugenContextWrapper.wrap(newBase));
     }

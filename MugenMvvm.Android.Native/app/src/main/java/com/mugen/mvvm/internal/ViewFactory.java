@@ -13,6 +13,7 @@ import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
+import com.mugen.mvvm.interfaces.views.IHasContext;
 import com.mugen.mvvm.interfaces.views.IHasStateView;
 import com.mugen.mvvm.interfaces.views.IViewFactory;
 import com.mugen.mvvm.views.ActivityMugenExtensions;
@@ -73,12 +74,14 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
     protected Context getContext(@Nullable Object container) {
         Context context;
-        if (container instanceof IActivityView)
-            context = (Context) ((IActivityView) container).getActivity();
+        if (container instanceof IHasContext)
+            context = (Context) ((IHasContext) container).getContext();
         else if (container instanceof View)
             context = ((View) container).getContext();
-        else
+        else if (container instanceof Context)
             context = (Context) container;
+        else
+            context = null;
 
         if (context == null)
             return ActivityMugenExtensions.getCurrentActivity();
