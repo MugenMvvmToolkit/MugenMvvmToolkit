@@ -337,6 +337,7 @@ namespace MugenMvvm.Bindings.Extensions
             private BindingCollectionAdapter()
             {
                 Listeners = new EventListenerCollection();
+                SuppressItemChangedEvent = true;
             }
 
             public EventListenerCollection Listeners { get; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.App;
+using Android.Content;
 using Android.Runtime;
 using Java.Interop;
 using MugenMvvm.Android.Native.Interfaces.Views;
@@ -20,6 +21,8 @@ namespace MugenMvvm.Android.Native.Views.Activities
         private static Delegate cb_setState_Ljava_lang_Object_;
 
         private static Delegate cb_getViewId;
+
+        private static Delegate? cb_getContext;
 
         // Metadata.xml XPath constructor reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/constructor[@name='MugenAppCompatActivity' and count(parameter)=0]"
         [Register(".ctor", "()V", "")]
@@ -51,6 +54,18 @@ namespace MugenMvvm.Android.Native.Views.Activities
                 const string __id = "getActivity.()Ljava/lang/Object;";
                 var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
                 return GetObject<Object>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+            }
+        }
+
+        public virtual unsafe Context? Context
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenActivity']/method[@name='getContext' and count(parameter)=0]"
+            [Register("getContext", "()Landroid/content/Context;", "GetGetContextHandler")]
+            get
+            {
+                const string __id = "getContext.()Landroid/content/Context;";
+                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
+                return GetObject<Context>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
             }
         }
 
@@ -92,8 +107,20 @@ namespace MugenMvvm.Android.Native.Views.Activities
         protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
 
         protected override Type ThresholdType => _members.ManagedPeerType;
-
 #pragma warning disable 0169
+        private static Delegate GetGetContextHandler()
+        {
+            if (cb_getContext == null)
+                cb_getContext = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_L) n_GetContext);
+            return cb_getContext;
+        }
+
+        private static IntPtr n_GetContext(IntPtr jnienv, IntPtr native__this)
+        {
+            var __this = GetObject<MugenActivity>(jnienv, native__this, JniHandleOwnership.DoNotTransfer)!;
+            return JNIEnv.ToLocalJniHandle(__this.Context);
+        }
+
         private static Delegate GetGetActivityHandler()
         {
             if (cb_getActivity == null)
@@ -106,8 +133,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
             MugenAppCompatActivityLite __this = GetObject<MugenAppCompatActivityLite>(jnienv, native__this, JniHandleOwnership.DoNotTransfer);
             return JNIEnv.ToLocalJniHandle(__this.Activity);
         }
-#pragma warning restore 0169
-#pragma warning disable 0169
+
         private static Delegate GetGetStateHandler()
         {
             if (cb_getState == null)
@@ -120,8 +146,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
             MugenAppCompatActivityLite __this = GetObject<MugenAppCompatActivityLite>(jnienv, native__this, JniHandleOwnership.DoNotTransfer);
             return JNIEnv.ToLocalJniHandle(__this.State);
         }
-#pragma warning restore 0169
-#pragma warning disable 0169
+
         private static Delegate GetSetState_Ljava_lang_Object_Handler()
         {
             if (cb_setState_Ljava_lang_Object_ == null)
@@ -135,8 +160,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
             Object tag = GetObject<Object>(native_tag, JniHandleOwnership.DoNotTransfer);
             __this.State = tag;
         }
-#pragma warning restore 0169
-#pragma warning disable 0169
+
         private static Delegate GetGetViewIdHandler()
         {
             if (cb_getViewId == null)

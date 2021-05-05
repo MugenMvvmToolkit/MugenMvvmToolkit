@@ -84,7 +84,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public bool IgnoreItemChangedEvent { get; set; } = true;
+        public bool SuppressItemChangedEvent { get; set; }
 
         public int BatchSize { get; set; } = 50;
 
@@ -487,7 +487,7 @@ namespace MugenMvvm.Collections
             public void OnItemChanged(ICollection collection, object? item, int index, object? args)
             {
                 var adapter = GetAdapter();
-                if (adapter != null && !adapter.IgnoreItemChangedEvent)
+                if (adapter != null && !adapter.SuppressItemChangedEvent)
                     adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
             }
 

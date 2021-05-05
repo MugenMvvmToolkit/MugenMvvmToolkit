@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class FilterCollectionDecorator<T> : AttachableComponentBase<ICollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
+    public class FilterCollectionDecorator<T> : AttachableComponentBase<ICollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
     {
         private readonly Func<object?, bool> _internalFilter;
         private ICollectionDecoratorManagerComponent? _decoratorManager;

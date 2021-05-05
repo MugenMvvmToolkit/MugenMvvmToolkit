@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
+    public class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
     {
         private readonly OrderedItemComparer _comparer;
         private readonly List<OrderedItem> _items;
