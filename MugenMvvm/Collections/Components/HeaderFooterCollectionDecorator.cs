@@ -55,24 +55,12 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; }
 
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata)
-        {
-            _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-            using var l = owner.TryLock();
-            if (_header != null)
-                UpdateHeader(Header, null);
-            if (_footer != null)
-                UpdateFooter(Footer, null);
-        }
+        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
 
         protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {
-            using var l = owner.TryLock();
-            if (_header != null)
-                UpdateHeader(null, _header);
-            if (_footer != null)
-                UpdateFooter(null, _footer);
             _decoratorManager = null;
+            _footerIndex = -1;
         }
 
         private IEnumerable<object?> DecorateItems(IEnumerable<object?>? items)

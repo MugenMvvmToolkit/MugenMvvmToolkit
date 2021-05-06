@@ -21,12 +21,13 @@ namespace MugenMvvm.Collections.Components
         private int _size;
         private object?[] _values;
 
-        public FilterCollectionDecorator()
+        public FilterCollectionDecorator(int priority = CollectionComponentPriority.FilterDecorator)
         {
             _keys = Array.Empty<int>();
             _values = Array.Empty<object?>();
             _size = 0;
             _internalFilter = FilterInternal;
+            Priority = priority;
         }
 
         public Func<T, bool>? Filter
@@ -39,7 +40,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public int Priority { get; set; } = CollectionComponentPriority.FilterDecorator;
+        public int Priority { get; }
 
         private bool HasFilter => _filter != null && _decoratorManager != null;
 
@@ -51,11 +52,7 @@ namespace MugenMvvm.Collections.Components
                 yield return _values[i];
         }
 
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata)
-        {
-            _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-            UpdateFilter();
-        }
+        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
 
         protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {

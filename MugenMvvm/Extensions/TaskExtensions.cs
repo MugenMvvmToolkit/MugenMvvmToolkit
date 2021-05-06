@@ -22,7 +22,6 @@ namespace MugenMvvm.Extensions
 
         public static async ValueTask<T> LogException<T>(this ValueTask<T> task, UnhandledExceptionType exceptionType)
         {
-            Should.NotBeNull(task, nameof(task));
             if (task.IsCompletedSuccessfully)
                 return task.Result;
             try

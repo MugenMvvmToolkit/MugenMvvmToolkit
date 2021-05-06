@@ -8,16 +8,16 @@ namespace MugenMvvm.Interfaces.Collections.Components
     {
         IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null);
 
-        void OnItemChanged(ICollection collection, ICollectionDecorator decorator, object? item, int index, object? args);
+        void OnItemChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args);
 
-        void OnAdded(ICollection collection, ICollectionDecorator decorator, object? item, int index);
+        void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index);
 
-        void OnReplaced(ICollection collection, ICollectionDecorator decorator, object? oldItem, object? newItem, int index);
+        void OnReplaced(ICollection collection, ICollectionDecorator? decorator, object? oldItem, object? newItem, int index);
 
-        void OnMoved(ICollection collection, ICollectionDecorator decorator, object? item, int oldIndex, int newIndex);
+        void OnMoved(ICollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex);
 
-        void OnRemoved(ICollection collection, ICollectionDecorator decorator, object? item, int index);
+        void OnRemoved(ICollection collection, ICollectionDecorator? decorator, object? item, int index);
 
-        void OnReset(ICollection collection, ICollectionDecorator decorator, IEnumerable<object?>? items);
+        void OnReset(ICollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items);
     }
 }

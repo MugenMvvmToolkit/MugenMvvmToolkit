@@ -294,6 +294,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     _collection.Add(i);
                     _items.Add(i);
                 }
+
                 AssertChanges(null, null);
                 _decorator.Header = header;
                 AssertChanges(header, null);
@@ -315,7 +316,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        private void AssertChanges(string? header, string? footer) => _tracker.ChangedItems.ShouldEqual(Decorate(header, footer));
+        private void AssertChanges(string? header, string? footer)
+        {
+            _tracker.ChangedItems.ShouldEqual(Decorate(header, footer));
+            _tracker.ChangedItems.ShouldEqual(_collection.DecorateItems());
+        }
 
         private IEnumerable<object> Decorate(string? header, string? footer)
         {

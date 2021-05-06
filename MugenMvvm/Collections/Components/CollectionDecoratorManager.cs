@@ -8,11 +8,12 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class CollectionDecoratorManager : ICollectionDecoratorManagerComponent, IHasPriority, ICollectionChangedListener<object?>
+    public sealed class CollectionDecoratorManager : ICollectionDecoratorManagerComponent, IHasPriority, ICollectionChangedListener<object?>, IComponentCollectionChangedListener
     {
         private static readonly CollectionDecoratorManager Instance = new();
         private static readonly Dictionary<Type, ICollectionDecoratorManagerComponent> GenericManagers = new();
@@ -24,7 +25,13 @@ namespace MugenMvvm.Collections.Components
         public int Priority { get; set; } = CollectionComponentPriority.DecoratorManager;
 
         public static ICollectionDecoratorManagerComponent GetOrAdd(IEnumerable collection) =>
-            ((IComponentOwner) collection).GetOrAddComponent(collection, (c, context) => TryGetGenericManager(c) ?? Instance);
+            ((IComponentOwner) collection).GetOrAddComponent(collection, (c, _) => Initialize(c));
+
+        private static ICollectionDecoratorManagerComponent Initialize(object owner)
+        {
+            ((IComponentOwner) owner).Components.AddComponent(Instance);
+            return TryGetGenericManager(owner) ?? Instance;
+        }
 
         private static ICollectionDecoratorManagerComponent? TryGetGenericManager(object owner)
         {
@@ -69,6 +76,14 @@ namespace MugenMvvm.Collections.Components
 
         private static ItemOrArray<TComponent> GetComponents<TComponent>(ICollection collection) where TComponent : class =>
             ((IComponentOwner) collection).Components.Get<TComponent>();
+
+        private static void Reset(ICollection collection)
+        {
+            using (collection.TryLock())
+            {
+                Instance.OnReset(collection, null, collection as IEnumerable<object?> ?? collection.OfType<object?>());
+            }
+        }
 
         public IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null)
         {
@@ -168,6 +183,18 @@ namespace MugenMvvm.Collections.Components
 
         void ICollectionChangedListener<object?>.OnReset(IReadOnlyCollection<object?> collection, IEnumerable<object?>? items) => OnReset((ICollection) collection, null, items);
 
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is ICollectionDecorator || component is ICollectionDecoratorManagerComponent)
+                Reset((ICollection) collection.Owner);
+        }
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is ICollectionDecorator)
+                Reset((ICollection) collection.Owner);
+        }
+
         private sealed class GenericManager<T> : ICollectionChangedListener<T>, IHasPriority, ICollectionDecoratorManagerComponent
         {
             public int Priority => Instance.Priority;
@@ -192,20 +219,20 @@ namespace MugenMvvm.Collections.Components
 
             public IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null) => Instance.DecorateItems(collection, decorator);
 
-            public void OnItemChanged(ICollection collection, ICollectionDecorator decorator, object? item, int index, object? args) =>
+            public void OnItemChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args) =>
                 Instance.OnItemChanged(collection, decorator, item, index, args);
 
-            public void OnAdded(ICollection collection, ICollectionDecorator decorator, object? item, int index) => Instance.OnAdded(collection, decorator, item, index);
+            public void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index) => Instance.OnAdded(collection, decorator, item, index);
 
-            public void OnReplaced(ICollection collection, ICollectionDecorator decorator, object? oldItem, object? newItem, int index) =>
+            public void OnReplaced(ICollection collection, ICollectionDecorator? decorator, object? oldItem, object? newItem, int index) =>
                 Instance.OnReplaced(collection, decorator, oldItem, newItem, index);
 
-            public void OnMoved(ICollection collection, ICollectionDecorator decorator, object? item, int oldIndex, int newIndex) =>
+            public void OnMoved(ICollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex) =>
                 Instance.OnMoved(collection, decorator, item, oldIndex, newIndex);
 
-            public void OnRemoved(ICollection collection, ICollectionDecorator decorator, object? item, int index) => Instance.OnRemoved(collection, decorator, item, index);
+            public void OnRemoved(ICollection collection, ICollectionDecorator? decorator, object? item, int index) => Instance.OnRemoved(collection, decorator, item, index);
 
-            public void OnReset(ICollection collection, ICollectionDecorator decorator, IEnumerable<object?>? items) => Instance.OnReset(collection, decorator, items);
+            public void OnReset(ICollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items) => Instance.OnReset(collection, decorator, items);
         }
     }
 }

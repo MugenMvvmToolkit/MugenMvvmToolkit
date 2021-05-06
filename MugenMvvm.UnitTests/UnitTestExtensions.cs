@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using Should;
+using Should.Core.Assertions;
 
 namespace MugenMvvm.UnitTests
 {
@@ -58,8 +59,6 @@ namespace MugenMvvm.UnitTests
             }
         }
 
-        public static ItemOrIReadOnlyList<object> AsItemOrList(this object? item) => ItemOrIReadOnlyList.FromRawValue<object>(item);
-
         public static object? Invoke(this Expression expression, params object?[] args) => Expression.Lambda(expression).Compile().DynamicInvoke(args);
 
         public static object? Invoke(this Expression expression, IEnumerable<Expression> parameters, params object?[] args) =>
@@ -99,14 +98,7 @@ namespace MugenMvvm.UnitTests
 
         public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value) => enumerable.ShouldEqual(value, EqualityComparer<T>.Default);
 
-        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value, IEqualityComparer<T> comparer)
-        {
-            if (EqualityComparer<IEnumerable<T>?>.Default.Equals(enumerable, value))
-                return;
-            enumerable!.ShouldNotBeNull(nameof(enumerable));
-            value!.ShouldNotBeNull(nameof(value));
-            enumerable!.SequenceEqual(value!, comparer).ShouldBeTrue();
-        }
+        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value, IEqualityComparer<T> comparer) => Assert.Equal(enumerable, value);
 
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
         {

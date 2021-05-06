@@ -17,16 +17,17 @@ namespace MugenMvvm.Collections.Components
         private readonly List<OrderedItem> _items;
         private ICollectionDecoratorManagerComponent? _decoratorManager;
 
-        public SortingCollectionDecorator(IComparer<object?> comparer)
+        public SortingCollectionDecorator(IComparer<object?> comparer, int priority = CollectionComponentPriority.SortingDecorator)
         {
             Should.NotBeNull(comparer, nameof(comparer));
             _comparer = new OrderedItemComparer(comparer);
             _items = new List<OrderedItem>();
+            Priority = priority;
         }
 
         public IComparer<object?> Comparer => _comparer.Comparer;
 
-        public int Priority { get; set; } = CollectionComponentPriority.OrderDecorator;
+        public int Priority { get; }
 
         public void Reorder()
         {
@@ -46,11 +47,7 @@ namespace MugenMvvm.Collections.Components
                 yield return _items[i].Item;
         }
 
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata)
-        {
-            _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-            Reorder();
-        }
+        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
 
         protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {

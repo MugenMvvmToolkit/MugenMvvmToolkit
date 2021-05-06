@@ -13,6 +13,15 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> getValue)
+        {
+            if (dictionary.TryGetValue(key, out var v))
+                return v;
+            v = getValue(key);
+            dictionary[key] = v;
+            return v;
+        }
+
         [return: NotNullIfNotNull("collection")]
         public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase? collection)
         {

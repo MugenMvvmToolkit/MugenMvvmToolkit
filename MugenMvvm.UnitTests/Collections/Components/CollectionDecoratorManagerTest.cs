@@ -82,12 +82,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
             var collection = CreateCollection<int>();
             CollectionDecoratorManager.GetOrAdd(collection);
-            var decorator1 = new SortingCollectionDecorator(comparer);
-            var decorator2 = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
-            if (filterFirst)
-                decorator2.Priority = int.MaxValue;
-            else
-                decorator1.Priority = int.MaxValue;
+            var decorator1 = new SortingCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
+            var decorator2 = new FilterCollectionDecorator<int>(filterFirst ? int.MaxValue : 0) {Filter = i => i % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 
@@ -164,12 +160,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             });
             var collection = CreateCollection<TestCollectionItem>();
             CollectionDecoratorManager.GetOrAdd(collection);
-            var decorator1 = new SortingCollectionDecorator(comparer);
-            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
-            if (filterFirst)
-                decorator2.Priority = int.MaxValue;
-            else
-                decorator1.Priority = int.MaxValue;
+            var decorator1 = new SortingCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(filterFirst ? int.MaxValue : 0) {Filter = i => i.Id % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 
