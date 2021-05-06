@@ -18,6 +18,8 @@ namespace MugenMvvm.Internal
 
         public static Builder Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, false));
 
+        public static Builder Compare(Func<T, T, int> compare) => new(SortingInfo.Create(compare));
+
         public int Compare(T? x, T? y)
         {
             foreach (var item in _sortInfo)
@@ -54,6 +56,12 @@ namespace MugenMvvm.Internal
                 return this;
             }
 
+            public Builder ThenCompare(Func<T, T, int> compare)
+            {
+                _sortInfo.Add(SortingInfo.Create(compare));
+                return this;
+            }
+
             public IComparer<T> Build() => new SortingComparer<T>(_sortInfo.ToItemOrList());
         }
 
@@ -85,6 +93,12 @@ namespace MugenMvvm.Internal
                         return Comparer<TValue>.Default.Compare(func(x), func(y));
                     return Comparer<TValue>.Default.Compare(func(y), func(x));
                 }, expression, isAscending);
+            }
+
+            public static SortingInfo Create(Func<T, T, int> compare)
+            {
+                Should.NotBeNull(compare, nameof(compare));
+                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>) exp).Invoke(x, y), compare, false);
             }
         }
     }

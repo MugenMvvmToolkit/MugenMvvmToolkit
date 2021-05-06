@@ -32,6 +32,48 @@ namespace MugenMvvm.UnitTests.Internal
         [Theory]
         [InlineData(1000)]
         [InlineData(100)]
+        public void CompareShouldBeCorrect1(int count)
+        {
+            var random = new Random();
+            var ints = new List<int>();
+            for (var i = 0; i < count; i++)
+                ints.Add(random.Next());
+
+            var comparer = SortingComparer<int>
+                           .Compare((x1, x2) => x1.CompareTo(x2))
+                           .ThenByDescending(i => i % 2 == 0)
+                           .ThenBy(i => i % 3 == 0)
+                           .Build();
+            var list = ints.ToList();
+            list.Sort(comparer);
+
+            list.ShouldEqual(ints.OrderBy(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0));
+        }
+
+        [Theory]
+        [InlineData(1000)]
+        [InlineData(100)]
+        public void CompareShouldBeCorrect2(int count)
+        {
+            var random = new Random();
+            var ints = new List<int>();
+            for (var i = 0; i < count; i++)
+                ints.Add(random.Next());
+
+            var comparer = SortingComparer<int>
+                           .Compare((x1, x2) => x2.CompareTo(x1))
+                           .ThenByDescending(i => i % 2 == 0)
+                           .ThenBy(i => i % 3 == 0)
+                           .Build();
+            var list = ints.ToList();
+            list.Sort(comparer);
+
+            list.ShouldEqual(ints.OrderByDescending(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0));
+        }
+
+        [Theory]
+        [InlineData(1000)]
+        [InlineData(100)]
         public void DescendingShouldBeCorrect(int count)
         {
             var random = new Random();
