@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
+    public class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IReadOnlyCollection<object?>, IHasPriority
     {
         private readonly OrderedItemComparer _comparer;
         private readonly List<OrderedItem> _items;
@@ -28,6 +28,8 @@ namespace MugenMvvm.Collections.Components
         public IComparer<object?> Comparer => _comparer.Comparer;
 
         public int Priority { get; }
+
+        int IReadOnlyCollection<object?>.Count => _items.Count;
 
         public void Reorder()
         {

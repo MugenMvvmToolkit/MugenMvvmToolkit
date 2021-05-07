@@ -25,12 +25,23 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.AddComponent(_tracker);
         }
 
+        private static IEnumerable<object?[]> GetData() =>
+            new[]
+            {
+                new object?[] {null, null},
+                new object?[] {new[] {"header"}, null},
+                new object?[] {new[] {"header1", "header2"}, null},
+                new object?[] {null, new[] {"footer"}},
+                new object?[] {null, new[] {"footer1", "footer2"}},
+                new object?[] {new[] {"header"}, new[] {"footer"}},
+                new object?[] {new[] {"header1", "header2"}, new[] {"footer"}},
+                new object?[] {new[] {"header"}, new[] {"footer1", "footer2"}},
+                new object?[] {new[] {"header1", "header2"}, new[] {"footer1", "footer2"}}
+            };
+
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void AddShouldTrackChanges(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void AddShouldTrackChanges(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -51,11 +62,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void ClearShouldTrackChanges(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void ClearShouldTrackChanges(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -74,11 +82,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void MoveShouldTrackChanges1(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void MoveShouldTrackChanges1(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -100,11 +105,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void MoveShouldTrackChanges2(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void MoveShouldTrackChanges2(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -126,11 +128,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void RemoveShouldTrackChanges(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void RemoveShouldTrackChanges(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -157,11 +156,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void ReplaceShouldTrackChanges1(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void ReplaceShouldTrackChanges1(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -183,11 +179,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void ReplaceShouldTrackChanges2(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void ReplaceShouldTrackChanges2(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -210,11 +203,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void ResetShouldTrackChanges(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void ResetShouldTrackChanges(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -234,11 +224,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void ShouldTrackChanges(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void ShouldTrackChanges(string[]? header, string[]? footer)
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
@@ -275,18 +262,19 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.Clear();
             _items.Clear();
             AssertChanges(header, footer);
+
+            _decorator.Footer = header;
+            _decorator.Header = footer;
+            AssertChanges(footer, header);
         }
 
         [Theory]
-        [InlineData(null, null)]
-        [InlineData("header", null)]
-        [InlineData(null, "footer")]
-        [InlineData("header", "footer")]
-        public void ShouldAttachDetach(string? header, string? footer)
+        [MemberData(nameof(GetData))]
+        public void ShouldAttachDetach(string[]? header, string[]? footer)
         {
             _collection.RemoveComponent(_decorator);
 
-            for (int i = 0; i < 2; i++)
+            for (var i = 0; i < 2; i++)
             {
                 _collection.AddComponent(_decorator);
                 if (i != 0)
@@ -314,22 +302,58 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _decorator.Header = null;
                 _decorator.Footer = null;
             }
+
+            for (var i = 0; i < 2; i++)
+            {
+                _collection.AddComponent(_decorator);
+                if (i != 0)
+                {
+                    _collection.Add(i);
+                    _items.Add(i);
+                }
+
+                AssertChanges(null, null);
+                _decorator.Footer = footer;
+                AssertChanges(null, footer);
+                _decorator.Header = header;
+                AssertChanges(header, footer);
+                _decorator.Footer = null;
+                AssertChanges(header, null);
+                _decorator.Header = null;
+                AssertChanges(null, null);
+
+                _decorator.Footer = footer;
+                _decorator.Header = header;
+                AssertChanges(header, footer);
+
+                _collection.RemoveComponent(_decorator);
+                AssertChanges(null, null);
+                _decorator.Header = null;
+                _decorator.Footer = null;
+            }
         }
 
-        private void AssertChanges(string? header, string? footer)
+        private void AssertChanges(string[]? header, string[]? footer)
         {
             _tracker.ChangedItems.ShouldEqual(Decorate(header, footer));
             _tracker.ChangedItems.ShouldEqual(_collection.DecorateItems());
         }
 
-        private IEnumerable<object> Decorate(string? header, string? footer)
+        private IEnumerable<object> Decorate(string[]? header, string[]? footer)
         {
             if (header != null)
-                yield return header;
+            {
+                foreach (var item in header)
+                    yield return item;
+            }
+
             foreach (var item in _items)
                 yield return item;
             if (footer != null)
-                yield return footer;
+            {
+                foreach (var item in footer)
+                    yield return item;
+            }
         }
 
         private void Move(int oldIndex, int newIndex)
