@@ -12,11 +12,11 @@ namespace MugenMvvm.Collections.Components
 {
     public class GroupHeaderCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority
     {
-        private readonly Func<object?, object> _getHeader;
+        private readonly Func<object?, object?> _getHeader;
         private readonly Dictionary<object, HeaderInfo> _headers;
         private ICollectionDecoratorManagerComponent? _decoratorManager;
 
-        public GroupHeaderCollectionDecorator(Func<object?, object> getHeader, int priority = CollectionComponentPriority.GroupHeaderDecorator)
+        public GroupHeaderCollectionDecorator(Func<object?, object?> getHeader, int priority = CollectionComponentPriority.GroupHeaderDecorator)
         {
             Should.NotBeNull(getHeader, nameof(getHeader));
             _getHeader = getHeader;
@@ -33,6 +33,9 @@ namespace MugenMvvm.Collections.Components
         private void AddHeaderIfNeed(ICollection collection, object? item, bool notify = true)
         {
             var header = _getHeader(item);
+            if (header == null)
+                return;
+
             if (!_headers.TryGetValue(header, out var info))
             {
                 info = new HeaderInfo(_headers.Count);
@@ -47,6 +50,9 @@ namespace MugenMvvm.Collections.Components
         private void RemoveHeaderIfNeed(ICollection collection, object? item)
         {
             var header = _getHeader(item);
+            if (header == null)
+                return;
+
             var headerInfo = _headers[header];
             if (--headerInfo.UsageCount != 0)
                 return;
