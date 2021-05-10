@@ -12,8 +12,8 @@ namespace MugenMvvm.Collections.Components
     public class HeaderFooterCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority
     {
         private ICollectionDecoratorManagerComponent? _decoratorManager;
-        private ItemOrArray<object> _footer;
-        private ItemOrArray<object> _header;
+        private ItemOrIReadOnlyList<object> _footer;
+        private ItemOrIReadOnlyList<object> _header;
         private int _footerIndex;
 
         public HeaderFooterCollectionDecorator(int priority = CollectionComponentPriority.HeaderFooterDecorator)
@@ -22,7 +22,7 @@ namespace MugenMvvm.Collections.Components
             _footerIndex = -1;
         }
 
-        public ItemOrArray<object> Header
+        public ItemOrIReadOnlyList<object> Header
         {
             get => _header;
             set
@@ -35,7 +35,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public ItemOrArray<object> Footer
+        public ItemOrIReadOnlyList<object> Footer
         {
             get => _footer;
             set
@@ -73,7 +73,7 @@ namespace MugenMvvm.Collections.Components
                 yield return item;
         }
 
-        private void Update(ItemOrArray<object> value, ItemOrArray<object> oldValue, bool isFooter)
+        private void Update(ItemOrIReadOnlyList<object> value, ItemOrIReadOnlyList<object> oldValue, bool isFooter)
         {
             var offset = isFooter ? _footerIndex : 0;
             if (value.IsEmpty)

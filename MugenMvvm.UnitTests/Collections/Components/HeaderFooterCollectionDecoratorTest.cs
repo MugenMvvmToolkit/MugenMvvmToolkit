@@ -288,9 +288,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 AssertChanges(header, null);
                 _decorator.Footer = footer;
                 AssertChanges(header, footer);
-                _decorator.Header = null;
+                _decorator.Header = default;
                 AssertChanges(null, footer);
-                _decorator.Footer = null;
+                _decorator.Footer = default;
                 AssertChanges(null, null);
 
                 _decorator.Header = header;
@@ -299,8 +299,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 _collection.RemoveComponent(_decorator);
                 AssertChanges(null, null);
-                _decorator.Header = null;
-                _decorator.Footer = null;
+                _decorator.Header = default;
+                _decorator.Footer = default;
             }
 
             for (var i = 0; i < 2; i++)
@@ -317,9 +317,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 AssertChanges(null, footer);
                 _decorator.Header = header;
                 AssertChanges(header, footer);
-                _decorator.Footer = null;
+                _decorator.Footer = default;
                 AssertChanges(header, null);
-                _decorator.Header = null;
+                _decorator.Header = default;
                 AssertChanges(null, null);
 
                 _decorator.Footer = footer;
@@ -328,8 +328,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 _collection.RemoveComponent(_decorator);
                 AssertChanges(null, null);
-                _decorator.Header = null;
-                _decorator.Footer = null;
+                _decorator.Header = default;
+                _decorator.Footer = default;
             }
         }
 
