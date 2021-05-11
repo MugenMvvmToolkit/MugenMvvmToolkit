@@ -96,9 +96,16 @@ namespace MugenMvvm.UnitTests
             }
         }
 
-        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value) => enumerable.ShouldEqual(value, EqualityComparer<T>.Default);
+        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value) => Assert.Equal(enumerable, value);
 
-        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value, IEqualityComparer<T> comparer) => Assert.Equal(enumerable, value);
+        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value, IEqualityComparer<T> comparer)
+        {
+            if (EqualityComparer<IEnumerable<T>?>.Default.Equals(enumerable, value))
+                return;
+            enumerable!.ShouldNotBeNull(nameof(enumerable));
+            value!.ShouldNotBeNull(nameof(value));
+            enumerable!.SequenceEqual(value!, comparer).ShouldBeTrue();
+        }
 
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
         {

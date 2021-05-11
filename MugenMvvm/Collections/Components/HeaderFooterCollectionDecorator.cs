@@ -151,11 +151,11 @@ namespace MugenMvvm.Collections.Components
         bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
         {
             index += _header.Count;
-            if (_footerIndex > 0 && index >= _footerIndex)
+            if (_footerIndex > 0)
             {
                 if (index > _footerIndex)
                     --index;
-                _footerIndex++;
+                ++_footerIndex;
             }
 
             return true;
@@ -185,7 +185,7 @@ namespace MugenMvvm.Collections.Components
         bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
         {
             if (_footerIndex > 0)
-                _footerIndex = items == null ? _header.Count : items.CountEx() + _header.Count;
+                _footerIndex = items.CountEx() + _header.Count;
             items = DecorateItems(items);
             return true;
         }
