@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.ViewModels;
@@ -43,10 +42,10 @@ namespace MugenMvvm.UnitTests.Internal
         [Fact]
         public void ShouldUseDelegateFromConstructor()
         {
-            _serviceProvider.Factories[typeof(MugenServiceProviderTest)] = this;
+            _serviceProvider.RegisterSingleton(typeof(MugenServiceProviderTest), this);
             _serviceProvider.GetService(typeof(MugenServiceProviderTest)).ShouldEqual(this);
 
-            _serviceProvider.Factories[typeof(MugenServiceProviderTest)] = new Func<Type, IReadOnlyMetadataContext?, object>((t, m) =>
+            _serviceProvider.RegisterFactory(typeof(MugenServiceProviderTest), (t, m) =>
             {
                 t.ShouldEqual(typeof(MugenServiceProviderTest));
                 m.ShouldEqual(DefaultMetadata);

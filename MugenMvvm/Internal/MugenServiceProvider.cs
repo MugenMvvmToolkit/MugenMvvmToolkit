@@ -27,6 +27,22 @@ namespace MugenMvvm.Internal
 
         public Dictionary<Type, object?> Factories { get; }
 
+        public void RegisterFactory(Type service, Func<Type, IReadOnlyMetadataContext?, object?> factory)
+        {
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(factory, nameof(factory));
+            Factories[service] = factory;
+        }
+
+        public void RegisterSingleton<T>(T instance) where T : class => RegisterSingleton(typeof(T), instance);
+
+        public void RegisterSingleton(Type service, object instance)
+        {
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(instance, nameof(instance));
+            Factories[service] = instance;
+        }
+
         public object? GetService(Type serviceType, IReadOnlyMetadataContext? metadata)
         {
             object? value;
