@@ -48,6 +48,11 @@ namespace MugenMvvm.ViewModels
 
         internal bool IsInitialized { get; set; }
 
+        public virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null) =>
+            ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
+
+        public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
+
         public void Dispose()
         {
             if (IsDisposed || !CanDispose())
@@ -86,9 +91,6 @@ namespace MugenMvvm.ViewModels
                 token.Dispose();
         }
 
-        protected virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null) =>
-            ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
-
         protected virtual void OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
         }
@@ -126,8 +128,6 @@ namespace MugenMvvm.ViewModels
             base.OnPropertyChangedInternal(args);
             _messenger?.Publish(this, args);
         }
-
-        protected T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
 
         void IBusyManagerListener.OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata) => OnBeginBusy(busyManager, busyToken, metadata);
 

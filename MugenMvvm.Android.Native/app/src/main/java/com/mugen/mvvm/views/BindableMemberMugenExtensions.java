@@ -210,7 +210,7 @@ public final class BindableMemberMugenExtensions {
 
     public static void setText(@NonNull Object view, @Nullable CharSequence text) {
         if (TabLayoutTabMugenExtensions.isSupported(view))
-            TabLayoutTabMugenExtensions.getText(view);
+            TabLayoutTabMugenExtensions.setText(view, text);
         else
             setText((View) view, text);
     }
