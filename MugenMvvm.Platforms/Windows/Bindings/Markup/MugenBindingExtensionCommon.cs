@@ -92,7 +92,7 @@ namespace MugenMvvm.Windows.Bindings.Markup
 
         private static Delegate CreateDelegateForEvent(Type eventHandlerType)
         {
-            if (!CachedDelegates.TryGetValue(eventHandlerType, out Delegate value))
+            if (!CachedDelegates.TryGetValue(eventHandlerType, out var value))
             {
                 var parameters = eventHandlerType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic)!
                                  .GetParameters()

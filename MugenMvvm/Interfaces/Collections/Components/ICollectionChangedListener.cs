@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionChangedListener<in T> : IComponent<ICollection>
     {
-        void OnItemChanged(IReadOnlyCollection<T> collection, T item, int index, object? args);
+        void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args);
 
         void OnAdded(IReadOnlyCollection<T> collection, T item, int index);
 

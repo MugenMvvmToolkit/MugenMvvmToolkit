@@ -21,8 +21,9 @@ namespace MugenMvvm.Collections.Components
         private int _size;
         private object?[] _values;
 
-        public FilterCollectionDecorator(int priority = CollectionComponentPriority.FilterDecorator)
+        public FilterCollectionDecorator(Func<T, bool>? filter = null, int priority = CollectionComponentPriority.FilterDecorator)
         {
+            _filter = filter;
             _keys = Array.Empty<int>();
             _values = Array.Empty<object?>();
             _size = 0;
@@ -40,7 +41,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public int Priority { get; }
+        public int Priority { get; set; }
 
         private bool HasFilter => _filter != null && _decoratorManager != null;
 
@@ -64,6 +65,7 @@ namespace MugenMvvm.Collections.Components
 
         private void UpdateFilterInternal(Func<T, bool>? filter, bool setFilter)
         {
+            using var _ = OwnerOptional.TryLock();
             if (_decoratorManager == null)
             {
                 if (setFilter)
@@ -71,15 +73,12 @@ namespace MugenMvvm.Collections.Components
                 return;
             }
 
-            using (Owner.TryLock())
-            {
-                if (setFilter)
-                    _filter = filter;
-                Clear();
-                if (HasFilter)
-                    UpdateItems(_decoratorManager.DecorateItems(Owner, this));
-                _decoratorManager.OnReset(Owner, this, this);
-            }
+            if (setFilter)
+                _filter = filter;
+            Clear();
+            if (HasFilter)
+                UpdateItems(_decoratorManager.Decorate(Owner, this));
+            _decoratorManager.OnReset(Owner, this, this);
         }
 
         private void UpdateItems(IEnumerable<object?> items)
@@ -226,9 +225,9 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => HasFilter ? items.Where(_internalFilter) : items;
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => HasFilter ? items.Where(_internalFilter) : items;
 
-        bool ICollectionDecorator.OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
             if (!HasFilter)
                 return true;

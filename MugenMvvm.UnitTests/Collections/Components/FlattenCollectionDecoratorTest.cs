@@ -313,10 +313,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private void Assert(bool isHeader)
         {
-            _targetCollection.DecorateItems().ShouldEqual(_tracker.ChangedItems);
-            _targetCollection.DecorateItems().ShouldEqual(isHeader
-                ? _sourceCollection.DecorateItems().Concat(_targetCollection.OfType<object>())
-                : _targetCollection.OfType<object>().Concat(_sourceCollection.DecorateItems()));
+            _targetCollection.Decorate().ShouldEqual(_tracker.ChangedItems);
+            _targetCollection.Decorate().ShouldEqual(isHeader
+                ? _sourceCollection.Decorate().Concat(_targetCollection.OfType<object>())
+                : _targetCollection.OfType<object>().Concat(_sourceCollection.Decorate()));
         }
 
         private void AddDecorator(bool isHeader) => _targetCollection.AddComponent(new FlattenCollectionDecorator(_sourceCollection, isHeader));

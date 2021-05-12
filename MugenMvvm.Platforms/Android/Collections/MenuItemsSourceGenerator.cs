@@ -15,7 +15,7 @@ namespace MugenMvvm.Android.Collections
         private MenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate itemTemplate)
         {
             Should.NotBeNull(itemTemplate, nameof(itemTemplate));
-            SuppressItemChangedEvent = true;
+            SuppressChangedEvent = true;
             Menu = menu;
             ItemTemplate = itemTemplate;
             DiffableComparer = itemTemplate as IDiffableEqualityComparer;

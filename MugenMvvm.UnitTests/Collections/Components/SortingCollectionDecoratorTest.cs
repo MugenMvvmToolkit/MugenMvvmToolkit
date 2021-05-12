@@ -33,13 +33,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var items = observableCollection.OrderBy(i => i, this);
 
             decorator.Reorder();
-            tracker.ChangedItems.ShouldEqual(observableCollection.DecorateItems().Cast<int>());
+            tracker.ChangedItems.ShouldEqual(observableCollection.Decorate().Cast<int>());
             tracker.ChangedItems.ShouldEqual(items);
 
             DefaultComparer = !defaultComparer;
 
             decorator.Reorder();
-            tracker.ChangedItems.ShouldEqual(observableCollection.DecorateItems().Cast<int>());
+            tracker.ChangedItems.ShouldEqual(observableCollection.Decorate().Cast<int>());
             tracker.ChangedItems.ShouldEqual(items);
         }
 

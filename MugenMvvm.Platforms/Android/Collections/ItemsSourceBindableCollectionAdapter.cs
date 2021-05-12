@@ -71,9 +71,9 @@ namespace MugenMvvm.Android.Collections
                 GetObserver(i)?.OnItemChanged(index);
         }
 
-        protected override void OnItemChanged(object? item, int index, object? args, bool batchUpdate, int version)
+        protected override void OnChanged(object? item, int index, object? args, bool batchUpdate, int version)
         {
-            base.OnItemChanged(item, index, args, batchUpdate, version);
+            base.OnChanged(item, index, args, batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemChanged(index);
         }
@@ -143,7 +143,7 @@ namespace MugenMvvm.Android.Collections
 
         void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
         {
-            if (SuppressItemChangedEvent)
+            if (SuppressChangedEvent)
                 return;
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemRangeChanged(position, count);

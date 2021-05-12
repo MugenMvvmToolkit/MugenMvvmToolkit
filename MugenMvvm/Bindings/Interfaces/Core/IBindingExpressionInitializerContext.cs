@@ -19,6 +19,6 @@ namespace MugenMvvm.Bindings.Interfaces.Core
 
         IDictionary<string, object?> Components { get; }
 
-        TValue? TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default);
+        TValue? TryGetParameterValue<TValue>(string parameterName, TValue? defaultValue = default);
     }
 }

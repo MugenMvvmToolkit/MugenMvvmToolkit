@@ -18,7 +18,7 @@ namespace MugenMvvm.Android.Collections
 
         private ContentItemsSourceGenerator(View view, IContentTemplateSelector contentTemplateSelector)
         {
-            SuppressItemChangedEvent = true;
+            SuppressChangedEvent = true;
             View = view;
             ContentTemplateSelector = contentTemplateSelector;
             DiffableComparer = contentTemplateSelector as IDiffableEqualityComparer;

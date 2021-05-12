@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecoratorListener : IComponent<ICollection>
     {
-        void OnItemChanged(ICollection collection, object? item, int index, object? args);
+        void OnChanged(ICollection collection, object? item, int index, object? args);
 
         void OnAdded(ICollection collection, object? item, int index);
 

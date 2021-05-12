@@ -6,9 +6,9 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecorator : IComponent<ICollection>
     {
-        IEnumerable<object?> DecorateItems(ICollection collection, IEnumerable<object?> items);
+        IEnumerable<object?> Decorate(ICollection collection, IEnumerable<object?> items);
 
-        bool OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args);
+        bool OnChanged(ICollection collection, ref object? item, ref int index, ref object? args);
 
         bool OnAdded(ICollection collection, ref object? item, ref int index);
 

@@ -24,7 +24,7 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        public int Priority { get; }
+        public int Priority { get; set; }
 
         protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
 
@@ -75,9 +75,9 @@ namespace MugenMvvm.Collections.Components
                 yield return item;
         }
 
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => EnumerateWithHeaders(items);
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => EnumerateWithHeaders(items);
 
-        bool ICollectionDecorator.OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
             index += _headers.Count;
             return true;

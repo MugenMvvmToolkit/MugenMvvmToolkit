@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private void AssertChanges(Func<object?, object>? getHeader)
         {
             _tracker.ChangedItems.ShouldEqual(Decorate(getHeader));
-            _tracker.ChangedItems.ShouldEqual(_collection.DecorateItems());
+            _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
         }
 
         private IEnumerable<object> Decorate(Func<object?, object>? getHeader)

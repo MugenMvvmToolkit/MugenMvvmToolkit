@@ -4,11 +4,13 @@ using System.Linq;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
+
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections.Components
 {
@@ -18,7 +20,7 @@ namespace MugenMvvm.Collections.Components
         private ICollectionDecoratorManagerComponent? _decoratorManager;
         private int _offset;
 
-        public FlattenCollectionDecorator(IObservableCollection collection, bool isHeader = false, int priority = CollectionComponentPriority.FlattenCollectionDecorator)
+        public FlattenCollectionDecorator(IEnumerable collection, bool isHeader = false, int priority = CollectionComponentPriority.FlattenCollectionDecorator)
         {
             Should.NotBeNull(collection, nameof(collection));
             Collection = collection;
@@ -29,47 +31,28 @@ namespace MugenMvvm.Collections.Components
 
         public bool IsHeader { get; }
 
-        public IObservableCollection Collection { get; }
+        public IEnumerable Collection { get; }
 
-        public int Priority { get; }
+        public int Priority { get; set; }
 
         protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {
             _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-            Collection.AddComponent(_listener);
+            if (Collection is IComponentOwner<ICollection> componentOwner)
+                componentOwner.AddComponent(_listener);
         }
 
         protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {
             _decoratorManager = null;
-            Collection.RemoveComponent(_listener);
+            if (Collection is IComponentOwner<ICollection> componentOwner)
+                componentOwner.RemoveComponent(_listener);
         }
 
-        private IEnumerable<object?>? DecorateItems(IEnumerable<object?>? items)
-        {
-            using var l = Collection.TryLock();
-            if (IsHeader)
-            {
-                foreach (var item in Collection.DecorateItems())
-                    yield return item;
-            }
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) =>
+            Decorate(Collection.Decorate(), items) ?? Enumerable.Empty<object?>();
 
-            if (items != null)
-            {
-                foreach (var item in items)
-                    yield return item;
-            }
-
-            if (!IsHeader)
-            {
-                foreach (var item in Collection.DecorateItems())
-                    yield return item;
-            }
-        }
-
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => DecorateItems(items) ?? Enumerable.Empty<object?>();
-
-        bool ICollectionDecorator.OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
             if (IsHeader)
                 index += _offset;
@@ -119,9 +102,18 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
         {
-            _offset = IsHeader ? Collection.DecorateItems().CountEx() : items.CountEx();
-            items = DecorateItems(items);
+            _offset = IsHeader ? Collection.Decorate().CountEx() : items.CountEx();
+            items = Decorate(Collection.Decorate(), items);
             return true;
+        }
+
+        private IEnumerable<object?>? Decorate(IEnumerable<object?>? collection, IEnumerable<object?>? items)
+        {
+            if (items == null)
+                return collection;
+            if (collection == null)
+                return items;
+            return IsHeader ? collection.Concat(items) : items.Concat(collection);
         }
 
         private sealed class Listener : ICollectionDecoratorListener
@@ -133,10 +125,10 @@ namespace MugenMvvm.Collections.Components
                 _decorator = decorator;
             }
 
-            public void OnItemChanged(ICollection collection, object? item, int index, object? args)
+            public void OnChanged(ICollection collection, object? item, int index, object? args)
             {
                 using var l = TryLock(out var manager, out var owner);
-                manager?.OnItemChanged(owner!, _decorator, GetNestedCollectionIndex(index), index, args);
+                manager?.OnChanged(owner!, _decorator, GetNestedCollectionIndex(index), index, args);
             }
 
             public void OnAdded(ICollection collection, object? item, int index)
@@ -180,27 +172,23 @@ namespace MugenMvvm.Collections.Components
 
                 if (_decorator.IsHeader)
                     _decorator._offset = items.CountEx();
-                manager.OnReset(owner!, _decorator, DecorateItems(items, manager.DecorateItems(owner!, _decorator)));
+                manager.OnReset(owner!, _decorator, _decorator.Decorate(items, manager.Decorate(owner!, _decorator)));
             }
 
             private int GetNestedCollectionIndex(int index) => _decorator.IsHeader ? index : index + _decorator._offset;
 
-            private IEnumerable<object?>? DecorateItems(IEnumerable<object?>? collection, IEnumerable<object?>? items)
-            {
-                if (items == null)
-                    return collection;
-                if (collection == null)
-                    return items;
-                return _decorator.IsHeader ? collection.Concat(items) : items.Concat(collection);
-            }
-
             private MonitorLocker TryLock(out ICollectionDecoratorManagerComponent? manager, out ICollection? owner)
             {
+                var locker = _decorator.OwnerOptional.TryLock();
                 owner = _decorator.OwnerOptional;
                 manager = _decorator._decoratorManager;
                 if (owner == null || manager == null)
-                    return default;
-                return owner.TryLock();
+                {
+                    owner = null;
+                    manager = null;
+                }
+
+                return locker;
             }
         }
     }

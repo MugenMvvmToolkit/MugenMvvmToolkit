@@ -390,7 +390,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             {
                 try
                 {
-                    var target = (TTarget) _targetRef.Target;
+                    var target = (TTarget?) _targetRef.Target;
                     if (target == null)
                         return false;
                     if (message is InheritedProperty inheritedProperty)

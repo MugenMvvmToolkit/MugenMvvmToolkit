@@ -25,14 +25,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
             CollectionDecoratorManager.GetOrAdd(collection);
             var decorator = new TestCollectionDecorator
             {
-                DecorateItems = items =>
+                Decorate = items =>
                 {
                     items.ShouldEqual(new[] {item1, item2});
                     return decoratedItems;
                 }
             };
             collection.AddComponent(decorator);
-            collection.DecorateItems().ShouldEqual(decoratedItems);
+            collection.Decorate().ShouldEqual(decoratedItems);
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             CollectionDecoratorManager.GetOrAdd(collection);
             var decorator1 = new TestCollectionDecorator
             {
-                DecorateItems = items =>
+                Decorate = items =>
                 {
                     items.ShouldEqual(original);
                     return decoratedItems1;
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             var decorator2 = new TestCollectionDecorator
             {
-                DecorateItems = items =>
+                Decorate = items =>
                 {
                     items.ShouldEqual(decoratedItems1);
                     return items.Concat(decoratedItems2);
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             };
             collection.AddComponent(decorator2);
 
-            collection.DecorateItems().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
+            collection.Decorate().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
         }
 
         [Theory]
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collection = CreateCollection<int>();
             CollectionDecoratorManager.GetOrAdd(collection);
             var decorator1 = new SortingCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
-            var decorator2 = new FilterCollectionDecorator<int>(filterFirst ? int.MaxValue : 0) {Filter = i => i % 2 == 0};
+            var decorator2 = new FilterCollectionDecorator<int>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 
@@ -161,7 +161,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collection = CreateCollection<TestCollectionItem>();
             CollectionDecoratorManager.GetOrAdd(collection);
             var decorator1 = new SortingCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
-            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(filterFirst ? int.MaxValue : 0) {Filter = i => i.Id % 2 == 0};
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i.Id % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 

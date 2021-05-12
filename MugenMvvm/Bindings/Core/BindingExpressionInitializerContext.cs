@@ -85,7 +85,7 @@ namespace MugenMvvm.Bindings.Core
             MetadataRaw?.Clear();
         }
 
-        public TValue? TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default)
+        public TValue? TryGetParameterValue<TValue>(string parameterName, TValue? defaultValue = default)
         {
             Should.NotBeNull(parameterName, nameof(parameterName));
             if (AssignmentParameters.TryGetValue(parameterName, out var node))

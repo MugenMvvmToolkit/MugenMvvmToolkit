@@ -64,7 +64,7 @@ namespace MugenMvvm.Collections
             => OnMoved(ResetItems![toFinalPosition], fromPosition, toPosition, _resetBatchUpdate, _resetVersion);
 
         protected virtual void OnChangedDiff(int position, int finalPosition, int count, bool isMove)
-            => OnItemChanged(ResetItems![finalPosition], position, null, _resetBatchUpdate, _resetVersion);
+            => OnChanged(ResetItems![finalPosition], position, null, _resetBatchUpdate, _resetVersion);
 
         protected sealed override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {

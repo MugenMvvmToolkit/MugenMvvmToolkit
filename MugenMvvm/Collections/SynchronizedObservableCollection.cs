@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
@@ -12,7 +14,9 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection, IReadOnlyList<T>
+    [DebuggerDisplay("Count={" + nameof(Count) + "}")]
+    [DebuggerTypeProxy(typeof(SynchronizedObservableCollection<>.DebuggerProxy))]
+    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection
     {
         private int _batchCount;
 
@@ -34,6 +38,8 @@ namespace MugenMvvm.Collections
             Locker = new object();
         }
 
+        public bool IsReadOnly => false;
+
         public int Count
         {
             get
@@ -45,8 +51,6 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public bool IsReadOnly => false;
-
         protected IList<T> Items { get; }
 
         protected object Locker { get; }
@@ -57,7 +61,7 @@ namespace MugenMvvm.Collections
 
         bool IList.IsFixedSize => false;
 
-        Type IObservableCollectionBase.ItemType => typeof(T);
+        Type IReadOnlyObservableCollection.ItemType => typeof(T);
 
         public T this[int index]
         {
@@ -81,9 +85,17 @@ namespace MugenMvvm.Collections
 
         object? IList.this[int index]
         {
-            get => BoxingExtensions.Box(this[index])!;
-            set => this[index] = (T) value!;
+            get => Get(index);
+            set => Set(index, value);
         }
+
+        object? IObservableCollection.this[int index]
+        {
+            get => Get(index);
+            set => Set(index, value);
+        }
+
+        object? IReadOnlyObservableCollection.this[int index] => Get(index);
 
         protected static bool IsCompatibleObject(object? value)
         {
@@ -188,7 +200,7 @@ namespace MugenMvvm.Collections
             {
                 var index = IndexOfInternal(item);
                 if (index >= 0)
-                    GetComponents<ICollectionChangedListener<T>>().OnItemChanged(this, item, index, args);
+                    GetComponents<ICollectionChangedListener<T>>().OnChanged(this, item, index, args);
             }
         }
 
@@ -284,6 +296,10 @@ namespace MugenMvvm.Collections
         protected int IndexOfInternal(T? item) => Items.IndexOf(item!);
 
         protected bool ContainsInternal(T? item) => Items.Contains(item!);
+
+        private object? Get(int index) => BoxingExtensions.Box(this[index]);
+
+        private void Set(int index, object? value) => this[index] = (T) value!;
 
         private void EndBatchUpdate()
         {
@@ -381,6 +397,20 @@ namespace MugenMvvm.Collections
             public void Dispose()
             {
             }
+        }
+
+        internal sealed class DebuggerProxy
+        {
+            private readonly SynchronizedObservableCollection<T> _collection;
+
+            public DebuggerProxy(SynchronizedObservableCollection<T> collection)
+            {
+                _collection = collection;
+            }
+
+            public IEnumerable<T> Items => _collection.Select(arg => arg);
+
+            public IEnumerable<object?> DecoratedItems => _collection.Decorate();
         }
     }
 }

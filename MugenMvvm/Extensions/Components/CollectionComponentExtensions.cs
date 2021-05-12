@@ -116,11 +116,11 @@ namespace MugenMvvm.Extensions.Components
                 c.OnResetting(collection, items);
         }
 
-        public static void OnItemChanged<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index, object? args)
+        public static void OnChanged<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index, object? args)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
-                c.OnItemChanged(collection, item, index, args);
+                c.OnChanged(collection, item, index, args);
         }
 
         public static void OnAdded<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyCollection<T> collection, T item, int index)
@@ -158,11 +158,11 @@ namespace MugenMvvm.Extensions.Components
                 c.OnReset(collection, items);
         }
 
-        public static void OnItemChanged(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? item, int index, object? args)
+        public static void OnChanged(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? item, int index, object? args)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
-                c.OnItemChanged(collection, item, index, args);
+                c.OnChanged(collection, item, index, args);
         }
 
         public static void OnAdded(this ItemOrArray<ICollectionDecoratorListener> listeners, ICollection collection, object? item, int index)

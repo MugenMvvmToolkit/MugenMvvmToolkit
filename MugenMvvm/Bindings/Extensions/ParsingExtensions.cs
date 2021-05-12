@@ -41,7 +41,7 @@ namespace MugenMvvm.Bindings.Extensions
             return flags;
         }
 
-        public static TValue? TryGetMetadataValue<TValue>(this IExpressionNode expression, string key, TValue defaultValue = default)
+        public static TValue? TryGetMetadataValue<TValue>(this IExpressionNode expression, string key, TValue? defaultValue = default)
         {
             Should.NotBeNull(expression, nameof(expression));
             Should.NotBeNull(key, nameof(key));

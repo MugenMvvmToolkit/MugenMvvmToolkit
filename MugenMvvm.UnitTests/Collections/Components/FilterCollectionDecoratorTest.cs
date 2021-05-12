@@ -298,7 +298,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             decorator.Filter = i => i % 2 == 0;
 
-            tracker.ChangedItems.ShouldEqual(observableCollection.DecorateItems().Cast<int>());
+            tracker.ChangedItems.ShouldEqual(observableCollection.Decorate().Cast<int>());
             tracker.ChangedItems.ShouldEqual(observableCollection.Where(decorator.Filter));
         }
     }

@@ -23,14 +23,14 @@ namespace MugenMvvm.Extensions
         }
 
         [return: NotNullIfNotNull("collection")]
-        public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase? collection)
+        public static IEnumerable<object?>? Decorate(this IReadOnlyObservableCollection? collection)
         {
             if (collection == null)
                 return null;
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             if (component == null)
                 return collection as IEnumerable<object?> ?? collection.Cast<object?>();
-            return component.DecorateItems((ICollection) collection);
+            return component.Decorate((ICollection) collection);
         }
 
         public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> value)
@@ -45,6 +45,8 @@ namespace MugenMvvm.Extensions
             else
                 collection.Reset(value.List);
         }
+
+        public static MonitorLocker TryLock(this IReadOnlyObservableCollection? collection) => TryLock(collection as ICollection);
 
         public static MonitorLocker TryLock(this ICollection? collection)
         {
@@ -281,6 +283,13 @@ namespace MugenMvvm.Extensions
             var enumerator = enumerable.GetEnumerator();
             enumerator.MoveNext();
             return enumerator.Current;
+        }
+
+        internal static IEnumerable<object?> Decorate(this IEnumerable collection)
+        {
+            if (collection is IReadOnlyObservableCollection observable)
+                return observable.Decorate();
+            return collection as IEnumerable<object?> ?? collection.Cast<object>();
         }
 
 #if SPAN_API

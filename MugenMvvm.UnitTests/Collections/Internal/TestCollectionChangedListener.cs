@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public Action<T, int>? OnRemoved { get; set; }
 
-        public Action<T, int, object?>? OnItemChanged { get; set; }
+        public Action<T, int, object?>? OnChanged { get; set; }
 
         public Action<IEnumerable<T>?>? OnReset { get; set; }
 
@@ -32,10 +32,10 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public int Priority { get; set; }
 
-        void ICollectionChangedListener<T>.OnItemChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
+        void ICollectionChangedListener<T>.OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
         {
             _collection.ShouldEqual(collection);
-            OnItemChanged?.Invoke(item!, index, args);
+            OnChanged?.Invoke(item!, index, args);
         }
 
         void ICollectionChangedListener<T>.OnAdded(IReadOnlyCollection<T> collection, T item, int index)

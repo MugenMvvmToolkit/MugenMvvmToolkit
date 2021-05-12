@@ -81,7 +81,7 @@ namespace MugenMvvm.Ios.Collections
             NotifyReload(index, 1);
         }
 
-        protected override void OnItemChanged(object? item, int index, object? args, bool batchUpdate, int version)
+        protected override void OnChanged(object? item, int index, object? args, bool batchUpdate, int version)
         {
             NotifyReload(index, 1);
             _reloadIndexes.Remove(index);

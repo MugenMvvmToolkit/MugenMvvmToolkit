@@ -27,20 +27,18 @@ namespace MugenMvvm.Collections.Components
 
         public IComparer<object?> Comparer => _comparer.Comparer;
 
-        public int Priority { get; }
+        public int Priority { get; set; }
 
         int IReadOnlyCollection<object?>.Count => _items.Count;
 
         public void Reorder()
         {
+            var _ = OwnerOptional.TryLock();
             if (_decoratorManager == null)
                 return;
 
-            using (Owner.TryLock())
-            {
-                Reset(_decoratorManager.DecorateItems(Owner, this));
-                _decoratorManager.OnReset(Owner, this, this);
-            }
+            Reset(_decoratorManager.Decorate(Owner, this));
+            _decoratorManager.OnReset(Owner, this, this);
         }
 
         public IEnumerator<object?> GetEnumerator()
@@ -111,9 +109,9 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items) => items.OrderBy(arg => arg, Comparer);
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => items.OrderBy(arg => arg, Comparer);
 
-        bool ICollectionDecorator.OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
             if (_decoratorManager == null)
                 return false;

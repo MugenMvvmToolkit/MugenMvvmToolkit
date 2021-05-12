@@ -8,7 +8,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 {
     public class TestCollectionDecorator : ICollectionDecorator, IHasPriority
     {
-        public Func<IEnumerable<object?>, IEnumerable<object?>>? DecorateItems { get; set; }
+        public Func<IEnumerable<object?>, IEnumerable<object?>>? Decorate { get; set; }
 
         public FuncRef<object?, int, bool>? OnAdded { get; set; }
 
@@ -20,24 +20,24 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public FuncRef<IEnumerable<object?>?, bool>? OnReset { get; set; }
 
-        public FuncRef<object?, int, object?, bool>? OnItemChanged { get; set; }
+        public FuncRef<object?, int, object?, bool>? OnChanged { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
         public int Priority { get; set; }
 
-        IEnumerable<object?> ICollectionDecorator.DecorateItems(ICollection collection, IEnumerable<object?> items)
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items)
         {
-            if (DecorateItems == null && ThrowErrorNullDelegate)
+            if (Decorate == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return DecorateItems?.Invoke(items) ?? items;
+            return Decorate?.Invoke(items) ?? items;
         }
 
-        bool ICollectionDecorator.OnItemChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
-            if (OnItemChanged == null && ThrowErrorNullDelegate)
+            if (OnChanged == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return OnItemChanged?.Invoke(ref item, ref index, ref args) ?? true;
+            return OnChanged?.Invoke(ref item, ref index, ref args) ?? true;
         }
 
         bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)

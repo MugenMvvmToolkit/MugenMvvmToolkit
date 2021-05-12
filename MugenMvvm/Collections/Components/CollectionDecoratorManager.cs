@@ -35,8 +35,7 @@ namespace MugenMvvm.Collections.Components
 
         private static ICollectionDecoratorManagerComponent? TryGetGenericManager(object owner)
         {
-            var collection = (IObservableCollectionBase) owner;
-            var itemType = collection.ItemType;
+            var itemType = GetItemType(owner);
             if (!itemType.IsValueType)
                 return null;
 
@@ -45,12 +44,30 @@ namespace MugenMvvm.Collections.Components
             {
                 if (!GenericManagers.TryGetValue(itemType, out component))
                 {
-                    component = (ICollectionDecoratorManagerComponent) Activator.CreateInstance(typeof(GenericManager<>).MakeGenericType(collection.ItemType))!;
+                    component = (ICollectionDecoratorManagerComponent) Activator.CreateInstance(typeof(GenericManager<>).MakeGenericType(itemType))!;
                     GenericManagers[itemType] = component;
                 }
             }
 
             return component;
+        }
+
+        private static Type GetItemType(object owner)
+        {
+            if (owner is IReadOnlyObservableCollection c)
+                return c.ItemType;
+
+            foreach (Type interfaceType in owner.GetType().GetInterfaces())
+            {
+                if (!interfaceType.IsGenericType)
+                    continue;
+
+                var typeDefinition = interfaceType.GetGenericTypeDefinition();
+                if (typeDefinition == typeof(IEnumerable<>) || typeDefinition == typeof(ICollection<>) || typeDefinition == typeof(IList<>))
+                    return interfaceType.GetGenericArguments()[0];
+            }
+
+            return typeof(object);
         }
 
         private static ItemOrArray<ICollectionDecorator> GetDecorators(ICollection collection, ICollectionDecorator? decorator, out int index, bool isLengthDefault = false)
@@ -79,32 +96,32 @@ namespace MugenMvvm.Collections.Components
 
         private static void Reset(ICollection collection)
         {
-            using (collection.TryLock())
-            {
-                Instance.OnReset(collection, null, collection as IEnumerable<object?> ?? collection.OfType<object?>());
-            }
+            using var _ = collection.TryLock();
+            Instance.OnReset(collection, null, collection as IEnumerable<object?> ?? collection.OfType<object?>());
         }
 
-        public IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null)
+        public IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null)
         {
+            using var _ = decorator == null ? default : collection.TryLock();
             IEnumerable<object?> items = collection as IEnumerable<object?> ?? collection.OfType<object?>();
-            var decorators = GetDecorators(collection, decorator, out var startIndex, true);
-            for (var i = 0; i < startIndex; i++)
-                items = decorators[i].DecorateItems(collection, items);
+            var decorators = GetDecorators(collection, decorator, out var index, true);
+            for (var i = 0; i < index; i++)
+                items = decorators[i].Decorate(collection, items);
 
-            return items;
+            foreach (var item in items)
+                yield return item;
         }
 
-        public void OnItemChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args)
+        public void OnChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args)
         {
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Count; i++)
             {
-                if (!decorators[i].OnItemChanged(collection, ref item, ref index, ref args))
+                if (!decorators[i].OnChanged(collection, ref item, ref index, ref args))
                     return;
             }
 
-            GetComponents<ICollectionDecoratorListener>(collection).OnItemChanged(collection, item, index, args);
+            GetComponents<ICollectionDecoratorListener>(collection).OnChanged(collection, item, index, args);
         }
 
         public void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index)
@@ -167,8 +184,8 @@ namespace MugenMvvm.Collections.Components
             GetComponents<ICollectionDecoratorListener>(collection).OnReset(collection, items);
         }
 
-        void ICollectionChangedListener<object?>.OnItemChanged(IReadOnlyCollection<object?> collection, object? item, int index, object? args) =>
-            OnItemChanged((ICollection) collection, null, item, index, args);
+        void ICollectionChangedListener<object?>.OnChanged(IReadOnlyCollection<object?> collection, object? item, int index, object? args) =>
+            OnChanged((ICollection) collection, null, item, index, args);
 
         void ICollectionChangedListener<object?>.OnAdded(IReadOnlyCollection<object?> collection, object? item, int index) => OnAdded((ICollection) collection, null, item, index);
 
@@ -199,8 +216,8 @@ namespace MugenMvvm.Collections.Components
         {
             public int Priority => Instance.Priority;
 
-            public void OnItemChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
-                => Instance.OnItemChanged((ICollection) collection, null, BoxingExtensions.Box(item), index, args);
+            public void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
+                => Instance.OnChanged((ICollection) collection, null, BoxingExtensions.Box(item), index, args);
 
             public void OnAdded(IReadOnlyCollection<T> collection, T item, int index)
                 => Instance.OnAdded((ICollection) collection, null, BoxingExtensions.Box(item), index);
@@ -217,10 +234,10 @@ namespace MugenMvvm.Collections.Components
             public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items)
                 => Instance.OnReset((ICollection) collection, null, items?.Cast<object?>());
 
-            public IEnumerable<object?> DecorateItems(ICollection collection, ICollectionDecorator? decorator = null) => Instance.DecorateItems(collection, decorator);
+            public IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null) => Instance.Decorate(collection, decorator);
 
-            public void OnItemChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args) =>
-                Instance.OnItemChanged(collection, decorator, item, index, args);
+            public void OnChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args) =>
+                Instance.OnChanged(collection, decorator, item, index, args);
 
             public void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index) => Instance.OnAdded(collection, decorator, item, index);
 

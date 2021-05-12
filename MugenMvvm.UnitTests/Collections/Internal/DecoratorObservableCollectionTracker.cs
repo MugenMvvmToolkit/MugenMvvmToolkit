@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             }
         }
 
-        public void OnItemChanged(ICollection collection, object? item, int index, object? args)
+        public void OnChanged(ICollection collection, object? item, int index, object? args)
         {
         }
 

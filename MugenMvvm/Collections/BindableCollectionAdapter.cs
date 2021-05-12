@@ -84,7 +84,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public bool SuppressItemChangedEvent { get; set; }
+        public bool SuppressChangedEvent { get; set; }
 
         public int BatchSize { get; set; } = 50;
 
@@ -123,14 +123,9 @@ namespace MugenMvvm.Collections
             Listener.SetVersion(int.MinValue);
         }
 
-        protected virtual IEnumerable<object?> GetCollectionItems(IEnumerable collection)
-        {
-            if (collection is IObservableCollectionBase observable)
-                return observable.DecorateItems();
-            return collection as IEnumerable<object?> ?? collection.Cast<object>();
-        }
+        protected virtual IEnumerable<object?> GetCollectionItems(IEnumerable collection) => collection.Decorate();
 
-        protected virtual void OnItemChanged(object? item, int index, object? args, bool batchUpdate, int version)
+        protected virtual void OnChanged(object? item, int index, object? args, bool batchUpdate, int version)
         {
         }
 
@@ -398,7 +393,7 @@ namespace MugenMvvm.Collections
                         adapter.OnReset((IEnumerable<object?>?) NewItem, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Changed:
-                        adapter.OnItemChanged(OldItem, OldIndex, NewItem, batchUpdate, version);
+                        adapter.OnChanged(OldItem, OldIndex, NewItem, batchUpdate, version);
                         break;
                     default:
                         ExceptionManager.ThrowEnumOutOfRange(nameof(Action), Action);
@@ -484,10 +479,10 @@ namespace MugenMvvm.Collections
 
             public void OnEndBatchUpdate(ICollection collection) => GetAdapter()?.EndBatchUpdate(_version);
 
-            public void OnItemChanged(ICollection collection, object? item, int index, object? args)
+            public void OnChanged(ICollection collection, object? item, int index, object? args)
             {
                 var adapter = GetAdapter();
-                if (adapter != null && !adapter.SuppressItemChangedEvent)
+                if (adapter != null && !adapter.SuppressChangedEvent)
                     adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
             }
 
