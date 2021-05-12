@@ -6,7 +6,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
@@ -99,6 +98,19 @@ namespace MugenMvvm.Components
             {
                 ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
                 changedListeners.OnRemoved(this, oldItem, metadata);
+            }
+        }
+
+        public void Invalidate(object component, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(component, nameof(component));
+            lock (_items)
+            {
+                if (!_items.Contains(component))
+                    return;
+
+                _items.Sort(this);
+                UpdateTrackers(component, null, metadata);
             }
         }
 

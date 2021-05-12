@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Components
             var attachingCount = 0;
             var attachedCount = 0;
             var canAttach = false;
-            
+
             var component = new TestAttachableComponent<ComponentCollectionTest>
             {
                 OnAttachingHandler = (test, context) =>
@@ -195,7 +195,7 @@ namespace MugenMvvm.UnitTests.Components
             var detachingCount = 0;
             var detachedCount = 0;
             var canDetach = false;
-            
+
             var component = new TestAttachableComponent<ComponentCollectionTest>
             {
                 OnDetachingHandler = (test, context) =>
@@ -302,7 +302,7 @@ namespace MugenMvvm.UnitTests.Components
             var addedCount = 0;
             var canAdd = false;
             object? expectedItem = null;
-            
+
             var changingListener = new TestComponentCollectionChangingListener
             {
                 OnAdding = (collection, o, arg3) =>
@@ -359,7 +359,7 @@ namespace MugenMvvm.UnitTests.Components
             var removedCount = 0;
             var canRemove = false;
             object? expectedItem = null;
-            
+
             var changingListener = new TestComponentCollectionChangingListener
             {
                 OnRemoving = (collection, o, arg3) =>
@@ -418,7 +418,7 @@ namespace MugenMvvm.UnitTests.Components
         {
             var items = new HashSet<object>();
             var removedCount = 0;
-            
+
             var changedListener = new TestComponentCollectionChangedListener
             {
                 OnRemoved = (collection, o, arg3) =>
@@ -472,7 +472,34 @@ namespace MugenMvvm.UnitTests.Components
             components.AsList().OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
         }
 
-        protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new ComponentCollection(this, componentCollectionManager);
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void InvalidateShouldUpdateComponentOrder(int count)
+        {
+            var components = new List<TestComponentCollectionProviderComponent>();
+            for (var i = 0; i < count; i++)
+            {
+                var component = new TestComponentCollectionProviderComponent {Priority = i + 1};
+                components.Insert(0, component);
+                _componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
+            }
+
+            _componentCollection.Count.ShouldEqual(components.Count);
+            _componentCollection.Owner.ShouldEqual(this);
+            _componentCollection.Get<TestComponentCollectionProviderComponent>().ShouldEqual(components);
+
+            foreach (var component in components)
+            {
+                component.Priority = -component.Priority;
+                _componentCollection.Invalidate(component);
+                var list = _componentCollection.Get<TestComponentCollectionProviderComponent>().AsList();
+                list.ShouldEqual(components.OrderByDescending(c => c.Priority));
+            }
+        }
+
+        protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) =>
+            new ComponentCollection(this, componentCollectionManager);
 
         private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
         {

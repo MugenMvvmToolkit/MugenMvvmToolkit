@@ -510,6 +510,13 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
+        void IComponentCollection.Invalidate(object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(component, nameof(component));
+            if (_components is object[] array)
+                Array.Sort(array, this);
+        }
+
         ItemOrArray<T> IComponentCollection.Get<T>(IReadOnlyMetadataContext? metadata)
         {
             Should.MethodBeSupported(typeof(T) == typeof(object), nameof(IComponentCollection.Get));

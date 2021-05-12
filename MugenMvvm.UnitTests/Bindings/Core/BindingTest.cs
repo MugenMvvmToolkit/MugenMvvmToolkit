@@ -295,6 +295,34 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
+        public void InvalidateShouldUpdateComponentOrder(int count)
+        {
+            var binding = GetBinding();
+            var components = new List<TestComponentCollectionProviderComponent>();
+            var componentCollection = (IComponentCollection) binding;
+            for (var i = 0; i < count; i++)
+            {
+                var component = new TestComponentCollectionProviderComponent {Priority = i + 1};
+                components.Insert(0, component);
+                componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
+            }
+
+            componentCollection.Count.ShouldEqual(components.Count);
+            componentCollection.Owner.ShouldEqual(binding);
+            componentCollection.Get<object>().ShouldEqual(components);
+
+            foreach (var component in components)
+            {
+                component.Priority = -component.Priority;
+                componentCollection.Invalidate(component);
+                var list = componentCollection.Get<object>().AsList();
+                list.ShouldEqual(components.OrderByDescending(c => c.Priority));
+            }
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
         public void RemoveShouldRemoveComponent(int count)
         {
             var binding = GetBinding();

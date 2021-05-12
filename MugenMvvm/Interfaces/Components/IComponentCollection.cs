@@ -15,6 +15,8 @@ namespace MugenMvvm.Interfaces.Components
 
         void Clear(IReadOnlyMetadataContext? metadata = null);
 
+        void Invalidate(object component, IReadOnlyMetadataContext? metadata = null);
+
         ItemOrArray<T> Get<T>(IReadOnlyMetadataContext? metadata = null) where T : class;
     }
 }
