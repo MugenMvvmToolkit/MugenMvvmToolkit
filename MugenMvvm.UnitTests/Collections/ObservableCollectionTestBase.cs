@@ -13,7 +13,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Collections
 {
-    public class ObservableCollectionTestBase : ComponentOwnerTestBase<IObservableCollection<object>>
+    public abstract class ObservableCollectionTestBase : ComponentOwnerTestBase<IObservableCollection<object>>
     {
         [Fact]
         public void AddTest()
@@ -1019,8 +1019,9 @@ namespace MugenMvvm.UnitTests.Collections
             clear.ShouldEqual(count * listenersCount);
         }
 
-        protected virtual IObservableCollection<T> CreateCollection<T>(params T[] items) => new SynchronizedObservableCollection<T>(items, ComponentCollectionManager);
+        protected abstract IObservableCollection<T> CreateCollection<T>(params T[] items);
 
-        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new SynchronizedObservableCollection<object>(componentCollectionManager);
+        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) =>
+            new SynchronizedObservableCollection<object>(componentCollectionManager);
     }
 }

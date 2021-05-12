@@ -363,40 +363,24 @@ namespace MugenMvvm.Collections
         {
             private readonly SynchronizedObservableCollection<T>? _collection;
             private int _index;
+            private MonitorLocker _locker;
 
-            public Enumerator(SynchronizedObservableCollection<T> collection)
+            internal Enumerator(SynchronizedObservableCollection<T> collection)
             {
                 _collection = collection;
-                _index = 0;
-                Current = default!;
+                _index = -1;
+                _locker = MonitorLocker.Lock(collection.Locker);
             }
 
-            public T Current { get; private set; }
+            public T Current => _collection == null ? default! : _collection[_index];
 
             object IEnumerator.Current => Current!;
 
-            public bool MoveNext()
-            {
-                if (_collection == null)
-                    return false;
+            public bool MoveNext() => _collection != null && ++_index < _collection.GetCountInternal();
 
-                lock (_collection.Locker)
-                {
-                    if (_index >= _collection.GetCountInternal())
-                        return false;
+            public void Reset() => _index = -1;
 
-                    Current = _collection.GetInternal(_index);
-                    ++_index;
-                }
-
-                return true;
-            }
-
-            public void Reset() => _index = 0;
-
-            public void Dispose()
-            {
-            }
+            public void Dispose() => _locker.Dispose();
         }
 
         internal sealed class DebuggerProxy
