@@ -14,6 +14,7 @@ import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.FragmentMugenExtensions;
 import com.mugen.mvvm.views.ViewMugenExtensions;
 
@@ -54,8 +55,10 @@ public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher
 
     @Override
     public void onInitializing(@NonNull Object owner, @NonNull View view) {
-        if (FragmentMugenExtensions.isSupported(owner))
+        if (FragmentMugenExtensions.isSupported(owner)) {
             ViewMugenExtensions.getNativeAttachedValues(view, true).setFragment(owner);
+            BindableMemberMugenExtensions.setParent(view, owner);
+        }
     }
 
     @Override

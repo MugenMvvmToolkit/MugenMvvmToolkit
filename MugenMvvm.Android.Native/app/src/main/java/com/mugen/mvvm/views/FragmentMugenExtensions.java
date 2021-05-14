@@ -85,7 +85,7 @@ public final class FragmentMugenExtensions {
             fragmentTransaction.attach(fragment);
         else
             fragmentTransaction.replace(container.getId(), fragment);
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
         fragmentManager.executePendingTransactions();
         return true;
     }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,7 +38,10 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
         }
 
         Context context = getContext(container);
-        View view = LayoutInflater.from(context).inflate(resourceId, null);
+        ViewGroup parent = null;
+        if (container instanceof ViewGroup)
+            parent = (ViewGroup) container;
+        View view = LayoutInflater.from(context).inflate(resourceId, parent, false);
         if (trackLifecycle) {
             Context activity = ActivityMugenExtensions.tryGetActivity(context);
             if (activity instanceof IHasStateView) {

@@ -26,13 +26,17 @@ namespace MugenMvvm.Android.Bindings
             }
         }
 
-        public object SelectTemplate(object container, object? item)
+        public object? SelectTemplate(object container, object? item)
         {
             var template = _selector.SelectTemplate(container, item);
+            if (template == 0)
+                return null;
+
             if (item is IViewModelBase viewModel && container is Object c)
                 return viewModel.GetOrCreateView(c, template).Target;
             if (container is Object javaContainer)
                 return ViewMugenExtensions.GetView(javaContainer, template, false, null!);
+
             ExceptionManager.ThrowNotSupported(nameof(container));
             return null;
         }

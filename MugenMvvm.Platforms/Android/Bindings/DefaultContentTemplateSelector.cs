@@ -9,8 +9,10 @@ namespace MugenMvvm.Android.Bindings
     {
         public bool HasFragments { get; set; }
 
-        public object SelectTemplate(object container, object? item)
+        public object? SelectTemplate(object container, object? item)
         {
+            if (item == null)
+                return null;
             if (item is IViewModelBase viewModel && container is Object c)
                 return viewModel.GetOrCreateView(c, 0).Target;
             ExceptionManager.ThrowNotSupported(nameof(item));
