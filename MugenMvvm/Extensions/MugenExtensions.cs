@@ -287,6 +287,13 @@ namespace MugenMvvm.Extensions
         public static T EnsureInitialized<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
             => Volatile.Read(ref item!) ?? Interlocked.CompareExchange(ref item, value, null!) ?? item;
 
+        internal static ActionToken TryLock(object? target)
+        {
+            if (target is ISynchronizable synchronizable)
+                return synchronizable.Lock();
+            return default;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
 

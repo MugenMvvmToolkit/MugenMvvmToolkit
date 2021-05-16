@@ -10,7 +10,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         new object? this[int index] { get; set; }
 
-        ActionToken BeginBatchUpdate();
+        ActionToken BatchUpdate();
 
         void Move(int oldIndex, int newIndex);
 

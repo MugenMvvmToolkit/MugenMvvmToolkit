@@ -20,11 +20,11 @@ namespace MugenMvvm.Extensions
         public static async ValueTask<TResult?> NavigateAsync<TState, TResult>(this INavigationDispatcher navigationDispatcher, object? target,
             INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, TState state,
             Func<TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<TResult>> handler, TResult? defaultResult = default,
-            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+            NavigationMode? navigationMode = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(handler, nameof(handler));
-            var context = navigationDispatcher.GetNavigationContext(target, navigationProvider, navigationId, navigationType, NavigationMode.New, metadata);
+            var context = navigationDispatcher.GetNavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode ?? NavigationMode.New, metadata);
             try
             {
                 if (!await navigationDispatcher.OnNavigatingAsync(context, cancellationToken).ConfigureAwait(false))

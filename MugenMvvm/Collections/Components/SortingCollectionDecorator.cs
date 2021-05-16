@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -33,10 +32,10 @@ namespace MugenMvvm.Collections.Components
 
         public void Reorder()
         {
-            var _ = OwnerOptional.TryLock();
             if (_decoratorManager == null)
                 return;
 
+            using var _ = _decoratorManager.BatchUpdate(Owner, this);
             Reset(_decoratorManager.Decorate(Owner, this));
             _decoratorManager.OnReset(Owner, this, this);
         }
@@ -96,20 +95,8 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
-        {
-            if (items == null)
-                _items.Clear();
-            else
-            {
-                Reset(items);
-                items = this;
-            }
-
-            return true;
-        }
-
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => items.OrderBy(arg => arg, Comparer);
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) =>
+            _decoratorManager == null ? items : items.OrderBy(arg => arg, Comparer);
 
         bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
@@ -136,6 +123,9 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
         {
+            if (_decoratorManager == null)
+                return false;
+
             UpdateIndexes(index, 1);
             var newIndex = GetInsertIndex(item);
             _items.Insert(newIndex, new OrderedItem(index, item));
@@ -163,6 +153,9 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
         {
+            if (_decoratorManager == null)
+                return false;
+
             var index = GetIndexByOriginalIndex(oldIndex);
             UpdateIndexes(oldIndex + 1, -1);
             UpdateIndexes(newIndex, 1);
@@ -179,6 +172,9 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
         {
+            if (_decoratorManager == null)
+                return false;
+
             var indexToRemove = GetIndexByOriginalIndex(index);
             UpdateIndexes(index, -1);
             if (indexToRemove == -1)
@@ -186,6 +182,22 @@ namespace MugenMvvm.Collections.Components
 
             _items.RemoveAt(indexToRemove);
             index = indexToRemove;
+            return true;
+        }
+
+        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
+        {
+            if (_decoratorManager == null)
+                return false;
+
+            if (items == null)
+                _items.Clear();
+            else
+            {
+                Reset(items);
+                items = this;
+            }
+
             return true;
         }
 

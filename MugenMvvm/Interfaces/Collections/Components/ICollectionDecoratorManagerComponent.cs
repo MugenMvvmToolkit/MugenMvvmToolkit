@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecoratorManagerComponent : IComponent<ICollection>
     {
+        ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null);
+
         IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null);
 
         void OnChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args);

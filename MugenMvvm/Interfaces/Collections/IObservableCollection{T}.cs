@@ -9,7 +9,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         new T this[int index] { get; set; }
 
-        ActionToken BeginBatchUpdate();
+        ActionToken BatchUpdate();
 
         void Move(int oldIndex, int newIndex);
 

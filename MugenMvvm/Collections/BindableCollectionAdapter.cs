@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -155,10 +153,11 @@ namespace MugenMvvm.Collections
 
         protected virtual void BatchUpdate(List<CollectionChangedEvent> events, int version)
         {
-            if (events.Count < BatchSize)
+            if (events.Count == 1 || events.Count < BatchSize)
             {
                 for (var i = 0; i < events.Count; i++)
                     events[i].Raise(this, true, version);
+                ResetCache?.Clear();
                 return;
             }
 
@@ -181,11 +180,15 @@ namespace MugenMvvm.Collections
             if (e.Action == CollectionChangedAction.Reset)
             {
                 pendingEvents.Clear();
-                if (e.Action == CollectionChangedAction.Reset)
+                if (e.NewItem != null)
                 {
-                    pendingEvents.Add(CollectionChangedEvent.Reset(((IEnumerable<object?>?) e.NewItem)?.ToList()));
-                    return true;
+                    ResetCache ??= new List<object?>();
+                    ResetCache.Clear();
+                    ResetCache.AddRange((IEnumerable<object?>) e.NewItem);
                 }
+
+                pendingEvents.Add(CollectionChangedEvent.Reset(ResetCache == null || ResetCache.Count == 0 ? null : ResetCache));
+                return true;
             }
 
             pendingEvents.Add(e);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Collections;
@@ -28,9 +29,20 @@ namespace MugenMvvm.Extensions
             if (collection == null)
                 return null;
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
-            if (component == null)
-                return collection as IEnumerable<object?> ?? collection.Cast<object?>();
-            return component.Decorate((ICollection) collection);
+            return component == null ? collection.AsEnumerable() : component.Decorate((ICollection) collection);
+        }
+
+        public static void InvalidateDecorators(this IReadOnlyObservableCollection? collection)
+        {
+            if (collection == null)
+                return;
+
+            var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
+            if (component != null)
+            {
+                using var _ = collection.TryLock();
+                component.OnReset((ICollection) collection, null, collection.AsEnumerable());
+            }
         }
 
         public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> value)
@@ -46,14 +58,7 @@ namespace MugenMvvm.Extensions
                 collection.Reset(value.List);
         }
 
-        public static MonitorLocker TryLock(this IReadOnlyObservableCollection? collection) => TryLock(collection as ICollection);
-
-        public static MonitorLocker TryLock(this ICollection? collection)
-        {
-            if (collection == null || !collection.IsSynchronized)
-                return default;
-            return MonitorLocker.Lock(collection.SyncRoot);
-        }
+        public static ActionToken TryLock(this IReadOnlyObservableCollection? collection) => TryLock(target: collection);
 
         public static void AddRange<T>(this ICollection<T> items, IEnumerable<T> value)
         {
@@ -289,8 +294,11 @@ namespace MugenMvvm.Extensions
         {
             if (collection is IReadOnlyObservableCollection observable)
                 return observable.Decorate();
-            return collection as IEnumerable<object?> ?? collection.Cast<object>();
+            return collection.AsEnumerable();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static IEnumerable<object?> AsEnumerable(this IEnumerable enumerable) => enumerable as IEnumerable<object?> ?? enumerable.Cast<object?>();
 
 #if SPAN_API
         //https://github.com/dotnet/runtime/pull/295

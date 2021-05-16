@@ -221,5 +221,33 @@ namespace MugenMvvm.Extensions.Components
 
             return null;
         }
+
+        public static void OnLocking(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(target, nameof(target));
+            foreach (var component in components)
+                component.OnLocking(target, metadata);
+        }
+
+        public static void OnLocked(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(target, nameof(target));
+            foreach (var component in components)
+                component.OnLocked(target, metadata);
+        }
+
+        public static void OnUnlocking(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(target, nameof(target));
+            foreach (var component in components)
+                component.OnUnlocking(target, metadata);
+        }
+
+        public static void OnUnlocked(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(target, nameof(target));
+            foreach (var component in components)
+                component.OnUnlocked(target, metadata);
+        }
     }
 }

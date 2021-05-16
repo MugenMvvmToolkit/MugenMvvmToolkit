@@ -351,11 +351,11 @@ namespace MugenMvvm.UnitTests.Collections
                 collection.AddComponent(collectionListener);
             }
 
-            var beginBatchUpdate1 = collection.BeginBatchUpdate();
+            var beginBatchUpdate1 = collection.BatchUpdate();
             begin.ShouldEqual(listenersCount);
             end.ShouldEqual(0);
 
-            var beginBatchUpdate2 = collection.BeginBatchUpdate();
+            var beginBatchUpdate2 = collection.BatchUpdate();
             begin.ShouldEqual(listenersCount);
             end.ShouldEqual(0);
 

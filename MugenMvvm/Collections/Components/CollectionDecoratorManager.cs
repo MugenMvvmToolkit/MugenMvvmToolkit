@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
@@ -96,14 +97,16 @@ namespace MugenMvvm.Collections.Components
 
         private static void Reset(ICollection collection)
         {
-            using var _ = collection.TryLock();
-            Instance.OnReset(collection, null, collection as IEnumerable<object?> ?? collection.OfType<object?>());
+            using var _ = MugenExtensions.TryLock(collection);
+            Instance.OnReset(collection, null, collection.AsEnumerable());
         }
+
+        public ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null) => MugenExtensions.TryLock(collection);
 
         public IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null)
         {
-            using var _ = decorator == null ? default : collection.TryLock();
-            IEnumerable<object?> items = collection as IEnumerable<object?> ?? collection.OfType<object?>();
+            using var _ = decorator == null ? MugenExtensions.TryLock(collection) : default;
+            var items = collection.AsEnumerable();
             var decorators = GetDecorators(collection, decorator, out var index, true);
             for (var i = 0; i < index; i++)
                 items = decorators[i].Decorate(collection, items);
@@ -216,23 +219,22 @@ namespace MugenMvvm.Collections.Components
         {
             public int Priority => Instance.Priority;
 
-            public void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
-                => Instance.OnChanged((ICollection) collection, null, BoxingExtensions.Box(item), index, args);
+            public void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args) =>
+                Instance.OnChanged((ICollection) collection, null, BoxingExtensions.Box(item), index, args);
 
-            public void OnAdded(IReadOnlyCollection<T> collection, T item, int index)
-                => Instance.OnAdded((ICollection) collection, null, BoxingExtensions.Box(item), index);
+            public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => Instance.OnAdded((ICollection) collection, null, BoxingExtensions.Box(item), index);
 
-            public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index)
-                => Instance.OnReplaced((ICollection) collection, null, BoxingExtensions.Box(oldItem), BoxingExtensions.Box(newItem), index);
+            public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) =>
+                Instance.OnReplaced((ICollection) collection, null, BoxingExtensions.Box(oldItem), BoxingExtensions.Box(newItem), index);
 
-            public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex)
-                => Instance.OnMoved((ICollection) collection, null, BoxingExtensions.Box(item), oldIndex, newIndex);
+            public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) =>
+                Instance.OnMoved((ICollection) collection, null, BoxingExtensions.Box(item), oldIndex, newIndex);
 
-            public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index)
-                => Instance.OnRemoved((ICollection) collection, null, BoxingExtensions.Box(item), index);
+            public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => Instance.OnRemoved((ICollection) collection, null, BoxingExtensions.Box(item), index);
 
-            public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items)
-                => Instance.OnReset((ICollection) collection, null, items?.Cast<object?>());
+            public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => Instance.OnReset((ICollection) collection, null, items?.Cast<object?>());
+
+            public ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null) => Instance.BatchUpdate(collection, decorator);
 
             public IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null) => Instance.Decorate(collection, decorator);
 

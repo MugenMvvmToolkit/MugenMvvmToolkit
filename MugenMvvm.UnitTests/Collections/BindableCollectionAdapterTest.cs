@@ -138,7 +138,7 @@ namespace MugenMvvm.UnitTests.Collections
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
 
-            using (observableCollection.BeginBatchUpdate())
+            using (observableCollection.BatchUpdate())
             {
                 observableCollection.Add(1);
                 observableCollection.Insert(1, 2);
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTests.Collections
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
 
-            using (observableCollection.BeginBatchUpdate())
+            using (observableCollection.BatchUpdate())
             {
                 observableCollection.Add(1);
                 observableCollection.Insert(1, 2);

@@ -4,20 +4,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal.Components;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(SynchronizedObservableCollection<>.DebuggerProxy))]
-    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection
+    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection, ISynchronizable, ActionToken.IHandler
     {
+        private readonly object _locker;
         private int _batchCount;
 
         public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollectionManager? componentCollectionManager = null)
@@ -35,7 +39,7 @@ namespace MugenMvvm.Collections
         {
             Should.NotBeNull(list, nameof(list));
             Items = list;
-            Locker = new object();
+            _locker = new object();
         }
 
         public bool IsReadOnly => false;
@@ -44,7 +48,7 @@ namespace MugenMvvm.Collections
         {
             get
             {
-                lock (Locker)
+                using (Lock())
                 {
                     return GetCountInternal();
                 }
@@ -53,11 +57,9 @@ namespace MugenMvvm.Collections
 
         protected IList<T> Items { get; }
 
-        protected object Locker { get; }
-
         bool ICollection.IsSynchronized => true;
 
-        object ICollection.SyncRoot => Locker;
+        object ICollection.SyncRoot => _locker;
 
         bool IList.IsFixedSize => false;
 
@@ -67,14 +69,14 @@ namespace MugenMvvm.Collections
         {
             get
             {
-                lock (Locker)
+                using (Lock())
                 {
                     return GetInternal(index);
                 }
             }
             set
             {
-                lock (Locker)
+                using (Lock())
                 {
                     if (index < 0 || index >= GetCountInternal())
                         ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
@@ -108,11 +110,25 @@ namespace MugenMvvm.Collections
             return false;
         }
 
+        private static bool Equals(ItemOrArray<ISynchronizationListener> x1, ItemOrArray<ISynchronizationListener> x2)
+        {
+            if (x1.Count != x2.Count)
+                return false;
+
+            for (var i = 0; i < x1.Count; i++)
+            {
+                if (!ReferenceEquals(x1[i], x2[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
         public Enumerator GetEnumerator() => new(this);
 
         public void Clear()
         {
-            lock (Locker)
+            using (Lock())
             {
                 ResetInternal(null);
             }
@@ -120,7 +136,7 @@ namespace MugenMvvm.Collections
 
         public bool Remove(T? item)
         {
-            lock (Locker)
+            using (Lock())
             {
                 var index = IndexOfInternal(item);
                 if (index < 0)
@@ -132,7 +148,7 @@ namespace MugenMvvm.Collections
 
         public bool Contains(T? item)
         {
-            lock (Locker)
+            using (Lock())
             {
                 return ContainsInternal(item);
             }
@@ -141,7 +157,7 @@ namespace MugenMvvm.Collections
         public void CopyTo(T[] array, int arrayIndex)
         {
             Should.NotBeNull(array, nameof(array));
-            lock (Locker)
+            using (Lock())
             {
                 CopyToInternal(array, arrayIndex);
             }
@@ -149,7 +165,7 @@ namespace MugenMvvm.Collections
 
         public void Add(T item)
         {
-            lock (Locker)
+            using (Lock())
             {
                 InsertInternal(GetCountInternal(), item, true);
             }
@@ -157,7 +173,7 @@ namespace MugenMvvm.Collections
 
         public void RemoveAt(int index)
         {
-            lock (Locker)
+            using (Lock())
             {
                 if (index < 0 || index >= GetCountInternal())
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
@@ -168,7 +184,7 @@ namespace MugenMvvm.Collections
 
         public int IndexOf(T? item)
         {
-            lock (Locker)
+            using (Lock())
             {
                 return IndexOfInternal(item);
             }
@@ -176,7 +192,7 @@ namespace MugenMvvm.Collections
 
         public void Insert(int index, T item)
         {
-            lock (Locker)
+            using (Lock())
             {
                 if (index < 0 || index > GetCountInternal())
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
@@ -188,7 +204,7 @@ namespace MugenMvvm.Collections
         public void Reset(IEnumerable<T> items)
         {
             Should.NotBeNull(items, nameof(items));
-            lock (Locker)
+            using (Lock())
             {
                 ResetInternal(items);
             }
@@ -196,7 +212,7 @@ namespace MugenMvvm.Collections
 
         public void RaiseItemChanged(T item, object? args)
         {
-            lock (Locker)
+            using (Lock())
             {
                 var index = IndexOfInternal(item);
                 if (index >= 0)
@@ -204,9 +220,9 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public ActionToken BeginBatchUpdate()
+        public ActionToken BatchUpdate()
         {
-            lock (Locker)
+            using (Lock())
             {
                 if (++_batchCount == 1)
                     GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this);
@@ -217,9 +233,35 @@ namespace MugenMvvm.Collections
 
         public void Move(int oldIndex, int newIndex)
         {
-            lock (Locker)
+            using (Lock())
             {
                 MoveInternal(oldIndex, newIndex);
+            }
+        }
+
+        public ActionToken Lock()
+        {
+            var lockTaken = false;
+            try
+            {
+                while (true)
+                {
+                    var listeners = GetComponents<ISynchronizationListener>();
+                    listeners.OnLocking(this, null);
+                    Monitor.Enter(_locker, ref lockTaken);
+                    listeners.OnLocked(this, null);
+                    var lockedListeners = GetComponents<ISynchronizationListener>();
+                    if (Equals(listeners, lockedListeners))
+                        return new ActionToken(this, lockTaken ? _locker : null, listeners.GetRawValue());
+
+                    Unlock(listeners, ref lockTaken);
+                }
+            }
+            catch
+            {
+                if (lockTaken)
+                    Monitor.Exit(_locker);
+                throw;
             }
         }
 
@@ -303,7 +345,7 @@ namespace MugenMvvm.Collections
 
         private void EndBatchUpdate()
         {
-            lock (Locker)
+            using (Lock())
             {
                 if (--_batchCount == 0)
                     GetComponents<ICollectionBatchUpdateListener>().OnEndBatchUpdate(this);
@@ -313,7 +355,7 @@ namespace MugenMvvm.Collections
         void ICollection.CopyTo(Array array, int index)
         {
             Should.NotBeNull(array, nameof(array));
-            lock (Locker)
+            using (Lock())
             {
                 CopyToInternal(array, index);
             }
@@ -323,9 +365,27 @@ namespace MugenMvvm.Collections
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
+        void ActionToken.IHandler.Invoke(object? state1, object? state2)
+        {
+            bool lockTaken = state1 != null;
+            Unlock(ItemOrArray.FromRawValue<ISynchronizationListener>(state2), ref lockTaken);
+        }
+
+        private void Unlock(ItemOrArray<ISynchronizationListener> listeners, ref bool lockTaken)
+        {
+            listeners.OnUnlocking(this, null);
+            if (lockTaken)
+            {
+                Monitor.Exit(_locker);
+                lockTaken = false;
+            }
+
+            listeners.OnUnlocked(this, null);
+        }
+
         int IList.Add(object? value)
         {
-            lock (Locker)
+            using (Lock())
             {
                 InsertInternal(GetCountInternal(), (T) value!, true);
                 return GetCountInternal() - 1;
@@ -362,14 +422,14 @@ namespace MugenMvvm.Collections
         public struct Enumerator : IEnumerator<T>
         {
             private readonly SynchronizedObservableCollection<T>? _collection;
+            private ActionToken _locker;
             private int _index;
-            private MonitorLocker _locker;
 
             internal Enumerator(SynchronizedObservableCollection<T> collection)
             {
                 _collection = collection;
                 _index = -1;
-                _locker = MonitorLocker.Lock(collection.Locker);
+                _locker = collection.Lock();
             }
 
             public T Current => _collection == null ? default! : _collection[_index];
@@ -392,9 +452,9 @@ namespace MugenMvvm.Collections
                 _collection = collection;
             }
 
-            public IEnumerable<T> Items => _collection.Select(arg => arg);
+            public IEnumerable<T> Items => _collection.Items;
 
-            public IEnumerable<object?> DecoratedItems => _collection.Decorate();
+            public IEnumerable<object?> DecoratedItems => _collection.Decorate().ToArray();
         }
     }
 }

@@ -73,7 +73,10 @@ namespace MugenMvvm.Collections.Components
 
         private void Update(ItemOrIReadOnlyList<object> value, ItemOrIReadOnlyList<object> oldValue, bool isFooter)
         {
-            using var _ = OwnerOptional.TryLock();
+            if (_decoratorManager == null)
+                return;
+
+            using var _ = _decoratorManager.BatchUpdate(Owner, this);
             var offset = isFooter ? _footerIndex : 0;
             if (value.IsEmpty)
             {
@@ -83,7 +86,7 @@ namespace MugenMvvm.Collections.Components
                 {
                     if (!isFooter && _footerIndex > 0)
                         --_footerIndex;
-                    _decoratorManager!.OnRemoved(Owner, this, oldValue[i], offset);
+                    _decoratorManager.OnRemoved(Owner, this, oldValue[i], offset);
                 }
             }
             else
@@ -92,7 +95,7 @@ namespace MugenMvvm.Collections.Components
                 {
                     if (isFooter)
                     {
-                        _footerIndex = _decoratorManager!.Decorate(Owner, this).CountEx() + _header.Count;
+                        _footerIndex = _decoratorManager.Decorate(Owner, this).CountEx() + _header.Count;
                         offset = _footerIndex;
                     }
 
@@ -100,7 +103,7 @@ namespace MugenMvvm.Collections.Components
                     {
                         if (!isFooter && _footerIndex > 0)
                             ++_footerIndex;
-                        _decoratorManager!.OnAdded(Owner, this, value[i], i + offset);
+                        _decoratorManager.OnAdded(Owner, this, value[i], i + offset);
                     }
                 }
                 else
@@ -110,14 +113,14 @@ namespace MugenMvvm.Collections.Components
                         for (var i = 0; i < oldValue.Count; i++)
                         {
                             if (!Equals(oldValue[i], value[i]))
-                                _decoratorManager!.OnReplaced(Owner, this, oldValue[i], value[i], i + offset);
+                                _decoratorManager.OnReplaced(Owner, this, oldValue[i], value[i], i + offset);
                         }
 
                         for (var i = oldValue.Count; i < value.Count; i++)
                         {
                             if (!isFooter && _footerIndex > 0)
                                 ++_footerIndex;
-                            _decoratorManager!.OnAdded(Owner, this, value[i], i + offset);
+                            _decoratorManager.OnAdded(Owner, this, value[i], i + offset);
                         }
                     }
                     else
@@ -125,30 +128,36 @@ namespace MugenMvvm.Collections.Components
                         for (var i = 0; i < value.Count; i++)
                         {
                             if (!Equals(oldValue[i], value[i]))
-                                _decoratorManager!.OnReplaced(Owner, this, oldValue[i], value[i], i + offset);
+                                _decoratorManager.OnReplaced(Owner, this, oldValue[i], value[i], i + offset);
                         }
 
                         for (var i = value.Count; i < oldValue.Count; i++)
                         {
                             if (!isFooter && _footerIndex > 0)
                                 --_footerIndex;
-                            _decoratorManager!.OnRemoved(Owner, this, oldValue[i], value.Count + offset);
+                            _decoratorManager.OnRemoved(Owner, this, oldValue[i], value.Count + offset);
                         }
                     }
                 }
             }
         }
 
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => Decorate(items);
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => _decoratorManager == null ? items : Decorate(items);
 
         bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
+            if (_decoratorManager == null)
+                return false;
+
             index += _header.Count;
             return true;
         }
 
         bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
         {
+            if (_decoratorManager == null)
+                return false;
+
             index += _header.Count;
             if (_footerIndex > 0)
             {
@@ -162,12 +171,18 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
         {
+            if (_decoratorManager == null)
+                return false;
+
             index += _header.Count;
             return true;
         }
 
         bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
         {
+            if (_decoratorManager == null)
+                return false;
+
             oldIndex += _header.Count;
             newIndex += _header.Count;
             return true;
@@ -175,6 +190,9 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
         {
+            if (_decoratorManager == null)
+                return false;
+
             index += _header.Count;
             if (_footerIndex > 0)
                 --_footerIndex;
@@ -183,6 +201,9 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
         {
+            if (_decoratorManager == null)
+                return false;
+
             if (_footerIndex > 0)
                 _footerIndex = items.CountEx() + _header.Count;
             items = Decorate(items);
