@@ -12,7 +12,7 @@ import com.mugen.mvvm.interfaces.views.IHasLifecycleView;
 import com.mugen.mvvm.views.LifecycleMugenExtensions;
 
 public class MugenPager2Adapter extends MugenRecyclerViewAdapter {
-    private final ViewPager2 _viewPager;
+    protected final ViewPager2 _viewPager;
     private Listener _listener;
     private RecyclerView _recyclerView;
 

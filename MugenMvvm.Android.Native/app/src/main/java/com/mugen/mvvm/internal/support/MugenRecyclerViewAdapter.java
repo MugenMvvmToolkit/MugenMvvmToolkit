@@ -12,7 +12,7 @@ import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 
 public class MugenRecyclerViewAdapter extends MugenRecyclerViewAdapterBase<IResourceItemsSourceProvider> implements IItemsSourceObserver {
-    private final LayoutInflater _inflater;
+    protected final LayoutInflater _inflater;
 
     public MugenRecyclerViewAdapter(@NonNull Context context, @NonNull IResourceItemsSourceProvider provider) {
         super(provider);

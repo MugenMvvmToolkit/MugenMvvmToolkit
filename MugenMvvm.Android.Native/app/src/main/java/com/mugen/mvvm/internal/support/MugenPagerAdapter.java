@@ -15,8 +15,8 @@ import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.views.LifecycleMugenExtensions;
 
 public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObserver, IMugenAdapter {
-    private final IContentItemsSourceProvider _provider;
-    private Object _currentPrimaryItem;
+    protected final IContentItemsSourceProvider _provider;
+    protected Object _currentPrimaryItem;
 
     public MugenPagerAdapter(@NonNull IContentItemsSourceProvider provider) {
         _provider = provider;

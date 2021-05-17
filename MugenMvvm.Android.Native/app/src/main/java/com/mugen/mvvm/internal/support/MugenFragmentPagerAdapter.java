@@ -12,8 +12,8 @@ import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 
 public class MugenFragmentPagerAdapter extends FragmentPagerAdapter implements IItemsSourceObserver, IMugenAdapter {
-    private final IContentItemsSourceProvider _provider;
-    private final boolean _hasStableIds;
+    protected final IContentItemsSourceProvider _provider;
+    protected final boolean _hasStableIds;
 
     public MugenFragmentPagerAdapter(@NonNull IContentItemsSourceProvider provider, @NonNull FragmentManager fm) {
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
