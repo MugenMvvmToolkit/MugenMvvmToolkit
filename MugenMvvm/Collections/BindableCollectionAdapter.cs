@@ -17,6 +17,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Collections
 {
@@ -81,8 +82,6 @@ namespace MugenMvvm.Collections
                 _executionMode = value;
             }
         }
-
-        public bool SuppressChangedEvent { get; set; }
 
         public int BatchSize { get; set; } = 50;
 
@@ -202,6 +201,8 @@ namespace MugenMvvm.Collections
             _eventsCache.AddRange(pendingEvents);
             return _eventsCache;
         }
+
+        protected virtual bool IsChangeEventSupported(object? item, object? args) => CollectionMetadata.ReloadItem.Equals(args);
 
         protected bool AddEvent(in CollectionChangedEvent collectionChangedEvent, int version)
         {
@@ -485,7 +486,7 @@ namespace MugenMvvm.Collections
             public void OnChanged(ICollection collection, object? item, int index, object? args)
             {
                 var adapter = GetAdapter();
-                if (adapter != null && !adapter.SuppressChangedEvent)
+                if (adapter != null && adapter.IsChangeEventSupported(item, args))
                     adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
             }
 

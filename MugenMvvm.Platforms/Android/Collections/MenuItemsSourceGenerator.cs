@@ -15,7 +15,6 @@ namespace MugenMvvm.Android.Collections
         private MenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate itemTemplate)
         {
             Should.NotBeNull(itemTemplate, nameof(itemTemplate));
-            SuppressChangedEvent = true;
             Menu = menu;
             ItemTemplate = itemTemplate;
             DiffableComparer = itemTemplate as IDiffableEqualityComparer;
@@ -38,6 +37,8 @@ namespace MugenMvvm.Android.Collections
             Should.NotBeNull(menu, nameof(menu));
             return menu.AttachedValues().GetOrAdd(AndroidInternalConstant.MenuItemsSource, menu, (_, m) => new MenuItemsSourceGenerator(m, m.BindableMembers().ItemTemplate()!));
         }
+
+        protected override bool IsChangeEventSupported(object? item, object? args) => false;
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {

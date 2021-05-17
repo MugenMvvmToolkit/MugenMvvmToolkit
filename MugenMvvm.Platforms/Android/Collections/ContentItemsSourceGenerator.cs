@@ -18,7 +18,6 @@ namespace MugenMvvm.Android.Collections
 
         private ContentItemsSourceGenerator(View view, IContentTemplateSelector contentTemplateSelector)
         {
-            SuppressChangedEvent = true;
             View = view;
             ContentTemplateSelector = contentTemplateSelector;
             DiffableComparer = contentTemplateSelector as IDiffableEqualityComparer;
@@ -44,6 +43,8 @@ namespace MugenMvvm.Android.Collections
             return view.AttachedValues().GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector,
                 (o, templateSelector) => new ContentItemsSourceGenerator((View) o, templateSelector));
         }
+
+        protected override bool IsChangeEventSupported(object? item, object? args) => false;
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {

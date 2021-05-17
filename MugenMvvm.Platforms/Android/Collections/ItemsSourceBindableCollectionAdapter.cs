@@ -143,8 +143,6 @@ namespace MugenMvvm.Android.Collections
 
         void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
         {
-            if (SuppressChangedEvent)
-                return;
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemRangeChanged(position, count);
         }

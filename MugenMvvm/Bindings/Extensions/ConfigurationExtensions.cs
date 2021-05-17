@@ -337,13 +337,14 @@ namespace MugenMvvm.Bindings.Extensions
             private BindingCollectionAdapter()
             {
                 Listeners = new EventListenerCollection();
-                SuppressChangedEvent = true;
             }
 
             public EventListenerCollection Listeners { get; }
 
             public static BindingCollectionAdapter GetOrAdd(IComponentOwner<ICollection> collection)
                 => collection.GetOrAddComponent(collection, (owner, context) => new BindingCollectionAdapter {Collection = (IEnumerable) owner});
+
+            protected override bool IsChangeEventSupported(object? item, object? args) => false;
 
             protected override void BatchUpdate(List<CollectionChangedEvent> events, int version)
             {
