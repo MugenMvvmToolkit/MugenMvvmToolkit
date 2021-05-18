@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
-        public void MoveShouldTrackChanges()
+        public void MoveShouldTrackChanges1()
         {
             for (var i = 0; i < 100; i++)
             {
@@ -97,6 +97,30 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _targetCollection.Move(i, i + 1);
                 Assert();
                 _itemCollection2.Move(i, i + 1);
+                Assert();
+            }
+        }
+
+        [Fact]
+        public void MoveShouldTrackChanges2()
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                _itemCollection1.Add(i);
+                _targetCollection.Insert(0, i);
+                _itemCollection2.Add(i);
+                _targetCollection.Add(i);
+            }
+
+            Assert();
+
+            for (var i = 0; i < 10; i++)
+            {
+                _itemCollection1.Move(i, i * 2 + 1);
+                Assert();
+                _targetCollection.Move(i, i * 2 + 1);
+                Assert();
+                _itemCollection2.Move(i, i * 2 + 1);
                 Assert();
             }
         }

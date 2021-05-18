@@ -121,8 +121,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 1; i < 10; i++)
             {
-                _collection.Move(i, i + i);
-                Move(i, i + i);
+                _collection.Move(i, i * 2 + 1);
+                Move(i, i * 2 + 1);
                 AssertChanges(header, footer);
             }
         }

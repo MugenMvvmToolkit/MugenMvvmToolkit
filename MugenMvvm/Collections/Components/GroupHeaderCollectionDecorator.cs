@@ -8,6 +8,8 @@ using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
+// ReSharper disable PossibleMultipleEnumeration
+
 namespace MugenMvvm.Collections.Components
 {
     public class GroupHeaderCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority

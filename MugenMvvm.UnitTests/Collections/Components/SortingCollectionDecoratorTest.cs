@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void MoveShouldTrackChanges(bool defaultComparer)
+        public void MoveShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -178,6 +178,32 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 10; i++)
             {
                 observableCollection.Move(i, i + 1);
+                tracker.ChangedItems.ShouldEqual(items);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void MoveShouldTrackChanges2(bool defaultComparer)
+        {
+            DefaultComparer = defaultComparer;
+
+            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
+            var decorator = new SortingCollectionDecorator(this);
+            observableCollection.AddComponent(decorator);
+
+            var tracker = new DecoratorObservableCollectionTracker<int>();
+            observableCollection.AddComponent(tracker);
+            var items = observableCollection.OrderBy(i => i, this);
+
+            for (var i = 0; i < 100; i++)
+                observableCollection.Add(i);
+            tracker.ChangedItems.ShouldEqual(items);
+
+            for (var i = 0; i < 10; i++)
+            {
+                observableCollection.Move(i, i * 2 + 1);
                 tracker.ChangedItems.ShouldEqual(items);
             }
         }

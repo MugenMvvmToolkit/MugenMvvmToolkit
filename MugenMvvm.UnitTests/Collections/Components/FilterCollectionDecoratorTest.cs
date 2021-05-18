@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 1; i < 10; i++)
             {
-                observableCollection.Move(i, i + i);
+                observableCollection.Move(i, i * 2 + i);
                 tracker.ChangedItems.ShouldEqual(items);
             }
         }

@@ -7,10 +7,13 @@ using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
+// ReSharper disable PossibleMultipleEnumeration
+
 namespace MugenMvvm.Collections.Components
 {
     public class HeaderFooterCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority
     {
+        private const int NoFooterIndex = -1;
         private ICollectionDecoratorManagerComponent? _decoratorManager;
         private ItemOrIReadOnlyList<object> _footer;
         private ItemOrIReadOnlyList<object> _header;
@@ -19,7 +22,7 @@ namespace MugenMvvm.Collections.Components
         public HeaderFooterCollectionDecorator(int priority = CollectionComponentPriority.HeaderFooterDecorator)
         {
             Priority = priority;
-            _footerIndex = -1;
+            _footerIndex = NoFooterIndex;
         }
 
         public ItemOrIReadOnlyList<object> Header
@@ -53,7 +56,7 @@ namespace MugenMvvm.Collections.Components
         protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {
             _decoratorManager = null;
-            _footerIndex = -1;
+            _footerIndex = NoFooterIndex;
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?>? items)
@@ -81,10 +84,10 @@ namespace MugenMvvm.Collections.Components
             if (value.IsEmpty)
             {
                 if (isFooter)
-                    _footerIndex = -1;
+                    _footerIndex = NoFooterIndex;
                 for (var i = 0; i < oldValue.Count; i++)
                 {
-                    if (!isFooter && _footerIndex > 0)
+                    if (!isFooter && _footerIndex > NoFooterIndex)
                         --_footerIndex;
                     _decoratorManager.OnRemoved(Owner, this, oldValue[i], offset);
                 }
@@ -101,7 +104,7 @@ namespace MugenMvvm.Collections.Components
 
                     for (var i = 0; i < value.Count; i++)
                     {
-                        if (!isFooter && _footerIndex > 0)
+                        if (!isFooter && _footerIndex > NoFooterIndex)
                             ++_footerIndex;
                         _decoratorManager.OnAdded(Owner, this, value[i], i + offset);
                     }
@@ -118,7 +121,7 @@ namespace MugenMvvm.Collections.Components
 
                         for (var i = oldValue.Count; i < value.Count; i++)
                         {
-                            if (!isFooter && _footerIndex > 0)
+                            if (!isFooter && _footerIndex > NoFooterIndex)
                                 ++_footerIndex;
                             _decoratorManager.OnAdded(Owner, this, value[i], i + offset);
                         }
@@ -133,7 +136,7 @@ namespace MugenMvvm.Collections.Components
 
                         for (var i = value.Count; i < oldValue.Count; i++)
                         {
-                            if (!isFooter && _footerIndex > 0)
+                            if (!isFooter && _footerIndex > NoFooterIndex)
                                 --_footerIndex;
                             _decoratorManager.OnRemoved(Owner, this, oldValue[i], value.Count + offset);
                         }
@@ -159,7 +162,7 @@ namespace MugenMvvm.Collections.Components
                 return false;
 
             index += _header.Count;
-            if (_footerIndex > 0)
+            if (_footerIndex > NoFooterIndex)
             {
                 if (index > _footerIndex)
                     --index;
@@ -194,7 +197,7 @@ namespace MugenMvvm.Collections.Components
                 return false;
 
             index += _header.Count;
-            if (_footerIndex > 0)
+            if (_footerIndex > NoFooterIndex)
                 --_footerIndex;
             return true;
         }
@@ -204,7 +207,7 @@ namespace MugenMvvm.Collections.Components
             if (_decoratorManager == null)
                 return false;
 
-            if (_footerIndex > 0)
+            if (_footerIndex > NoFooterIndex)
                 _footerIndex = items.CountEx() + _header.Count;
             items = Decorate(items);
             return true;
