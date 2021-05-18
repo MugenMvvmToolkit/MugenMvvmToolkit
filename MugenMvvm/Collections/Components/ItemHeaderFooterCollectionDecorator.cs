@@ -57,12 +57,6 @@ namespace MugenMvvm.Collections.Components
 
         private int Add(List<(object? item, int originalIndex)> items, object? item, int index, IComparer<object?>? comparer)
         {
-            if (comparer == null)
-            {
-                items.Add((item, index));
-                return items.Count - 1;
-            }
-
             _currentComparer = comparer;
             return MugenExtensions.AddOrdered(items, (item, index), this);
         }
@@ -178,9 +172,18 @@ namespace MugenMvvm.Collections.Components
             var isHeaderOrFooter = _isHeaderOrFooter(item);
             if (isHeaderOrFooter != null)
             {
-                index = isHeaderOrFooter.Value ? _headers.IndexOf((item, index)) : _footers.IndexOf((item, index));
+                if (isHeaderOrFooter.Value)
+                {
+                    index = _headers.IndexOf((item, index));
+                    return index >= 0;
+                }
+
+                index = _footers.IndexOf((item, index));
                 if (index < 0)
                     return false;
+
+                index += _footerIndex;
+                return true;
             }
 
             index = GetIndex(index);
@@ -225,9 +228,7 @@ namespace MugenMvvm.Collections.Components
                 return false;
 
             RemoveHeaderOrFooter(item, ref oldIndex);
-            if (AddHeaderOrFooter(item, ref newIndex))
-                return false;
-
+            AddHeaderOrFooter(item, ref newIndex);
             return oldIndex != newIndex;
         }
 
@@ -265,6 +266,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        int IComparer<(object?, int)>.Compare((object?, int) x, (object?, int) y) => _currentComparer!.Compare(x.Item1, y.Item1);
+        int IComparer<(object?, int)>.Compare((object?, int) x, (object?, int) y) =>
+            _currentComparer == null ? x.Item2.CompareTo(y.Item2) : _currentComparer!.Compare(x.Item1, y.Item1);
     }
 }

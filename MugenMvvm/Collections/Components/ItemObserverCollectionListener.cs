@@ -19,7 +19,11 @@ namespace MugenMvvm.Collections.Components
         private readonly PropertyChangedEventHandler _handler;
         private readonly List<Observer> _observers;
 
-        public ItemObserverCollectionListener(IEqualityComparer<T>? comparer = null)
+        public ItemObserverCollectionListener() : this(null)
+        {
+        }
+
+        public ItemObserverCollectionListener(IEqualityComparer<T>? comparer)
         {
             _handler = OnPropertyChanged;
             _observers = new List<Observer>();

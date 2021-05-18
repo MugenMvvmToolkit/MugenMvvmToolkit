@@ -5,6 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Collections.Internal;
+using Should;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,6 +47,24 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Insert(i, i);
                 _items.Insert(i, i);
                 AssertChanges(_getHeader);
+            }
+        }
+
+        [Fact]
+        public void ChangeShouldTrackChanges()
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                _collection.Add(i);
+                _items.Add(i);
+                AssertChanges(_getHeader);
+            }
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                _collection.RaiseItemChanged(_collection[i], null);
+                AssertChanges(_getHeader);
+                _tracker.ItemChangedCount.ShouldEqual(i + 1);
             }
         }
 
@@ -280,7 +299,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private int GetHeaderIndex(object header)
         {
-            int index = 0;
+            var index = 0;
             foreach (var h in _headers)
             {
                 if (h.Value == header)

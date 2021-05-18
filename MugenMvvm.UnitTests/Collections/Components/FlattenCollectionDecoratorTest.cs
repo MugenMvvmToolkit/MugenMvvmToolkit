@@ -7,6 +7,7 @@ using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Collections.Internal;
+using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Collections.Components
@@ -55,6 +56,44 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _itemCollection2.Insert(i, i);
                 Assert();
             }
+        }
+
+        [Fact]
+        public void ChangeShouldTrackChanges()
+        {
+            var offset = _targetCollection.Count;
+            for (var i = 0; i < 100; i++)
+            {
+                _itemCollection1.Add(i);
+                _targetCollection.Add(i);
+                _itemCollection2.Add(i);
+            }
+
+            Assert();
+
+            for (var i = 0; i < offset; i++)
+            {
+                _targetCollection.RaiseItemChanged(_targetCollection[i], null);
+                _tracker.ItemChangedCount.ShouldEqual(0);
+            }
+
+            var raiseCount = 0;
+            for (var i = 0; i < _itemCollection1.Count; i++)
+            {
+                _targetCollection.RaiseItemChanged(_targetCollection[i + offset], null);
+                raiseCount += 1;
+                _tracker.ItemChangedCount.ShouldEqual(raiseCount);
+
+                _itemCollection1.RaiseItemChanged(_itemCollection1[i], null);
+                raiseCount += _itemCollection1[i] % 2 == 0 ? 1 : 0;
+                _tracker.ItemChangedCount.ShouldEqual(raiseCount);
+
+                _itemCollection2.RaiseItemChanged(_itemCollection2[i], null);
+                raiseCount += 1;
+                _tracker.ItemChangedCount.ShouldEqual(raiseCount);
+            }
+
+            Assert();
         }
 
         [Fact]
@@ -225,6 +264,92 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
         }
 
+        [Fact(Skip = "DEBUG ONLY")]
+        // [Fact]
+        public void ShouldBeThreadSafe()
+        {
+            var random = new Random();
+            Task.Run(async () =>
+            {
+                var index = 0;
+                while (true)
+                {
+                    await Task.Delay(5);
+                    _itemCollection1.Add(++index);
+                }
+            });
+            Task.Run(async () =>
+            {
+                var index = 0;
+                while (true)
+                {
+                    await Task.Delay(10);
+                    _itemCollection2.Add(++index);
+                }
+            });
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(10);
+                    _targetCollection[0] = random.Next() % 2 == 0 ? "" : _itemCollection1;
+                    _targetCollection[1] = random.Next() % 2 == 0 ? "" : _itemCollection2;
+                }
+            });
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(3000);
+                    _targetCollection.Add(_itemCollection1);
+                    _targetCollection.Add(_itemCollection2);
+                }
+            });
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(2000);
+                    var target = _targetCollection[_targetCollection.Count - 1];
+                    _targetCollection.Remove(target);
+                    var i = _itemCollection2[_itemCollection1.Count - 1];
+                    _itemCollection2.Remove(i);
+                }
+            });
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(1000);
+                    _itemCollection1.Reset(new[] {1, 2, 3});
+                }
+            });
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Task.Delay(100);
+                    if (_itemCollection1.Count > 2)
+                        _itemCollection1.Move(0, 1);
+                    if (_targetCollection.Count > 4)
+                        _targetCollection.Move(2, 3);
+                }
+            });
+            Task.Run(async () =>
+            {
+                var index = 0;
+                while (true)
+                {
+                    await Task.Delay(50);
+                    _targetCollection.Add(++index);
+                    using var l1 = _targetCollection.TryLock();
+                    using var l2 = _itemCollection1.TryLock();
+                    using var l3 = _itemCollection2.TryLock();
+                    Assert();
+                }
+            }).Wait();
+        }
+
         [Fact]
         public void ShouldTrackChanges1()
         {
@@ -311,92 +436,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
             _targetCollection.Clear();
             Assert();
-        }
-
-        [Fact(Skip = "DEBUG ONLY")]
-        // [Fact]
-        public void ShouldBeThreadSafe()
-        {
-            var random = new Random();
-            Task.Run(async () =>
-            {
-                int index = 0;
-                while (true)
-                {
-                    await Task.Delay(5);
-                    _itemCollection1.Add(++index);
-                }
-            });
-            Task.Run(async () =>
-            {
-                int index = 0;
-                while (true)
-                {
-                    await Task.Delay(10);
-                    _itemCollection2.Add(++index);
-                }
-            });
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(10);
-                    _targetCollection[0] = random.Next() % 2 == 0 ? "" : _itemCollection1;
-                    _targetCollection[1] = random.Next() % 2 == 0 ? "" : _itemCollection2;
-                }
-            });
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(3000);
-                    _targetCollection.Add(_itemCollection1);
-                    _targetCollection.Add(_itemCollection2);
-                }
-            });
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(2000);
-                    var target = _targetCollection[_targetCollection.Count - 1];
-                    _targetCollection.Remove(target);
-                    var i = _itemCollection2[_itemCollection1.Count - 1];
-                    _itemCollection2.Remove(i);
-                }
-            });
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(1000);
-                    _itemCollection1.Reset(new[] {1, 2, 3});
-                }
-            });
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(100);
-                    if (_itemCollection1.Count > 2)
-                        _itemCollection1.Move(0, 1);
-                    if (_targetCollection.Count > 4)
-                        _targetCollection.Move(2, 3);
-                }
-            });
-            Task.Run(async () =>
-            {
-                int index = 0;
-                while (true)
-                {
-                    await Task.Delay(50);
-                    _targetCollection.Add(++index);
-                    using var l1 = _targetCollection.TryLock();
-                    using var l2 = _itemCollection1.TryLock();
-                    using var l3 = _itemCollection2.TryLock();
-                    Assert();
-                }
-            }).Wait();
         }
 
         [Fact]
@@ -522,7 +561,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1", "t1-T2"};
             var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _targetCollection.Add("T" + i);
                 Assert();
@@ -556,7 +595,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1"};
             var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _targetCollection.Add("T1");
                 _targetCollection.Add(t1);
@@ -591,7 +630,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1"};
             var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _targetCollection.Add("T1");
                 _targetCollection.Add(t1);
@@ -643,12 +682,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _targetCollection.Clear();
             var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            for (int i = 0; i < t1Count; i++)
+            for (var i = 0; i < t1Count; i++)
                 t1.Add("t1-T" + i);
-            for (int i = 0; i < t2Count; i++)
+            for (var i = 0; i < t2Count; i++)
                 t2.Add("t2-T" + i);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _targetCollection.Add("T1");
                 _targetCollection.Add(t1);
@@ -697,13 +736,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _targetCollection.Clear();
             var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            for (int i = 0; i < t1Count; i++)
+            for (var i = 0; i < t1Count; i++)
                 t1.Add("t1-T" + i);
-            for (int i = 0; i < t2Count; i++)
+            for (var i = 0; i < t2Count; i++)
                 t2.Add("t2-T" + i);
             var t3 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t3-T1", "t3-T2", "t3-T3"};
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _targetCollection.Add("T1");
                 _targetCollection.Add(t1);

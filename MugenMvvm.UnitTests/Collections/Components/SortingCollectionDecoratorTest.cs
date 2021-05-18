@@ -313,7 +313,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ItemChangedShouldTrackChanges(bool defaultComparer)
+        public void ChangeShouldTrackChanges(bool defaultComparer)
         {
             var comparer = Comparer<object?>.Create((x1, x2) =>
             {

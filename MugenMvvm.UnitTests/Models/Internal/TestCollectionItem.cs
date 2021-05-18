@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
@@ -12,6 +13,9 @@ namespace MugenMvvm.UnitTests.Models.Internal
         public TestCollectionItem()
         {
             Id = Interlocked.Increment(ref _idGenerator);
+            StableId = Id;
+            if (StableId % 10 == 0)
+                Items = new object[] {Guid.NewGuid(), Guid.NewGuid()};
         }
 
         public static IEqualityComparer<TestCollectionItem> IdComparer { get; } = new IdEqualityComparer();
@@ -21,6 +25,10 @@ namespace MugenMvvm.UnitTests.Models.Internal
         public string? Name { get; set; }
 
         public int Id { get; set; }
+
+        public int StableId { get; }
+
+        public IEnumerable<object>? Items { get; }
 
         public override string ToString() => $"Id: {Id}";
 

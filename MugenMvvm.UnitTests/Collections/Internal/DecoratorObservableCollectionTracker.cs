@@ -18,6 +18,8 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             ChangedItems = new List<T>();
         }
 
+        public int ItemChangedCount { get; set; }
+
         public List<T> ChangedItems { get; }
 
         private static void OnAddEvent(List<T> items, IList? newItems, int index)
@@ -89,6 +91,8 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public void OnChanged(ICollection collection, object? item, int index, object? args)
         {
+            ChangedItems[index].ShouldEqual(item);
+            ++ItemChangedCount;
         }
 
         public void OnAdded(ICollection collection, object? item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);

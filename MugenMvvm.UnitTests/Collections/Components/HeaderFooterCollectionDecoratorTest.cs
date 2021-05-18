@@ -3,6 +3,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Collections.Internal;
+using Should;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -38,6 +39,28 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 new object?[] {new[] {"header"}, new[] {"footer1", "footer2"}},
                 new object?[] {new[] {"header1", "header2"}, new[] {"footer1", "footer2"}}
             };
+
+        [Theory]
+        [MemberData(nameof(GetData))]
+        public void ChangeShouldTrackChanges(string[]? header, string[]? footer)
+        {
+            _decorator.Header = header;
+            _decorator.Footer = footer;
+
+            for (var i = 0; i < 100; i++)
+            {
+                _collection.Add(i);
+                _items.Add(i);
+                AssertChanges(header, footer);
+            }
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                _collection.RaiseItemChanged(_collection[i], null);
+                AssertChanges(header, footer);
+                _tracker.ItemChangedCount.ShouldEqual(i + 1);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(GetData))]

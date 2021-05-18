@@ -5,6 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Collections.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
@@ -70,6 +71,105 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.Decorate().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
         }
 
+        [Fact]
+        public void DecoratorShouldTrackItemsMulti3()
+        {
+            const int count = 100;
+            var comparer = Comparer<object?>.Create((x1, x2) =>
+            {
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
+                return item.Id.CompareTo(collectionItem.Id);
+            });
+            var collection = CreateCollection<TestCollectionItem>();
+            CollectionDecoratorManager.GetOrAdd(collection);
+            var tracker = new DecoratorObservableCollectionTracker<object>();
+            collection.AddComponent(tracker);
+
+            var decorator1 = new SortingCollectionDecorator(comparer);
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
+            collection.AddComponent(decorator1);
+            collection.AddComponent(decorator2);
+            collection.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
+            collection.AddComponent(new GroupHeaderCollectionDecorator(o => ((TestCollectionItem) o!).StableId % 2, -1));
+            collection.AddComponent(new FlattenCollectionDecorator(o => (o as TestCollectionItem)?.Items));
+            collection.AddComponent(new ItemHeaderFooterCollectionDecorator(o =>
+            {
+                if (o is TestCollectionItem t && t.StableId % 3 == 0)
+                    return false;
+                return null;
+            }));
+            collection.AddComponent(new ItemHeaderFooterCollectionDecorator(o =>
+            {
+                if (o is TestCollectionItem t && t.StableId % 10 == 0)
+                    return true;
+                return null;
+            }, SortingComparer<object?>.Descending(o => ((TestCollectionItem) o!).StableId).Build()));
+
+            collection.Add(new TestCollectionItem {Id = 1});
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            var item2 = new TestCollectionItem {Id = 2};
+            collection.Insert(1, item2);
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            collection.Remove(item2);
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            collection.RemoveAt(0);
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            collection.Reset(new[]
+            {
+                new TestCollectionItem {Id = 1}, new TestCollectionItem {Id = 2}, new TestCollectionItem {Id = 3},
+                new TestCollectionItem {Id = 4}, new TestCollectionItem {Id = 5}
+            });
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            collection[0] = new TestCollectionItem {Id = 200};
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            collection.Move(1, 2);
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            collection.Clear();
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+
+            for (var i = 0; i < count; i++)
+            {
+                collection.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
+                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                collection.Move(i, i + 1);
+                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                collection[i] = new TestCollectionItem {Id = i + Guid.NewGuid().GetHashCode()};
+                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                collection[i].Id = Guid.NewGuid().GetHashCode();
+                collection.RaiseItemChanged(collection[i], null);
+                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                collection.RemoveAt(0);
+                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            }
+
+            collection.Clear();
+            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+        }
+
         [Theory]
         [InlineData(true, true)]
         [InlineData(false, false)]
@@ -77,6 +177,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(true, false)]
         public void DecoratorShouldTrackItemsMulti1(bool defaultComparer, bool filterFirst)
         {
+            const int count = 100;
             var comparer = defaultComparer
                 ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int) o!, (int) o1!))
                 : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
@@ -115,7 +216,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.Clear();
             tracker.ChangedItems.ShouldEqual(items);
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < count; i++)
             {
                 collection.Add(Guid.NewGuid().GetHashCode());
                 tracker.ChangedItems.ShouldEqual(items);
@@ -133,7 +234,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 tracker.ChangedItems.ShouldEqual(items);
             }
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < count; i++)
             {
                 collection.RemoveAt(0);
                 tracker.ChangedItems.ShouldEqual(items);
@@ -150,6 +251,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(true, false)]
         public void DecoratorShouldTrackItemsMulti2(bool defaultComparer, bool filterFirst)
         {
+            const int count = 100;
             var comparer = Comparer<object?>.Create((x1, x2) =>
             {
                 var item = (TestCollectionItem) x1!;
@@ -198,7 +300,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.Clear();
             tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < count; i++)
             {
                 collection.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
                 tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
@@ -216,14 +318,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < count; i++)
             {
                 collection[i].Id = Guid.NewGuid().GetHashCode();
                 collection.RaiseItemChanged(collection[i], null);
                 tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < count; i++)
             {
                 collection.RemoveAt(0);
                 tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);

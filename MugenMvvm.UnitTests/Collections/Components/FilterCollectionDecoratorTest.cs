@@ -37,26 +37,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
-        public void ClearShouldTrackChanges()
-        {
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.Where(decorator.Filter);
-
-            for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
-
-            observableCollection.Clear();
-            tracker.ChangedItems.ShouldEqual(items);
-        }
-
-        [Fact]
-        public void ItemChangedShouldTrackChanges()
+        public void ChangeShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
             var decorator = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
@@ -75,6 +56,25 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 observableCollection.RaiseItemChanged(observableCollection[i], null);
                 tracker.ChangedItems.ShouldEqual(items);
             }
+        }
+
+        [Fact]
+        public void ClearShouldTrackChanges()
+        {
+            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            observableCollection.AddComponent(decorator);
+
+            var tracker = new DecoratorObservableCollectionTracker<int>();
+            observableCollection.AddComponent(tracker);
+            var items = observableCollection.Where(decorator.Filter);
+
+            for (var i = 0; i < 100; i++)
+                observableCollection.Add(i);
+            tracker.ChangedItems.ShouldEqual(items);
+
+            observableCollection.Clear();
+            tracker.ChangedItems.ShouldEqual(items);
         }
 
         [Fact]

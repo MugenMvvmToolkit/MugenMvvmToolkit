@@ -6,6 +6,7 @@ using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Collections.Internal;
+using Should;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,8 +17,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
         private readonly Func<object?, bool?> _isHeaderOrFooter;
-        private readonly IComparer<object?> _headerComparer;
-        private readonly IComparer<object?> _footerComparer;
+        private IComparer<object?>? _headerComparer;
+        private IComparer<object?>? _footerComparer;
 
         public ItemHeaderFooterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
@@ -33,14 +34,36 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     return false;
                 return null;
             };
-            _headerComparer = SortingComparer<object?>.Descending(o => (int) o!).Build();
-            _footerComparer = SortingComparer<object?>.Ascending(o => (int) o!).Build();
-            _collection.AddComponent(new ItemHeaderFooterCollectionDecorator(_isHeaderOrFooter, _headerComparer, _footerComparer));
         }
 
-        [Fact]
-        public void AddShouldTrackChanges()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ChangeShouldTrackChanges(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
+            for (var i = 0; i < 100; i++)
+            {
+                _collection.Add(i);
+                AssertChanges();
+            }
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                _collection.RaiseItemChanged(_collection[i], null);
+                AssertChanges();
+                _tracker.ItemChangedCount.ShouldEqual(i + 1);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddShouldTrackChanges(bool defaultComparer)
+        {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
             {
                 _collection.Add(i);
@@ -54,9 +77,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        [Fact]
-        public void ClearShouldTrackChanges()
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ClearShouldTrackChanges(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             AssertChanges();
@@ -65,9 +93,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             AssertChanges();
         }
 
-        [Fact]
-        public void MoveShouldTrackChanges1()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void MoveShouldTrackChanges1(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             AssertChanges();
@@ -79,9 +111,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        [Fact]
-        public void MoveShouldTrackChanges2()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void MoveShouldTrackChanges2(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             AssertChanges();
@@ -93,9 +129,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        [Fact]
-        public void RemoveShouldTrackChanges()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void RemoveShouldTrackChanges(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             AssertChanges();
@@ -120,9 +160,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        [Fact]
-        public void ReplaceShouldTrackChanges1()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ReplaceShouldTrackChanges1(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             AssertChanges();
@@ -134,9 +178,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        [Fact]
-        public void ReplaceShouldTrackChanges2()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ReplaceShouldTrackChanges2(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             AssertChanges();
@@ -149,9 +197,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        [Fact]
-        public void ResetShouldTrackChanges()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ResetShouldTrackChanges(bool defaultComparer)
         {
+            AddDecorator(defaultComparer);
+
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             AssertChanges();
@@ -160,10 +212,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
             AssertChanges();
         }
 
-        [Fact]
-        public void ShouldTrackChanges()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldTrackChanges(bool defaultComparer)
         {
-            for (int i = 0; i < 4; i++)
+            AddDecorator(defaultComparer);
+
+            for (var i = 0; i < 4; i++)
             {
                 _collection.Add(1);
                 AssertChanges();
@@ -206,6 +262,17 @@ namespace MugenMvvm.UnitTests.Collections.Components
             AssertChanges();
         }
 
+        private void AddDecorator(bool defaultComparer)
+        {
+            if (!defaultComparer)
+            {
+                _headerComparer = SortingComparer<object?>.Descending(o => (int) o!).Build();
+                _footerComparer = SortingComparer<object?>.Ascending(o => (int) o!).Build();
+            }
+
+            _collection.AddComponent(new ItemHeaderFooterCollectionDecorator(_isHeaderOrFooter, _headerComparer, _footerComparer));
+        }
+
         private void AssertChanges()
         {
             _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
@@ -214,13 +281,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private IEnumerable<object> Decorate()
         {
-            foreach (var item in _collection.Where(o => _isHeaderOrFooter(o) == true).OrderBy(o => o, _headerComparer))
+            var enumerable = _collection.Where(o => _isHeaderOrFooter(o) == true);
+            if (_headerComparer != null)
+                enumerable = enumerable.OrderBy(o => o, _headerComparer);
+
+            foreach (var item in enumerable)
                 yield return item;
 
             foreach (var item in _collection.Where(o => _isHeaderOrFooter(o) == null))
                 yield return item;
 
-            foreach (var item in _collection.Where(o => _isHeaderOrFooter(o) == false).OrderBy(o => o, _footerComparer))
+            enumerable = _collection.Where(o => _isHeaderOrFooter(o) == false);
+            if (_footerComparer != null)
+                enumerable = enumerable.OrderBy(o => o, _footerComparer);
+            foreach (var item in enumerable)
                 yield return item;
         }
     }

@@ -125,10 +125,32 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
+        private int GetIndex(int originalIndex)
+        {
+            var result = originalIndex;
+            foreach (var collectionItem in _collectionItems)
+            {
+                var item = collectionItem.Value;
+                for (var i = 0; i < item.Count; i++)
+                {
+                    if (item[i] < originalIndex)
+                        result += item.Size - 1;
+                }
+            }
+
+            return result;
+        }
+
         IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => _decoratorManager == null ? items : Decorate(items);
 
-        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args) =>
-            _decoratorManager != null && (item == null || !_collectionItems.ContainsKey(item));
+        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        {
+            if (_decoratorManager == null || item != null && _collectionItems.ContainsKey(item))
+                return false;
+
+            index = GetIndex(index);
+            return true;
+        }
 
         bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index) => _decoratorManager != null && OnAdded(item, ref index);
 
@@ -285,7 +307,7 @@ namespace MugenMvvm.Collections.Components
                     return;
 
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnChanged(_decorator.Owner, _decorator, item, GetIndex(this[i]) + index, args);
+                    DecoratorManager.OnChanged(_decorator.Owner, _decorator, item, _decorator.GetIndex(this[i]) + index, args);
             }
 
             public void OnAdded(ICollection collection, object? item, int index)
@@ -295,7 +317,7 @@ namespace MugenMvvm.Collections.Components
 
                 ++Size;
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnAdded(_decorator.Owner, _decorator, item, GetIndex(this[i]) + index);
+                    DecoratorManager.OnAdded(_decorator.Owner, _decorator, item, _decorator.GetIndex(this[i]) + index);
             }
 
             public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index)
@@ -304,7 +326,7 @@ namespace MugenMvvm.Collections.Components
                     return;
 
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnReplaced(_decorator.Owner, _decorator, oldItem, newItem, GetIndex(this[i]) + index);
+                    DecoratorManager.OnReplaced(_decorator.Owner, _decorator, oldItem, newItem, _decorator.GetIndex(this[i]) + index);
             }
 
             public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex)
@@ -314,7 +336,7 @@ namespace MugenMvvm.Collections.Components
 
                 for (var i = 0; i < Count; i++)
                 {
-                    var originalIndex = GetIndex(this[i]);
+                    var originalIndex = _decorator.GetIndex(this[i]);
                     DecoratorManager.OnMoved(_decorator.Owner, _decorator, item, originalIndex + oldIndex, originalIndex + newIndex);
                 }
             }
@@ -326,7 +348,7 @@ namespace MugenMvvm.Collections.Components
 
                 --Size;
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnRemoved(_decorator.Owner, _decorator, item, GetIndex(this[i]) + index);
+                    DecoratorManager.OnRemoved(_decorator.Owner, _decorator, item, _decorator.GetIndex(this[i]) + index);
             }
 
             public void OnReset(ICollection collection, IEnumerable<object?>? items)
@@ -336,22 +358,6 @@ namespace MugenMvvm.Collections.Components
 
                 Size = items.CountEx();
                 DecoratorManager.OnReset(_decorator.Owner, _decorator, _decorator.Decorate(DecoratorManager.Decorate(_decorator.Owner, _decorator)));
-            }
-
-            private int GetIndex(int originalIndex)
-            {
-                var result = originalIndex;
-                foreach (var collectionItem in _decorator._collectionItems)
-                {
-                    var item = collectionItem.Value;
-                    for (var i = 0; i < item.Count; i++)
-                    {
-                        if (item[i] < originalIndex)
-                            result += item.Size - 1;
-                    }
-                }
-
-                return result;
             }
 
             bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
