@@ -95,15 +95,16 @@ namespace MugenMvvm.Extensions
             return array;
         }
 
-        public static void AddOrdered<T>(ref T[] items, T item, IComparer<T> comparer)
+        public static int AddOrdered<T>(ref T[] items, T item, IComparer<T> comparer)
         {
             var array = new T[items.Length + 1];
             Array.Copy(items, 0, array, 0, items.Length);
-            AddOrdered(array, item, items.Length, comparer);
+            int index = AddOrdered(array, item, items.Length, comparer);
             items = array;
+            return index;
         }
 
-        public static void AddOrdered<T>(T[] items, T item, int size, IComparer<T> comparer)
+        public static int AddOrdered<T>(T[] items, T item, int size, IComparer<T> comparer)
         {
             var binarySearch = Array.BinarySearch(items, 0, size, item, comparer);
             if (binarySearch < 0)
@@ -111,15 +112,17 @@ namespace MugenMvvm.Extensions
             if (binarySearch < size)
                 Array.Copy(items, binarySearch, items, binarySearch + 1, size - binarySearch);
             items[binarySearch] = item;
+            return binarySearch;
         }
 
-        public static void AddOrdered<T>(List<T> list, T item, IComparer<T> comparer)
+        public static int AddOrdered<T>(List<T> list, T item, IComparer<T> comparer)
         {
             Should.NotBeNull(list, nameof(list));
             var binarySearch = list.BinarySearch(item, comparer);
             if (binarySearch < 0)
                 binarySearch = ~binarySearch;
             list.Insert(binarySearch, item);
+            return binarySearch;
         }
 
         public static bool Remove<T>(ref T[] items, T item) where T : class
