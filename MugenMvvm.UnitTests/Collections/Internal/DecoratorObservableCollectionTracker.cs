@@ -22,6 +22,8 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public List<T> ChangedItems { get; }
 
+        public event Action? Changed;
+
         private static void OnAddEvent(List<T> items, IList? newItems, int index)
         {
             Should.NotBeNull(newItems, nameof(newItems));
@@ -87,23 +89,45 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            Changed?.Invoke();
         }
 
         public void OnChanged(ICollection collection, object? item, int index, object? args)
         {
             ChangedItems[index].ShouldEqual(item);
             ++ItemChangedCount;
+            Changed?.Invoke();
         }
 
-        public void OnAdded(ICollection collection, object? item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
+        public void OnAdded(ICollection collection, object? item, int index)
+        {
+            OnAddEvent(ChangedItems, new[] {item}, index);
+            Changed?.Invoke();
+        }
 
-        public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) => OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
+        public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index)
+        {
+            OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
+            Changed?.Invoke();
+        }
 
-        public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
+        public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex)
+        {
+            OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
+            Changed?.Invoke();
+        }
 
-        public void OnRemoved(ICollection collection, object? item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
+        public void OnRemoved(ICollection collection, object? item, int index)
+        {
+            OnRemoveEvent(ChangedItems, new[] {item}, index);
+            Changed?.Invoke();
+        }
 
-        public void OnReset(ICollection collection, IEnumerable<object?>? items) => OnReset(ChangedItems, items?.Cast<T>());
+        public void OnReset(ICollection collection, IEnumerable<object?>? items)
+        {
+            OnReset(ChangedItems, items?.Cast<T>());
+            Changed?.Invoke();
+        }
 
         private void CheckPropertyChanged(bool countChanged)
         {

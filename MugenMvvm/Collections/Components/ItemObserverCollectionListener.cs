@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ItemObserverCollectionListener<T> : ICollectionChangingListener<T>, IDetachableComponent, IHasPriority where T : class
+    public class ItemObserverCollectionListener<T> : ICollectionChangingListener<T>, IAttachableComponent, IDetachableComponent, IHasPriority where T : class
     {
         private readonly Dictionary<T, int> _items;
         private readonly PropertyChangedEventHandler _handler;
@@ -86,6 +86,16 @@ namespace MugenMvvm.Collections.Components
             }
             else
                 _items[item] = count - 1;
+        }
+
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            foreach (var item in (IReadOnlyCollection<T>) owner)
+                SubscribeIfNeed(item);
+            if (_items.Count != 0)
+                OnCollectionChanged();
         }
 
         void ICollectionChangingListener<T>.OnAdding(IReadOnlyCollection<T> collection, T item, int index)

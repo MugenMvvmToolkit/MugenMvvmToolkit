@@ -214,9 +214,12 @@ namespace MugenMvvm.Collections.Components
 
             var removeIndex = index;
             RemoveHeaderOrFooter(oldItem, ref removeIndex, oldItemIsHeaderOrFooter, true);
-            _decoratorManager.OnRemoved(collection, this, oldItem, removeIndex);
-
             AddHeaderOrFooter(newItem, ref index, newItemIsHeaderOrFooter, true);
+
+            if (removeIndex == index)
+                return true;
+
+            _decoratorManager.OnRemoved(collection, this, oldItem, removeIndex);
             _decoratorManager.OnAdded(collection, this, newItem, index);
 
             return false;

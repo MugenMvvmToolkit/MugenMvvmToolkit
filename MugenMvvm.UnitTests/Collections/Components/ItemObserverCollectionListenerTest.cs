@@ -38,6 +38,43 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
+        public void AttachShouldTrackChanges()
+        {
+            _collection.RemoveComponent(_listener);
+            var item1 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
+            var item2 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
+
+            _collection.Add(item1);
+            _collection.Add(item2);
+            _collectionChangedCount.ShouldEqual(0);
+            _itemChangedCount.ShouldEqual(0);
+
+            _currentItem = item1;
+            item1.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+
+            _currentItem = item2;
+            item2.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+
+            _collection.AddComponent(_listener);
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(1);
+
+            _currentItem = item1;
+            item1.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(1);
+            _collectionChangedCount.ShouldEqual(1);
+
+            _currentItem = item2;
+            item2.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(2);
+            _collectionChangedCount.ShouldEqual(1);
+        }
+
+        [Fact]
         public void ReplaceShouldTrackChanges()
         {
             var item1 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
