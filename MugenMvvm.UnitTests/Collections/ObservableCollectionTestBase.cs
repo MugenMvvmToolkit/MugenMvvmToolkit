@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
@@ -344,8 +345,8 @@ namespace MugenMvvm.UnitTests.Collections
                 var collectionListener = new TestCollectionBatchUpdateListener((IObservableCollection) collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnBeginBatchUpdate = () => begin++,
-                    OnEndBatchUpdate = () => end++
+                    OnBeginBatchUpdate = (t) => begin += t == BatchUpdateType.Source ? 1 : 0,
+                    OnEndBatchUpdate = (t) => end += t == BatchUpdateType.Source ? 1 : 0
                 };
 
                 collection.AddComponent(collectionListener);

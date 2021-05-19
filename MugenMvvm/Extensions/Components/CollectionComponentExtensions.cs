@@ -1,24 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Extensions.Components
 {
     public static class CollectionComponentExtensions
     {
-        public static void OnBeginBatchUpdate(this ItemOrArray<ICollectionBatchUpdateListener> listeners, ICollection collection)
+        public static void OnBeginBatchUpdate(this ItemOrArray<ICollectionBatchUpdateListener> listeners, ICollection collection, BatchUpdateType batchUpdateType)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
-                c.OnBeginBatchUpdate(collection);
+                c.OnBeginBatchUpdate(collection, batchUpdateType);
         }
 
-        public static void OnEndBatchUpdate(this ItemOrArray<ICollectionBatchUpdateListener> listeners, ICollection collection)
+        public static void OnEndBatchUpdate(this ItemOrArray<ICollectionBatchUpdateListener> listeners, ICollection collection, BatchUpdateType batchUpdateType)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
-                c.OnEndBatchUpdate(collection);
+                c.OnEndBatchUpdate(collection, batchUpdateType);
         }
 
         public static bool CanAdd<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyCollection<T> collection, T item, int index)

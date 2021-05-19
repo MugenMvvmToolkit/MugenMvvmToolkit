@@ -644,7 +644,7 @@ namespace MugenMvvm.Collections
         }
 
         [StructLayout(LayoutKind.Auto)]
-        private ref struct BatchingListUpdateCallback
+        public ref struct BatchingListUpdateCallback
         {
             private readonly IListUpdateCallback _callback;
             private int _lastEventCount;
@@ -667,6 +667,8 @@ namespace MugenMvvm.Collections
                 _lastEventType = TypeNone;
                 _callback = callback;
             }
+
+            public bool IsEmpty => _callback == null;
 
             public void OnInserted(int position, int finalPosition, int count)
             {

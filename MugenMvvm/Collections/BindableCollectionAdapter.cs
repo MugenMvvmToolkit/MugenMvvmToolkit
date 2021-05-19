@@ -154,8 +154,7 @@ namespace MugenMvvm.Collections
         {
             if (events.Count == 1 || events.Count < BatchSize)
             {
-                for (var i = 0; i < events.Count; i++)
-                    events[i].Raise(this, true, version);
+                RaiseBatchUpdate(events, version);
                 ResetCache?.Clear();
                 return;
             }
@@ -172,6 +171,12 @@ namespace MugenMvvm.Collections
             }
 
             ResetCache.Clear();
+        }
+
+        protected virtual void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
+        {
+            for (var i = 0; i < events.Count; i++)
+                events[i].Raise(this, true, version);
         }
 
         protected virtual bool AddPendingEvent(List<CollectionChangedEvent> pendingEvents, in CollectionChangedEvent e)
@@ -334,12 +339,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private ActionToken SuspendSource()
-        {
-            if (Items is ISuspendable suspendable)
-                return suspendable.Suspend(this);
-            return default;
-        }
+        private ActionToken SuspendSource() => Items is ISuspendable suspendable ? suspendable.Suspend(this) : default;
 
         void IThreadDispatcherHandler.Execute(object? state) => ExecutePendingEvents((int) state!);
 
@@ -377,7 +377,7 @@ namespace MugenMvvm.Collections
 
             public object? ChangedArgs => NewItem;
 
-            public bool Raise(BindableCollectionAdapter adapter, bool batchUpdate, int version)
+            public void Raise(BindableCollectionAdapter adapter, bool batchUpdate, int version)
             {
                 switch (Action)
                 {
@@ -403,11 +403,9 @@ namespace MugenMvvm.Collections
                         ExceptionManager.ThrowEnumOutOfRange(nameof(Action), Action);
                         break;
                 }
-
-                return true;
             }
 
-            public bool ApplyToSource(IList<object?> source)
+            public void ApplyToSource(IList<object?> source)
             {
                 Should.NotBeNull(source, nameof(source));
                 switch (Action)
@@ -430,11 +428,32 @@ namespace MugenMvvm.Collections
                         if (NewItem != null)
                             source.AddRange((IEnumerable<object?>) NewItem!);
                         break;
-                    default:
-                        return false;
                 }
+            }
 
-                return true;
+            public void Raise(DiffUtil.BatchingListUpdateCallback callback)
+            {
+                switch (Action)
+                {
+                    case CollectionChangedAction.Add:
+                        callback.OnInserted(NewIndex, NewIndex, 1);
+                        break;
+                    case CollectionChangedAction.Move:
+                        callback.OnMoved(OldIndex, NewIndex, OldIndex, NewIndex);
+                        break;
+                    case CollectionChangedAction.Remove:
+                        callback.OnRemoved(OldIndex, 1);
+                        break;
+                    case CollectionChangedAction.Replace:
+                        callback.OnChanged(OldIndex, OldIndex, 1, false);
+                        break;
+                    case CollectionChangedAction.Changed:
+                        callback.OnChanged(OldIndex, OldIndex, 1, false);
+                        break;
+                    default:
+                        ExceptionManager.ThrowEnumOutOfRange(nameof(Action), Action);
+                        break;
+                }
             }
 
             public static CollectionChangedEvent Changed(object? item, int index, object? args) => new(CollectionChangedAction.Changed, item, args, index, index);
@@ -479,9 +498,9 @@ namespace MugenMvvm.Collections
                     adapter.OnCollectionChanged(sender, args, _version);
             }
 
-            public void OnBeginBatchUpdate(ICollection collection) => GetAdapter()?.BeginBatchUpdate(_version);
+            public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter()?.BeginBatchUpdate(_version);
 
-            public void OnEndBatchUpdate(ICollection collection) => GetAdapter()?.EndBatchUpdate(_version);
+            public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter()?.EndBatchUpdate(_version);
 
             public void OnChanged(ICollection collection, object? item, int index, object? args)
             {

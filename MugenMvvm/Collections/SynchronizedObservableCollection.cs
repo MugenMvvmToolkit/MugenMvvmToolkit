@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
@@ -225,7 +226,7 @@ namespace MugenMvvm.Collections
             using (Lock())
             {
                 if (++_batchCount == 1)
-                    GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this);
+                    GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this, BatchUpdateType.Source);
             }
 
             return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
@@ -348,7 +349,7 @@ namespace MugenMvvm.Collections
             using (Lock())
             {
                 if (--_batchCount == 0)
-                    GetComponents<ICollectionBatchUpdateListener>().OnEndBatchUpdate(this);
+                    GetComponents<ICollectionBatchUpdateListener>().OnEndBatchUpdate(this, BatchUpdateType.Source);
             }
         }
 

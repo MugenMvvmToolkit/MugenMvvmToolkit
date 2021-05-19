@@ -98,6 +98,25 @@ namespace MugenMvvm.Android.Collections
             }
         }
 
+        protected override void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
+        {
+            if (events.Count < 2)
+            {
+                base.RaiseBatchUpdate(events, version);
+                return;
+            }
+
+            var callback = new DiffUtil.BatchingListUpdateCallback(this);
+            for (var i = 0; i < events.Count; i++)
+            {
+                var e = events[i];
+                e.ApplyToSource(Items);
+                e.Raise(callback);
+            }
+
+            callback.DispatchLastEvent();
+        }
+
         protected IItemsSourceObserver? GetObserver(int index)
         {
             var observer = Observers[index];
