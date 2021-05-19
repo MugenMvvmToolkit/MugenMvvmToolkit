@@ -7,6 +7,8 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecoratorManagerComponent : IComponent<ICollection>
     {
+        ActionToken TryLock(ICollection collection, ICollectionDecorator? decorator = null);
+
         ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null);
 
         IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null);

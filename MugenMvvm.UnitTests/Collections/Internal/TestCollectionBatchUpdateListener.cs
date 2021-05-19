@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
@@ -15,26 +16,26 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             _collection = collection;
         }
 
-        public Action? OnBeginBatchUpdate { get; set; }
+        public Action<BatchUpdateType>? OnBeginBatchUpdate { get; set; }
 
-        public Action? OnEndBatchUpdate { get; set; }
+        public Action<BatchUpdateType>? OnEndBatchUpdate { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
-        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(ICollection collection)
+        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
         {
             _collection.ShouldEqual(collection);
             if (OnBeginBatchUpdate == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnBeginBatchUpdate?.Invoke();
+            OnBeginBatchUpdate?.Invoke(batchUpdateType);
         }
 
-        void ICollectionBatchUpdateListener.OnEndBatchUpdate(ICollection collection)
+        void ICollectionBatchUpdateListener.OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
         {
             _collection.ShouldEqual(collection);
             if (OnEndBatchUpdate == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnEndBatchUpdate?.Invoke();
+            OnEndBatchUpdate?.Invoke(batchUpdateType);
         }
     }
 }

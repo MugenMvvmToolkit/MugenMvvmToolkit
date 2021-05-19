@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Collections.Internal;
@@ -32,6 +33,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _targetCollection.AddComponent(_tracker);
             _targetCollection.Add(_itemCollection1);
             _targetCollection.Add(_itemCollection2);
+            _tracker.Changed += Assert;
         }
 
         [Fact]
@@ -312,6 +314,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     await Task.Delay(2000);
                     var target = _targetCollection[_targetCollection.Count - 1];
                     _targetCollection.Remove(target);
+                    using var l = _itemCollection2.TryLock();
                     var i = _itemCollection2[_itemCollection1.Count - 1];
                     _itemCollection2.Remove(i);
                 }
@@ -348,6 +351,31 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     Assert();
                 }
             }).Wait();
+        }
+
+        [Fact]
+        public void ShouldHandleBatchUpdateFromChild()
+        {
+            var decorator = new HeaderFooterCollectionDecorator();
+            _itemCollection2.AddComponent(decorator);
+
+            var beginCount = 0;
+            var endCount = 0;
+            _targetCollection.AddComponent(new TestCollectionBatchUpdateListener(_targetCollection)
+            {
+                OnBeginBatchUpdate = t => beginCount += t == BatchUpdateType.Decorators ? 1 : 0,
+                OnEndBatchUpdate = t => endCount += t == BatchUpdateType.Decorators ? 1 : 0
+            });
+
+            decorator.Header = int.MaxValue;
+            beginCount.ShouldEqual(1);
+            endCount.ShouldEqual(1);
+            Assert();
+
+            decorator.Footer = int.MaxValue;
+            beginCount.ShouldEqual(2);
+            endCount.ShouldEqual(2);
+            Assert();
         }
 
         [Fact]

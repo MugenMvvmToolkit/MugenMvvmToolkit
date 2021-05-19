@@ -7,11 +7,26 @@ using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Collections.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class SortingCollectionDecoratorTest : UnitTestBase, IComparer<object?>
     {
+        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly SortingCollectionDecorator _decorator;
+
+        public SortingCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _decorator = new SortingCollectionDecorator(this);
+            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _collection.AddComponent(_decorator);
+            _collection.AddComponent(_tracker);
+            _tracker.Changed += Assert;
+        }
+
         private bool DefaultComparer { get; set; }
 
         [Theory]
@@ -20,27 +35,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ReorderShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager)
-            {
-                1, 2, 3, 4, 5, 6, 6
-            };
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
+            _collection.Reset(new object[] {1, 2, 3, 4, 5, 6, 6});
 
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            tracker.ChangedItems.AddRange(observableCollection);
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
-            decorator.Reorder();
-            tracker.ChangedItems.ShouldEqual(observableCollection.Decorate().Cast<int>());
-            tracker.ChangedItems.ShouldEqual(items);
+            _decorator.Reorder();
+            Assert();
 
             DefaultComparer = !defaultComparer;
-
-            decorator.Reorder();
-            tracker.ChangedItems.ShouldEqual(observableCollection.Decorate().Cast<int>());
-            tracker.ChangedItems.ShouldEqual(items);
+            _decorator.Reorder();
+            Assert();
         }
 
         [Theory]
@@ -49,26 +51,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void AddShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
             {
-                observableCollection.Add(i);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(i);
+                Assert();
             }
-
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection.Insert(i, i);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.Insert(i, i);
+                Assert();
             }
         }
 
@@ -78,28 +70,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void AddShouldTrackChanges2(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
             {
-                var id = Guid.NewGuid().GetHashCode();
-                observableCollection.Add(id);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(Guid.NewGuid().GetHashCode());
+                Assert();
             }
-
 
             for (var i = 0; i < 10; i++)
             {
-                var id = Guid.NewGuid().GetHashCode();
-                observableCollection.Insert(i, id);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.Insert(i, Guid.NewGuid().GetHashCode());
+                Assert();
             }
         }
 
@@ -109,23 +89,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ReplaceShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(i);
+            Assert();
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection[i] = i + Guid.NewGuid().GetHashCode();
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection[i] = i + Guid.NewGuid().GetHashCode();
+                Assert();
             }
         }
 
@@ -135,24 +106,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ReplaceShouldTrackChanges2(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(i);
+            Assert();
 
             for (var i = 0; i < 10; i++)
             for (var j = 10; j < 20; j++)
             {
-                observableCollection[i] = observableCollection[j];
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection[i] = _collection[j];
+                Assert();
             }
         }
 
@@ -162,23 +124,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void MoveShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(i);
+            Assert();
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection.Move(i, i + 1);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.Move(i, i + 1);
+                Assert();
             }
         }
 
@@ -188,23 +141,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void MoveShouldTrackChanges2(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(i);
+            Assert();
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection.Move(i, i * 2 + 1);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.Move(i, i * 2 + 1);
+                Assert();
             }
         }
 
@@ -214,28 +158,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void RemoveShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
+                _collection.Add(i);
+            Assert();
 
             for (var i = 0; i < 20; i++)
             {
-                observableCollection.Remove(i);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.Remove(i);
+                Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                observableCollection.RemoveAt(i);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.RemoveAt(i);
+                Assert();
             }
         }
 
@@ -245,22 +181,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void RemoveShouldTrackChanges2(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(Guid.NewGuid().GetHashCode());
+                _collection.Add(Guid.NewGuid().GetHashCode());
+            Assert();
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection.RemoveAt(0);
-                tracker.ChangedItems.ShouldEqual(items);
+                _collection.RemoveAt(0);
+                Assert();
             }
         }
 
@@ -270,21 +198,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ResetShouldTrackChanges(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(i);
+            Assert();
 
-            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            Assert();
         }
 
         [Theory]
@@ -293,21 +212,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ClearShouldTrackChanges(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
-
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(i);
-            tracker.ChangedItems.ShouldEqual(items);
+                _collection.Add(i);
+            Assert();
 
-            observableCollection.Clear();
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Clear();
+            Assert();
         }
 
         [Theory]
@@ -315,7 +225,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(false)]
         public void ChangeShouldTrackChanges(bool defaultComparer)
         {
-            var comparer = Comparer<object?>.Create((x1, x2) =>
+            _decorator.Comparer = Comparer<object?>.Create((x1, x2) =>
             {
                 var item = (TestCollectionItem) x1!;
                 var collectionItem = (TestCollectionItem) x2!;
@@ -323,22 +233,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
             });
-            var observableCollection = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(comparer);
-            observableCollection.AddComponent(decorator);
-
-            var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(item => item, comparer);
 
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(new TestCollectionItem {Id = i});
+                _collection.Add(new TestCollectionItem {Id = i});
 
             for (var i = 0; i < 100; i++)
             {
-                observableCollection[i].Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
-                observableCollection.RaiseItemChanged(observableCollection[i], null);
-                tracker.ChangedItems.ShouldEqual(items);
+                ((TestCollectionItem) _collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                _collection.RaiseItemChanged(_collection[i], null);
+                Assert();
             }
         }
 
@@ -349,37 +252,29 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
 
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
+            _collection.Add(1);
+            Assert();
 
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
+            _collection.Insert(1, 2);
+            Assert();
 
-            observableCollection.Add(1);
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Remove(2);
+            Assert();
 
-            observableCollection.Insert(1, 2);
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.RemoveAt(0);
+            Assert();
 
-            observableCollection.Remove(2);
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            Assert();
 
-            observableCollection.RemoveAt(0);
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection[0] = 200;
+            Assert();
 
-            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Move(1, 2);
+            Assert();
 
-            observableCollection[0] = 200;
-            tracker.ChangedItems.ShouldEqual(items);
-
-            observableCollection.Move(1, 2);
-            tracker.ChangedItems.ShouldEqual(items);
-
-            observableCollection.Clear();
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Clear();
+            Assert();
         }
 
         [Theory]
@@ -389,37 +284,35 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
 
-            var observableCollection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            var decorator = new SortingCollectionDecorator(this);
-            observableCollection.AddComponent(decorator);
+            _collection.Add(Guid.NewGuid().GetHashCode());
+            Assert();
 
-            var tracker = new DecoratorObservableCollectionTracker<int>();
-            observableCollection.AddComponent(tracker);
-            var items = observableCollection.OrderBy(i => i, this);
+            _collection.Insert(1, 2);
+            Assert();
 
-            observableCollection.Add(Guid.NewGuid().GetHashCode());
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Remove(2);
+            Assert();
 
-            observableCollection.Insert(1, 2);
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.RemoveAt(0);
+            Assert();
 
-            observableCollection.Remove(2);
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Reset(new object[] {Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5});
+            Assert();
 
-            observableCollection.RemoveAt(0);
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection[0] = 200;
+            Assert();
 
-            observableCollection.Reset(new[] {Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5});
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Move(1, 2);
+            Assert();
 
-            observableCollection[0] = 200;
-            tracker.ChangedItems.ShouldEqual(items);
+            _collection.Clear();
+            Assert();
+        }
 
-            observableCollection.Move(1, 2);
-            tracker.ChangedItems.ShouldEqual(items);
-
-            observableCollection.Clear();
-            tracker.ChangedItems.ShouldEqual(items);
+        private void Assert()
+        {
+            _collection.OrderBy(o => o, _decorator.Comparer).ShouldEqual(_tracker.ChangedItems);
+            _collection.Decorate().ShouldEqual(_tracker.ChangedItems);
         }
 
         int IComparer<object?>.Compare(object? x1, object? x2)

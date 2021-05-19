@@ -34,6 +34,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     return false;
                 return null;
             };
+            _tracker.Changed += Assert;
         }
 
         [Theory]
@@ -46,13 +47,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 100; i++)
             {
                 _collection.Add(i);
-                AssertChanges();
+                Assert();
             }
 
             for (var i = 0; i < _collection.Count; i++)
             {
                 _collection.RaiseItemChanged(_collection[i], null);
-                AssertChanges();
+                Assert();
                 _tracker.ItemChangedCount.ShouldEqual(i + 1);
             }
         }
@@ -67,13 +68,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 100; i++)
             {
                 _collection.Add(i);
-                AssertChanges();
+                Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.Insert(i, i);
-                AssertChanges();
+                Assert();
             }
         }
 
@@ -87,10 +88,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
-            AssertChanges();
+            Assert();
 
             _collection.Clear();
-            AssertChanges();
+            Assert();
         }
 
         [Theory]
@@ -102,12 +103,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
-            AssertChanges();
+            Assert();
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.Move(i, i + 1);
-                AssertChanges();
+                Assert();
             }
         }
 
@@ -120,12 +121,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
-            AssertChanges();
+            Assert();
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + 1);
-                AssertChanges();
+                Assert();
             }
         }
 
@@ -138,25 +139,25 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
-            AssertChanges();
+            Assert();
 
             for (var i = 0; i < 20; i++)
             {
                 _collection.Remove(i);
-                AssertChanges();
+                Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.RemoveAt(i);
-                AssertChanges();
+                Assert();
             }
 
             var count = _collection.Count;
             for (var i = 0; i < count; i++)
             {
                 _collection.RemoveAt(0);
-                AssertChanges();
+                Assert();
             }
         }
 
@@ -169,12 +170,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
-            AssertChanges();
+            Assert();
 
             for (var i = 0; i < 10; i++)
             {
                 _collection[i] = i + 101;
-                AssertChanges();
+                Assert();
             }
         }
 
@@ -187,13 +188,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
-            AssertChanges();
+            Assert();
 
             for (var i = 0; i < 10; i++)
             for (var j = 10; j < 20; j++)
             {
                 _collection[i] = _collection[j];
-                AssertChanges();
+                Assert();
             }
         }
 
@@ -206,10 +207,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
-            AssertChanges();
+            Assert();
 
             _collection.Reset(new object[] {1, 2, 3, 4, 5});
-            AssertChanges();
+            Assert();
         }
 
         [Theory]
@@ -222,44 +223,44 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 4; i++)
             {
                 _collection.Add(1);
-                AssertChanges();
+                Assert();
 
                 _collection.Insert(1, 2);
-                AssertChanges();
+                Assert();
 
                 _collection.Move(0, 1);
-                AssertChanges();
+                Assert();
 
                 _collection.Move(1, 0);
-                AssertChanges();
+                Assert();
 
                 _collection.Remove(2);
-                AssertChanges();
+                Assert();
 
                 _collection.RemoveAt(0);
-                AssertChanges();
+                Assert();
 
                 _collection.Reset(new object[] {1, 2, 3, 4, 5, i});
-                AssertChanges();
+                Assert();
 
                 _collection[0] = 200;
-                AssertChanges();
+                Assert();
 
                 _collection[3] = 3;
-                AssertChanges();
+                Assert();
 
                 _collection.Move(0, _collection.Count - 1);
-                AssertChanges();
+                Assert();
 
                 _collection.Move(0, _collection.Count - 2);
-                AssertChanges();
+                Assert();
 
                 _collection[i] = i;
-                AssertChanges();
+                Assert();
             }
 
             _collection.Clear();
-            AssertChanges();
+            Assert();
         }
 
         private void AddDecorator(bool defaultComparer)
@@ -273,7 +274,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.AddComponent(new ItemHeaderFooterCollectionDecorator(_isHeaderOrFooter, _headerComparer, _footerComparer));
         }
 
-        private void AssertChanges()
+        private void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
             _tracker.ChangedItems.ShouldEqual(Decorate().ToArray());

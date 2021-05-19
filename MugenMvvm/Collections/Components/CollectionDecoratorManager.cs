@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
@@ -101,7 +102,18 @@ namespace MugenMvvm.Collections.Components
             Instance.OnReset(collection, null, collection.AsEnumerable());
         }
 
-        public ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null) => MugenExtensions.TryLock(collection);
+        public ActionToken TryLock(ICollection collection, ICollectionDecorator? decorator = null) => MugenExtensions.TryLock(collection);
+
+        public ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null)
+        {
+            var listeners = GetComponents<ICollectionBatchUpdateListener>(collection);
+            if (listeners.Count == 0)
+                return default;
+
+            listeners.OnBeginBatchUpdate(collection, BatchUpdateType.Decorators);
+            return new ActionToken((o, l) => ItemOrArray.FromRawValue<ICollectionBatchUpdateListener>(l).OnEndBatchUpdate((ICollection) o!, BatchUpdateType.Decorators), collection,
+                listeners.GetRawValue());
+        }
 
         public IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null)
         {
@@ -233,6 +245,8 @@ namespace MugenMvvm.Collections.Components
             public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => Instance.OnRemoved((ICollection) collection, null, BoxingExtensions.Box(item), index);
 
             public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => Instance.OnReset((ICollection) collection, null, items?.Cast<object?>());
+
+            public ActionToken TryLock(ICollection collection, ICollectionDecorator? decorator = null) => Instance.TryLock(collection, decorator);
 
             public ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null) => Instance.BatchUpdate(collection, decorator);
 

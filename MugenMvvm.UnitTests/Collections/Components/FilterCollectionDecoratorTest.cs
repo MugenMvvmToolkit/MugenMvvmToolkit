@@ -14,8 +14,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
     {
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
         private readonly SynchronizedObservableCollection<object> _collection;
-        private Func<int, bool> _filter1;
         private readonly Func<TestCollectionItem, bool> _filter2;
+        private Func<int, bool> _filter1;
 
         public FilterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
@@ -27,21 +27,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
-        }
-
-        [Fact]
-        public void ChangeShouldTrackChanges()
-        {
-            for (var i = 0; i < 100; i++)
-                _collection.Add(new TestCollectionItem {Id = i});
-            Assert();
-
-            for (var i = 0; i < 100; i++)
-            {
-                ((TestCollectionItem) _collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
-                _collection.RaiseItemChanged(_collection[i], null);
-                Assert();
-            }
+            _tracker.Changed += Assert;
         }
 
         [Fact]
@@ -56,6 +42,21 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 10; i++)
             {
                 _collection.Insert(i, i);
+                Assert();
+            }
+        }
+
+        [Fact]
+        public void ChangeShouldTrackChanges()
+        {
+            for (var i = 0; i < 100; i++)
+                _collection.Add(new TestCollectionItem {Id = i});
+            Assert();
+
+            for (var i = 0; i < 100; i++)
+            {
+                ((TestCollectionItem) _collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                _collection.RaiseItemChanged(_collection[i], null);
                 Assert();
             }
         }

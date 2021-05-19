@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -14,7 +13,6 @@ namespace MugenMvvm.Collections.Components
     {
         private readonly OrderedItemComparer _comparer;
         private readonly List<OrderedItem> _items;
-        private ICollectionDecoratorManagerComponent? _decoratorManager;
 
         public SortingCollectionDecorator(IComparer<object?> comparer, int priority = CollectionComponentPriority.SortingDecorator)
         {
@@ -24,21 +22,23 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        public IComparer<object?> Comparer => _comparer.Comparer;
+        public IComparer<object?> Comparer
+        {
+            get => _comparer.Comparer;
+            set
+            {
+                Should.NotBeNull(value, nameof(value));
+                ReorderInternal(value, true);
+            }
+        }
 
         public int Priority { get; set; }
 
+        protected ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
+
         int IReadOnlyCollection<object?>.Count => _items.Count;
 
-        public void Reorder()
-        {
-            if (_decoratorManager == null)
-                return;
-
-            using var _ = _decoratorManager.BatchUpdate(Owner, this);
-            Reset(_decoratorManager.Decorate(Owner, this));
-            _decoratorManager.OnReset(Owner, this, this);
-        }
+        public void Reorder() => ReorderInternal(null, false);
 
         public IEnumerator<object?> GetEnumerator()
         {
@@ -46,18 +46,36 @@ namespace MugenMvvm.Collections.Components
                 yield return _items[i].Item;
         }
 
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => _decoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
+        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => DecoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
 
         protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {
             _items.Clear();
-            _decoratorManager = null;
+            DecoratorManager = null;
+        }
+
+        private void ReorderInternal(IComparer<object?>? comparer, bool setComparer)
+        {
+            if (DecoratorManager == null)
+            {
+                if (setComparer)
+                    _comparer.Comparer = comparer!;
+                return;
+            }
+
+            using var _ = DecoratorManager.TryLock(Owner, this);
+            if (setComparer)
+                _comparer.Comparer = comparer!;
+            Reset(DecoratorManager.Decorate(Owner, this));
+            DecoratorManager.OnReset(Owner, this, this);
         }
 
         private void Reset(IEnumerable<object?> items)
         {
             _items.Clear();
-            _items.AddRange(items.Select((arg1, i) => new OrderedItem(i, arg1)));
+            var index = 0;
+            foreach (var item in items)
+                _items.Add(new OrderedItem(index++, item));
             _items.Sort(_comparer);
         }
 
@@ -71,9 +89,15 @@ namespace MugenMvvm.Collections.Components
 
         private int GetIndexByOriginalIndex(int index)
         {
-            for (var i = 0; i < _items.Count; i++)
+#if NET5_0
+            var items = CollectionsMarshal.AsSpan(_items);
+            for (var i = 0; i < items.Length; i++)
+#else
+            var items = _items;
+            for (var i = 0; i < items.Count; i++)
+#endif
             {
-                if (_items[i].OriginalIndex == index)
+                if (items[i].OriginalIndex == index)
                     return i;
             }
 
@@ -85,22 +109,32 @@ namespace MugenMvvm.Collections.Components
             if (_items.Count == 0)
                 return;
 
+#if NET5_0
+            var span = CollectionsMarshal.AsSpan(_items);
+            for (var i = 0; i < span.Length; i++)
+            {
+                if (span[i].OriginalIndex >= index)
+                    span[i].OriginalIndex += value;
+            }
+#else
             for (var i = 0; i < _items.Count; i++)
             {
                 var item = _items[i];
                 if (item.OriginalIndex < index)
                     continue;
+
                 item.UpdateIndex(value);
                 _items[i] = item;
             }
+#endif
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) =>
-            _decoratorManager == null ? items : items.OrderBy(arg => arg, Comparer);
+            DecoratorManager == null ? items : this;
 
         bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
-            if (_decoratorManager == null)
+            if (DecoratorManager == null)
                 return false;
 
             var oldIndex = GetIndexByOriginalIndex(index);
@@ -114,7 +148,7 @@ namespace MugenMvvm.Collections.Components
                 index = oldIndex;
             else
             {
-                _decoratorManager.OnMoved(collection, this, item, oldIndex, newIndex);
+                DecoratorManager.OnMoved(collection, this, item, oldIndex, newIndex);
                 index = newIndex;
             }
 
@@ -123,7 +157,7 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
         {
-            if (_decoratorManager == null)
+            if (DecoratorManager == null)
                 return false;
 
             UpdateIndexes(index, 1);
@@ -135,25 +169,26 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
         {
-            if (_decoratorManager == null)
+            if (DecoratorManager == null)
                 return false;
 
             var oldIndex = GetIndexByOriginalIndex(index);
             if (oldIndex == -1)
                 return false;
 
+            using var _ = DecoratorManager.BatchUpdate(collection, this);
             _items.RemoveAt(oldIndex);
-            _decoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
+            DecoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
 
             var newIndex = GetInsertIndex(newItem);
             _items.Insert(newIndex, new OrderedItem(index, newItem));
-            _decoratorManager.OnAdded(collection, this, newItem, newIndex);
+            DecoratorManager.OnAdded(collection, this, newItem, newIndex);
             return false;
         }
 
         bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
         {
-            if (_decoratorManager == null)
+            if (DecoratorManager == null)
                 return false;
 
             var index = GetIndexByOriginalIndex(oldIndex);
@@ -172,7 +207,7 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
         {
-            if (_decoratorManager == null)
+            if (DecoratorManager == null)
                 return false;
 
             var indexToRemove = GetIndexByOriginalIndex(index);
@@ -187,7 +222,7 @@ namespace MugenMvvm.Collections.Components
 
         bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
         {
-            if (_decoratorManager == null)
+            if (DecoratorManager == null)
                 return false;
 
             if (items == null)
@@ -215,12 +250,14 @@ namespace MugenMvvm.Collections.Components
                 Item = item;
             }
 
+#if !NET5_0
             public void UpdateIndex(int index) => OriginalIndex += index;
+#endif
         }
 
         private sealed class OrderedItemComparer : IComparer<OrderedItem>
         {
-            public readonly IComparer<object?> Comparer;
+            public IComparer<object?> Comparer;
 
             public OrderedItemComparer(IComparer<object?> comparer)
             {

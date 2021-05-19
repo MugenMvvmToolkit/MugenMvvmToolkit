@@ -3,26 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
 
 namespace MugenMvvm.UnitTests.Collections.Internal
 {
-    public class DecoratorObservableCollectionTracker<T> : ICollectionDecoratorListener
+    public class DecoratorObservableCollectionTracker<T> : ICollectionDecoratorListener, ICollectionBatchUpdateListener
     {
+        private bool _hasPendingEvents;
         private bool _countRaised;
         private bool _indexerRaised;
+
+        private int _batchCount;
 
         public DecoratorObservableCollectionTracker()
         {
             ChangedItems = new List<T>();
         }
 
+        public event Action? Changed;
+
         public int ItemChangedCount { get; set; }
 
         public List<T> ChangedItems { get; }
-
-        public event Action? Changed;
 
         private static void OnAddEvent(List<T> items, IList? newItems, int index)
         {
@@ -89,44 +94,72 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            Changed?.Invoke();
+
+            RaiseChanged();
+        }
+
+        public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (batchUpdateType == BatchUpdateType.Decorators)
+                Interlocked.Increment(ref _batchCount);
+        }
+
+        public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (batchUpdateType == BatchUpdateType.Decorators)
+            {
+                Interlocked.Decrement(ref _batchCount);
+                RaiseChanged(true);
+            }
         }
 
         public void OnChanged(ICollection collection, object? item, int index, object? args)
         {
             ChangedItems[index].ShouldEqual(item);
             ++ItemChangedCount;
-            Changed?.Invoke();
+            RaiseChanged();
         }
 
         public void OnAdded(ICollection collection, object? item, int index)
         {
             OnAddEvent(ChangedItems, new[] {item}, index);
-            Changed?.Invoke();
+            RaiseChanged();
         }
 
         public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index)
         {
             OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
-            Changed?.Invoke();
+            RaiseChanged();
         }
 
         public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex)
         {
             OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
-            Changed?.Invoke();
+            RaiseChanged();
         }
 
         public void OnRemoved(ICollection collection, object? item, int index)
         {
             OnRemoveEvent(ChangedItems, new[] {item}, index);
-            Changed?.Invoke();
+            RaiseChanged();
         }
 
         public void OnReset(ICollection collection, IEnumerable<object?>? items)
         {
             OnReset(ChangedItems, items?.Cast<T>());
-            Changed?.Invoke();
+            RaiseChanged();
+        }
+
+        private void RaiseChanged(bool fromBatch = false)
+        {
+            if (_batchCount == 0)
+            {
+                if (!fromBatch || _hasPendingEvents)
+                    Changed?.Invoke();
+                _hasPendingEvents = false;
+            }
+            else
+                _hasPendingEvents = true;
         }
 
         private void CheckPropertyChanged(bool countChanged)
