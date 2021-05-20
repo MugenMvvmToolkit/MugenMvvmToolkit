@@ -80,7 +80,7 @@ namespace MugenMvvm.Commands
             IReadOnlyMetadataContext? metadata = null) =>
             MugenExtensions.GetCommand(null, owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
 
-        public bool CanExecute(object? parameter) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, null);
+        public bool CanExecute(object? parameter) => CanExecute(parameter, null);
 
         public void Execute(object? parameter) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
 
@@ -88,6 +88,8 @@ namespace MugenMvvm.Commands
             GetComponents<ICommandExecutorComponent>().ExecuteAsync(this, parameter, cancellationToken, metadata);
 
         public bool HasCanExecute(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().HasCanExecute(this, metadata);
+
+        public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
 
         public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandEventHandlerComponent>().RaiseCanExecuteChanged(this, metadata);
 

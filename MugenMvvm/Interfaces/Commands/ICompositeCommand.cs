@@ -12,6 +12,8 @@ namespace MugenMvvm.Interfaces.Commands
     {
         bool HasCanExecute(IReadOnlyMetadataContext? metadata = null);
 
+        bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata);
+
         void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null);
 
         ValueTask<bool> ExecuteAsync(object? parameter, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);

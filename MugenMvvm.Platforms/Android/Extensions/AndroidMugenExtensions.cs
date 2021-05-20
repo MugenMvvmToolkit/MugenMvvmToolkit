@@ -12,6 +12,7 @@ using MugenMvvm.Android.Internal;
 using MugenMvvm.Android.Native;
 using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Native.Views;
+using MugenMvvm.Android.Native.Views.Support;
 using MugenMvvm.Android.Navigation;
 using MugenMvvm.Android.Presentation;
 using MugenMvvm.Android.Requests;
@@ -274,6 +275,12 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .CustomImplementation((member, target, listener, metadata) =>
                                                                ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.RefreshedEventName))
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .Refreshing()
+                                                           .GetBuilder()
+                                                           .CustomGetter((member, target, metadata) => SwipeRefreshLayoutMugenExtensions.IsRefreshing(target))
+                                                           .CustomSetter((member, target, value, metadata) => SwipeRefreshLayoutMugenExtensions.SetRefreshing(target, value))
                                                            .Build());
 
             //actionbar

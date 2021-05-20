@@ -51,6 +51,9 @@ namespace MugenMvvm.Android.Bindings
         public static BindablePropertyDescriptor<T, bool> SmoothScroll<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(SmoothScroll);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BindablePropertyDescriptor<T, bool> Refreshing<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(Refreshing);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableEventDescriptor<T> Click<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(Click);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -171,6 +174,14 @@ namespace MugenMvvm.Android.Bindings
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetSmoothScroll<T>(this BindableMembersTargetDescriptor<T> descriptor, bool value) where T : View =>
             SmoothScroll<T>(_: default).SetValue(descriptor.Target, value);
+
+        [BindingMember(nameof(Refreshing))]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Refreshing<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View => Refreshing<T>(_: default).GetValue(descriptor.Target);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetRefreshing<T>(this BindableMembersTargetDescriptor<T> descriptor, bool value) where T : View =>
+            Refreshing<T>(_: default).SetValue(descriptor.Target, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ActionToken AddClickListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : View =>
