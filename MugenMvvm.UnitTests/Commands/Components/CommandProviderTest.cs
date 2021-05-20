@@ -12,16 +12,24 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Commands.Components
 {
-    public class DelegateCommandProviderTest : UnitTestBase
+    public class CommandProviderTest : UnitTestBase
     {
         private readonly CommandManager _commandManager;
-        private readonly DelegateCommandProvider _component;
+        private readonly CommandProvider _component;
 
-        public DelegateCommandProviderTest()
+        public CommandProviderTest()
         {
             _commandManager = new CommandManager(ComponentCollectionManager);
-            _component = new DelegateCommandProvider(ThreadDispatcher, ComponentCollectionManager);
+            _component = new CommandProvider(ThreadDispatcher, ComponentCollectionManager);
             _commandManager.AddComponent(_component);
+        }
+
+        [Fact]
+        public void ShouldCreateRawCommand()
+        {
+            var command = _commandManager.TryGetCommand<object>(this, RawCommandRequest.Instance)!;
+            command.GetComponents<object>().Count.ShouldEqual(1);
+            command.GetComponentOptional<CommandEventHandler>().ShouldNotBeNull();
         }
 
         [Fact]
@@ -64,27 +72,47 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldCacheCommandEventHandler(bool cache)
+        public void ShouldCacheCommandEventHandler1(bool cache)
         {
             _component.CacheCommandEventHandler = cache;
             var metadataOwner = new TestMetadataOwner<IMetadataContext> {Metadata = new MetadataContext()};
             Action execute = () => { };
             Func<bool> canExecute = () => true;
             var request = DelegateCommandRequest.Get(execute, canExecute, null, null, null, default, null);
-            var command1 = _commandManager.TryGetCommand<object>(metadataOwner, request, null)!;
-            var command2 = _commandManager.TryGetCommand<object>(metadataOwner, request, null)!;
+            var command1 = _commandManager.TryGetCommand<object>(metadataOwner, request)!;
+            var command2 = _commandManager.TryGetCommand<object>(metadataOwner, request)!;
             if (cache)
                 command1.GetComponent<CommandEventHandler>().ShouldEqual(command2.GetComponent<CommandEventHandler>());
             else
                 command1.GetComponent<CommandEventHandler>().ShouldNotEqual(command2.GetComponent<CommandEventHandler>());
 
-            var command3 = _commandManager.TryGetCommand<object>(this, request, null)!;
-            var command4 = _commandManager.TryGetCommand<object>(this, request, null)!;
+            var command3 = _commandManager.TryGetCommand<object>(this, request)!;
+            var command4 = _commandManager.TryGetCommand<object>(this, request)!;
             command3.GetComponent<CommandEventHandler>().ShouldNotEqual(command4.GetComponent<CommandEventHandler>());
 
-            command1 = _commandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null), null)!;
-            command2 = _commandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null), null)!;
+            command1 = _commandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null))!;
+            command2 = _commandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null))!;
             command1.GetComponent<CommandEventHandler>().ShouldNotEqual(command2.GetComponent<CommandEventHandler>());
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldCacheCommandEventHandler2(bool cache)
+        {
+            _component.CacheCommandEventHandler = cache;
+            var metadataOwner = new TestMetadataOwner<IMetadataContext> {Metadata = new MetadataContext()};
+            var request = RawCommandRequest.Instance;
+            var command1 = _commandManager.TryGetCommand<object>(metadataOwner, request)!;
+            var command2 = _commandManager.TryGetCommand<object>(metadataOwner, request)!;
+            if (cache)
+                command1.GetComponent<CommandEventHandler>().ShouldEqual(command2.GetComponent<CommandEventHandler>());
+            else
+                command1.GetComponent<CommandEventHandler>().ShouldNotEqual(command2.GetComponent<CommandEventHandler>());
+
+            var command3 = _commandManager.TryGetCommand<object>(this, request)!;
+            var command4 = _commandManager.TryGetCommand<object>(this, request)!;
+            command3.GetComponent<CommandEventHandler>().ShouldNotEqual(command4.GetComponent<CommandEventHandler>());
         }
 
         private static Func<object?, object?, bool>? GetHasCanNotify(bool value)

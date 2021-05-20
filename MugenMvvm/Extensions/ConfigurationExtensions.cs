@@ -76,7 +76,7 @@ namespace MugenMvvm.Extensions
             configuration.Application.AddComponent(new AppLifecycleTracker());
 
             configuration.WithAppService(MugenService.Optional<ICommandManager>() ?? new CommandManager())
-                         .WithComponent(new DelegateCommandProvider())
+                         .WithComponent(new CommandProvider())
                          .WithComponent(new CommandCleaner());
 
             configuration.WithAppService(MugenService.Optional<IEntityManager>() ?? new EntityManager())

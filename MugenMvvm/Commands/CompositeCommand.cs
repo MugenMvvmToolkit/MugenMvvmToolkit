@@ -57,6 +57,12 @@ namespace MugenMvvm.Commands
 
         public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
 
+        public static ICompositeCommand Create(object? owner, IReadOnlyMetadataContext? metadata = null) =>
+            MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, RawCommandRequest.Instance, metadata);
+
+        public static ICompositeCommand Create(object? owner, object request, IReadOnlyMetadataContext? metadata = null) =>
+            MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, request, metadata);
+
         public static ICompositeCommand Create(object? owner, Action execute, Func<bool>? canExecute = null, ItemOrIEnumerable<object> notifiers = default,
             bool? allowMultipleExecution = null,
             CommandExecutionBehavior? executionMode = null, ThreadExecutionMode? eventThreadMode = null, Func<object?, object?, bool>? canNotify = null,
