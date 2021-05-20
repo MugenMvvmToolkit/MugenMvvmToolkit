@@ -13,30 +13,30 @@ namespace MugenMvvm.Components
         {
         }
 
-        public abstract void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null);
+        public abstract void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null);
 
         protected virtual void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate(null, metadata);
+                Invalidate(collection, null, metadata);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate(null, metadata);
+                Invalidate(collection, null, metadata);
         }
 
         protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttached(owner, metadata);
-            Invalidate(null, metadata);
+            Invalidate(owner, null, metadata);
         }
 
         protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
-            Invalidate(null, metadata);
+            Invalidate(owner, null, metadata);
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>

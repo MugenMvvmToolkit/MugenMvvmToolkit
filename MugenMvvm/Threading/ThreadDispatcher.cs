@@ -26,9 +26,9 @@ namespace MugenMvvm.Threading
             _components.TryExecute(this, executionMode, handler, state, metadata);
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            _componentTracker.OnComponentChanged(component, collection, metadata);
+            _componentTracker.OnComponentChanged(collection, component, metadata);
 
         void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            _componentTracker.OnComponentChanged(component, collection, metadata);
+            _componentTracker.OnComponentChanged(collection, component, metadata);
     }
 }

@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var invalidateCount = 0;
             var hasCache = new TestHasCache
             {
-                Invalidate = (o, arg3) => ++invalidateCount
+                Invalidate = (s, o, arg3) => ++invalidateCount
             };
 
             _memberManager.Components.TryAdd(hasCache);

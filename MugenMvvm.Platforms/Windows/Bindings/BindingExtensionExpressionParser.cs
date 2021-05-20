@@ -25,7 +25,7 @@ namespace MugenMvvm.Windows.Bindings
             _cache = new Dictionary<MugenBindingExtension, object?>(59);
         }
 
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
+        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {

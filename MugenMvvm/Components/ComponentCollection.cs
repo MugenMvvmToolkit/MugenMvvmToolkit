@@ -5,6 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
@@ -112,6 +113,8 @@ namespace MugenMvvm.Components
                 _items.Sort(this);
                 UpdateTrackers(component, null, metadata);
             }
+
+            _components?.Get<IHasCache>(metadata).Invalidate(this, component, metadata);
         }
 
         public ItemOrArray<T> Get<T>(IReadOnlyMetadataContext? metadata = null) where T : class

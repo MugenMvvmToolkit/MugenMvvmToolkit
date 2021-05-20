@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Observation.Components
             _cache = new Dictionary<string, IMemberPathObserver?>(3, StringComparer.Ordinal);
         }
 
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (state is string key)
             {

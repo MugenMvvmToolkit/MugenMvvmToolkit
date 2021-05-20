@@ -11,10 +11,11 @@ namespace MugenMvvm.Extensions.Components
     public static class DefaultComponentExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Invalidate(this ItemOrArray<IHasCache> components, object? state, IReadOnlyMetadataContext? metadata)
+        public static void Invalidate(this ItemOrArray<IHasCache> components, object sender, object? state, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(sender, nameof(sender));
             foreach (var c in components)
-                c.Invalidate(state, metadata);
+                c.Invalidate(sender, state, metadata);
         }
 
         public static void Dispose(object? components)

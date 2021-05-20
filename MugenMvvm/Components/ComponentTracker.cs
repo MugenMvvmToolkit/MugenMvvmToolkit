@@ -5,11 +5,12 @@ using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentTracker : IComponentCollectionChangedListener
+    public sealed class ComponentTracker : IComponentCollectionChangedListener, IHasCache
     {
         private int _flag;
         private Listener _listener;
@@ -81,7 +82,7 @@ namespace MugenMvvm.Components
                 _listener.Clear(collection, metadata);
         }
 
-        public void OnComponentChanged(object component, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
+        public void OnComponentChanged(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (_listeners != null)
             {
@@ -93,10 +94,16 @@ namespace MugenMvvm.Components
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            OnComponentChanged(component, collection, metadata);
+            OnComponentChanged(collection, component, metadata);
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            OnComponentChanged(component, collection, metadata);
+            OnComponentChanged(collection, component, metadata);
+
+        void IHasCache.Invalidate(object sender, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (sender is IComponentCollection collection && state != null)
+                OnComponentChanged(collection, state, metadata);
+        }
 
         [StructLayout(LayoutKind.Auto)]
         private readonly struct Listener

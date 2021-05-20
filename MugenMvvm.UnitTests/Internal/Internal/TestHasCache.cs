@@ -6,8 +6,8 @@ namespace MugenMvvm.UnitTests.Internal.Internal
 {
     public class TestHasCache : IHasCache
     {
-        public Action<object?, IReadOnlyMetadataContext?>? Invalidate { get; set; }
+        public Action<object, object?, IReadOnlyMetadataContext?>? Invalidate { get; set; }
 
-        void IHasCache.Invalidate(object? state, IReadOnlyMetadataContext? metadata) => Invalidate?.Invoke(state, metadata);
+        void IHasCache.Invalidate(object sender, object? state, IReadOnlyMetadataContext? metadata) => Invalidate?.Invoke(sender,state, metadata);
     }
 }

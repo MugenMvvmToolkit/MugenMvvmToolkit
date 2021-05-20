@@ -38,7 +38,7 @@ namespace MugenMvvm.Internal.Components
             _memberSetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
         }
 
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => Invalidate(true, true, true);
+        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => Invalidate(true, true, true);
 
         public Func<ItemOrArray<object?>, object>? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
         {

@@ -30,7 +30,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsValueExpression(IExpressionNode expression) => expression.ExpressionType == ExpressionNodeType.BindingParameter;
 
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (state is IExpressionNode expression)
                 _cache.Remove(expression);

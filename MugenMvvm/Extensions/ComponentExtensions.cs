@@ -51,8 +51,8 @@ namespace MugenMvvm.Extensions
         {
             if (owner == null)
                 return;
-            (owner as IHasCache)?.Invalidate(state, metadata);
-            owner.GetComponents<IHasCache>(metadata).Invalidate(state, metadata);
+            (owner as IHasCache)?.Invalidate(owner, state, metadata);
+            owner.GetComponents<IHasCache>(metadata).Invalidate(owner, state, metadata);
         }
 
         public static ActionToken TrySuspend(this IComponentOwner? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)

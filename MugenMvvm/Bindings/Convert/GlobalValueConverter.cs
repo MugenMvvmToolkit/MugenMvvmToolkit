@@ -41,9 +41,9 @@ namespace MugenMvvm.Bindings.Convert
         }
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            _componentTracker.OnComponentChanged(component, collection, metadata);
+            _componentTracker.OnComponentChanged(collection, component, metadata);
 
         void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            _componentTracker.OnComponentChanged(component, collection, metadata);
+            _componentTracker.OnComponentChanged(collection, component, metadata);
     }
 }

@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _cache = new Dictionary<CacheKey, object?>(59, this);
         }
 
-        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (state is Type type)
             {

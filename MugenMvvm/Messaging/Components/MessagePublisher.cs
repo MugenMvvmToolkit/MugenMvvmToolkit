@@ -60,7 +60,7 @@ namespace MugenMvvm.Messaging.Components
             return dictionary;
         }
 
-        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             lock (_cache)
             {

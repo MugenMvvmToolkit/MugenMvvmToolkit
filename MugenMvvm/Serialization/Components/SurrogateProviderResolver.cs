@@ -46,7 +46,7 @@ namespace MugenMvvm.Serialization.Components
             _cache.Clear();
         }
 
-        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
+        public void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
 
         public ISurrogateProvider? TryGetSurrogateProvider(ISerializer serializer, Type type, ISerializationContext? serializationContext)
         {
