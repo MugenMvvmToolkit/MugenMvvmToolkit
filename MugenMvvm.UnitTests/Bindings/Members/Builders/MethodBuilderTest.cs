@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var attachedInvokeCount = 0;
             var invokeCount = 0;
             var raiseInvokeCount = 0;
-            var result = new ActionToken((o, o1) => { });
+            var result = ActionToken.FromDelegate((o, o1) => { });
             IMethodMemberInfo? memberInfo = null;
             var builder = new MethodBuilder<object, object>(NewId(), typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "").ObservableHandler(
                 (member, o, listener, metadata) =>
@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         public void ShouldUseObservationManager(bool observable)
         {
             var invokeCount = 0;
-            var actionToken = new ActionToken((o, o1) => { });
+            var actionToken = ActionToken.FromDelegate((o, o1) => { });
             var b = new MethodBuilder<object, object>(NewId(), typeof(object), typeof(EventHandler)).InvokeHandler((member, target, args, metadata) => "");
             if (!observable)
                 b.NonObservable();

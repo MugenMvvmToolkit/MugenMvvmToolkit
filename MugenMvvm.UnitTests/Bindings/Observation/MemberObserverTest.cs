@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var target = new object();
             var listener = new TestWeakEventListener();
             var member = new object();
-            var result = ActionToken.NoDoToken;
+            var result = ActionToken.NoDo;
             var handler = new Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>((t, m, l, meta) =>
             {
                 ++count;

@@ -38,7 +38,7 @@ namespace MugenMvvm.Collections.Components
             Should.NotBeNull(canInvoke, nameof(canInvoke));
             var listener = new Observer<TState>(state, canInvoke, invokeAction, delay);
             _observers.Add(listener);
-            return new ActionToken((l, item) => ((List<Observer>) l!).Remove((Observer) item!), _observers, listener);
+            return ActionToken.FromDelegate((l, item) => ((List<Observer>) l!).Remove((Observer) item!), _observers, listener);
         }
 
         public void ClearObservers() => _observers.Clear();

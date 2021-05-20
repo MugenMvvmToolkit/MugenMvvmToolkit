@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         [Fact]
         public void ShouldIgnoreNonObservableMembers()
         {
-            var memberObserver = new MemberObserver((o, o1, arg3, arg4) => ActionToken.NoDoToken, this);
+            var memberObserver = new MemberObserver((o, o1, arg3, arg4) => ActionToken.NoDo, this);
             var observationManager = new ObservationManager(ComponentCollectionManager);
             observationManager.AddComponent(new NonObservableMemberObserverDecorator());
             observationManager.AddComponent(new TestMemberObserverProviderComponent(observationManager)

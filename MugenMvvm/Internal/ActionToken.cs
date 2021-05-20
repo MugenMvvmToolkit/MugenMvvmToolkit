@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Collections;
@@ -12,6 +13,7 @@ namespace MugenMvvm.Internal
         private object? _state1;
         private object? _state2;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ActionToken(object handler, object? state, object? state2)
         {
             Should.NotBeNull(handler, nameof(handler));
@@ -20,44 +22,44 @@ namespace MugenMvvm.Internal
             _state2 = state2;
         }
 
-        public ActionToken(ItemOrIEnumerable<ActionToken> tokens)
+        public readonly bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _handler == null;
+        }
+
+        public static ActionToken NoDo
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => FromDelegate((_, _) => { });
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ActionToken FromDisposable(IDisposable? disposable) => disposable == null ? default : FromDelegate((o, _) => ((IDisposable) o!).Dispose(), disposable);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ActionToken FromHandler(IHandler handler, object? state1 = null, object? state2 = null) => new(handler, state1, state2);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ActionToken FromDelegate(Action<object?, object?> handler, object? state1 = null, object? state2 = null) => new(handler, state1, state2);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ActionToken FromTokens(ItemOrIEnumerable<ActionToken> tokens)
         {
             if (tokens.HasItem)
+                return tokens.Item;
+
+            if (tokens.List != null)
             {
-                var token = tokens.Item;
-                _handler = token._handler;
-                _state1 = token._state1;
-                _state2 = token._state2;
-            }
-            else if (tokens.List != null)
-            {
-                _handler = new Action<object?, object?>((o, _) =>
+                return FromDelegate((o, _) =>
                 {
                     foreach (var t in ItemOrIEnumerable.FromRawValue<ActionToken>(o))
                         t.Dispose();
-                });
-                _state1 = tokens.List;
-                _state2 = null;
+                }, tokens.List);
             }
-            else
-            {
-                _handler = null;
-                _state1 = null;
-                _state2 = null;
-            }
+
+            return default;
         }
-
-        public ActionToken(IHandler handler, object? state1 = null, object? state2 = null) : this(handler, state: state1, state2)
-        {
-        }
-
-        public ActionToken(Action<object?, object?> handler, object? state1 = null, object? state2 = null) : this(handler, state: state1, state2)
-        {
-        }
-
-        public readonly bool IsEmpty => _handler == null;
-
-        public static ActionToken NoDoToken => new((_, __) => { });
 
         public void Dispose()
         {

@@ -22,7 +22,7 @@ namespace MugenMvvm.Windows.Bindings
         {
             var l = new DependencyPropertyListener();
             l.SetListener(listener, t!, (string) member);
-            return new ActionToken((o, _) => ((DependencyPropertyListener) o!).Clear(), l);
+            return ActionToken.FromDelegate((o, _) => ((DependencyPropertyListener) o!).Clear(), l);
         }
 
         public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)

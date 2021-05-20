@@ -26,7 +26,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(subscriber, nameof(subscriber));
             if (!messenger.TrySubscribe(subscriber, executionMode, metadata))
                 ExceptionManager.ThrowRequestNotSupported<IMessengerSubscriberComponent>(messenger, subscriber, metadata);
-            return new ActionToken((m, h) => ((IMessenger) m!).TryUnsubscribe(h!), messenger, subscriber);
+            return ActionToken.FromDelegate((m, h) => ((IMessenger) m!).TryUnsubscribe(h!), messenger, subscriber);
         }
 
         public static ActionToken Subscribe<TMessage>(this IMessenger messenger, Action<object?, TMessage, IMessageContext> action, ThreadExecutionMode? executionMode = null,

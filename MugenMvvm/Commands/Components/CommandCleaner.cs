@@ -15,7 +15,7 @@ namespace MugenMvvm.Commands.Components
         public void OnCommandCreated<TParameter>(ICommandManager commandManager, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
             if (owner is IHasDisposeCallback hasDisposeCallback)
-                hasDisposeCallback.RegisterDisposeToken(new ActionToken((o, _) => ((IDisposable) o!).Dispose(), command));
+                hasDisposeCallback.RegisterDisposeToken(ActionToken.FromDisposable(command));
         }
     }
 }

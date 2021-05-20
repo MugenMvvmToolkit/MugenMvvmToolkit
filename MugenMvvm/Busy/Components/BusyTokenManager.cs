@@ -200,7 +200,7 @@ namespace MugenMvvm.Busy.Components
 
                             if (IsSuspended)
                                 callback.OnSuspendChanged(true);
-                            return new ActionToken((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
+                            return ActionToken.FromDelegate((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
                         }
                     }
                 }
@@ -237,7 +237,7 @@ namespace MugenMvvm.Busy.Components
             public ActionToken Suspend(object? state, IReadOnlyMetadataContext? metadata)
             {
                 SetSuspended(true);
-                return new ActionToken((t, _) => ((BusyToken) t!).SetSuspended(false), this);
+                return ActionToken.FromDelegate((t, _) => ((BusyToken) t!).SetSuspended(false), this);
             }
 
             private void RemoveCallback(IBusyTokenCallback callback)

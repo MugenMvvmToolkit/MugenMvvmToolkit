@@ -69,7 +69,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             if (lastMember != null && lastMember.MemberType != MemberType.Event && lastMember is IObservableMemberInfo observable)
                 _lastMemberUnsubscriber = observable.TryObserve(target, this, metadata);
             if (_lastMemberUnsubscriber.IsEmpty)
-                _lastMemberUnsubscriber = ActionToken.NoDoToken;
+                _lastMemberUnsubscriber = ActionToken.NoDo;
         }
 
         protected virtual void UnsubscribeLastMember() => _lastMemberUnsubscriber.Dispose();
@@ -81,7 +81,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             {
                 var target = Target;
                 if (target == null)
-                    _lastMemberUnsubscriber = ActionToken.NoDoToken;
+                    _lastMemberUnsubscriber = ActionToken.NoDo;
                 else
                     SubscribeLastMember(target, lastMember, TryGetMetadata());
             }

@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     suspended = true;
                     o.ShouldEqual(_presenter);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return new ActionToken((o1, o2) => suspended = false);
+                    return ActionToken.FromDelegate((o1, o2) => suspended = false);
                 }
             });
 
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     suspended = true;
                     o.ShouldEqual(_presenter);
                     arg3.ShouldEqual(DefaultMetadata);
-                    return new ActionToken((o1, o2) => suspended = false);
+                    return ActionToken.FromDelegate((o1, o2) => suspended = false);
                 }
             });
 

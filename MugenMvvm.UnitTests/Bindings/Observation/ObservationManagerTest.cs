@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var provider = GetComponentOwner(ComponentCollectionManager);
             var type = typeof(string);
             var request = this;
-            var result = new MemberObserver((o, o1, arg3, arg4) => ActionToken.NoDoToken, this);
+            var result = new MemberObserver((o, o1, arg3, arg4) => ActionToken.NoDo, this);
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {

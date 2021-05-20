@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var attachedInvokeCount = 0;
             var invokeCount = 0;
             var raiseInvokeCount = 0;
-            var result = new ActionToken((o, o1) => { });
+            var result = ActionToken.FromDelegate((o, o1) => { });
             INotifiableMemberInfo? memberInfo = null;
             var builder = new EventBuilder<object>("t", typeof(object), typeof(EventHandler)).CustomImplementation((member, o, listener, metadata) =>
             {

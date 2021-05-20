@@ -93,7 +93,7 @@ namespace MugenMvvm.Presentation
         protected ActionToken AddContext(object view, INavigationContext navigationContext)
         {
             _contextMap[view] = navigationContext;
-            return new ActionToken((v, m) => ((Dictionary<object, INavigationContext>) m!).Remove(v!), view, _contextMap);
+            return ActionToken.FromDelegate((v, m) => ((Dictionary<object, INavigationContext>) m!).Remove(v!), view, _contextMap);
         }
 
         protected INavigationContext? GetNavigationContext(object? view)

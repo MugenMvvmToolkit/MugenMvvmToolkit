@@ -7,13 +7,13 @@ namespace MugenMvvm.UnitTests.Internal
     public class ActionTokenTest : UnitTestBase
     {
         [Fact]
-        public void NoDoShouldNotBeEmpty() => ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
+        public void NoDoShouldNotBeEmpty() => ActionToken.NoDo.IsEmpty.ShouldBeFalse();
 
         [Fact]
         public void NoDoShouldReturnNewObject()
         {
-            ActionToken.NoDoToken.Dispose();
-            ActionToken.NoDoToken.IsEmpty.ShouldBeFalse();
+            ActionToken.NoDo.Dispose();
+            ActionToken.NoDo.IsEmpty.ShouldBeFalse();
         }
 
         [Theory]
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Internal
                     ++count;
                 }
             };
-            var actionToken = new ActionToken(testHandler, state1, state2);
+            var actionToken = ActionToken.FromHandler(testHandler, state1, state2);
             actionToken.IsEmpty.ShouldBeFalse();
             actionToken.Dispose();
             actionToken.Dispose();
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Internal
         public void DelegateShouldBeInvokedOnce(object? state1, object? state2)
         {
             var count = 0;
-            var actionToken = new ActionToken((o, o1) =>
+            var actionToken = ActionToken.FromDelegate((o, o1) =>
             {
                 o.ShouldEqual(state1);
                 o1.ShouldEqual(state2);

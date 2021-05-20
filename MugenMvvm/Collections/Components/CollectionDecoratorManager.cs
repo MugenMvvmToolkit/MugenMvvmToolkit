@@ -92,8 +92,8 @@ namespace MugenMvvm.Collections.Components
                 return default;
 
             listeners.OnBeginBatchUpdate(collection, BatchUpdateType.Decorators);
-            return new ActionToken((o, l) => ItemOrArray.FromRawValue<ICollectionBatchUpdateListener>(l).OnEndBatchUpdate((ICollection) o!, BatchUpdateType.Decorators), collection,
-                listeners.GetRawValue());
+            return ActionToken.FromDelegate((o, l) => ItemOrArray.FromRawValue<ICollectionBatchUpdateListener>(l).OnEndBatchUpdate((ICollection) o!, BatchUpdateType.Decorators),
+                collection, listeners.GetRawValue());
         }
 
         public IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null)

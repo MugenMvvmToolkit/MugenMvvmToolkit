@@ -57,8 +57,7 @@ namespace MugenMvvm.Commands.Components
             if (_weakHandler != null && notifier is INotifyPropertyChanged propertyChanged)
             {
                 propertyChanged.PropertyChanged += _weakHandler.GetPropertyChangedEventHandler();
-                return new ActionToken((n, h) => ((INotifyPropertyChanged) n!).PropertyChanged -= ((WeakHandler) h!).GetPropertyChangedEventHandler(), propertyChanged,
-                    _weakHandler);
+                return ActionToken.FromDelegate((n, h) => ((INotifyPropertyChanged) n!).PropertyChanged -= ((WeakHandler) h!).GetPropertyChangedEventHandler(), propertyChanged, _weakHandler);
             }
 
             return default;
@@ -69,7 +68,7 @@ namespace MugenMvvm.Commands.Components
             Should.NotBeNull(messenger, nameof(messenger));
             if (_weakHandler == null || !messenger.TrySubscribe(_weakHandler, EventExecutionMode, metadata))
                 return default;
-            return new ActionToken((m, h) => ((IMessenger) m!).TryUnsubscribe(h!), messenger, _weakHandler);
+            return ActionToken.FromDelegate((m, h) => ((IMessenger) m!).TryUnsubscribe(h!), messenger, _weakHandler);
         }
 
         public void AddCanExecuteChanged(ICompositeCommand command, EventHandler? handler, IReadOnlyMetadataContext? metadata)
@@ -108,7 +107,7 @@ namespace MugenMvvm.Commands.Components
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((o, _) => ((CommandEventHandler) o!).EndSuspendNotifications(), this);
+            return ActionToken.FromDelegate((o, _) => ((CommandEventHandler) o!).EndSuspendNotifications(), this);
         }
 
         private void EndSuspendNotifications()

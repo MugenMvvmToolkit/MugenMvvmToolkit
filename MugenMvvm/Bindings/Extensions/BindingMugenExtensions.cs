@@ -744,7 +744,7 @@ namespace MugenMvvm.Bindings.Extensions
             unsubscriber.Dispose();
             if (target == null || lastMember is not IAccessorMemberInfo propertyInfo)
             {
-                unsubscriber = ActionToken.NoDoToken;
+                unsubscriber = ActionToken.NoDo;
                 return;
             }
 
@@ -754,14 +754,14 @@ namespace MugenMvvm.Bindings.Extensions
 
             if (value.IsNullOrUnsetValue())
             {
-                unsubscriber = ActionToken.NoDoToken;
+                unsubscriber = ActionToken.NoDo;
                 return;
             }
 
             var type = value.GetType();
             if (type.IsValueType)
             {
-                unsubscriber = ActionToken.NoDoToken;
+                unsubscriber = ActionToken.NoDo;
                 return;
             }
 
@@ -770,7 +770,7 @@ namespace MugenMvvm.Bindings.Extensions
             if (member is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(value, observer.GetMethodListener(), metadata);
             if (unsubscriber.IsEmpty)
-                unsubscriber = ActionToken.NoDoToken;
+                unsubscriber = ActionToken.NoDo;
         }
 
         internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args) =>

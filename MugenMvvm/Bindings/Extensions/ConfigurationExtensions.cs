@@ -226,7 +226,7 @@ namespace MugenMvvm.Bindings.Extensions
                                               {
                                                   var component = new ErrorsChangedValidatorListener(listener);
                                                   target.GetService(false)!.AddComponent(component);
-                                                  return new ActionToken((t, c) =>
+                                                  return ActionToken.FromDelegate((t, c) =>
                                                   {
                                                       var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
                                                       hasService?.GetService(false)!.RemoveComponent((IComponent<IValidator>) c!);

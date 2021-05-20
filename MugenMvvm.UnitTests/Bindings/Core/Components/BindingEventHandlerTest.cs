@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     t.ShouldEqual(target);
                     eventListener = listener;
                     m.ShouldEqual(DefaultMetadata);
-                    return new ActionToken((o, o1) => eventListener = null);
+                    return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
             component.OnAttaching(_binding, DefaultMetadata).ShouldBeTrue();
@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         TryObserve = (o, l, arg3) =>
                         {
                             listener = l;
-                            return new ActionToken((o1, o2) => listener = null);
+                            return ActionToken.FromDelegate((o1, o2) => listener = null);
                         }
                     });
                 }
@@ -148,7 +148,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 TryObserve = (t, listener, m) =>
                 {
                     eventListener = listener;
-                    return new ActionToken((o, o1) => eventListener = null);
+                    return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
             _binding.Target = new TestMemberPathObserver
@@ -186,7 +186,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 TryObserve = (t, listener, m) =>
                 {
                     eventListener = listener;
-                    return new ActionToken((o, o1) => eventListener = null);
+                    return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
             _binding.Target = new TestMemberPathObserver
@@ -332,7 +332,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 TryObserve = (t, listener, m) =>
                 {
                     eventListener = listener;
-                    return new ActionToken((o, o1) => eventListener = null);
+                    return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
             _binding.Target = new TestMemberPathObserver

@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 {
                     currentListener = listener;
                     lastListener = listener;
-                    return new ActionToken((o1, o2) => currentListener = null);
+                    return ActionToken.FromDelegate((o1, o2) => currentListener = null);
                 }
             };
 
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     else
                         o.ShouldEqual(root);
                     rootListener = listener;
-                    return new ActionToken((o1, o2) => rootListener = null);
+                    return ActionToken.FromDelegate((o1, o2) => rootListener = null);
                 },
                 MemberFlags = memberFlags
             };
@@ -221,7 +221,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     else
                         o.ShouldEqual(root);
                     rootListener = listener;
-                    return new ActionToken((o1, o2) => rootListener = null);
+                    return ActionToken.FromDelegate((o1, o2) => rootListener = null);
                 },
                 MemberFlags = memberFlags
             };
@@ -362,7 +362,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 {
                     currentListener = listener;
                     lastListener = listener;
-                    return new ActionToken((o1, o2) => currentListener = null);
+                    return ActionToken.FromDelegate((o1, o2) => currentListener = null);
                 }
             };
             var accessorInfo2 = new TestAccessorMemberInfo

@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Internal
                 {
                     s.ShouldEqual(this);
                     m.ShouldEqual(DefaultMetadata);
-                    return new ActionToken((o, o1) => methodCallCount++);
+                    return ActionToken.FromDelegate((o, o1) => methodCallCount++);
                 };
                 componentOwner.Components.TryAdd(suspendableComponent);
             }

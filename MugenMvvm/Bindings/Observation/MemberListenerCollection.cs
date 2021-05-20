@@ -121,7 +121,7 @@ namespace MugenMvvm.Bindings.Observation
             if (_size - _removedSize == 1)
                 OnListenersAdded();
             OnListenerAdded(memberName);
-            return new ActionToken(this, weakItem.Target, memberName);
+            return ActionToken.FromHandler(this, weakItem.Target, memberName);
         }
 
         public void Clear()

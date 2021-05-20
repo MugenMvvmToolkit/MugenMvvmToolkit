@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             if (isLastParameterMetadata)
                 checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
 
-            var result = new ActionToken((o, o1) => { });
+            var result = ActionToken.FromDelegate((o, o1) => { });
             var testEventListener = new TestWeakEventListener();
             var observeCount = 0;
             var memberObserver = new MemberObserver((target, member, listener, meta) =>

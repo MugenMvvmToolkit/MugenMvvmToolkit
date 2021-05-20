@@ -127,7 +127,7 @@ namespace MugenMvvm.Bindings.Observation
 
             if (_size - _removedSize == 1)
                 OnListenersAdded();
-            return new ActionToken((@this, t) => ((EventListenerCollection) @this!).Unsubscribe(t), this, target);
+            return ActionToken.FromDelegate((@this, t) => ((EventListenerCollection) @this!).Unsubscribe(t), this, target);
         }
 
         public bool Remove(IEventListener? listener)

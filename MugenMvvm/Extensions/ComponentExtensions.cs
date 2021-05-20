@@ -75,7 +75,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             Should.NotBeNull(component, nameof(component));
             if (componentOwner.Components.TryAdd(component, metadata))
-                return new ActionToken((owner, comp) => ((IComponentOwner) owner!).Components.Remove(comp!), componentOwner, component);
+                return ActionToken.FromDelegate((owner, comp) => ((IComponentOwner) owner!).Components.Remove(comp!), componentOwner, component);
             return default;
         }
 

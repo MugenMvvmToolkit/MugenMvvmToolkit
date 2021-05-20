@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             var target = new object();
             var listener = new TestWeakEventListener();
-            var token = ActionToken.NoDoToken;
+            var token = ActionToken.NoDo;
             var tryObserveCount = 0;
 
             var invokeCount = 0;
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             var target = new object();
             var listener = new TestWeakEventListener();
-            var token = ActionToken.NoDoToken;
+            var token = ActionToken.NoDo;
             var tryObserveCount = 0;
 
             var invokeCount = 0;
@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             var flags = MemberFlags.Attached | MemberFlags.Public;
             var target = new object();
             var listener = new TestWeakEventListener();
-            var token = ActionToken.NoDoToken;
+            var token = ActionToken.NoDo;
             var tryObserveCount = 0;
 
             var targetType = typeof(string);
@@ -171,7 +171,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             var flags = MemberFlags.InstanceAll;
             var target = new object();
             var listener = new TestWeakEventListener();
-            var token = ActionToken.NoDoToken;
+            var token = ActionToken.NoDo;
             var tryObserveCount = 0;
 
             var targetType = typeof(string);
@@ -220,7 +220,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             var flags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll;
             var target = new object();
             var listener = new TestWeakEventListener();
-            var token = ActionToken.NoDoToken;
+            var token = ActionToken.NoDo;
             var tryObserveCount = 0;
 
             var targetType = isStatic ? typeof(Enumerable) : typeof(string);

@@ -57,7 +57,7 @@ namespace MugenMvvm.Extensions.Components
             var tokens = new ActionToken[components.Count];
             for (var i = 0; i < tokens.Length; i++)
                 tokens[i] = components[i].Suspend(state, metadata);
-            return new ActionToken(tokens);
+            return ActionToken.FromTokens(tokens);
         }
     }
 }

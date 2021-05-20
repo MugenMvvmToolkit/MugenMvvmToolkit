@@ -322,7 +322,7 @@ namespace MugenMvvm.UnitTests.Collections
             public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
             {
                 ++_suspendCount;
-                return new ActionToken((o, o1) => ((SuspendableObservableCollection<T>) o!).EndSuspend(), this);
+                return ActionToken.FromDelegate((o, o1) => ((SuspendableObservableCollection<T>) o!).EndSuspend(), this);
             }
 
             protected override void OnPropertyChanged(PropertyChangedEventArgs e)

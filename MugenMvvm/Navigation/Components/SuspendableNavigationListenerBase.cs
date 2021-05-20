@@ -42,7 +42,7 @@ namespace MugenMvvm.Navigation.Components
 
             if (begin)
                 OnBeginSuspend();
-            return new ActionToken((o, _) => ((SuspendableNavigationListenerBase) o!).EndSuspend(), this);
+            return ActionToken.FromDelegate((o, _) => ((SuspendableNavigationListenerBase) o!).EndSuspend(), this);
         }
 
         protected abstract void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception);

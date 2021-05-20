@@ -57,14 +57,14 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 return;
             var target = Target;
             if (target == null)
-                _unsubscriber = ActionToken.NoDoToken;
+                _unsubscriber = ActionToken.NoDo;
             else
             {
                 var member = MugenService.MemberManager.TryGetMember(MemberFlags.GetTargetType(ref target), MemberType.Method, MemberFlags, _method, TryGetMetadata());
                 if (member is IObservableMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this, TryGetMetadata());
                 if (_unsubscriber.IsEmpty)
-                    _unsubscriber = ActionToken.NoDoToken;
+                    _unsubscriber = ActionToken.NoDo;
             }
         }
 

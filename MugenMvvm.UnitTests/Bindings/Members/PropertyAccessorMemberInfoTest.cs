@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var reflectedType = typeof(object);
             var name = fieldName + "t";
             var testEventListener = new TestWeakEventListener();
-            var result = new ActionToken((o, o1) => { });
+            var result = ActionToken.FromDelegate((o, o1) => { });
             var count = 0;
             PropertyAccessorMemberInfo? memberInfo = null;
 
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var reflectedType = typeof(object);
             var name = fieldName + "t";
             var testEventListener = new TestWeakEventListener();
-            var result = new ActionToken((o, o1) => { });
+            var result = ActionToken.FromDelegate((o, o1) => { });
             var count = 0;
             PropertyAccessorMemberInfo? memberInfo = null;
 

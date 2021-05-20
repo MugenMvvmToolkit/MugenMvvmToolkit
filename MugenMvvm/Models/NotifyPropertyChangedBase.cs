@@ -59,7 +59,7 @@ namespace MugenMvvm.Models
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((m, _) => ((NotifyPropertyChangedBase) m!).EndSuspend(), this);
+            return ActionToken.FromDelegate((m, _) => ((NotifyPropertyChangedBase) m!).EndSuspend(), this);
         }
 
         protected virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)

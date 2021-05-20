@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                         if (parentListener != null)
                             throw new NotSupportedException();
                         parentListener = listener;
-                        return new ActionToken((o1, o2) => parentListener = null);
+                        return ActionToken.FromDelegate((o1, o2) => parentListener = null);
                     }
 
                     return default;
@@ -367,7 +367,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var attachedInvokeCount = 0;
             var invokeCount = 0;
             var raiseInvokeCount = 0;
-            var result = new ActionToken((o, o1) => { });
+            var result = ActionToken.FromDelegate((o, o1) => { });
             IAccessorMemberInfo? memberInfo = null;
             var builder = new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler)).CustomGetter((member, o, metadata) => "").ObservableHandler(
                 (member, o, listener, metadata) =>
@@ -544,7 +544,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         public void ShouldUseObservationManagerCustomProperty(bool observable)
         {
             var invokeCount = 0;
-            var actionToken = new ActionToken((o, o1) => { });
+            var actionToken = ActionToken.FromDelegate((o, o1) => { });
             var b = new CustomPropertyBuilder<object, object>(new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler))).CustomGetter((member, target,
                 metadata) => "");
             if (!observable)

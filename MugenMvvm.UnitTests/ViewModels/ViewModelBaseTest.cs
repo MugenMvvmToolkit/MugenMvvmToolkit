@@ -212,7 +212,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         {
             var invokedCount = 0;
             for (var i = 0; i < count; i++)
-                _viewModel.RegisterDisposeToken(new ActionToken((s1, s2) => ++invokedCount));
+                _viewModel.RegisterDisposeToken(ActionToken.FromDelegate((s1, s2) => ++invokedCount));
 
             invokedCount.ShouldEqual(0);
             _viewModel.Dispose();
@@ -223,7 +223,7 @@ namespace MugenMvvm.UnitTests.ViewModels
 
             invokedCount = 0;
             for (var i = 0; i < count; i++)
-                _viewModel.RegisterDisposeToken(new ActionToken((s1, s2) => ++invokedCount));
+                _viewModel.RegisterDisposeToken(ActionToken.FromDelegate((s1, s2) => ++invokedCount));
             invokedCount.ShouldEqual(count);
         }
     }

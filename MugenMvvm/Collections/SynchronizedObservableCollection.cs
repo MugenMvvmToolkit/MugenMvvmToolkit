@@ -229,7 +229,7 @@ namespace MugenMvvm.Collections
                     GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this, BatchUpdateType.Source);
             }
 
-            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
+            return ActionToken.FromDelegate((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
         }
 
         public void Move(int oldIndex, int newIndex)
@@ -253,7 +253,7 @@ namespace MugenMvvm.Collections
                     listeners.OnLocked(this, null);
                     var lockedListeners = GetComponents<ISynchronizationListener>();
                     if (Equals(listeners, lockedListeners))
-                        return new ActionToken(this, lockTaken ? _locker : null, listeners.GetRawValue());
+                        return ActionToken.FromHandler(this, lockTaken ? _locker : null, listeners.GetRawValue());
 
                     Unlock(listeners, ref lockTaken);
                 }

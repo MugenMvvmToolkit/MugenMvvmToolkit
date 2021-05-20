@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 {
                     currentListener = listener;
                     lastListener = listener;
-                    return new ActionToken((o1, o2) => currentListener = null);
+                    return ActionToken.FromDelegate((o1, o2) => currentListener = null);
                 }
             };
             MugenService.AddComponent(new TestMemberManagerComponent

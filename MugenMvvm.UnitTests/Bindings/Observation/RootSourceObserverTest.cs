@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                         if (parentListener != null)
                             throw new NotSupportedException();
                         parentListener = listener;
-                        return new ActionToken((o1, o2) => parentListener = null);
+                        return ActionToken.FromDelegate((o1, o2) => parentListener = null);
                     }
 
                     return default;

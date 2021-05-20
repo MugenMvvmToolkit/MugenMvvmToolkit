@@ -164,7 +164,7 @@ namespace MugenMvvm.Ios.Extensions
                                                                var recognizer = new UITapGestureRecognizer(closure, ClickClosure.OnClickSelector) {NumberOfTapsRequired = 1};
                                                                target.UserInteractionEnabled = true;
                                                                target.AddGestureRecognizer(recognizer);
-                                                               return new ActionToken((t, r) =>
+                                                               return ActionToken.FromDelegate((t, r) =>
                                                                {
                                                                    var v = (UIView?) ((IWeakReference) t!).Target;
                                                                    var g = (UITapGestureRecognizer?) ((IWeakReference) r!).Target;

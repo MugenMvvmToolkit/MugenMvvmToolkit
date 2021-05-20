@@ -40,7 +40,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
             if (lastMember != null && lastMember.MemberType != MemberType.Event && lastMember is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, GetLastMemberListener(), metadata);
             if (unsubscriber.IsEmpty)
-                _listeners[_listeners.Length - 1] = ActionToken.NoDoToken;
+                _listeners[_listeners.Length - 1] = ActionToken.NoDo;
             else
                 _listeners[_listeners.Length - 1] = unsubscriber;
         }

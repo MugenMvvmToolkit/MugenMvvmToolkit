@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var invokeCount = 0;
             string t = "";
             var l = new TestWeakEventListener();
-            var result = new ActionToken((o, o1) => { });
+            var result = ActionToken.FromDelegate((o, o1) => { });
             var memberInfo = Create<string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, (member, target, listener, metadata) =>
             {
                 ++invokeCount;
@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         public void TryObserverShouldUseObservationManager()
         {
             var invokeCount = 0;
-            var actionToken = new ActionToken((o, o1) => { });
+            var actionToken = ActionToken.FromDelegate((o, o1) => { });
             var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, null, null);
             MugenService.AddComponent(new TestMemberObserverProviderComponent
             {
