@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator2);
             collection.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
             collection.AddComponent(new GroupHeaderCollectionDecorator(o => ((TestCollectionItem) o!).StableId % 2, -1));
-            collection.AddComponent(new FlattenCollectionDecorator(o => (o as TestCollectionItem)?.Items));
+            collection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo((o as TestCollectionItem)?.Items)));
             collection.AddComponent(new ItemHeaderFooterCollectionDecorator(o =>
             {
                 if (o is TestCollectionItem t && t.StableId % 3 == 0)

@@ -28,7 +28,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _itemCollection2.AddComponent(new SortingCollectionDecorator(SortingComparer<object?>.Descending(i => (int) i!).Build()));
 
             _targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _targetCollection.AddComponent(new FlattenCollectionDecorator(o => o is string ? null : o as IEnumerable));
+            _targetCollection.AddComponent(new FlattenCollectionDecorator(o =>
+                new FlattenCollectionDecorator.FlattenItemInfo(o is string ? null : o as IEnumerable, o != _itemCollection2)));
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _targetCollection.AddComponent(_tracker);
             _targetCollection.Add(_itemCollection1);
@@ -315,7 +316,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     var target = _targetCollection[_targetCollection.Count - 1];
                     _targetCollection.Remove(target);
                     using var l = _itemCollection2.TryLock();
-                    var i = _itemCollection2[_itemCollection1.Count - 1];
+                    var i = _itemCollection2[_itemCollection2.Count - 1];
                     _itemCollection2.Remove(i);
                 }
             });
@@ -354,10 +355,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
-        public void ShouldHandleBatchUpdateFromChild()
+        public void ShouldHandleBatchUpdateFromChildDecorator()
         {
             var decorator = new HeaderFooterCollectionDecorator();
-            _itemCollection2.AddComponent(decorator);
+            _itemCollection1.AddComponent(decorator);
 
             var beginCount = 0;
             var endCount = 0;
@@ -375,6 +376,31 @@ namespace MugenMvvm.UnitTests.Collections.Components
             decorator.Footer = int.MaxValue;
             beginCount.ShouldEqual(2);
             endCount.ShouldEqual(2);
+            Assert();
+        }
+
+        [Fact]
+        public void ShouldNotHandleBatchUpdateFromChildSource()
+        {
+            var decorator = new HeaderFooterCollectionDecorator();
+            _itemCollection2.AddComponent(decorator);
+
+            var beginCount = 0;
+            var endCount = 0;
+            _targetCollection.AddComponent(new TestCollectionBatchUpdateListener(_targetCollection)
+            {
+                OnBeginBatchUpdate = t => beginCount += t == BatchUpdateType.Decorators ? 1 : 0,
+                OnEndBatchUpdate = t => endCount += t == BatchUpdateType.Decorators ? 1 : 0
+            });
+
+            decorator.Header = int.MaxValue;
+            beginCount.ShouldEqual(0);
+            endCount.ShouldEqual(0);
+            Assert();
+
+            decorator.Footer = int.MaxValue;
+            beginCount.ShouldEqual(0);
+            endCount.ShouldEqual(0);
             Assert();
         }
 
@@ -824,7 +850,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 var enumerable = item is string ? null : item as IEnumerable;
                 if (enumerable != null)
                 {
-                    foreach (var nestedItem in enumerable.Decorate())
+                    if (!ReferenceEquals(enumerable, _itemCollection2))
+                        enumerable = enumerable.Decorate();
+
+                    foreach (var nestedItem in enumerable)
                         yield return nestedItem;
                     continue;
                 }

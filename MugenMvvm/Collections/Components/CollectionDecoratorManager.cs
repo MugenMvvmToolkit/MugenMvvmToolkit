@@ -6,7 +6,6 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -37,7 +36,7 @@ namespace MugenMvvm.Collections.Components
 
         private static ICollectionDecoratorManagerComponent? TryGetGenericManager(object owner)
         {
-            var itemType = GetItemType(owner);
+            var itemType = MugenExtensions.GetCollectionItemType(owner);
             if (!itemType.IsValueType)
                 return null;
 
@@ -52,24 +51,6 @@ namespace MugenMvvm.Collections.Components
             }
 
             return component;
-        }
-
-        private static Type GetItemType(object owner)
-        {
-            if (owner is IReadOnlyObservableCollection c)
-                return c.ItemType;
-
-            foreach (Type interfaceType in owner.GetType().GetInterfaces())
-            {
-                if (!interfaceType.IsGenericType)
-                    continue;
-
-                var typeDefinition = interfaceType.GetGenericTypeDefinition();
-                if (typeDefinition == typeof(IEnumerable<>) || typeDefinition == typeof(ICollection<>) || typeDefinition == typeof(IList<>))
-                    return interfaceType.GetGenericArguments()[0];
-            }
-
-            return typeof(object);
         }
 
         private static ItemOrArray<ICollectionDecorator> GetDecorators(ICollection collection, ICollectionDecorator? decorator, out int index, bool isLengthDefault = false)

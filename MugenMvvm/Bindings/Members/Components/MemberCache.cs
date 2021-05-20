@@ -74,9 +74,9 @@ namespace MugenMvvm.Bindings.Members.Components
             return ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(members);
         }
 
-        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(null, metadata);
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(this, component, metadata);
 
-        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(null, metadata);
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(this, component, metadata);
 
         bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) =>
             x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type && InternalEqualityComparer.Equals(x.Types, y.Types);

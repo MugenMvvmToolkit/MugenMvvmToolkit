@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             provider.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
             invokeCount.ShouldEqual(1);
 
-            decorator.Invalidate(this, DefaultMetadata);
+            decorator.Invalidate(this, this, DefaultMetadata);
             invokeCount = 0;
             provider.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
             provider.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);

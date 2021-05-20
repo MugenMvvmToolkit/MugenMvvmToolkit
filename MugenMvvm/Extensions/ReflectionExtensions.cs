@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Internal;
@@ -178,6 +179,24 @@ namespace MugenMvvm.Extensions
 
         public static Action<TTarget, TType> GetMemberSetter<TTarget, TType>(this MemberInfo member, IReflectionManager? reflectionManager = null) =>
             (Action<TTarget, TType>) reflectionManager.DefaultIfNull().GetMemberSetter(member, typeof(Action<TTarget, TType>));
+
+        internal static Type GetCollectionItemType(object owner)
+        {
+            if (owner is IReadOnlyObservableCollection c)
+                return c.ItemType;
+
+            foreach (Type interfaceType in owner.GetType().GetInterfaces())
+            {
+                if (!interfaceType.IsGenericType)
+                    continue;
+
+                var typeDefinition = interfaceType.GetGenericTypeDefinition();
+                if (typeDefinition == typeof(IEnumerable<>) || typeDefinition == typeof(ICollection<>) || typeDefinition == typeof(IList<>))
+                    return interfaceType.GetGenericArguments()[0];
+            }
+
+            return typeof(object);
+        }
 
         private static bool DefaultClosureDetector(Delegate d)
         {

@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -19,15 +21,15 @@ namespace MugenMvvm.Collections.Components
 {
     public class FlattenCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority
     {
-        private readonly Func<object, IEnumerable?> _getNestedCollection;
-        private readonly Dictionary<object, FlattenCollectionItem> _collectionItems;
+        private readonly Func<object, FlattenItemInfo> _getNestedCollection;
+        private readonly Dictionary<object, FlattenCollectionItemBase> _collectionItems;
 
-        public FlattenCollectionDecorator(Func<object, IEnumerable?> getNestedCollection, int priority = CollectionComponentPriority.FlattenCollectionDecorator)
+        public FlattenCollectionDecorator(Func<object, FlattenItemInfo> getNestedCollection, int priority = CollectionComponentPriority.FlattenCollectionDecorator)
         {
             Should.NotBeNull(getNestedCollection, nameof(getNestedCollection));
             _getNestedCollection = getNestedCollection;
             Priority = priority;
-            _collectionItems = new Dictionary<object, FlattenCollectionItem>(InternalEqualityComparer.Reference);
+            _collectionItems = new Dictionary<object, FlattenCollectionItemBase>(InternalEqualityComparer.Reference);
         }
 
         public int Priority { get; set; }
@@ -76,11 +78,11 @@ namespace MugenMvvm.Collections.Components
 
             if (!_collectionItems.TryGetValue(item, out var flattenCollectionItem))
             {
-                var nestedCollection = _getNestedCollection(item);
-                if (nestedCollection == null)
+                var flattenItemInfo = _getNestedCollection(item);
+                if (flattenItemInfo.IsEmpty)
                     return true;
 
-                flattenCollectionItem = new FlattenCollectionItem(nestedCollection, this);
+                flattenCollectionItem = flattenItemInfo.GetCollectionItem(this);
                 _collectionItems[item] = flattenCollectionItem;
             }
 
@@ -106,10 +108,10 @@ namespace MugenMvvm.Collections.Components
             {
                 if (item != null)
                 {
-                    var enumerable = _getNestedCollection(item);
-                    if (enumerable != null)
+                    var flattenItemInfo = _getNestedCollection(item);
+                    if (!flattenItemInfo.IsEmpty)
                     {
-                        foreach (var nestedItem in enumerable.Decorate())
+                        foreach (var nestedItem in flattenItemInfo.GetItems())
                             yield return nestedItem;
                         continue;
                     }
@@ -119,7 +121,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private bool TryGetCollectionItem([NotNullWhen(true)] object? item, [NotNullWhen(true)] out FlattenCollectionItem? value)
+        private bool TryGetCollectionItem([NotNullWhen(true)] object? item, [NotNullWhen(true)] out FlattenCollectionItemBase? value)
         {
             if (item != null && _collectionItems.TryGetValue(item, out value))
                 return true;
@@ -173,7 +175,7 @@ namespace MugenMvvm.Collections.Components
             var removed = OnRemoved(oldItem, ref index);
             if (removed)
             {
-                if (newItem != null && _getNestedCollection(newItem) != null)
+                if (newItem != null && !_getNestedCollection(newItem).IsEmpty)
                 {
                     DecoratorManager.OnRemoved(collection, this, oldItem, index);
                     removed = false;
@@ -242,46 +244,85 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private sealed class FlattenCollectionItem : List<int>, ICollectionDecoratorListener, IAttachableComponent, ISynchronizationListener, ICollectionBatchUpdateListener
+        public readonly struct FlattenItemInfo
         {
-            private readonly FlattenCollectionDecorator _decorator;
-            private readonly IEnumerable _collection;
+            internal readonly IEnumerable? Items;
+            internal readonly bool DecoratorListener;
+
+            public FlattenItemInfo(IEnumerable? items, bool decoratorListener = true)
+            {
+                Items = items;
+                DecoratorListener = decoratorListener;
+            }
+
+            internal bool IsEmpty => Items == null;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal IEnumerable<object?> GetItems() => DecoratorListener ? Items!.Decorate() : Items!.AsEnumerable();
+
+            internal FlattenCollectionItemBase GetCollectionItem(FlattenCollectionDecorator decorator)
+            {
+                if (DecoratorListener)
+                    return new DecoratorFlattenCollectionItem(Items!, decorator);
+
+                var itemType = MugenExtensions.GetCollectionItemType(Items!);
+                if (!itemType.IsValueType)
+                    return new SourceFlattenCollectionItem<object?>().Initialize(Items!, decorator);
+
+                return ((FlattenCollectionItemBase) Activator.CreateInstance(typeof(SourceFlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator);
+            }
+        }
+
+        internal abstract class FlattenCollectionItemBase : List<int>, IAttachableComponent, ISynchronizationListener
+        {
+            protected IEnumerable Collection = null!;
+            private FlattenCollectionDecorator _decorator = null!;
             private List<(ActionToken token, bool batch)>? _tokens;
 
-            public FlattenCollectionItem(IEnumerable collection, FlattenCollectionDecorator decorator) : base(1)
+            protected FlattenCollectionItemBase(IEnumerable collection, FlattenCollectionDecorator decorator) : base(1)
             {
-                _decorator = decorator;
-                _collection = collection;
+                Initialize(collection, decorator);
+            }
+
+            protected FlattenCollectionItemBase()
+            {
             }
 
             public int Size { get; private set; }
 
             private ICollectionDecoratorManagerComponent? DecoratorManager => _decorator.DecoratorManager;
 
+            public FlattenCollectionItemBase Initialize(IEnumerable collection, FlattenCollectionDecorator decorator)
+            {
+                _decorator = decorator;
+                Collection = collection;
+                return this;
+            }
+
             public void OnAdded(int originalIndex, int index, bool notify)
             {
-                using var _ = MugenExtensions.TryLock(_collection);
+                using var _ = MugenExtensions.TryLock(Collection);
                 if (notify)
                 {
                     Size = 0;
-                    foreach (var item in _collection.Decorate())
+                    foreach (var item in GetItems())
                     {
                         DecoratorManager!.OnAdded(_decorator.Owner, _decorator, item, index + Size);
                         ++Size;
                     }
                 }
                 else if (Size == 0)
-                    Size = _collection.Decorate().CountEx();
+                    Size = GetItems().CountEx();
 
                 MugenExtensions.AddOrdered(this, originalIndex, Comparer<int>.Default);
-                if (Count == 1 && _collection is IComponentOwner<ICollection> owner)
-                    owner.AddComponent(this);
+                if (Count == 1 && Collection is IComponentOwner<ICollection> owner)
+                    owner.Components.Add(this);
             }
 
             public bool OnRemoved(int originalIndex, int index)
             {
-                using var _ = MugenExtensions.TryLock(_collection);
-                foreach (var item in _collection.Decorate())
+                using var _ = MugenExtensions.TryLock(Collection);
+                foreach (var item in GetItems())
                     _decorator.DecoratorManager!.OnRemoved(_decorator.Owner, _decorator, item, index);
 
                 Remove(originalIndex);
@@ -296,12 +337,12 @@ namespace MugenMvvm.Collections.Components
 
             public void OnMoved(int oldIndex, int newIndex)
             {
-                using var _ = MugenExtensions.TryLock(_collection);
+                using var _ = MugenExtensions.TryLock(Collection);
                 var removeIndex = 0;
                 var addIndex = 0;
                 if (oldIndex < newIndex)
                     addIndex += Size - 1;
-                foreach (var item in _collection.Decorate())
+                foreach (var item in GetItems())
                 {
                     DecoratorManager!.OnMoved(_decorator.Owner, _decorator, item, oldIndex + removeIndex, newIndex + addIndex);
                     if (oldIndex > newIndex)
@@ -314,8 +355,8 @@ namespace MugenMvvm.Collections.Components
 
             public void Detach()
             {
-                if (_collection is IComponentOwner<ICollection> owner)
-                    owner.RemoveComponent(this);
+                if (Collection is IComponentOwner<ICollection> owner)
+                    owner.Components.Remove(this);
             }
 
             public void OnChanged(ICollection collection, object? item, int index, object? args)
@@ -382,6 +423,20 @@ namespace MugenMvvm.Collections.Components
                 DecoratorManager.OnReset(_decorator.Owner, _decorator, _decorator.Decorate(DecoratorManager.Decorate(_decorator.Owner, _decorator)));
             }
 
+            public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
+            {
+                if (batchUpdateType == BatchUpdateType.Decorators && DecoratorManager != null)
+                    AddToken(DecoratorManager.BatchUpdate(_decorator.Owner, _decorator), true);
+            }
+
+            public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
+            {
+                if (batchUpdateType == BatchUpdateType.Decorators)
+                    RemoveToken(true);
+            }
+
+            protected abstract IEnumerable<object?> GetItems();
+
             private void AddToken(ActionToken actionToken, bool batch)
             {
                 _tokens ??= new List<(ActionToken token, bool batch)>(2);
@@ -410,18 +465,6 @@ namespace MugenMvvm.Collections.Components
 
             void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd((IEnumerable) owner);
 
-            void ICollectionBatchUpdateListener.OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
-            {
-                if (batchUpdateType == BatchUpdateType.Decorators && DecoratorManager != null)
-                    AddToken(DecoratorManager.BatchUpdate(_decorator.Owner, _decorator), true);
-            }
-
-            void ICollectionBatchUpdateListener.OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
-            {
-                if (batchUpdateType == BatchUpdateType.Decorators)
-                    RemoveToken(true);
-            }
-
             void ISynchronizationListener.OnLocking(object target, IReadOnlyMetadataContext? metadata) => AddToken(MugenExtensions.TryLock(_decorator.OwnerOptional), false);
 
             void ISynchronizationListener.OnLocked(object target, IReadOnlyMetadataContext? metadata)
@@ -433,6 +476,35 @@ namespace MugenMvvm.Collections.Components
             }
 
             void ISynchronizationListener.OnUnlocked(object target, IReadOnlyMetadataContext? metadata) => RemoveToken(false);
+        }
+
+        private sealed class SourceFlattenCollectionItem<T> : FlattenCollectionItemBase, ICollectionChangedListener<T>
+        {
+            private static IEnumerable<object?>? AsObjectEnumerable(IEnumerable<T>? items) => items == null ? null : items as IEnumerable<object?> ?? items.Cast<object>();
+
+            public void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args) => OnChanged((ICollection) collection, item, index, args);
+
+            public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAdded((ICollection) collection, item, index);
+
+            public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) =>
+                OnReplaced((ICollection) collection, oldItem, newItem, index);
+
+            public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoved((ICollection) collection, item, oldIndex, newIndex);
+
+            public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoved((ICollection) collection, item, index);
+
+            public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset((ICollection) collection, AsObjectEnumerable(items));
+
+            protected override IEnumerable<object?> GetItems() => Collection.AsEnumerable();
+        }
+
+        private sealed class DecoratorFlattenCollectionItem : FlattenCollectionItemBase, ICollectionDecoratorListener, ICollectionBatchUpdateListener
+        {
+            public DecoratorFlattenCollectionItem(IEnumerable collection, FlattenCollectionDecorator decorator) : base(collection, decorator)
+            {
+            }
+
+            protected override IEnumerable<object?> GetItems() => Collection.Decorate();
         }
     }
 }
