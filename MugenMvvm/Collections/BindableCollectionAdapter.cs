@@ -431,7 +431,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            public void Raise(DiffUtil.BatchingListUpdateCallback callback)
+            public void Raise(ref DiffUtil.BatchingListUpdateCallback callback)
             {
                 switch (Action)
                 {

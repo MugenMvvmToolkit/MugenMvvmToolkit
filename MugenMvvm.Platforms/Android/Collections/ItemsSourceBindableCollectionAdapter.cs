@@ -111,7 +111,7 @@ namespace MugenMvvm.Android.Collections
             {
                 var e = events[i];
                 e.ApplyToSource(Items);
-                e.Raise(callback);
+                e.Raise(ref callback);
             }
 
             callback.DispatchLastEvent();
