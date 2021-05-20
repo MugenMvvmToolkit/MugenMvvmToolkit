@@ -11,7 +11,6 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -65,7 +64,7 @@ namespace MugenMvvm.Bindings.Core.Components
             if (value is ICommand command)
             {
                 _currentValue = value;
-                if (ToggleEnabledState && InitializeCanExecute(targetMember.Target, command))
+                if (ToggleEnabledState && InitializeCanExecute(targetMember.Target))
                 {
                     OnCanExecuteChanged();
                     command.CanExecuteChanged += _canExecuteHandler;
@@ -87,11 +86,9 @@ namespace MugenMvvm.Bindings.Core.Components
                 SetEnabled(cmd.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata)), target);
         }
 
-        private bool InitializeCanExecute(object? target, ICommand command)
+        private bool InitializeCanExecute(object? target)
         {
             if (target == null)
-                return false;
-            if (command is ICompositeCommand m && !m.HasCanExecute(_currentMetadata))
                 return false;
 
             _enabledMember = BindableMembers.For<object>().Enabled().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, _currentMetadata);

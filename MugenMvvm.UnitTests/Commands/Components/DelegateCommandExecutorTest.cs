@@ -214,19 +214,6 @@ namespace MugenMvvm.UnitTests.Commands.Components
         }
 
         [Theory]
-        [InlineData(true, true, true)]
-        [InlineData(true, true, false)]
-        [InlineData(false, false, true)]
-        [InlineData(true, false, false)]
-        public void HasCanExecuteShouldBe(bool value, bool hasCanExecute, bool allowMultiply)
-        {
-            Action execute = () => { };
-            Func<bool> canExecute = () => true;
-            var component = new DelegateCommandExecutor<object>(execute, hasCanExecute ? canExecute : null, CommandExecutionBehavior.None, allowMultiply);
-            component.HasCanExecute(_command, null).ShouldEqual(value);
-        }
-
-        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task ShouldSupportAllowMultipleExecution(bool value)

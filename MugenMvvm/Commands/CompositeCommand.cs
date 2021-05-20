@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
@@ -80,16 +81,14 @@ namespace MugenMvvm.Commands
             IReadOnlyMetadataContext? metadata = null) =>
             MugenExtensions.GetCommand(null, owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, eventThreadMode, canNotify, metadata);
 
-        public bool CanExecute(object? parameter) => CanExecute(parameter, null);
+        bool ICommand.CanExecute(object? parameter) => CanExecute(parameter);
 
         public void Execute(object? parameter) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
 
         public ValueTask<bool> ExecuteAsync(object? parameter, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<ICommandExecutorComponent>().ExecuteAsync(this, parameter, cancellationToken, metadata);
 
-        public bool HasCanExecute(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().HasCanExecute(this, metadata);
-
-        public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
+        public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
 
         public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandEventHandlerComponent>().RaiseCanExecuteChanged(this, metadata);
 

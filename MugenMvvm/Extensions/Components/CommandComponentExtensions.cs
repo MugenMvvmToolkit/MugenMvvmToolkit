@@ -35,18 +35,6 @@ namespace MugenMvvm.Extensions.Components
                 c.OnCommandCreated<TParameter>(commandManager, command, owner, request, metadata);
         }
 
-        public static bool HasCanExecute(this ItemOrArray<ICommandConditionComponent> components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(command, nameof(command));
-            foreach (var c in components)
-            {
-                if (c.HasCanExecute(command, metadata))
-                    return true;
-            }
-
-            return false;
-        }
-
         public static bool CanExecute(this ItemOrArray<ICommandConditionComponent> components, ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(command, nameof(command));

@@ -55,38 +55,6 @@ namespace MugenMvvm.UnitTests.Commands
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void HasCanExecuteShouldBeHandledByComponents(int componentCount)
-        {
-            var count = 0;
-            var canExecute = false;
-            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
-            compositeCommand.HasCanExecute().ShouldBeFalse();
-            for (var i = 0; i < componentCount; i++)
-            {
-                var component = new TestCommandConditionComponent
-                {
-                    HasCanExecute = c =>
-                    {
-                        ++count;
-                        c.ShouldEqual(compositeCommand);
-                        return canExecute;
-                    }
-                };
-                compositeCommand.AddComponent(component);
-            }
-
-            compositeCommand.HasCanExecute().ShouldBeFalse();
-            count.ShouldEqual(componentCount);
-
-            count = 0;
-            canExecute = true;
-            compositeCommand.HasCanExecute().ShouldBeTrue();
-            count.ShouldEqual(1);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
         public void CanExecuteShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;

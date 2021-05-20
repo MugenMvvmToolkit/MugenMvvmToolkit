@@ -34,8 +34,6 @@ namespace MugenMvvm.Commands.Components
 
         public int Priority => CommandComponentPriority.Executor;
 
-        public bool HasCanExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => !_allowMultipleExecution || _canExecute != null;
-
         public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             var canExecuteDelegate = _canExecute;

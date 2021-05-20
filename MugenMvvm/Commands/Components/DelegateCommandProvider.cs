@@ -24,15 +24,13 @@ namespace MugenMvvm.Commands.Components
         {
             _componentCollectionManager = componentCollectionManager;
             _threadDispatcher = threadDispatcher;
-            CommandExecutionBehavior = CommandExecutionBehavior.CheckCanExecute;
-            EventThreadMode = ThreadExecutionMode.Main;
         }
 
         public bool AllowMultipleExecution { get; set; }
 
-        public CommandExecutionBehavior CommandExecutionBehavior { get; set; }
+        public CommandExecutionBehavior CommandExecutionBehavior { get; set; } = CommandExecutionBehavior.CheckCanExecute;
 
-        public ThreadExecutionMode EventThreadMode { get; set; }
+        public ThreadExecutionMode EventThreadMode { get; set; } = ThreadExecutionMode.Main;
 
         public bool CacheCommandEventHandler { get; set; } = true;
 
@@ -54,8 +52,7 @@ namespace MugenMvvm.Commands.Components
             command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute,
                 commandRequest.ExecutionMode ?? CommandExecutionBehavior,
                 commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
-            if (command.HasCanExecute(metadata))
-                command.AddComponent(GetCommandEventHandler(owner, commandRequest, metadata), metadata);
+            command.AddComponent(GetCommandEventHandler(owner, commandRequest, metadata), metadata);
             return command;
         }
 
