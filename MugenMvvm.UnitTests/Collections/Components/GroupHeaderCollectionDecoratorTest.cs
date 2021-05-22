@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
+
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
@@ -16,8 +19,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
         private readonly Dictionary<int, object> _headers;
-        private readonly Func<object?, object>? _getHeader;
-        private readonly GroupHeaderCollectionDecorator _decorator;
+        private Func<object?, object?>? _getHeader;
+        private GroupHeaderCollectionDecorator _decorator;
 
         public GroupHeaderCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
@@ -214,13 +217,83 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
         }
 
+        [Fact]
+        public void ShouldTrackHeaderChanges()
+        {
+            var header = new List<int>();
+            var changedItems = new List<int>();
+            _collection.RemoveComponent(_decorator);
+            _getHeader = o => ((int) o!) % 2 == 0 ? header : null;
+            _decorator = new GroupHeaderCollectionDecorator(_getHeader, (h, action, item) =>
+            {
+                var ints = ((List<int>) h);
+                if (action == GroupHeaderChangedAction.ItemAdded)
+                    ints.Add((int) item!);
+                else if (action == GroupHeaderChangedAction.ItemRemoved)
+                    ints.Remove((int) item!);
+                else if (action == GroupHeaderChangedAction.ItemChanged)
+                    changedItems.Add((int) item!);
+                else if (action == GroupHeaderChangedAction.Clear)
+                    ints.Clear();
+            });
+            _collection.AddComponent(_decorator);
+
+            var expectedItems = _collection.Where(o => _getHeader(o) != null).Cast<int>().OrderBy(i => i);
+            var items = header.OrderBy(i => i);
+            for (var i = 0; i < 100; i++)
+            {
+                _collection.Add(i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+
+                _collection.RaiseItemChanged(i, null);
+                changedItems.OrderBy(i => i).ShouldEqual(expectedItems);
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Insert(i, i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.RemoveAt(i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i, i + 1);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection[i] = i + 101;
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            items.ShouldEqual(expectedItems);
+            Assert();
+
+            _collection.Clear();
+            items.ShouldEqual(expectedItems);
+            Assert();
+        }
+
         private void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(Decorate(_collection.GetComponentOptional<GroupHeaderCollectionDecorator>() == _decorator ? _getHeader : null));
             _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
         }
 
-        private IEnumerable<object> Decorate(Func<object?, object>? getHeader)
+        private IEnumerable<object> Decorate(Func<object?, object?>? getHeader)
         {
             HashSet<object>? headers = null;
             if (getHeader != null)
@@ -228,6 +301,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 foreach (var item in _collection)
                 {
                     var header = getHeader(item);
+                    if (header == null)
+                        continue;
+
                     headers ??= new HashSet<object>();
                     headers.Add(header);
                 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -16,13 +17,16 @@ namespace MugenMvvm.Collections.Components
     public class GroupHeaderCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority
     {
         private readonly Func<object?, object?> _getHeader;
+        private readonly UpdateHeaderDelegate? _updateHeader;
         private readonly Dictionary<object, HeaderInfo> _headers;
 
-        public GroupHeaderCollectionDecorator(Func<object?, object?> getHeader, int priority = CollectionComponentPriority.GroupHeaderDecorator)
+        public GroupHeaderCollectionDecorator(Func<object?, object?> getHeader, UpdateHeaderDelegate? updateHeader = null,
+            IEqualityComparer<object>? comparer = null, int priority = CollectionComponentPriority.GroupHeaderDecorator)
         {
             Should.NotBeNull(getHeader, nameof(getHeader));
             _getHeader = getHeader;
-            _headers = new Dictionary<object, HeaderInfo>();
+            _updateHeader = updateHeader;
+            _headers = new Dictionary<object, HeaderInfo>(comparer ?? EqualityComparer<object>.Default);
             Priority = priority;
         }
 
@@ -34,11 +38,22 @@ namespace MugenMvvm.Collections.Components
 
         protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
         {
-            _headers.Clear();
+            Clear();
             DecoratorManager = null;
         }
 
-        private void AddHeaderIfNeed1(ICollection collection, object? header, bool notify = true)
+        private void Clear()
+        {
+            if (_updateHeader != null)
+            {
+                foreach (var header in _headers)
+                    _updateHeader(header.Key, GroupHeaderChangedAction.Clear, null);
+            }
+
+            _headers.Clear();
+        }
+
+        private void AddHeaderIfNeed(ICollection collection, object? header, object? item, bool notify = true)
         {
             if (header == null)
                 return;
@@ -51,17 +66,21 @@ namespace MugenMvvm.Collections.Components
                     DecoratorManager!.OnAdded(collection, this, header, info.Index);
             }
 
+            _updateHeader?.Invoke(header, GroupHeaderChangedAction.ItemAdded, item);
             ++info.UsageCount;
         }
 
-        private void RemoveHeaderIfNeed1(ICollection collection, object? header)
+        private void RemoveHeaderIfNeed(ICollection collection, object? header, object? item)
         {
             if (header == null)
                 return;
 
             var headerInfo = _headers[header];
             if (--headerInfo.UsageCount != 0)
+            {
+                _updateHeader?.Invoke(header, GroupHeaderChangedAction.ItemRemoved, item);
                 return;
+            }
 
             _headers.Remove(header);
             foreach (var info in _headers)
@@ -71,6 +90,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             DecoratorManager!.OnRemoved(collection, this, header, headerInfo.Index);
+            _updateHeader?.Invoke(header, GroupHeaderChangedAction.Clear, item);
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?> items)
@@ -95,6 +115,13 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
+            if (_updateHeader != null)
+            {
+                var header = _getHeader(item);
+                if (header != null)
+                    _updateHeader(header, GroupHeaderChangedAction.ItemChanged, item);
+            }
+
             index += _headers.Count;
             return true;
         }
@@ -106,7 +133,7 @@ namespace MugenMvvm.Collections.Components
 
             var header = _getHeader(item);
             using var t = BatchIfNeed(collection, header, null);
-            AddHeaderIfNeed1(collection, header);
+            AddHeaderIfNeed(collection, header, item);
             index += _headers.Count;
             if (t.IsEmpty)
                 return true;
@@ -123,10 +150,15 @@ namespace MugenMvvm.Collections.Components
             var oldItemHeader = _getHeader(oldItem);
             var newItemHeader = _getHeader(newItem);
             using var t = BatchIfNeed(collection, newItemHeader, oldItemHeader);
-            if (!ReferenceEquals(oldItemHeader, newItemHeader))
+            if (!_headers.Comparer.Equals(oldItemHeader!, newItemHeader!))
             {
-                RemoveHeaderIfNeed1(collection, oldItemHeader);
-                AddHeaderIfNeed1(collection, newItemHeader);
+                RemoveHeaderIfNeed(collection, oldItemHeader, oldItem);
+                AddHeaderIfNeed(collection, newItemHeader, newItem);
+            }
+            else if (oldItemHeader != null && _updateHeader != null)
+            {
+                _updateHeader(oldItemHeader, GroupHeaderChangedAction.ItemRemoved, oldItem);
+                _updateHeader(oldItemHeader, GroupHeaderChangedAction.ItemAdded, newItem);
             }
 
             index += _headers.Count;
@@ -154,7 +186,7 @@ namespace MugenMvvm.Collections.Components
 
             var header = _getHeader(item);
             using var t = BatchIfNeed(collection, null, header);
-            RemoveHeaderIfNeed1(collection, header);
+            RemoveHeaderIfNeed(collection, header, item);
             index += _headers.Count;
             if (t.IsEmpty)
                 return true;
@@ -168,16 +200,18 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            _headers.Clear();
+            Clear();
             if (items != null)
             {
                 foreach (var item in items)
-                    AddHeaderIfNeed1(collection, _getHeader(item), false);
+                    AddHeaderIfNeed(collection, _getHeader(item), item, false);
                 items = Decorate(items);
             }
 
             return true;
         }
+
+        public delegate void UpdateHeaderDelegate(object header, GroupHeaderChangedAction action, object? item);
 
         private sealed class HeaderInfo
         {
