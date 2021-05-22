@@ -408,7 +408,12 @@ namespace MugenMvvm.Collections
 
             public void DispatchUpdatesTo(IListUpdateCallback updateCallback)
             {
-                var batchingCallback = new BatchingListUpdateCallback(updateCallback);
+                BatchingListUpdateCallback callback = new BatchingListUpdateCallback(updateCallback);
+                DispatchUpdatesTo(ref callback);
+            }
+
+            public void DispatchUpdatesTo(ref BatchingListUpdateCallback batchingCallback)
+            {
                 // track up to date current list size for moves
                 // when a move is found, we record its position from the end of the list (which is
                 // less likely to change since we iterate in reverse).
@@ -563,6 +568,7 @@ namespace MugenMvvm.Collections
             public readonly int X;
             public readonly int Y;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Diagonal(int x, int y, int size)
             {
                 X = x;
@@ -570,9 +576,17 @@ namespace MugenMvvm.Collections
                 Size = size;
             }
 
-            public int EndX => X + Size;
+            public int EndX
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => X + Size;
+            }
 
-            public int EndY => Y + Size;
+            public int EndY
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => Y + Size;
+            }
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -586,6 +600,7 @@ namespace MugenMvvm.Collections
 
             public static readonly Snake Undefined = new(int.MinValue, int.MinValue, int.MinValue, int.MinValue, false);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Snake(int startX, int startY, int endX, int endY, bool reverse)
             {
                 EndX = endX;
@@ -595,14 +610,31 @@ namespace MugenMvvm.Collections
                 StartY = startY;
             }
 
-            public bool IsUndefined => EndX == int.MinValue && StartX == int.MinValue;
+            public bool IsUndefined
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => EndX == int.MinValue && StartX == int.MinValue;
+            }
 
-            private bool HasAdditionOrRemoval => EndY - StartY != EndX - StartX;
+            private bool HasAdditionOrRemoval
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => EndY - StartY != EndX - StartX;
+            }
 
-            private bool IsAddition => EndY - StartY > EndX - StartX;
+            private bool IsAddition
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => EndY - StartY > EndX - StartX;
+            }
 
-            public int DiagonalSize => Math.Min(EndX - StartX, EndY - StartY);
+            public int DiagonalSize
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => Math.Min(EndX - StartX, EndY - StartY);
+            }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Diagonal ToDiagonal()
             {
                 if (HasAdditionOrRemoval)
@@ -630,6 +662,7 @@ namespace MugenMvvm.Collections
             public int NewListStart, NewListEnd;
             public int OldListStart, OldListEnd;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Range(int oldListStart, int oldListEnd, int newListStart, int newListEnd)
             {
                 OldListStart = oldListStart;
@@ -638,15 +671,24 @@ namespace MugenMvvm.Collections
                 NewListEnd = newListEnd;
             }
 
-            public int OldSize => OldListEnd - OldListStart;
+            public int OldSize
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => OldListEnd - OldListStart;
+            }
 
-            public int NewSize => NewListEnd - NewListStart;
+            public int NewSize
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => NewListEnd - NewListStart;
+            }
         }
 
         [StructLayout(LayoutKind.Auto)]
         public ref struct BatchingListUpdateCallback
         {
             private readonly IListUpdateCallback _callback;
+            private readonly bool _ignoreFinalPosition;
             private int _lastEventCount;
             private int _lastEventPosition;
             private int _lastEventFinalPosition;
@@ -658,7 +700,8 @@ namespace MugenMvvm.Collections
             private const int TypeRemove = 2;
             private const int TypeChange = 3;
 
-            public BatchingListUpdateCallback(IListUpdateCallback callback)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public BatchingListUpdateCallback(IListUpdateCallback callback, bool ignoreFinalPosition = false)
             {
                 _lastEventCount = -1;
                 _lastEventPosition = -1;
@@ -666,14 +709,25 @@ namespace MugenMvvm.Collections
                 _lastMoved = false;
                 _lastEventType = TypeNone;
                 _callback = callback;
+                _ignoreFinalPosition = ignoreFinalPosition;
             }
 
             public bool IsEmpty => _callback == null;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private bool IsBatchInsert(int position, int finalPosition, int count) =>
+                _lastEventType == TypeAdd && position >= _lastEventPosition && position <= _lastEventPosition + _lastEventCount &&
+                (_ignoreFinalPosition || _lastEventFinalPosition >= finalPosition && _lastEventFinalPosition <= finalPosition + count);
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private bool IsBatchChange(int position, int finalPosition, int count, bool moved) =>
+                _lastEventType == TypeChange && _lastMoved == moved && !(position > _lastEventPosition + _lastEventCount || position + count < _lastEventPosition) &&
+                (_ignoreFinalPosition || !(finalPosition > _lastEventFinalPosition + _lastEventCount || finalPosition + count < _lastEventFinalPosition));
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnInserted(int position, int finalPosition, int count)
             {
-                if (_lastEventType == TypeAdd && position >= _lastEventPosition && position <= _lastEventPosition + _lastEventCount
-                    && _lastEventFinalPosition >= finalPosition && _lastEventFinalPosition <= finalPosition + count)
+                if (IsBatchInsert(position, finalPosition, count))
                 {
                     _lastEventCount += count;
                     _lastEventPosition = Math.Min(position, _lastEventPosition);
@@ -689,6 +743,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnRemoved(int position, int count)
             {
                 if (_lastEventType == TypeRemove && _lastEventPosition >= position && _lastEventPosition <= position + count)
@@ -705,16 +760,17 @@ namespace MugenMvvm.Collections
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition)
             {
                 DispatchLastEvent();
                 _callback.OnMoved(fromPosition, toPosition, fromOriginalPosition, toFinalPosition);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnChanged(int position, int finalPosition, int count, bool moved)
             {
-                if (_lastEventType == TypeChange && _lastMoved == moved && !(position > _lastEventPosition + _lastEventCount || position + count < _lastEventPosition)
-                    && !(finalPosition > _lastEventFinalPosition + _lastEventCount || finalPosition + count < _lastEventFinalPosition))
+                if (IsBatchChange(position, finalPosition, count, moved))
                 {
                     var previousEnd = _lastEventPosition + _lastEventCount;
                     _lastEventPosition = Math.Min(position, _lastEventPosition);
@@ -732,10 +788,9 @@ namespace MugenMvvm.Collections
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void DispatchLastEvent()
             {
-                if (_lastEventType == TypeNone)
-                    return;
                 switch (_lastEventType)
                 {
                     case TypeAdd:
@@ -762,6 +817,7 @@ namespace MugenMvvm.Collections
             public readonly int PosInOwnerList;
             public int CurrentPos;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public PostponedUpdate(int posInOwnerList, int currentPos, bool removal)
             {
                 PosInOwnerList = posInOwnerList;
@@ -769,7 +825,11 @@ namespace MugenMvvm.Collections
                 Removal = removal;
             }
 
-            public bool IsUndefined => PosInOwnerList == int.MinValue;
+            public bool IsUndefined
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => PosInOwnerList == int.MinValue;
+            }
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -778,6 +838,7 @@ namespace MugenMvvm.Collections
             public readonly int[] Data;
             private readonly int _mid;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public CenteredArray(int size)
             {
                 Data = new int[size];
@@ -786,7 +847,9 @@ namespace MugenMvvm.Collections
 
             public int this[int index]
             {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => Data[index + _mid];
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 set => Data[index + _mid] = value;
             }
         }

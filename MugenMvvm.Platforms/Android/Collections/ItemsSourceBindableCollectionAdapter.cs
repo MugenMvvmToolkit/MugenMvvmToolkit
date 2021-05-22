@@ -82,13 +82,8 @@ namespace MugenMvvm.Android.Collections
         {
             if (_diffSupportedCount > 0)
             {
-                if (_beforeResetList == null)
-                    _beforeResetList = new List<object?>(this);
-                else
-                    _beforeResetList.AddRange(this);
-                base.OnReset(items, batchUpdate, version);
-                DiffUtil.CalculateDiff(this).DispatchUpdatesTo(this);
-                _beforeResetList.Clear();
+                var callback = new DiffUtil.BatchingListUpdateCallback(this, true);
+                ResetDiff(ref callback, items, batchUpdate, version);
             }
             else
             {
@@ -100,18 +95,23 @@ namespace MugenMvvm.Android.Collections
 
         protected override void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
         {
-            if (events.Count < 2)
+            if (_diffSupportedCount <= 0 || events.Count < 2)
             {
                 base.RaiseBatchUpdate(events, version);
                 return;
             }
 
-            var callback = new DiffUtil.BatchingListUpdateCallback(this);
+            var callback = new DiffUtil.BatchingListUpdateCallback(this, true);
             for (var i = 0; i < events.Count; i++)
             {
                 var e = events[i];
-                e.ApplyToSource(Items);
-                e.Raise(ref callback);
+                if (e.Action == CollectionChangedAction.Reset)
+                    ResetDiff(ref callback, e.ResetItems, true, version);
+                else
+                {
+                    e.ApplyToSource(Items);
+                    e.Raise(ref callback);
+                }
             }
 
             callback.DispatchLastEvent();
@@ -127,6 +127,17 @@ namespace MugenMvvm.Android.Collections
             }
 
             return observer;
+        }
+
+        private void ResetDiff(ref DiffUtil.BatchingListUpdateCallback updateCallback, IEnumerable<object?>? items, bool batchUpdate, int version)
+        {
+            if (_beforeResetList == null)
+                _beforeResetList = new List<object?>(this);
+            else
+                _beforeResetList.AddRange(this);
+            base.OnReset(items, batchUpdate, version);
+            DiffUtil.CalculateDiff(this).DispatchUpdatesTo(ref updateCallback);
+            _beforeResetList.Clear();
         }
 
         int DiffUtil.ICallback.GetOldListSize() => _beforeResetList!.Count;
