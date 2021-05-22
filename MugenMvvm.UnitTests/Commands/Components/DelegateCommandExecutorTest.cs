@@ -228,11 +228,12 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
             var task1 = component.ExecuteAsync(_command, null, default, null);
             var task2 = component.ExecuteAsync(_command, null, default, null);
-            executed.ShouldEqual(value ? 2 : 1);
 
+            component.CanExecute(_command, null, null).ShouldEqual(value);
             tcs.SetResult(this);
             await task1;
             await task2;
+            executed.ShouldEqual(value ? 2 : 1);
             await component.ExecuteAsync(_command, null, default, null);
             executed.ShouldEqual(value ? 3 : 2);
         }
@@ -256,6 +257,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var task = _command.ExecuteAsync(this);
             executed.ShouldEqual(value ? 0 : 1);
 
+            component.CanExecute(_command, null, null).ShouldEqual(value);
             tcs.SetResult(this);
             await task;
             executed.ShouldEqual(value ? 0 : 2);

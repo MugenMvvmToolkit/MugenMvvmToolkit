@@ -18,6 +18,7 @@ namespace MugenMvvm.Commands.Components
         private Delegate? _canExecute;
         private Delegate? _execute;
         private ICompositeCommand? _executingCommand;
+        private bool _executing;
 
         public DelegateCommandExecutor(Delegate execute, Delegate? canExecute, CommandExecutionBehavior executionBehavior, bool allowMultipleExecution)
         {
@@ -38,7 +39,7 @@ namespace MugenMvvm.Commands.Components
         {
             var canExecuteDelegate = _canExecute;
             if (canExecuteDelegate == null)
-                return _execute != null;
+                return !_executing && _execute != null;
             if (canExecuteDelegate is Func<bool> func)
                 return func();
             return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
@@ -58,12 +59,15 @@ namespace MugenMvvm.Commands.Components
                 command.RaiseCanExecuteChanged();
                 var result = await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
                 _executingCommand = null;
+                _executing = false;
                 command.RaiseCanExecuteChanged();
                 return result;
             }
             catch
             {
+                _executing = false;
                 _executingCommand = null;
+                command.RaiseCanExecuteChanged();
                 throw;
             }
         }
@@ -85,6 +89,8 @@ namespace MugenMvvm.Commands.Components
 
             if (!_executionBehavior.BeforeExecute(command, parameter))
                 return false;
+            if (!_allowMultipleExecution)
+                _executing = true;
 
             if (executeAction is Action execute)
                 execute();
