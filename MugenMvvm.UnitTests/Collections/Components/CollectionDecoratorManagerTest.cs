@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
-        public void DecoratorShouldDecorateItemsMulti()
+        public void DecoratorShouldDecorateItemsMulti4()
         {
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
@@ -84,6 +84,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collection = CreateCollection<TestCollectionItem>();
             CollectionDecoratorManager.GetOrAdd(collection);
             var tracker = new DecoratorObservableCollectionTracker<object>();
+            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(collection.Decorate());
             collection.AddComponent(tracker);
 
             var decorator1 = new SortingCollectionDecorator(comparer);
@@ -91,7 +92,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
             collection.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
-            collection.AddComponent(new GroupHeaderCollectionDecorator(o => ((TestCollectionItem) o!).StableId % 2, -1));
+            collection.AddComponent(new GroupHeaderCollectionDecorator(o => ((TestCollectionItem) o!).StableId % 2, null, null, -1));
             collection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo((o as TestCollectionItem)?.Items)));
             collection.AddComponent(new ItemHeaderFooterCollectionDecorator(o =>
             {
@@ -105,6 +106,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     return true;
                 return null;
             }, SortingComparer<object?>.Descending(o => ((TestCollectionItem) o!).StableId).Build()));
+            collection.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(50, item => item != null));
 
             collection.Add(new TestCollectionItem {Id = 1});
             tracker.ChangedItems.ShouldEqual(collection.Decorate());
@@ -189,6 +191,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator2);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
+            tracker.Changed += () => tracker.ChangedItems.Cast<object>().ShouldEqual(collection.Decorate());
             collection.AddComponent(tracker);
             var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
@@ -268,6 +271,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator2);
 
             var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
+            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(collection.Decorate());
             collection.AddComponent(tracker);
             var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -50,10 +51,11 @@ namespace MugenMvvm.Collections.Components
             foreach (var collectionItem in _collectionItems)
             {
                 var item = collectionItem.Value;
+                var items = item.Items;
                 for (var i = 0; i < item.Count; i++)
                 {
-                    if (item[i] >= index)
-                        item[i] += value;
+                    if (items[i] >= index)
+                        items[i] += value;
                     else
                         result += item.Size - 1;
                 }
@@ -135,9 +137,10 @@ namespace MugenMvvm.Collections.Components
             foreach (var collectionItem in _collectionItems)
             {
                 var item = collectionItem.Value;
+                var items = item.Items;
                 for (var i = 0; i < item.Count; i++)
                 {
-                    if (item[i] < originalIndex)
+                    if (items[i] < originalIndex)
                         result += item.Size - 1;
                 }
             }
@@ -244,6 +247,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
+        [StructLayout(LayoutKind.Auto)]
         public readonly struct FlattenItemInfo
         {
             internal readonly IEnumerable? Items;
@@ -273,18 +277,18 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        internal abstract class FlattenCollectionItemBase : List<int>, IAttachableComponent, ISynchronizationListener
+        internal abstract class FlattenCollectionItemBase : ListInternal<int>, IAttachableComponent, ISynchronizationListener
         {
             protected IEnumerable Collection = null!;
             private FlattenCollectionDecorator _decorator = null!;
-            private List<(ActionToken token, bool batch)>? _tokens;
+            private ListInternal<(ActionToken token, bool batch)>? _tokens;
 
             protected FlattenCollectionItemBase(IEnumerable collection, FlattenCollectionDecorator decorator) : base(1)
             {
                 Initialize(collection, decorator);
             }
 
-            protected FlattenCollectionItemBase()
+            protected FlattenCollectionItemBase() : base(1)
             {
             }
 
@@ -314,7 +318,7 @@ namespace MugenMvvm.Collections.Components
                 else if (Size == 0)
                     Size = GetItems().CountEx();
 
-                MugenExtensions.AddOrdered(this, originalIndex, Comparer<int>.Default);
+                AddOrdered(originalIndex, Comparer<int>.Default);
                 if (Count == 1 && Collection is IComponentOwner<ICollection> owner)
                     owner.Components.Add(this);
             }
@@ -366,7 +370,7 @@ namespace MugenMvvm.Collections.Components
 
                 using var _ = BatchIfNeed();
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnChanged(_decorator.Owner, _decorator, item, _decorator.GetIndex(this[i]) + index, args);
+                    DecoratorManager.OnChanged(_decorator.Owner, _decorator, item, _decorator.GetIndex(Items[i]) + index, args);
             }
 
             public void OnAdded(ICollection collection, object? item, int index)
@@ -377,7 +381,7 @@ namespace MugenMvvm.Collections.Components
                 using var _ = BatchIfNeed();
                 ++Size;
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnAdded(_decorator.Owner, _decorator, item, _decorator.GetIndex(this[i]) + index);
+                    DecoratorManager.OnAdded(_decorator.Owner, _decorator, item, _decorator.GetIndex(Items[i]) + index);
             }
 
             public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index)
@@ -387,7 +391,7 @@ namespace MugenMvvm.Collections.Components
 
                 using var _ = BatchIfNeed();
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnReplaced(_decorator.Owner, _decorator, oldItem, newItem, _decorator.GetIndex(this[i]) + index);
+                    DecoratorManager.OnReplaced(_decorator.Owner, _decorator, oldItem, newItem, _decorator.GetIndex(Items[i]) + index);
             }
 
             public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex)
@@ -398,7 +402,7 @@ namespace MugenMvvm.Collections.Components
                 using var _ = BatchIfNeed();
                 for (var i = 0; i < Count; i++)
                 {
-                    var originalIndex = _decorator.GetIndex(this[i]);
+                    var originalIndex = _decorator.GetIndex(Items[i]);
                     DecoratorManager.OnMoved(_decorator.Owner, _decorator, item, originalIndex + oldIndex, originalIndex + newIndex);
                 }
             }
@@ -411,7 +415,7 @@ namespace MugenMvvm.Collections.Components
                 using var _ = BatchIfNeed();
                 --Size;
                 for (var i = 0; i < Count; i++)
-                    DecoratorManager.OnRemoved(_decorator.Owner, _decorator, item, _decorator.GetIndex(this[i]) + index);
+                    DecoratorManager.OnRemoved(_decorator.Owner, _decorator, item, _decorator.GetIndex(Items[i]) + index);
             }
 
             public void OnReset(ICollection collection, IEnumerable<object?>? items)
@@ -439,7 +443,7 @@ namespace MugenMvvm.Collections.Components
 
             private void AddToken(ActionToken actionToken, bool batch)
             {
-                _tokens ??= new List<(ActionToken token, bool batch)>(2);
+                _tokens ??= new ListInternal<(ActionToken token, bool batch)>(2);
                 _tokens.Add((actionToken, batch));
             }
 
@@ -448,11 +452,12 @@ namespace MugenMvvm.Collections.Components
                 if (_tokens == null)
                     return;
 
+                var items = _tokens.Items;
                 for (var i = _tokens.Count - 1; i >= 0; i--)
                 {
-                    if (_tokens[i].batch == batch)
+                    if (items[i].batch == batch)
                     {
-                        _tokens[i].token.Dispose();
+                        items[i].token.Dispose();
                         _tokens.RemoveAt(i);
                         return;
                     }

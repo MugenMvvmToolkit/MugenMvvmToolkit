@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Constants;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {

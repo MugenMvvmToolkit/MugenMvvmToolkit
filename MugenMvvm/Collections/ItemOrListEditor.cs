@@ -242,7 +242,7 @@ namespace MugenMvvm.Collections
 
             if (_list.Count > 1)
                 return _list;
-            return _list.Count == 0 ? null : (object?) _list[0];
+            return _list.Count == 0 ? null : _list[0];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

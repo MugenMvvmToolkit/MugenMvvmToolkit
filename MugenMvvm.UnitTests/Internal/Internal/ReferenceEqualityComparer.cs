@@ -7,10 +7,7 @@ namespace System.Collections.Generic
 {
     public class ReferenceEqualityComparer : IEqualityComparer<object?>
     {
-
         public static readonly IEqualityComparer<object> Instance;
-
-
 
         static ReferenceEqualityComparer()
         {
@@ -20,8 +17,6 @@ namespace System.Collections.Generic
         internal ReferenceEqualityComparer()
         {
         }
-
-
 
         bool IEqualityComparer<object?>.Equals(object? x, object? y) => ReferenceEquals(x, y);
 

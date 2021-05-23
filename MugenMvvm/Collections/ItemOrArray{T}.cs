@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {

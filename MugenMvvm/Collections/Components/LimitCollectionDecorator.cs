@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -17,13 +16,13 @@ namespace MugenMvvm.Collections.Components
     public class LimitCollectionDecorator<T> : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority, IComparer<LimitCollectionDecorator<T>.ItemInfo>
     {
         private const int NotFound = -1;
-        private readonly List<ItemInfo> _items;
+        private readonly ListInternal<ItemInfo> _items;
         private Func<T, bool>? _condition;
         private int? _limit;
 
         public LimitCollectionDecorator(int? limit = null, Func<T, bool>? condition = null, int priority = CollectionComponentPriority.LimitDecorator)
         {
-            _items = new List<ItemInfo>();
+            _items = new ListInternal<ItemInfo>(limit.GetValueOrDefault(8));
             _condition = condition;
             _limit = limit;
             Priority = priority;
@@ -140,7 +139,7 @@ namespace MugenMvvm.Collections.Components
             foreach (var item in items)
             {
                 if (IsSatisfied(item))
-                    MugenExtensions.AddOrdered(_items, new ItemInfo((T) item!, index), this);
+                    _items.AddOrdered(new ItemInfo((T) item!, index), this);
                 ++index;
             }
         }
@@ -148,7 +147,7 @@ namespace MugenMvvm.Collections.Components
         private bool Add(T item, int index)
         {
             UpdateIndexes(index, 1);
-            var newIndex = MugenExtensions.AddOrdered(_items, new ItemInfo(item, index), this);
+            var newIndex = _items.AddOrdered(new ItemInfo(item, index), this);
             var limit = Limit!.Value;
             if (limit == 0 || newIndex >= limit)
                 return false;
@@ -156,7 +155,7 @@ namespace MugenMvvm.Collections.Components
             if (_items.Count <= limit)
                 return true;
 
-            var oldItem = _items[limit];
+            var oldItem = _items.Items[limit];
             if (index == oldItem.OriginalIndex - 1)
             {
                 DecoratorManager!.OnReplaced(Owner, this, oldItem.Item, item, GetIndex(index));
@@ -180,7 +179,7 @@ namespace MugenMvvm.Collections.Components
             if (_items.Count + 1 <= limit)
                 return true;
 
-            var oldItem = _items[limit - 1];
+            var oldItem = _items.Items[limit - 1];
             if (index == oldItem.OriginalIndex)
             {
                 DecoratorManager!.OnReplaced(Owner, this, item, oldItem.Item, GetIndex(index));
@@ -210,23 +209,11 @@ namespace MugenMvvm.Collections.Components
 
         private void UpdateIndexes(int index, int value)
         {
-#if NET5_0
-            var items = CollectionsMarshal.AsSpan(_items);
-            for (var i = items.Length - 1; i >= 0; i--)
-#else
-            var items = _items;
-            for (var i = items.Count - 1; i >= 0; i--)
-#endif
+            var items = _items.Items;
+            for (var i = _items.Count - 1; i >= 0; i--)
             {
-                var item = items[i];
-                if (item.OriginalIndex >= index)
-                {
-#if NET5_0
+                if (items[i].OriginalIndex >= index)
                     items[i].OriginalIndex += value;
-#else
-                    items[i] = new ItemInfo(item.Item, item.OriginalIndex + value);
-#endif
-                }
                 else
                     break;
             }
@@ -305,7 +292,7 @@ namespace MugenMvvm.Collections.Components
                 if (toRemove != NotFound)
                 {
                     _items.RemoveAt(toRemove);
-                    MugenExtensions.AddOrdered(_items, new ItemInfo((T) item!, newIndex), this);
+                    _items.AddOrdered(new ItemInfo((T) item!, newIndex), this);
                 }
 
                 oldIndex = GetIndex(oldIndex);

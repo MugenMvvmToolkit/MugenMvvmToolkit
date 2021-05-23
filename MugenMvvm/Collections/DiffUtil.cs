@@ -7,6 +7,10 @@ namespace MugenMvvm.Collections
 {
     public static class DiffUtil
     {
+#if !NET5_0
+        private static readonly Comparer<Diagonal> DiagonalComparer = Comparer<Diagonal>.Create((o1, o2) => o1.X - o2.X);
+#endif
+
         public interface ICallback
         {
             public int GetOldListSize();
@@ -34,11 +38,11 @@ namespace MugenMvvm.Collections
             var oldSize = cb.GetOldListSize();
             var newSize = cb.GetNewListSize();
 
-            List<Diagonal> diagonals = new();
+            var diagonals = new ListInternal<Diagonal>(0);
 
             // instead of a recursive implementation, we keep our own stack to avoid potential stack
             // overflow exceptions
-            List<Range> stack = new();
+            var stack = new ListInternal<Range>(0);
 
             stack.Add(new Range(0, oldSize, 0, newSize));
 
@@ -50,7 +54,7 @@ namespace MugenMvvm.Collections
             var backward = new CenteredArray(max * 2 + 1);
 
             // We pool the ranges to avoid allocations for each recursive call.
-            List<Range> rangePool = new();
+            var rangePool = new ListInternal<Range>(0);
             while (stack.Count != 0)
             {
                 var range = RemoveAt(stack, stack.Count - 1);
@@ -82,7 +86,11 @@ namespace MugenMvvm.Collections
             }
 
             // sort snakes
+#if NET5_0
             diagonals.Sort((o1, o2) => o1.X - o2.X);
+#else
+            diagonals.Sort(DiagonalComparer);
+#endif
 
             return new DiffResult(cb, diagonals, forward.Data, backward.Data, detectMoves);
         }
@@ -245,9 +253,9 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Range RemoveAt(List<Range> list, int index)
+        private static Range RemoveAt(ListInternal<Range> list, int index)
         {
-            var foo = list[index];
+            var foo = list.Items[index];
             list.RemoveAt(index);
             return foo;
         }
@@ -257,7 +265,7 @@ namespace MugenMvvm.Collections
         {
             private readonly ICallback _callback;
             private readonly bool _detectMoves;
-            private readonly List<Diagonal> _diagonals;
+            private readonly ListInternal<Diagonal> _diagonals;
             private readonly int[] _newItemStatuses;
             private readonly int _newListSize;
             private readonly int[] _oldItemStatuses;
@@ -272,7 +280,7 @@ namespace MugenMvvm.Collections
             private const int FlagOffset = 4;
             private const int FlagMask = (1 << FlagOffset) - 1;
 
-            internal DiffResult(ICallback callback, List<Diagonal> diagonals, int[] oldItemStatuses, int[] newItemStatuses, bool detectMoves)
+            internal DiffResult(ICallback callback, ListInternal<Diagonal> diagonals, int[] oldItemStatuses, int[] newItemStatuses, bool detectMoves)
             {
                 _diagonals = diagonals;
                 _oldItemStatuses = oldItemStatuses;
@@ -293,7 +301,7 @@ namespace MugenMvvm.Collections
                 var shouldAdd = _diagonals.Count == 0;
                 if (!shouldAdd)
                 {
-                    var diagonal = _diagonals[0];
+                    var diagonal = _diagonals.Items[0];
                     shouldAdd = diagonal.X != 0 || diagonal.Y != 0;
                 }
 
@@ -305,9 +313,11 @@ namespace MugenMvvm.Collections
 
             private void FindMatchingItems()
             {
-                for (var index = 0; index < _diagonals.Count; index++)
+                var count = _diagonals.Count;
+                var diagonals = _diagonals.Items;
+                for (var index = 0; index < count; index++)
                 {
-                    var diagonal = _diagonals[index];
+                    var diagonal = diagonals[index];
                     for (var offset = 0; offset < diagonal.Size; offset++)
                     {
                         var posX = diagonal.X + offset;
@@ -332,9 +342,11 @@ namespace MugenMvvm.Collections
             {
                 // for each removal, find matching addition
                 var posX = 0;
-                for (var index = 0; index < _diagonals.Count; index++)
+                var count = _diagonals.Count;
+                var items = _diagonals.Items;
+                for (var index = 0; index < count; index++)
                 {
-                    var diagonal = _diagonals[index];
+                    var diagonal = items[index];
                     while (posX < diagonal.X)
                     {
                         if (_oldItemStatuses[posX] == 0)
@@ -354,10 +366,11 @@ namespace MugenMvvm.Collections
             private void FindMatchingAddition(int posX)
             {
                 var posY = 0;
-                var diagonalsSize = _diagonals.Count;
-                for (var i = 0; i < diagonalsSize; i++)
+                var count = _diagonals.Count;
+                var items = _diagonals.Items;
+                for (var i = 0; i < count; i++)
                 {
-                    var diagonal = _diagonals[i];
+                    var diagonal = items[i];
                     while (posY < diagonal.Y)
                     {
                         // found some additions, evaluate
@@ -408,7 +421,7 @@ namespace MugenMvvm.Collections
 
             public void DispatchUpdatesTo(IListUpdateCallback updateCallback)
             {
-                BatchingListUpdateCallback callback = new BatchingListUpdateCallback(updateCallback);
+                var callback = new BatchingListUpdateCallback(updateCallback);
                 DispatchUpdatesTo(ref callback);
             }
 
@@ -420,16 +433,17 @@ namespace MugenMvvm.Collections
                 // Later when we find the match of that move, we dispatch the update
                 var currentListSize = _oldListSize;
                 // list of postponed moves
-                List<PostponedUpdate> postponedUpdates = new();
+                var postponedUpdates = new ListInternal<PostponedUpdate>(0);
                 // posX and posY are exclusive
                 var posX = _oldListSize;
                 var posY = _newListSize;
                 // iterate from end of the list to the beginning.
                 // this just makes offsets easier since changes in the earlier indices has an effect
                 // on the later indices.
+                var items = _diagonals.Items;
                 for (var diagonalIndex = _diagonals.Count - 1; diagonalIndex >= 0; diagonalIndex--)
                 {
-                    var diagonal = _diagonals[diagonalIndex];
+                    var diagonal = items[diagonalIndex];
                     var endX = diagonal.EndX;
                     var endY = diagonal.EndY;
                     // dispatch removals and additions until we reach to that diagonal
@@ -532,12 +546,14 @@ namespace MugenMvvm.Collections
                 batchingCallback.DispatchLastEvent();
             }
 
-            private static PostponedUpdate GetPostponedUpdate(List<PostponedUpdate> postponedUpdates, int posInList, bool removal)
+            private static PostponedUpdate GetPostponedUpdate(ListInternal<PostponedUpdate> postponedUpdates, int posInList, bool removal)
             {
                 var postponedUpdate = PostponedUpdate.Undefined;
-                for (var i = 0; i < postponedUpdates.Count; i++)
+                var count = postponedUpdates.Count;
+                var items = postponedUpdates.Items;
+                for (var i = 0; i < count; i++)
                 {
-                    var update = postponedUpdates[i];
+                    ref var update = ref items[i];
                     if (postponedUpdate.IsUndefined)
                     {
                         if (update.PosInOwnerList != posInList || update.Removal != removal)
@@ -553,134 +569,10 @@ namespace MugenMvvm.Collections
                             update.CurrentPos--;
                         else
                             update.CurrentPos++;
-                        postponedUpdates[i] = update;
                     }
                 }
 
                 return postponedUpdate;
-            }
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        internal readonly struct Diagonal
-        {
-            public readonly int Size;
-            public readonly int X;
-            public readonly int Y;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Diagonal(int x, int y, int size)
-            {
-                X = x;
-                Y = y;
-                Size = size;
-            }
-
-            public int EndX
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => X + Size;
-            }
-
-            public int EndY
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => Y + Size;
-            }
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct Snake
-        {
-            public readonly int EndX;
-            public readonly int EndY;
-            private readonly bool _reverse;
-            public readonly int StartX;
-            public readonly int StartY;
-
-            public static readonly Snake Undefined = new(int.MinValue, int.MinValue, int.MinValue, int.MinValue, false);
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Snake(int startX, int startY, int endX, int endY, bool reverse)
-            {
-                EndX = endX;
-                EndY = endY;
-                _reverse = reverse;
-                StartX = startX;
-                StartY = startY;
-            }
-
-            public bool IsUndefined
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => EndX == int.MinValue && StartX == int.MinValue;
-            }
-
-            private bool HasAdditionOrRemoval
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => EndY - StartY != EndX - StartX;
-            }
-
-            private bool IsAddition
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => EndY - StartY > EndX - StartX;
-            }
-
-            public int DiagonalSize
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => Math.Min(EndX - StartX, EndY - StartY);
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Diagonal ToDiagonal()
-            {
-                if (HasAdditionOrRemoval)
-                {
-                    if (_reverse)
-                    {
-                        // snake edge it at the end
-                        return new Diagonal(StartX, StartY, DiagonalSize);
-                    }
-
-                    // snake edge it at the beginning
-                    if (IsAddition)
-                        return new Diagonal(StartX, StartY + 1, DiagonalSize);
-                    return new Diagonal(StartX + 1, StartY, DiagonalSize);
-                }
-
-                // we are a pure diagonal
-                return new Diagonal(StartX, StartY, EndX - StartX);
-            }
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private struct Range
-        {
-            public int NewListStart, NewListEnd;
-            public int OldListStart, OldListEnd;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Range(int oldListStart, int oldListEnd, int newListStart, int newListEnd)
-            {
-                OldListStart = oldListStart;
-                OldListEnd = oldListEnd;
-                NewListStart = newListStart;
-                NewListEnd = newListEnd;
-            }
-
-            public int OldSize
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => OldListEnd - OldListStart;
-            }
-
-            public int NewSize
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => NewListEnd - NewListStart;
             }
         }
 
@@ -805,6 +697,129 @@ namespace MugenMvvm.Collections
                 }
 
                 _lastEventType = TypeNone;
+            }
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        internal readonly struct Diagonal
+        {
+            public readonly int Size;
+            public readonly int X;
+            public readonly int Y;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Diagonal(int x, int y, int size)
+            {
+                X = x;
+                Y = y;
+                Size = size;
+            }
+
+            public int EndX
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => X + Size;
+            }
+
+            public int EndY
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => Y + Size;
+            }
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        private readonly struct Snake
+        {
+            public readonly int EndX;
+            public readonly int EndY;
+            private readonly bool _reverse;
+            public readonly int StartX;
+            public readonly int StartY;
+
+            public static readonly Snake Undefined = new(int.MinValue, int.MinValue, int.MinValue, int.MinValue, false);
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Snake(int startX, int startY, int endX, int endY, bool reverse)
+            {
+                EndX = endX;
+                EndY = endY;
+                _reverse = reverse;
+                StartX = startX;
+                StartY = startY;
+            }
+
+            public bool IsUndefined
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => EndX == int.MinValue && StartX == int.MinValue;
+            }
+
+            private bool HasAdditionOrRemoval
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => EndY - StartY != EndX - StartX;
+            }
+
+            private bool IsAddition
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => EndY - StartY > EndX - StartX;
+            }
+
+            public int DiagonalSize
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => Math.Min(EndX - StartX, EndY - StartY);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Diagonal ToDiagonal()
+            {
+                if (HasAdditionOrRemoval)
+                {
+                    if (_reverse)
+                    {
+                        // snake edge it at the end
+                        return new Diagonal(StartX, StartY, DiagonalSize);
+                    }
+
+                    // snake edge it at the beginning
+                    if (IsAddition)
+                        return new Diagonal(StartX, StartY + 1, DiagonalSize);
+                    return new Diagonal(StartX + 1, StartY, DiagonalSize);
+                }
+
+                // we are a pure diagonal
+                return new Diagonal(StartX, StartY, EndX - StartX);
+            }
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        private struct Range
+        {
+            public int NewListStart, NewListEnd;
+            public int OldListStart, OldListEnd;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Range(int oldListStart, int oldListEnd, int newListStart, int newListEnd)
+            {
+                OldListStart = oldListStart;
+                OldListEnd = oldListEnd;
+                NewListStart = newListStart;
+                NewListEnd = newListEnd;
+            }
+
+            public int OldSize
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => OldListEnd - OldListStart;
+            }
+
+            public int NewSize
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => NewListEnd - NewListStart;
             }
         }
 

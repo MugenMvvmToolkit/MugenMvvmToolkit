@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -353,6 +354,18 @@ namespace MugenMvvm.Collections
             }
         }
 
+        private void Unlock(ItemOrArray<ISynchronizationListener> listeners, ref bool lockTaken)
+        {
+            listeners.OnUnlocking(this, null);
+            if (lockTaken)
+            {
+                Monitor.Exit(_locker);
+                lockTaken = false;
+            }
+
+            listeners.OnUnlocked(this, null);
+        }
+
         void ICollection.CopyTo(Array array, int index)
         {
             Should.NotBeNull(array, nameof(array));
@@ -368,20 +381,8 @@ namespace MugenMvvm.Collections
 
         void ActionToken.IHandler.Invoke(object? state1, object? state2)
         {
-            bool lockTaken = state1 != null;
+            var lockTaken = state1 != null;
             Unlock(ItemOrArray.FromRawValue<ISynchronizationListener>(state2), ref lockTaken);
-        }
-
-        private void Unlock(ItemOrArray<ISynchronizationListener> listeners, ref bool lockTaken)
-        {
-            listeners.OnUnlocking(this, null);
-            if (lockTaken)
-            {
-                Monitor.Exit(_locker);
-                lockTaken = false;
-            }
-
-            listeners.OnUnlocked(this, null);
         }
 
         int IList.Add(object? value)
@@ -444,6 +445,7 @@ namespace MugenMvvm.Collections
             public void Dispose() => _locker.Dispose();
         }
 
+        [Preserve(AllMembers = true)]
         internal sealed class DebuggerProxy
         {
             private readonly SynchronizedObservableCollection<T> _collection;

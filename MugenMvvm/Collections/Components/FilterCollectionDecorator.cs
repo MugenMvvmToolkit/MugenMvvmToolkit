@@ -32,7 +32,7 @@ namespace MugenMvvm.Collections.Components
             set
             {
                 if (_filter != value)
-                    UpdateFilterInternal(value, true);
+                    UpdateFilterInternal(value);
             }
         }
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.Collections.Components
 
         int IReadOnlyCollection<object?>.Count => _size;
 
-        public void UpdateFilter() => UpdateFilterInternal(null, false);
+        public void Invalidate() => UpdateFilterInternal(_filter);
 
         public IEnumerator<object?> GetEnumerator()
         {
@@ -60,18 +60,16 @@ namespace MugenMvvm.Collections.Components
             DecoratorManager = null;
         }
 
-        private void UpdateFilterInternal(Func<T, bool>? filter, bool setFilter)
+        private void UpdateFilterInternal(Func<T, bool>? filter)
         {
             if (DecoratorManager == null)
             {
-                if (setFilter)
-                    _filter = filter;
+                _filter = filter;
                 return;
             }
 
             using var _ = DecoratorManager.TryLock(Owner, this);
-            if (setFilter)
-                _filter = filter;
+            _filter = filter;
             Clear();
             if (HasFilter)
                 UpdateItems(DecoratorManager.Decorate(Owner, this));
@@ -104,9 +102,8 @@ namespace MugenMvvm.Collections.Components
                 for (var i = 0; i < _size; i++)
                 {
                     var key = _keys[i];
-                    if (key < index)
-                        continue;
-                    _keys[i] = key + value;
+                    if (key >= index)
+                        _keys[i] += value;
                 }
 
                 return;

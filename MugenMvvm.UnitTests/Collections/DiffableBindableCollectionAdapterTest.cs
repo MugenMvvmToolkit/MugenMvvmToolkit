@@ -44,8 +44,8 @@ namespace MugenMvvm.UnitTests.Collections
         }
 
         [Theory]
-        [InlineData(100, true)]
-        [InlineData(100, false)]
+        [InlineData(200, true)]
+        [InlineData(200, false)]
         public void ShouldUseCorrectIndexes(int iterationCount, bool detectMoves)
         {
             var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
@@ -63,17 +63,30 @@ namespace MugenMvvm.UnitTests.Collections
                 var count = observableCollection.Count == 0 ? 5 : observableCollection.Count == 20 ? 5 : 20;
                 for (var i = 0; i < count; i++)
                     items.Add(i.ToString());
-                var models = items.OrderBy(model => random.Next()).ToArray();
 
+                Shuffle(items, random);
 #if DEBUG
                 _outputHelper.WriteLine($"before {string.Join(",", observableCollection.Select(model => $"\"{model}\""))}");
-                _outputHelper.WriteLine($"after {string.Join(",", models.Select(model => $"\"{model}\""))}");
+                _outputHelper.WriteLine($"after {string.Join(",", items.Select(model => $"\"{model}\""))}");
 #endif
 
-                observableCollection.Reset(models);
+                observableCollection.Reset(items);
 
                 tracker.ChangedItems.ShouldEqual(observableCollection);
                 collectionAdapter.ShouldEqual(observableCollection);
+            }
+        }
+
+        private static void Shuffle<T>(List<T> list, Random rng)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 
@@ -7,9 +8,9 @@ namespace MugenMvvm.Internal
 {
     public sealed class SortingComparer<T> : IComparer<T>
     {
-        private readonly ItemOrIReadOnlyList<SortingInfo> _sortInfo;
+        private readonly ItemOrArray<SortingInfo> _sortInfo;
 
-        private SortingComparer(ItemOrIReadOnlyList<SortingInfo> sortInfo)
+        private SortingComparer(ItemOrArray<SortingInfo> sortInfo)
         {
             _sortInfo = sortInfo;
         }
@@ -62,7 +63,7 @@ namespace MugenMvvm.Internal
                 return this;
             }
 
-            public IComparer<T> Build() => new SortingComparer<T>(_sortInfo.ToItemOrList());
+            public IComparer<T> Build() => new SortingComparer<T>(_sortInfo.ToItemOrArray());
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -81,6 +82,7 @@ namespace MugenMvvm.Internal
 
             public bool IsEmpty => _expression == null;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public int Compare(T x, T y) => _compare(_expression, _isAscending, x, y);
 
             public static SortingInfo Create<TValue>(Func<T, TValue> expression, bool isAscending)

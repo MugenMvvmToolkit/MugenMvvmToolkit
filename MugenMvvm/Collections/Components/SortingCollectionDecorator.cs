@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -9,22 +10,23 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IReadOnlyCollection<object?>, IHasPriority
+    public class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IReadOnlyCollection<object?>, IHasPriority,
+        IComparer<SortingCollectionDecorator.OrderedItem>
     {
-        private readonly OrderedItemComparer _comparer;
-        private readonly List<OrderedItem> _items;
+        private readonly ListInternal<OrderedItem> _items;
+        private IComparer<object?> _comparer;
 
         public SortingCollectionDecorator(IComparer<object?> comparer, int priority = CollectionComponentPriority.SortingDecorator)
         {
             Should.NotBeNull(comparer, nameof(comparer));
-            _comparer = new OrderedItemComparer(comparer);
-            _items = new List<OrderedItem>();
+            _comparer = comparer;
+            _items = new ListInternal<OrderedItem>(8);
             Priority = priority;
         }
 
         public IComparer<object?> Comparer
         {
-            get => _comparer.Comparer;
+            get => _comparer;
             set
             {
                 Should.NotBeNull(value, nameof(value));
@@ -42,8 +44,10 @@ namespace MugenMvvm.Collections.Components
 
         public IEnumerator<object?> GetEnumerator()
         {
-            for (var i = 0; i < _items.Count; i++)
-                yield return _items[i].Item;
+            var count = _items.Count;
+            var items = _items.Items;
+            for (var i = 0; i < count; i++)
+                yield return items[i].Item;
         }
 
         protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => DecoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
@@ -59,13 +63,13 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
             {
                 if (setComparer)
-                    _comparer.Comparer = comparer!;
+                    _comparer = comparer!;
                 return;
             }
 
             using var _ = DecoratorManager.TryLock(Owner, this);
             if (setComparer)
-                _comparer.Comparer = comparer!;
+                _comparer = comparer!;
             Reset(DecoratorManager.Decorate(Owner, this));
             DecoratorManager.OnReset(Owner, this, this);
         }
@@ -76,26 +80,58 @@ namespace MugenMvvm.Collections.Components
             var index = 0;
             foreach (var item in items)
                 _items.Add(new OrderedItem(index++, item));
-            _items.Sort(_comparer);
+            _items.Sort(this);
         }
 
         private int GetInsertIndex(object? item)
         {
-            var num = _items.BinarySearch(new OrderedItem(-1, item), _comparer);
+            var num = _items.BinarySearch(new OrderedItem(-1, item), this);
             if (num >= 0)
                 return num;
             return ~num;
         }
 
-        private int GetIndexByOriginalIndex(int index)
+        private int GetIndexByOriginalIndex(object? item, int index)
         {
-#if NET5_0
-            var items = CollectionsMarshal.AsSpan(_items);
-            for (var i = 0; i < items.Length; i++)
-#else
-            var items = _items;
-            for (var i = 0; i < items.Count; i++)
-#endif
+            var count = _items.Count;
+            var items = _items.Items;
+            var startIndex = _items.BinarySearch(new OrderedItem(-1, item), this);
+            if (startIndex >= 0)
+            {
+                var value = items[startIndex];
+                if (value.OriginalIndex == index)
+                    return startIndex;
+
+                var leftIndex = startIndex - 1;
+                var rightIndex = startIndex + 1;
+                do
+                {
+                    if (rightIndex < count)
+                    {
+                        value = items[rightIndex];
+                        if (Comparer.Compare(item, value.Item) != 0)
+                            rightIndex = int.MaxValue;
+                        else if (value.OriginalIndex == index)
+                            return rightIndex;
+                        else
+                            ++rightIndex;
+                    }
+
+                    if (leftIndex >= 0)
+                    {
+                        value = items[leftIndex];
+                        if (Comparer.Compare(item, value.Item) != 0)
+                            leftIndex = int.MinValue;
+                        else if (value.OriginalIndex == index)
+                            return leftIndex;
+                        else
+                            --leftIndex;
+                    }
+                } while (rightIndex < count || leftIndex >= 0);
+            }
+
+            //fallback
+            for (var i = 0; i < count; i++)
             {
                 if (items[i].OriginalIndex == index)
                     return i;
@@ -106,27 +142,13 @@ namespace MugenMvvm.Collections.Components
 
         private void UpdateIndexes(int index, int value)
         {
-            if (_items.Count == 0)
-                return;
-
-#if NET5_0
-            var span = CollectionsMarshal.AsSpan(_items);
-            for (var i = 0; i < span.Length; i++)
+            var count = _items.Count;
+            var items = _items.Items;
+            for (var i = 0; i < count; i++)
             {
-                if (span[i].OriginalIndex >= index)
-                    span[i].OriginalIndex += value;
+                if (items[i].OriginalIndex >= index)
+                    items[i].OriginalIndex += value;
             }
-#else
-            for (var i = 0; i < _items.Count; i++)
-            {
-                var item = _items[i];
-                if (item.OriginalIndex < index)
-                    continue;
-
-                item.UpdateIndex(value);
-                _items[i] = item;
-            }
-#endif
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) =>
@@ -137,7 +159,7 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            var oldIndex = GetIndexByOriginalIndex(index);
+            var oldIndex = GetIndexByOriginalIndex(item, index);
             if (oldIndex == -1)
                 return false;
 
@@ -172,7 +194,7 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            var oldIndex = GetIndexByOriginalIndex(index);
+            var oldIndex = GetIndexByOriginalIndex(oldItem, index);
             if (oldIndex == -1)
                 return false;
 
@@ -191,16 +213,12 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            var index = GetIndexByOriginalIndex(oldIndex);
+            var index = GetIndexByOriginalIndex(item, oldIndex);
             UpdateIndexes(oldIndex + 1, -1);
             UpdateIndexes(newIndex, 1);
 
             if (index != -1)
-            {
-                var orderedItem = _items[index];
-                orderedItem.OriginalIndex = newIndex;
-                _items[index] = orderedItem;
-            }
+                _items.Items[index].OriginalIndex = newIndex;
 
             return false;
         }
@@ -210,7 +228,7 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            var indexToRemove = GetIndexByOriginalIndex(index);
+            var indexToRemove = GetIndexByOriginalIndex(item, index);
             UpdateIndexes(index, -1);
             if (indexToRemove == -1)
                 return false;
@@ -236,6 +254,8 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
+        int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y) => Comparer.Compare(x.Item, y.Item);
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         [StructLayout(LayoutKind.Auto)]
@@ -244,27 +264,12 @@ namespace MugenMvvm.Collections.Components
             public readonly object? Item;
             public int OriginalIndex;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public OrderedItem(int originalIndex, object? item)
             {
                 OriginalIndex = originalIndex;
                 Item = item;
             }
-
-#if !NET5_0
-            public void UpdateIndex(int index) => OriginalIndex += index;
-#endif
-        }
-
-        private sealed class OrderedItemComparer : IComparer<OrderedItem>
-        {
-            public IComparer<object?> Comparer;
-
-            public OrderedItemComparer(IComparer<object?> comparer)
-            {
-                Comparer = comparer;
-            }
-
-            int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y) => Comparer.Compare(x.Item, y.Item);
         }
     }
 }
