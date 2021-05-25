@@ -23,6 +23,8 @@ import com.mugen.mvvm.internal.ViewFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public final class MugenService {
     private final static ArrayList<IViewDispatcher> ViewDispatchers = new ArrayList<>();
@@ -56,8 +58,7 @@ public final class MugenService {
     }
 
     public static void addMemberListenerManager(@NonNull IMemberListenerManager manager) {
-        ListenerManagers.add(manager);
-        Collections.sort(ListenerManagers, HasPriorityComparator.Instance);
+        addOrdered(ListenerManagers, manager);
     }
 
     public static boolean removeMemberListenerManager(@NonNull IMemberListenerManager manager) {
@@ -69,8 +70,7 @@ public final class MugenService {
     }
 
     public static void addViewDispatcher(@NonNull IViewDispatcher viewDispatcher) {
-        ViewDispatchers.add(viewDispatcher);
-        Collections.sort(ViewDispatchers, HasPriorityComparator.Instance);
+        addOrdered(ViewDispatchers, viewDispatcher);
     }
 
     public static void removeViewDispatcher(@NonNull IViewDispatcher viewDispatcher) {
@@ -84,8 +84,7 @@ public final class MugenService {
     public static void addLifecycleDispatcher(@NonNull ILifecycleDispatcher dispatcher, boolean wrap) {
         if (wrap)
             dispatcher = new NativeLifecycleDispatcherWrapper(dispatcher);
-        LifecycleDispatchers.add(dispatcher);
-        Collections.sort(LifecycleDispatchers, HasPriorityComparator.Instance);
+        addOrdered(LifecycleDispatchers, dispatcher);
     }
 
     public static void removeLifecycleDispatcher(@NonNull ILifecycleDispatcher dispatcher) {
@@ -194,5 +193,12 @@ public final class MugenService {
 
     public static void setWrapperManager(@Nullable IWrapperManager wrapperManager) {
         _wrapperManager = wrapperManager;
+    }
+
+    private static <T> void addOrdered(ArrayList<T> list, T item) {
+        int i = Collections.binarySearch(list, item, (Comparator<? super T>) HasPriorityComparator.Instance);
+        if (i < 0)
+            i = ~i;
+        list.add(i, item);
     }
 }

@@ -282,8 +282,17 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        int IComparer<ItemInfo>.Compare(ItemInfo x, ItemInfo y) =>
-            _currentComparer == null ? x.OriginalIndex.CompareTo(y.OriginalIndex) : _currentComparer!.Compare(x.Item, y.Item);
+        int IComparer<ItemInfo>.Compare(ItemInfo x, ItemInfo y)
+        {
+            if (_currentComparer != null)
+            {
+                var r = _currentComparer.Compare(x.Item, y.Item);
+                if (r != 0)
+                    return r;
+            }
+
+            return x.OriginalIndex.CompareTo(y.OriginalIndex);
+        }
 
         [StructLayout(LayoutKind.Auto)]
         private struct ItemInfo : IEquatable<ItemInfo>

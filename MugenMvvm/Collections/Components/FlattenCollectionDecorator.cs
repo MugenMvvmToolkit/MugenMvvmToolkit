@@ -430,13 +430,19 @@ namespace MugenMvvm.Collections.Components
             public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
             {
                 if (batchUpdateType == BatchUpdateType.Decorators && DecoratorManager != null)
+                {
+                    using var _ = MugenExtensions.TryLock(Collection);
                     AddToken(DecoratorManager.BatchUpdate(_decorator.Owner, _decorator), true);
+                }
             }
 
             public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
             {
                 if (batchUpdateType == BatchUpdateType.Decorators)
+                {
+                    using var _ = MugenExtensions.TryLock(Collection);
                     RemoveToken(true);
+                }
             }
 
             protected abstract IEnumerable<object?> GetItems();
@@ -457,8 +463,9 @@ namespace MugenMvvm.Collections.Components
                 {
                     if (items[i].batch == batch)
                     {
-                        items[i].token.Dispose();
+                        var actionToken = items[i].token;
                         _tokens.RemoveAt(i);
+                        actionToken.Dispose();
                         return;
                     }
                 }

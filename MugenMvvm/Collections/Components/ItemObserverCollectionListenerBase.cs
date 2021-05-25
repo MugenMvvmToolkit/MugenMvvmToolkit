@@ -144,7 +144,7 @@ namespace MugenMvvm.Collections.Components
             OnCollectionChanged();
         }
 
-        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnChanged((T?) sender, args.PropertyName);
+        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnChanged((T?) sender, args.PropertyName ?? "");
 
         private void SubscribeIfNeed(T? item)
         {
@@ -205,10 +205,10 @@ namespace MugenMvvm.Collections.Components
             public bool IsCollectionEvent => Item == null && Member == null;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool IsMemberChanged(string member) => Item != null && Member == member;
+            public bool IsMemberChanged(string member, bool emptyMemberResult = true) => Item != null && (member == Member || Member == "" && emptyMemberResult);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool IsMemberOrCollectionChanged(string member) => Item == null || Member == member;
+            public bool IsMemberOrCollectionChanged(string member, bool emptyMemberResult = true) => Item == null || member == Member || Member == "" && emptyMemberResult;
         }
 
         private abstract class Observer
