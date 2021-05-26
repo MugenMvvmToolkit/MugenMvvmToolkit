@@ -90,7 +90,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             {
                 attachedValues.GetOrAdd(id, (member, handler, metadata), (t, s) =>
                 {
-                    s.handler(s.member, member.MemberFlags.HasFlag(MemberFlags.Static) ? null! : (TTarget) t, s.metadata);
+                    s.handler(s.member, s.member.MemberFlags.HasFlag(MemberFlags.Static) ? null! : (TTarget) t, s.metadata);
                     return (object?) null;
                 });
             }

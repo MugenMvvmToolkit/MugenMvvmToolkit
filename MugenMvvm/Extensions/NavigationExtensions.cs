@@ -105,11 +105,11 @@ namespace MugenMvvm.Extensions
         public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
             object? ignoreTarget = null, IReadOnlyMetadataContext? metadata = null)
             where TView : class =>
-            navigationDispatcher.GetTopNavigation((navigationType, includePending), (entry, state, m) =>
+            navigationDispatcher.GetTopNavigation((navigationType, includePending, ignoreTarget), (entry, state, m) =>
             {
                 if (!state.includePending && entry.IsPending)
                     return null;
-                if (state.navigationType != null && entry.NavigationType != state.navigationType || Equals(entry.Target, ignoreTarget) ||
+                if (state.navigationType != null && entry.NavigationType != state.navigationType || Equals(entry.Target, state.ignoreTarget) ||
                     entry.Target is not IViewModelBase viewModel)
                     return null;
                 foreach (var t in MugenService.ViewManager.GetViews(viewModel, m))
