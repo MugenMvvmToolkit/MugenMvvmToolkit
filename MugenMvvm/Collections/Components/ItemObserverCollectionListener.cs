@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ItemObserverCollectionListener<T> : ItemObserverCollectionListenerBase<T>, ICollectionChangingListener<T> where T : class?
+    public class ItemObserverCollectionListener<T> : ItemObserverCollectionListenerBase<T>, ICollectionChangedListener<T> where T : class?
     {
         public ItemObserverCollectionListener() : base(null)
         {
@@ -13,14 +13,18 @@ namespace MugenMvvm.Collections.Components
         {
         }
 
-        void ICollectionChangingListener<T>.OnAdding(IReadOnlyCollection<T> collection, T item, int index) => OnAdded(item);
+        void ICollectionChangedListener<T>.OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
+        {
+        }
 
-        void ICollectionChangingListener<T>.OnReplacing(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) => OnReplaced(oldItem, newItem);
+        void ICollectionChangedListener<T>.OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAdded(item);
 
-        void ICollectionChangingListener<T>.OnMoving(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoved(item);
+        void ICollectionChangedListener<T>.OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) => OnReplaced(oldItem, newItem);
 
-        void ICollectionChangingListener<T>.OnRemoving(IReadOnlyCollection<T> collection, T item, int index) => OnRemoved(item);
+        void ICollectionChangedListener<T>.OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoved(item);
 
-        void ICollectionChangingListener<T>.OnResetting(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset(collection, items);
+        void ICollectionChangedListener<T>.OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoved(item);
+
+        void ICollectionChangedListener<T>.OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset(null, items);
     }
 }

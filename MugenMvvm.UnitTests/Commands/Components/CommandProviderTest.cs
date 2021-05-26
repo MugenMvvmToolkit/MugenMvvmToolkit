@@ -44,8 +44,18 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var executedCount = 0;
             var canExecuteValue = true;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
-            Action execute = () => { ++executedCount; };
-            var canExecute = hasCanExecute ? () => canExecuteValue : (Func<bool>?) null;
+            Action<IReadOnlyMetadataContext?> execute = m =>
+            {
+                m.ShouldEqual(DefaultMetadata);
+                ++executedCount;
+            };
+            var canExecute = hasCanExecute
+                ? (m) =>
+                {
+                    m.ShouldEqual(DefaultMetadata);
+                    return canExecuteValue;
+                }
+                : (Func<IReadOnlyMetadataContext?, bool>?) null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
@@ -57,13 +67,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateCommandExecutor<object>>();
-            await component.ExecuteAsync(command, null, default, null);
+            await component.ExecuteAsync(command, null, DefaultCancellationToken, DefaultMetadata);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
             {
-                component.CanExecute(command, null, null).ShouldEqual(canExecuteValue);
+                component.CanExecute(command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
                 canExecuteValue = false;
-                command.CanExecute(null).ShouldEqual(canExecuteValue);
+                command.CanExecute(null, DefaultMetadata).ShouldEqual(canExecuteValue);
                 if (notifiers != null)
                     command.GetComponent<CommandEventHandler>().ShouldNotBeNull();
             }

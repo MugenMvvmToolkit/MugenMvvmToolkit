@@ -7,6 +7,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Commands.Internal;
@@ -32,17 +33,17 @@ namespace MugenMvvm.UnitTests.Commands
             return null;
         }
 
-        private static Func<bool>? GetCanExecuteNoObject(bool value)
+        private static Func<IReadOnlyMetadataContext?, bool>? GetCanExecuteNoObject(bool value)
         {
             if (value)
-                return () => true;
+                return m => true;
             return null;
         }
 
-        private static Func<object?, bool>? GetCanExecute(bool value)
+        private static Func<object?, IReadOnlyMetadataContext?, bool>? GetCanExecute(bool value)
         {
             if (value)
-                return t => true;
+                return (t, m) => true;
             return null;
         }
 
@@ -235,7 +236,7 @@ namespace MugenMvvm.UnitTests.Commands
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var owner = new object();
-            Action execute = () => { };
+            Action<IReadOnlyMetadataContext?> execute = m => { };
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
@@ -277,7 +278,7 @@ namespace MugenMvvm.UnitTests.Commands
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var owner = new object();
-            Action<object> execute = t => { };
+            Action<object, IReadOnlyMetadataContext?> execute = (t, m) => { };
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
@@ -319,7 +320,7 @@ namespace MugenMvvm.UnitTests.Commands
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var owner = new object();
-            Func<Task> execute = () => Task.CompletedTask;
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => Task.CompletedTask;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
@@ -361,7 +362,7 @@ namespace MugenMvvm.UnitTests.Commands
             int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
         {
             var owner = new object();
-            Func<object?, Task> execute = item => Task.CompletedTask;
+            Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) => Task.CompletedTask;
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;

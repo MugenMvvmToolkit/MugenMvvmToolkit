@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
@@ -40,9 +39,9 @@ namespace MugenMvvm.Commands.Components
             var canExecuteDelegate = _canExecute;
             if (canExecuteDelegate == null)
                 return !_executing && _execute != null;
-            if (canExecuteDelegate is Func<bool> func)
-                return func();
-            return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
+            if (canExecuteDelegate is Func<IReadOnlyMetadataContext?, bool> func)
+                return func(metadata);
+            return ((Func<T, IReadOnlyMetadataContext?, bool>) canExecuteDelegate).Invoke((T) parameter!, metadata);
         }
 
         public async ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
@@ -50,14 +49,14 @@ namespace MugenMvvm.Commands.Components
             try
             {
                 if (_allowMultipleExecution)
-                    return await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
+                    return await ExecuteInternalAsync(command, parameter, cancellationToken, metadata).ConfigureAwait(false);
 
                 if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
                     return false;
 
                 cancellationToken.ThrowIfCancellationRequested();
                 command.RaiseCanExecuteChanged();
-                var result = await ExecuteInternalAsync(command, parameter, cancellationToken).ConfigureAwait(false);
+                var result = await ExecuteInternalAsync(command, parameter, cancellationToken, metadata).ConfigureAwait(false);
                 _executingCommand = null;
                 _executing = false;
                 command.RaiseCanExecuteChanged();
@@ -81,27 +80,27 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        private async ValueTask<bool> ExecuteInternalAsync(ICommand command, object? parameter, CancellationToken cancellationToken)
+        private async ValueTask<bool> ExecuteInternalAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var executeAction = _execute;
             if (executeAction == null || cancellationToken.IsCancellationRequested)
                 return false;
 
-            if (!_executionBehavior.BeforeExecute(command, parameter))
+            if (!_executionBehavior.BeforeExecute(command, parameter, cancellationToken, metadata))
                 return false;
             if (!_allowMultipleExecution)
                 _executing = true;
 
-            if (executeAction is Action execute)
-                execute();
-            else if (executeAction is Action<T> genericExecute)
-                genericExecute((T) parameter!);
-            else if (executeAction is Func<Task> executeTask)
-                await executeTask().ConfigureAwait(false);
+            if (executeAction is Action<IReadOnlyMetadataContext?> execute)
+                execute(metadata);
+            else if (executeAction is Action<T, IReadOnlyMetadataContext?> genericExecute)
+                genericExecute((T) parameter!, metadata);
+            else if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
+                await executeTask(cancellationToken, metadata).ConfigureAwait(false);
             else
-                await ((Func<T, Task>) executeAction).Invoke((T) parameter!).ConfigureAwait(false);
+                await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, Task>) executeAction).Invoke((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
 
-            _executionBehavior.AfterExecute(command, parameter);
+            _executionBehavior.AfterExecute(command, parameter, cancellationToken, metadata);
             return true;
         }
     }

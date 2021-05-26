@@ -11,6 +11,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -82,8 +83,13 @@ namespace MugenMvvm.Bindings.Core.Components
                 return;
 
             var target = _targetRef?.Target;
-            if (target != null)
-                SetEnabled(cmd.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata)), target);
+            if (target == null)
+                return;
+
+            var value = cmd is ICompositeCommand compositeCommand
+                ? compositeCommand.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata), _currentMetadata)
+                : cmd.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata));
+            SetEnabled(value, target);
         }
 
         private bool InitializeCanExecute(object? target)

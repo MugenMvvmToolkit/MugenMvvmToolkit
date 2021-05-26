@@ -1,10 +1,12 @@
 ﻿#pragma warning disable 4014
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTests.Commands.Internal;
 using Should;
 using Xunit;
@@ -25,7 +27,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldNotThrowException()
         {
             var exception = new NotSupportedException();
-            Action execute = () => throw exception;
+            Action<IReadOnlyMetadataContext?> execute = m => throw exception;
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
             var task = component.ExecuteAsync(_command, null, default, null).AsTask();
             task.IsFaulted.ShouldBeTrue();
@@ -36,9 +38,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public async Task ShouldSupportAction()
         {
             var executed = 0;
-            Action execute = () => ++executed;
+            Action<IReadOnlyMetadataContext?> execute = m =>
+            {
+                m.ShouldEqual(DefaultMetadata);
+                ++executed;
+            };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            await component.ExecuteAsync(_command, null, default, null);
+            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
             executed.ShouldEqual(1);
         }
 
@@ -46,13 +52,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public async Task ShouldSupportActionWithObject()
         {
             var executed = 0;
-            Action<object> execute = item =>
+            Action<object, IReadOnlyMetadataContext?> execute = (item, m) =>
             {
                 item.ShouldEqual(this);
+                m.ShouldEqual(DefaultMetadata);
                 ++executed;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            await component.ExecuteAsync(_command, this, default, null);
+            await component.ExecuteAsync(_command, this, default, DefaultMetadata);
             executed.ShouldEqual(1);
         }
 
@@ -61,18 +68,19 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var canExecuteValue = false;
-            Action execute = () => { };
-            Func<bool> canExecute = () =>
+            Action<IReadOnlyMetadataContext?> execute = m => { };
+            Func<IReadOnlyMetadataContext?, bool> canExecute = m =>
             {
                 ++executed;
+                m.ShouldEqual(DefaultMetadata);
                 return canExecuteValue;
             };
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.None, true);
-            component.CanExecute(_command, null, null).ShouldEqual(canExecuteValue);
+            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.CanExecute(_command, null, null).ShouldEqual(canExecuteValue);
+            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(2);
         }
 
@@ -82,18 +90,19 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var executed = 0;
             var canExecuteValue = false;
             Action execute = () => { };
-            Func<object?, bool> canExecute = item =>
+            Func<object?, IReadOnlyMetadataContext?, bool> canExecute = (item, m) =>
             {
                 item.ShouldEqual(this);
+                m.ShouldEqual(DefaultMetadata);
                 ++executed;
                 return canExecuteValue;
             };
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.None, true);
-            component.CanExecute(_command, this, null).ShouldEqual(canExecuteValue);
+            component.CanExecute(_command, this, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.CanExecute(_command, this, null).ShouldEqual(canExecuteValue);
+            component.CanExecute(_command, this, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(2);
         }
 
@@ -102,23 +111,28 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var canExecuted = 0;
-            Action execute = () => ++executed;
+            Action<IReadOnlyMetadataContext?> execute = (m) =>
+            {
+                m.ShouldEqual(DefaultMetadata);
+                ++executed;
+            };
             var canExecuteValue = false;
-            Func<bool> canExecute = () =>
+            Func<IReadOnlyMetadataContext?, bool> canExecute = m =>
             {
                 ++canExecuted;
+                m.ShouldEqual(DefaultMetadata);
                 return canExecuteValue;
             };
 
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CheckCanExecute, true);
             _command.AddComponent(component);
 
-            await component.ExecuteAsync(_command, null, default, null);
+            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
             executed.ShouldEqual(0);
             canExecuted.ShouldEqual(1);
 
             canExecuteValue = true;
-            await component.ExecuteAsync(_command, null, default, null);
+            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
             executed.ShouldEqual(1);
             canExecuted.ShouldEqual(2);
         }
@@ -128,10 +142,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var canExecuted = 0;
-            Action execute = () => ++executed;
-            var canExecuteValue = false;
-            Func<bool> canExecute = () =>
+            Action<IReadOnlyMetadataContext?> execute = m =>
             {
+                m.ShouldEqual(DefaultMetadata);
+                ++executed;
+            };
+            var canExecuteValue = false;
+            Func<IReadOnlyMetadataContext?, bool> canExecute = (m) =>
+            {
+                m.ShouldEqual(DefaultMetadata);
                 ++canExecuted;
                 return canExecuteValue;
             };
@@ -139,14 +158,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CheckCanExecuteThrow, true);
             _command.AddComponent(component);
 
-            var task = component.ExecuteAsync(_command, null, default, null).AsTask();
+            var task = component.ExecuteAsync(_command, null, default, DefaultMetadata).AsTask();
             task.IsFaulted.ShouldBeTrue();
             task.Exception!.GetBaseException().ShouldBeType<InvalidOperationException>();
             executed.ShouldEqual(0);
             canExecuted.ShouldEqual(1);
 
             canExecuteValue = true;
-            task = component.ExecuteAsync(_command, null, default, null).AsTask();
+            task = component.ExecuteAsync(_command, null, default, DefaultMetadata).AsTask();
             (await task).ShouldBeTrue();
             executed.ShouldEqual(1);
             canExecuted.ShouldEqual(2);
@@ -157,19 +176,24 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var canExecuted = 0;
-            Action execute = () => ++executed;
+            Action<IReadOnlyMetadataContext?> execute = (m) =>
+            {
+                m.ShouldEqual(DefaultMetadata);
+                ++executed;
+            };
             var canExecuteValue = false;
-            Func<bool> canExecute = () =>
+            Func<IReadOnlyMetadataContext?, bool> canExecute = m =>
             {
                 ++canExecuted;
+                m.ShouldEqual(DefaultMetadata);
                 return canExecuteValue;
             };
 
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.None, true);
             _command.AddComponent(component);
 
-            await component.ExecuteAsync(_command, null, default, null);
-            await component.ExecuteAsync(_command, null, default, null);
+            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
+            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
             executed.ShouldEqual(2);
             canExecuted.ShouldEqual(0);
         }
@@ -179,13 +203,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
-            Func<Task> execute = () =>
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) =>
             {
                 ++executed;
+                c.ShouldEqual(DefaultCancellationToken);
+                m.ShouldEqual(DefaultMetadata);
                 return tcs.Task;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, null, default, null)!;
+            var task = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
@@ -198,14 +224,16 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
-            Func<object?, Task> execute = item =>
+            Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) =>
             {
                 item.ShouldEqual(this);
+                c.ShouldEqual(DefaultCancellationToken);
+                m.ShouldEqual(DefaultMetadata);
                 ++executed;
                 return tcs.Task;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, this, default, null)!;
+            var task = component.ExecuteAsync(_command, this, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
@@ -220,21 +248,23 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
-            Func<Task> execute = () =>
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) =>
             {
                 ++executed;
+                c.ShouldEqual(DefaultCancellationToken);
+                m.ShouldEqual(DefaultMetadata);
                 return tcs.Task;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
-            var task1 = component.ExecuteAsync(_command, null, default, null);
-            var task2 = component.ExecuteAsync(_command, null, default, null);
+            var task1 = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            var task2 = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
 
-            component.CanExecute(_command, null, null).ShouldEqual(value);
+            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(value);
             tcs.SetResult(this);
             await task1;
             await task2;
             executed.ShouldEqual(value ? 2 : 1);
-            await component.ExecuteAsync(_command, null, default, null);
+            await component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(value ? 3 : 2);
         }
 
@@ -245,7 +275,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
-            Func<Task> execute = () => tcs.Task;
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => tcs.Task;
 
             var listener = new TestCommandEventHandlerComponent {RaiseCanExecuteChanged = c => { ++executed; }};
             _command.AddComponent(listener);
@@ -254,10 +284,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             _command.AddComponent(component);
             executed.ShouldEqual(1);
             executed = 0;
-            var task = _command.ExecuteAsync(this);
+            var task = _command.ExecuteAsync(this, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(value ? 0 : 1);
 
-            component.CanExecute(_command, null, null).ShouldEqual(value);
+            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(value);
             tcs.SetResult(this);
             await task;
             executed.ShouldEqual(value ? 0 : 2);
@@ -269,14 +299,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public async Task DisposeShouldClearDelegates(bool canDispose)
         {
             var executed = 0;
-            Action execute = () => ++executed;
+            Action<IReadOnlyMetadataContext?> execute = m => ++executed;
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
             component.IsDisposable.ShouldBeTrue();
             component.IsDisposable = canDispose;
             component.Dispose();
 
-            component.CanExecute(_command, null, null).ShouldEqual(!canDispose);
-            await component.ExecuteAsync(_command, null, default, null);
+            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(!canDispose);
+            await component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(canDispose ? 0 : 1);
         }
     }
