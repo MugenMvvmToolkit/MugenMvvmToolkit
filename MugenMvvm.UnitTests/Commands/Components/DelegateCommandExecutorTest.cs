@@ -7,6 +7,7 @@ using MugenMvvm.Commands.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Metadata;
 using MugenMvvm.UnitTests.Commands.Internal;
 using Should;
 using Xunit;
@@ -266,6 +267,36 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(value ? 2 : 1);
             await component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(value ? 3 : 2);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ShouldSupportAllowMultipleExecutionForceExecute(bool value)
+        {
+            var context = CommandMetadata.ForceExecute.ToContext(true);
+            var executed = 0;
+            var tcs = new TaskCompletionSource<object>();
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) =>
+            {
+                ++executed;
+                c.ShouldEqual(DefaultCancellationToken);
+                m.ShouldEqual(context);
+                return tcs.Task;
+            };
+            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
+            var task1 = component.ExecuteAsync(_command, null, DefaultCancellationToken, context);
+            var task2 = component.ExecuteAsync(_command, null, DefaultCancellationToken, context);
+
+            component.CanExecute(_command, null, context).ShouldBeTrue();
+            context = DefaultMetadata;
+            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(value);
+            tcs.SetResult(this);
+            await task1;
+            await task2;
+            executed.ShouldEqual(2);
+            await component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            executed.ShouldEqual(3);
         }
 
         [Theory]

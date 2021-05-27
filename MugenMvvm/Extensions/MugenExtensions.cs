@@ -39,6 +39,8 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        private static IReadOnlyMetadataContext? _forceExecuteMetadata;
+
         public static void Start<TViewModel>(this IMugenApplication? _, IReadOnlyMetadataContext? metadata = null)
             where TViewModel : IViewModelBase => Start(null, typeof(TViewModel), metadata);
 
@@ -207,6 +209,17 @@ namespace MugenMvvm.Extensions
             if (!token.IsEmpty && notifier is IHasDisposeCallback hasDisposeCallback)
                 hasDisposeCallback.RegisterDisposeToken(token);
             return token;
+        }
+
+        public static ValueTask<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
+            IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(command, nameof(command));
+            if (metadata == null)
+                metadata = _forceExecuteMetadata ??= CommandMetadata.ForceExecute.ToContext(true);
+            else
+                metadata = metadata.WithValue(CommandMetadata.ForceExecute, true);
+            return command.ExecuteAsync(parameter, cancellationToken, metadata);
         }
 
         public static object Wrap(this IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)

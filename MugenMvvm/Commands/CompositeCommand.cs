@@ -94,9 +94,9 @@ namespace MugenMvvm.Commands
 
         bool ICommand.CanExecute(object? parameter) => CanExecute(parameter);
 
-        public void Execute(object? parameter) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
+        public void Execute(object? parameter = null) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
 
-        public ValueTask<bool> ExecuteAsync(object? parameter, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+        public ValueTask<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<ICommandExecutorComponent>().ExecuteAsync(this, parameter, cancellationToken, metadata);
 
         public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);

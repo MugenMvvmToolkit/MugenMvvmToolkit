@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
 {
@@ -34,11 +37,18 @@ namespace MugenMvvm.Commands.Components
 
         public int Priority => CommandComponentPriority.Executor;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsForceExecute(IReadOnlyMetadataContext? metadata) => metadata != null && metadata.TryGet(CommandMetadata.ForceExecute, out var value) && value;
+
         public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
+            if (_execute == null || _executing && !IsForceExecute(metadata))
+                return false;
+
             var canExecuteDelegate = _canExecute;
             if (canExecuteDelegate == null)
-                return !_executing && _execute != null;
+                return true;
+
             if (canExecuteDelegate is Func<IReadOnlyMetadataContext?, bool> func)
                 return func(metadata);
             return ((Func<T, IReadOnlyMetadataContext?, bool>) canExecuteDelegate).Invoke((T) parameter!, metadata);
@@ -52,21 +62,21 @@ namespace MugenMvvm.Commands.Components
                     return await ExecuteInternalAsync(command, parameter, cancellationToken, metadata).ConfigureAwait(false);
 
                 if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
-                    return false;
+                {
+                    if (!IsForceExecute(metadata))
+                        return false;
+                    _executingCommand = command;
+                }
 
                 cancellationToken.ThrowIfCancellationRequested();
                 command.RaiseCanExecuteChanged();
                 var result = await ExecuteInternalAsync(command, parameter, cancellationToken, metadata).ConfigureAwait(false);
-                _executingCommand = null;
-                _executing = false;
-                command.RaiseCanExecuteChanged();
+                OnExecuted(command);
                 return result;
             }
             catch
             {
-                _executing = false;
-                _executingCommand = null;
-                command.RaiseCanExecuteChanged();
+                OnExecuted(command);
                 throw;
             }
         }
@@ -78,6 +88,13 @@ namespace MugenMvvm.Commands.Components
                 _canExecute = null;
                 _execute = null;
             }
+        }
+
+        private void OnExecuted(ICompositeCommand command)
+        {
+            if (Interlocked.CompareExchange(ref _executingCommand, null, command) == command)
+                _executing = false;
+            command.RaiseCanExecuteChanged();
         }
 
         private async ValueTask<bool> ExecuteInternalAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
