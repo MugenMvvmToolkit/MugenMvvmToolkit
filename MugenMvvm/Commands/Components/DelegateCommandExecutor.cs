@@ -105,20 +105,30 @@ namespace MugenMvvm.Commands.Components
 
             if (!_executionBehavior.BeforeExecute(command, parameter, cancellationToken, metadata))
                 return false;
+
             if (!_allowMultipleExecution)
                 _executing = true;
 
+            var result = true;
             if (executeAction is Action<IReadOnlyMetadataContext?> execute)
                 execute(metadata);
             else if (executeAction is Action<T, IReadOnlyMetadataContext?> genericExecute)
                 genericExecute((T) parameter!, metadata);
             else if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
                 await executeTask(cancellationToken, metadata).ConfigureAwait(false);
+            else if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task> executeTaskParameter)
+                await executeTaskParameter((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
+            else if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> executeTaskBool)
+                result = await executeTaskBool(cancellationToken, metadata).ConfigureAwait(false);
             else
-                await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, Task>) executeAction).Invoke((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
+            {
+                result = await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>) executeAction)
+                               .Invoke((T) parameter!, cancellationToken, metadata)
+                               .ConfigureAwait(false);
+            }
 
             _executionBehavior.AfterExecute(command, parameter, cancellationToken, metadata);
-            return true;
+            return result;
         }
     }
 }

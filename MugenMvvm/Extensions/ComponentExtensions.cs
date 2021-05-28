@@ -190,6 +190,20 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
+        public static async ValueTask<bool> InvokeSequentiallyAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> invoke)
+            where TComponent : class, IComponent
+        {
+            foreach (var c in components)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> invoke)

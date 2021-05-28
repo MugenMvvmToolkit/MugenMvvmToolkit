@@ -76,7 +76,7 @@ namespace MugenMvvm.Extensions.Components
             CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(command, nameof(command));
-            return components.InvokeAllAsync((command, parameter), cancellationToken, metadata, (component, s, c, m) => component.ExecuteAsync(s.command, s.parameter, c, m));
+            return components.InvokeSequentiallyAsync((command, parameter), cancellationToken, metadata, (component, s, c, m) => component.ExecuteAsync(s.command, s.parameter, c, m));
         }
     }
 }

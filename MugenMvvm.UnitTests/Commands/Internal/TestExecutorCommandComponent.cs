@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
+using MugenMvvm.Interfaces.Models;
 using Should;
 
 namespace MugenMvvm.UnitTests.Commands.Internal
 {
-    public class TestCommandExecutorComponent : ICommandExecutorComponent
+    public class TestCommandExecutorComponent : ICommandExecutorComponent, IHasPriority
     {
         private readonly ICompositeCommand? _command;
 
@@ -20,7 +20,10 @@ namespace MugenMvvm.UnitTests.Commands.Internal
 
         public Func<object?, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>? ExecuteAsync { get; set; }
 
-        ValueTask<bool> ICommandExecutorComponent.ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public int Priority { get; set; }
+
+        ValueTask<bool> ICommandExecutorComponent.ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             _command?.ShouldEqual(command);
             return ExecuteAsync?.Invoke(parameter, cancellationToken, metadata) ?? default;

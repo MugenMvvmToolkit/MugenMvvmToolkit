@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var canExecuted = 0;
-            Action<IReadOnlyMetadataContext?> execute = (m) =>
+            Action<IReadOnlyMetadataContext?> execute = m =>
             {
                 m.ShouldEqual(DefaultMetadata);
                 ++executed;
@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 ++executed;
             };
             var canExecuteValue = false;
-            Func<IReadOnlyMetadataContext?, bool> canExecute = (m) =>
+            Func<IReadOnlyMetadataContext?, bool> canExecute = m =>
             {
                 m.ShouldEqual(DefaultMetadata);
                 ++canExecuted;
@@ -177,7 +177,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             var canExecuted = 0;
-            Action<IReadOnlyMetadataContext?> execute = (m) =>
+            Action<IReadOnlyMetadataContext?> execute = m =>
             {
                 m.ShouldEqual(DefaultMetadata);
                 ++executed;
@@ -216,7 +216,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
-            await task;
+            (await task).ShouldBeTrue();
             task.IsCompleted.ShouldBeTrue();
         }
 
@@ -238,7 +238,54 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
-            await task;
+            (await task).ShouldBeTrue();
+            task.IsCompleted.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ShouldSupportValueFuncTask(bool result)
+        {
+            var executed = 0;
+            var tcs = new TaskCompletionSource<bool>();
+            Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> execute = (c, m) =>
+            {
+                ++executed;
+                c.ShouldEqual(DefaultCancellationToken);
+                m.ShouldEqual(DefaultMetadata);
+                return tcs.Task.AsValueTask();
+            };
+            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
+            var task = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            executed.ShouldEqual(1);
+            task.IsCompleted.ShouldBeFalse();
+            tcs.SetResult(result);
+            (await task).ShouldEqual(result);
+            task.IsCompleted.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ShouldSupportFuncValueTaskWithObject(bool result)
+        {
+            var executed = 0;
+            var tcs = new TaskCompletionSource<bool>();
+            Func<object?, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> execute = (item, c, m) =>
+            {
+                item.ShouldEqual(this);
+                c.ShouldEqual(DefaultCancellationToken);
+                m.ShouldEqual(DefaultMetadata);
+                ++executed;
+                return tcs.Task.AsValueTask();
+            };
+            var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
+            var task = component.ExecuteAsync(_command, this, DefaultCancellationToken, DefaultMetadata);
+            executed.ShouldEqual(1);
+            task.IsCompleted.ShouldBeFalse();
+            tcs.SetResult(result);
+            (await task).ShouldEqual(result);
             task.IsCompleted.ShouldBeTrue();
         }
 
