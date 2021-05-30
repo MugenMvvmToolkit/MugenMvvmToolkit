@@ -27,7 +27,7 @@ namespace MugenMvvm.Validation.Components
 
         public IValidator TryGetValidator(IValidationManager validationManager, ItemOrIReadOnlyList<object> targets, IReadOnlyMetadataContext? metadata)
         {
-            var validator = new Validator(metadata, _componentCollectionManager);
+            var validator = new Validator(null, _componentCollectionManager);
             validator.AddComponent(new ValidatorErrorManager());
             validator.AddComponent(new CycleHandlerValidatorBehavior());
             if (AsyncValidationEnabled)

@@ -88,7 +88,7 @@ namespace MugenMvvm.Navigation.Components
                     updatedEntry = FindEntry(list, navigationInfo.NavigationId);
                     if (updatedEntry == null)
                     {
-                        addedEntry = new NavigationEntry(target, navigationProvider, navigationInfo.NavigationId, navigationInfo.NavigationType, metadata.ToNonReadonly())
+                        addedEntry = new NavigationEntry(target, navigationProvider, navigationInfo.NavigationId, navigationInfo.NavigationType, metadata)
                         {
                             IsPending = isPending
                         };

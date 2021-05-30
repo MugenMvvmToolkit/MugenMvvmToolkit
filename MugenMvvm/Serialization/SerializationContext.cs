@@ -1,5 +1,4 @@
 ﻿using System;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Metadata;
@@ -27,7 +26,5 @@ namespace MugenMvvm.Serialization
         ISerializationFormatBase ISerializationContext.Format => Format;
 
         object ISerializationContext.Request => Request!;
-
-        public void Dispose() => this.ClearMetadata(true);
     }
 }

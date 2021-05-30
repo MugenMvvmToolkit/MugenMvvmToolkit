@@ -48,6 +48,7 @@ public final class FragmentMugenExtensions {
                 if (fragment != null)
                     return fragment;
             }
+
             Object parent = BindableMemberMugenExtensions.getParent(v);
             if (parent instanceof View)
                 v = (View) parent;
@@ -64,7 +65,11 @@ public final class FragmentMugenExtensions {
             owner = getFragmentOwner((View) owner);
         if (owner instanceof FragmentActivity)
             return ((FragmentActivity) owner).getSupportFragmentManager();
-        return ((Fragment) owner).getFragmentManager();
+        if (owner instanceof Fragment)
+            return ((Fragment) owner).getChildFragmentManager();
+        if (owner instanceof IActivityView)
+            return ((FragmentActivity) ((IActivityView) owner).getActivity()).getSupportFragmentManager();
+        return ((Fragment) ((IFragmentView) owner).getFragment()).getChildFragmentManager();
     }
 
     public static boolean setFragment(@NonNull View container, @Nullable IFragmentView target) {
@@ -73,8 +78,7 @@ public final class FragmentMugenExtensions {
         if (fragment == null) {
             Fragment oldFragment = fragmentManager.findFragmentById(container.getId());
             if (oldFragment != null && !fragmentManager.isDestroyed()) {
-                fragmentManager.beginTransaction().remove(oldFragment).commitAllowingStateLoss();
-                fragmentManager.executePendingTransactions();
+                fragmentManager.beginTransaction().remove(oldFragment).commitNowAllowingStateLoss();
                 return true;
             }
             return false;
@@ -85,8 +89,7 @@ public final class FragmentMugenExtensions {
             fragmentTransaction.attach(fragment);
         else
             fragmentTransaction.replace(container.getId(), fragment);
-        fragmentTransaction.commitAllowingStateLoss();
-        fragmentManager.executePendingTransactions();
+        fragmentTransaction.commitNowAllowingStateLoss();
         return true;
     }
 

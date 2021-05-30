@@ -19,18 +19,12 @@ namespace MugenMvvm.Serialization
             => GetComponents<ISerializationManagerComponent>(metadata).IsSupported(this, format, request, metadata);
 
         public bool TrySerialize<TRequest, TResult>(ISerializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] ref TResult? result,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            using var ctx = GetContext(format, request, metadata);
-            return GetComponents<ISerializationManagerComponent>(metadata).TrySerialize(this, format, request, ctx, ref result);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<ISerializationManagerComponent>(metadata).TrySerialize(this, format, request, GetContext(format, request, metadata), ref result);
 
         public bool TryDeserialize<TRequest, TResult>(IDeserializationFormat<TRequest, TResult> format, TRequest request, [NotNullWhen(true)] ref TResult? result,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            using var ctx = GetContext(format, request, metadata);
-            return GetComponents<ISerializationManagerComponent>(metadata).TryDeserialize(this, format, request, ctx, ref result);
-        }
+            IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<ISerializationManagerComponent>(metadata).TryDeserialize(this, format, request, GetContext(format, request, metadata), ref result);
 
         private ISerializationContext GetContext<TRequest, TResult>(ISerializationFormatBase<TRequest, TResult> format, TRequest request, IReadOnlyMetadataContext? metadata) =>
             GetComponents<ISerializationContextProviderComponent>(metadata).TryGetSerializationContext(this, format, request, metadata) ??

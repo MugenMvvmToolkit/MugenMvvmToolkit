@@ -44,6 +44,13 @@ namespace MugenMvvm.Internal
         public static ActionToken FromDelegate(Action<object?, object?> handler, object? state1 = null, object? state2 = null) => new(handler, state1, state2);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ActionToken FromDelegate<T>(T state, Action<T> handler) where T : class? =>
+            new(new Action<object?, object?>((a, s) => ((Action<T>) a!).Invoke((T) s!)), handler, state);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ActionToken FromDelegate(Action handler) => new(new Action<object?, object?>((a, _) => ((Action) a!).Invoke()), handler, null);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ActionToken FromTokens(ItemOrIEnumerable<ActionToken> tokens)
         {
             if (tokens.HasItem)

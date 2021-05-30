@@ -7,6 +7,18 @@ namespace MugenMvvm.UnitTests.Internal
     public class ActionTokenTest : UnitTestBase
     {
         [Fact]
+        public void DelegateShouldBeInvokedOnce3()
+        {
+            var count = 0;
+            var actionToken = ActionToken.FromDelegate(() => ++count);
+            actionToken.IsEmpty.ShouldBeFalse();
+            actionToken.Dispose();
+            actionToken.Dispose();
+            count.ShouldEqual(1);
+            actionToken.IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
         public void NoDoShouldNotBeEmpty() => ActionToken.NoDo.IsEmpty.ShouldBeFalse();
 
         [Fact]
@@ -46,7 +58,7 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData("1", null)]
         [InlineData(null, "1")]
         [InlineData("1", "2")]
-        public void DelegateShouldBeInvokedOnce(object? state1, object? state2)
+        public void DelegateShouldBeInvokedOnce1(object? state1, object? state2)
         {
             var count = 0;
             var actionToken = ActionToken.FromDelegate((o, o1) =>
@@ -55,6 +67,24 @@ namespace MugenMvvm.UnitTests.Internal
                 o1.ShouldEqual(state2);
                 ++count;
             }, state1, state2);
+            actionToken.IsEmpty.ShouldBeFalse();
+            actionToken.Dispose();
+            actionToken.Dispose();
+            count.ShouldEqual(1);
+            actionToken.IsEmpty.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("1")]
+        public void DelegateShouldBeInvokedOnce2(string? state)
+        {
+            var count = 0;
+            var actionToken = ActionToken.FromDelegate(state, s =>
+            {
+                s.ShouldEqual(state);
+                ++count;
+            });
             actionToken.IsEmpty.ShouldBeFalse();
             actionToken.Dispose();
             actionToken.Dispose();

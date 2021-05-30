@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationTargetDispatcher : INavigationConditionComponent, INavigationListener, IHasPriority
+    public sealed class NavigationTargetDispatcher : INavigationConditionComponent, INavigationListener, IHasPriority//todo add force decorator
     {
         public int Priority { get; set; } = NavigationComponentPriority.Condition;
 

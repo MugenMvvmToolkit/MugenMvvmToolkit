@@ -104,7 +104,8 @@ namespace MugenMvvm.Ios.Presentation
         private void SetRootController(UIWindow window, IViewModelBase viewModel, UIViewController view, IReadOnlyMetadataContext? metadata)
         {
             var navigationDispatcher = _navigationDispatcher.DefaultIfNull();
-            var context = new NavigationContext(viewModel, NavigationProvider.System, IosInternalConstants.RootNavigationId, NavigationType.Window, NavigationMode.New, metadata);
+            var context = navigationDispatcher.GetNavigationContext(viewModel, NavigationProvider.System, IosInternalConstants.RootNavigationId, NavigationType.Window,
+                NavigationMode.New, metadata);
             navigationDispatcher.OnNavigating(context);
             window.RootViewController = view;
             window.MakeKeyAndVisible();

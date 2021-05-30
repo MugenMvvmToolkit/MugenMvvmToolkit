@@ -76,7 +76,7 @@ namespace MugenMvvm.Views.Components
 
         private IView InitializeView(IViewManager viewManager, IViewMapping mapping, IViewModelBase viewModel, object rawView, IReadOnlyMetadataContext? metadata)
         {
-            var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager);
+            var view = new View(mapping, rawView, viewModel, null, _componentCollectionManager);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
 
             var views = viewModel.Metadata.Get(InternalMetadata.Views);

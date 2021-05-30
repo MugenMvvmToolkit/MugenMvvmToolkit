@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Messaging;
 using MugenMvvm.Navigation;
+using MugenMvvm.Navigation.Components;
 using MugenMvvm.UnitTests.Messaging.Internal;
 using MugenMvvm.UnitTests.Navigation.Internal;
 using Should;
@@ -24,6 +25,7 @@ namespace MugenMvvm.UnitTests.App.Components
         {
             _application = new MugenApplication(null, ComponentCollectionManager);
             _navigationDispatcher = new NavigationDispatcher(ComponentCollectionManager);
+            _navigationDispatcher.AddComponent(new NavigationContextProvider());
             _messenger = new Messenger(ComponentCollectionManager);
             _application.AddComponent(new AppLifecycleTracker(_navigationDispatcher, _messenger, AttachedValueManager));
         }
