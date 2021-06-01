@@ -273,11 +273,11 @@ namespace MugenMvvm.Collections.Components
                 if (!itemType.IsValueType)
                     return new SourceFlattenCollectionItem<object?>().Initialize(Items!, decorator);
 
-                return ((FlattenCollectionItemBase) Activator.CreateInstance(typeof(SourceFlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator);
+                return ((FlattenCollectionItemBase)Activator.CreateInstance(typeof(SourceFlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator);
             }
         }
 
-        internal abstract class FlattenCollectionItemBase : ListInternal<int>, IAttachableComponent, ISynchronizationListener
+        internal abstract class FlattenCollectionItemBase : ListInternal<int>, IAttachableComponent, ISynchronizationListener, IHasPriority
         {
             protected IEnumerable Collection = null!;
             private FlattenCollectionDecorator _decorator = null!;
@@ -293,6 +293,8 @@ namespace MugenMvvm.Collections.Components
             }
 
             public int Size { get; private set; }
+
+            public int Priority => CollectionComponentPriority.BindableAdapter;
 
             private ICollectionDecoratorManagerComponent? DecoratorManager => _decorator.DecoratorManager;
 
@@ -475,7 +477,7 @@ namespace MugenMvvm.Collections.Components
 
             bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
-            void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd((IEnumerable) owner);
+            void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd((IEnumerable)owner);
 
             void ISynchronizationListener.OnLocking(object target, IReadOnlyMetadataContext? metadata) => AddToken(MugenExtensions.TryLock(_decorator.OwnerOptional), false);
 
@@ -494,18 +496,18 @@ namespace MugenMvvm.Collections.Components
         {
             private static IEnumerable<object?>? AsObjectEnumerable(IEnumerable<T>? items) => items == null ? null : items as IEnumerable<object?> ?? items.Cast<object>();
 
-            public void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args) => OnChanged((ICollection) collection, item, index, args);
+            public void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args) => OnChanged((ICollection)collection, item, index, args);
 
-            public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAdded((ICollection) collection, item, index);
+            public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAdded((ICollection)collection, item, index);
 
             public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) =>
-                OnReplaced((ICollection) collection, oldItem, newItem, index);
+                OnReplaced((ICollection)collection, oldItem, newItem, index);
 
-            public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoved((ICollection) collection, item, oldIndex, newIndex);
+            public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoved((ICollection)collection, item, oldIndex, newIndex);
 
-            public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoved((ICollection) collection, item, index);
+            public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoved((ICollection)collection, item, index);
 
-            public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset((ICollection) collection, AsObjectEnumerable(items));
+            public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset((ICollection)collection, AsObjectEnumerable(items));
 
             protected override IEnumerable<object?> GetItems() => Collection.AsEnumerable();
         }

@@ -14,16 +14,17 @@ namespace MugenMvvm.Android.Collections
         private List<object?>? _beforeResetList;
         private int _diffSupportedCount;
         private bool _isAlive;
+        private readonly IDiffableEqualityComparer? _diffableComparer;
 
         public ItemsSourceBindableCollectionAdapter(IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
-            DiffableComparer = diffableComparer;
+            _diffableComparer = diffableComparer;
             Observers = new List<IItemsSourceObserver>();
             _isAlive = true;
         }
 
-        public IDiffableEqualityComparer? DiffableComparer { get; }
+        public IDiffableEqualityComparer? DiffableComparer => _diffableComparer ?? TryGetCollectionComponent<IDiffableEqualityComparer>();
 
         protected override bool IsAlive => _isAlive;
 

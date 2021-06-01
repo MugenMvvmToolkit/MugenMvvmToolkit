@@ -17,7 +17,7 @@ namespace MugenMvvm.Collections.Components
         private readonly Dictionary<T, int> _items;
         private readonly PropertyChangedEventHandler _handler;
         private readonly ListInternal<Observer> _observers;
-#if NET461
+#if !NET5_0
         private List<T>? _oldItems;
 #endif
 
@@ -36,7 +36,7 @@ namespace MugenMvvm.Collections.Components
             Should.NotBeNull(canInvoke, nameof(canInvoke));
             var listener = new Observer<TState>(state, canInvoke, invokeAction, delay);
             _observers.Add(listener);
-            return ActionToken.FromDelegate((l, item) => ((List<Observer>) l!).Remove((Observer) item!), _observers, listener);
+            return ActionToken.FromDelegate((l, item) => ((List<Observer>)l!).Remove((Observer)item!), _observers, listener);
         }
 
         public void ClearObservers() => _observers.Clear();
@@ -60,7 +60,7 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        protected virtual void Unsubscribe(T item) => ((INotifyPropertyChanged) item!).PropertyChanged -= _handler;
+        protected virtual void Unsubscribe(T item) => ((INotifyPropertyChanged)item!).PropertyChanged -= _handler;
 
         protected virtual void OnCollectionChanged() => OnChanged(null, null);
 
@@ -106,7 +106,7 @@ namespace MugenMvvm.Collections.Components
 
             if (oldItems == null)
             {
-#if NET461
+#if !NET5_0
                 _oldItems ??= new List<T>(_items.Count);
                 foreach (var item in _items)
                 {
@@ -144,7 +144,7 @@ namespace MugenMvvm.Collections.Components
             OnCollectionChanged();
         }
 
-        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnChanged((T?) sender, args.PropertyName ?? "");
+        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnChanged((T?)sender, args.PropertyName ?? "");
 
         private void SubscribeIfNeed(T? item)
         {
@@ -172,7 +172,7 @@ namespace MugenMvvm.Collections.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            foreach (var item in (IReadOnlyCollection<T>) owner)
+            foreach (var item in (IReadOnlyCollection<T>)owner)
                 SubscribeIfNeed(item);
             if (_items.Count != 0)
                 OnCollectionChanged();

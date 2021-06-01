@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Foundation;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Collections;
@@ -12,6 +13,7 @@ namespace MugenMvvm.Ios.Collections
     {
         private readonly List<object?> _beforeResetList;
         private readonly HashSet<int> _reloadIndexes;
+        private readonly IDiffableEqualityComparer? _diffableComparer;
         private Closure? _closure;
         private DiffUtil.DiffResult _diffResult;
         private bool _isInitialized;
@@ -23,7 +25,7 @@ namespace MugenMvvm.Ios.Collections
             : base(source, threadDispatcher)
         {
             Should.NotBeNull(collectionViewAdapter, nameof(collectionViewAdapter));
-            DiffableComparer = diffableComparer;
+            _diffableComparer = diffableComparer;
             CollectionViewAdapter = collectionViewAdapter;
             BatchSize = 2;
             _beforeResetList = new List<object?>();
@@ -32,14 +34,15 @@ namespace MugenMvvm.Ios.Collections
 
         public ICollectionViewAdapter CollectionViewAdapter { get; }
 
-        public IDiffableEqualityComparer? DiffableComparer { get; }
+        public IDiffableEqualityComparer? DiffableComparer => _diffableComparer ?? TryGetCollectionComponent<IDiffableEqualityComparer>();
 
         protected override bool IsAlive => CollectionViewAdapter.IsAlive;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static void DisposeIndexPaths(NSIndexPath[] paths)
         {
-            for (var i = 0; i < paths.Length; i++)
-                paths[i].Dispose();
+            foreach (var t in paths)
+                t.Dispose();
         }
 
         public virtual void Reload(object? item)

@@ -8,13 +8,18 @@ namespace MugenMvvm.Collections
     {
         private bool _resetBatchUpdate;
         private int _resetVersion;
+        private IDiffableEqualityComparer? _diffableComparer;
 
         public DiffableBindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
         }
 
-        public IDiffableEqualityComparer? DiffableComparer { get; set; }
+        public IDiffableEqualityComparer? DiffableComparer
+        {
+            get => _diffableComparer ?? TryGetCollectionComponent<IDiffableEqualityComparer>();
+            set => _diffableComparer = value;
+        }
 
         public bool DetectMoves { get; set; } = true;
 

@@ -62,54 +62,54 @@ namespace MugenMvvm.Extensions
             return owner.GetComponents<ISuspendable>(metadata).Suspend(state, metadata);
         }
 
-        public static ActionToken AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static ActionToken AddComponent<T>(this IComponentOwner<T> owner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            var t = componentOwner.TryAddComponent(component, metadata);
+            var t = owner.TryAddComponent(component, metadata);
             if (t.IsEmpty)
-                ExceptionManager.ThrowCannotAddComponent(componentOwner.Components, component);
+                ExceptionManager.ThrowCannotAddComponent(owner.Components, component);
             return t;
         }
 
-        public static ActionToken TryAddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static ActionToken TryAddComponent<T>(this IComponentOwner<T> owner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(component, nameof(component));
-            if (componentOwner.Components.TryAdd(component, metadata))
-                return ActionToken.FromDelegate((owner, comp) => ((IComponentOwner) owner!).Components.Remove(comp!), componentOwner, component);
+            if (owner.Components.TryAdd(component, metadata))
+                return ActionToken.FromDelegate((o, comp) => ((IComponentOwner) o!).Components.Remove(comp!), owner, component);
             return default;
         }
 
-        public static bool RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static bool RemoveComponent<T>(this IComponentOwner<T> owner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
-            if (componentOwner.HasComponents)
-                return componentOwner.Components.Remove(component, metadata);
+            Should.NotBeNull(owner, nameof(owner));
+            if (owner.HasComponents)
+                return owner.Components.Remove(component, metadata);
             return false;
         }
 
-        public static void RemoveComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static void RemoveComponents<T>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
-            if (componentOwner.HasComponents)
+            Should.NotBeNull(owner, nameof(owner));
+            if (owner.HasComponents)
             {
-                foreach (var t in componentOwner.Components.Get<T>())
-                    componentOwner.Components.Remove(t, metadata);
+                foreach (var t in owner.Components.Get<T>())
+                    owner.Components.Remove(t, metadata);
             }
         }
 
-        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null)
+        public static void ClearComponents(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
-            if (componentOwner.HasComponents)
-                componentOwner.Components.Clear(metadata);
+            Should.NotBeNull(owner, nameof(owner));
+            if (owner.HasComponents)
+                owner.Components.Clear(metadata);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrArray<T> GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static ItemOrArray<T> GetComponents<T>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
-            if (componentOwner.HasComponents)
-                return componentOwner.Components.Get<T>(metadata);
+            Should.NotBeNull(owner, nameof(owner));
+            if (owner.HasComponents)
+                return owner.Components.Get<T>(metadata);
             return default;
         }
 
@@ -120,7 +120,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(getComponent, nameof(getComponent));
             lock (owner)
             {
-                var component = owner.GetComponent<TComponent>(true, metadata);
+                var component = owner.GetComponentOptional<TComponent>();
                 if (component == null)
                 {
                     component = getComponent(state, metadata);
@@ -136,7 +136,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             lock (owner)
             {
-                var component = owner.GetComponent<TComponent>(true, null);
+                var component = owner.GetComponentOptional<TComponent>();
                 if (component == null)
                 {
                     component = new TComponent();
@@ -147,11 +147,18 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
-            owner.GetComponent<TComponent>(false, metadata)!;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
+        {
+            var component = owner.GetComponentOptional<TComponent>();
+            if (component == null)
+                ExceptionManager.ThrowCannotGetComponent(owner, typeof(TComponent));
+            return component;
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
-            owner.GetComponent<TComponent>(true, metadata);
+            owner.GetComponents<TComponent>(metadata).FirstOrDefault();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add(this IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata = null)
@@ -239,18 +246,6 @@ namespace MugenMvvm.Extensions
             if (tasks.Count == 0)
                 return Task.CompletedTask;
             return tasks.WhenAll();
-        }
-
-        private static TComponent? GetComponent<TComponent>(this IComponentOwner owner, bool optional, IReadOnlyMetadataContext? metadata)
-            where TComponent : class, IComponent
-        {
-            Should.NotBeNull(owner, nameof(owner));
-            var components = owner.GetComponents<TComponent>(metadata);
-            if (components.Count != 0)
-                return components[0];
-            if (!optional)
-                ExceptionManager.ThrowCannotGetComponent(owner, typeof(TComponent));
-            return null;
         }
     }
 }
