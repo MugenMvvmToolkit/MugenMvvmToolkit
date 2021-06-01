@@ -51,7 +51,6 @@ namespace MugenMvvm.Bindings.Observation
                 }
 
                 members.SetAt(size++, s.Slice(0, start).Trim().ToString());
-                ;
                 members.SetAt(size++, s.Slice(start, end - start + 1).Trim().ToString());
             }
 #else

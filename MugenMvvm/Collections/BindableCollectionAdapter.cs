@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections.Components;
@@ -163,6 +164,7 @@ namespace MugenMvvm.Collections
             ResetCache ??= new List<object?>();
             ResetCache.Clear();
             ResetCache.AddRange(Items);
+
             for (var i = 0; i < events.Count; i++)
                 events[i].ApplyToSource(ResetCache);
 
@@ -185,14 +187,8 @@ namespace MugenMvvm.Collections
             if (e.Action == CollectionChangedAction.Reset)
             {
                 pendingEvents.Clear();
-                if (e.NewItem != null)
-                {
-                    ResetCache ??= new List<object?>();
-                    ResetCache.Clear();
-                    ResetCache.AddRange((IEnumerable<object?>)e.NewItem);
-                }
-
-                pendingEvents.Add(CollectionChangedEvent.Reset(ResetCache == null || ResetCache.Count == 0 ? null : ResetCache));
+                var resetItems = ((IEnumerable<object?>?)e.NewItem)?.ToArray();
+                pendingEvents.Add(CollectionChangedEvent.Reset(resetItems == null || resetItems.Length == 0 ? null : resetItems));
                 return true;
             }
 
@@ -435,30 +431,30 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            // public void Raise(ref DiffUtil.BatchingListUpdateCallback callback)
-            // {
-            //     switch (Action)
-            //     {
-            //         case CollectionChangedAction.Add:
-            //             callback.OnInserted(NewIndex, NewIndex, 1);
-            //             break;
-            //         case CollectionChangedAction.Move:
-            //             callback.OnMoved(OldIndex, NewIndex, OldIndex, NewIndex);
-            //             break;
-            //         case CollectionChangedAction.Remove:
-            //             callback.OnRemoved(OldIndex, 1);
-            //             break;
-            //         case CollectionChangedAction.Replace:
-            //             callback.OnChanged(OldIndex, OldIndex, 1, false);
-            //             break;
-            //         case CollectionChangedAction.Changed:
-            //             callback.OnChanged(OldIndex, OldIndex, 1, false);
-            //             break;
-            //         default:
-            //             ExceptionManager.ThrowEnumOutOfRange(nameof(Action), Action);
-            //             break;
-            //     }
-            // }
+            public void Raise(ref DiffUtil.BatchingListUpdateCallback callback)
+            {
+                switch (Action)
+                {
+                    case CollectionChangedAction.Add:
+                        callback.OnInserted(NewIndex, NewIndex, 1);
+                        break;
+                    case CollectionChangedAction.Move:
+                        callback.OnMoved(OldIndex, NewIndex, OldIndex, NewIndex);
+                        break;
+                    case CollectionChangedAction.Remove:
+                        callback.OnRemoved(OldIndex, 1);
+                        break;
+                    case CollectionChangedAction.Replace:
+                        callback.OnChanged(OldIndex, OldIndex, 1, false);
+                        break;
+                    case CollectionChangedAction.Changed:
+                        callback.OnChanged(OldIndex, OldIndex, 1, false);
+                        break;
+                    default:
+                        ExceptionManager.ThrowEnumOutOfRange(nameof(Action), Action);
+                        break;
+                }
+            }
 
             public static CollectionChangedEvent Changed(object? item, int index, object? args) => new(CollectionChangedAction.Changed, item, args, index, index);
 
