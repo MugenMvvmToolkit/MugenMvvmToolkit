@@ -329,7 +329,7 @@ namespace MugenMvvm.Collections.Components
             {
                 using var _ = MugenExtensions.TryLock(Collection);
                 foreach (var item in GetItems())
-                    _decorator.DecoratorManager!.OnRemoved(_decorator.Owner, _decorator, item, index);
+                    DecoratorManager!.OnRemoved(_decorator.Owner, _decorator, item, index);
 
                 Remove(originalIndex);
                 if (Count == 0)
@@ -361,8 +361,16 @@ namespace MugenMvvm.Collections.Components
 
             public void Detach()
             {
+                Clear();
                 if (Collection is IComponentOwner<ICollection> owner)
                     owner.Components.Remove(this);
+                var tokens = _tokens;
+                if (tokens != null)
+                {
+                    _tokens = null;
+                    for (int i = 0; i < tokens.Count; i++)
+                        tokens.Items[i].token.Dispose();
+                }
             }
 
             public void OnChanged(ICollection collection, object? item, int index, object? args)
@@ -431,20 +439,15 @@ namespace MugenMvvm.Collections.Components
 
             public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
             {
-                if (batchUpdateType == BatchUpdateType.Decorators && DecoratorManager != null)
-                {
-                    using var _ = MugenExtensions.TryLock(Collection);
+                using var _ = MugenExtensions.TryLock(Collection);
+                if (DecoratorManager != null)
                     AddToken(DecoratorManager.BatchUpdate(_decorator.Owner, _decorator), true);
-                }
             }
 
             public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
             {
-                if (batchUpdateType == BatchUpdateType.Decorators)
-                {
-                    using var _ = MugenExtensions.TryLock(Collection);
-                    RemoveToken(true);
-                }
+                using var _ = MugenExtensions.TryLock(Collection);
+                RemoveToken(true);
             }
 
             protected abstract IEnumerable<object?> GetItems();
