@@ -108,6 +108,7 @@ namespace MugenMvvm.Extensions
                          .WithComponent(new NavigationContextProvider())
                          .WithComponent(new NavigationEntryDateTracker())
                          .WithComponent(new NavigationTargetDispatcher())
+                         .WithComponent(new ForceCloseNavigationHandler())
                          .WithComponent(entryManager);
 
             configuration.WithAppService(MugenService.Optional<IPresenter>() ?? new Presenter())

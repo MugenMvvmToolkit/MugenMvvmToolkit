@@ -7,5 +7,6 @@
         public const int CallbackManager = 0;
         public const int CallbackInvoker = 0;
         public const int Condition = 0;
+        public const int ForceCloseHandler = ComponentPriority.Decorator;
     }
 }

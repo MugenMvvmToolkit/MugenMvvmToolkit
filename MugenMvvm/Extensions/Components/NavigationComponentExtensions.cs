@@ -161,6 +161,15 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList();
         }
 
+        public static ValueTask<bool> CanNavigateAsync(this ItemOrArray<INavigationConditionComponent> components, INavigationDispatcher navigationDispatcher,
+            INavigationContext navigationContext, CancellationToken cancellationToken)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            return components.InvokeSequentiallyAsync((navigationDispatcher, navigationContext), cancellationToken, null,
+                (component, s, c, _) => component.CanNavigateAsync(s.navigationDispatcher, s.navigationContext, c), true);
+        }
+
         public static async ValueTask<bool> OnNavigatingAsync(this ItemOrArray<INavigationConditionComponent> components, ItemOrArray<INavigationListener> listeners,
             INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {

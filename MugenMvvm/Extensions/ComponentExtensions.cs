@@ -37,7 +37,7 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T DefaultIfNull<T>(this T? component, object? source) where T : class, IComponentOwner =>
-            component ?? (source as IHasService<T>)?.GetService(false) ?? (T?) (source as IServiceProvider)?.GetService(typeof(T)) ?? MugenService.Instance<T>();
+            component ?? (source as IHasService<T>)?.GetService(false) ?? (T?)(source as IServiceProvider)?.GetService(typeof(T)) ?? MugenService.Instance<T>();
 
         public static object? GetService(this IServiceProvider serviceProvider, Type serviceType, IReadOnlyMetadataContext? metadata)
         {
@@ -75,7 +75,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(component, nameof(component));
             if (owner.Components.TryAdd(component, metadata))
-                return ActionToken.FromDelegate((o, comp) => ((IComponentOwner) o!).Components.Remove(comp!), owner, component);
+                return ActionToken.FromDelegate((o, comp) => ((IComponentOwner)o!).Components.Remove(comp!), owner, component);
             return default;
         }
 
@@ -198,17 +198,25 @@ namespace MugenMvvm.Extensions
         }
 
         public static async ValueTask<bool> InvokeSequentiallyAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state,
-            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> invoke)
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> invoke,
+            bool invert = false)
             where TComponent : class, IComponent
         {
+            Should.NotBeNull(invoke, nameof(invoke));
             foreach (var c in components)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false))
+                var b = await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
+                if (invert)
+                {
+                    if (!b)
+                        return false;
+                }
+                else if (b)
                     return true;
             }
 
-            return false;
+            return invert;
         }
 
         public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken,
