@@ -106,8 +106,12 @@ namespace MugenMvvm.Collections.Components
 
             if (oldItems == null)
             {
-#if !NET5_0
+#if NET5_0
+                foreach (var item in _items)
+                    _items[item.Key] = 0;
+#else
                 _oldItems ??= new List<T>(_items.Count);
+                _oldItems.Clear();
                 foreach (var item in _items)
                 {
                     for (int i = 0; i < item.Value; i++)
@@ -115,9 +119,6 @@ namespace MugenMvvm.Collections.Components
                 }
 
                 oldItems = _oldItems;
-#else
-                foreach (var item in _items)
-                    _items[item.Key] = 0;
 #endif
             }
 
@@ -140,7 +141,9 @@ namespace MugenMvvm.Collections.Components
                 foreach (var item in oldItems)
                     UnsubscribeIfNeed(item);
             }
-
+#if !NET5_0
+            _oldItems?.Clear();
+#endif
             OnCollectionChanged();
         }
 

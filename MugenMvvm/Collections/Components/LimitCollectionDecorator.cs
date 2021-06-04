@@ -105,15 +105,14 @@ namespace MugenMvvm.Collections.Components
 
         private void Replace(ICollection collection, bool oldSatisfied, bool newSatisfied, object? oldItem, object? newItem, int index)
         {
-            using var t = DecoratorManager!.BatchUpdate(collection, this);
-            if (!oldSatisfied || Remove((T) oldItem!, index))
+            if (!oldSatisfied || Remove((T)oldItem!, index))
             {
                 if (!oldSatisfied)
                     UpdateIndexes(index, -1);
                 DecoratorManager!.OnRemoved(collection, this, oldItem, GetIndex(index));
             }
 
-            if (!newSatisfied || Add((T) newItem!, index))
+            if (!newSatisfied || Add((T)newItem!, index))
             {
                 if (!newSatisfied)
                     UpdateIndexes(index, 1);
@@ -139,7 +138,7 @@ namespace MugenMvvm.Collections.Components
             foreach (var item in items)
             {
                 if (IsSatisfied(item))
-                    _items.AddOrdered(new ItemInfo((T) item!, index), this);
+                    _items.AddOrdered(new ItemInfo((T)item!, index), this);
                 ++index;
             }
         }
@@ -250,8 +249,7 @@ namespace MugenMvvm.Collections.Components
 
             if (IsSatisfied(item))
             {
-                using var t = DecoratorManager!.BatchUpdate(collection, this);
-                if (!Add((T) item!, index))
+                if (!Add((T)item!, index))
                     return false;
             }
             else
@@ -292,7 +290,7 @@ namespace MugenMvvm.Collections.Components
                 if (toRemove != NotFound)
                 {
                     _items.RemoveAt(toRemove);
-                    _items.AddOrdered(new ItemInfo((T) item!, newIndex), this);
+                    _items.AddOrdered(new ItemInfo((T)item!, newIndex), this);
                 }
 
                 oldIndex = GetIndex(oldIndex);
@@ -300,8 +298,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
             }
 
-            using var t = DecoratorManager!.BatchUpdate(collection, this);
-            var value = (T) item!;
+            var value = (T)item!;
             Remove(value, oldIndex);
             Add(value, newIndex);
             return false;
@@ -314,8 +311,7 @@ namespace MugenMvvm.Collections.Components
 
             if (IsSatisfied(item))
             {
-                using var t = DecoratorManager!.BatchUpdate(collection, this);
-                if (!Remove((T) item!, index))
+                if (!Remove((T)item!, index))
                     return false;
             }
             else

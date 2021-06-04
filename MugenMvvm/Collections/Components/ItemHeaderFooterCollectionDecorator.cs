@@ -231,7 +231,6 @@ namespace MugenMvvm.Collections.Components
             if (removeIndex == index)
                 return true;
 
-            using var _ = DecoratorManager.BatchUpdate(collection, this);
             DecoratorManager.OnRemoved(collection, this, oldItem, removeIndex);
             DecoratorManager.OnAdded(collection, this, newItem, index);
 

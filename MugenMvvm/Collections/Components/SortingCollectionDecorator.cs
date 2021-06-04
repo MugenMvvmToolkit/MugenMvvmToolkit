@@ -14,24 +14,19 @@ namespace MugenMvvm.Collections.Components
         IComparer<SortingCollectionDecorator.OrderedItem>
     {
         private readonly ListInternal<OrderedItem> _items;
-        private IComparer<object?> _comparer;
+        private IComparer<object?>? _comparer;
 
-        public SortingCollectionDecorator(IComparer<object?> comparer, int priority = CollectionComponentPriority.SortingDecorator)
+        public SortingCollectionDecorator(IComparer<object?>? comparer = null, int priority = CollectionComponentPriority.SortingDecorator)
         {
-            Should.NotBeNull(comparer, nameof(comparer));
             _comparer = comparer;
             _items = new ListInternal<OrderedItem>(8);
             Priority = priority;
         }
 
-        public IComparer<object?> Comparer
+        public IComparer<object?>? Comparer
         {
             get => _comparer;
-            set
-            {
-                Should.NotBeNull(value, nameof(value));
-                ReorderInternal(value, true);
-            }
+            set => ReorderInternal(value, true);
         }
 
         public int Priority { get; set; }
@@ -70,8 +65,16 @@ namespace MugenMvvm.Collections.Components
             using var _ = DecoratorManager.TryLock(Owner, this);
             if (setComparer)
                 _comparer = comparer!;
-            Reset(DecoratorManager.Decorate(Owner, this));
-            DecoratorManager.OnReset(Owner, this, this);
+            if (Comparer == null)
+            {
+                _items.Clear();
+                DecoratorManager.OnReset(Owner, this, DecoratorManager.Decorate(Owner, this));
+            }
+            else
+            {
+                Reset(DecoratorManager.Decorate(Owner, this));
+                DecoratorManager.OnReset(Owner, this, this);
+            }
         }
 
         private void Reset(IEnumerable<object?> items)
@@ -91,7 +94,7 @@ namespace MugenMvvm.Collections.Components
             return ~num;
         }
 
-        private int GetIndexByOriginalIndex(object? item, int index)
+        private int GetIndexByOriginalIndex(IComparer<object?> comparer, object? item, int index)
         {
             var count = _items.Count;
             var items = _items.Items;
@@ -109,7 +112,7 @@ namespace MugenMvvm.Collections.Components
                     if (rightIndex < count)
                     {
                         value = items[rightIndex];
-                        if (Comparer.Compare(item, value.Item) != 0)
+                        if (comparer.Compare(item, value.Item) != 0)
                             rightIndex = int.MaxValue;
                         else if (value.OriginalIndex == index)
                             return rightIndex;
@@ -120,7 +123,7 @@ namespace MugenMvvm.Collections.Components
                     if (leftIndex >= 0)
                     {
                         value = items[leftIndex];
-                        if (Comparer.Compare(item, value.Item) != 0)
+                        if (comparer.Compare(item, value.Item) != 0)
                             leftIndex = int.MinValue;
                         else if (value.OriginalIndex == index)
                             return leftIndex;
@@ -151,15 +154,18 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) =>
-            DecoratorManager == null ? items : this;
+        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => DecoratorManager == null || Comparer == null ? items : this;
 
         bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
         {
             if (DecoratorManager == null)
                 return false;
 
-            var oldIndex = GetIndexByOriginalIndex(item, index);
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var oldIndex = GetIndexByOriginalIndex(comparer, item, index);
             if (oldIndex == -1)
                 return false;
 
@@ -182,6 +188,9 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
+            if (Comparer == null)
+                return true;
+
             UpdateIndexes(index, 1);
             var newIndex = GetInsertIndex(item);
             _items.Insert(newIndex, new OrderedItem(index, item));
@@ -194,11 +203,14 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            var oldIndex = GetIndexByOriginalIndex(oldItem, index);
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var oldIndex = GetIndexByOriginalIndex(comparer, oldItem, index);
             if (oldIndex == -1)
                 return false;
 
-            using var _ = DecoratorManager.BatchUpdate(collection, this);
             _items.RemoveAt(oldIndex);
             DecoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
 
@@ -213,7 +225,11 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            var index = GetIndexByOriginalIndex(item, oldIndex);
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var index = GetIndexByOriginalIndex(comparer, item, oldIndex);
             UpdateIndexes(oldIndex + 1, -1);
             UpdateIndexes(newIndex, 1);
 
@@ -228,7 +244,11 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
-            var indexToRemove = GetIndexByOriginalIndex(item, index);
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var indexToRemove = GetIndexByOriginalIndex(comparer, item, index);
             UpdateIndexes(index, -1);
             if (indexToRemove == -1)
                 return false;
@@ -243,6 +263,9 @@ namespace MugenMvvm.Collections.Components
             if (DecoratorManager == null)
                 return false;
 
+            if (Comparer == null)
+                return true;
+
             if (items == null)
                 _items.Clear();
             else
@@ -254,7 +277,12 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y) => Comparer.Compare(x.Item, y.Item);
+        int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y)
+        {
+            if (Comparer == null)
+                return 0;
+            return Comparer.Compare(x.Item, y.Item);
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

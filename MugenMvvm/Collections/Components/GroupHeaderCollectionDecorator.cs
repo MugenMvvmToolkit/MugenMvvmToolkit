@@ -8,7 +8,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -66,8 +65,8 @@ namespace MugenMvvm.Collections.Components
                     DecoratorManager!.OnAdded(collection, this, header, info.Index);
             }
 
-            _updateHeader?.Invoke(header, GroupHeaderChangedAction.ItemAdded, item);
             ++info.UsageCount;
+            _updateHeader?.Invoke(header, GroupHeaderChangedAction.ItemAdded, item);
         }
 
         private void RemoveHeaderIfNeed(ICollection collection, object? header, object? item)
@@ -101,13 +100,6 @@ namespace MugenMvvm.Collections.Components
                 yield return item;
         }
 
-        private ActionToken BatchIfNeed(ICollection collection, object? addHeader, object? removeHeader)
-        {
-            if (addHeader != null && !_headers.ContainsKey(addHeader) || removeHeader != null && _headers.TryGetValue(removeHeader, out var info) && info.UsageCount == 1)
-                return DecoratorManager!.BatchUpdate(collection, this);
-            return default;
-        }
-
         IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => DecoratorManager == null ? items : Decorate(items);
 
         bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
@@ -132,14 +124,9 @@ namespace MugenMvvm.Collections.Components
                 return false;
 
             var header = _getHeader(item);
-            using var t = BatchIfNeed(collection, header, null);
             AddHeaderIfNeed(collection, header, item);
             index += _headers.Count;
-            if (t.IsEmpty)
-                return true;
-
-            DecoratorManager.OnAdded(collection, this, item, index);
-            return false;
+            return true;
         }
 
         bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
@@ -149,7 +136,6 @@ namespace MugenMvvm.Collections.Components
 
             var oldItemHeader = _getHeader(oldItem);
             var newItemHeader = _getHeader(newItem);
-            using var t = BatchIfNeed(collection, newItemHeader, oldItemHeader);
             if (!_headers.Comparer.Equals(oldItemHeader!, newItemHeader!))
             {
                 RemoveHeaderIfNeed(collection, oldItemHeader, oldItem);
@@ -162,11 +148,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             index += _headers.Count;
-            if (t.IsEmpty)
-                return true;
-
-            DecoratorManager.OnReplaced(collection, this, oldItem, newItem, index);
-            return false;
+            return true;
         }
 
         bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
@@ -185,14 +167,9 @@ namespace MugenMvvm.Collections.Components
                 return false;
 
             var header = _getHeader(item);
-            using var t = BatchIfNeed(collection, null, header);
             RemoveHeaderIfNeed(collection, header, item);
             index += _headers.Count;
-            if (t.IsEmpty)
-                return true;
-
-            DecoratorManager.OnRemoved(collection, this, item, index);
-            return false;
+            return true;
         }
 
         bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)

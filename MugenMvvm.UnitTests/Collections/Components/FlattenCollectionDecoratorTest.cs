@@ -6,6 +6,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
@@ -359,9 +360,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Fact]
         public void ShouldHandleBatchUpdateFromChildDecorator()
         {
-            var decorator = new HeaderFooterCollectionDecorator();
-            _itemCollection1.AddComponent(decorator);
-
             var beginCount = 0;
             var endCount = 0;
             _targetCollection.AddComponent(new TestCollectionBatchUpdateListener(_targetCollection)
@@ -370,23 +368,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 OnEndBatchUpdate = t => endCount += t == BatchUpdateType.Decorators ? 1 : 0
             });
 
-            decorator.Header = int.MaxValue;
+            var t = _itemCollection1.GetComponent<ICollectionDecoratorManagerComponent>().BatchUpdate(_itemCollection1);
             beginCount.ShouldEqual(1);
-            endCount.ShouldEqual(1);
+            endCount.ShouldEqual(0);
             Assert();
 
-            decorator.Footer = int.MaxValue;
-            beginCount.ShouldEqual(2);
-            endCount.ShouldEqual(2);
+            t.Dispose();
+            beginCount.ShouldEqual(1);
+            endCount.ShouldEqual(1);
             Assert();
         }
 
         [Fact]
         public void ShouldNotHandleBatchUpdateFromChildSource()
         {
-            var decorator = new HeaderFooterCollectionDecorator();
-            _itemCollection2.AddComponent(decorator);
-
             var beginCount = 0;
             var endCount = 0;
             _targetCollection.AddComponent(new TestCollectionBatchUpdateListener(_targetCollection)
@@ -395,14 +390,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 OnEndBatchUpdate = t => endCount += t == BatchUpdateType.Decorators ? 1 : 0
             });
 
-            decorator.Header = int.MaxValue;
-            beginCount.ShouldEqual(0);
+            var t = _itemCollection1.BatchUpdate();
+            beginCount.ShouldEqual(1);
             endCount.ShouldEqual(0);
             Assert();
 
-            decorator.Footer = int.MaxValue;
-            beginCount.ShouldEqual(0);
-            endCount.ShouldEqual(0);
+            t.Dispose();
+            beginCount.ShouldEqual(1);
+            endCount.ShouldEqual(1);
             Assert();
         }
 

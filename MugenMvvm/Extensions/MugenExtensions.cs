@@ -255,7 +255,7 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) {Priority = priority};
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
         }
@@ -290,8 +290,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo) (object) value!;
+                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo)(object)value!;
         }
 
         [StringFormatMethod("format")]
@@ -322,12 +322,8 @@ namespace MugenMvvm.Extensions
         public static T EnsureInitialized<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
             => Volatile.Read(ref item!) ?? Interlocked.CompareExchange(ref item, value, null!) ?? item;
 
-        internal static ActionToken TryLock(object? target)
-        {
-            if (target is ISynchronizable synchronizable)
-                return synchronizable.Lock();
-            return default;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ActionToken TryLock(object? target) => target is ISynchronizable synchronizable ? synchronizable.Lock() : default;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
